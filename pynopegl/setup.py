@@ -107,7 +107,10 @@ class _WrapperGenerator:
         return classes + "\n\n" + livectl_info
 
     @classmethod
-    def _get_setter_code(cls, param_name, param_type, has_kwargs=False):
+    def _get_setter_code(cls, param, has_kwargs=False):
+        param_name = param["name"]
+        param_type = param["type"]
+
         if param_type in cls._ARG_TYPES:
             return f'self._arg_setter(self._param_set_{param_type}, "{param_name}", {param_name})'
         if param_type in cls._ARGS_TYPES:
@@ -125,9 +128,13 @@ class _WrapperGenerator:
         assert False
 
     @classmethod
-    def _get_setter_prototype(cls, param_name, param_type, param_flags):
+    def _get_setter_prototype(cls, param):
+        param_name = param["name"]
+        param_type = param["type"]
+        param_flags = param["flags"]
+
         type_ = cls._TYPING_SINGLE_MAP.get(param_type, cls._TYPING_MAP[param_type])
-        if "N" in param_flags:
+        if "node" in param_flags:
             type_ = f"Union[{type_}, Node]"
         if param_type in cls._ARG_TYPES:
             return f"set_{param_name}(self, {param_name}: {type_})"
@@ -146,9 +153,9 @@ class _WrapperGenerator:
     @classmethod
     def _get_class_setters(cls, params):
         setters = []
-        for param_name, param_type, param_flags in params:
-            prototype = cls._get_setter_prototype(param_name, param_type, param_flags)
-            setter_code = cls._get_setter_code(param_name, param_type, has_kwargs=True)
+        for param in params:
+            prototype = cls._get_setter_prototype(param)
+            setter_code = cls._get_setter_code(param, has_kwargs=True)
             setters.append(
                 textwrap.dedent(
                     f"""
@@ -189,10 +196,13 @@ class _WrapperGenerator:
         # Generate the code responsible for honoring all direct parameters (if
         # they are not None)
         init_code = ""
-        for param_name, param_type, param_flags in params:
-            setter_code = cls._get_setter_code(param_name, param_type)
+        for param in params:
+            param_name = param["name"]
+            param_type = param["type"]
+            param_flags = param["flags"]
+            setter_code = cls._get_setter_code(param)
 
-            if param_type in cls._ARGS_TYPES and "N" in param_flags:
+            if param_type in cls._ARGS_TYPES and "node" in param_flags:
                 # Special case for parameter that can be either a multi-value
                 # argument, or a single node. We need to bridge here because we
                 # don't know yet if we need to unpack the args contrary to
@@ -218,9 +228,12 @@ class _WrapperGenerator:
         # parameters from the current node and the parents. This aggregation
         # allow us to get rid of the use of obscure **kwargs.
         kwargs = ["self"]
-        for param_name, param_type, param_flags in params + parent_params:
+        for param in params + parent_params:
+            param_name = param["name"]
+            param_type = param["type"]
+            param_flags = param["flags"]
             param_type = cls._TYPING_MAP[param_type]
-            if "N" in param_flags:
+            if "node" in param_flags:
                 param_type = f"Union[{param_type}, Node]"
             kwargs.append(f"{param_name}: Optional[{param_type}] = None")
 
@@ -243,7 +256,7 @@ class _WrapperGenerator:
         # If the parents have parameters, they are forwarded at the end, after
         # honoring the current ones.
         if parent_params:
-            kwargs_forward = ", ".join(f"{pname}={pname}" for pname, _, _ in parent_params)
+            kwargs_forward = ", ".join(f"{p['name']}={p['name']}" for p in parent_params)
             init += textwrap.indent(f"super()._init_params({kwargs_forward})\n", indent)
 
         return init
@@ -311,12 +324,12 @@ class _WrapperGenerator:
             if class_name[0] == "_" or not params or isinstance(params, str):
                 continue
 
-            dparams = {k: (dtype, flags) for k, dtype, flags in params}
+            dparams = {p["name"]: (p["type"], p["flags"]) for p in params}
             if "live_id" not in dparams:
                 continue
 
             # Identify the first parameter with a "live" flag as the reference value
-            data_type = next(dtype for dtype, flags in dparams.values() if "L" in flags)
+            data_type = next(dtype for dtype, flags in dparams.values() if "live" in flags)
             # Expose enough information to the Cython such that it is able
             # to construct and expose a usable dict of live controls to the
             # user

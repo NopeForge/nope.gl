@@ -1,107 +1,476 @@
 {
   "_Node": [
-    ["label", "str", ""]
+    {
+      "name": "label",
+      "type": "str",
+      "flags": [],
+      "desc": ""
+    }
   ],
   "_AnimatedBuffer": [
-    ["keyframes", "node_list", ""]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["AnimKeyFrameBuffer"],
+      "flags": [],
+      "desc": "key frame buffers to interpolate from"
+    }
   ],
   "AnimatedBufferFloat": "_AnimatedBuffer",
   "AnimatedBufferVec2": "_AnimatedBuffer",
   "AnimatedBufferVec3": "_AnimatedBuffer",
   "AnimatedBufferVec4": "_AnimatedBuffer",
   "AnimatedColor": [
-    ["keyframes", "node_list", ""],
-    ["space", "select", ""]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["AnimKeyFrameColor"],
+      "flags": [],
+      "desc": "color key frames to interpolate from"
+    },
+    {
+      "name": "space",
+      "type": "select",
+      "default": "srgb",
+      "choices": ["srgb", "hsl", "hsv"],
+      "flags": [],
+      "desc": "color space defining how to interpret `value`"
+    }
   ],
   "AnimatedPath": [
-    ["keyframes", "node_list", ""],
-    ["path", "node", "M"]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["AnimKeyFrameFloat"],
+      "flags": [],
+      "desc": "float key frames to interpolate from, representing the normed distance from the start of the `path`"
+    },
+    {
+      "name": "path",
+      "type": "node",
+      "node_types": ["Path", "SmoothPath"],
+      "flags": ["nonull"],
+      "desc": "path to follow"
+    }
   ],
   "AnimatedTime": [
-    ["keyframes", "node_list", ""]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["AnimKeyFrameFloat"],
+      "flags": [],
+      "desc": "time key frames to interpolate from"
+    }
   ],
   "AnimatedFloat": [
-    ["keyframes", "node_list", ""]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["AnimKeyFrameFloat"],
+      "flags": [],
+      "desc": "float key frames to interpolate from"
+    }
   ],
   "AnimatedVec2": [
-    ["keyframes", "node_list", ""]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["AnimKeyFrameVec2"],
+      "flags": [],
+      "desc": "vec2 key frames to interpolate from"
+    }
   ],
   "AnimatedVec3": [
-    ["keyframes", "node_list", ""]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["AnimKeyFrameVec3"],
+      "flags": [],
+      "desc": "vec3 key frames to interpolate from"
+    }
   ],
   "AnimatedVec4": [
-    ["keyframes", "node_list", ""]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["AnimKeyFrameVec4"],
+      "flags": [],
+      "desc": "vec4 key frames to interpolate from"
+    }
   ],
   "AnimatedQuat": [
-    ["keyframes", "node_list", ""],
-    ["as_mat4", "bool", ""]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["AnimKeyFrameQuat"],
+      "flags": [],
+      "desc": "quaternion key frames to interpolate from"
+    },
+    {
+      "name": "as_mat4",
+      "type": "bool",
+      "default": 0,
+      "flags": [],
+      "desc": "exposed as a 4x4 rotation matrix in the program"
+    }
   ],
   "AnimKeyFrameFloat": [
-    ["time", "f64", ""],
-    ["value", "f64", ""],
-    ["easing", "select", ""],
-    ["easing_args", "f64_list", ""],
-    ["easing_start_offset", "f64", ""],
-    ["easing_end_offset", "f64", ""]
+    {
+      "name": "time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "the time key point in seconds"
+    },
+    {
+      "name": "value",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "the value at time `time`"
+    },
+    {
+      "name": "easing",
+      "type": "select",
+      "default": "linear",
+      "choices": ["linear", "quadratic_in", "quadratic_out", "quadratic_in_out", "quadratic_out_in", "cubic_in", "cubic_out", "cubic_in_out", "cubic_out_in", "quartic_in", "quartic_out", "quartic_in_out", "quartic_out_in", "quintic_in", "quintic_out", "quintic_in_out", "quintic_out_in", "power_in", "power_out", "power_in_out", "power_out_in", "sinus_in", "sinus_out", "sinus_in_out", "sinus_out_in", "exp_in", "exp_out", "exp_in_out", "exp_out_in", "circular_in", "circular_out", "circular_in_out", "circular_out_in", "bounce_in", "bounce_out", "elastic_in", "elastic_out", "back_in", "back_out", "back_in_out", "back_out_in"],
+      "flags": [],
+      "desc": "easing interpolation from previous key frame"
+    },
+    {
+      "name": "easing_args",
+      "type": "f64_list",
+      "flags": [],
+      "desc": "a list of arguments some easings may use"
+    },
+    {
+      "name": "easing_start_offset",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting offset of the truncation of the easing"
+    },
+    {
+      "name": "easing_end_offset",
+      "type": "f64",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "ending offset of the truncation of the easing"
+    }
   ],
   "AnimKeyFrameVec2": [
-    ["time", "f64", ""],
-    ["value", "vec2", ""],
-    ["easing", "select", ""],
-    ["easing_args", "f64_list", ""],
-    ["easing_start_offset", "f64", ""],
-    ["easing_end_offset", "f64", ""]
+    {
+      "name": "time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "the time key point in seconds"
+    },
+    {
+      "name": "value",
+      "type": "vec2",
+      "default": [0.000000,0.000000],
+      "flags": [],
+      "desc": "the value at time `time`"
+    },
+    {
+      "name": "easing",
+      "type": "select",
+      "default": "linear",
+      "choices": ["linear", "quadratic_in", "quadratic_out", "quadratic_in_out", "quadratic_out_in", "cubic_in", "cubic_out", "cubic_in_out", "cubic_out_in", "quartic_in", "quartic_out", "quartic_in_out", "quartic_out_in", "quintic_in", "quintic_out", "quintic_in_out", "quintic_out_in", "power_in", "power_out", "power_in_out", "power_out_in", "sinus_in", "sinus_out", "sinus_in_out", "sinus_out_in", "exp_in", "exp_out", "exp_in_out", "exp_out_in", "circular_in", "circular_out", "circular_in_out", "circular_out_in", "bounce_in", "bounce_out", "elastic_in", "elastic_out", "back_in", "back_out", "back_in_out", "back_out_in"],
+      "flags": [],
+      "desc": "easing interpolation from previous key frame"
+    },
+    {
+      "name": "easing_args",
+      "type": "f64_list",
+      "flags": [],
+      "desc": "a list of arguments some easings may use"
+    },
+    {
+      "name": "easing_start_offset",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting offset of the truncation of the easing"
+    },
+    {
+      "name": "easing_end_offset",
+      "type": "f64",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "ending offset of the truncation of the easing"
+    }
   ],
   "AnimKeyFrameVec3": [
-    ["time", "f64", ""],
-    ["value", "vec3", ""],
-    ["easing", "select", ""],
-    ["easing_args", "f64_list", ""],
-    ["easing_start_offset", "f64", ""],
-    ["easing_end_offset", "f64", ""]
+    {
+      "name": "time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "the time key point in seconds"
+    },
+    {
+      "name": "value",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "the value at time `time`"
+    },
+    {
+      "name": "easing",
+      "type": "select",
+      "default": "linear",
+      "choices": ["linear", "quadratic_in", "quadratic_out", "quadratic_in_out", "quadratic_out_in", "cubic_in", "cubic_out", "cubic_in_out", "cubic_out_in", "quartic_in", "quartic_out", "quartic_in_out", "quartic_out_in", "quintic_in", "quintic_out", "quintic_in_out", "quintic_out_in", "power_in", "power_out", "power_in_out", "power_out_in", "sinus_in", "sinus_out", "sinus_in_out", "sinus_out_in", "exp_in", "exp_out", "exp_in_out", "exp_out_in", "circular_in", "circular_out", "circular_in_out", "circular_out_in", "bounce_in", "bounce_out", "elastic_in", "elastic_out", "back_in", "back_out", "back_in_out", "back_out_in"],
+      "flags": [],
+      "desc": "easing interpolation from previous key frame"
+    },
+    {
+      "name": "easing_args",
+      "type": "f64_list",
+      "flags": [],
+      "desc": "a list of arguments some easings may use"
+    },
+    {
+      "name": "easing_start_offset",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting offset of the truncation of the easing"
+    },
+    {
+      "name": "easing_end_offset",
+      "type": "f64",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "ending offset of the truncation of the easing"
+    }
   ],
   "AnimKeyFrameVec4": [
-    ["time", "f64", ""],
-    ["value", "vec4", ""],
-    ["easing", "select", ""],
-    ["easing_args", "f64_list", ""],
-    ["easing_start_offset", "f64", ""],
-    ["easing_end_offset", "f64", ""]
+    {
+      "name": "time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "the time key point in seconds"
+    },
+    {
+      "name": "value",
+      "type": "vec4",
+      "default": [0.000000,0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "the value at time `time`"
+    },
+    {
+      "name": "easing",
+      "type": "select",
+      "default": "linear",
+      "choices": ["linear", "quadratic_in", "quadratic_out", "quadratic_in_out", "quadratic_out_in", "cubic_in", "cubic_out", "cubic_in_out", "cubic_out_in", "quartic_in", "quartic_out", "quartic_in_out", "quartic_out_in", "quintic_in", "quintic_out", "quintic_in_out", "quintic_out_in", "power_in", "power_out", "power_in_out", "power_out_in", "sinus_in", "sinus_out", "sinus_in_out", "sinus_out_in", "exp_in", "exp_out", "exp_in_out", "exp_out_in", "circular_in", "circular_out", "circular_in_out", "circular_out_in", "bounce_in", "bounce_out", "elastic_in", "elastic_out", "back_in", "back_out", "back_in_out", "back_out_in"],
+      "flags": [],
+      "desc": "easing interpolation from previous key frame"
+    },
+    {
+      "name": "easing_args",
+      "type": "f64_list",
+      "flags": [],
+      "desc": "a list of arguments some easings may use"
+    },
+    {
+      "name": "easing_start_offset",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting offset of the truncation of the easing"
+    },
+    {
+      "name": "easing_end_offset",
+      "type": "f64",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "ending offset of the truncation of the easing"
+    }
   ],
   "AnimKeyFrameQuat": [
-    ["time", "f64", ""],
-    ["quat", "vec4", ""],
-    ["easing", "select", ""],
-    ["easing_args", "f64_list", ""],
-    ["easing_start_offset", "f64", ""],
-    ["easing_end_offset", "f64", ""]
+    {
+      "name": "time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "the time key point in seconds"
+    },
+    {
+      "name": "quat",
+      "type": "vec4",
+      "default": [0.000000,0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "the quat at time `time`"
+    },
+    {
+      "name": "easing",
+      "type": "select",
+      "default": "linear",
+      "choices": ["linear", "quadratic_in", "quadratic_out", "quadratic_in_out", "quadratic_out_in", "cubic_in", "cubic_out", "cubic_in_out", "cubic_out_in", "quartic_in", "quartic_out", "quartic_in_out", "quartic_out_in", "quintic_in", "quintic_out", "quintic_in_out", "quintic_out_in", "power_in", "power_out", "power_in_out", "power_out_in", "sinus_in", "sinus_out", "sinus_in_out", "sinus_out_in", "exp_in", "exp_out", "exp_in_out", "exp_out_in", "circular_in", "circular_out", "circular_in_out", "circular_out_in", "bounce_in", "bounce_out", "elastic_in", "elastic_out", "back_in", "back_out", "back_in_out", "back_out_in"],
+      "flags": [],
+      "desc": "easing interpolation from previous key frame"
+    },
+    {
+      "name": "easing_args",
+      "type": "f64_list",
+      "flags": [],
+      "desc": "a list of arguments some easings may use"
+    },
+    {
+      "name": "easing_start_offset",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting offset of the truncation of the easing"
+    },
+    {
+      "name": "easing_end_offset",
+      "type": "f64",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "ending offset of the truncation of the easing"
+    }
   ],
   "AnimKeyFrameColor": [
-    ["time", "f64", ""],
-    ["color", "vec3", ""],
-    ["easing", "select", ""],
-    ["easing_args", "f64_list", ""],
-    ["easing_start_offset", "f64", ""],
-    ["easing_end_offset", "f64", ""]
+    {
+      "name": "time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "the time key point in seconds"
+    },
+    {
+      "name": "color",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "the color at time `time`"
+    },
+    {
+      "name": "easing",
+      "type": "select",
+      "default": "linear",
+      "choices": ["linear", "quadratic_in", "quadratic_out", "quadratic_in_out", "quadratic_out_in", "cubic_in", "cubic_out", "cubic_in_out", "cubic_out_in", "quartic_in", "quartic_out", "quartic_in_out", "quartic_out_in", "quintic_in", "quintic_out", "quintic_in_out", "quintic_out_in", "power_in", "power_out", "power_in_out", "power_out_in", "sinus_in", "sinus_out", "sinus_in_out", "sinus_out_in", "exp_in", "exp_out", "exp_in_out", "exp_out_in", "circular_in", "circular_out", "circular_in_out", "circular_out_in", "bounce_in", "bounce_out", "elastic_in", "elastic_out", "back_in", "back_out", "back_in_out", "back_out_in"],
+      "flags": [],
+      "desc": "easing interpolation from previous key frame"
+    },
+    {
+      "name": "easing_args",
+      "type": "f64_list",
+      "flags": [],
+      "desc": "a list of arguments some easings may use"
+    },
+    {
+      "name": "easing_start_offset",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting offset of the truncation of the easing"
+    },
+    {
+      "name": "easing_end_offset",
+      "type": "f64",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "ending offset of the truncation of the easing"
+    }
   ],
   "AnimKeyFrameBuffer": [
-    ["time", "f64", ""],
-    ["data", "data", ""],
-    ["easing", "select", ""],
-    ["easing_args", "f64_list", ""],
-    ["easing_start_offset", "f64", ""],
-    ["easing_end_offset", "f64", ""]
+    {
+      "name": "time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "the time key point in seconds"
+    },
+    {
+      "name": "data",
+      "type": "data",
+      "flags": [],
+      "desc": "the data at time `time`"
+    },
+    {
+      "name": "easing",
+      "type": "select",
+      "default": "linear",
+      "choices": ["linear", "quadratic_in", "quadratic_out", "quadratic_in_out", "quadratic_out_in", "cubic_in", "cubic_out", "cubic_in_out", "cubic_out_in", "quartic_in", "quartic_out", "quartic_in_out", "quartic_out_in", "quintic_in", "quintic_out", "quintic_in_out", "quintic_out_in", "power_in", "power_out", "power_in_out", "power_out_in", "sinus_in", "sinus_out", "sinus_in_out", "sinus_out_in", "exp_in", "exp_out", "exp_in_out", "exp_out_in", "circular_in", "circular_out", "circular_in_out", "circular_out_in", "bounce_in", "bounce_out", "elastic_in", "elastic_out", "back_in", "back_out", "back_in_out", "back_out_in"],
+      "flags": [],
+      "desc": "easing interpolation from previous key frame"
+    },
+    {
+      "name": "easing_args",
+      "type": "f64_list",
+      "flags": [],
+      "desc": "a list of arguments some easings may use"
+    },
+    {
+      "name": "easing_start_offset",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting offset of the truncation of the easing"
+    },
+    {
+      "name": "easing_end_offset",
+      "type": "f64",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "ending offset of the truncation of the easing"
+    }
   ],
   "Block": [
-    ["fields", "node_list", ""],
-    ["layout", "select", ""]
+    {
+      "name": "fields",
+      "type": "node_list",
+      "node_types": ["AnimatedBufferFloat", "AnimatedBufferVec2", "AnimatedBufferVec3", "AnimatedBufferVec4", "StreamedBufferInt", "StreamedBufferIVec2", "StreamedBufferIVec3", "StreamedBufferIVec4", "StreamedBufferUInt", "StreamedBufferUIVec2", "StreamedBufferUIVec3", "StreamedBufferUIVec4", "StreamedBufferFloat", "StreamedBufferVec2", "StreamedBufferVec3", "StreamedBufferVec4", "BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "BufferInt", "BufferIVec2", "BufferIVec3", "BufferIVec4", "BufferUInt", "BufferUIVec2", "BufferUIVec3", "BufferUIVec4", "BufferMat4", "UniformBool", "UniformFloat", "UniformVec2", "UniformVec3", "UniformVec4", "UniformInt", "UniformIVec2", "UniformIVec3", "UniformIVec4", "UniformUInt", "UniformUIVec2", "UniformUIVec3", "UniformUIVec4", "UniformMat4", "UniformQuat", "UniformColor", "AnimatedFloat", "AnimatedVec2", "AnimatedVec3", "AnimatedVec4", "AnimatedQuat", "AnimatedColor", "StreamedInt", "StreamedIVec2", "StreamedIVec3", "StreamedIVec4", "StreamedUInt", "StreamedUIVec2", "StreamedUIVec3", "StreamedUIVec4", "StreamedFloat", "StreamedVec2", "StreamedVec3", "StreamedVec4", "StreamedMat4", "Time"],
+      "flags": [],
+      "desc": "block fields defined in the graphic program"
+    },
+    {
+      "name": "layout",
+      "type": "select",
+      "default": "std140",
+      "choices": ["std140", "std430"],
+      "flags": [],
+      "desc": "memory layout set in the graphic program"
+    }
   ],
   "_Buffer": [
-    ["count", "i32", ""],
-    ["data", "data", ""],
-    ["filename", "str", ""],
-    ["block", "node", ""],
-    ["block_field", "str", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements"
+    },
+    {
+      "name": "data",
+      "type": "data",
+      "flags": [],
+      "desc": "buffer of `count` elements"
+    },
+    {
+      "name": "filename",
+      "type": "str",
+      "flags": [],
+      "desc": "filename from which the buffer will be read, cannot be used with `data`"
+    },
+    {
+      "name": "block",
+      "type": "node",
+      "node_types": ["Block"],
+      "flags": [],
+      "desc": "reference a field from the given block"
+    },
+    {
+      "name": "block_field",
+      "type": "str",
+      "flags": [],
+      "desc": "field name in `block`"
+    }
   ],
   "BufferByte": "_Buffer",
   "BufferBVec2": "_Buffer",
@@ -134,95 +503,437 @@
   "BufferVec4": "_Buffer",
   "BufferMat4": "_Buffer",
   "Camera": [
-    ["child", "node", "M"],
-    ["eye", "vec3", "LN"],
-    ["center", "vec3", "LN"],
-    ["up", "vec3", "LN"],
-    ["perspective", "vec2", "LN"],
-    ["orthographic", "vec4", "L"],
-    ["clipping", "vec2", "L"],
-    ["eye_transform", "node", ""],
-    ["center_transform", "node", ""],
-    ["up_transform", "node", ""]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to observe through the lens of the camera"
+    },
+    {
+      "name": "eye",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": ["live", "node"],
+      "desc": "eye position"
+    },
+    {
+      "name": "center",
+      "type": "vec3",
+      "default": [0.000000,0.000000,-1.000000],
+      "flags": ["live", "node"],
+      "desc": "center position"
+    },
+    {
+      "name": "up",
+      "type": "vec3",
+      "default": [0.000000,1.000000,0.000000],
+      "flags": ["live", "node"],
+      "desc": "up vector, must not be parallel to the line of sight from the eye point to the center point"
+    },
+    {
+      "name": "perspective",
+      "type": "vec2",
+      "default": [0.000000,0.000000],
+      "flags": ["live", "node"],
+      "desc": "the 2 following values: *fov*, *aspect*"
+    },
+    {
+      "name": "orthographic",
+      "type": "vec4",
+      "default": [0.000000,0.000000,0.000000,0.000000],
+      "flags": ["live"],
+      "desc": "the 4 following values: *left*, *right*, *bottom*, *top*"
+    },
+    {
+      "name": "clipping",
+      "type": "vec2",
+      "default": [0.000000,0.000000],
+      "flags": ["live"],
+      "desc": "the 2 following values: *near clipping plane*, *far clipping plane*"
+    },
+    {
+      "name": "eye_transform",
+      "type": "node",
+      "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Identity"],
+      "flags": [],
+      "desc": "`eye` transformation chain"
+    },
+    {
+      "name": "center_transform",
+      "type": "node",
+      "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Identity"],
+      "flags": [],
+      "desc": "`center` transformation chain"
+    },
+    {
+      "name": "up_transform",
+      "type": "node",
+      "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Identity"],
+      "flags": [],
+      "desc": "`up` transformation chain"
+    }
   ],
   "Circle": [
-    ["radius", "f32", ""],
-    ["npoints", "i32", ""]
+    {
+      "name": "radius",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "circle radius"
+    },
+    {
+      "name": "npoints",
+      "type": "i32",
+      "default": 16,
+      "flags": [],
+      "desc": "number of points"
+    }
   ],
   "Compute": [
-    ["workgroup_count", "ivec3", ""],
-    ["program", "node", "M"],
-    ["resources", "node_dict", ""]
+    {
+      "name": "workgroup_count",
+      "type": "ivec3",
+      "default": [0,0,0],
+      "flags": [],
+      "desc": "number of work groups to be executed"
+    },
+    {
+      "name": "program",
+      "type": "node",
+      "node_types": ["ComputeProgram"],
+      "flags": ["nonull"],
+      "desc": "compute program to be executed"
+    },
+    {
+      "name": "resources",
+      "type": "node_dict",
+      "node_types": ["Texture2D", "Block", "UniformFloat", "UniformVec2", "UniformVec3", "UniformVec4", "UniformColor", "UniformQuat", "UniformBool", "UniformInt", "UniformIVec2", "UniformIVec3", "UniformIVec4", "UniformUInt", "UniformUIVec2", "UniformUIVec3", "UniformUIVec4", "UniformMat4", "AnimatedFloat", "AnimatedVec2", "AnimatedVec3", "AnimatedVec4", "AnimatedQuat", "AnimatedColor", "NoiseFloat", "NoiseVec2", "NoiseVec3", "NoiseVec4", "EvalFloat", "EvalVec2", "EvalVec3", "EvalVec4", "StreamedInt", "StreamedIVec2", "StreamedIVec3", "StreamedIVec4", "StreamedUInt", "StreamedUIVec2", "StreamedUIVec3", "StreamedUIVec4", "StreamedFloat", "StreamedVec2", "StreamedVec3", "StreamedVec4", "StreamedMat4", "Time", "VelocityFloat", "VelocityVec2", "VelocityVec3", "VelocityVec4"],
+      "flags": [],
+      "desc": "resources made accessible to the compute `program`"
+    }
   ],
   "ComputeProgram": [
-    ["compute", "str", "M"],
-    ["workgroup_size", "ivec3", ""],
-    ["properties", "node_dict", ""]
+    {
+      "name": "compute",
+      "type": "str",
+      "flags": ["nonull"],
+      "desc": "compute shader"
+    },
+    {
+      "name": "workgroup_size",
+      "type": "ivec3",
+      "default": [0,0,0],
+      "flags": [],
+      "desc": "number of local compute instances in a work group"
+    },
+    {
+      "name": "properties",
+      "type": "node_dict",
+      "node_types": ["ResourceProps"],
+      "flags": [],
+      "desc": "resource properties"
+    }
   ],
   "FilterAlpha": [
-    ["alpha", "f32", "LN"]
+    {
+      "name": "alpha",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "alpha channel value"
+    }
   ],
   "FilterContrast": [
-    ["contrast", "f32", "LN"],
-    ["pivot", "f32", "LN"]
+    {
+      "name": "contrast",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "perceptual contrast value"
+    },
+    {
+      "name": "pivot",
+      "type": "f32",
+      "default": 0.500000,
+      "flags": ["live", "node"],
+      "desc": "pivot point between light and dark"
+    }
   ],
   "FilterExposure": [
-    ["exposure", "f32", "LN"]
+    {
+      "name": "exposure",
+      "type": "f32",
+      "default": 0.000000,
+      "flags": ["live", "node"],
+      "desc": "exposure"
+    }
   ],
   "FilterInverseAlpha": [
   ],
   "FilterLinear2sRGB": [
   ],
   "FilterOpacity": [
-    ["opacity", "f32", "LN"]
+    {
+      "name": "opacity",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "opacity value (color gets premultiplied by this value)"
+    }
   ],
   "FilterPremult": [
   ],
   "FilterSaturation": [
-    ["saturation", "f32", "LN"]
+    {
+      "name": "saturation",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "saturation"
+    }
   ],
   "FilterSRGB2Linear": [
   ],
   "Geometry": [
-    ["vertices", "node", "M"],
-    ["uvcoords", "node", ""],
-    ["normals", "node", ""],
-    ["indices", "node", ""],
-    ["topology", "select", ""]
+    {
+      "name": "vertices",
+      "type": "node",
+      "node_types": ["BufferVec3", "AnimatedBufferVec3"],
+      "flags": ["nonull"],
+      "desc": "vertice coordinates defining the geometry"
+    },
+    {
+      "name": "uvcoords",
+      "type": "node",
+      "node_types": ["BufferFloat", "BufferVec2", "BufferVec3", "AnimatedBufferFloat", "AnimatedBufferVec2", "AnimatedBufferVec3"],
+      "flags": [],
+      "desc": "coordinates used for UV mapping of each `vertices`"
+    },
+    {
+      "name": "normals",
+      "type": "node",
+      "node_types": ["BufferVec3", "AnimatedBufferVec3"],
+      "flags": [],
+      "desc": "normal vectors of each `vertices`"
+    },
+    {
+      "name": "indices",
+      "type": "node",
+      "node_types": ["BufferUShort", "BufferUInt"],
+      "flags": [],
+      "desc": "indices defining the drawing order of the `vertices`, auto-generated if not set"
+    },
+    {
+      "name": "topology",
+      "type": "select",
+      "default": "triangle_list",
+      "choices": ["point_list", "line_strip", "line_list", "triangle_strip", "triangle_list"],
+      "flags": [],
+      "desc": "primitive topology"
+    }
   ],
   "GraphicConfig": [
-    ["child", "node", "M"],
-    ["blend", "bool", ""],
-    ["blend_src_factor", "select", ""],
-    ["blend_dst_factor", "select", ""],
-    ["blend_src_factor_a", "select", ""],
-    ["blend_dst_factor_a", "select", ""],
-    ["blend_op", "select", ""],
-    ["blend_op_a", "select", ""],
-    ["color_write_mask", "flags", ""],
-    ["depth_test", "bool", ""],
-    ["depth_write_mask", "bool", ""],
-    ["depth_func", "select", ""],
-    ["stencil_test", "bool", ""],
-    ["stencil_write_mask", "i32", ""],
-    ["stencil_func", "select", ""],
-    ["stencil_ref", "i32", ""],
-    ["stencil_read_mask", "i32", ""],
-    ["stencil_fail", "select", ""],
-    ["stencil_depth_fail", "select", ""],
-    ["stencil_depth_pass", "select", ""],
-    ["cull_mode", "select", ""],
-    ["scissor_test", "bool", ""],
-    ["scissor", "vec4", ""]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to which the graphic configuration will be applied"
+    },
+    {
+      "name": "blend",
+      "type": "bool",
+      "default": "unset",
+      "flags": [],
+      "desc": "enable blending"
+    },
+    {
+      "name": "blend_src_factor",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "zero", "one", "src_color", "one_minus_src_color", "dst_color", "one_minus_dst_color", "src_alpha", "one_minus_src_alpha", "dst_alpha", "one_minus_dst_alpha"],
+      "flags": [],
+      "desc": "blend source factor"
+    },
+    {
+      "name": "blend_dst_factor",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "zero", "one", "src_color", "one_minus_src_color", "dst_color", "one_minus_dst_color", "src_alpha", "one_minus_src_alpha", "dst_alpha", "one_minus_dst_alpha"],
+      "flags": [],
+      "desc": "blend destination factor"
+    },
+    {
+      "name": "blend_src_factor_a",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "zero", "one", "src_color", "one_minus_src_color", "dst_color", "one_minus_dst_color", "src_alpha", "one_minus_src_alpha", "dst_alpha", "one_minus_dst_alpha"],
+      "flags": [],
+      "desc": "alpha blend source factor"
+    },
+    {
+      "name": "blend_dst_factor_a",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "zero", "one", "src_color", "one_minus_src_color", "dst_color", "one_minus_dst_color", "src_alpha", "one_minus_src_alpha", "dst_alpha", "one_minus_dst_alpha"],
+      "flags": [],
+      "desc": "alpha blend destination factor"
+    },
+    {
+      "name": "blend_op",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "add", "sub", "revsub", "min", "max"],
+      "flags": [],
+      "desc": "blend operation"
+    },
+    {
+      "name": "blend_op_a",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "add", "sub", "revsub", "min", "max"],
+      "flags": [],
+      "desc": "alpha blend operation"
+    },
+    {
+      "name": "color_write_mask",
+      "type": "flags",
+      "default": "unset",
+      "choices": ["r", "g", "b", "a"],
+      "flags": [],
+      "desc": "color write mask"
+    },
+    {
+      "name": "depth_test",
+      "type": "bool",
+      "default": "unset",
+      "flags": [],
+      "desc": "enable depth testing"
+    },
+    {
+      "name": "depth_write_mask",
+      "type": "bool",
+      "default": "unset",
+      "flags": [],
+      "desc": "depth write mask"
+    },
+    {
+      "name": "depth_func",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always"],
+      "flags": [],
+      "desc": "passes if `<function>(depth, stored_depth)`"
+    },
+    {
+      "name": "stencil_test",
+      "type": "bool",
+      "default": "unset",
+      "flags": [],
+      "desc": "enable stencil testing"
+    },
+    {
+      "name": "stencil_write_mask",
+      "type": "i32",
+      "default": -1,
+      "flags": [],
+      "desc": "stencil write mask, must be in the range [0, 0xff]"
+    },
+    {
+      "name": "stencil_func",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always"],
+      "flags": [],
+      "desc": "passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)`"
+    },
+    {
+      "name": "stencil_ref",
+      "type": "i32",
+      "default": -1,
+      "flags": [],
+      "desc": "stencil reference value to compare against"
+    },
+    {
+      "name": "stencil_read_mask",
+      "type": "i32",
+      "default": -1,
+      "flags": [],
+      "desc": "stencil read mask, must be in the range [0, 0xff]"
+    },
+    {
+      "name": "stencil_fail",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "keep", "zero", "replace", "incr", "incr_wrap", "decr", "decr_wrap", "decr_invert"],
+      "flags": [],
+      "desc": "operation to execute if stencil test fails"
+    },
+    {
+      "name": "stencil_depth_fail",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "keep", "zero", "replace", "incr", "incr_wrap", "decr", "decr_wrap", "decr_invert"],
+      "flags": [],
+      "desc": "operation to execute if depth test fails"
+    },
+    {
+      "name": "stencil_depth_pass",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "keep", "zero", "replace", "incr", "incr_wrap", "decr", "decr_wrap", "decr_invert"],
+      "flags": [],
+      "desc": "operation to execute if stencil and depth test pass"
+    },
+    {
+      "name": "cull_mode",
+      "type": "select",
+      "default": "unset",
+      "choices": ["unset", "none", "front", "back"],
+      "flags": [],
+      "desc": "face culling mode"
+    },
+    {
+      "name": "scissor_test",
+      "type": "bool",
+      "default": "unset",
+      "flags": [],
+      "desc": "enable scissor testing"
+    },
+    {
+      "name": "scissor",
+      "type": "vec4",
+      "default": [-1.000000,-1.000000,-1.000000,-1.000000],
+      "flags": [],
+      "desc": "define an area where all pixels outside are discarded"
+    }
   ],
   "Group": [
-    ["children", "node_list", ""]
+    {
+      "name": "children",
+      "type": "node_list",
+      "flags": [],
+      "desc": "a set of scenes"
+    }
   ],
   "Identity": [
   ],
   "_IOVar": [
-    ["precision_out", "select", ""],
-    ["precision_in", "select", ""]
+    {
+      "name": "precision_out",
+      "type": "select",
+      "default": "auto",
+      "choices": ["auto", "high", "medium", "low"],
+      "flags": [],
+      "desc": "precision qualifier for the output side (vertex)"
+    },
+    {
+      "name": "precision_in",
+      "type": "select",
+      "default": "auto",
+      "choices": ["auto", "high", "medium", "low"],
+      "flags": [],
+      "desc": "precision qualifier for the input side (fragment)"
+    }
   ],
   "IOInt": "_IOVar",
   "IOIVec2": "_IOVar",
@@ -240,558 +951,2827 @@
   "IOMat4": "_IOVar",
   "IOBool": "_IOVar",
   "EvalFloat": [
-    ["expr0", "str", "M"],
-    ["resources", "node_dict", ""]
+    {
+      "name": "expr0",
+      "type": "str",
+      "default": "0",
+      "flags": ["nonull"],
+      "desc": "expression to evaluate"
+    },
+    {
+      "name": "resources",
+      "type": "node_dict",
+      "node_types": ["NoiseFloat", "EvalFloat", "UniformFloat", "AnimatedFloat", "StreamedFloat", "Time", "VelocityFloat"],
+      "flags": [],
+      "desc": "resources made accessible to the `expr0`"
+    }
   ],
   "EvalVec2": [
-    ["expr0", "str", "M"],
-    ["expr1", "str", ""],
-    ["resources", "node_dict", ""]
+    {
+      "name": "expr0",
+      "type": "str",
+      "default": "0",
+      "flags": ["nonull"],
+      "desc": "expression to evaluate to define 1st component"
+    },
+    {
+      "name": "expr1",
+      "type": "str",
+      "flags": [],
+      "desc": "expression to evaluate to define 2nd component"
+    },
+    {
+      "name": "resources",
+      "type": "node_dict",
+      "node_types": ["NoiseFloat", "EvalFloat", "UniformFloat", "AnimatedFloat", "StreamedFloat", "Time", "VelocityFloat"],
+      "flags": [],
+      "desc": "resources made accessible to the `expr0` and `expr1`"
+    }
   ],
   "EvalVec3": [
-    ["expr0", "str", "M"],
-    ["expr1", "str", ""],
-    ["expr2", "str", ""],
-    ["resources", "node_dict", ""]
+    {
+      "name": "expr0",
+      "type": "str",
+      "default": "0",
+      "flags": ["nonull"],
+      "desc": "expression to evaluate to define 1st component"
+    },
+    {
+      "name": "expr1",
+      "type": "str",
+      "flags": [],
+      "desc": "expression to evaluate to define 2nd component"
+    },
+    {
+      "name": "expr2",
+      "type": "str",
+      "flags": [],
+      "desc": "expression to evaluate to define 3rd component"
+    },
+    {
+      "name": "resources",
+      "type": "node_dict",
+      "node_types": ["NoiseFloat", "EvalFloat", "UniformFloat", "AnimatedFloat", "StreamedFloat", "Time", "VelocityFloat"],
+      "flags": [],
+      "desc": "resources made accessible to the `expr0`, `expr1` and `expr2`"
+    }
   ],
   "EvalVec4": [
-    ["expr0", "str", "M"],
-    ["expr1", "str", ""],
-    ["expr2", "str", ""],
-    ["expr3", "str", ""],
-    ["resources", "node_dict", ""]
+    {
+      "name": "expr0",
+      "type": "str",
+      "default": "0",
+      "flags": ["nonull"],
+      "desc": "expression to evaluate to define 1st component"
+    },
+    {
+      "name": "expr1",
+      "type": "str",
+      "flags": [],
+      "desc": "expression to evaluate to define 2nd component"
+    },
+    {
+      "name": "expr2",
+      "type": "str",
+      "flags": [],
+      "desc": "expression to evaluate to define 3rd component"
+    },
+    {
+      "name": "expr3",
+      "type": "str",
+      "flags": [],
+      "desc": "expression to evaluate to define 4th component"
+    },
+    {
+      "name": "resources",
+      "type": "node_dict",
+      "node_types": ["NoiseFloat", "EvalFloat", "UniformFloat", "AnimatedFloat", "StreamedFloat", "Time", "VelocityFloat"],
+      "flags": [],
+      "desc": "resources made accessible to the `expr0`, `expr1`, `expr2` and `expr3`"
+    }
   ],
   "Media": [
-    ["filename", "str", "M"],
-    ["nopemd_min_level", "select", ""],
-    ["time_anim", "node", ""],
-    ["audio_tex", "bool", ""],
-    ["max_nb_packets", "i32", ""],
-    ["max_nb_frames", "i32", ""],
-    ["max_nb_sink", "i32", ""],
-    ["max_pixels", "i32", ""],
-    ["stream_idx", "i32", ""],
-    ["hwaccel", "select", ""],
-    ["filters", "str", ""],
-    ["vt_pix_fmt", "str", ""]
+    {
+      "name": "filename",
+      "type": "str",
+      "flags": ["nonull"],
+      "desc": "path to input media file"
+    },
+    {
+      "name": "nopemd_min_level",
+      "type": "select",
+      "default": "warning",
+      "choices": ["verbose", "debug", "info", "warning", "error"],
+      "flags": [],
+      "desc": "nope.media min logging level"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    },
+    {
+      "name": "audio_tex",
+      "type": "bool",
+      "default": 0,
+      "flags": [],
+      "desc": "load the audio and expose it as a stereo waves and frequencies buffer"
+    },
+    {
+      "name": "max_nb_packets",
+      "type": "i32",
+      "default": 1,
+      "flags": [],
+      "desc": "maximum number of packets in nope.media demuxing queue"
+    },
+    {
+      "name": "max_nb_frames",
+      "type": "i32",
+      "default": 1,
+      "flags": [],
+      "desc": "maximum number of frames in nope.media decoding queue"
+    },
+    {
+      "name": "max_nb_sink",
+      "type": "i32",
+      "default": 1,
+      "flags": [],
+      "desc": "maximum number of frames in nope.media filtering queue"
+    },
+    {
+      "name": "max_pixels",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "maximum number of pixels per frame"
+    },
+    {
+      "name": "stream_idx",
+      "type": "i32",
+      "default": -1,
+      "flags": [],
+      "desc": "force a stream number instead of picking the \"best\" one"
+    },
+    {
+      "name": "hwaccel",
+      "type": "select",
+      "default": "auto",
+      "choices": ["disabled", "auto"],
+      "flags": [],
+      "desc": "hardware acceleration"
+    },
+    {
+      "name": "filters",
+      "type": "str",
+      "flags": [],
+      "desc": "filters to apply on the media (nope.media/libavfilter)"
+    },
+    {
+      "name": "vt_pix_fmt",
+      "type": "str",
+      "default": "auto",
+      "flags": [],
+      "desc": "auto or a comma or space separated list of VideoToolbox (Apple) allowed output pixel formats"
+    }
   ],
   "_Noise": [
-    ["frequency", "f32", "L"],
-    ["amplitude", "f32", "L"],
-    ["octaves", "i32", "L"],
-    ["lacunarity", "f32", "L"],
-    ["gain", "f32", "L"],
-    ["seed", "u32", ""],
-    ["interpolant", "select", ""]
+    {
+      "name": "frequency",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live"],
+      "desc": "oscillation per second"
+    },
+    {
+      "name": "amplitude",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live"],
+      "desc": "by how much it oscillates"
+    },
+    {
+      "name": "octaves",
+      "type": "i32",
+      "default": 3,
+      "flags": ["live"],
+      "desc": "number of accumulated noise layers (controls the level of details)"
+    },
+    {
+      "name": "lacunarity",
+      "type": "f32",
+      "default": 2.000000,
+      "flags": ["live"],
+      "desc": "frequency multiplier per octave"
+    },
+    {
+      "name": "gain",
+      "type": "f32",
+      "default": 0.500000,
+      "flags": ["live"],
+      "desc": "amplitude multiplier per octave (also known as persistence)"
+    },
+    {
+      "name": "seed",
+      "type": "u32",
+      "default": 0,
+      "flags": [],
+      "desc": "random base seed (acts as an offsetting to the time)"
+    },
+    {
+      "name": "interpolant",
+      "type": "select",
+      "default": "quintic",
+      "choices": ["linear", "cubic", "quintic"],
+      "flags": [],
+      "desc": "interpolation function to use between noise points"
+    }
   ],
   "NoiseFloat": "_Noise",
   "NoiseVec2": "_Noise",
   "NoiseVec3": "_Noise",
   "NoiseVec4": "_Noise",
   "Path": [
-    ["keyframes", "node_list", "M"],
-    ["precision", "i32", ""]
+    {
+      "name": "keyframes",
+      "type": "node_list",
+      "node_types": ["PathKeyMove", "PathKeyLine", "PathKeyBezier2", "PathKeyBezier3"],
+      "flags": ["nonull"],
+      "desc": "anchor points the path go through"
+    },
+    {
+      "name": "precision",
+      "type": "i32",
+      "default": 64,
+      "flags": [],
+      "desc": "number of divisions per curve segment"
+    }
   ],
   "PathKeyBezier2": [
-    ["control", "vec3", ""],
-    ["to", "vec3", ""]
+    {
+      "name": "control",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "control point"
+    },
+    {
+      "name": "to",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "end point of the curve, new cursor position"
+    }
   ],
   "PathKeyBezier3": [
-    ["control1", "vec3", ""],
-    ["control2", "vec3", ""],
-    ["to", "vec3", ""]
+    {
+      "name": "control1",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "first control point"
+    },
+    {
+      "name": "control2",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "second control point"
+    },
+    {
+      "name": "to",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "end point of the curve, new cursor position"
+    }
   ],
   "PathKeyLine": [
-    ["to", "vec3", ""]
+    {
+      "name": "to",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "end point of the line, new cursor position"
+    }
   ],
   "PathKeyMove": [
-    ["to", "vec3", ""]
+    {
+      "name": "to",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "new cursor position"
+    }
   ],
   "Program": [
-    ["vertex", "str", ""],
-    ["fragment", "str", ""],
-    ["properties", "node_dict", ""],
-    ["vert_out_vars", "node_dict", ""],
-    ["nb_frag_output", "i32", ""]
+    {
+      "name": "vertex",
+      "type": "str",
+      "flags": [],
+      "desc": "vertex shader"
+    },
+    {
+      "name": "fragment",
+      "type": "str",
+      "flags": [],
+      "desc": "fragment shader"
+    },
+    {
+      "name": "properties",
+      "type": "node_dict",
+      "node_types": ["ResourceProps"],
+      "flags": [],
+      "desc": "resource properties"
+    },
+    {
+      "name": "vert_out_vars",
+      "type": "node_dict",
+      "node_types": ["IOInt", "IOIVec2", "IOIVec3", "IOIVec4", "IOUInt", "IOUIvec2", "IOUIvec3", "IOUIvec4", "IOFloat", "IOVec2", "IOVec3", "IOVec4", "IOMat3", "IOMat4", "IOBool"],
+      "flags": [],
+      "desc": "in/out communication variables shared between vertex and fragment stages"
+    },
+    {
+      "name": "nb_frag_output",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of color outputs in the fragment shader"
+    }
   ],
   "Quad": [
-    ["corner", "vec3", ""],
-    ["width", "vec3", ""],
-    ["height", "vec3", ""],
-    ["uv_corner", "vec2", ""],
-    ["uv_width", "vec2", ""],
-    ["uv_height", "vec2", ""]
+    {
+      "name": "corner",
+      "type": "vec3",
+      "default": [-0.500000,-0.500000,0.000000],
+      "flags": [],
+      "desc": "origin coordinates of `width` and `height` vectors"
+    },
+    {
+      "name": "width",
+      "type": "vec3",
+      "default": [1.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "width vector"
+    },
+    {
+      "name": "height",
+      "type": "vec3",
+      "default": [0.000000,1.000000,0.000000],
+      "flags": [],
+      "desc": "height vector"
+    },
+    {
+      "name": "uv_corner",
+      "type": "vec2",
+      "default": [0.000000,0.000000],
+      "flags": [],
+      "desc": "origin coordinates of `uv_width` and `uv_height` vectors"
+    },
+    {
+      "name": "uv_width",
+      "type": "vec2",
+      "default": [1.000000,0.000000],
+      "flags": [],
+      "desc": "UV coordinates width vector"
+    },
+    {
+      "name": "uv_height",
+      "type": "vec2",
+      "default": [0.000000,1.000000],
+      "flags": [],
+      "desc": "UV coordinates height vector"
+    }
   ],
   "Render": [
-    ["geometry", "node", "M"],
-    ["program", "node", "M"],
-    ["vert_resources", "node_dict", ""],
-    ["frag_resources", "node_dict", ""],
-    ["attributes", "node_dict", ""],
-    ["instance_attributes", "node_dict", ""],
-    ["nb_instances", "i32", ""],
-    ["blending", "select", ""]
+    {
+      "name": "geometry",
+      "type": "node",
+      "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+      "flags": ["nonull"],
+      "desc": "geometry to be rasterized"
+    },
+    {
+      "name": "program",
+      "type": "node",
+      "node_types": ["Program"],
+      "flags": ["nonull"],
+      "desc": "program to be executed"
+    },
+    {
+      "name": "vert_resources",
+      "type": "node_dict",
+      "node_types": ["Texture2D", "Texture3D", "TextureCube", "Block", "BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "NoiseFloat", "NoiseVec2", "NoiseVec3", "NoiseVec4", "EvalFloat", "EvalVec2", "EvalVec3", "EvalVec4", "StreamedBufferInt", "StreamedBufferIVec2", "StreamedBufferIVec3", "StreamedBufferIVec4", "StreamedBufferUInt", "StreamedBufferUIVec2", "StreamedBufferUIVec3", "StreamedBufferUIVec4", "StreamedBufferFloat", "StreamedBufferVec2", "StreamedBufferVec3", "StreamedBufferVec4", "UniformBool", "UniformFloat", "UniformVec2", "UniformVec3", "UniformVec4", "UniformColor", "UniformQuat", "UniformInt", "UniformIVec2", "UniformIVec3", "UniformIVec4", "UniformUInt", "UniformUIVec2", "UniformUIVec3", "UniformUIVec4", "UniformMat4", "AnimatedFloat", "AnimatedVec2", "AnimatedVec3", "AnimatedVec4", "AnimatedQuat", "AnimatedColor", "StreamedInt", "StreamedIVec2", "StreamedIVec3", "StreamedIVec4", "StreamedUInt", "StreamedUIVec2", "StreamedUIVec3", "StreamedUIVec4", "StreamedFloat", "StreamedVec2", "StreamedVec3", "StreamedVec4", "StreamedMat4", "Time", "VelocityFloat", "VelocityVec2", "VelocityVec3", "VelocityVec4"],
+      "flags": [],
+      "desc": "resources made accessible to the vertex stage of the `program`"
+    },
+    {
+      "name": "frag_resources",
+      "type": "node_dict",
+      "node_types": ["Texture2D", "Texture3D", "TextureCube", "Block", "BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "NoiseFloat", "NoiseVec2", "NoiseVec3", "NoiseVec4", "EvalFloat", "EvalVec2", "EvalVec3", "EvalVec4", "StreamedBufferInt", "StreamedBufferIVec2", "StreamedBufferIVec3", "StreamedBufferIVec4", "StreamedBufferUInt", "StreamedBufferUIVec2", "StreamedBufferUIVec3", "StreamedBufferUIVec4", "StreamedBufferFloat", "StreamedBufferVec2", "StreamedBufferVec3", "StreamedBufferVec4", "UniformBool", "UniformFloat", "UniformVec2", "UniformVec3", "UniformVec4", "UniformColor", "UniformQuat", "UniformInt", "UniformIVec2", "UniformIVec3", "UniformIVec4", "UniformUInt", "UniformUIVec2", "UniformUIVec3", "UniformUIVec4", "UniformMat4", "AnimatedFloat", "AnimatedVec2", "AnimatedVec3", "AnimatedVec4", "AnimatedQuat", "AnimatedColor", "StreamedInt", "StreamedIVec2", "StreamedIVec3", "StreamedIVec4", "StreamedUInt", "StreamedUIVec2", "StreamedUIVec3", "StreamedUIVec4", "StreamedFloat", "StreamedVec2", "StreamedVec3", "StreamedVec4", "StreamedMat4", "Time", "VelocityFloat", "VelocityVec2", "VelocityVec3", "VelocityVec4"],
+      "flags": [],
+      "desc": "resources made accessible to the fragment stage of the `program`"
+    },
+    {
+      "name": "attributes",
+      "type": "node_dict",
+      "node_types": ["BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "BufferMat4"],
+      "flags": [],
+      "desc": "extra vertex attributes made accessible to the `program`"
+    },
+    {
+      "name": "instance_attributes",
+      "type": "node_dict",
+      "node_types": ["BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "BufferMat4"],
+      "flags": [],
+      "desc": "per instance extra vertex attributes made accessible to the `program`"
+    },
+    {
+      "name": "nb_instances",
+      "type": "i32",
+      "default": 1,
+      "flags": [],
+      "desc": "number of instances to draw"
+    },
+    {
+      "name": "blending",
+      "type": "select",
+      "default": "default",
+      "choices": ["default", "src_over", "dst_over", "src_out", "dst_out", "src_in", "dst_in", "src_atop", "dst_atop", "xor"],
+      "flags": [],
+      "desc": "define how this node and the current frame buffer are blended together"
+    }
   ],
   "RenderColor": [
-    ["color", "vec3", "LN"],
-    ["opacity", "f32", "LN"],
-    ["blending", "select", ""],
-    ["geometry", "node", ""],
-    ["filters", "node_list", ""]
+    {
+      "name": "color",
+      "type": "vec3",
+      "default": [1.000000,1.000000,1.000000],
+      "flags": ["live", "node"],
+      "desc": "color of the shape"
+    },
+    {
+      "name": "opacity",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "opacity of the color"
+    },
+    {
+      "name": "blending",
+      "type": "select",
+      "default": "default",
+      "choices": ["default", "src_over", "dst_over", "src_out", "dst_out", "src_in", "dst_in", "src_atop", "dst_atop", "xor"],
+      "flags": [],
+      "desc": "define how this node and the current frame buffer are blending together"
+    },
+    {
+      "name": "geometry",
+      "type": "node",
+      "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+      "flags": [],
+      "desc": "geometry to be rasterized"
+    },
+    {
+      "name": "filters",
+      "type": "node_list",
+      "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+      "flags": [],
+      "desc": "filter chain to apply on top of this source"
+    }
   ],
   "RenderGradient": [
-    ["color0", "vec3", "LN"],
-    ["color1", "vec3", "LN"],
-    ["opacity0", "f32", "LN"],
-    ["opacity1", "f32", "LN"],
-    ["pos0", "vec2", "LN"],
-    ["pos1", "vec2", "LN"],
-    ["mode", "select", ""],
-    ["linear", "bool", "LN"],
-    ["blending", "select", ""],
-    ["geometry", "node", ""],
-    ["filters", "node_list", ""]
+    {
+      "name": "color0",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": ["live", "node"],
+      "desc": "color of the first point"
+    },
+    {
+      "name": "color1",
+      "type": "vec3",
+      "default": [1.000000,1.000000,1.000000],
+      "flags": ["live", "node"],
+      "desc": "color of the second point"
+    },
+    {
+      "name": "opacity0",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "opacity of the first color"
+    },
+    {
+      "name": "opacity1",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "opacity of the second color"
+    },
+    {
+      "name": "pos0",
+      "type": "vec2",
+      "default": [0.000000,0.500000],
+      "flags": ["live", "node"],
+      "desc": "position of the first point (in UV coordinates)"
+    },
+    {
+      "name": "pos1",
+      "type": "vec2",
+      "default": [1.000000,0.500000],
+      "flags": ["live", "node"],
+      "desc": "position of the second point (in UV coordinates)"
+    },
+    {
+      "name": "mode",
+      "type": "select",
+      "default": "ramp",
+      "choices": ["ramp", "radial"],
+      "flags": [],
+      "desc": "mode of interpolation between the two points"
+    },
+    {
+      "name": "linear",
+      "type": "bool",
+      "default": 1,
+      "flags": ["live", "node"],
+      "desc": "interpolate colors linearly"
+    },
+    {
+      "name": "blending",
+      "type": "select",
+      "default": "default",
+      "choices": ["default", "src_over", "dst_over", "src_out", "dst_out", "src_in", "dst_in", "src_atop", "dst_atop", "xor"],
+      "flags": [],
+      "desc": "define how this node and the current frame buffer are blending together"
+    },
+    {
+      "name": "geometry",
+      "type": "node",
+      "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+      "flags": [],
+      "desc": "geometry to be rasterized"
+    },
+    {
+      "name": "filters",
+      "type": "node_list",
+      "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+      "flags": [],
+      "desc": "filter chain to apply on top of this source"
+    }
   ],
   "RenderGradient4": [
-    ["color_tl", "vec3", "LN"],
-    ["color_tr", "vec3", "LN"],
-    ["color_br", "vec3", "LN"],
-    ["color_bl", "vec3", "LN"],
-    ["opacity_tl", "f32", "LN"],
-    ["opacity_tr", "f32", "LN"],
-    ["opacity_br", "f32", "LN"],
-    ["opacity_bl", "f32", "LN"],
-    ["linear", "bool", "LN"],
-    ["blending", "select", ""],
-    ["geometry", "node", ""],
-    ["filters", "node_list", ""]
+    {
+      "name": "color_tl",
+      "type": "vec3",
+      "default": [1.000000,0.500000,0.000000],
+      "flags": ["live", "node"],
+      "desc": "top-left color"
+    },
+    {
+      "name": "color_tr",
+      "type": "vec3",
+      "default": [0.000000,1.000000,0.000000],
+      "flags": ["live", "node"],
+      "desc": "top-right color"
+    },
+    {
+      "name": "color_br",
+      "type": "vec3",
+      "default": [0.000000,0.500000,1.000000],
+      "flags": ["live", "node"],
+      "desc": "bottom-right color"
+    },
+    {
+      "name": "color_bl",
+      "type": "vec3",
+      "default": [1.000000,0.000000,1.000000],
+      "flags": ["live", "node"],
+      "desc": "bottom-left color"
+    },
+    {
+      "name": "opacity_tl",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "opacity of the top-left color"
+    },
+    {
+      "name": "opacity_tr",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "opacity of the top-right color"
+    },
+    {
+      "name": "opacity_br",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "opacity of the bottom-right color"
+    },
+    {
+      "name": "opacity_bl",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "opacity of the bottol-left color"
+    },
+    {
+      "name": "linear",
+      "type": "bool",
+      "default": 1,
+      "flags": ["live", "node"],
+      "desc": "interpolate colors linearly"
+    },
+    {
+      "name": "blending",
+      "type": "select",
+      "default": "default",
+      "choices": ["default", "src_over", "dst_over", "src_out", "dst_out", "src_in", "dst_in", "src_atop", "dst_atop", "xor"],
+      "flags": [],
+      "desc": "define how this node and the current frame buffer are blending together"
+    },
+    {
+      "name": "geometry",
+      "type": "node",
+      "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+      "flags": [],
+      "desc": "geometry to be rasterized"
+    },
+    {
+      "name": "filters",
+      "type": "node_list",
+      "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+      "flags": [],
+      "desc": "filter chain to apply on top of this source"
+    }
   ],
   "RenderTexture": [
-    ["texture", "node", "M"],
-    ["blending", "select", ""],
-    ["geometry", "node", ""],
-    ["filters", "node_list", ""]
+    {
+      "name": "texture",
+      "type": "node",
+      "node_types": ["Texture2D"],
+      "flags": ["nonull"],
+      "desc": "texture to render"
+    },
+    {
+      "name": "blending",
+      "type": "select",
+      "default": "default",
+      "choices": ["default", "src_over", "dst_over", "src_out", "dst_out", "src_in", "dst_in", "src_atop", "dst_atop", "xor"],
+      "flags": [],
+      "desc": "define how this node and the current frame buffer are blending together"
+    },
+    {
+      "name": "geometry",
+      "type": "node",
+      "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+      "flags": [],
+      "desc": "geometry to be rasterized"
+    },
+    {
+      "name": "filters",
+      "type": "node_list",
+      "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+      "flags": [],
+      "desc": "filter chain to apply on top of this source"
+    }
   ],
   "RenderToTexture": [
-    ["child", "node", "M"],
-    ["color_textures", "node_list", ""],
-    ["depth_texture", "node", ""],
-    ["samples", "i32", ""],
-    ["clear_color", "vec4", ""],
-    ["features", "flags", ""]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to be rasterized to `color_textures` and optionally to `depth_texture`"
+    },
+    {
+      "name": "color_textures",
+      "type": "node_list",
+      "node_types": ["Texture2D", "TextureCube", "TextureView"],
+      "flags": [],
+      "desc": "destination color texture"
+    },
+    {
+      "name": "depth_texture",
+      "type": "node",
+      "node_types": ["Texture2D", "TextureView"],
+      "flags": [],
+      "desc": "destination depth (and potentially combined stencil) texture"
+    },
+    {
+      "name": "samples",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of samples used for multisampling anti-aliasing"
+    },
+    {
+      "name": "clear_color",
+      "type": "vec4",
+      "default": [0.000000,0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "color used to clear the `color_texture`"
+    },
+    {
+      "name": "features",
+      "type": "flags",
+      "default": "0",
+      "choices": ["depth", "stencil"],
+      "flags": [],
+      "desc": "framebuffer feature mask"
+    }
   ],
   "ResourceProps": [
-    ["precision", "select", ""],
-    ["as_image", "bool", ""],
-    ["writable", "bool", ""],
-    ["variadic", "bool", ""]
+    {
+      "name": "precision",
+      "type": "select",
+      "default": "auto",
+      "choices": ["auto", "high", "medium", "low"],
+      "flags": [],
+      "desc": "precision qualifier for the shader"
+    },
+    {
+      "name": "as_image",
+      "type": "bool",
+      "default": 0,
+      "flags": [],
+      "desc": "flag this resource for image accessing (only applies to texture nodes)"
+    },
+    {
+      "name": "writable",
+      "type": "bool",
+      "default": 0,
+      "flags": [],
+      "desc": "flag this resource as writable in the shader"
+    },
+    {
+      "name": "variadic",
+      "type": "bool",
+      "default": 0,
+      "flags": [],
+      "desc": "flag this resource as variadic (only applies to block nodes)"
+    }
   ],
   "Rotate": [
-    ["child", "node", "M"],
-    ["angle", "f32", "LN"],
-    ["axis", "vec3", ""],
-    ["anchor", "vec3", ""]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to rotate"
+    },
+    {
+      "name": "angle",
+      "type": "f32",
+      "default": 0.000000,
+      "flags": ["live", "node"],
+      "desc": "rotation angle in degrees"
+    },
+    {
+      "name": "axis",
+      "type": "vec3",
+      "default": [0.000000,0.000000,1.000000],
+      "flags": [],
+      "desc": "rotation axis"
+    },
+    {
+      "name": "anchor",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "vector to the center point of the rotation"
+    }
   ],
   "RotateQuat": [
-    ["child", "node", "M"],
-    ["quat", "vec4", "LN"],
-    ["anchor", "vec3", ""]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to rotate"
+    },
+    {
+      "name": "quat",
+      "type": "vec4",
+      "default": [0.000000,0.000000,0.000000,1.000000],
+      "flags": ["live", "node"],
+      "desc": "quaternion"
+    },
+    {
+      "name": "anchor",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "vector to the center point of the rotation"
+    }
   ],
   "Scale": [
-    ["child", "node", "M"],
-    ["factors", "vec3", "LN"],
-    ["anchor", "vec3", ""]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to scale"
+    },
+    {
+      "name": "factors",
+      "type": "vec3",
+      "default": [1.000000,1.000000,1.000000],
+      "flags": ["live", "node"],
+      "desc": "scaling factors (how much to scale on each axis)"
+    },
+    {
+      "name": "anchor",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "vector to the center point of the scale"
+    }
   ],
   "Skew": [
-    ["child", "node", "M"],
-    ["angles", "vec3", "LN"],
-    ["axis", "vec3", ""],
-    ["anchor", "vec3", ""]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to skew"
+    },
+    {
+      "name": "angles",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": ["live", "node"],
+      "desc": "skewing angles, only components forming a plane opposite to `axis` should be set"
+    },
+    {
+      "name": "axis",
+      "type": "vec3",
+      "default": [1.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "skew axis"
+    },
+    {
+      "name": "anchor",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "vector to the center point of the skew"
+    }
   ],
   "SmoothPath": [
-    ["points", "node", "M"],
-    ["control1", "vec3", ""],
-    ["control2", "vec3", ""],
-    ["precision", "i32", ""],
-    ["tension", "f32", ""]
+    {
+      "name": "points",
+      "type": "node",
+      "node_types": ["BufferVec3"],
+      "flags": ["nonull"],
+      "desc": "anchor points the path go through"
+    },
+    {
+      "name": "control1",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "initial control point"
+    },
+    {
+      "name": "control2",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "final control point"
+    },
+    {
+      "name": "precision",
+      "type": "i32",
+      "default": 64,
+      "flags": [],
+      "desc": "number of divisions per curve segment"
+    },
+    {
+      "name": "tension",
+      "type": "f32",
+      "default": 0.500000,
+      "flags": [],
+      "desc": "tension between points"
+    }
   ],
   "Text": [
-    ["text", "str", "LM"],
-    ["live_id", "str", ""],
-    ["fg_color", "vec3", "L"],
-    ["fg_opacity", "f32", "L"],
-    ["bg_color", "vec3", "L"],
-    ["bg_opacity", "f32", "L"],
-    ["box_corner", "vec3", ""],
-    ["box_width", "vec3", ""],
-    ["box_height", "vec3", ""],
-    ["padding", "i32", ""],
-    ["font_scale", "f32", ""],
-    ["valign", "select", ""],
-    ["halign", "select", ""],
-    ["aspect_ratio", "rational", "L"]
+    {
+      "name": "text",
+      "type": "str",
+      "default": "",
+      "flags": ["live", "nonull"],
+      "desc": "text string to rasterize"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "fg_color",
+      "type": "vec3",
+      "default": [1.000000,1.000000,1.000000],
+      "flags": ["live"],
+      "desc": "foreground text color"
+    },
+    {
+      "name": "fg_opacity",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live"],
+      "desc": "foreground text opacity"
+    },
+    {
+      "name": "bg_color",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": ["live"],
+      "desc": "background text color"
+    },
+    {
+      "name": "bg_opacity",
+      "type": "f32",
+      "default": 0.800000,
+      "flags": ["live"],
+      "desc": "background text opacity"
+    },
+    {
+      "name": "box_corner",
+      "type": "vec3",
+      "default": [-1.000000,-1.000000,0.000000],
+      "flags": [],
+      "desc": "origin coordinates of `box_width` and `box_height` vectors"
+    },
+    {
+      "name": "box_width",
+      "type": "vec3",
+      "default": [2.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "box width vector"
+    },
+    {
+      "name": "box_height",
+      "type": "vec3",
+      "default": [0.000000,2.000000,0.000000],
+      "flags": [],
+      "desc": "box height vector"
+    },
+    {
+      "name": "padding",
+      "type": "i32",
+      "default": 3,
+      "flags": [],
+      "desc": "pixel padding around the text"
+    },
+    {
+      "name": "font_scale",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "scaling of the font"
+    },
+    {
+      "name": "valign",
+      "type": "select",
+      "default": "center",
+      "choices": ["center", "bottom", "top"],
+      "flags": [],
+      "desc": "vertical alignment of the text in the box"
+    },
+    {
+      "name": "halign",
+      "type": "select",
+      "default": "center",
+      "choices": ["center", "right", "left"],
+      "flags": [],
+      "desc": "horizontal alignment of the text in the box"
+    },
+    {
+      "name": "aspect_ratio",
+      "type": "rational",
+      "default": [0,0],
+      "flags": ["live"],
+      "desc": "box aspect ratio"
+    }
   ],
   "Texture2D": [
-    ["format", "select", ""],
-    ["width", "i32", ""],
-    ["height", "i32", ""],
-    ["min_filter", "select", ""],
-    ["mag_filter", "select", ""],
-    ["mipmap_filter", "select", ""],
-    ["wrap_s", "select", ""],
-    ["wrap_t", "select", ""],
-    ["data_src", "node", ""],
-    ["direct_rendering", "bool", ""],
-    ["clamp_video", "bool", ""]
+    {
+      "name": "format",
+      "type": "select",
+      "default": "r8g8b8a8_unorm",
+      "choices": ["undefined", "r8_unorm", "r8_snorm", "r8_uint", "r8_sint", "r8g8_unorm", "r8g8_snorm", "r8g8_uint", "r8g8_sint", "r8g8b8a8_unorm", "r8g8b8a8_snorm", "r8g8b8a8_uint", "r8g8b8a8_sint", "r8g8b8a8_srgb", "b8g8r8a8_unorm", "b8g8r8a8_snorm", "b8g8r8a8_uint", "b8g8r8a8_sint", "r16_unorm", "r16_snorm", "r16_uint", "r16_sint", "r16_sfloat", "r16g16_unorm", "r16g16_snorm", "r16g16_uint", "r16g16_sint", "r16g16_sfloat", "r16g16b16a16_unorm", "r16g16b16a16_snorm", "r16g16b16a16_uint", "r16g16b16a16_sint", "r16g16b16a16_sfloat", "r32_uint", "r32_sint", "r32_sfloat", "r32g32_uint", "r32g32_sint", "r32g32_sfloat", "r32g32b32a32_uint", "r32g32b32a32_sint", "r32g32b32a32_sfloat", "d16_unorm", "d24_unorm", "d32_sfloat", "d24_unorm_s8_uint", "d32_sfloat_s8_uint", "s8_uint", "auto_depth", "auto_depth_stencil"],
+      "flags": [],
+      "desc": "format of the pixel data"
+    },
+    {
+      "name": "width",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "width of the texture"
+    },
+    {
+      "name": "height",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "height of the texture"
+    },
+    {
+      "name": "min_filter",
+      "type": "select",
+      "default": "nearest",
+      "choices": ["nearest", "linear"],
+      "flags": [],
+      "desc": "texture minifying function"
+    },
+    {
+      "name": "mag_filter",
+      "type": "select",
+      "default": "nearest",
+      "choices": ["nearest", "linear"],
+      "flags": [],
+      "desc": "texture magnification function"
+    },
+    {
+      "name": "mipmap_filter",
+      "type": "select",
+      "default": "none",
+      "choices": ["none", "nearest", "linear"],
+      "flags": [],
+      "desc": "texture minifying mipmap function"
+    },
+    {
+      "name": "wrap_s",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the s dimension (horizontal)"
+    },
+    {
+      "name": "wrap_t",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the t dimension (vertical)"
+    },
+    {
+      "name": "data_src",
+      "type": "node",
+      "node_types": ["Media", "AnimatedBufferFloat", "AnimatedBufferVec2", "AnimatedBufferVec4", "BufferByte", "BufferBVec2", "BufferBVec4", "BufferInt", "BufferIVec2", "BufferIVec4", "BufferShort", "BufferSVec2", "BufferSVec4", "BufferUByte", "BufferUBVec2", "BufferUBVec4", "BufferUInt", "BufferUIVec2", "BufferUIVec4", "BufferUShort", "BufferUSVec2", "BufferUSVec4", "BufferFloat", "BufferVec2", "BufferVec4"],
+      "flags": [],
+      "desc": "data source"
+    },
+    {
+      "name": "direct_rendering",
+      "type": "bool",
+      "default": 1,
+      "flags": [],
+      "desc": "whether direct rendering is allowed or not for media playback"
+    },
+    {
+      "name": "clamp_video",
+      "type": "bool",
+      "default": 0,
+      "flags": [],
+      "desc": "clamp ngl_texvideo() output to [0;1]"
+    }
   ],
   "Texture3D": [
-    ["format", "select", ""],
-    ["width", "i32", ""],
-    ["height", "i32", ""],
-    ["depth", "i32", ""],
-    ["min_filter", "select", ""],
-    ["mag_filter", "select", ""],
-    ["mipmap_filter", "select", ""],
-    ["wrap_s", "select", ""],
-    ["wrap_t", "select", ""],
-    ["wrap_r", "select", ""],
-    ["data_src", "node", ""]
+    {
+      "name": "format",
+      "type": "select",
+      "default": "r8g8b8a8_unorm",
+      "choices": ["undefined", "r8_unorm", "r8_snorm", "r8_uint", "r8_sint", "r8g8_unorm", "r8g8_snorm", "r8g8_uint", "r8g8_sint", "r8g8b8a8_unorm", "r8g8b8a8_snorm", "r8g8b8a8_uint", "r8g8b8a8_sint", "r8g8b8a8_srgb", "b8g8r8a8_unorm", "b8g8r8a8_snorm", "b8g8r8a8_uint", "b8g8r8a8_sint", "r16_unorm", "r16_snorm", "r16_uint", "r16_sint", "r16_sfloat", "r16g16_unorm", "r16g16_snorm", "r16g16_uint", "r16g16_sint", "r16g16_sfloat", "r16g16b16a16_unorm", "r16g16b16a16_snorm", "r16g16b16a16_uint", "r16g16b16a16_sint", "r16g16b16a16_sfloat", "r32_uint", "r32_sint", "r32_sfloat", "r32g32_uint", "r32g32_sint", "r32g32_sfloat", "r32g32b32a32_uint", "r32g32b32a32_sint", "r32g32b32a32_sfloat", "d16_unorm", "d24_unorm", "d32_sfloat", "d24_unorm_s8_uint", "d32_sfloat_s8_uint", "s8_uint", "auto_depth", "auto_depth_stencil"],
+      "flags": [],
+      "desc": "format of the pixel data"
+    },
+    {
+      "name": "width",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "width of the texture"
+    },
+    {
+      "name": "height",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "height of the texture"
+    },
+    {
+      "name": "depth",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "depth of the texture"
+    },
+    {
+      "name": "min_filter",
+      "type": "select",
+      "default": "nearest",
+      "choices": ["nearest", "linear"],
+      "flags": [],
+      "desc": "texture minifying function"
+    },
+    {
+      "name": "mag_filter",
+      "type": "select",
+      "default": "nearest",
+      "choices": ["nearest", "linear"],
+      "flags": [],
+      "desc": "texture magnification function"
+    },
+    {
+      "name": "mipmap_filter",
+      "type": "select",
+      "default": "none",
+      "choices": ["none", "nearest", "linear"],
+      "flags": [],
+      "desc": "texture minifying mipmap function"
+    },
+    {
+      "name": "wrap_s",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the s dimension (horizontal)"
+    },
+    {
+      "name": "wrap_t",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the t dimension (vertical)"
+    },
+    {
+      "name": "wrap_r",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the r dimension (depth)"
+    },
+    {
+      "name": "data_src",
+      "type": "node",
+      "node_types": ["AnimatedBufferFloat", "AnimatedBufferVec2", "AnimatedBufferVec4", "BufferByte", "BufferBVec2", "BufferBVec4", "BufferInt", "BufferIVec2", "BufferIVec4", "BufferShort", "BufferSVec2", "BufferSVec4", "BufferUByte", "BufferUBVec2", "BufferUBVec4", "BufferUInt", "BufferUIVec2", "BufferUIVec4", "BufferUShort", "BufferUSVec2", "BufferUSVec4", "BufferFloat", "BufferVec2", "BufferVec4"],
+      "flags": [],
+      "desc": "data source"
+    }
   ],
   "TextureCube": [
-    ["format", "select", ""],
-    ["size", "i32", ""],
-    ["min_filter", "select", ""],
-    ["mag_filter", "select", ""],
-    ["mipmap_filter", "select", ""],
-    ["wrap_s", "select", ""],
-    ["wrap_t", "select", ""],
-    ["wrap_r", "select", ""],
-    ["data_src", "node", ""]
+    {
+      "name": "format",
+      "type": "select",
+      "default": "r8g8b8a8_unorm",
+      "choices": ["undefined", "r8_unorm", "r8_snorm", "r8_uint", "r8_sint", "r8g8_unorm", "r8g8_snorm", "r8g8_uint", "r8g8_sint", "r8g8b8a8_unorm", "r8g8b8a8_snorm", "r8g8b8a8_uint", "r8g8b8a8_sint", "r8g8b8a8_srgb", "b8g8r8a8_unorm", "b8g8r8a8_snorm", "b8g8r8a8_uint", "b8g8r8a8_sint", "r16_unorm", "r16_snorm", "r16_uint", "r16_sint", "r16_sfloat", "r16g16_unorm", "r16g16_snorm", "r16g16_uint", "r16g16_sint", "r16g16_sfloat", "r16g16b16a16_unorm", "r16g16b16a16_snorm", "r16g16b16a16_uint", "r16g16b16a16_sint", "r16g16b16a16_sfloat", "r32_uint", "r32_sint", "r32_sfloat", "r32g32_uint", "r32g32_sint", "r32g32_sfloat", "r32g32b32a32_uint", "r32g32b32a32_sint", "r32g32b32a32_sfloat", "d16_unorm", "d24_unorm", "d32_sfloat", "d24_unorm_s8_uint", "d32_sfloat_s8_uint", "s8_uint", "auto_depth", "auto_depth_stencil"],
+      "flags": [],
+      "desc": "format of the pixel data"
+    },
+    {
+      "name": "size",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "width and height of the texture"
+    },
+    {
+      "name": "min_filter",
+      "type": "select",
+      "default": "nearest",
+      "choices": ["nearest", "linear"],
+      "flags": [],
+      "desc": "texture minifying function"
+    },
+    {
+      "name": "mag_filter",
+      "type": "select",
+      "default": "nearest",
+      "choices": ["nearest", "linear"],
+      "flags": [],
+      "desc": "texture magnification function"
+    },
+    {
+      "name": "mipmap_filter",
+      "type": "select",
+      "default": "none",
+      "choices": ["none", "nearest", "linear"],
+      "flags": [],
+      "desc": "texture minifying mipmap function"
+    },
+    {
+      "name": "wrap_s",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the s dimension (horizontal)"
+    },
+    {
+      "name": "wrap_t",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the t dimension (vertical)"
+    },
+    {
+      "name": "wrap_r",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the r dimension (depth)"
+    },
+    {
+      "name": "data_src",
+      "type": "node",
+      "node_types": ["AnimatedBufferFloat", "AnimatedBufferVec2", "AnimatedBufferVec4", "BufferByte", "BufferBVec2", "BufferBVec4", "BufferInt", "BufferIVec2", "BufferIVec4", "BufferShort", "BufferSVec2", "BufferSVec4", "BufferUByte", "BufferUBVec2", "BufferUBVec4", "BufferUInt", "BufferUIVec2", "BufferUIVec4", "BufferUShort", "BufferUSVec2", "BufferUSVec4", "BufferFloat", "BufferVec2", "BufferVec4"],
+      "flags": [],
+      "desc": "data source"
+    }
   ],
   "TextureView": [
-    ["texture", "node", "M"],
-    ["layer", "i32", ""]
+    {
+      "name": "texture",
+      "type": "node",
+      "node_types": ["Texture2D", "TextureCube"],
+      "flags": ["nonull"],
+      "desc": "texture used for the view"
+    },
+    {
+      "name": "layer",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "texture layer used for the view"
+    }
   ],
   "Time": [
   ],
   "TimeRangeFilter": [
-    ["child", "node", "M"],
-    ["ranges", "node_list", ""],
-    ["prefetch_time", "f64", ""],
-    ["max_idle_time", "f64", ""]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "time filtered scene"
+    },
+    {
+      "name": "ranges",
+      "type": "node_list",
+      "node_types": ["TimeRangeModeOnce", "TimeRangeModeNoop", "TimeRangeModeCont"],
+      "flags": [],
+      "desc": "key frame time filtering events"
+    },
+    {
+      "name": "prefetch_time",
+      "type": "f64",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "`child` is prefetched `prefetch_time` seconds in advance"
+    },
+    {
+      "name": "max_idle_time",
+      "type": "f64",
+      "default": 4.000000,
+      "flags": [],
+      "desc": "`child` will not be released if it is required in the next incoming `max_idle_time` seconds"
+    }
   ],
   "TimeRangeModeCont": [
-    ["start_time", "f64", ""]
+    {
+      "name": "start_time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting time for the scene to be drawn"
+    }
   ],
   "TimeRangeModeNoop": [
-    ["start_time", "f64", ""]
+    {
+      "name": "start_time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting time for the scene to stop being drawn"
+    }
   ],
   "TimeRangeModeOnce": [
-    ["start_time", "f64", ""],
-    ["render_time", "f64", ""]
+    {
+      "name": "start_time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "starting time for the scene to be drawn once"
+    },
+    {
+      "name": "render_time",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "chosen time to draw"
+    }
   ],
   "Transform": [
-    ["child", "node", "M"],
-    ["matrix", "mat4", "L"]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to apply the transform to"
+    },
+    {
+      "name": "matrix",
+      "type": "mat4",
+      "default": [1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000],
+      "flags": ["live"],
+      "desc": "transformation matrix"
+    }
   ],
   "Translate": [
-    ["child", "node", "M"],
-    ["vector", "vec3", "LN"]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to translate"
+    },
+    {
+      "name": "vector",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": ["live", "node"],
+      "desc": "translation vector"
+    }
   ],
   "Triangle": [
-    ["edge0", "vec3", ""],
-    ["edge1", "vec3", ""],
-    ["edge2", "vec3", ""],
-    ["uv_edge0", "vec2", ""],
-    ["uv_edge1", "vec2", ""],
-    ["uv_edge2", "vec2", ""]
+    {
+      "name": "edge0",
+      "type": "vec3",
+      "default": [1.000000,-1.000000,0.000000],
+      "flags": [],
+      "desc": "first edge coordinate of the triangle"
+    },
+    {
+      "name": "edge1",
+      "type": "vec3",
+      "default": [0.000000,1.000000,0.000000],
+      "flags": [],
+      "desc": "second edge coordinate of the triangle"
+    },
+    {
+      "name": "edge2",
+      "type": "vec3",
+      "default": [-1.000000,-1.000000,0.000000],
+      "flags": [],
+      "desc": "third edge coordinate of the triangle"
+    },
+    {
+      "name": "uv_edge0",
+      "type": "vec2",
+      "default": [0.000000,0.000000],
+      "flags": [],
+      "desc": "UV coordinate associated with `edge0`"
+    },
+    {
+      "name": "uv_edge1",
+      "type": "vec2",
+      "default": [0.000000,1.000000],
+      "flags": [],
+      "desc": "UV coordinate associated with `edge1`"
+    },
+    {
+      "name": "uv_edge2",
+      "type": "vec2",
+      "default": [1.000000,1.000000],
+      "flags": [],
+      "desc": "UV coordinate associated with `edge2`"
+    }
   ],
   "StreamedInt": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferInt"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedIVec2": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferIVec2"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedIVec3": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferIVec3"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedIVec4": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferIVec4"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedUInt": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferUInt"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedUIVec2": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferUIVec2"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedUIVec3": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferUIVec3"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedUIVec4": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferUIVec4"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedFloat": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferFloat"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedVec2": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferVec2"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedVec3": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferVec3"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedVec4": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferVec4"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedMat4": [
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferMat4"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferInt": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferInt"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferIVec2": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferIVec2"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferIVec3": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferIVec3"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferIVec4": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferIVec4"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferUInt": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferUInt"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferUIVec2": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferUIVec2"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferUIVec3": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferUIVec3"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferUIVec4": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferUIVec4"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferFloat": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferFloat"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferVec2": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferVec2"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferVec3": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferVec3"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferVec4": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferVec4"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "StreamedBufferMat4": [
-    ["count", "i32", ""],
-    ["timestamps", "node", "M"],
-    ["buffer", "node", "M"],
-    ["timebase", "rational", ""],
-    ["time_anim", "node", ""]
+    {
+      "name": "count",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "number of elements for each chunk of data to stream"
+    },
+    {
+      "name": "timestamps",
+      "type": "node",
+      "node_types": ["BufferInt64"],
+      "flags": ["nonull"],
+      "desc": "timestamps associated with each chunk of data to stream"
+    },
+    {
+      "name": "buffer",
+      "type": "node",
+      "node_types": ["BufferMat4"],
+      "flags": ["nonull"],
+      "desc": "buffer containing the data to stream"
+    },
+    {
+      "name": "timebase",
+      "type": "rational",
+      "default": [1,1000000],
+      "flags": [],
+      "desc": "time base in which the `timestamps` are represented"
+    },
+    {
+      "name": "time_anim",
+      "type": "node",
+      "node_types": ["AnimatedTime"],
+      "flags": [],
+      "desc": "time remapping animation (must use a `linear` interpolation)"
+    }
   ],
   "UniformBool": [
-    ["value", "bool", "L"],
-    ["live_id", "str", ""]
+    {
+      "name": "value",
+      "type": "bool",
+      "default": 0,
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    }
   ],
   "UniformInt": [
-    ["value", "i32", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "i32", ""],
-    ["live_max", "i32", ""]
+    {
+      "name": "value",
+      "type": "i32",
+      "default": 0,
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "i32",
+      "default": -100,
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "i32",
+      "default": 100,
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformIVec2": [
-    ["value", "ivec2", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "ivec2", ""],
-    ["live_max", "ivec2", ""]
+    {
+      "name": "value",
+      "type": "ivec2",
+      "default": [0,0],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "ivec2",
+      "default": [-100,-100],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "ivec2",
+      "default": [100,100],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformIVec3": [
-    ["value", "ivec3", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "ivec3", ""],
-    ["live_max", "ivec3", ""]
+    {
+      "name": "value",
+      "type": "ivec3",
+      "default": [0,0,0],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "ivec3",
+      "default": [-100,-100,-100],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "ivec3",
+      "default": [100,100,100],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformIVec4": [
-    ["value", "ivec4", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "ivec4", ""],
-    ["live_max", "ivec4", ""]
+    {
+      "name": "value",
+      "type": "ivec4",
+      "default": [0,0,0,0],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "ivec4",
+      "default": [-100,-100,-100,-100],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "ivec4",
+      "default": [100,100,100,100],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformUInt": [
-    ["value", "u32", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "u32", ""],
-    ["live_max", "u32", ""]
+    {
+      "name": "value",
+      "type": "u32",
+      "default": 0,
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "u32",
+      "default": 0,
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "u32",
+      "default": 100,
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformUIVec2": [
-    ["value", "uvec2", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "uvec2", ""],
-    ["live_max", "uvec2", ""]
+    {
+      "name": "value",
+      "type": "uvec2",
+      "default": [0,0],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "uvec2",
+      "default": [0,0],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "uvec2",
+      "default": [100,100],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformUIVec3": [
-    ["value", "uvec3", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "uvec3", ""],
-    ["live_max", "uvec3", ""]
+    {
+      "name": "value",
+      "type": "uvec3",
+      "default": [0,0,0],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "uvec3",
+      "default": [0,0,0],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "uvec3",
+      "default": [100,100,100],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformUIVec4": [
-    ["value", "uvec4", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "uvec4", ""],
-    ["live_max", "uvec4", ""]
+    {
+      "name": "value",
+      "type": "uvec4",
+      "default": [0,0,0,0],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "uvec4",
+      "default": [0,0,0,0],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "uvec4",
+      "default": [100,100,100,100],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformMat4": [
-    ["value", "mat4", "L"],
-    ["live_id", "str", ""],
-    ["transform", "node", ""]
+    {
+      "name": "value",
+      "type": "mat4",
+      "default": [1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "transform",
+      "type": "node",
+      "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Identity"],
+      "flags": [],
+      "desc": "`value` transformation chain"
+    }
   ],
   "UniformFloat": [
-    ["value", "f32", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "f32", ""],
-    ["live_max", "f32", ""]
+    {
+      "name": "value",
+      "type": "f32",
+      "default": 0.000000,
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "f32",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformVec2": [
-    ["value", "vec2", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "vec2", ""],
-    ["live_max", "vec2", ""]
+    {
+      "name": "value",
+      "type": "vec2",
+      "default": [0.000000,0.000000],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "vec2",
+      "default": [0.000000,0.000000],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "vec2",
+      "default": [1.000000,1.000000],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformVec3": [
-    ["value", "vec3", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "vec3", ""],
-    ["live_max", "vec3", ""]
+    {
+      "name": "value",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "vec3",
+      "default": [1.000000,1.000000,1.000000],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformVec4": [
-    ["value", "vec4", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "vec4", ""],
-    ["live_max", "vec4", ""]
+    {
+      "name": "value",
+      "type": "vec4",
+      "default": [0.000000,0.000000,0.000000,0.000000],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "vec4",
+      "default": [0.000000,0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "vec4",
+      "default": [1.000000,1.000000,1.000000,1.000000],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    }
   ],
   "UniformColor": [
-    ["value", "vec3", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "vec3", ""],
-    ["live_max", "vec3", ""],
-    ["space", "select", ""]
+    {
+      "name": "value",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "vec3",
+      "default": [0.000000,0.000000,0.000000],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "vec3",
+      "default": [1.000000,1.000000,1.000000],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "space",
+      "type": "select",
+      "default": "srgb",
+      "choices": ["srgb", "hsl", "hsv"],
+      "flags": [],
+      "desc": "color space defining how to interpret `value`"
+    }
   ],
   "UniformQuat": [
-    ["value", "vec4", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "vec4", ""],
-    ["live_max", "vec4", ""],
-    ["as_mat4", "bool", ""]
+    {
+      "name": "value",
+      "type": "vec4",
+      "default": [0.000000,0.000000,0.000000,1.000000],
+      "flags": ["live"],
+      "desc": "value exposed to the shader"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "vec4",
+      "default": [-1.000000,-1.000000,-1.000000,-1.000000],
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "vec4",
+      "default": [1.000000,1.000000,1.000000,1.000000],
+      "flags": [],
+      "desc": "maximum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "as_mat4",
+      "type": "bool",
+      "default": 0,
+      "flags": [],
+      "desc": "exposed as a 4x4 rotation matrix in the program"
+    }
   ],
   "UserSelect": [
-    ["branches", "node_list", ""],
-    ["branch", "i32", "L"],
-    ["live_id", "str", ""],
-    ["live_min", "i32", ""],
-    ["live_max", "i32", ""]
+    {
+      "name": "branches",
+      "type": "node_list",
+      "flags": [],
+      "desc": "a set of branches to pick from"
+    },
+    {
+      "name": "branch",
+      "type": "i32",
+      "default": 0,
+      "flags": ["live"],
+      "desc": "controls which branch is taken"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    },
+    {
+      "name": "live_min",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "minimum value allowed during live change (only honored when live_id is set)"
+    },
+    {
+      "name": "live_max",
+      "type": "i32",
+      "default": 10,
+      "flags": [],
+      "desc": "maximum value allowed during live change (only_honored when live_id is set)"
+    }
   ],
   "UserSwitch": [
-    ["child", "node", "M"],
-    ["enabled", "bool", "L"],
-    ["live_id", "str", ""]
+    {
+      "name": "child",
+      "type": "node",
+      "flags": ["nonull"],
+      "desc": "scene to be rendered or not"
+    },
+    {
+      "name": "enabled",
+      "type": "bool",
+      "default": 1,
+      "flags": ["live"],
+      "desc": "set if the scene should be rendered"
+    },
+    {
+      "name": "live_id",
+      "type": "str",
+      "flags": [],
+      "desc": "live control identifier"
+    }
   ],
   "VelocityFloat": [
-    ["animation", "node", "M"]
+    {
+      "name": "animation",
+      "type": "node",
+      "node_types": ["AnimatedFloat"],
+      "flags": ["nonull"],
+      "desc": "1D animation to analyze the velocity from"
+    }
   ],
   "VelocityVec2": [
-    ["animation", "node", "M"]
+    {
+      "name": "animation",
+      "type": "node",
+      "node_types": ["AnimatedVec2"],
+      "flags": ["nonull"],
+      "desc": "2D animation to analyze the velocity from"
+    }
   ],
   "VelocityVec3": [
-    ["animation", "node", "M"]
+    {
+      "name": "animation",
+      "type": "node",
+      "node_types": ["AnimatedVec3"],
+      "flags": ["nonull"],
+      "desc": "3D animation to analyze the velocity from"
+    }
   ],
   "VelocityVec4": [
-    ["animation", "node", "M"]
+    {
+      "name": "animation",
+      "type": "node",
+      "node_types": ["AnimatedVec4"],
+      "flags": ["nonull"],
+      "desc": "4D animation to analyze the velocity from"
+    }
   ]
 }
