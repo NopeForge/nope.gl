@@ -12,6 +12,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - CSV export in the HUD now always prints floats in C locale instead of quoted
 - `pynopegl.Context.configure()` now takes a `Config` as argument
 - `pynopegl` log levels are now controled using the `pynopegl.Log` enum
+- `max_texture_dimensions_*` capabilities are renamed to `max_texture_dimension_*`
 
 ## [2023.1] [libnopegl 0.8.0] - 2023-04-07
 ### Changed
