@@ -708,7 +708,7 @@ NGL_API int ngl_resize(struct ngl_ctx *s, int width, int height, const int *view
  * to configure the nope.gl context.
  *
  * @param s               pointer to a nope.gl context
- * @params capture_buffer pointer to a capture buffer, if NULL no capture will
+ * @param capture_buffer  pointer to a capture buffer, if NULL no capture will
  *                        be performed for the following ngl_draw() calls.
  *
  * @return 0 on success, NGL_ERROR_* (< 0) on error
@@ -847,7 +847,7 @@ NGL_API int ngl_easing_derivate(const char *name, const double *args, int nb_arg
  * This function only works if the OpenGL context is external.
  *
  * @param s               pointer to a nope.gl context
- * @params framebuffer    OpenGL framebuffer identifier to wrap
+ * @param framebuffer     OpenGL framebuffer identifier to wrap
  *
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
