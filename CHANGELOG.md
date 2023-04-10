@@ -8,6 +8,9 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+### Added
+- Much more detailed typing annotations in `pynopegl`
+
 ### Changed
 - CSV export in the HUD now always prints floats in C locale instead of quoted
 - `pynopegl.Context.configure()` now takes a `Config` as argument
