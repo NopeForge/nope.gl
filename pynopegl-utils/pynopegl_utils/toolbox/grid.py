@@ -20,12 +20,13 @@
 #
 
 import math
+from typing import Any, Sequence, Tuple
 
 import pynopegl as ngl
 
 
 class AutoGrid:
-    def __init__(self, elems):
+    def __init__(self, elems: Sequence[Any]):
         self.elems = elems
         self.nb = len(elems)
         self.nb_rows = int(round(math.sqrt(self.nb)))
@@ -33,18 +34,18 @@ class AutoGrid:
         self.dim = max(self.nb_rows, self.nb_cols)
         self.scale = 1.0 / self.dim
 
-    def _get_coords(self, pos):
+    def _get_coords(self, pos: Tuple[float, float]) -> Tuple[float, float]:
         col, row = pos
         pos_x = self.scale * (col * 2.0 + 1.0) - 1.0
         pos_y = self.scale * (row * -2.0 - 1.0) + 1.0
         return pos_x, pos_y
 
-    def transform_coords(self, coords, pos):
+    def transform_coords(self, coords: Tuple[float, float], pos: Tuple[float, float]) -> Tuple[float, float]:
         adjust = self._get_coords(pos)
         scales = (self.scale, self.scale)
         return tuple(c * s + a for c, s, a in zip(coords, scales, adjust))
 
-    def place_node(self, node, pos):
+    def place_node(self, node: ngl.Node, pos: Tuple[float, float]):
         pos_x, pos_y = self._get_coords(pos)
         # This is equivalent to Translate(Scale(node))
         mat = (
@@ -67,7 +68,7 @@ class AutoGrid:
                     return
 
 
-def autogrid_simple(scenes):
+def autogrid_simple(scenes: Sequence[ngl.Node]) -> ngl.Node:
     ag = AutoGrid(scenes)
     g = ngl.Group()
     for scene, _, col, row in ag:
@@ -76,7 +77,7 @@ def autogrid_simple(scenes):
     return g
 
 
-def autogrid_queue(scenes, duration, overlap_time):
+def autogrid_queue(scenes: Sequence[ngl.Node], duration: float, overlap_time: float) -> ngl.Node:
     ag = AutoGrid(scenes)
     g = ngl.Group()
     for scene, scene_id, col, row in ag:

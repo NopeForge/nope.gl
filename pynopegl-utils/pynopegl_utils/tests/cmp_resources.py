@@ -22,6 +22,7 @@
 import csv
 import os
 import tempfile
+from collections.abc import Sequence
 
 from .cmp import CompareSceneBase, get_test_decorator
 
@@ -43,7 +44,7 @@ _COLS = (
 
 
 class _CompareResources(CompareSceneBase):
-    def __init__(self, scene_func, columns=_COLS, **kwargs):
+    def __init__(self, scene_func, columns: Sequence[str] = _COLS, **kwargs):
         super().__init__(scene_func, width=320, height=240, **kwargs)
 
         # We can't use NamedTemporaryFile because we may not be able to open it
@@ -55,7 +56,7 @@ class _CompareResources(CompareSceneBase):
         self._hud = True
         self._hud_export_filename = self._csvfile
 
-    def get_out_data(self, debug=False, debug_func=None):
+    def get_out_data(self, debug=False, debug_func=None) -> str:
         for _ in self.render_frames():
             pass
 

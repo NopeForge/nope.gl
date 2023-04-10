@@ -20,6 +20,7 @@
 #
 
 import array
+import random
 
 
 # https://en.wikipedia.org/wiki/Color_term
@@ -42,7 +43,7 @@ class COLORS:
     # fmt: on
 
 
-def get_random_color_buffer(rng, dim):
+def get_random_color_buffer(rng: random.Random, dim: int) -> array.array:
     data = []
     for _ in range(dim**2):
         data += (rng.random(), rng.random(), rng.random(), 1.0)

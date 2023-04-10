@@ -19,13 +19,21 @@
 # under the License.
 #
 
+from typing import Mapping, Tuple
+
 from pynopegl_utils.misc import SceneCfg
 from pynopegl_utils.toolbox.colors import COLORS
 
 import pynopegl as ngl
 
 
-def get_debug_points(cfg: SceneCfg, points, radius=0.025, color=COLORS.green, text_size=(0.1, 0.1)):
+def get_debug_points(
+    cfg: SceneCfg,
+    points: Mapping[str, Tuple[float, float]],
+    radius: float = 0.025,
+    color: Tuple[float, float, float] = COLORS.green,
+    text_size: Tuple[float, float] = (0.1, 0.1),
+):
     g = ngl.Group(label="Debug circles")
     circle = ngl.Circle(radius=radius)
     circle_render = ngl.RenderColor(color, geometry=circle)
