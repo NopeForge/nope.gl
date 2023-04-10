@@ -62,14 +62,14 @@ static int vec_is_set(const uint8_t *srcp, const struct node_param *par)
 static int ivec_is_set(const uint8_t *srcp, const struct node_param *par)
 {
     const int n = par->type - NGLI_PARAM_TYPE_IVEC2 + 2;
-    const int *v = (const int *)srcp;
+    const int32_t *v = (const int32_t *)srcp;
     return memcmp(v, par->def_value.ivec, n * sizeof(*v));
 }
 
 static int uvec_is_set(const uint8_t *srcp, const struct node_param *par)
 {
     const int n = par->type - NGLI_PARAM_TYPE_UVEC2 + 2;
-    const unsigned *v = (const unsigned *)srcp;
+    const uint32_t *v = (const uint32_t *)srcp;
     return memcmp(v, par->def_value.uvec, n * sizeof(*v));
 }
 
@@ -98,11 +98,11 @@ static int should_print_par(const uint8_t *srcp, const struct node_param *par)
             return v != par->def_value.i32;
         }
         case NGLI_PARAM_TYPE_U32: {
-            const unsigned v = *(unsigned *)srcp;
+            const uint32_t v = *(uint32_t *)srcp;
             return v != par->def_value.u32;
         }
         case NGLI_PARAM_TYPE_RATIONAL: {
-            const int *r = (int *)srcp;
+            const int32_t *r = (int32_t *)srcp;
             return memcmp(r, par->def_value.r, sizeof(par->def_value.r));
         }
         case NGLI_PARAM_TYPE_STR: {
