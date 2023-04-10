@@ -107,6 +107,42 @@ class _WrapperGenerator:
         return classes + "\n\n" + livectl_info
 
     @classmethod
+    def _get_combined_type(cls, node_types, wrap_into_union=True):
+        if not node_types:
+            return "Node"
+
+        # We're escaping the node name into quotes because the node classes are
+        # not declared according to their cross dependencies
+        comb = ", ".join(f'"{t}"' for t in node_types)
+
+        if wrap_into_union and len(node_types) > 1:
+            return f"Union[{comb}]"
+        return comb
+
+    @classmethod
+    def _get_param_type(cls, param):
+        param_type = param["type"]
+
+        node_types = param.get("node_types")
+
+        if "node" in param["flags"]:
+            param_type = cls._TYPING_MAP[param_type]
+            comb = cls._get_combined_type(node_types, wrap_into_union=False)
+            type_ = f"Union[{param_type}, {comb}]"
+            return type_, None
+
+        if "node" in param_type:
+            inner_type = cls._get_combined_type(node_types)
+            type_ = dict(
+                node=inner_type,
+                node_dict=f"Mapping[str, {inner_type}]",
+                node_list=f"Sequence[{inner_type}]",
+            )[param_type]
+            return type_, inner_type
+
+        return cls._TYPING_MAP[param_type], None
+
+    @classmethod
     def _get_setter_code(cls, param, has_kwargs=False):
         param_name = param["name"]
         param_type = param["type"]
@@ -133,19 +169,20 @@ class _WrapperGenerator:
         param_type = param["type"]
         param_flags = param["flags"]
 
-        type_ = cls._TYPING_SINGLE_MAP.get(param_type, cls._TYPING_MAP[param_type])
-        if "node" in param_flags:
-            type_ = f"Union[{type_}, Node]"
+        type_, inner_type = cls._get_param_type(param)
+        type_ = cls._TYPING_SINGLE_MAP.get(param_type, type_)
         if param_type in cls._ARG_TYPES:
             return f"set_{param_name}(self, {param_name}: {type_})"
         if param_type in cls._ARGS_TYPES:
             return f"set_{param_name}(self, *{param_name}: {type_})"
         if param_type == "node_list":
-            return f"add_{param_name}(self, *{param_name}: Node)"
+            return f"add_{param_name}(self, *{param_name}: {inner_type})"
         if param_type == "f64_list":
             return f"add_{param_name}(self, *{param_name}: float)"
         if param_type == "node_dict":
-            return f"update_{param_name}(self, {param_name}: Optional[{type_}] = None, **kwargs: Optional[Node])"
+            return (
+                f"update_{param_name}(self, {param_name}: Optional[{type_}] = None, **kwargs: Optional[{inner_type}])"
+            )
         if param_type == "rational":
             return f"set_{param_name}(self, {param_name}: Tuple[int, int])"
         assert False
@@ -232,10 +269,8 @@ class _WrapperGenerator:
             param_name = param["name"]
             param_type = param["type"]
             param_flags = param["flags"]
-            param_type = cls._TYPING_MAP[param_type]
-            if "node" in param_flags:
-                param_type = f"Union[{param_type}, Node]"
-            kwargs.append(f"{param_name}: Optional[{param_type}] = None")
+            type_, _ = cls._get_param_type(param)
+            kwargs.append(f"{param_name}: Optional[{type_}] = None")
 
         # The leaf is the only node supposed to overload the __init__ method
         # because it must call _pynopegl._Node.__init__ with the context before
