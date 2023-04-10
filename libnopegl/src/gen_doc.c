@@ -142,6 +142,19 @@ static char *get_default_str(const struct node_param *p)
         case NGLI_PARAM_TYPE_VEC2:  ngli_bstr_printf(b, "(`%g`,`%g`)",           NGLI_ARG_VEC2(p->def_value.vec));  break;
         case NGLI_PARAM_TYPE_VEC3:  ngli_bstr_printf(b, "(`%g`,`%g`,`%g`)",      NGLI_ARG_VEC3(p->def_value.vec));  break;
         case NGLI_PARAM_TYPE_VEC4:  ngli_bstr_printf(b, "(`%g`,`%g`,`%g`,`%g`)", NGLI_ARG_VEC4(p->def_value.vec));  break;
+        case NGLI_PARAM_TYPE_MAT4:
+            ngli_bstr_printf(b, "(`%g`,`%g`,`%g`,`%g` "
+                                 "`%g`,`%g`,`%g`,`%g` "
+                                 "`%g`,`%g`,`%g`,`%g` "
+                                 "`%g`,`%g`,`%g`,`%g`)", NGLI_ARG_MAT4(p->def_value.mat));
+            break;
+        case NGLI_PARAM_TYPE_STR:
+            if (p->def_value.str)
+                ngli_bstr_printf(b, "\"%s\"", p->def_value.str);
+            break;
+        case NGLI_PARAM_TYPE_RATIONAL:
+            ngli_bstr_printf(b, "`%d/%d`", NGLI_ARG_VEC2(p->def_value.r));
+            break;
     }
 
     char *def = ngli_bstr_strdup(b);
