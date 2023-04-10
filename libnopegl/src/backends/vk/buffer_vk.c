@@ -105,7 +105,7 @@ struct buffer *ngli_buffer_vk_create(struct gpu_ctx *gpu_ctx)
     return (struct buffer *)s;
 }
 
-VkResult ngli_buffer_vk_init(struct buffer *s, int size, int usage)
+VkResult ngli_buffer_vk_init(struct buffer *s, size_t size, int usage)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -131,7 +131,7 @@ VkResult ngli_buffer_vk_init(struct buffer *s, int size, int usage)
     return create_vk_buffer(vk, size, flags, mem_props, &s_priv->buffer, &s_priv->memory);
 }
 
-VkResult ngli_buffer_vk_upload(struct buffer *s, const void *data, int size, int offset)
+VkResult ngli_buffer_vk_upload(struct buffer *s, const void *data, size_t size, size_t offset)
 {
     if (s->usage & NGLI_BUFFER_USAGE_MAP_READ ||
         s->usage & NGLI_BUFFER_USAGE_MAP_WRITE ||
@@ -188,7 +188,7 @@ VkResult ngli_buffer_vk_upload(struct buffer *s, const void *data, int size, int
     return VK_SUCCESS;
 }
 
-VkResult ngli_buffer_vk_map(struct buffer *s, int size, int offset, void **data)
+VkResult ngli_buffer_vk_map(struct buffer *s, size_t size, size_t offset, void **data)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;

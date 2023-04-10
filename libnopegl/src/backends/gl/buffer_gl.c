@@ -67,7 +67,7 @@ struct buffer *ngli_buffer_gl_create(struct gpu_ctx *gpu_ctx)
     return (struct buffer *)s;
 }
 
-int ngli_buffer_gl_init(struct buffer *s, int size, int usage)
+int ngli_buffer_gl_init(struct buffer *s, size_t size, int usage)
 {
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
@@ -82,7 +82,7 @@ int ngli_buffer_gl_init(struct buffer *s, int size, int usage)
     return 0;
 }
 
-int ngli_buffer_gl_upload(struct buffer *s, const void *data, int size, int offset)
+int ngli_buffer_gl_upload(struct buffer *s, const void *data, size_t size, size_t offset)
 {
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
@@ -92,7 +92,7 @@ int ngli_buffer_gl_upload(struct buffer *s, const void *data, int size, int offs
     return 0;
 }
 
-int ngli_buffer_gl_map(struct buffer *s, int size, int offset, void **datap)
+int ngli_buffer_gl_map(struct buffer *s, size_t size, size_t offset, void **datap)
 {
     return NGL_ERROR_GRAPHICS_UNSUPPORTED;
 }
