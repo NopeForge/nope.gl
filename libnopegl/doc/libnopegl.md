@@ -480,7 +480,7 @@ List of `IOVar*` nodes:
 
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
-`expr0` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | expression to evaluate | 
+`expr0` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | expression to evaluate | "0"
 `resources` |  | [`node_dict`](#parameter-types) ([NoiseFloat](#noise), [EvalFloat](#evalfloat), [UniformFloat](#uniformfloat), [AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat), [Time](#time), [VelocityFloat](#velocityfloat)) | resources made accessible to the `expr0` | 
 
 
@@ -491,7 +491,7 @@ Parameter | Flags | Type | Description | Default
 
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
-`expr0` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | expression to evaluate to define 1st component | 
+`expr0` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | expression to evaluate to define 1st component | "0"
 `expr1` |  | [`str`](#parameter-types) | expression to evaluate to define 2nd component | 
 `resources` |  | [`node_dict`](#parameter-types) ([NoiseFloat](#noise), [EvalFloat](#evalfloat), [UniformFloat](#uniformfloat), [AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat), [Time](#time), [VelocityFloat](#velocityfloat)) | resources made accessible to the `expr0` and `expr1` | 
 
@@ -503,7 +503,7 @@ Parameter | Flags | Type | Description | Default
 
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
-`expr0` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | expression to evaluate to define 1st component | 
+`expr0` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | expression to evaluate to define 1st component | "0"
 `expr1` |  | [`str`](#parameter-types) | expression to evaluate to define 2nd component | 
 `expr2` |  | [`str`](#parameter-types) | expression to evaluate to define 3rd component | 
 `resources` |  | [`node_dict`](#parameter-types) ([NoiseFloat](#noise), [EvalFloat](#evalfloat), [UniformFloat](#uniformfloat), [AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat), [Time](#time), [VelocityFloat](#velocityfloat)) | resources made accessible to the `expr0`, `expr1` and `expr2` | 
@@ -516,7 +516,7 @@ Parameter | Flags | Type | Description | Default
 
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
-`expr0` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | expression to evaluate to define 1st component | 
+`expr0` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | expression to evaluate to define 1st component | "0"
 `expr1` |  | [`str`](#parameter-types) | expression to evaluate to define 2nd component | 
 `expr2` |  | [`str`](#parameter-types) | expression to evaluate to define 3rd component | 
 `expr3` |  | [`str`](#parameter-types) | expression to evaluate to define 4th component | 
@@ -541,7 +541,7 @@ Parameter | Flags | Type | Description | Default
 `stream_idx` |  | [`i32`](#parameter-types) | force a stream number instead of picking the "best" one | `-1`
 `hwaccel` |  | [`nopemd_hwaccel`](#nopemd_hwaccel-choices) | hardware acceleration | `auto`
 `filters` |  | [`str`](#parameter-types) | filters to apply on the media (nope.media/libavfilter) | 
-`vt_pix_fmt` |  | [`str`](#parameter-types) | auto or a comma or space separated list of VideoToolbox (Apple) allowed output pixel formats | 
+`vt_pix_fmt` |  | [`str`](#parameter-types) | auto or a comma or space separated list of VideoToolbox (Apple) allowed output pixel formats | "auto"
 
 
 **Source**: [src/node_media.c](/libnopegl/src/node_media.c)
@@ -833,7 +833,7 @@ Parameter | Flags | Type | Description | Default
 
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
-`text` |  [`live`](#Parameter-flags) [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | text string to rasterize | 
+`text` |  [`live`](#Parameter-flags) [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | text string to rasterize | ""
 `live_id` |  | [`str`](#parameter-types) | live control identifier | 
 `fg_color` |  [`live`](#Parameter-flags) | [`vec3`](#parameter-types) | foreground text color | (`1`,`1`,`1`)
 `fg_opacity` |  [`live`](#Parameter-flags) | [`f32`](#parameter-types) | foreground text opacity | `1`
@@ -846,7 +846,7 @@ Parameter | Flags | Type | Description | Default
 `font_scale` |  | [`f32`](#parameter-types) | scaling of the font | `1`
 `valign` |  | [`valign`](#valign-choices) | vertical alignment of the text in the box | `center`
 `halign` |  | [`halign`](#halign-choices) | horizontal alignment of the text in the box | `center`
-`aspect_ratio` |  [`live`](#Parameter-flags) | [`rational`](#parameter-types) | box aspect ratio | 
+`aspect_ratio` |  [`live`](#Parameter-flags) | [`rational`](#parameter-types) | box aspect ratio | `0/0`
 
 
 **Source**: [src/node_text.c](/libnopegl/src/node_text.c)
@@ -975,7 +975,7 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `child` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) | scene to apply the transform to | 
-`matrix` |  [`live`](#Parameter-flags) | [`mat4`](#parameter-types) | transformation matrix | 
+`matrix` |  [`live`](#Parameter-flags) | [`mat4`](#parameter-types) | transformation matrix | (`1`,`0`,`0`,`0` `0`,`1`,`0`,`0` `0`,`0`,`1`,`0` `0`,`0`,`0`,`1`)
 
 
 **Source**: [src/node_transform.c](/libnopegl/src/node_transform.c)
@@ -1013,7 +1013,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1026,7 +1026,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferIVec2](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1039,7 +1039,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferIVec3](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1052,7 +1052,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferIVec4](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1065,7 +1065,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferUInt](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1078,7 +1078,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferUIVec2](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1091,7 +1091,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferUIVec3](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1104,7 +1104,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferUIVec4](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1117,7 +1117,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferFloat](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1130,7 +1130,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferVec2](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1143,7 +1143,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferVec3](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1156,7 +1156,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferVec4](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1169,7 +1169,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferMat4](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1183,7 +1183,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1197,7 +1197,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferIVec2](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1211,7 +1211,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferIVec3](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1225,7 +1225,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferIVec4](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1239,7 +1239,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferUInt](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1253,7 +1253,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferUIVec2](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1267,7 +1267,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferUIVec3](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1281,7 +1281,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferUIVec4](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1295,7 +1295,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferFloat](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1309,7 +1309,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferVec2](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1323,7 +1323,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferVec3](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1337,7 +1337,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferVec4](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1351,7 +1351,7 @@ Parameter | Flags | Type | Description | Default
 `count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
 `timestamps` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([BufferMat4](#buffer)) | buffer containing the data to stream | 
-`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | `1/1000000`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
@@ -1477,7 +1477,7 @@ Parameter | Flags | Type | Description | Default
 
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
-`value` |  [`live`](#Parameter-flags) | [`mat4`](#parameter-types) | value exposed to the shader | 
+`value` |  [`live`](#Parameter-flags) | [`mat4`](#parameter-types) | value exposed to the shader | (`1`,`0`,`0`,`0` `0`,`1`,`0`,`0` `0`,`0`,`1`,`0` `0`,`0`,`0`,`1`)
 `live_id` |  | [`str`](#parameter-types) | live control identifier | 
 `transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `value` transformation chain | 
 
