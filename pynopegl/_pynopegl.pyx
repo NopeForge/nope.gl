@@ -390,10 +390,10 @@ cdef class _Node:
         return ret
 
 
-_ANIM_EVALUATE, _ANIM_DERIVATE, _ANIM_SOLVE = range(3)
+ANIM_EVALUATE, ANIM_DERIVATE, ANIM_SOLVE = range(3)
 
 
-cdef _animate(name, src, args, offsets, mode):
+def animate(const char *name, double src, args, offsets, mode):
     cdef double c_args[2]
     cdef double *c_args_param = NULL
     cdef int nb_args = 0
@@ -414,15 +414,15 @@ cdef _animate(name, src, args, offsets, mode):
 
     cdef double dst
     cdef int ret
-    if mode == _ANIM_EVALUATE:
+    if mode == ANIM_EVALUATE:
         ret = ngl_easing_evaluate(name, c_args_param, nb_args, c_offsets_param, src, &dst)
         if ret < 0:
             raise Exception(f'Error evaluating {name}')
-    elif mode == _ANIM_DERIVATE:
+    elif mode == ANIM_DERIVATE:
         ret = ngl_easing_derivate(name, c_args_param, nb_args, c_offsets_param, src, &dst)
         if ret < 0:
             raise Exception(f'Error derivating {name}')
-    elif mode == _ANIM_SOLVE:
+    elif mode == ANIM_SOLVE:
         ret = ngl_easing_solve(name, c_args_param, nb_args, c_offsets_param, src, &dst)
         if ret < 0:
             raise Exception(f'Error solving {name}')
@@ -430,18 +430,6 @@ cdef _animate(name, src, args, offsets, mode):
         raise Exception(f'Unknown mode {mode}')
 
     return dst
-
-
-def easing_evaluate(name, t, args=None, offsets=None):
-    return _animate(name, t, args, offsets, _ANIM_EVALUATE)
-
-
-def easing_derivate(name, t, args=None, offsets=None):
-    return _animate(name, t, args, offsets, _ANIM_DERIVATE)
-
-
-def easing_solve(name, v, args=None, offsets=None):
-    return _animate(name, v, args, offsets, _ANIM_SOLVE)
 
 
 PROBE_MODE_FULL = 0
