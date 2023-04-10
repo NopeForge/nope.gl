@@ -335,18 +335,18 @@ static int parse_param_str(struct darray *nodes_array, uint8_t *dstp,
 static int parse_param_data(struct darray *nodes_array, uint8_t *dstp,
                             const struct node_param *par, const char *str)
 {
-    int size = 0;
+    size_t size = 0;
     int consumed = 0;
     const char *cur = str;
     const char *end = str + strlen(str);
-    int ret = sscanf(str, "%d,%n", &size, &consumed);
+    int ret = sscanf(str, "%zd,%n", &size, &consumed);
     if (ret != 1 || !size || cur >= end - consumed)
         return NGL_ERROR_INVALID_DATA;
     cur += consumed;
     uint8_t *data = ngli_calloc(size, sizeof(*data));
     if (!data)
         return NGL_ERROR_MEMORY;
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         if (cur > end - 2) {
             ngli_free(data);
             return NGL_ERROR_INVALID_DATA;

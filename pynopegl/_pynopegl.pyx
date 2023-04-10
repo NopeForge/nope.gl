@@ -44,7 +44,7 @@ cdef extern from "nopegl.h":
     int ngl_node_param_add_nodes(ngl_node *node, const char *key, int nb_nodes, ngl_node **nodes)
     int ngl_node_param_add_f64s(ngl_node *node, const char *key, int nb_f64s, double *f64s)
     int ngl_node_param_set_bool(ngl_node *node, const char *key, int value)
-    int ngl_node_param_set_data(ngl_node *node, const char *key, int size, const void *data)
+    int ngl_node_param_set_data(ngl_node *node, const char *key, size_t size, const void *data)
     int ngl_node_param_set_dict(ngl_node *node, const char *key, const char *name, ngl_node *value)
     int ngl_node_param_set_f32(ngl_node *node, const char *key, float value)
     int ngl_node_param_set_f64(ngl_node *node, const char *key, double value)

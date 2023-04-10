@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 
@@ -94,7 +95,7 @@ const struct param_specs ngli_params_specs[] = {
     },
     [NGLI_PARAM_TYPE_DATA] = {
         .name = "data",
-        .size = sizeof(void *) + sizeof(int),
+        .size = sizeof(void *) + sizeof(size_t),
         .desc = NGLI_DOCSTRING("Agnostic data buffer"),
     },
     [NGLI_PARAM_TYPE_F32] = {
@@ -373,13 +374,13 @@ int ngli_params_set_bool(uint8_t *dstp, const struct node_param *par, int value)
     return 0;
 }
 
-int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, int size, const void *data)
+int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, size_t size, const void *data)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_DATA);
     if (ret < 0)
         return ret;
 
-    LOG(VERBOSE, "set %s to %p (of size %d)", par->key, data, size);
+    LOG(VERBOSE, "set %s to %p (of size %zd)", par->key, data, size);
     uint8_t **dst = (uint8_t **)dstp;
 
     ngli_freep(dst);

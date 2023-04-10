@@ -38,7 +38,7 @@
 struct buffer_opts {
     int count;
     uint8_t *data;
-    int data_size;
+    size_t data_size;
     char *filename;
     struct ngl_node *block;
     char *block_field;
@@ -96,10 +96,10 @@ static int buffer_init_from_data(struct ngl_node *node)
     const struct buffer_opts *o = node->opts;
     struct buffer_layout *layout = &s->buf.layout;
 
-    layout->count = layout->count ? layout->count : o->data_size / (int)layout->stride;
+    layout->count = layout->count ? layout->count : o->data_size / layout->stride;
     if (o->data_size != layout->count * layout->stride) {
         LOG(ERROR,
-            "element count (%zd) and data stride (%zd) does not match data size (%d)",
+            "element count (%zd) and data stride (%zd) does not match data size (%zd)",
             layout->count,
             layout->stride,
             o->data_size);

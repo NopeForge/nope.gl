@@ -210,11 +210,11 @@ static void serialize_str(struct bstr *b, const uint8_t *srcp,
 static void serialize_data(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
 {
     const uint8_t *data = *(uint8_t **)srcp;
-    const int size = *(int *)(srcp + sizeof(uint8_t *));
+    const size_t size = *(size_t *)(srcp + sizeof(uint8_t *));
     if (!data || !size)
         return;
-    ngli_bstr_printf(b, " %s:%d,", par->key, size);
-    for (int i = 0; i < size; i++)
+    ngli_bstr_printf(b, " %s:%zd,", par->key, size);
+    for (size_t i = 0; i < size; i++)
         ngli_bstr_printf(b, "%02x", data[i]);
 }
 

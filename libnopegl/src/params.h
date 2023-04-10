@@ -166,7 +166,7 @@ char *ngli_params_get_flags_str(const struct param_const *consts, int val);
 const struct node_param *ngli_params_find(const struct node_param *params, const char *key);
 void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct node_param *par);
 int ngli_params_set_bool(uint8_t *dstp, const struct node_param *par, int value);
-int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, int size, const void *data);
+int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, size_t size, const void *data);
 int ngli_params_set_dict(uint8_t *dstp, const struct node_param *par, const char *name, struct ngl_node *value);
 int ngli_params_set_f32(uint8_t *dstp, const struct node_param *par, float value);
 int ngli_params_set_f64(uint8_t *dstp, const struct node_param *par, double value);

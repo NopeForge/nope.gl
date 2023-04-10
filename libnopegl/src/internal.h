@@ -364,7 +364,7 @@ struct animkeyframe_opts {
     float value[4];
     double scalar;
     uint8_t *data;
-    int data_size;
+    size_t data_size;
     int easing;
     double *args;
     int nb_args;
