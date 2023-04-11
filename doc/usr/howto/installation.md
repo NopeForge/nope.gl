@@ -43,12 +43,6 @@ building and running the complete `nope.gl` stack.
   *Desktop development with C++* is included (it should enable MSVC build tools
   and Windows 10 SDK).
 - Install [VulkanSDK](https://vulkan.lunarg.com/sdk/home#windows) (optional)
-- Download and extract [Vcpkg](https://github.com/microsoft/vcpkg) in
-  `C:\vcpkg`, then from Windows PowerShell:
-    ```shell
-    .\bootstrap-vcpkg.bat
-    .\vcpkg.exe install --triplet x64-windows glslang
-    ```
 - To be allowed to run the build scripts, you will need to run this once in an
   administrator Powershell: `Set-ExecutionPolicy RemoteSigned`
 - In a Powershell (as user), in the `nope.gl` sources, run
