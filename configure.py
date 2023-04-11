@@ -75,6 +75,17 @@ _EXTERNAL_DEPS = dict(
         dst_file="SDL2-@VERSION@.zip",
         sha256="446cf6277ff0dd4211e6dc19c1b9015210a72758f53f5034c7e4d6b60e540ecf",
     ),
+    glslang=dict(
+        # Use the legacy master-tot Windows build until the main-tot one is
+        # fixed, or until the glslang project provides Windows builds for their
+        # stable releases
+        # See: https://github.com/KhronosGroup/glslang/issues/3186
+        version="master",
+        dst_file="glslang-@VERSION@.zip",
+        dst_dir="glslang-@VERSION@",
+        url="https://github.com/KhronosGroup/glslang/releases/download/master-tot/glslang-master-windows-x64-Release.zip",
+        sha256="skip",
+    ),
     pkgconf=dict(
         version="1.9.4",
         url="https://distfiles.dereferenced.org/pkgconf/pkgconf-@VERSION@.tar.xz",
@@ -101,6 +112,7 @@ def _get_external_deps(args):
         deps.append("opengl_registry")
         deps.append("ffmpeg")
         deps.append("sdl2")
+        deps.append("glslang")
     if "gpu_capture" in args.debug_opts:
         if _SYSTEM not in {"Windows", "Linux"}:
             raise Exception(f"Renderdoc is not supported on {_SYSTEM}")
@@ -349,6 +361,22 @@ def _sdl2_install(cfg):
     os.makedirs(pc_dir, exist_ok=True)
     with open(op.join(pc_dir, "sdl2.pc"), "w") as fp:
         fp.write(pc)
+
+    return cmds
+
+
+@_block("glslang-install", [])
+def _glslang_install(cfg):
+    dirs = (
+        ("lib", "Lib"),
+        ("include", "Include"),
+        ("bin", "Scripts"),
+    )
+    cmds = []
+    for src, dst in dirs:
+        src = op.join(cfg.externals["glslang"], src, "*")
+        dst = op.join(cfg.prefix, dst)
+        cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
 
     return cmds
 
@@ -713,6 +741,7 @@ class _Config:
             _nopemd_setup.prerequisites.append(_opengl_registry_install)
             _nopemd_setup.prerequisites.append(_ffmpeg_install)
             _nopemd_setup.prerequisites.append(_sdl2_install)
+            _nopegl_setup.prerequisites.append(_glslang_install)
             if "gpu_capture" in args.debug_opts:
                 _nopegl_setup.prerequisites.append(_renderdoc_install)
 

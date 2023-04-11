@@ -14,8 +14,6 @@ jobs:
 
     runs-on: windows-latest
     env:
-        VCPKG_TRIPLET: x64-windows
-        VCPKG_INSTALL_PACKAGES: glslang
         VULKAN_SDK_VERSION: 1.3.204.1
     strategy:
       matrix:
@@ -34,20 +32,6 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Get vcpkg cache key
-        shell: bash
-        id: get-vcpkg-cache-key
-        run: |
-          VCPKG_COMMIT_ID=$(git -C C:/vcpkg rev-parse HEAD)
-          echo "::set-output name=key::$(echo $VCPKG_COMMIT_ID ${{env.VCPKG_TRIPLET}} ${{env.VCPKG_INSTALL_PACKAGES}} | md5sum | cut -f1 -d" ")"
-
-      - name: Restore vcpkg binary cache archives
-        id: restore_vcpkg_binary_cache
-        uses: actions/cache@v2
-        with:
-          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
-          key: ${{ steps.get-vcpkg-cache-key.outputs.key }}
-
       - name: Install dependencies
         run: |
           iwr https://sdk.lunarg.com/sdk/download/${{env.VULKAN_SDK_VERSION}}/windows/VulkanSDK-${{env.VULKAN_SDK_VERSION}}-Installer.exe -OutFile VulkanSDK-Installer.exe
@@ -55,9 +39,6 @@ jobs:
 
           iwr https://sdk.lunarg.com/sdk/download/${{env.VULKAN_SDK_VERSION}}/windows/VulkanRT-${{env.VULKAN_SDK_VERSION}}-Installer.exe -OutFile VulkanRT-Installer.exe
           .\VulkanRT-Installer.exe /S
-
-          cd C:\vcpkg
-          .\vcpkg.exe install --triplet ${{env.VCPKG_TRIPLET}} ${{env.VCPKG_INSTALL_PACKAGES}}
 
       - name: Build (${{matrix.build_backend}})
         run: |
