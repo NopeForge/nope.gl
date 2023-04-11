@@ -412,15 +412,9 @@ def _nopegl_setup(cfg):
     extra_library_dirs = []
     extra_include_dirs = []
     if _SYSTEM == "Windows":
-        vcpkg_prefix = op.join(cfg.args.vcpkg_dir, "installed", "x64-windows")
-        extra_library_dirs += [
-            op.join(cfg.prefix, "Lib"),
-            op.join(vcpkg_prefix, "lib"),
-        ]
-        extra_include_dirs += [
-            op.join(cfg.prefix, "Include"),
-            op.join(vcpkg_prefix, "include"),
-        ]
+        extra_library_dirs += [op.join(cfg.prefix, "Lib")]
+        extra_include_dirs += [op.join(cfg.prefix, "Include")]
+
     elif _SYSTEM == "Darwin":
         prefix = _get_brew_prefix()
         if prefix:
@@ -728,11 +722,7 @@ class _Config:
 
         self.bin_name = "Scripts" if _SYSTEM == "Windows" else "bin"
         self.bin_path = op.join(self.prefix, self.bin_name)
-        if _SYSTEM == "Windows":
-            vcpkg_pc_path = op.join(args.vcpkg_dir, "installed", "x64-windows", "lib", "pkgconfig")
-            self.pkg_config_path = os.pathsep.join((vcpkg_pc_path, op.join(self.prefix, "Lib", "pkgconfig")))
-        else:
-            self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
+        self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
         self.externals = _fetch_externals(args)
 
         if _SYSTEM == "Windows":
@@ -744,11 +734,6 @@ class _Config:
             _nopegl_setup.prerequisites.append(_glslang_install)
             if "gpu_capture" in args.debug_opts:
                 _nopegl_setup.prerequisites.append(_renderdoc_install)
-
-            vcpkg_bin = op.join(args.vcpkg_dir, "installed", "x64-windows", "bin")
-            for f in glob.glob(op.join(vcpkg_bin, "*.dll")):
-                logging.info("copy %s to venv/Scripts", f)
-                shutil.copy2(f, op.join("venv", "Scripts"))
 
     def get_env(self):
         sep = ":" if _SYSTEM == "MinGW" else os.pathsep
@@ -783,8 +768,6 @@ def _run():
     parser.add_argument(
         "--build-backend", choices=("ninja", "vs"), default=default_build_backend, help="Build backend to use"
     )
-    if _SYSTEM == "Windows":
-        parser.add_argument("--vcpkg-dir", default=r"C:\vcpkg", help="Vcpkg directory")
 
     args = parser.parse_args()
 
