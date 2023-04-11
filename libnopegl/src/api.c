@@ -184,8 +184,6 @@ void ngli_ctx_reset(struct ngl_ctx *s, int action)
 
 int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
 {
-    int reset_param = NGLI_ACTION_KEEP_SCENE;
-
     int ret = ngli_config_copy(&s->config, config);
     if (ret < 0)
         return ret;
@@ -241,7 +239,7 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
     return 0;
 
 fail:
-    ngli_ctx_reset(s, reset_param);
+    ngli_ctx_reset(s, NGLI_ACTION_KEEP_SCENE);
     return ret;
 }
 
