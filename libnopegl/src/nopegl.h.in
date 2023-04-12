@@ -649,7 +649,7 @@ struct ngl_backend {
     const char *name;
     int is_default;
     struct ngl_cap *caps;
-    int nb_caps;
+    size_t nb_caps;
 };
 
 /**
