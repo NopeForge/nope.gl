@@ -170,6 +170,7 @@ def _download_extract(dep_item):
     url = dep["url"].replace("@VERSION@", version)
     chksum = dep["sha256"]
     dst_file = dep.get("dst_file", op.basename(url)).replace("@VERSION@", version)
+    dst_dir = dep.get("dst_dir", "").replace("@VERSION@", version)
     dst_base = op.join(_ROOTDIR, "external")
     dst_path = op.join(dst_base, dst_file)
     os.makedirs(dst_base, exist_ok=True)
@@ -184,18 +185,18 @@ def _download_extract(dep_item):
     if tarfile.is_tarfile(dst_path):
         with tarfile.open(dst_path) as tar:
             dirs = {f.name for f in tar.getmembers() if f.isdir()}
-            extract_dir = op.join(dst_base, _guess_base_dir(dirs))
+            extract_dir = op.join(dst_base, dst_dir or _guess_base_dir(dirs))
             if not op.exists(extract_dir):
                 logging.info("extracting %s", dst_file)
-                tar.extractall(dst_base)
+                tar.extractall(op.join(dst_base, dst_dir))
 
     elif zipfile.is_zipfile(dst_path):
         with zipfile.ZipFile(dst_path) as zip_:
             dirs = {op.dirname(f) for f in zip_.namelist()}
-            extract_dir = op.join(dst_base, _guess_base_dir(dirs))
+            extract_dir = op.join(dst_base, dst_dir or _guess_base_dir(dirs))
             if not op.exists(extract_dir):
                 logging.info("extracting %s", dst_file)
-                zip_.extractall(dst_base)
+                zip_.extractall(op.join(dst_base, dst_dir))
     else:
         assert False
 
