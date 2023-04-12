@@ -49,7 +49,7 @@ struct opt {
 
 #define OPT_HELP -101
 
-int opts_parse(int ac, int ac_max, char **av, const struct opt *opts, int nb_opts, void *dst);
-void opts_print_usage(const char *program, const struct opt *opts, int nb_opts, const char *usage_extra);
+int opts_parse(int ac, int ac_max, char **av, const struct opt *opts, size_t nb_opts, void *dst);
+void opts_print_usage(const char *program, const struct opt *opts, size_t nb_opts, const char *usage_extra);
 
 #endif
