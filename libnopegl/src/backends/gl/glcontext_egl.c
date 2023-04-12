@@ -225,7 +225,7 @@ static EGLDisplay egl_get_device_display(struct egl_priv *egl)
         return EGL_NO_DISPLAY;
     }
 
-    for (int i = 0; i < nb_devices; i++) {
+    for (EGLint i = 0; i < nb_devices; i++) {
         EGLDisplay display = egl->GetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[i], NULL);
         if (!display)
             continue;
