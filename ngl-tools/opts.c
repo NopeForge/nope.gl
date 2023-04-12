@@ -33,9 +33,9 @@ struct s2i {
     int v;
 };
 
-static int s2i(const struct s2i *map, int n, const char *s)
+static int s2i(const struct s2i *map, size_t n, const char *s)
 {
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
         if (!strcmp(map[i].s, s))
             return map[i].v;
     return NGL_ERROR_NOT_FOUND;
@@ -146,9 +146,9 @@ static int opt_color(const char *arg, void *dst)
     return 0;
 }
 
-static const struct opt *find_opt(const char *arg, const struct opt *opts, int nb_opts)
+static const struct opt *find_opt(const char *arg, const struct opt *opts, size_t nb_opts)
 {
-    for (int i = 0; i < nb_opts; i++)
+    for (size_t i = 0; i < nb_opts; i++)
         if ((opts[i].short_name && !strcmp(arg, opts[i].short_name)) ||
             (opts[i].name       && !strcmp(arg, opts[i].name)))
             return &opts[i];
@@ -157,7 +157,7 @@ static const struct opt *find_opt(const char *arg, const struct opt *opts, int n
 
 typedef int (*func_type)(const char *arg, void *dst);
 
-int opts_parse(int ac, int ac_max, char **av, const struct opt *opts, int nb_opts, void *dst)
+int opts_parse(int ac, int ac_max, char **av, const struct opt *opts, size_t nb_opts, void *dst)
 {
     static func_type func_maps[OPT_TYPE_NB] = {
         [OPT_TYPE_TOGGLE]   = opt_toggle,
@@ -194,7 +194,7 @@ int opts_parse(int ac, int ac_max, char **av, const struct opt *opts, int nb_opt
     return ac;
 }
 
-void opts_print_usage(const char *program, const struct opt *opts, int nb_opts, const char *usage_extra)
+void opts_print_usage(const char *program, const struct opt *opts, size_t nb_opts, const char *usage_extra)
 {
     static const char *types_map[OPT_TYPE_NB] = {
         [OPT_TYPE_INT]      = "integer",
@@ -209,7 +209,7 @@ void opts_print_usage(const char *program, const struct opt *opts, int nb_opts, 
                     "Options:\n"
                     "    -h/--help: show this help\n",
             program, usage_extra ? usage_extra : "");
-    for (int i = 0; i < nb_opts; i++) {
+    for (size_t i = 0; i < nb_opts; i++) {
         const struct opt *o = &opts[i];
         const char *type = types_map[o->type];
         fprintf(stderr, "    %s%s%s",

@@ -599,7 +599,7 @@ static const char *env_vars[] = {"TMPDIR", "TEMP", "TMP"};
 
 static const char *get_tmp_dir_from_env(void)
 {
-    for (int i = 0; i < ARRAY_NB(env_vars); i++) {
+    for (size_t i = 0; i < ARRAY_NB(env_vars); i++) {
         const char *v = getenv(env_vars[i]);
         if (v)
             return v;

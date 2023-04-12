@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 
-#define ARRAY_NB(x) ((int)(sizeof(x) / sizeof(*(x))))
+#define ARRAY_NB(x) (sizeof(x) / sizeof(*(x)))
 
 #define DEFAULT_WIDTH  640
 #define DEFAULT_HEIGHT 360
