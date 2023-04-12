@@ -278,27 +278,27 @@ static void destroy_render_resources(struct gpu_ctx *s)
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
 
     struct texture **colors = ngli_darray_data(&s_priv->colors);
-    for (int i = 0; i < ngli_darray_count(&s_priv->colors); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->colors); i++)
         ngli_texture_vk_freep(&colors[i]);
     ngli_darray_reset(&s_priv->colors);
 
     struct texture **ms_colors = ngli_darray_data(&s_priv->ms_colors);
-    for (int i = 0; i < ngli_darray_count(&s_priv->ms_colors); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->ms_colors); i++)
         ngli_texture_vk_freep(&ms_colors[i]);
     ngli_darray_reset(&s_priv->ms_colors);
 
     struct texture **depth_stencils = ngli_darray_data(&s_priv->depth_stencils);
-    for (int i = 0; i < ngli_darray_count(&s_priv->depth_stencils); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->depth_stencils); i++)
         ngli_texture_vk_freep(&depth_stencils[i]);
     ngli_darray_reset(&s_priv->depth_stencils);
 
     struct rendertarget **rts = ngli_darray_data(&s_priv->rts);
-    for (int i = 0; i < ngli_darray_count(&s_priv->rts); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->rts); i++)
         ngli_rendertarget_vk_freep(&rts[i]);
     ngli_darray_reset(&s_priv->rts);
 
     struct rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
-    for (int i = 0; i < ngli_darray_count(&s_priv->rts_load); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->rts_load); i++)
         ngli_rendertarget_vk_freep(&rts_load[i]);
     ngli_darray_reset(&s_priv->rts_load);
 
@@ -638,27 +638,27 @@ static VkResult recreate_swapchain(struct gpu_ctx *gpu_ctx, struct vkcontext *vk
         return VK_SUCCESS;
 
     struct texture **colors = ngli_darray_data(&s_priv->colors);
-    for (int i = 0; i < ngli_darray_count(&s_priv->colors); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->colors); i++)
         ngli_texture_vk_freep(&colors[i]);
     ngli_darray_clear(&s_priv->colors);
 
     struct texture **ms_colors = ngli_darray_data(&s_priv->ms_colors);
-    for (int i = 0; i < ngli_darray_count(&s_priv->ms_colors); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->ms_colors); i++)
         ngli_texture_vk_freep(&ms_colors[i]);
     ngli_darray_clear(&s_priv->ms_colors);
 
     struct texture **depth_stencils = ngli_darray_data(&s_priv->depth_stencils);
-    for (int i = 0; i < ngli_darray_count(&s_priv->depth_stencils); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->depth_stencils); i++)
         ngli_texture_vk_freep(&depth_stencils[i]);
     ngli_darray_clear(&s_priv->depth_stencils);
 
     struct rendertarget **rts = ngli_darray_data(&s_priv->rts);
-    for (int i = 0; i < ngli_darray_count(&s_priv->rts); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->rts); i++)
         ngli_rendertarget_vk_freep(&rts[i]);
     ngli_darray_clear(&s_priv->rts);
 
     struct rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
-    for (int i = 0; i < ngli_darray_count(&s_priv->rts_load); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->rts_load); i++)
         ngli_rendertarget_vk_freep(&rts_load[i]);
     ngli_darray_clear(&s_priv->rts_load);
 
@@ -1008,7 +1008,7 @@ static VkResult vk_add_pending_wait_semaphores(struct gpu_ctx *s)
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
 
     VkSemaphore *wait_sems = ngli_darray_data(&s_priv->pending_wait_sems);
-    for (int i = 0; i < ngli_darray_count(&s_priv->pending_wait_sems); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->pending_wait_sems); i++) {
         VkResult res = ngli_cmd_vk_add_wait_sem(s_priv->cur_cmd,
                                                 &wait_sems[i],
                                                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
@@ -1027,7 +1027,7 @@ static int vk_begin_update(struct gpu_ctx *s, double t)
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
 
     struct cmd_vk **cmds = ngli_darray_data(&s_priv->pending_cmds);
-    for (int i = 0; i < ngli_darray_count(&s_priv->pending_cmds); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->pending_cmds); i++) {
         VkResult res = ngli_cmd_vk_wait(cmds[i]);
         if (res != VK_SUCCESS)
             return ngli_vk_res2ret(res);

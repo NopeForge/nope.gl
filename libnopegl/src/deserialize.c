@@ -191,7 +191,7 @@ static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
 
 static struct ngl_node **get_abs_node(struct darray *nodes_array, int id)
 {
-    const int index = ngli_darray_count(nodes_array) - id - 1;
+    const int index = (int)ngli_darray_count(nodes_array) - id - 1;
     if (index < 0 || index >= ngli_darray_count(nodes_array))
         return NULL;
     struct ngl_node **nodes = ngli_darray_data(nodes_array);
@@ -634,7 +634,7 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
         ret = ngl_scene_init_from_node(scene, node);
 
     struct ngl_node **nodes = ngli_darray_data(&nodes_array);
-    for (int i = 0; i < ngli_darray_count(&nodes_array); i++)
+    for (size_t i = 0; i < ngli_darray_count(&nodes_array); i++)
         ngl_node_unrefp(&nodes[i]);
 
 end:

@@ -180,7 +180,7 @@ static int buffer_init_from_count(struct ngl_node *node)
 static const struct block_field *get_block_field(const struct darray *fields_array, const char *name)
 {
     const struct block_field *fields = ngli_darray_data(fields_array);
-    for (int i = 0; i < ngli_darray_count(fields_array); i++) {
+    for (size_t i = 0; i < ngli_darray_count(fields_array); i++) {
         const struct block_field *field = &fields[i];
         if (!strcmp(field->name, name))
             return field;

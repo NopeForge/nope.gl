@@ -505,7 +505,7 @@ static int prepare_eval_run(struct eval *s)
     ngli_darray_clear(stack);
 
     const struct token *tokens = ngli_darray_data(&s->output);
-    for (int i = 0; i < ngli_darray_count(&s->output); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s->output); i++) {
         const struct token *token = &tokens[i];
 
         if (token->type == TOKEN_CONSTANT || token->type == TOKEN_VARIABLE) {
@@ -519,9 +519,9 @@ static int prepare_eval_run(struct eval *s)
         }
     }
 
-    const int n = ngli_darray_count(stack);
+    const size_t n = ngli_darray_count(stack);
     if (n > 1) {
-        LOG(ERROR, "detected %d dangling expressions without operators between them", n);
+        LOG(ERROR, "detected %zd dangling expressions without operators between them", n);
         return NGL_ERROR_INVALID_DATA;
     }
 
@@ -548,7 +548,7 @@ static int infix_to_rpn(struct eval *s, const char *expr)
 {
     struct darray *operators = &s->tmp_stack;
     const struct token *tokens = ngli_darray_data(&s->tokens);
-    for (int i = 0; i < ngli_darray_count(&s->tokens); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s->tokens); i++) {
         const struct token *token = &tokens[i];
 
         if (token->type == TOKEN_CONSTANT || token->type == TOKEN_VARIABLE) {
@@ -660,7 +660,7 @@ int ngli_eval_run(struct eval *s, float *dst)
     ngli_darray_clear(stack);
 
     const struct token *tokens = ngli_darray_data(&s->output);
-    for (int i = 0; i < ngli_darray_count(&s->output); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s->output); i++) {
         const struct token *token = &tokens[i];
         if (token->type == TOKEN_VARIABLE) {
             const struct token r = {.type=TOKEN_CONSTANT, .value=*token->ptr};

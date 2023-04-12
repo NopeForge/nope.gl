@@ -225,9 +225,9 @@ static VkResult create_instance(struct vkcontext *s, int platform)
     const VkInstanceCreateInfo instance_create_info = {
         .sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
         .pApplicationInfo        = &app_info,
-        .enabledExtensionCount   = ngli_darray_count(&extensions),
+        .enabledExtensionCount   = (uint32_t)ngli_darray_count(&extensions),
         .ppEnabledExtensionNames = ngli_darray_data(&extensions),
-        .enabledLayerCount       = ngli_darray_count(&layers),
+        .enabledLayerCount       = (uint32_t)ngli_darray_count(&layers),
         .ppEnabledLayerNames     = ngli_darray_data(&layers),
     };
 
@@ -660,7 +660,7 @@ static VkResult create_device(struct vkcontext *s)
         .pNext                   = &dev_features2,
         .pQueueCreateInfos       = queues_create_info,
         .queueCreateInfoCount    = nb_queues,
-        .enabledExtensionCount   = ngli_darray_count(&enabled_extensions),
+        .enabledExtensionCount   = (uint32_t)ngli_darray_count(&enabled_extensions),
         .ppEnabledExtensionNames = ngli_darray_data(&enabled_extensions),
     };
     VkResult res = vkCreateDevice(s->phy_device, &device_create_info, NULL, &s->device);

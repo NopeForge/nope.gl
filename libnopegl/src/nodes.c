@@ -587,7 +587,7 @@ void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 int ngli_node_prepare_children(struct ngl_node *node)
 {
     struct ngl_node **children = ngli_darray_data(&node->children);
-    for (int i = 0; i < ngli_darray_count(&node->children); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&node->children); i++) {
         int ret = ngli_node_prepare(children[i]);
         if (ret < 0)
             return ret;
@@ -657,7 +657,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
     } else {
         struct darray *children_array = &node->children;
         struct ngl_node **children = ngli_darray_data(children_array);
-        for (int i = 0; i < ngli_darray_count(children_array); i++) {
+        for (size_t i = 0; i < ngli_darray_count(children_array); i++) {
             struct ngl_node *child = children[i];
             int ret = ngli_node_visit(child, is_active, t);
             if (ret < 0)
@@ -709,14 +709,14 @@ int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t)
     struct ngl_node **nodes = ngli_darray_data(nodes_array);
 
     /* Release nodes starting from the parents (root) down to the children (leaves) */
-    for (int i = 0; i < ngli_darray_count(nodes_array); i++) {
+    for (size_t i = 0; i < ngli_darray_count(nodes_array); i++) {
         struct ngl_node *node = nodes[ngli_darray_count(nodes_array) - i - 1];
         if (!node->is_active)
             node_release(node);
     }
 
     /* Prefetch nodes starting from the children (leaves) up to the parents (root) */
-    for (int i = 0; i < ngli_darray_count(nodes_array); i++) {
+    for (size_t i = 0; i < ngli_darray_count(nodes_array); i++) {
         struct ngl_node *node = nodes[i];
         if (node->is_active) {
             int ret = node_prefetch(node);
@@ -752,7 +752,7 @@ int ngli_node_update(struct ngl_node *node, double t)
 int ngli_node_update_children(struct ngl_node *node, double t)
 {
     struct ngl_node **children = ngli_darray_data(&node->children);
-    for (int i = 0; i < ngli_darray_count(&node->children); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&node->children); i++) {
         struct ngl_node *child = children[i];
         int ret = ngli_node_update(child, t);
         if (ret < 0)
@@ -841,7 +841,7 @@ static int node_invalidate_branch(struct ngl_node *node)
             return ret;
     }
     struct ngl_node **parents = ngli_darray_data(&node->parents);
-    for (int i = 0; i < ngli_darray_count(&node->parents); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&node->parents); i++) {
         int ret = node_invalidate_branch(parents[i]);
         if (ret < 0)
             return ret;

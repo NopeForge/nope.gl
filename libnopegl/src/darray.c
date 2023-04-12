@@ -122,20 +122,20 @@ void *ngli_darray_pop_unsafe(struct darray *darray)
     return darray->data + darray->count * darray->element_size;
 }
 
-void *ngli_darray_get(const struct darray *darray, int index)
+void *ngli_darray_get(const struct darray *darray, size_t index)
 {
-    ngli_assert(index >= 0 && index < darray->count);
+    ngli_assert(index < darray->count);
     return darray->data + index * darray->element_size;
 }
 
-void ngli_darray_remove(struct darray *darray, int index)
+void ngli_darray_remove(struct darray *darray, size_t index)
 {
     ngli_darray_remove_range(darray, index, 1);
 }
 
-void ngli_darray_remove_range(struct darray *darray, int index, int count)
+void ngli_darray_remove_range(struct darray *darray, size_t index, size_t count)
 {
-    ngli_assert(index >= 0 && (index + count) <= darray->count);
+    ngli_assert((index + count) <= darray->count);
     uint8_t *dst = darray->data + index * darray->element_size;
     const uint8_t *src = darray->data + (index + count) * darray->element_size;
     const size_t n = (darray->count - index - count) * darray->element_size;
