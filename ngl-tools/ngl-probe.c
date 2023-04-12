@@ -48,7 +48,7 @@ static const struct ngl_cap *get_cap(const struct ngl_backend *backend, const ch
     long int id = strtol(key, &endptr, 0);
     const int use_id = !*endptr; // user input is an int, so we will use that as id
 
-    for (int i = 0; i < backend->nb_caps; i++) {
+    for (size_t i = 0; i < backend->nb_caps; i++) {
         const struct ngl_cap *cap = &backend->caps[i];
         if (use_id && cap->id == id)
             return cap;
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
             printf("    name: %s\n", backend->name);
             printf("    is_default: %s\n", backend->is_default ? "yes" : "no");
             printf("    caps:\n");
-            for (int j = 0; j < backend->nb_caps; j++) {
+            for (size_t j = 0; j < backend->nb_caps; j++) {
                 const struct ngl_cap *cap = &backend->caps[j];
                 printf("      %s: %u\n", cap->string_id, cap->value);
             }
