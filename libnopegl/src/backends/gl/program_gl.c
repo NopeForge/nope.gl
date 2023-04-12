@@ -95,9 +95,9 @@ static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
         return NULL;
     ngli_hmap_set_free(umap, free_pinfo, NULL);
 
-    int nb_active_uniforms;
+    GLint nb_active_uniforms;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
-    for (int i = 0; i < nb_active_uniforms; i++) {
+    for (GLint i = 0; i < nb_active_uniforms; i++) {
         char name[MAX_ID_LEN];
         struct program_variable_info *info = program_variable_info_create();
         if (!info) {
@@ -140,9 +140,9 @@ static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
         return NULL;
     ngli_hmap_set_free(amap, free_pinfo, NULL);
 
-    int nb_active_attributes;
+    GLint nb_active_attributes;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
-    for (int i = 0; i < nb_active_attributes; i++) {
+    for (GLint i = 0; i < nb_active_attributes; i++) {
         char name[MAX_ID_LEN];
         struct program_variable_info *info = program_variable_info_create();
         if (!info) {
@@ -179,9 +179,9 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         return bmap;
 
     /* Uniform Buffers */
-    int nb_active_uniform_buffers;
+    GLint nb_active_uniform_buffers;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
-    for (int i = 0; i < nb_active_uniform_buffers; i++) {
+    for (GLint i = 0; i < nb_active_uniform_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
         struct program_variable_info *info = program_variable_info_create();
         if (!info) {
@@ -213,10 +213,10 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         return bmap;
 
     /* Shader Storage Buffers */
-    int nb_active_buffers;
+    GLint nb_active_buffers;
     ngli_glGetProgramInterfaceiv(gl, pid, GL_SHADER_STORAGE_BLOCK,
                                  GL_ACTIVE_RESOURCES, &nb_active_buffers);
-    for (int i = 0; i < nb_active_buffers; i++) {
+    for (GLint i = 0; i < nb_active_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
         struct program_variable_info *info = program_variable_info_create();
         if (!info) {
