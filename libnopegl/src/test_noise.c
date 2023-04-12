@@ -86,7 +86,7 @@ static int run_test(void)
 {
     int ret = 0;
 
-    for (int k = 0; k < NGLI_ARRAY_NB(noise_tests); k++) {
+    for (size_t k = 0; k < NGLI_ARRAY_NB(noise_tests); k++) {
         const struct noise_test *test = &noise_tests[k];
         const struct noise_params *np = &test->p;
 
@@ -97,8 +97,8 @@ static int run_test(void)
         if (ngli_noise_init(&noise, &test->p) < 0)
             return EXIT_FAILURE;
 
-        const int nb_values = NGLI_ARRAY_NB(test->expected_values);
-        for (int i = 0; i < nb_values; i++) {
+        const size_t nb_values = NGLI_ARRAY_NB(test->expected_values);
+        for (size_t i = 0; i < nb_values; i++) {
             const float t = (float)i / 10.f;
             const float gv = ngli_noise_get(&noise, t);
             const float ev = test->expected_values[i];

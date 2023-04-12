@@ -160,7 +160,7 @@ static void print_node_params(const char *name, const struct node_param *p)
             };
             printf(I "\"flags\": [");
             int ihasflag = 0;
-            for (int i = 0; i < NGLI_ARRAY_NB(flag_names); i++) {
+            for (size_t i = 0; i < NGLI_ARRAY_NB(flag_names); i++) {
                 if (!(p->flags & flag_names[i].flag))
                     continue;
                 printf("%s\"%s\"", ihasflag ? ", " : "", flag_names[i].name);
@@ -192,7 +192,7 @@ int main(void)
     if (!params_map)
         return -1;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
         const struct node_class *c = node_classes[i];
         const struct node_param *p = &c->params[0];
 

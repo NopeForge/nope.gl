@@ -217,15 +217,15 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
-    int num_layers = vaapi->surface_descriptor.num_layers;
+    size_t num_layers = vaapi->surface_descriptor.num_layers;
     if (num_layers > NGLI_ARRAY_NB(vaapi->egl_images)) {
-        LOG(WARNING, "vaapi layer count (%d) exceeds plane count (%d)", num_layers, NGLI_ARRAY_NB(vaapi->egl_images));
+        LOG(WARNING, "vaapi layer count (%zd) exceeds plane count (%zd)", num_layers, NGLI_ARRAY_NB(vaapi->egl_images));
         num_layers = NGLI_ARRAY_NB(vaapi->egl_images);
     }
 
-    for (int i = 0; i < num_layers; i++) {
+    for (size_t i = 0; i < num_layers; i++) {
         int attribs[32] = {EGL_NONE};
-        int nb_attribs = 0;
+        size_t nb_attribs = 0;
 
 #define ADD_ATTRIB(name, value) do {                          \
     ngli_assert(nb_attribs + 3 < NGLI_ARRAY_NB(attribs));     \

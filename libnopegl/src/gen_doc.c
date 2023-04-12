@@ -351,7 +351,7 @@ int main(void)
     if (!params_map)
         return -1;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
         const struct node_class *c = node_classes[i];
         const struct node_param *p = &c->params[0];
 
@@ -394,7 +394,7 @@ int main(void)
     if (!choices_map)
         return -1;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
         const struct node_class *c = node_classes[i];
         const struct node_param *p = c->params;
 

@@ -420,7 +420,7 @@ static int tokenize(struct eval *s, const char *expr)
     s->funcs = ngli_hmap_create();
     if (!s->funcs)
         return NGL_ERROR_MEMORY;
-    for (int i = 0; i < NGLI_ARRAY_NB(functions_map); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(functions_map); i++) {
         int ret = ngli_hmap_set(s->funcs, functions_map[i].name, (void *)&functions_map[i]);
         if (ret < 0)
             return ret;
@@ -430,7 +430,7 @@ static int tokenize(struct eval *s, const char *expr)
     s->consts = ngli_hmap_create();
     if (!s->consts)
         return NGL_ERROR_MEMORY;
-    for (int i = 0; i < NGLI_ARRAY_NB(constants_map); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(constants_map); i++) {
         int ret = ngli_hmap_set(s->consts, constants_map[i].name, (void *)&constants_map[i]);
         if (ret < 0)
             return ret;

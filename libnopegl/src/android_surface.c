@@ -58,7 +58,7 @@ static jobject surface_listener_new(struct android_surface *surface)
     if (!listener_class)
         goto done;
 
-    (*env)->RegisterNatives(env, listener_class, methods, NGLI_ARRAY_NB(methods));
+    (*env)->RegisterNatives(env, listener_class, methods, (jint)NGLI_ARRAY_NB(methods));
     if (ngli_jni_exception_check(env, 1) < 0)
         goto done;
 

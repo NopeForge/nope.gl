@@ -96,7 +96,7 @@ char *ngli_filterschain_get_combination(struct filterschain *s)
 {
     struct bstr *b = s->str;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(helpers_mask_code); i++)
+    for (size_t i = 0; i < NGLI_ARRAY_NB(helpers_mask_code); i++)
         if (s->helpers & helpers_mask_code[i].mask)
             ngli_bstr_printf(b, "%s\n", *helpers_mask_code[i].code);
 

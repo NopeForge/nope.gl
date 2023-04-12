@@ -189,7 +189,7 @@ static VkResult create_instance(struct vkcontext *s, int platform)
     struct darray layers;
     ngli_darray_init(&layers, sizeof(const char **), 0);
 
-    for (uint32_t i = 0; i < NGLI_ARRAY_NB(mandatory_extensions); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(mandatory_extensions); i++) {
         if (!ngli_darray_push(&extensions, &mandatory_extensions[i])) {
             res = VK_ERROR_OUT_OF_HOST_MEMORY;
             goto end;
@@ -430,7 +430,7 @@ static void get_memory_property_flags_str(struct bstr *bstr, VkMemoryPropertyFla
     };
 
     int nb_props = 0;
-    for (int i = 0; i < NGLI_ARRAY_NB(vk_mem_prop_map); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(vk_mem_prop_map); i++) {
         if (vk_mem_prop_map[i].property & flags) {
             ngli_bstr_printf(bstr, "%s%s", nb_props == 0 ? "" : "|", vk_mem_prop_map[i].name);
             nb_props++;
@@ -613,7 +613,7 @@ static VkResult create_device(struct vkcontext *s)
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     };
 
-    for (int i = 0; i < NGLI_ARRAY_NB(mandatory_device_extensions); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(mandatory_device_extensions); i++) {
         if (!ngli_darray_push(&enabled_extensions, &mandatory_device_extensions[i])) {
             ngli_darray_reset(&enabled_extensions);
             return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -633,7 +633,7 @@ static VkResult create_device(struct vkcontext *s)
 #endif
     };
 
-    for (int i = 0; i < NGLI_ARRAY_NB(optional_device_extensions); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(optional_device_extensions); i++) {
         if (ngli_vkcontext_has_extension(s, optional_device_extensions[i], 1)) {
             if (!ngli_darray_push(&enabled_extensions, &optional_device_extensions[i])) {
                 ngli_darray_reset(&enabled_extensions);
@@ -849,7 +849,7 @@ static int load_function(struct vkcontext *s, const struct vk_function *func)
 
 static VkResult load_functions(struct vkcontext *s)
 {
-    for (int i = 0; i < NGLI_ARRAY_NB(vk_extensions); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(vk_extensions); i++) {
         struct vk_extension *ext = &vk_extensions[i];
         if (!ngli_vkcontext_has_extension(s, ext->name, ext->device))
             continue;

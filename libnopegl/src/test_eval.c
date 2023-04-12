@@ -176,16 +176,16 @@ int main(int ac, char **av)
         (ret = ngli_hmap_set(vars, "z", (void *)&vars_data[2])) < 0)
         goto end;
 
-    int failed = 0;
-    static const int nb_expr = NGLI_ARRAY_NB(expressions);
-    for (int i = 0; i < nb_expr; i++)
+    size_t failed = 0;
+    static const size_t nb_expr = NGLI_ARRAY_NB(expressions);
+    for (size_t i = 0; i < nb_expr; i++)
         failed += test_expr(vars, &expressions[i]) < 0;
 
     if (failed) {
-        fprintf(stderr, "%d/%d failed test(s)\n", failed, nb_expr);
+        fprintf(stderr, "%zd/%zd failed test(s)\n", failed, nb_expr);
         ret = 1;
     } else {
-        printf("%d/%d tests passing\n", nb_expr, nb_expr);
+        printf("%zd/%zd tests passing\n", nb_expr, nb_expr);
     }
 
 end:

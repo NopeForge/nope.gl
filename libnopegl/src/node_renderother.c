@@ -622,7 +622,7 @@ static int renderwaveform_init(struct ngl_node *node)
 }
 
 static int init_desc(struct ngl_node *node, struct render_common *s,
-                     const struct pgcraft_uniform *uniforms, int nb_uniforms)
+                     const struct pgcraft_uniform *uniforms, size_t nb_uniforms)
 {
     struct rnode *rnode = node->ctx->rnode_pos;
 
@@ -637,7 +637,7 @@ static int init_desc(struct ngl_node *node, struct render_common *s,
     ngli_darray_init(&desc->uniforms_map, sizeof(struct uniform_map), 0);
 
     /* register source uniforms */
-    for (int i = 0; i < nb_uniforms; i++)
+    for (size_t i = 0; i < nb_uniforms; i++)
         if (!ngli_darray_push(&desc->uniforms, &uniforms[i]))
             return NGL_ERROR_MEMORY;
 

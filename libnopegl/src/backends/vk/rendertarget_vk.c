@@ -201,7 +201,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
         .pAttachments    = descs,
         .subpassCount    = 1,
         .pSubpasses      = &subpass_description,
-        .dependencyCount = NGLI_ARRAY_NB(dependencies),
+        .dependencyCount = (uint32_t)NGLI_ARRAY_NB(dependencies),
         .pDependencies   = dependencies,
     };
 

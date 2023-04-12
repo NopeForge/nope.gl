@@ -245,7 +245,7 @@ static void common_uninit(struct hwmap *hwmap)
 {
     struct hwmap_common *common = hwmap->hwmap_priv_data;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(common->planes); i++)
+    for (size_t i = 0; i < NGLI_ARRAY_NB(common->planes); i++)
         ngli_texture_freep(&common->planes[i]);
 }
 

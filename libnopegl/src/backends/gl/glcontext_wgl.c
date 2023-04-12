@@ -105,7 +105,7 @@ static int wgl_init_extensions(struct glcontext *ctx)
         {"wglGetExtensionsStringARB", offsetof(struct wgl_priv, GetExtensionsStringARB)},
     };
 
-    for (int i = 0; i < NGLI_ARRAY_NB(extensions); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(extensions); i++) {
         const int offset = extensions[i].offset;
         const char *name = extensions[i].name;
         void *function_ptr = wglGetProcAddress(name);

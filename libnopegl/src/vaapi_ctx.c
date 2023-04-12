@@ -70,7 +70,7 @@ static int check_extensions(const struct gpu_ctx *gpu_ctx)
             VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,
             VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
         };
-        for (int i = 0; i < NGLI_ARRAY_NB(required_extensions); i++) {
+        for (size_t i = 0; i < NGLI_ARRAY_NB(required_extensions); i++) {
             if (!ngli_vkcontext_has_extension(vk, required_extensions[i], 1))
                 return 0;
         }
