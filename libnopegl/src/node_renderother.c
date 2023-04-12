@@ -629,7 +629,7 @@ static int init_desc(struct ngl_node *node, struct render_common *s,
     struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
     if (!desc)
         return NGL_ERROR_MEMORY;
-    rnode->id = ngli_darray_count(&s->pipeline_descs) - 1;
+    rnode->id = (int)ngli_darray_count(&s->pipeline_descs) - 1;
 
     memset(desc, 0, sizeof(*desc));
 
@@ -644,7 +644,7 @@ static int init_desc(struct ngl_node *node, struct render_common *s,
     /* register filters uniforms */
     const struct darray *comb_uniforms_array = ngli_filterschain_get_resources(s->filterschain);
     const struct pgcraft_uniform *comb_uniforms = ngli_darray_data(comb_uniforms_array);
-    for (int i = 0; i < ngli_darray_count(comb_uniforms_array); i++)
+    for (size_t i = 0; i < ngli_darray_count(comb_uniforms_array); i++)
         if (!ngli_darray_push(&desc->uniforms, &comb_uniforms[i]))
             return NGL_ERROR_MEMORY;
 
@@ -654,7 +654,7 @@ static int init_desc(struct ngl_node *node, struct render_common *s,
 static int build_uniforms_map(struct pipeline_desc *desc)
 {
     const struct pgcraft_uniform *uniforms = ngli_darray_data(&desc->uniforms);
-    for (int i = 0; i < ngli_darray_count(&desc->uniforms); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&desc->uniforms); i++) {
         const struct pgcraft_uniform *uniform = &uniforms[i];
         const int index = ngli_pgcraft_get_uniform_index(desc->crafter, uniform->name, uniform->stage);
 
@@ -769,7 +769,7 @@ static int rendercolor_prepare(struct ngl_node *node)
         .vert_base        = source_color_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
-        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .nb_uniforms      = (int)ngli_darray_count(&desc->uniforms),
         .attributes       = attributes,
         .nb_attributes    = NGLI_ARRAY_NB(attributes),
         .vert_out_vars    = vert_out_vars,
@@ -840,7 +840,7 @@ static int renderdisplace_prepare(struct ngl_node *node)
         .vert_base        = source_displace_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
-        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .nb_uniforms      = (int)ngli_darray_count(&desc->uniforms),
         .textures         = textures,
         .nb_textures      = NGLI_ARRAY_NB(textures),
         .attributes       = attributes,
@@ -888,7 +888,7 @@ static int rendergradient_prepare(struct ngl_node *node)
         .vert_base        = source_gradient_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
-        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .nb_uniforms      = (int)ngli_darray_count(&desc->uniforms),
         .attributes       = attributes,
         .nb_attributes    = NGLI_ARRAY_NB(attributes),
         .vert_out_vars    = vert_out_vars,
@@ -934,7 +934,7 @@ static int rendergradient4_prepare(struct ngl_node *node)
         .vert_base        = source_gradient4_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
-        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .nb_uniforms      = (int)ngli_darray_count(&desc->uniforms),
         .attributes       = attributes,
         .nb_attributes    = NGLI_ARRAY_NB(attributes),
         .vert_out_vars    = vert_out_vars,
@@ -981,7 +981,7 @@ static int renderhistogram_prepare(struct ngl_node *node)
         .vert_base        = source_histogram_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
-        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .nb_uniforms      = (int)ngli_darray_count(&desc->uniforms),
         .attributes       = attributes,
         .nb_attributes    = NGLI_ARRAY_NB(attributes),
         .blocks           = &crafter_block,
@@ -1042,7 +1042,7 @@ static int rendertexture_prepare(struct ngl_node *node)
         .vert_base        = source_texture_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
-        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .nb_uniforms      = (int)ngli_darray_count(&desc->uniforms),
         .textures         = textures,
         .nb_textures      = NGLI_ARRAY_NB(textures),
         .attributes       = attributes,
@@ -1091,7 +1091,7 @@ static int renderwaveform_prepare(struct ngl_node *node)
         .vert_base        = source_waveform_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
-        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .nb_uniforms      = (int)ngli_darray_count(&desc->uniforms),
         .attributes       = attributes,
         .nb_attributes    = NGLI_ARRAY_NB(attributes),
         .blocks           = &crafter_block,
@@ -1109,7 +1109,7 @@ static int renderwaveform_prepare(struct ngl_node *node)
 static void renderother_draw(struct ngl_node *node, struct render_common *s, const struct render_common_opts *o)
 {
     struct ngl_node **draw_resources = ngli_darray_data(&s->draw_resources);
-    for (int i = 0; i < ngli_darray_count(&s->draw_resources); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s->draw_resources); i++)
         ngli_node_draw(draw_resources[i]);
 
     struct ngl_ctx *ctx = node->ctx;
@@ -1131,13 +1131,13 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
     }
 
     const struct uniform_map *map = ngli_darray_data(&desc->uniforms_map);
-    for (int i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
+    for (size_t i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
         ngli_pipeline_compat_update_uniform(pl_compat, map[i].index, map[i].data);
 
     if (node->cls->id == NGL_NODE_RENDERTEXTURE || node->cls->id == NGL_NODE_RENDERDISPLACE) {
         const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
         const struct pgcraft_texture_info *texture_info = ngli_darray_data(texture_infos_array);
-        for (int i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+        for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
             const struct pgcraft_texture_info *info = &texture_info[i];
             ngli_pipeline_compat_update_texture_info(pl_compat, info);
         }
@@ -1155,8 +1155,7 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
 static void renderother_uninit(struct ngl_node *node, struct render_common *s)
 {
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
-    const int nb_descs = ngli_darray_count(&s->pipeline_descs);
-    for (int i = 0; i < nb_descs; i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
         struct pipeline_desc *desc = &descs[i];
         ngli_pipeline_compat_freep(&desc->pipeline_compat);
         ngli_pgcraft_freep(&desc->crafter);

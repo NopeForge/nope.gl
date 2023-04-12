@@ -520,7 +520,7 @@ static int inject_texture_infos(struct pgcraft *s, const struct pgcraft_params *
 {
     struct darray *texture_infos_array = &s->texture_infos;
     struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
-    for (int i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
         struct pgcraft_texture_info *info = &texture_infos[i];
         int ret = inject_texture_info(s, info, stage);
         if (ret < 0)
@@ -565,7 +565,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     const char *keyword = get_glsl_type(named_block->type);
     ngli_bstr_printf(b, " %s %s_block {\n", keyword, named_block->name);
     const struct block_field *field_info = ngli_darray_data(&block->fields);
-    for (int i = 0; i < ngli_darray_count(&block->fields); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&block->fields); i++) {
         const struct block_field *fi = &field_info[i];
         const char *type = get_glsl_type(fi->type);
         if (fi->count == NGLI_BLOCK_VARIADIC_COUNT)
@@ -704,7 +704,7 @@ static int params_have_images(struct pgcraft *s, const struct pgcraft_params *pa
 {
     const struct darray *texture_infos_array = &s->texture_infos;
     const struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
-    for (int i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
         const struct pgcraft_texture_info *info = &texture_infos[i];
         for (size_t j = 0; j < NGLI_INFO_FIELD_NB; j++) {
             const struct pgcraft_texture_info_field *field = &info->fields[j];
@@ -1004,8 +1004,8 @@ static int samplers_preproc(struct pgcraft *s, const struct pgcraft_params *para
      */
     int ret = 0;
     const struct token *tokens = ngli_darray_data(&token_stack);
-    const int nb_tokens = ngli_darray_count(&token_stack);
-    for (int i = 0; i < nb_tokens; i++) {
+    const size_t nb_tokens = ngli_darray_count(&token_stack);
+    for (size_t i = 0; i < nb_tokens; i++) {
         const struct token *token = &tokens[nb_tokens - i - 1];
         ngli_bstr_clear(tmp_buf);
 
@@ -1042,7 +1042,7 @@ static int inject_iovars(struct pgcraft *s, struct bstr *b, int stage)
     const char *qualifier = qualifiers[stage][s->has_in_out_qualifiers];
     const struct pgcraft_iovar *iovars = ngli_darray_data(&s->vert_out_vars);
     int location = 0;
-    for (int i = 0; i < ngli_darray_count(&s->vert_out_vars); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s->vert_out_vars); i++) {
         if (s->has_in_out_layout_qualifiers)
             ngli_bstr_printf(b, "layout(location=%d) ", location);
         const struct pgcraft_iovar *iovar = &iovars[i];
@@ -1219,8 +1219,7 @@ static int filter_pipeline_elems(struct pgcraft *s, probe_func_type probe_func,
 {
     uint8_t *desc_elems = ngli_darray_data(src_desc);
     uint8_t *data_elems = ngli_darray_data(src_data);
-    int num_elems = ngli_darray_count(src_desc);
-    for (int i = 0; i < num_elems; i++) {
+    for (size_t i = 0; i < ngli_darray_count(src_desc); i++) {
         void *desc_elem = desc_elems + i * src_desc->element_size;
         void *data_elem = data_elems + i * src_data->element_size;
         if (info_map && probe_func(info_map, desc_elem) < 0)
@@ -1238,7 +1237,7 @@ static int filter_pipeline_elems(struct pgcraft *s, probe_func_type probe_func,
 static int get_uniform_index(const struct pgcraft *s, const char *name)
 {
     const struct pipeline_uniform_desc *pipeline_uniform_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.uniforms);
-    for (int i = 0; i < ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms); i++) {
+    for (int i = 0; i < (int)ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms); i++) {
         const struct pipeline_uniform_desc *pipeline_uniform_desc = &pipeline_uniform_descs[i];
         if (!strcmp(pipeline_uniform_desc->name, name))
             return i;
@@ -1251,7 +1250,7 @@ static int get_ublock_index(const struct pgcraft *s, const char *name, int stage
     const struct pgcraft_compat_info *compat_info = &s->compat_info;
     const struct darray *fields_array = &compat_info->ublocks[stage].fields;
     const struct block_field *fields = ngli_darray_data(fields_array);
-    for (int i = 0; i < ngli_darray_count(fields_array); i++)
+    for (int i = 0; i < (int)ngli_darray_count(fields_array); i++)
         if (!strcmp(fields[i].name, name))
             return stage << 16 | i;
     return -1;
@@ -1260,7 +1259,7 @@ static int get_ublock_index(const struct pgcraft *s, const char *name, int stage
 static int get_texture_index(const struct pgcraft *s, const char *name)
 {
     const struct pipeline_texture_desc *pipeline_texture_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
-    for (int i = 0; i < ngli_darray_count(&s->filtered_pipeline_info.desc.textures); i++) {
+    for (int i = 0; i < (int)ngli_darray_count(&s->filtered_pipeline_info.desc.textures); i++) {
         const struct pipeline_texture_desc *pipeline_texture_desc = &pipeline_texture_descs[i];
         if (!strcmp(pipeline_texture_desc->name, name))
             return i;
@@ -1285,7 +1284,7 @@ static void probe_texture_infos(struct pgcraft *s)
 {
     struct darray *texture_infos_array = &s->texture_infos;
     struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
-    for (int i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
         struct pgcraft_texture_info *info = &texture_infos[i];
         probe_texture_info_elems(s, info->fields);
     }
@@ -1573,13 +1572,13 @@ struct pipeline_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s)
 {
     const struct pipeline_layout layout = {
         .uniforms_desc   = ngli_darray_data(&s->filtered_pipeline_info.desc.uniforms),
-        .nb_uniforms     = ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms),
+        .nb_uniforms     = (int)ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms),
         .textures_desc   = ngli_darray_data(&s->filtered_pipeline_info.desc.textures),
-        .nb_textures     = ngli_darray_count(&s->filtered_pipeline_info.desc.textures),
+        .nb_textures     = (int)ngli_darray_count(&s->filtered_pipeline_info.desc.textures),
         .attributes_desc = ngli_darray_data(&s->filtered_pipeline_info.desc.attributes),
-        .nb_attributes   = ngli_darray_count(&s->filtered_pipeline_info.desc.attributes),
+        .nb_attributes   = (int)ngli_darray_count(&s->filtered_pipeline_info.desc.attributes),
         .buffers_desc    = ngli_darray_data(&s->filtered_pipeline_info.desc.buffers),
-        .nb_buffers      = ngli_darray_count(&s->filtered_pipeline_info.desc.buffers),
+        .nb_buffers      = (int)ngli_darray_count(&s->filtered_pipeline_info.desc.buffers),
     };
     return layout;
 }
@@ -1588,13 +1587,13 @@ struct pipeline_resources ngli_pgcraft_get_pipeline_resources(const struct pgcra
 {
     const struct pipeline_resources resources = {
         .uniforms      = ngli_darray_data(&s->filtered_pipeline_info.data.uniforms),
-        .nb_uniforms   = ngli_darray_count(&s->filtered_pipeline_info.data.uniforms),
+        .nb_uniforms   = (int)ngli_darray_count(&s->filtered_pipeline_info.data.uniforms),
         .textures      = ngli_darray_data(&s->filtered_pipeline_info.data.textures),
-        .nb_textures   = ngli_darray_count(&s->filtered_pipeline_info.data.textures),
+        .nb_textures   = (int)ngli_darray_count(&s->filtered_pipeline_info.data.textures),
         .attributes    = ngli_darray_data(&s->filtered_pipeline_info.data.attributes),
-        .nb_attributes = ngli_darray_count(&s->filtered_pipeline_info.data.attributes),
+        .nb_attributes = (int)ngli_darray_count(&s->filtered_pipeline_info.data.attributes),
         .buffers       = ngli_darray_data(&s->filtered_pipeline_info.data.buffers),
-        .nb_buffers    = ngli_darray_count(&s->filtered_pipeline_info.data.buffers),
+        .nb_buffers    = (int)ngli_darray_count(&s->filtered_pipeline_info.data.buffers),
     };
     return resources;
 }

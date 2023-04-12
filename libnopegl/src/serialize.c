@@ -122,7 +122,7 @@ static int hmap_to_sorted_items(struct darray *items_array, struct hmap *hm)
     }
 
     void *items = ngli_darray_data(items_array);
-    const int nb_items = ngli_darray_count(items_array);
+    const size_t nb_items = ngli_darray_count(items_array);
     qsort(items, nb_items, sizeof(struct item), cmp_item);
 
     return 0;
@@ -310,7 +310,7 @@ static int serialize_nodedict(struct bstr *b, const uint8_t *srcp,
         return ret;
     }
     const struct item *items = ngli_darray_data(&items_array);
-    for (int i = 0; i < ngli_darray_count(&items_array); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&items_array); i++) {
         const struct item *item = &items[i];
         const int node_id = get_rel_node_id(nlist, item->data);
         ngli_bstr_printf(b, "%s%s=%x", i ? "," : "", item->key, node_id);
@@ -430,7 +430,7 @@ static int serialize_children(struct hmap *nlist,
                     return ret;
                 }
                 const struct item *items = ngli_darray_data(&items_array);
-                for (int i = 0; i < ngli_darray_count(&items_array); i++) {
+                for (size_t i = 0; i < ngli_darray_count(&items_array); i++) {
                     const struct item *item = &items[i];
                     int ret = serialize(nlist, b, item->data);
                     if (ret < 0) {

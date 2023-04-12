@@ -169,7 +169,7 @@ enum {
 static int get_renderpass_info(const struct ngl_node *node, int state, struct renderpass_info *info)
 {
     const struct ngl_node **children = ngli_darray_data(&node->children);
-    for (int i = 0; i < ngli_darray_count(&node->children); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&node->children); i++) {
         const struct ngl_node *child = children[i];
         if (child->cls->id == NGL_NODE_RENDERTOTEXTURE ||
             child->cls->id == NGL_NODE_COMPUTE) {

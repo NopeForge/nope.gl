@@ -33,7 +33,7 @@ void ngli_rnode_init(struct rnode *s)
 void ngli_rnode_reset(struct rnode *s)
 {
     struct rnode *children = ngli_darray_data(&s->children);
-    for (int i = 0; i < ngli_darray_count(&s->children); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s->children); i++)
         ngli_rnode_reset(&children[i]);
     ngli_darray_reset(&s->children);
     memset(s, 0, sizeof(*s));

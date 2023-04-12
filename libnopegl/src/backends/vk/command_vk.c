@@ -129,12 +129,12 @@ VkResult ngli_cmd_vk_submit(struct cmd_vk *s)
 
     const VkSubmitInfo submit_info = {
         .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .waitSemaphoreCount   = ngli_darray_count(&s->wait_sems),
+        .waitSemaphoreCount   = (uint32_t)ngli_darray_count(&s->wait_sems),
         .pWaitSemaphores      = ngli_darray_data(&s->wait_sems),
         .pWaitDstStageMask    = ngli_darray_data(&s->wait_stages),
         .commandBufferCount   = 1,
         .pCommandBuffers      = &s->cmd_buf,
-        .signalSemaphoreCount = ngli_darray_count(&s->signal_sems),
+        .signalSemaphoreCount = (uint32_t)ngli_darray_count(&s->signal_sems),
         .pSignalSemaphores    = ngli_darray_data(&s->signal_sems),
     };
 
@@ -161,7 +161,7 @@ VkResult ngli_cmd_vk_wait(struct cmd_vk *s)
     if (res != VK_SUCCESS)
         return res;
 
-    int i = 0;
+    size_t i = 0;
     while (i < ngli_darray_count(&gpu_ctx_vk->pending_cmds)) {
         struct cmd_vk **cmds = ngli_darray_data(&gpu_ctx_vk->pending_cmds);
         if (cmds[i] == s) {

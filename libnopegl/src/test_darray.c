@@ -27,7 +27,7 @@ int main(void)
     struct darray darray = {0};
     ngli_darray_init(&darray, sizeof(int), 0);
 
-    int count = ngli_darray_count(&darray);
+    size_t count = ngli_darray_count(&darray);
     ngli_assert(count == 0);
 
     int *element = ngli_darray_push(&darray, NULL);

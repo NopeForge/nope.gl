@@ -187,7 +187,7 @@ int ngli_path_init(struct path *s, int precision)
     }
     s->precision = precision;
 
-    const int nb_segments = ngli_darray_count(&s->segments);
+    const size_t nb_segments = ngli_darray_count(&s->segments);
     if (nb_segments < 1) {
         LOG(ERROR, "at least one segment must be defined");
         return NGL_ERROR_INVALID_ARG;
@@ -199,7 +199,7 @@ int ngli_path_init(struct path *s, int precision)
      * the curve.
      */
     struct path_segment *segments = ngli_darray_data(&s->segments);
-    for (int i = 0; i < nb_segments; i++) {
+    for (size_t i = 0; i < nb_segments; i++) {
         struct path_segment *segment = &segments[i];
 
         /*
@@ -212,7 +212,7 @@ int ngli_path_init(struct path *s, int precision)
          * We're not using 1/(P-1) but 1/P for the scale because each segment is
          * composed of P+1 step points.
          */
-        segment->step_start = ngli_darray_count(&s->steps);
+        segment->step_start = (int)ngli_darray_count(&s->steps);
         segment->time_scale = 1.f / (float)precision;
 
         /*
@@ -223,7 +223,7 @@ int ngli_path_init(struct path *s, int precision)
          */
         for (int k = 0; k < precision; k++) {
             const float t = (float)k * segment->time_scale;
-            struct path_step step = {.segment_id=i};
+            struct path_step step = {.segment_id=(int)i};
             poly_eval(step.position, segment, t);
             if (!ngli_darray_push(&s->steps, &step))
                 return NGL_ERROR_MEMORY;
@@ -237,7 +237,7 @@ int ngli_path_init(struct path *s, int precision)
          * won't be an overlap with the next segment (if any).
          */
         if (i == nb_segments - 1 || (segments[i + 1].flags & SEGMENT_FLAG_NEW_ORIGIN)) {
-            struct path_step step = {.segment_id=i, .flags = STEP_FLAG_DISCONTINUITY};
+            struct path_step step = {.segment_id=(int)i, .flags = STEP_FLAG_DISCONTINUITY};
             poly_eval(step.position, segment, 1.f);
             if (!ngli_darray_push(&s->steps, &step))
                 return NGL_ERROR_MEMORY;
@@ -253,7 +253,7 @@ int ngli_path_init(struct path *s, int precision)
         return NGL_ERROR_MEMORY;
 
     const struct path_step *steps = ngli_darray_data(&s->steps);
-    for (int i = 1; i < ngli_darray_count(&s->steps); i++) {
+    for (size_t i = 1; i < ngli_darray_count(&s->steps); i++) {
         const struct path_step *prv_step = &steps[i - 1];
         const struct path_step *cur_step = &steps[i];
 
@@ -277,16 +277,16 @@ int ngli_path_init(struct path *s, int precision)
      * Sanity check for get_vector_id(). We have it here to avoid having the
      * assert called redundantly in the inner loop.
      */
-    ngli_assert(ngli_darray_count(&s->steps_dist) - 1 >= 1); // checks if number of arcs >= 1
+    ngli_assert((int)ngli_darray_count(&s->steps_dist) - 1 >= 1); // checks if number of arcs >= 1
 
     /* Normalize distances (relative to the total length of the path) */
     float *steps_dist = ngli_darray_data(&s->steps_dist);
     const float scale = total_length != 0.f ? 1.f / total_length : 0.f;
-    for (int i = 0; i < ngli_darray_count(&s->steps_dist); i++)
+    for (size_t i = 0; i < ngli_darray_count(&s->steps_dist); i++)
         steps_dist[i] *= scale;
 
     /* Build a lookup table associating an arc to its segment */
-    const int nb_arcs = ngli_darray_count(&s->steps) - 1;
+    const int nb_arcs = (int)ngli_darray_count(&s->steps) - 1;
     s->arc_to_segment = ngli_calloc(nb_arcs, sizeof(*s->arc_to_segment));
     if (!s->arc_to_segment)
         return NGL_ERROR_MEMORY;
@@ -374,7 +374,7 @@ static float remap(float a, float b, float c, float d, float x)
 void ngli_path_evaluate(struct path *s, float *dst, float distance)
 {
     const float *distances = ngli_darray_data(&s->steps_dist);
-    const int nb_dists = ngli_darray_count(&s->steps_dist);
+    const int nb_dists = (int)ngli_darray_count(&s->steps_dist);
     const int arc_id = get_vector_id(distances, nb_dists, &s->current_arc, distance);
     const int segment_id = s->arc_to_segment[arc_id];
     const struct path_segment *segments = ngli_darray_data(&s->segments);

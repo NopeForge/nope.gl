@@ -64,10 +64,10 @@ int ngli_filterschain_init(struct filterschain *s, const char *source_name, cons
 int ngli_filterschain_add_filter(struct filterschain *s, const struct filter *filter)
 {
     const struct pgcraft_uniform *resources = ngli_darray_data(&filter->resources);
-    for (int i = 0; i < ngli_darray_count(&filter->resources); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&filter->resources); i++) {
         const struct pgcraft_uniform *res = &resources[i];
         struct pgcraft_uniform combined_res = *res;
-        snprintf(combined_res.name, sizeof(combined_res.name), "%s%d_%s",
+        snprintf(combined_res.name, sizeof(combined_res.name), "%s%zd_%s",
                  filter->name, ngli_darray_count(&s->filters), res->name);
         if (!ngli_darray_push(&s->resources, &combined_res))
             return NGL_ERROR_MEMORY;
@@ -114,13 +114,13 @@ char *ngli_filterschain_get_combination(struct filterschain *s)
     ngli_bstr_printf(b, "void main() {\n    vec4 color = %s();\n", s->source_name);
 
     const struct filter **filters = ngli_darray_data(&s->filters);
-    for (int i = 0; i < ngli_darray_count(&s->filters); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s->filters); i++) {
         const struct filter *filter = filters[i];
         ngli_bstr_printf(b, "    color = filter_%s(color, uv", filter->name);
 
         const struct pgcraft_uniform *resources = ngli_darray_data(&filter->resources);
-        for (int j = 0; j < ngli_darray_count(&filter->resources); j++)
-            ngli_bstr_printf(b, ", %s%d_%s", filter->name, i, resources[j].name);
+        for (size_t j = 0; j < ngli_darray_count(&filter->resources); j++)
+            ngli_bstr_printf(b, ", %s%zd_%s", filter->name, i, resources[j].name);
 
         ngli_bstr_print(b, ");\n");
     }

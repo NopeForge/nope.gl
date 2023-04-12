@@ -370,8 +370,7 @@ static int update_character_geometries(struct ngl_node *node)
             goto end;
 
         struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
-        const int nb_descs = ngli_darray_count(&s->pipeline_descs);
-        for (int i = 0; i < nb_descs; i++) {
+        for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
             struct pipeline_subdesc *desc = &descs[i].fg;
 
             ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 0, s->vertices);
@@ -672,7 +671,7 @@ static int text_prepare(struct ngl_node *node)
     struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
     if (!desc)
         return NGL_ERROR_MEMORY;
-    ctx->rnode_pos->id = ngli_darray_count(&s->pipeline_descs) - 1;
+    ctx->rnode_pos->id = (int)ngli_darray_count(&s->pipeline_descs) - 1;
 
     memset(desc, 0, sizeof(*desc));
 
@@ -739,8 +738,7 @@ static void text_uninit(struct ngl_node *node)
 {
     struct text_priv *s = node->priv_data;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
-    const int nb_descs = ngli_darray_count(&s->pipeline_descs);
-    for (int i = 0; i < nb_descs; i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
         struct pipeline_desc *desc = &descs[i];
         ngli_pipeline_compat_freep(&desc->bg.pipeline_compat);
         ngli_pipeline_compat_freep(&desc->fg.pipeline_compat);

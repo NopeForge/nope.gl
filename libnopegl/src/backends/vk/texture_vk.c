@@ -634,7 +634,7 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
                            staging_buffer_vk->buffer,
                            s_priv->image,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           ngli_darray_count(&copy_regions),
+                           (uint32_t)ngli_darray_count(&copy_regions),
                            ngli_darray_data(&copy_regions));
 
     ngli_darray_reset(&copy_regions);
