@@ -125,6 +125,8 @@ def _get_brew_prefix():
 
 
 def _file_chk(path, chksum_hexdigest):
+    if chksum_hexdigest == "skip":
+        return True
     chksum = hashlib.sha256()
     with open(path, "rb") as f:
         while True:
