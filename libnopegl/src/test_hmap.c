@@ -57,21 +57,21 @@ static const struct {
     {"last",    "samurai"},
 };
 
-static int get_key_index(const char *s)
+static size_t get_key_index(const char *s)
 {
-    for (int i = 0; i < NGLI_ARRAY_NB(kvs); i++)
+    for (size_t i = 0; i < NGLI_ARRAY_NB(kvs); i++)
         if (!strcmp(kvs[i].key, s))
             return i;
-    return -1;
+    return SIZE_MAX;
 }
 
 static void check_order(const struct hmap *hm)
 {
-    int last_index = -1;
+    size_t last_index = SIZE_MAX;
     const struct hmap_entry *e = NULL;
     while ((e = ngli_hmap_next(hm, e))) {
-        const int index = get_key_index(e->key);
-        ngli_assert(index > last_index);
+        const size_t index = get_key_index(e->key);
+        ngli_assert(last_index == SIZE_MAX || index > last_index);
         last_index = index;
     }
 }
@@ -103,7 +103,7 @@ int main(void)
             ngli_hmap_set_free(hm, free_func, NULL);
 
         /* Test addition */
-        for (int i = 0; i < NGLI_ARRAY_NB(kvs); i++) {
+        for (size_t i = 0; i < NGLI_ARRAY_NB(kvs); i++) {
             void *data = custom_alloc ? ngli_strdup(kvs[i].val) : (void*)kvs[i].val;
             ngli_assert(ngli_hmap_set(hm, kvs[i].key, data) >= 0);
             const char *val = ngli_hmap_get(hm, kvs[i].key);
@@ -115,7 +115,7 @@ int main(void)
         PRINT_HMAP("init [%d entries] [custom_alloc:%s]:\n",
                    ngli_hmap_count(hm), custom_alloc ? "yes" : "no");
 
-        for (int i = 0; i < NGLI_ARRAY_NB(kvs) - 1; i++) {
+        for (size_t i = 0; i < NGLI_ARRAY_NB(kvs) - 1; i++) {
 
             /* Test replace */
             if (i & 1) {

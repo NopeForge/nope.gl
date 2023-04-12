@@ -388,7 +388,7 @@ try_again:;
             {4, 1}, // OpenGL 4.1
             {3, 3}, // OpenGL 3.3 (Mesa software renderers: llvmpipe, softpipe, swrast)
         };
-        for (int i = 0; i < NGLI_ARRAY_NB(gl_versions); i++) {
+        for (size_t i = 0; i < NGLI_ARRAY_NB(gl_versions); i++) {
             const EGLint ctx_attribs[] = {
                 EGL_CONTEXT_MAJOR_VERSION_KHR, gl_versions[i].major,
                 EGL_CONTEXT_MINOR_VERSION_KHR, gl_versions[i].minor,

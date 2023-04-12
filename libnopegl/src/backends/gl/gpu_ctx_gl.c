@@ -445,7 +445,7 @@ static void gpu_ctx_info_init(struct gpu_ctx *s)
 
     s->version = gl->version;
     s->language_version = gl->glsl_version;
-    for (int i = 0; i < NGLI_ARRAY_NB(feature_map); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(feature_map); i++) {
         const uint64_t feature = feature_map[i].feature;
         const uint64_t feature_gl = feature_map[i].feature_gl;
         if ((gl->features & feature_gl) == feature_gl)
@@ -760,7 +760,7 @@ int ngli_gpu_ctx_gl_wrap_framebuffer(struct gpu_ctx *s, GLuint fbo)
             {"depth",   "depth",   depth_attachment,   GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE},
             {"stencil", "stencil", stencil_attachment, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE},
         };
-        for (int i = 0; i < NGLI_ARRAY_NB(components); i++) {
+        for (size_t i = 0; i < NGLI_ARRAY_NB(components); i++) {
             GLint type = 0;
             ngli_glGetFramebufferAttachmentParameteriv(gl, target,
                 components[i].attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);

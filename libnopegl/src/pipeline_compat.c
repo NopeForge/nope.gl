@@ -198,7 +198,7 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
     };
 
     int ret = 1;
-    for (int i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
         const int sampler = samplers[i];
         const int index = fields[sampler].index;
         const struct texture *texture = textures[sampler];

@@ -115,7 +115,7 @@ static int glcontext_load_functions(struct glcontext *glcontext)
 {
     const struct glfunctions *gl = &glcontext->funcs;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(gldefinitions); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(gldefinitions); i++) {
         void *func;
         const struct gldefinition *gldefinition = &gldefinitions[i];
 
@@ -298,7 +298,7 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
     if (!features_str)
         return NGL_ERROR_MEMORY;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(glfeatures); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(glfeatures); i++) {
         const struct glfeature *glfeature = &glfeatures[i];
 
         const char **extensions = es ? glfeature->es_extensions : glfeature->extensions;
@@ -386,13 +386,13 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
     }
 
     if (glcontext->features & NGLI_FEATURE_GL_COMPUTE_SHADER) {
-        for (int i = 0; i < NGLI_ARRAY_NB(limits->max_compute_work_group_count); i++) {
+        for (GLuint i = 0; i < (GLuint)NGLI_ARRAY_NB(limits->max_compute_work_group_count); i++) {
             GET_I(GL_MAX_COMPUTE_WORK_GROUP_COUNT, i, &limits->max_compute_work_group_count[i]);
         }
 
         GET(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &limits->max_compute_work_group_invocations);
 
-        for (int i = 0; i < NGLI_ARRAY_NB(limits->max_compute_work_group_size); i++) {
+        for (GLuint i = 0; i < (GLuint)NGLI_ARRAY_NB(limits->max_compute_work_group_size); i++) {
             GET_I(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &limits->max_compute_work_group_size[i]);
         }
 

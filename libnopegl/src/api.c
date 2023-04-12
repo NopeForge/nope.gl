@@ -529,7 +529,7 @@ static int backends_probe(const struct ngl_config *user_config, int *nb_backends
         return NGL_ERROR_MEMORY;
     int nb_backends = 0;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(backend_ids); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(backend_ids); i++) {
         if (user_config->backend != NGL_BACKEND_AUTO && user_config->backend != backend_ids[i])
             continue;
         struct ngl_config config = *user_config;
@@ -567,7 +567,7 @@ void ngl_backends_freep(struct ngl_backend **backendsp)
     struct ngl_backend *backends = *backendsp;
     if (!backends)
         return;
-    for (int i = 0; i < NGLI_ARRAY_NB(backend_ids); i++)
+    for (size_t i = 0; i < NGLI_ARRAY_NB(backend_ids); i++)
         ngli_free(backends[i].caps);
     ngli_freep(backendsp);
 }

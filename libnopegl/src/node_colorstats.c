@@ -251,7 +251,7 @@ static int init_block(struct colorstats_priv *s, struct gpu_ctx *gpu_ctx)
         {"summary",       NGLI_TYPE_UVEC4, 1 << MAX_BIT_DEPTH},
         {"data",          NGLI_TYPE_UVEC4, NGLI_BLOCK_VARIADIC_COUNT},
     };
-    for (int i = 0; i < NGLI_ARRAY_NB(block_layout); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(block_layout); i++) {
         int ret = ngli_block_add_field(block, block_layout[i].name, block_layout[i].type, block_layout[i].count);
         if (ret < 0)
             return ret;

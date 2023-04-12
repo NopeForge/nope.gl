@@ -56,7 +56,7 @@
 #define NGLI_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define NGLI_CLAMP(x, min, max) NGLI_MAX(NGLI_MIN(x, max), min)
 
-#define NGLI_ARRAY_NB(x) ((int)(sizeof(x)/sizeof(*(x))))
+#define NGLI_ARRAY_NB(x) (sizeof(x)/sizeof(*(x)))
 #define NGLI_SWAP(type, a, b) do { type tmp_swap = b; b = a; a = tmp_swap; } while (0)
 
 #define NGLI_ALIGN(v, a) (((v) + (a) - 1) & ~((a) - 1))

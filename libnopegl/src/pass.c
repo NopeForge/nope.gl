@@ -104,7 +104,7 @@ static int register_builtin_uniforms(struct pass *s)
         {.name = "ngl_resolution",        .type = NGLI_TYPE_VEC2, .stage=NGLI_PROGRAM_SHADER_FRAG, .data = NULL},
     };
 
-    for (int i = 0; i < NGLI_ARRAY_NB(crafter_uniforms); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(crafter_uniforms); i++) {
         struct pgcraft_uniform *crafter_uniform = &crafter_uniforms[i];
         if (!ngli_darray_push(&s->crafter_uniforms, crafter_uniform))
             return NGL_ERROR_MEMORY;

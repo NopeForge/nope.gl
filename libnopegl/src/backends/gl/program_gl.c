@@ -194,7 +194,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
             const GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
             static const GLenum props[] = {GL_BUFFER_BINDING};
             ngli_glGetProgramResourceiv(gl, pid, GL_UNIFORM_BLOCK, block_index,
-                                        NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
+                                        (GLsizei)NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
         }
 
         LOG(DEBUG, "ubo[%d/%d]: %s binding:%d",
@@ -228,7 +228,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         GLuint block_index = ngli_glGetProgramResourceIndex(gl, pid, GL_SHADER_STORAGE_BLOCK, name);
         static const GLenum props[] = {GL_BUFFER_BINDING};
         ngli_glGetProgramResourceiv(gl, pid, GL_SHADER_STORAGE_BLOCK, block_index,
-                                    NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
+                                    (GLsizei)NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
 
         LOG(DEBUG, "ssbo[%d/%d]: %s binding:%d",
             i + 1, nb_active_buffers, name, info->binding);
@@ -280,7 +280,7 @@ int ngli_program_gl_init(struct program *s, const struct program_params *params)
 
     s_priv->id = ngli_glCreateProgram(gl);
 
-    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
         if (!shaders[i].src)
             continue;
         GLuint shader = ngli_glCreateShader(gl, shaders[i].type);
@@ -307,7 +307,7 @@ int ngli_program_gl_init(struct program *s, const struct program_params *params)
         if (bstr) {
             ngli_bstr_printf(bstr, "failed to link shaders \"%s\":",
                              params->label ? params->label : "");
-            for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
+            for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
                 if (!shaders[i].src)
                     continue;
                 char *s_with_numbers = ngli_numbered_lines(shaders[i].src);
@@ -322,7 +322,7 @@ int ngli_program_gl_init(struct program *s, const struct program_params *params)
         goto fail;
     }
 
-    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
+    for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++)
         ngli_glDeleteShader(gl, shaders[i].id);
 
     s->uniforms = program_probe_uniforms(gl, s_priv->id);
@@ -336,7 +336,7 @@ int ngli_program_gl_init(struct program *s, const struct program_params *params)
     return 0;
 
 fail:
-    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
+    for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++)
         ngli_glDeleteShader(gl, shaders[i].id);
 
     return ret;

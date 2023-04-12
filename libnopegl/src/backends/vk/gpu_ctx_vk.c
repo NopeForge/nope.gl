@@ -581,7 +581,7 @@ static VkResult create_swapchain(struct gpu_ctx *s)
     };
     if (queue_family_indices[0] != queue_family_indices[1]) {
         swapchain_create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-        swapchain_create_info.queueFamilyIndexCount = NGLI_ARRAY_NB(queue_family_indices);
+        swapchain_create_info.queueFamilyIndexCount = (uint32_t)NGLI_ARRAY_NB(queue_family_indices);
         swapchain_create_info.pQueueFamilyIndices = queue_family_indices;
     }
 

@@ -55,7 +55,7 @@ int ngli_program_vk_init(struct program *s, const struct program_params *params)
         {NGLI_PROGRAM_SHADER_COMP, params->compute},
     };
 
-    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
         if (!shaders[i].src)
             continue;
 
@@ -103,7 +103,7 @@ void ngli_program_vk_freep(struct program **sp)
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(s_priv->shaders); i++)
+    for (size_t i = 0; i < NGLI_ARRAY_NB(s_priv->shaders); i++)
         vkDestroyShaderModule(vk->device, s_priv->shaders[i], NULL);
     ngli_freep(sp);
 }

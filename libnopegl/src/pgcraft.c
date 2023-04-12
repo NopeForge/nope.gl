@@ -743,7 +743,7 @@ static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcr
         {NGL_BACKEND_OPENGLES, "GL_OES_standard_derivatives",         300, stage == NGLI_PROGRAM_SHADER_FRAG},
     };
 
-    for (int i = 0; i < NGLI_ARRAY_NB(features); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(features); i++) {
         if (features[i].backend == config->backend &&
             features[i].glsl_version > s->glsl_version &&
             features[i].required)
@@ -1417,7 +1417,7 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
 
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     if (compat_info->use_ublocks) {
-        for (int i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
+        for (size_t i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
             ngli_block_init(&compat_info->ublocks[i], NGLI_BLOCK_LAYOUT_STD140);
             compat_info->ubindings[i] = -1;
         }
@@ -1596,11 +1596,11 @@ void ngli_pgcraft_freep(struct pgcraft **sp)
     ngli_darray_reset(&s->vert_out_vars);
 
     struct pgcraft_compat_info *compat_info = &s->compat_info;
-    for (int i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
         ngli_block_reset(&compat_info->ublocks[i]);
     }
 
-    for (int i = 0; i < NGLI_ARRAY_NB(s->shaders); i++)
+    for (size_t i = 0; i < NGLI_ARRAY_NB(s->shaders); i++)
         ngli_bstr_freep(&s->shaders[i]);
 
     ngli_darray_reset(&s->pipeline_info.desc.uniforms);

@@ -315,7 +315,7 @@ static VkResult pipeline_graphics_init(struct pipeline *s)
 
     const VkPipelineDynamicStateCreateInfo dynamic_state_create_info = {
         .sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-        .dynamicStateCount = NGLI_ARRAY_NB(dynamic_states),
+        .dynamicStateCount = (uint32_t)NGLI_ARRAY_NB(dynamic_states),
         .pDynamicStates    = dynamic_states,
     };
 
@@ -341,7 +341,7 @@ static VkResult pipeline_graphics_init(struct pipeline *s)
 
     const VkGraphicsPipelineCreateInfo pipeline_create_info = {
         .sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-        .stageCount          = NGLI_ARRAY_NB(shader_stage_create_info),
+        .stageCount          = (uint32_t)NGLI_ARRAY_NB(shader_stage_create_info),
         .pStages             = shader_stage_create_info,
         .pVertexInputState   = &vertex_input_state_create_info,
         .pInputAssemblyState = &input_assembly_state_create_info,
@@ -479,7 +479,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s, const struct
 
     uint32_t nb_desc_pool_sizes = 0;
     VkDescriptorPoolSize desc_pool_sizes[NGLI_TYPE_NB];
-    for (int i = 0; i < NGLI_ARRAY_NB(desc_pool_size_map); i++) {
+    for (size_t i = 0; i < NGLI_ARRAY_NB(desc_pool_size_map); i++) {
         if (desc_pool_size_map[i].descriptorCount)
             desc_pool_sizes[nb_desc_pool_sizes++] = desc_pool_size_map[i];
     }
