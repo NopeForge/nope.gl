@@ -45,10 +45,10 @@ static int parse_u32(const char *s, uint32_t *valp)
     return (int)(endptr - s);
 }
 
-static int parse_hexint(const char *s, int *valp)
+static int parse_hexsize(const char *s, size_t *valp)
 {
     char *endptr = NULL;
-    *valp = (int)strtol(s, &endptr, 16);
+    *valp = (size_t)strtol(s, &endptr, 16);
     return (int)(endptr - s);
 }
 
@@ -91,10 +91,11 @@ DECLARE_FLT_PARSE_FUNC(float,  32, 23, 'z')
 DECLARE_FLT_PARSE_FUNC(double, 64, 52, 'Z')
 
 #define DECLARE_PARSE_LIST_FUNC(type, parse_func)                           \
-static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \
+static int parse_func##s(const char *s, type **valsp, size_t *nb_valsp)     \
 {                                                                           \
     type *vals = NULL;                                                      \
-    int nb_vals = 0, consumed = 0, len;                                     \
+    size_t nb_vals = 0;                                                     \
+    int consumed = 0, len;                                                  \
                                                                             \
     for (;;) {                                                              \
         type v;                                                             \
@@ -129,27 +130,28 @@ static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \
 
 DECLARE_PARSE_LIST_FUNC(float,    parse_float)
 DECLARE_PARSE_LIST_FUNC(double,   parse_double)
-DECLARE_PARSE_LIST_FUNC(int,      parse_hexint)
+DECLARE_PARSE_LIST_FUNC(size_t,   parse_hexsize)
 DECLARE_PARSE_LIST_FUNC(int32_t,  parse_i32)
 DECLARE_PARSE_LIST_FUNC(uint32_t, parse_u32)
 
 #define FREE_KVS(count, keys, vals) do {                                    \
-    for (int k = 0; k < (count); k++)                                       \
+    for (size_t k = 0; k < (count); k++)                                    \
         ngli_free((keys)[k]);                                               \
     ngli_freep(&keys);                                                      \
     ngli_freep(&vals);                                                      \
 } while (0)
 
-static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
+static int parse_kvs(const char *s, size_t *nb_kvsp, char ***keysp, size_t **valsp)
 {
     char **keys = NULL;
-    int *vals = NULL;
-    int nb_vals = 0, consumed = 0, len;
+    size_t *vals = NULL;
+    size_t nb_vals = 0;
+    int consumed = 0, len;
 
     for (;;) {
         char key[63 + 1];
-        int val;
-        int n = sscanf(s, "%63[^=]=%x%n", key, &val, &len);
+        size_t val;
+        int n = sscanf(s, "%63[^=]=%zx%n", key, &val, &len);
         if (n != 2) {
             consumed = -1;
             break;
@@ -162,7 +164,7 @@ static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
         }
         keys = new_keys;
 
-        int *new_vals = ngli_realloc(vals, nb_vals + 1, sizeof(*new_vals));
+        size_t *new_vals = ngli_realloc(vals, nb_vals + 1, sizeof(*new_vals));
         if (!new_vals) {
             consumed = -1;
             break;
@@ -189,10 +191,10 @@ static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
     return consumed;
 }
 
-static struct ngl_node **get_abs_node(struct darray *nodes_array, int id)
+static struct ngl_node **get_abs_node(struct darray *nodes_array, size_t id)
 {
-    const int index = (int)ngli_darray_count(nodes_array) - id - 1;
-    if (index < 0 || index >= ngli_darray_count(nodes_array))
+    const size_t index = ngli_darray_count(nodes_array) - id - 1;
+    if (index >= ngli_darray_count(nodes_array))
         return NULL;
     struct ngl_node **nodes = ngli_darray_data(nodes_array);
     return &nodes[index];
@@ -231,7 +233,7 @@ DEFINE_LITERAL_PARSE_FUNC(parse_double, double,   f64)
 static int parse_param_##set_type(struct darray *nodes_array, uint8_t *dstp,        \
                                   const struct node_param *par, const char *str)    \
 {                                                                                   \
-    int nb_vals;                                                                    \
+    size_t nb_vals;                                                                 \
     type *vals;                                                                     \
     const int len = parse_func(str, &vals, &nb_vals);                               \
     if (len < 0 || nb_vals != expected_nb_vals) {                                   \
@@ -364,8 +366,8 @@ static int parse_param_data(struct darray *nodes_array, uint8_t *dstp,
 static int parse_param_node(struct darray *nodes_array, uint8_t *dstp,
                             const struct node_param *par, const char *str)
 {
-    int node_id;
-    const int len = parse_hexint(str, &node_id);
+    size_t node_id;
+    const int len = parse_hexsize(str, &node_id);
     if (len < 0)
         return NGL_ERROR_INVALID_DATA;
     struct ngl_node **nodep = get_abs_node(nodes_array, node_id);
@@ -380,11 +382,12 @@ static int parse_param_node(struct darray *nodes_array, uint8_t *dstp,
 static int parse_param_nodelist(struct darray *nodes_array, uint8_t *dstp,
                                 const struct node_param *par, const char *str)
 {
-    int *node_ids, nb_node_ids;
-    const int len = parse_hexints(str, &node_ids, &nb_node_ids);
+    size_t *node_ids;
+    size_t nb_node_ids;
+    const int len = parse_hexsizes(str, &node_ids, &nb_node_ids);
     if (len < 0)
         return len;
-    for (int i = 0; i < nb_node_ids; i++) {
+    for (size_t i = 0; i < nb_node_ids; i++) {
         struct ngl_node **nodep = get_abs_node(nodes_array, node_ids[i]);
         if (!nodep) {
             ngli_free(node_ids);
@@ -404,7 +407,7 @@ static int parse_param_f64list(struct darray *nodes_array, uint8_t *dstp,
                                const struct node_param *par, const char *str)
 {
     double *dbls;
-    int nb_dbls;
+    size_t nb_dbls;
     const int len = parse_doubles(str, &dbls, &nb_dbls);
     if (len < 0)
         return len;
@@ -419,11 +422,11 @@ static int parse_param_nodedict(struct darray *nodes_array, uint8_t *dstp,
                                 const struct node_param *par, const char *str)
 {
     char **node_keys;
-    int *node_ids, nb_nodes;
+    size_t *node_ids, nb_nodes;
     const int len = parse_kvs(str, &nb_nodes, &node_keys, &node_ids);
     if (len < 0)
         return len;
-    for (int i = 0; i < nb_nodes; i++) {
+    for (size_t i = 0; i < nb_nodes; i++) {
         const char *key = node_keys[i];
         struct ngl_node **nodep = get_abs_node(nodes_array, node_ids[i]);
         if (!nodep) {
