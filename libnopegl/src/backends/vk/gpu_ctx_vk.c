@@ -1046,6 +1046,10 @@ static int vk_begin_update(struct gpu_ctx *s, double t)
     if (res != VK_SUCCESS)
         return ngli_vk_res2ret(res);
 
+    res = vk_add_pending_wait_semaphores(s);
+    if (res != VK_SUCCESS)
+        return ngli_vk_res2ret(res);
+
     return 0;
 }
 
