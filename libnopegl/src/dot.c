@@ -177,7 +177,7 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
     print_decls(b, node, node->cls->params, node->opts, decls);
 }
 
-static void table_header(struct bstr *b, const char *label, int is_active, int colspan)
+static void table_header(struct bstr *b, const char *label, int is_active, size_t colspan)
 {
     ngli_bstr_print(b, "[shape=none,label=<<table border=\"0\" cellspacing=\"0\" cellborder=\"1\" bgcolor=");
     const unsigned hue = get_hue(label);
@@ -185,7 +185,7 @@ static void table_header(struct bstr *b, const char *label, int is_active, int c
         ngli_bstr_printf(b, "\"0.%u 0.2 0.8\"", hue); /* color of all the entries, more pale than HSLFMT */
     else
         ngli_bstr_print(b, INACTIVE_COLOR);
-    ngli_bstr_printf(b, "><tr><td colspan=\"%d\" bgcolor=", colspan);
+    ngli_bstr_printf(b, "><tr><td colspan=\"%zd\" bgcolor=", colspan);
     if (is_active)
         ngli_bstr_printf(b, HSLFMT, hue);
     else

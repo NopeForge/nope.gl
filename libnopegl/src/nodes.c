@@ -396,7 +396,7 @@ int ngli_node_livectls_get(const struct ngl_scene *scene, int *nb_livectlsp, str
     if (ret < 0)
         goto end;
 
-    const int nb = ngli_hmap_count(livectls_index);
+    const int nb = (int)ngli_hmap_count(livectls_index);
     if (!nb)
         goto end;
 

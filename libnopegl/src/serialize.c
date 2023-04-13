@@ -45,7 +45,7 @@ static int register_node(struct hmap *nlist,
     int ret = snprintf(key, sizeof(key), "%p", node);
     if (ret < 0)
         return ret;
-    char *val = ngli_asprintf("%x", ngli_hmap_count(nlist));
+    char *val = ngli_asprintf("%zx", ngli_hmap_count(nlist));
     if (!val)
         return NGL_ERROR_MEMORY;
     ret = ngli_hmap_set(nlist, key, val);
@@ -64,7 +64,7 @@ static int get_node_id(const struct hmap *nlist, const struct ngl_node *node)
 
 static int get_rel_node_id(const struct hmap *nlist, const struct ngl_node *node)
 {
-    return ngli_hmap_count(nlist) - get_node_id(nlist, node);
+    return (int)ngli_hmap_count(nlist) - get_node_id(nlist, node);
 }
 
 #define DECLARE_FLT_PRINT_FUNC(type, nbit, shift_exp, z)                \
@@ -297,7 +297,7 @@ static int serialize_nodedict(struct bstr *b, const uint8_t *srcp,
                               const struct node_param *par, struct hmap *nlist)
 {
     struct hmap *hmap = *(struct hmap **)srcp;
-    const int nb_nodes = hmap ? ngli_hmap_count(hmap) : 0;
+    const size_t nb_nodes = hmap ? ngli_hmap_count(hmap) : 0;
     if (!nb_nodes)
         return 0;
     ngli_bstr_printf(b, " %s:", par->key);

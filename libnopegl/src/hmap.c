@@ -37,7 +37,7 @@ struct hmap {
     struct bucket *buckets;
     size_t size;
     size_t mask;
-    int count; // total number of entries
+    size_t count; // total number of entries
     user_free_func_type user_free_func;
     void *user_arg;
     struct hmap_ref first;
@@ -69,7 +69,7 @@ struct hmap *ngli_hmap_create(void)
     return hm;
 }
 
-int ngli_hmap_count(const struct hmap *hm)
+size_t ngli_hmap_count(const struct hmap *hm)
 {
     return hm->count;
 }
