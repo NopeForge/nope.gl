@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -1010,19 +1011,23 @@ static int vk_begin_update(struct gpu_ctx *s, double t)
     for (int i = 0; i < ngli_darray_count(&s_priv->pending_cmds); i++) {
         VkResult res = ngli_cmd_vk_wait(cmds[i]);
         if (res != VK_SUCCESS)
-            return res;
+            return ngli_vk_res2ret(res);
     }
     ngli_darray_clear(&s_priv->pending_cmds);
 
     struct cmd_vk *cmd_vk = s_priv->cmds[s_priv->cur_frame_index];
     VkResult res = ngli_cmd_vk_wait(cmd_vk);
     if (res != VK_SUCCESS)
-        return res;
+        return ngli_vk_res2ret(res);
 
     s_priv->cur_frame_index = (s_priv->cur_frame_index + 1) % s_priv->nb_in_flight_frames;
 
     s_priv->cur_cmd = s_priv->update_cmds[s_priv->cur_frame_index];
-    return ngli_cmd_vk_begin(s_priv->cur_cmd);
+    res = ngli_cmd_vk_begin(s_priv->cur_cmd);
+    if (res != VK_SUCCESS)
+        return ngli_vk_res2ret(res);
+
+    return 0;
 }
 
 static int vk_end_update(struct gpu_ctx *s, double t)
@@ -1032,11 +1037,11 @@ static int vk_end_update(struct gpu_ctx *s, double t)
     VkSemaphore update_finished_sem = s_priv->update_finished_sems[s_priv->cur_frame_index];
     VkResult res = ngli_cmd_vk_add_signal_sem(s_priv->cur_cmd, &update_finished_sem);
     if (res != VK_SUCCESS)
-        return res;
+        return ngli_vk_res2ret(res);
 
     res = ngli_cmd_vk_submit(s_priv->cur_cmd);
     if (res != VK_SUCCESS)
-        return res;
+        return ngli_vk_res2ret(res);
 
     if (!ngli_darray_push(&s_priv->pending_wait_sems, &update_finished_sem))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -1054,7 +1059,7 @@ static int vk_begin_draw(struct gpu_ctx *s, double t)
     s_priv->cur_cmd = s_priv->cmds[s_priv->cur_frame_index];
     VkResult res = ngli_cmd_vk_begin(s_priv->cur_cmd);
     if (res != VK_SUCCESS)
-        return res;
+        return ngli_vk_res2ret(res);
 
     VkSemaphore *wait_sems = ngli_darray_data(&s_priv->pending_wait_sems);
     for (int i = 0; i < ngli_darray_count(&s_priv->pending_wait_sems); i++) {
@@ -1064,7 +1069,7 @@ static int vk_begin_draw(struct gpu_ctx *s, double t)
                                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT |
                                        VK_PIPELINE_STAGE_TRANSFER_BIT);
         if (res != VK_SUCCESS)
-            return res;
+            return ngli_vk_res2ret(res);
 
     }
     ngli_darray_clear(&s_priv->pending_wait_sems);
