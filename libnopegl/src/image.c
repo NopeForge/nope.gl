@@ -38,7 +38,7 @@ struct color_info ngli_color_info_from_nopemd_frame(const struct nmd_frame *fram
     };
 }
 
-static const int nb_planes_map[] = {
+static const size_t nb_planes_map[] = {
     [NGLI_IMAGE_LAYOUT_DEFAULT]        = 1,
     [NGLI_IMAGE_LAYOUT_MEDIACODEC]     = 1,
     [NGLI_IMAGE_LAYOUT_NV12]           = 2,
@@ -55,7 +55,7 @@ void ngli_image_init(struct image *s, const struct image_params *params, struct 
     ngli_assert(params->layout > NGLI_IMAGE_LAYOUT_NONE && params->layout < NGLI_NB_IMAGE_LAYOUTS);
     s->params = *params;
     s->nb_planes = nb_planes_map[params->layout];
-    for (int i = 0; i < s->nb_planes; i++)
+    for (size_t i = 0; i < s->nb_planes; i++)
         s->planes[i] = planes[i];
     if (params->layout == NGLI_IMAGE_LAYOUT_NV12 ||
         params->layout == NGLI_IMAGE_LAYOUT_NV12_RECTANGLE ||
@@ -74,7 +74,7 @@ void ngli_image_reset(struct image *s)
 uint64_t ngli_image_get_memory_size(const struct image *s)
 {
     uint64_t size = 0;
-    for (int i = 0; i < s->nb_planes; i++) {
+    for (size_t i = 0; i < s->nb_planes; i++) {
         const struct texture *plane = s->planes[i];
         const struct texture_params *params = &plane->params;
         size += params->width

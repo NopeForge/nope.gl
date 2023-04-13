@@ -44,7 +44,7 @@
 
 struct format_desc {
     int layout;
-    int nb_planes;
+    size_t nb_planes;
     int log2_chroma_width;
     int log2_chroma_height;
     int formats[2];
@@ -205,14 +205,14 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     if (ret < 0)
         return ret;
 
-    const int nb_layers = vaapi->surface_descriptor.num_layers;
+    const size_t nb_layers = vaapi->surface_descriptor.num_layers;
     if (nb_layers != desc.nb_planes) {
-        LOG(ERROR, "surface layer count (%d) does not match plane count (%d)",
+        LOG(ERROR, "surface layer count (%zd) does not match plane count (%zd)",
             nb_layers, desc.nb_planes);
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    for (int i = 0; i < nb_layers; i++) {
+    for (size_t i = 0; i < nb_layers; i++) {
         const int ngl_format = desc.formats[i];
         const VkFormat format = ngli_format_ngl_to_vk(ngl_format);
         const int width = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc.log2_chroma_width);

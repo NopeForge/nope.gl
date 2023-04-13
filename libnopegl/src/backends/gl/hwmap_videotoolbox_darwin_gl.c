@@ -41,7 +41,7 @@
 
 struct format_desc {
     int layout;
-    int nb_planes;
+    size_t nb_planes;
     struct {
         int format;
     } planes[2];
@@ -85,7 +85,7 @@ struct hwmap_vt_darwin {
     struct format_desc format_desc;
 };
 
-static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, int index)
+static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t index)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)ctx->gpu_ctx;
@@ -107,9 +107,9 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, int in
 
     CGLError err = CGLTexImageIOSurface2D(CGLGetCurrentContext(), GL_TEXTURE_RECTANGLE,
                                           plane_gl->internal_format, (GLsizei)width, (GLsizei)height,
-                                          plane_gl->format, format_type, surface, index);
+                                          plane_gl->format, format_type, surface, (GLuint)index);
     if (err != kCGLNoError) {
-        LOG(ERROR, "could not bind IOSurface plane %d to texture %d: %s", index, plane_gl->id, CGLErrorString(err));
+        LOG(ERROR, "could not bind IOSurface plane %zd to texture %d: %s", index, plane_gl->id, CGLErrorString(err));
         return NGL_ERROR_EXTERNAL;
     }
 
@@ -134,7 +134,7 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         return NGL_ERROR_EXTERNAL;
     }
 
-    for (int i = 0; i < vt->format_desc.nb_planes; i++) {
+    for (size_t i = 0; i < vt->format_desc.nb_planes; i++) {
         int ret = vt_darwin_map_plane(hwmap, surface, i);
         if (ret < 0)
             return ret;
@@ -199,7 +199,7 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
 
     ngli_glGenTextures(gl, 2, vt->gl_planes);
 
-    for (int i = 0; i < vt->format_desc.nb_planes; i++) {
+    for (size_t i = 0; i < vt->format_desc.nb_planes; i++) {
         const GLint min_filter = ngli_texture_get_gl_min_filter(params->texture_min_filter, NGLI_MIPMAP_FILTER_NONE);
         const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->texture_mag_filter);
 

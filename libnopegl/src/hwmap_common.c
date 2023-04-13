@@ -35,7 +35,7 @@
 struct hwmap_common {
     int width;
     int height;
-    int nb_planes;
+    size_t nb_planes;
     struct texture *planes[4];
 };
 
@@ -43,7 +43,7 @@ static const struct format_desc {
     int layout;
     int depth;
     int shift;
-    int nb_planes;
+    size_t nb_planes;
     int log2_chroma_width;
     int log2_chroma_height;
     int format_depth;
@@ -200,7 +200,7 @@ static int common_init(struct hwmap *hwmap, struct nmd_frame *frame)
     common->height = frame->height;
     common->nb_planes = desc->nb_planes;
 
-    for (int i = 0; i < common->nb_planes; i++) {
+    for (size_t i = 0; i < common->nb_planes; i++) {
         const struct texture_params plane_params = {
             .type          = NGLI_TEXTURE_TYPE_2D,
             .format        = desc->formats[i],
@@ -253,7 +253,7 @@ static int common_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct hwmap_common *common = hwmap->hwmap_priv_data;
 
-    for (int i = 0; i < common->nb_planes; i++) {
+    for (size_t i = 0; i < common->nb_planes; i++) {
         struct texture *plane = common->planes[i];
         struct texture_params *params = &plane->params;
         const int linesize = frame->linesizep[i] / ngli_format_get_bytes_per_pixel(params->format);
