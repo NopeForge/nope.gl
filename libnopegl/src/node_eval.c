@@ -37,7 +37,7 @@ struct eval_opts {
 struct eval_priv {
     struct variable_info var;
     float vector[4];
-    int nb_expr;
+    size_t nb_expr;
     struct hmap *vars;
     struct eval *eval[4];
 };
@@ -128,7 +128,7 @@ static int eval_init(struct ngl_node *node)
         }
     }
 
-    for (int i = 0; i < s->nb_expr; i++) {
+    for (size_t i = 0; i < s->nb_expr; i++) {
         if (!o->expr[i])
             continue;
         s->eval[i] = ngli_eval_create();
@@ -156,7 +156,7 @@ static int eval_update(struct ngl_node *node, double t)
         }
     }
 
-    for (int i = 0; i < s->nb_expr; i++) {
+    for (size_t i = 0; i < s->nb_expr; i++) {
         if (!s->eval[i]) {
             s->vector[i] = s->vector[i - 1];
             continue;
@@ -173,7 +173,7 @@ static void eval_uninit(struct ngl_node *node)
 {
     struct eval_priv *s = node->priv_data;
 
-    for (int i = 0; i < s->nb_expr; i++)
+    for (size_t i = 0; i < s->nb_expr; i++)
         ngli_eval_freep(&s->eval[i]);
     ngli_hmap_freep(&s->vars);
 }
