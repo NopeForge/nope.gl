@@ -74,6 +74,7 @@ foreach backend : backends
     'shader_init_fail',
     'trf_seek',
     'trf_seek_keep_alive',
+    'dot',
   ]
 
   tests_blending = [

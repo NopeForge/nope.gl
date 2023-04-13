@@ -462,3 +462,15 @@ def api_trf_seek_keep_alive(width=320, height=240):
     assert ctx.draw(end) == 0
     assert ctx.draw(start) == 0
     assert ctx.draw(end) == 0
+
+
+def api_dot(width=320, height=240):
+    """
+    Exercise the ngl.dot() API.
+    """
+    ctx = ngl.Context()
+    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    scene = _get_scene()
+    assert ctx.set_scene(scene) == 0
+    assert ctx.dot(0.0) is not None
+    assert ctx.dot(1.0) is not None
