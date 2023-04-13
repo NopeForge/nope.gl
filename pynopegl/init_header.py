@@ -37,10 +37,8 @@ if platform.system() == "Windows":
 import _pynopegl as _ngl
 from _pynopegl import _Node
 
+
 # fmt: off
-ConfigGL          = _ngl.ConfigGL
-
-
 class Platform(IntEnum):
     AUTO    = _ngl.PLATFORM_AUTO
     XLIB    = _ngl.PLATFORM_XLIB
@@ -96,6 +94,11 @@ class Log(IntEnum):
 
 def log_set_min_level(level: Log):
     return _ngl.log_set_min_level(level.value)
+
+
+class ConfigGL(_ngl.ConfigGL):
+    def __init__(self, external: bool = False, external_framebuffer: int = 0):
+        super().__init__(external, external_framebuffer)
 
 
 class Config(_ngl.Config):
