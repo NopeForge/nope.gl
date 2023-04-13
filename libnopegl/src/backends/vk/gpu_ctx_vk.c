@@ -1044,7 +1044,7 @@ static int vk_end_update(struct gpu_ctx *s, double t)
         return ngli_vk_res2ret(res);
 
     if (!ngli_darray_push(&s_priv->pending_wait_sems, &update_finished_sem))
-        return VK_ERROR_OUT_OF_HOST_MEMORY;
+        return NGL_ERROR_MEMORY;
 
     s_priv->cur_cmd = NULL;
 
