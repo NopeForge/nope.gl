@@ -522,8 +522,10 @@ def get_livectls(_Node scene):
 cdef class ConfigGL:
     cdef ngl_config_gl config
 
-    def __cinit__(self, external=False, external_framebuffer=0):
+    def __cinit__(self):
         memset(&self.config, 0, sizeof(self.config))
+
+    def __init__(self, external, external_framebuffer):
         self.config.external = external
         self.config.external_framebuffer = external_framebuffer
 
