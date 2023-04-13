@@ -501,7 +501,7 @@ struct ngl_livectl {
  *
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
-NGL_API int ngl_livectls_get(struct ngl_scene *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp);
+NGL_API int ngl_livectls_get(struct ngl_scene *scene, size_t *nb_livectlsp, struct ngl_livectl **livectlsp);
 
 NGL_API void ngl_livectls_freep(struct ngl_livectl **livectlsp);
 

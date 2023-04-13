@@ -382,7 +382,7 @@ static int find_livectls(const struct ngl_node *node, struct hmap *hm)
     return 0;
 }
 
-int ngli_node_livectls_get(const struct ngl_scene *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp)
+int ngli_node_livectls_get(const struct ngl_scene *scene, size_t *nb_livectlsp, struct ngl_livectl **livectlsp)
 {
     struct ngl_livectl *ctls = NULL;
     *livectlsp = NULL;
@@ -396,7 +396,7 @@ int ngli_node_livectls_get(const struct ngl_scene *scene, int *nb_livectlsp, str
     if (ret < 0)
         goto end;
 
-    const int nb = (int)ngli_hmap_count(livectls_index);
+    const size_t nb = ngli_hmap_count(livectls_index);
     if (!nb)
         goto end;
 
@@ -412,7 +412,7 @@ int ngli_node_livectls_get(const struct ngl_scene *scene, int *nb_livectlsp, str
      * (struct ngl_livectl), with independant ownership (ref counting the node
      * and duplicating memory when needed).
      */
-    int i = 0;
+    size_t i = 0;
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(livectls_index, entry))) {
         struct ngl_node *node = entry->data;
@@ -457,7 +457,7 @@ void ngli_node_livectls_freep(struct ngl_livectl **livectlsp)
     struct ngl_livectl *livectls = *livectlsp;
     if (!livectls)
         return;
-    for (int i = 0; livectls[i].node; i++) {
+    for (size_t i = 0; livectls[i].node; i++) {
         struct ngl_livectl *ctl = &livectls[i];
         if (livectls[i].node->cls->id == NGL_NODE_TEXT)
             ngli_freep(&livectls[i].val.s);
