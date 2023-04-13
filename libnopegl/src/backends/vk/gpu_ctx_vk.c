@@ -1003,6 +1003,25 @@ static int vk_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
     return 0;
 }
 
+static VkResult vk_add_pending_wait_semaphores(struct gpu_ctx *s)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+
+    VkSemaphore *wait_sems = ngli_darray_data(&s_priv->pending_wait_sems);
+    for (int i = 0; i < ngli_darray_count(&s_priv->pending_wait_sems); i++) {
+        VkResult res = ngli_cmd_vk_add_wait_sem(s_priv->cur_cmd,
+                                                &wait_sems[i],
+                                                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                                                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT |
+                                                VK_PIPELINE_STAGE_TRANSFER_BIT);
+        if (res != VK_SUCCESS)
+            return res;
+    }
+    ngli_darray_clear(&s_priv->pending_wait_sems);
+
+    return VK_SUCCESS;
+}
+
 static int vk_begin_update(struct gpu_ctx *s, double t)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
@@ -1061,18 +1080,9 @@ static int vk_begin_draw(struct gpu_ctx *s, double t)
     if (res != VK_SUCCESS)
         return ngli_vk_res2ret(res);
 
-    VkSemaphore *wait_sems = ngli_darray_data(&s_priv->pending_wait_sems);
-    for (int i = 0; i < ngli_darray_count(&s_priv->pending_wait_sems); i++) {
-        res = ngli_cmd_vk_add_wait_sem(s_priv->cur_cmd,
-                                       &wait_sems[i],
-                                       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
-                                       VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT |
-                                       VK_PIPELINE_STAGE_TRANSFER_BIT);
-        if (res != VK_SUCCESS)
-            return ngli_vk_res2ret(res);
-
-    }
-    ngli_darray_clear(&s_priv->pending_wait_sems);
+    res = vk_add_pending_wait_semaphores(s);
+    if (res != VK_SUCCESS)
+        return ngli_vk_res2ret(res);
 
     if (config->offscreen) {
         struct rendertarget **rts = ngli_darray_data(&s_priv->rts);
