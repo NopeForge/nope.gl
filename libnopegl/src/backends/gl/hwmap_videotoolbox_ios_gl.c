@@ -47,7 +47,7 @@
 
 struct format_desc {
     int layout;
-    int nb_planes;
+    size_t nb_planes;
     struct {
         int format;
     } planes[2];
@@ -85,7 +85,7 @@ struct hwmap_vt_ios {
     CVOpenGLESTextureRef ios_textures[2];
 };
 
-static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, int index)
+static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, size_t index)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -152,7 +152,7 @@ static int vt_ios_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     vt->width  = CVPixelBufferGetWidth(cvpixbuf);
     vt->height = CVPixelBufferGetHeight(cvpixbuf);
 
-    for (int i = 0; i < vt->format_desc.nb_planes; i++) {
+    for (size_t i = 0; i < vt->format_desc.nb_planes; i++) {
         int ret = vt_ios_map_plane(hwmap, cvpixbuf, i);
         if (ret < 0)
             return ret;
@@ -214,7 +214,7 @@ static int vt_ios_init(struct hwmap *hwmap, struct nmd_frame *frame)
     if (ret < 0)
         return ret;
 
-    for (int i = 0; i < vt->format_desc.nb_planes; i++) {
+    for (size_t i = 0; i < vt->format_desc.nb_planes; i++) {
         const struct texture_params plane_params = {
             .type             = NGLI_TEXTURE_TYPE_2D,
             .format           = vt->format_desc.planes[i].format,
