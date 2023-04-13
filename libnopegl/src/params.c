@@ -330,12 +330,12 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
     }
 }
 
-static int allowed_node(const struct ngl_node *node, const int *allowed_ids)
+static int allowed_node(const struct ngl_node *node, const uint32_t *allowed_ids)
 {
     if (!allowed_ids)
         return 1;
-    const int id = node->cls->id;
-    for (int i = 0; allowed_ids[i] != -1; i++)
+    const uint32_t id = node->cls->id;
+    for (int i = 0; allowed_ids[i] != NGLI_NODE_NONE; i++)
         if (id == allowed_ids[i])
             return 1;
     return 0;
@@ -537,82 +537,82 @@ int ngli_params_set_mat4(uint8_t *dstp, const struct node_param *par, const floa
     return 0;
 }
 
-static const int * const param_type_to_nodes[] = {
-    [NGLI_PARAM_TYPE_BOOL] = (const int[]){
+static const uint32_t * const param_type_to_nodes[] = {
+    [NGLI_PARAM_TYPE_BOOL] = (const uint32_t[]){
         NGL_NODE_UNIFORMBOOL,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_F32] = (const int[]){
+    [NGLI_PARAM_TYPE_F32] = (const uint32_t[]){
         NGL_NODE_ANIMATEDFLOAT,
         NGL_NODE_EVALFLOAT,
         NGL_NODE_NOISEFLOAT,
         NGL_NODE_STREAMEDFLOAT,
         NGL_NODE_UNIFORMFLOAT,
         NGL_NODE_VELOCITYFLOAT,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_I32] = (const int[]){
+    [NGLI_PARAM_TYPE_I32] = (const uint32_t[]){
         NGL_NODE_STREAMEDINT,
         NGL_NODE_UNIFORMINT,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_IVEC2] = (const int[]){
+    [NGLI_PARAM_TYPE_IVEC2] = (const uint32_t[]){
         NGL_NODE_STREAMEDIVEC2,
         NGL_NODE_UNIFORMIVEC2,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_IVEC3] = (const int[]){
+    [NGLI_PARAM_TYPE_IVEC3] = (const uint32_t[]){
         NGL_NODE_STREAMEDIVEC3,
         NGL_NODE_UNIFORMIVEC3,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_IVEC4] = (const int[]){
+    [NGLI_PARAM_TYPE_IVEC4] = (const uint32_t[]){
         NGL_NODE_STREAMEDIVEC4,
         NGL_NODE_UNIFORMIVEC4,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_MAT4] = (const int[]){
+    [NGLI_PARAM_TYPE_MAT4] = (const uint32_t[]){
         NGL_NODE_ANIMATEDQUAT,
         NGL_NODE_STREAMEDMAT4,
         NGL_NODE_UNIFORMMAT4,
         NGL_NODE_UNIFORMQUAT,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_RATIONAL] = (const int[]){
+    [NGLI_PARAM_TYPE_RATIONAL] = (const uint32_t[]){
         NGL_NODE_STREAMEDIVEC2,
         NGL_NODE_UNIFORMIVEC2,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_U32] = (const int[]){
+    [NGLI_PARAM_TYPE_U32] = (const uint32_t[]){
         NGL_NODE_STREAMEDUINT,
         NGL_NODE_UNIFORMUINT,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_UVEC2] = (const int[]){
+    [NGLI_PARAM_TYPE_UVEC2] = (const uint32_t[]){
         NGL_NODE_STREAMEDUIVEC2,
         NGL_NODE_UNIFORMUIVEC2,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_UVEC3] = (const int[]){
+    [NGLI_PARAM_TYPE_UVEC3] = (const uint32_t[]){
         NGL_NODE_STREAMEDUIVEC3,
         NGL_NODE_UNIFORMUIVEC3,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_UVEC4] = (const int[]){
+    [NGLI_PARAM_TYPE_UVEC4] = (const uint32_t[]){
         NGL_NODE_STREAMEDUIVEC4,
         NGL_NODE_UNIFORMUIVEC4,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_VEC2] = (const int[]){
+    [NGLI_PARAM_TYPE_VEC2] = (const uint32_t[]){
         NGL_NODE_ANIMATEDVEC2,
         NGL_NODE_EVALVEC2,
         NGL_NODE_NOISEVEC2,
         NGL_NODE_STREAMEDVEC2,
         NGL_NODE_UNIFORMVEC2,
         NGL_NODE_VELOCITYVEC2,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_VEC3] = (const int[]){
+    [NGLI_PARAM_TYPE_VEC3] = (const uint32_t[]){
         NGL_NODE_ANIMATEDCOLOR,
         NGL_NODE_ANIMATEDPATH,
         NGL_NODE_ANIMATEDVEC3,
@@ -622,9 +622,9 @@ static const int * const param_type_to_nodes[] = {
         NGL_NODE_UNIFORMCOLOR,
         NGL_NODE_UNIFORMVEC3,
         NGL_NODE_VELOCITYVEC3,
-        -1
+        NGLI_NODE_NONE
     },
-    [NGLI_PARAM_TYPE_VEC4] = (const int[]){
+    [NGLI_PARAM_TYPE_VEC4] = (const uint32_t[]){
         NGL_NODE_ANIMATEDQUAT,
         NGL_NODE_ANIMATEDVEC4,
         NGL_NODE_EVALVEC4,
@@ -633,7 +633,7 @@ static const int * const param_type_to_nodes[] = {
         NGL_NODE_UNIFORMQUAT,
         NGL_NODE_UNIFORMVEC4,
         NGL_NODE_VELOCITYVEC4,
-        -1
+        NGLI_NODE_NONE
     },
 };
 
@@ -657,7 +657,7 @@ int ngli_params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl
          * actually exists.
          */
         ngli_assert(par->type >= 0 && par->type < NGLI_ARRAY_NB(param_type_to_nodes));
-        const int *node_types = param_type_to_nodes[par->type];
+        const uint32_t *node_types = param_type_to_nodes[par->type];
         ngli_assert(node_types);
 
         if (!allowed_node(node, node_types)) {

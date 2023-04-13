@@ -312,7 +312,7 @@ struct ngl_node;
  *
  * @return a new allocated node or NULL on error
  */
-NGL_API struct ngl_node *ngl_node_create(int type);
+NGL_API struct ngl_node *ngl_node_create(uint32_t type);
 
 /**
  * Increment the reference counter of a given node by 1.

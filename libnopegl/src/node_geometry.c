@@ -42,13 +42,13 @@ static const struct param_choices topology_choices = {
     }
 };
 
-#define TEXCOORDS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,            \
-                                           NGL_NODE_BUFFERVEC2,             \
-                                           NGL_NODE_BUFFERVEC3,             \
-                                           NGL_NODE_ANIMATEDBUFFERFLOAT,    \
-                                           NGL_NODE_ANIMATEDBUFFERVEC2,     \
-                                           NGL_NODE_ANIMATEDBUFFERVEC3,     \
-                                           -1}
+#define TEXCOORDS_TYPES_LIST (const uint32_t[]){NGL_NODE_BUFFERFLOAT,            \
+                                                NGL_NODE_BUFFERVEC2,             \
+                                                NGL_NODE_BUFFERVEC3,             \
+                                                NGL_NODE_ANIMATEDBUFFERFLOAT,    \
+                                                NGL_NODE_ANIMATEDBUFFERVEC2,     \
+                                                NGL_NODE_ANIMATEDBUFFERVEC3,     \
+                                                NGLI_NODE_NONE}
 
 struct geometry_opts {
     struct ngl_node *vertices;
@@ -65,7 +65,7 @@ struct geometry_priv {
 #define OFFSET(x) offsetof(struct geometry_opts, x)
 static const struct node_param geometry_params[] = {
     {"vertices",  NGLI_PARAM_TYPE_NODE, OFFSET(vertices),
-                  .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, NGLI_NODE_NONE},
                   .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                   .desc=NGLI_DOCSTRING("vertice coordinates defining the geometry")},
     {"uvcoords",  NGLI_PARAM_TYPE_NODE, OFFSET(uvcoords),
@@ -73,11 +73,11 @@ static const struct node_param geometry_params[] = {
                   .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                   .desc=NGLI_DOCSTRING("coordinates used for UV mapping of each `vertices`")},
     {"normals",   NGLI_PARAM_TYPE_NODE, OFFSET(normals),
-                  .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, NGLI_NODE_NONE},
                   .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                   .desc=NGLI_DOCSTRING("normal vectors of each `vertices`")},
     {"indices",   NGLI_PARAM_TYPE_NODE, OFFSET(indices),
-                  .node_types=(const int[]){NGL_NODE_BUFFERUSHORT, NGL_NODE_BUFFERUINT, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_BUFFERUSHORT, NGL_NODE_BUFFERUINT, NGLI_NODE_NONE},
                   .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                   .desc=NGLI_DOCSTRING("indices defining the drawing order of the `vertices`, auto-generated if not set")},
     {"topology",  NGLI_PARAM_TYPE_SELECT, OFFSET(topology), {.i32=NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST},

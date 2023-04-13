@@ -41,10 +41,10 @@ struct timerangefilter_priv {
     int drawme;
 };
 
-#define RANGES_TYPES_LIST (const int[]){NGL_NODE_TIMERANGEMODEONCE,     \
-                                        NGL_NODE_TIMERANGEMODENOOP,     \
-                                        NGL_NODE_TIMERANGEMODECONT,     \
-                                        -1}
+#define RANGES_TYPES_LIST (const uint32_t[]){NGL_NODE_TIMERANGEMODEONCE,     \
+                                             NGL_NODE_TIMERANGEMODENOOP,     \
+                                             NGL_NODE_TIMERANGEMODECONT,     \
+                                             NGLI_NODE_NONE}
 
 #define OFFSET(x) offsetof(struct timerangefilter_opts, x)
 static const struct node_param timerangefilter_params[] = {

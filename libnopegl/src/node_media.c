@@ -88,7 +88,7 @@ static const struct node_param media_params[] = {
                          .choices=&nopemd_log_level_choices,
                          .desc=NGLI_DOCSTRING("nope.media min logging level")},
     {"time_anim", NGLI_PARAM_TYPE_NODE, OFFSET(anim),
-                  .node_types=(const int[]){NGL_NODE_ANIMATEDTIME, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMATEDTIME, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("time remapping animation (must use a `linear` interpolation)")},
     {"audio_tex", NGLI_PARAM_TYPE_BOOL, OFFSET(audio_tex),
                   .desc=NGLI_DOCSTRING("load the audio and expose it as a stereo waves and frequencies buffer")},

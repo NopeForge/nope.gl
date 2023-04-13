@@ -156,12 +156,12 @@ static const struct param_choices format_choices = {
     NGL_NODE_BUFFERVEC4,            \
 
 
-#define DATA_SRC_TYPES_LIST_2D (const int[]){NGL_NODE_MEDIA,                   \
-                                             BUFFER_NODES                      \
-                                             -1}
+#define DATA_SRC_TYPES_LIST_2D (const uint32_t[]){NGL_NODE_MEDIA,                   \
+                                                  BUFFER_NODES                      \
+                                                  NGLI_NODE_NONE}
 
-#define DATA_SRC_TYPES_LIST_3D (const int[]){BUFFER_NODES                      \
-                                             -1}
+#define DATA_SRC_TYPES_LIST_3D (const uint32_t[]){BUFFER_NODES                      \
+                                                  NGLI_NODE_NONE}
 
 
 #define OFFSET(x) offsetof(struct texture_opts, x)

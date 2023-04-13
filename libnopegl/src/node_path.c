@@ -40,12 +40,12 @@ struct path_priv {
 #define OFFSET(x) offsetof(struct path_opts, x)
 static const struct node_param path_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(keyframes),
-                  .node_types=(const int[]){
+                  .node_types=(const uint32_t[]){
                       NGL_NODE_PATHKEYMOVE,
                       NGL_NODE_PATHKEYLINE,
                       NGL_NODE_PATHKEYBEZIER2,
                       NGL_NODE_PATHKEYBEZIER3,
-                      -1
+                      NGLI_NODE_NONE
                   },
                   .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .desc=NGLI_DOCSTRING("anchor points the path go through")},

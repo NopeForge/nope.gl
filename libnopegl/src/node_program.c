@@ -27,22 +27,22 @@
 #include "internal.h"
 #include "pgcraft.h"
 
-#define IO_NODES (const int[]){NGL_NODE_IOINT,        \
-                               NGL_NODE_IOIVEC2,      \
-                               NGL_NODE_IOIVEC3,      \
-                               NGL_NODE_IOIVEC4,      \
-                               NGL_NODE_IOUINT,       \
-                               NGL_NODE_IOUIVEC2,     \
-                               NGL_NODE_IOUIVEC3,     \
-                               NGL_NODE_IOUIVEC4,     \
-                               NGL_NODE_IOFLOAT,      \
-                               NGL_NODE_IOVEC2,       \
-                               NGL_NODE_IOVEC3,       \
-                               NGL_NODE_IOVEC4,       \
-                               NGL_NODE_IOMAT3,       \
-                               NGL_NODE_IOMAT4,       \
-                               NGL_NODE_IOBOOL,       \
-                               -1}
+#define IO_NODES (const uint32_t[]){NGL_NODE_IOINT,        \
+                                    NGL_NODE_IOIVEC2,      \
+                                    NGL_NODE_IOIVEC3,      \
+                                    NGL_NODE_IOIVEC4,      \
+                                    NGL_NODE_IOUINT,       \
+                                    NGL_NODE_IOUIVEC2,     \
+                                    NGL_NODE_IOUIVEC3,     \
+                                    NGL_NODE_IOUIVEC4,     \
+                                    NGL_NODE_IOFLOAT,      \
+                                    NGL_NODE_IOVEC2,       \
+                                    NGL_NODE_IOVEC3,       \
+                                    NGL_NODE_IOVEC4,       \
+                                    NGL_NODE_IOMAT3,       \
+                                    NGL_NODE_IOMAT4,       \
+                                    NGL_NODE_IOBOOL,       \
+                                    NGLI_NODE_NONE}
 
 #define OFFSET(x) offsetof(struct program_opts, x)
 static const struct node_param program_params[] = {
@@ -52,7 +52,7 @@ static const struct node_param program_params[] = {
                  .desc=NGLI_DOCSTRING("fragment shader")},
     {"properties", NGLI_PARAM_TYPE_NODEDICT, OFFSET(properties),
                    .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
-                   .node_types=(const int[]){NGL_NODE_RESOURCEPROPS, -1},
+                   .node_types=(const uint32_t[]){NGL_NODE_RESOURCEPROPS, NGLI_NODE_NONE},
                    .desc=NGLI_DOCSTRING("resource properties")},
     {"vert_out_vars", NGLI_PARAM_TYPE_NODEDICT, OFFSET(vert_out_vars),
                        .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,

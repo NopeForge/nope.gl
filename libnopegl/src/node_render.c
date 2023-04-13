@@ -47,91 +47,91 @@ struct render_priv {
     struct pass pass;
 };
 
-#define PROGRAMS_TYPES_LIST (const int[]){NGL_NODE_PROGRAM,         \
-                                          -1}
+#define PROGRAMS_TYPES_LIST (const uint32_t[]){NGL_NODE_PROGRAM,         \
+                                               NGLI_NODE_NONE}
 
-#define INPUT_TYPES_LIST    (const int[]){NGL_NODE_TEXTURE2D,       \
-                                          NGL_NODE_TEXTURE3D,       \
-                                          NGL_NODE_TEXTURECUBE,     \
-                                          NGL_NODE_BLOCK,           \
-                                          NGL_NODE_BUFFERFLOAT,     \
-                                          NGL_NODE_BUFFERVEC2,      \
-                                          NGL_NODE_BUFFERVEC3,      \
-                                          NGL_NODE_BUFFERVEC4,      \
-                                          NGL_NODE_NOISEFLOAT,      \
-                                          NGL_NODE_NOISEVEC2,       \
-                                          NGL_NODE_NOISEVEC3,       \
-                                          NGL_NODE_NOISEVEC4,       \
-                                          NGL_NODE_EVALFLOAT,       \
-                                          NGL_NODE_EVALVEC2,        \
-                                          NGL_NODE_EVALVEC3,        \
-                                          NGL_NODE_EVALVEC4,        \
-                                          NGL_NODE_STREAMEDBUFFERINT,   \
-                                          NGL_NODE_STREAMEDBUFFERIVEC2, \
-                                          NGL_NODE_STREAMEDBUFFERIVEC3, \
-                                          NGL_NODE_STREAMEDBUFFERIVEC4, \
-                                          NGL_NODE_STREAMEDBUFFERUINT,  \
-                                          NGL_NODE_STREAMEDBUFFERUIVEC2,\
-                                          NGL_NODE_STREAMEDBUFFERUIVEC3,\
-                                          NGL_NODE_STREAMEDBUFFERUIVEC4,\
-                                          NGL_NODE_STREAMEDBUFFERFLOAT, \
-                                          NGL_NODE_STREAMEDBUFFERVEC2,  \
-                                          NGL_NODE_STREAMEDBUFFERVEC3,  \
-                                          NGL_NODE_STREAMEDBUFFERVEC4,  \
-                                          NGL_NODE_UNIFORMBOOL,     \
-                                          NGL_NODE_UNIFORMFLOAT,    \
-                                          NGL_NODE_UNIFORMVEC2,     \
-                                          NGL_NODE_UNIFORMVEC3,     \
-                                          NGL_NODE_UNIFORMVEC4,     \
-                                          NGL_NODE_UNIFORMCOLOR,    \
-                                          NGL_NODE_UNIFORMQUAT,     \
-                                          NGL_NODE_UNIFORMINT,      \
-                                          NGL_NODE_UNIFORMIVEC2,    \
-                                          NGL_NODE_UNIFORMIVEC3,    \
-                                          NGL_NODE_UNIFORMIVEC4,    \
-                                          NGL_NODE_UNIFORMUINT,     \
-                                          NGL_NODE_UNIFORMUIVEC2,   \
-                                          NGL_NODE_UNIFORMUIVEC3,   \
-                                          NGL_NODE_UNIFORMUIVEC4,   \
-                                          NGL_NODE_UNIFORMMAT4,     \
-                                          NGL_NODE_ANIMATEDFLOAT,   \
-                                          NGL_NODE_ANIMATEDVEC2,    \
-                                          NGL_NODE_ANIMATEDVEC3,    \
-                                          NGL_NODE_ANIMATEDVEC4,    \
-                                          NGL_NODE_ANIMATEDQUAT,    \
-                                          NGL_NODE_ANIMATEDCOLOR,   \
-                                          NGL_NODE_STREAMEDINT,     \
-                                          NGL_NODE_STREAMEDIVEC2,   \
-                                          NGL_NODE_STREAMEDIVEC3,   \
-                                          NGL_NODE_STREAMEDIVEC4,   \
-                                          NGL_NODE_STREAMEDUINT,    \
-                                          NGL_NODE_STREAMEDUIVEC2,  \
-                                          NGL_NODE_STREAMEDUIVEC3,  \
-                                          NGL_NODE_STREAMEDUIVEC4,  \
-                                          NGL_NODE_STREAMEDFLOAT,   \
-                                          NGL_NODE_STREAMEDVEC2,    \
-                                          NGL_NODE_STREAMEDVEC3,    \
-                                          NGL_NODE_STREAMEDVEC4,    \
-                                          NGL_NODE_STREAMEDMAT4,    \
-                                          NGL_NODE_TIME,            \
-                                          NGL_NODE_VELOCITYFLOAT,   \
-                                          NGL_NODE_VELOCITYVEC2,    \
-                                          NGL_NODE_VELOCITYVEC3,    \
-                                          NGL_NODE_VELOCITYVEC4,    \
-                                          -1}
+#define INPUT_TYPES_LIST    (const uint32_t[]){NGL_NODE_TEXTURE2D,           \
+                                               NGL_NODE_TEXTURE3D,           \
+                                               NGL_NODE_TEXTURECUBE,         \
+                                               NGL_NODE_BLOCK,               \
+                                               NGL_NODE_BUFFERFLOAT,         \
+                                               NGL_NODE_BUFFERVEC2,          \
+                                               NGL_NODE_BUFFERVEC3,          \
+                                               NGL_NODE_BUFFERVEC4,          \
+                                               NGL_NODE_NOISEFLOAT,          \
+                                               NGL_NODE_NOISEVEC2,           \
+                                               NGL_NODE_NOISEVEC3,           \
+                                               NGL_NODE_NOISEVEC4,           \
+                                               NGL_NODE_EVALFLOAT,           \
+                                               NGL_NODE_EVALVEC2,            \
+                                               NGL_NODE_EVALVEC3,            \
+                                               NGL_NODE_EVALVEC4,            \
+                                               NGL_NODE_STREAMEDBUFFERINT,   \
+                                               NGL_NODE_STREAMEDBUFFERIVEC2, \
+                                               NGL_NODE_STREAMEDBUFFERIVEC3, \
+                                               NGL_NODE_STREAMEDBUFFERIVEC4, \
+                                               NGL_NODE_STREAMEDBUFFERUINT,  \
+                                               NGL_NODE_STREAMEDBUFFERUIVEC2,\
+                                               NGL_NODE_STREAMEDBUFFERUIVEC3,\
+                                               NGL_NODE_STREAMEDBUFFERUIVEC4,\
+                                               NGL_NODE_STREAMEDBUFFERFLOAT, \
+                                               NGL_NODE_STREAMEDBUFFERVEC2,  \
+                                               NGL_NODE_STREAMEDBUFFERVEC3,  \
+                                               NGL_NODE_STREAMEDBUFFERVEC4,  \
+                                               NGL_NODE_UNIFORMBOOL,         \
+                                               NGL_NODE_UNIFORMFLOAT,        \
+                                               NGL_NODE_UNIFORMVEC2,         \
+                                               NGL_NODE_UNIFORMVEC3,         \
+                                               NGL_NODE_UNIFORMVEC4,         \
+                                               NGL_NODE_UNIFORMCOLOR,        \
+                                               NGL_NODE_UNIFORMQUAT,         \
+                                               NGL_NODE_UNIFORMINT,          \
+                                               NGL_NODE_UNIFORMIVEC2,        \
+                                               NGL_NODE_UNIFORMIVEC3,        \
+                                               NGL_NODE_UNIFORMIVEC4,        \
+                                               NGL_NODE_UNIFORMUINT,         \
+                                               NGL_NODE_UNIFORMUIVEC2,       \
+                                               NGL_NODE_UNIFORMUIVEC3,       \
+                                               NGL_NODE_UNIFORMUIVEC4,       \
+                                               NGL_NODE_UNIFORMMAT4,         \
+                                               NGL_NODE_ANIMATEDFLOAT,       \
+                                               NGL_NODE_ANIMATEDVEC2,        \
+                                               NGL_NODE_ANIMATEDVEC3,        \
+                                               NGL_NODE_ANIMATEDVEC4,        \
+                                               NGL_NODE_ANIMATEDQUAT,        \
+                                               NGL_NODE_ANIMATEDCOLOR,       \
+                                               NGL_NODE_STREAMEDINT,         \
+                                               NGL_NODE_STREAMEDIVEC2,       \
+                                               NGL_NODE_STREAMEDIVEC3,       \
+                                               NGL_NODE_STREAMEDIVEC4,       \
+                                               NGL_NODE_STREAMEDUINT,        \
+                                               NGL_NODE_STREAMEDUIVEC2,      \
+                                               NGL_NODE_STREAMEDUIVEC3,      \
+                                               NGL_NODE_STREAMEDUIVEC4,      \
+                                               NGL_NODE_STREAMEDFLOAT,       \
+                                               NGL_NODE_STREAMEDVEC2,        \
+                                               NGL_NODE_STREAMEDVEC3,        \
+                                               NGL_NODE_STREAMEDVEC4,        \
+                                               NGL_NODE_STREAMEDMAT4,        \
+                                               NGL_NODE_TIME,                \
+                                               NGL_NODE_VELOCITYFLOAT,       \
+                                               NGL_NODE_VELOCITYVEC2,        \
+                                               NGL_NODE_VELOCITYVEC3,        \
+                                               NGL_NODE_VELOCITYVEC4,        \
+                                               NGLI_NODE_NONE}
 
-#define ATTRIBUTES_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,   \
-                                            NGL_NODE_BUFFERVEC2,    \
-                                            NGL_NODE_BUFFERVEC3,    \
-                                            NGL_NODE_BUFFERVEC4,    \
-                                            NGL_NODE_BUFFERMAT4,    \
-                                            -1}
+#define ATTRIBUTES_TYPES_LIST (const uint32_t[]){NGL_NODE_BUFFERFLOAT,   \
+                                                 NGL_NODE_BUFFERVEC2,    \
+                                                 NGL_NODE_BUFFERVEC3,    \
+                                                 NGL_NODE_BUFFERVEC4,    \
+                                                 NGL_NODE_BUFFERMAT4,    \
+                                                 NGLI_NODE_NONE}
 
-#define GEOMETRY_TYPES_LIST (const int[]){NGL_NODE_CIRCLE,          \
-                                          NGL_NODE_GEOMETRY,        \
-                                          NGL_NODE_QUAD,            \
-                                          NGL_NODE_TRIANGLE,        \
-                                          -1}
+#define GEOMETRY_TYPES_LIST (const uint32_t[]){NGL_NODE_CIRCLE,          \
+                                               NGL_NODE_GEOMETRY,        \
+                                               NGL_NODE_QUAD,            \
+                                               NGL_NODE_TRIANGLE,        \
+                                               NGLI_NODE_NONE}
 
 #define OFFSET(x) offsetof(struct render_opts, x)
 static const struct node_param render_params[] = {

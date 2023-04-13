@@ -153,7 +153,7 @@ struct node_param {
         int r[2];
     } def_value;
     int flags;
-    const int *node_types;
+    const uint32_t *node_types;
     const char *desc;
     const struct param_choices *choices;
     int (*update_func)(struct ngl_node *node);

@@ -42,14 +42,14 @@ struct eval_priv {
     struct eval *eval[4];
 };
 
-#define INPUT_TYPES_LIST    (const int[]){NGL_NODE_NOISEFLOAT,      \
-                                          NGL_NODE_EVALFLOAT,       \
-                                          NGL_NODE_UNIFORMFLOAT,    \
-                                          NGL_NODE_ANIMATEDFLOAT,   \
-                                          NGL_NODE_STREAMEDFLOAT,   \
-                                          NGL_NODE_TIME,            \
-                                          NGL_NODE_VELOCITYFLOAT,   \
-                                          -1}
+#define INPUT_TYPES_LIST (const uint32_t[]){NGL_NODE_NOISEFLOAT,      \
+                                            NGL_NODE_EVALFLOAT,       \
+                                            NGL_NODE_UNIFORMFLOAT,    \
+                                            NGL_NODE_ANIMATEDFLOAT,   \
+                                            NGL_NODE_STREAMEDFLOAT,   \
+                                            NGL_NODE_TIME,            \
+                                            NGL_NODE_VELOCITYFLOAT,   \
+                                            NGLI_NODE_NONE}
 
 #define OFFSET(x) offsetof(struct eval_opts, x)
 

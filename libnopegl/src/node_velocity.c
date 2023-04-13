@@ -35,28 +35,28 @@ struct velocity_opts {
 #define OFFSET(x) offsetof(struct velocity_opts, x)
 static const struct node_param velocityfloat_params[] = {
     {"animation", NGLI_PARAM_TYPE_NODE, OFFSET(anim_node), .flags=NGLI_PARAM_FLAG_NON_NULL,
-                  .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMATEDFLOAT, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("1D animation to analyze the velocity from")},
     {NULL}
 };
 
 static const struct node_param velocityvec2_params[] = {
     {"animation", NGLI_PARAM_TYPE_NODE, OFFSET(anim_node), .flags=NGLI_PARAM_FLAG_NON_NULL,
-                  .node_types=(const int[]){NGL_NODE_ANIMATEDVEC2, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMATEDVEC2, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("2D animation to analyze the velocity from")},
     {NULL}
 };
 
 static const struct node_param velocityvec3_params[] = {
     {"animation", NGLI_PARAM_TYPE_NODE, OFFSET(anim_node), .flags=NGLI_PARAM_FLAG_NON_NULL,
-                  .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMATEDVEC3, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("3D animation to analyze the velocity from")},
     {NULL}
 };
 
 static const struct node_param velocityvec4_params[] = {
     {"animation", NGLI_PARAM_TYPE_NODE, OFFSET(anim_node), .flags=NGLI_PARAM_FLAG_NON_NULL,
-                  .node_types=(const int[]){NGL_NODE_ANIMATEDVEC4, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMATEDVEC4, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("4D animation to analyze the velocity from")},
     {NULL}
 };
