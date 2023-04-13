@@ -28,12 +28,12 @@
 
 static int get_default_backend(void)
 {
-    int nb_backends;
+    size_t nb_backends;
     struct ngl_backend *backends;
     int ret = ngl_backends_get(NULL, &nb_backends, &backends);
     if (ret < 0)
         return ret;
-    for (int i = 0; i < nb_backends; i++) {
+    for (size_t i = 0; i < nb_backends; i++) {
         if (backends[i].is_default) {
             ret = backends[i].id;
             ngl_backends_freep(&backends);

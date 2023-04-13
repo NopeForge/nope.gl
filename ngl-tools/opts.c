@@ -92,12 +92,12 @@ static int get_backend(const char *id)
     if (!strcmp(id, "auto"))
         return NGL_BACKEND_AUTO;
 
-    int nb_backends;
+    size_t nb_backends;
     struct ngl_backend *backends;
     int ret = ngl_backends_get(NULL, &nb_backends, &backends);
     if (ret < 0)
         return ret;
-    for (int i = 0; i < nb_backends; i++) {
+    for (size_t i = 0; i < nb_backends; i++) {
         if (!strcmp(backends[i].string_id, id)) {
             ret = backends[i].id;
             ngl_backends_freep(&backends);

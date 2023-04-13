@@ -175,8 +175,8 @@ cdef extern from "nopegl.h":
         ngl_livectl_data max
 
     ngl_ctx *ngl_create()
-    int ngl_backends_probe(const ngl_config *user_config, int *nb_backendsp, ngl_backend **backendsp)
-    int ngl_backends_get(const ngl_config *user_config, int *nb_backendsp, ngl_backend **backendsp)
+    int ngl_backends_probe(const ngl_config *user_config, size_t *nb_backendsp, ngl_backend **backendsp)
+    int ngl_backends_get(const ngl_config *user_config, size_t *nb_backendsp, ngl_backend **backendsp)
     void ngl_backends_freep(ngl_backend **backendsp)
     int ngl_configure(ngl_ctx *s, ngl_config *config)
     int ngl_resize(ngl_ctx *s, int width, int height, const int *viewport)
@@ -446,7 +446,7 @@ def probe_backends(mode, py_config):
     if py_config is not None:
         ptr = py_config.cptr
         configp = <ngl_config *>ptr
-    cdef int nb_backends = 0
+    cdef size_t nb_backends = 0
     cdef ngl_backend *backend = NULL
     cdef ngl_backend *backends = NULL
     cdef ngl_cap *cap = NULL
