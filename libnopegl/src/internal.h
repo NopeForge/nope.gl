@@ -619,7 +619,7 @@ void ngli_node_draw(struct ngl_node *node);
 int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 
-int ngli_node_livectls_get(const struct ngl_scene *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp);
+int ngli_node_livectls_get(const struct ngl_scene *scene, size_t *nb_livectlsp, struct ngl_livectl **livectlsp);
 void ngli_node_livectls_freep(struct ngl_livectl **livectlsp);
 
 char *ngli_node_default_label(const char *class_name);
