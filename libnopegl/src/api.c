@@ -532,7 +532,7 @@ static const int backend_ids[] = {
 #endif
 };
 
-static int backends_probe(const struct ngl_config *user_config, int *nb_backendsp, struct ngl_backend **backendsp, int mode)
+static int backends_probe(const struct ngl_config *user_config, size_t *nb_backendsp, struct ngl_backend **backendsp, int mode)
 {
     static const struct ngl_config default_config = {
         .width     = 1,
@@ -548,7 +548,7 @@ static int backends_probe(const struct ngl_config *user_config, int *nb_backends
     struct ngl_backend *backends = ngli_calloc(NGLI_ARRAY_NB(backend_ids), sizeof(*backends));
     if (!backends)
         return NGL_ERROR_MEMORY;
-    int nb_backends = 0;
+    size_t nb_backends = 0;
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(backend_ids); i++) {
         if (user_config->backend != NGL_BACKEND_AUTO && user_config->backend != backend_ids[i])
@@ -573,12 +573,12 @@ static int backends_probe(const struct ngl_config *user_config, int *nb_backends
     return 0;
 }
 
-int ngl_backends_probe(const struct ngl_config *user_config, int *nb_backendsp, struct ngl_backend **backendsp)
+int ngl_backends_probe(const struct ngl_config *user_config, size_t *nb_backendsp, struct ngl_backend **backendsp)
 {
     return backends_probe(user_config, nb_backendsp, backendsp, PROBE_MODE_FULL);
 }
 
-int ngl_backends_get(const struct ngl_config *user_config, int *nb_backendsp, struct ngl_backend **backendsp)
+int ngl_backends_get(const struct ngl_config *user_config, size_t *nb_backendsp, struct ngl_backend **backendsp)
 {
     return backends_probe(user_config, nb_backendsp, backendsp, PROBE_MODE_NO_GRAPHICS);
 }

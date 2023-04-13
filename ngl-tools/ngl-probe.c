@@ -58,9 +58,9 @@ static const struct ngl_cap *get_cap(const struct ngl_backend *backend, const ch
     return NULL;
 }
 
-static const struct ngl_backend *select_default_backend(const struct ngl_backend *backends, int nb_backends)
+static const struct ngl_backend *select_default_backend(const struct ngl_backend *backends, size_t nb_backends)
 {
-    for (int i = 0; i < nb_backends; i++) {
+    for (size_t i = 0; i < nb_backends; i++) {
         const struct ngl_backend *backend = &backends[i];
         if (backend->is_default)
             return backend;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     const struct ngl_config *config = specified_backend ? &s.cfg : NULL;
 
     struct ngl_backend *backends;
-    int nb_backends;
+    size_t nb_backends;
     ret = ngl_backends_probe(config, &nb_backends, &backends);
     if (ret < 0)
         return EXIT_FAILURE;
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
         }
         printf("%d\n", cap->value);
     } else {
-        for (int i = 0; i < nb_backends; i++) {
+        for (size_t i = 0; i < nb_backends; i++) {
             const struct ngl_backend *backend = &backends[i];
             printf("- %s:\n", backend->string_id);
             printf("    name: %s\n", backend->name);
