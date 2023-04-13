@@ -78,7 +78,7 @@ static char *get_type_str(const struct node_param *p)
     }
     if (p->node_types) {
         ngli_bstr_print(b, " (");
-        for (int i = 0; p->node_types[i] != -1; i++) {
+        for (int i = 0; p->node_types[i] != NGLI_NODE_NONE; i++) {
             if (i)
                 ngli_bstr_print(b, ", ");
             print_node_type(b, get_node_class(p->node_types[i]));
@@ -210,7 +210,7 @@ static int check_node_params(const struct node_class *cls)
                 return NGL_ERROR_UNSUPPORTED;
             }
 
-            for (int i = 0; par->node_types[i] != -1; i++) {
+            for (int i = 0; par->node_types[i] != NGLI_NODE_NONE; i++) {
                 const struct node_class *child_cls = node_type_to_class(par->node_types[i]);
                 if (node_has_children(child_cls)) {
                     fprintf(stderr, "parameter %s.%s could be a node that has children nodes, "

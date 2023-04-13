@@ -38,7 +38,7 @@ cdef extern from "nopegl.h":
 
     cdef struct ngl_node
 
-    ngl_node *ngl_node_create(int type)
+    ngl_node *ngl_node_create(uint32_t type)
     ngl_node *ngl_node_ref(ngl_node *node)
     void ngl_node_unrefp(ngl_node **nodep)
     int ngl_node_param_add_nodes(ngl_node *node, const char *key, int nb_nodes, ngl_node **nodes)

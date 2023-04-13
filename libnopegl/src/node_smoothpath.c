@@ -42,7 +42,7 @@ struct smoothpath_priv {
 #define OFFSET(x) offsetof(struct smoothpath_opts, x)
 static const struct node_param smoothpath_params[] = {
     {"points",    NGLI_PARAM_TYPE_NODE, OFFSET(points_buffer),
-                  .node_types=(const int[]){NGL_NODE_BUFFERVEC3, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_BUFFERVEC3, NGLI_NODE_NONE},
                   .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                   .desc=NGLI_DOCSTRING("anchor points the path go through")},
     {"control1",  NGLI_PARAM_TYPE_VEC3, OFFSET(control1),

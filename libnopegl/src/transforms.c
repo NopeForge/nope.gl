@@ -28,7 +28,7 @@
 int ngli_transform_chain_check(const struct ngl_node *node)
 {
     while (node) {
-        const int id = node->cls->id;
+        const uint32_t id = node->cls->id;
         switch (id) {
             case NGL_NODE_ROTATE:
             case NGL_NODE_ROTATEQUAT:

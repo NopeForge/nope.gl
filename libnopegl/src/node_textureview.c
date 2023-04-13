@@ -29,7 +29,7 @@
 static const struct node_param textureview_params[] = {
     {"texture", NGLI_PARAM_TYPE_NODE, OFFSET(texture),
                 .flags = NGLI_PARAM_FLAG_NON_NULL,
-                .node_types=(const int[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURECUBE, -1},
+                .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURECUBE, NGLI_NODE_NONE},
                 .desc=NGLI_DOCSTRING("texture used for the view")},
     {"layer",   NGLI_PARAM_TYPE_I32, OFFSET(layer),
                 .desc=NGLI_DOCSTRING("texture layer used for the view")},

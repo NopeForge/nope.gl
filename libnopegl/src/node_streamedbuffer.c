@@ -51,15 +51,15 @@ static const struct node_param streamedbuffer##name##_params[] = {              
     {"count",      NGLI_PARAM_TYPE_I32, OFFSET(count),                                                    \
                    .desc=NGLI_DOCSTRING("number of elements for each chunk of data to stream")},          \
     {"timestamps", NGLI_PARAM_TYPE_NODE, OFFSET(timestamps), .flags=NGLI_PARAM_FLAG_NON_NULL,             \
-                   .node_types=(const int[]){NGL_NODE_BUFFERINT64, -1},                                   \
+                   .node_types=(const uint32_t[]){NGL_NODE_BUFFERINT64, NGLI_NODE_NONE},                  \
                    .desc=NGLI_DOCSTRING("timestamps associated with each chunk of data to stream")},      \
     {"buffer",     NGLI_PARAM_TYPE_NODE, OFFSET(buffer_node), .flags=NGLI_PARAM_FLAG_NON_NULL,            \
-                   .node_types=(const int[]){allowed_node, -1},                                           \
+                   .node_types=(const uint32_t[]){allowed_node, NGLI_NODE_NONE},                          \
                    .desc=NGLI_DOCSTRING("buffer containing the data to stream")},                         \
     {"timebase",   NGLI_PARAM_TYPE_RATIONAL, OFFSET(timebase), {.r={1, 1000000}},                         \
                    .desc=NGLI_DOCSTRING("time base in which the `timestamps` are represented")},          \
     {"time_anim",  NGLI_PARAM_TYPE_NODE, OFFSET(time_anim),                                               \
-                   .node_types=(const int[]){NGL_NODE_ANIMATEDTIME, -1},                                  \
+                   .node_types=(const uint32_t[]){NGL_NODE_ANIMATEDTIME, NGLI_NODE_NONE},                 \
                    .desc=NGLI_DOCSTRING("time remapping animation (must use a `linear` interpolation)")}, \
     {NULL}                                                                                                \
 };

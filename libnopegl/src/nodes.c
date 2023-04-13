@@ -122,7 +122,7 @@ int ngli_is_default_label(const char *class_name, const char *str)
         return &cls;                            \
     }                                           \
 
-static const struct node_class *get_node_class(int type)
+static const struct node_class *get_node_class(uint32_t type)
 {
     switch (type) {
         NODE_MAP_TYPE2CLASS(REGISTER_NODE)
@@ -130,7 +130,7 @@ static const struct node_class *get_node_class(int type)
     return NULL;
 }
 
-struct ngl_node *ngl_node_create(int type)
+struct ngl_node *ngl_node_create(uint32_t type)
 {
     const struct node_class *cls = get_node_class(type);
     if (!cls) {

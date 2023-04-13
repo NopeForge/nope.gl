@@ -135,6 +135,8 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t);
 int ngli_ctx_draw(struct ngl_ctx *s, double t);
 void ngli_ctx_reset(struct ngl_ctx *s, int action);
 
+#define NGLI_NODE_NONE 0xffffffff
+
 struct ngl_node {
     const struct node_class *cls;
     struct ngl_ctx *ctx;
@@ -160,14 +162,14 @@ struct ngl_node {
     void *priv_data;
 };
 
-#define TRANSFORM_TYPES_LIST (const int[]){NGL_NODE_ROTATE,    \
-                                           NGL_NODE_ROTATEQUAT,\
-                                           NGL_NODE_TRANSFORM, \
-                                           NGL_NODE_TRANSLATE, \
-                                           NGL_NODE_SCALE,     \
-                                           NGL_NODE_SKEW,      \
-                                           NGL_NODE_IDENTITY,  \
-                                           -1}
+#define TRANSFORM_TYPES_LIST (const uint32_t[]){NGL_NODE_ROTATE,    \
+                                                NGL_NODE_ROTATEQUAT,\
+                                                NGL_NODE_TRANSFORM, \
+                                                NGL_NODE_TRANSLATE, \
+                                                NGL_NODE_SCALE,     \
+                                                NGL_NODE_SKEW,      \
+                                                NGL_NODE_IDENTITY,  \
+                                                NGLI_NODE_NONE}
 
 /* helper structure to specify the content (or a slice) of a buffer */
 struct buffer_layout {
@@ -462,7 +464,7 @@ enum {
  *                 behavior
  */
 struct node_class {
-    int id;
+    uint32_t id;
     int category;
     const char *name;
 

@@ -171,84 +171,84 @@ static const struct {
 
 static const struct {
     const char *label;
-    const int *node_types;
+    const uint32_t *node_types;
     uint32_t color;
 } memory_specs[] = {
     [MEMORY_BUFFERS_CPU] = {
         .label="Buffers CPU",
-        .node_types=(const int[]){BUFFER_NODES, -1},
+        .node_types=(const uint32_t[]){BUFFER_NODES, NGLI_NODE_NONE},
         .color=0xD632FFFF,
     },
     [MEMORY_BUFFERS_GPU] = {
         .label="Buffers GPU",
-        .node_types=(const int[]){BUFFER_NODES, -1},
+        .node_types=(const uint32_t[]){BUFFER_NODES, NGLI_NODE_NONE},
         .color=0x3284FFFF,
     },
     [MEMORY_BLOCKS_CPU] = {
         .label="Blocks CPU",
-        .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+        .node_types=(const uint32_t[]){NGL_NODE_BLOCK, NGLI_NODE_NONE},
         .color=0x32FF84FF,
     },
     [MEMORY_BLOCKS_GPU] = {
         .label="Blocks GPU",
-        .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+        .node_types=(const uint32_t[]){NGL_NODE_BLOCK, NGLI_NODE_NONE},
         .color=0xD6FF32FF,
     },
     [MEMORY_TEXTURES] = {
         .label="Textures",
-        .node_types=(const int[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE3D, -1},
+        .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE3D, NGLI_NODE_NONE},
         .color=0xFF3232FF,
     },
 };
 
 static const struct activity_spec {
     const char *label;
-    const int *node_types;
+    const uint32_t *node_types;
 } activity_specs[] = {
     [ACTIVITY_BUFFERS] = {
         .label="Buffers",
-        .node_types=(const int[]){BUFFER_NODES, -1},
+        .node_types=(const uint32_t[]){BUFFER_NODES, NGLI_NODE_NONE},
     },
     [ACTIVITY_BLOCKS] = {
         .label="Blocks",
-        .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+        .node_types=(const uint32_t[]){NGL_NODE_BLOCK, NGLI_NODE_NONE},
     },
     [ACTIVITY_MEDIAS] = {
         .label="Medias",
-        .node_types=(const int[]){NGL_NODE_MEDIA, -1},
+        .node_types=(const uint32_t[]){NGL_NODE_MEDIA, NGLI_NODE_NONE},
     },
     [ACTIVITY_TEXTURES] = {
         .label="Textures",
-        .node_types=(const int[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE3D, -1},
+        .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE3D, NGLI_NODE_NONE},
     },
 };
 
 static const struct drawcall_spec {
     const char *label;
-    const int *node_types;
+    const uint32_t *node_types;
 } drawcall_specs[] = {
     [DRAWCALL_COMPUTES] = {
         .label="Computes",
-        .node_types=(const int[]){NGL_NODE_COMPUTE, -1},
+        .node_types=(const uint32_t[]){NGL_NODE_COMPUTE, NGLI_NODE_NONE},
     },
     [DRAWCALL_GRAPHICCONFIGS] = {
         .label="GraphicCfgs",
-        .node_types=(const int[]){NGL_NODE_GRAPHICCONFIG, -1},
+        .node_types=(const uint32_t[]){NGL_NODE_GRAPHICCONFIG, NGLI_NODE_NONE},
     },
     [DRAWCALL_RENDERS] = {
         .label="Renders",
-        .node_types=(const int[]){
+        .node_types=(const uint32_t[]){
             NGL_NODE_RENDER,
             NGL_NODE_RENDERCOLOR,
             NGL_NODE_RENDERGRADIENT,
             NGL_NODE_RENDERGRADIENT4,
             NGL_NODE_RENDERTEXTURE,
-            -1
+            NGLI_NODE_NONE
         },
     },
     [DRAWCALL_RTTS] = {
         .label="RTTs",
-        .node_types=(const int[]){NGL_NODE_RENDERTOTEXTURE, -1},
+        .node_types=(const uint32_t[]){NGL_NODE_RENDERTOTEXTURE, NGLI_NODE_NONE},
     },
 };
 
@@ -343,7 +343,7 @@ static int widget_latency_init(struct hud *s, struct widget *widget)
     return 0;
 }
 
-static int track_children_per_types(struct hmap *map, struct ngl_node *node, int node_type)
+static int track_children_per_types(struct hmap *map, struct ngl_node *node, uint32_t node_type)
 {
     if (node->cls->id == node_type) {
         char key[32];
@@ -366,7 +366,7 @@ static int track_children_per_types(struct hmap *map, struct ngl_node *node, int
     return 0;
 }
 
-static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, const int *node_types)
+static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, const uint32_t *node_types)
 {
     if (!scene)
         return 0;
@@ -375,7 +375,7 @@ static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, con
     struct hmap *nodes_set = ngli_hmap_create();
     if (!nodes_set)
         return NGL_ERROR_MEMORY;
-    for (int n = 0; node_types[n] != -1; n++) {
+    for (int n = 0; node_types[n] != NGLI_NODE_NONE; n++) {
         int ret = track_children_per_types(nodes_set, scene, node_types[n]);
         if (ret < 0) {
             ngli_hmap_freep(&nodes_set);
@@ -404,7 +404,7 @@ static int widget_memory_init(struct hud *s, struct widget *widget)
     struct widget_memory *priv = widget->priv_data;
 
     for (int i = 0; i < NB_MEMORY; i++) {
-        const int *node_types = memory_specs[i].node_types;
+        const uint32_t *node_types = memory_specs[i].node_types;
         int ret = make_nodes_set(scene, &priv->nodes[i], node_types);
         if (ret < 0)
             return ret;
@@ -418,7 +418,7 @@ static int widget_activity_init(struct hud *s, struct widget *widget)
     struct ngl_node *scene = ctx->scene;
     const struct activity_spec *spec = widget->user_data;
     struct widget_activity *priv = widget->priv_data;
-    const int *node_types = spec->node_types;
+    const uint32_t *node_types = spec->node_types;
     return make_nodes_set(scene, &priv->nodes, node_types);
 }
 
@@ -428,7 +428,7 @@ static int widget_drawcall_init(struct hud *s, struct widget *widget)
     struct ngl_node *scene = ctx->scene;
     const struct drawcall_spec *spec = widget->user_data;
     struct widget_drawcall *priv = widget->priv_data;
-    const int *node_types = spec->node_types;
+    const uint32_t *node_types = spec->node_types;
     return make_nodes_set(scene, &priv->nodes, node_types);
 }
 

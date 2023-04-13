@@ -34,42 +34,42 @@
 #define OFFSET(x) offsetof(struct variable_opts, x)
 static const struct node_param animatedtime_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEFLOAT, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("time key frames to interpolate from")},
     {NULL}
 };
 
 static const struct node_param animatedfloat_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEFLOAT, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("float key frames to interpolate from")},
     {NULL}
 };
 
 static const struct node_param animatedvec2_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC2, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEVEC2, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("vec2 key frames to interpolate from")},
     {NULL}
 };
 
 static const struct node_param animatedvec3_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEVEC3, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("vec3 key frames to interpolate from")},
     {NULL}
 };
 
 static const struct node_param animatedvec4_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC4, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEVEC4, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("vec4 key frames to interpolate from")},
     {NULL}
 };
 
 static const struct node_param animatedquat_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEQUAT, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEQUAT, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("quaternion key frames to interpolate from")},
     {"as_mat4",   NGLI_PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i32=0},
                   .desc=NGLI_DOCSTRING("exposed as a 4x4 rotation matrix in the program")},
@@ -78,10 +78,10 @@ static const struct node_param animatedquat_params[] = {
 
 static const struct node_param animatedpath_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEFLOAT, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("float key frames to interpolate from, representing the normed distance from the start of the `path`")},
     {"path",      NGLI_PARAM_TYPE_NODE, OFFSET(path_node),
-                  .node_types=(const int[]){NGL_NODE_PATH, NGL_NODE_SMOOTHPATH, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_PATH, NGL_NODE_SMOOTHPATH, NGLI_NODE_NONE},
                   .flags=NGLI_PARAM_FLAG_NON_NULL,
                   .desc=NGLI_DOCSTRING("path to follow")},
     {NULL}
@@ -89,7 +89,7 @@ static const struct node_param animatedpath_params[] = {
 
 static const struct node_param animatedcolor_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMECOLOR, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMECOLOR, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("color key frames to interpolate from")},
     {"space",     NGLI_PARAM_TYPE_SELECT, OFFSET(space), {.i32=NGLI_COLORCONV_SPACE_SRGB},
                   .choices=&ngli_colorconv_colorspace_choices,

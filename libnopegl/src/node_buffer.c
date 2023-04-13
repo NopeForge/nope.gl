@@ -60,7 +60,7 @@ static const struct node_param buffer_params[] = {
     {"filename", NGLI_PARAM_TYPE_STR,  OFFSET(filename),
                .desc=NGLI_DOCSTRING("filename from which the buffer will be read, cannot be used with `data`")},
     {"block",  NGLI_PARAM_TYPE_NODE,    OFFSET(block),
-               .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+               .node_types=(const uint32_t[]){NGL_NODE_BLOCK, NGLI_NODE_NONE},
                .desc=NGLI_DOCSTRING("reference a field from the given block")},
     {"block_field", NGLI_PARAM_TYPE_STR, OFFSET(block_field),
                     .desc=NGLI_DOCSTRING("field name in `block`")},

@@ -45,7 +45,7 @@ NGLI_STATIC_ASSERT(buffer_info_is_first, offsetof(struct animatedbuffer_priv, bu
 #define OFFSET(x) offsetof(struct animatedbuffer_opts, x)
 static const struct node_param animatedbuffer_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf),
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEBUFFER, -1},
+                  .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEBUFFER, NGLI_NODE_NONE},
                   .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .desc=NGLI_DOCSTRING("key frame buffers to interpolate from")},
     {NULL}

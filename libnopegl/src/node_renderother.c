@@ -50,22 +50,22 @@
 #define VERTEX_USAGE_FLAGS (NGLI_BUFFER_USAGE_TRANSFER_DST_BIT | \
                             NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT) \
 
-#define GEOMETRY_TYPES_LIST (const int[]){NGL_NODE_CIRCLE,          \
-                                          NGL_NODE_GEOMETRY,        \
-                                          NGL_NODE_QUAD,            \
-                                          NGL_NODE_TRIANGLE,        \
-                                          -1}
+#define GEOMETRY_TYPES_LIST (const uint32_t[]){NGL_NODE_CIRCLE,          \
+                                               NGL_NODE_GEOMETRY,        \
+                                               NGL_NODE_QUAD,            \
+                                               NGL_NODE_TRIANGLE,        \
+                                               NGLI_NODE_NONE}
 
-#define FILTERS_TYPES_LIST (const int[]){NGL_NODE_FILTERALPHA,          \
-                                         NGL_NODE_FILTERCONTRAST,       \
-                                         NGL_NODE_FILTEREXPOSURE,       \
-                                         NGL_NODE_FILTERINVERSEALPHA,   \
-                                         NGL_NODE_FILTERLINEAR2SRGB,    \
-                                         NGL_NODE_FILTEROPACITY,        \
-                                         NGL_NODE_FILTERPREMULT,        \
-                                         NGL_NODE_FILTERSATURATION,     \
-                                         NGL_NODE_FILTERSRGB2LINEAR,    \
-                                         -1}
+#define FILTERS_TYPES_LIST (const uint32_t[]){NGL_NODE_FILTERALPHA,          \
+                                              NGL_NODE_FILTERCONTRAST,       \
+                                              NGL_NODE_FILTEREXPOSURE,       \
+                                              NGL_NODE_FILTERINVERSEALPHA,   \
+                                              NGL_NODE_FILTERLINEAR2SRGB,    \
+                                              NGL_NODE_FILTEROPACITY,        \
+                                              NGL_NODE_FILTERPREMULT,        \
+                                              NGL_NODE_FILTERSATURATION,     \
+                                              NGL_NODE_FILTERSRGB2LINEAR,    \
+                                              NGLI_NODE_NONE}
 
 struct uniform_map {
     int index;
@@ -291,7 +291,7 @@ static const struct node_param rendergradient4_params[] = {
 #define OFFSET(x) offsetof(struct rendertexture_opts, x)
 static const struct node_param rendertexture_params[] = {
     {"texture",  NGLI_PARAM_TYPE_NODE, OFFSET(texture_node),
-                 .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1},
+                 .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                  .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .desc=NGLI_DOCSTRING("texture to render")},
     {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
