@@ -44,19 +44,19 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 
     if (ctx->backend != NGL_BACKEND_OPENGL) {
         LOG(ERROR, "unsupported backend: %d, only OpenGL is supported by NSGL", ctx->backend);
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
     if (!framework) {
         LOG(ERROR, "could not retrieve OpenGL framework");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     nsgl->framework = (CFBundleRef)CFRetain(framework);
     if (!nsgl->framework) {
         LOG(ERROR, "could not retain OpenGL framework object");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     const NSOpenGLPixelFormatAttribute pixelAttrs[] = {
@@ -76,26 +76,26 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
     nsgl->pixel_format = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttrs];
     if (!nsgl->pixel_format) {
         LOG(ERROR, "could not allocate pixel format");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     NSOpenGLContext *shared_context = other ? (NSOpenGLContext *)other : NULL;
     nsgl->handle = [[NSOpenGLContext alloc] initWithFormat:nsgl->pixel_format shareContext:shared_context];
     if (!nsgl->handle) {
         LOG(ERROR, "could not create NSGL context");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     if (!ctx->offscreen) {
         if (![NSThread isMainThread]) {
             LOG(ERROR, "nsgl_init() must be called from the main thread");
-            return -1;
+            return NGL_ERROR_INVALID_USAGE;
         }
 
         NSObject *object = (NSObject *)window;
         if (!object) {
             LOG(ERROR, "no window specified");
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
 
         if ([object isKindOfClass:[NSView class]]) {
@@ -105,11 +105,11 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             nsgl->view = [window contentView];
             if (!nsgl->view) {
                 LOG(ERROR, "could not retrieve a NSView from the NSWindow");
-                return -1;
+                return NGL_ERROR_EXTERNAL;
             }
         } else {
             LOG(ERROR, "window must be either a NSView or a NSWindow");
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
 
         [nsgl->handle setView:nsgl->view];
@@ -124,25 +124,25 @@ static int nsgl_init_external(struct glcontext *ctx, uintptr_t display, uintptr_
 
     if (ctx->backend != NGL_BACKEND_OPENGL) {
         LOG(ERROR, "unsupported backend: %d, only OpenGL is supported by NSGL", ctx->backend);
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
     if (!framework) {
         LOG(ERROR, "could not retrieve OpenGL framework");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     nsgl->framework = (CFBundleRef)CFRetain(framework);
     if (!nsgl->framework) {
         LOG(ERROR, "could not retain OpenGL framework object");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     nsgl->handle = [NSOpenGLContext currentContext];
     if (!nsgl->handle) {
         LOG(ERROR, "could not retrieve NSGL context");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     return 0;
@@ -154,7 +154,7 @@ static int nsgl_resize(struct glcontext *ctx, int width, int height)
 
     if (![NSThread isMainThread]) {
         LOG(ERROR, "nsgl_resize() must be called from the main thread");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
 
     [nsgl->handle update];
