@@ -107,7 +107,7 @@ static int egl_probe_extensions(struct glcontext *ctx)
         egl->PresentationTimeANDROID = (void *)eglGetProcAddress("eglPresentationTimeANDROID");
         if (!egl->PresentationTimeANDROID) {
             LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
-            return -1;
+            return NGL_ERROR_EXTERNAL;
         }
     }
 
@@ -115,7 +115,7 @@ static int egl_probe_extensions(struct glcontext *ctx)
         egl->GetNativeClientBufferANDROID = (void *)eglGetProcAddress("eglGetNativeClientBufferANDROID");
         if (!egl->GetNativeClientBufferANDROID) {
             LOG(ERROR, "could not retrieve eglGetNativeClientBufferANDROID()");
-            return -1;
+            return NGL_ERROR_EXTERNAL;
         }
         ctx->features |= NGLI_FEATURE_GL_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
     }
@@ -126,7 +126,7 @@ static int egl_probe_extensions(struct glcontext *ctx)
         egl->DestroyImageKHR = (void *)eglGetProcAddress("eglDestroyImageKHR");
         if (!egl->CreateImageKHR || !egl->DestroyImageKHR) {
             LOG(ERROR, "could not retrieve egl{Create,Destroy}ImageKHR()");
-            return -1;
+            return NGL_ERROR_EXTERNAL;
         }
         ctx->features |= NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR;
     }
@@ -148,18 +148,18 @@ static int egl_probe_client_extensions(struct egl_priv *egl)
     const char *client_extensions = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
     if (!client_extensions) {
         LOG(ERROR, "could not retrieve EGL client extensions");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     if (!ngli_glcontext_check_extension("EGL_EXT_platform_base", client_extensions)) {
         LOG(ERROR, "EGL_EXT_platform_base is not supported");
-        return -1;
+        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
     egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplayEXT");
     if (!egl->GetPlatformDisplay) {
         LOG(ERROR, "could not retrieve eglGetPlatformDisplayEXT()");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     if (ngli_glcontext_check_extension("EGL_KHR_platform_x11", client_extensions) ||
@@ -179,7 +179,7 @@ static int egl_probe_client_extensions(struct egl_priv *egl)
         egl->QueryDevices = (void *)eglGetProcAddress("eglQueryDevicesEXT");
         if (!egl->QueryDevices) {
             LOG(ERROR, "could not retrieve eglQueryDevicesEXT()");
-            return -1;
+            return NGL_ERROR_EXTERNAL;
         }
         egl->has_device_base_ext = 1;
     }
@@ -192,7 +192,7 @@ static int egl_check_display(struct egl_priv *egl, EGLDisplay display)
     EGLint major, minor;
     EGLBoolean ret = eglInitialize(display, &major, &minor);
     if (!ret)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     eglTerminate(display);
     return 0;
 }
@@ -294,7 +294,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     egl->display = egl_get_display(ctx, (EGLNativeDisplayType)display, ctx->offscreen);
     if (!egl->display) {
         LOG(ERROR, "could not retrieve EGL display");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     EGLint egl_minor;
@@ -302,13 +302,13 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     int ret = eglInitialize(egl->display, &egl_major, &egl_minor);
     if (!ret) {
         LOG(ERROR, "could not initialize EGL: 0x%x", eglGetError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     egl->extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
     if (!egl->extensions) {
         LOG(ERROR, "could not retrieve EGL extensions");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     ret = egl_probe_extensions(ctx);
@@ -317,13 +317,13 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     if (egl_major < 1 || egl_minor < 4) {
         LOG(ERROR, "unsupported EGL version %d.%d, only 1.4+ is supported", egl_major, egl_minor);
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     int api = ctx->backend == NGL_BACKEND_OPENGL ? EGL_OPENGL_API : EGL_OPENGL_ES_API;
     if (!eglBindAPI(api)) {
         LOG(ERROR, "could not bind OpenGL%s API", ctx->backend == NGL_BACKEND_OPENGL ? "" : "ES");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     const EGLint type = ctx->backend == NGL_BACKEND_OPENGL ? EGL_OPENGL_BIT : EGL_OPENGL_ES2_BIT;
@@ -358,7 +358,7 @@ try_again:;
 
     if (!ret || !nb_configs) {
         LOG(ERROR, "could not choose a valid EGL configuration: 0x%x", eglGetError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     EGLContext shared_context = other ? (EGLContext)other : NULL;
@@ -397,7 +397,7 @@ try_again:;
 
     if (!egl->handle) {
         LOG(ERROR, "could not create EGL context: 0x%x", eglGetError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     if (ctx->offscreen) {
@@ -413,7 +413,7 @@ try_again:;
             egl->surface = eglCreatePbufferSurface(egl->display, egl->config, attribs);
             if (!egl->surface) {
                 LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
-                return -1;
+                return NGL_ERROR_EXTERNAL;
             }
         }
     } else {
@@ -425,24 +425,24 @@ try_again:;
             struct wl_surface *wl_surface = (struct wl_surface *)window;
             if (!wl_surface) {
                 LOG(ERROR, "no Wayland display specified");
-                return -1;
+                return NGL_ERROR_INVALID_ARG;
             }
             egl->wl_egl_window = wl_egl_window_create(wl_surface, ctx->width, ctx->height);
             if (!egl->wl_egl_window) {
                 LOG(ERROR, "could not create Wayland EGL window");
-                return -1;
+                return NGL_ERROR_EXTERNAL;
             }
             egl->native_window = (uintptr_t)egl->wl_egl_window;
 #endif
         }
         if (!egl->native_window) {
             LOG(ERROR, "could not retrieve EGL native window");
-            return -1;
+            return NGL_ERROR_EXTERNAL;
         }
         egl->surface = eglCreateWindowSurface(egl->display, egl->config, egl->native_window, NULL);
         if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
-            return -1;
+            return NGL_ERROR_EXTERNAL;
         }
     }
 
@@ -456,13 +456,13 @@ static int egl_init_external(struct glcontext *ctx, uintptr_t display, uintptr_t
     egl->handle = other ? (EGLContext)other : eglGetCurrentContext();
     if (!egl->handle) {
         LOG(ERROR, "could not retrieve EGL context");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     egl->display = eglGetCurrentDisplay();
     if (!egl->display) {
         LOG(ERROR, "could not retrieve EGL display");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     egl->surface = eglGetCurrentSurface(EGL_DRAW);
@@ -470,7 +470,7 @@ static int egl_init_external(struct glcontext *ctx, uintptr_t display, uintptr_t
     egl->extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
     if (!egl->extensions) {
         LOG(ERROR, "could not retrieve EGL extensions");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     int ret = egl_probe_extensions(ctx);
@@ -523,7 +523,7 @@ static int egl_resize(struct glcontext *ctx, int width, int height)
      * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglSwapBuffers.xhtml */
     int ret = ANativeWindow_setBuffersGeometry(egl->native_window, w_width, w_height, format);
     if (ret < 0)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
 #endif
 
 #if defined(HAVE_WAYLAND)
@@ -534,7 +534,7 @@ static int egl_resize(struct glcontext *ctx, int width, int height)
     if (!eglQuerySurface(egl->display, egl->surface, EGL_WIDTH, &ctx->width) ||
         !eglQuerySurface(egl->display, egl->surface, EGL_HEIGHT, &ctx->height)) {
         LOG(ERROR, "could not query surface dimensions: 0x%x", eglGetError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     return 0;
@@ -551,7 +551,7 @@ static int egl_make_current(struct glcontext *ctx, int current)
         ret = eglMakeCurrent(egl->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     }
 
-    return ret - 1;
+    return ret ? 0 : NGL_ERROR_EXTERNAL;
 }
 
 static void egl_swap_buffers(struct glcontext *ctx)
