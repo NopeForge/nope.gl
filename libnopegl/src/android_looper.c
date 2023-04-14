@@ -81,7 +81,7 @@ int ngli_android_looper_prepare(struct android_looper *looper)
 
     JNIEnv *env = ngli_jni_get_env();
     if (!env)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
 
     (*env)->CallStaticVoidMethod(env, looper->jfields.looper_class, looper->jfields.prepare_id);
     if ((ret = ngli_jni_exception_check(env, 1)) < 0)
@@ -93,7 +93,7 @@ int ngli_android_looper_prepare(struct android_looper *looper)
 
     looper->looper = (*env)->NewGlobalRef(env, my_looper);
     if (!looper->looper) {
-        ret = -1;
+        ret = NGL_ERROR_EXTERNAL;
         goto fail;
     }
 
@@ -110,7 +110,7 @@ int ngli_android_looper_loop(struct android_looper *looper)
 
     JNIEnv *env = ngli_jni_get_env();
     if (!env)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
 
     (*env)->CallStaticVoidMethod(env, looper->jfields.looper_class, looper->jfields.loop_id);
     return ngli_jni_exception_check(env, 1);
@@ -123,7 +123,7 @@ int ngli_android_looper_quit(struct android_looper *looper)
 
     JNIEnv *env = ngli_jni_get_env();
     if (!env)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
 
     (*env)->CallVoidMethod(env, looper->looper, looper->jfields.quit_id);
     return ngli_jni_exception_check(env, 1);

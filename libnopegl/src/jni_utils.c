@@ -160,7 +160,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
         LOG(ERROR, "could not find Throwable class");
-        ret = -1;
+        ret = NGL_ERROR_NOT_FOUND;
         goto done;
     }
 
@@ -168,7 +168,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
         LOG(ERROR, "could not find Throwable class's class");
-        ret = -1;
+        ret = NGL_ERROR_NOT_FOUND;
         goto done;
     }
 
@@ -176,7 +176,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
         LOG(ERROR, "could not find method Class.getName()");
-        ret = -1;
+        ret = NGL_ERROR_NOT_FOUND;
         goto done;
     }
 
@@ -184,7 +184,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
         LOG(ERROR, "Class.getName() threw an exception");
-        ret = -1;
+        ret = NGL_ERROR_EXTERNAL;
         goto done;
     }
 
@@ -198,7 +198,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
         LOG(ERROR, "could not find method java/lang/Throwable.getMessage()");
-        ret = -1;
+        ret = NGL_ERROR_NOT_FOUND;
         goto done;
     }
 
@@ -206,7 +206,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
         LOG(ERROR, "Throwable.getMessage() threw an exception");
-        ret = -1;
+        ret = NGL_ERROR_EXTERNAL;
         goto done;
     }
 
@@ -255,7 +255,7 @@ int ngli_jni_exception_check(JNIEnv *env, int log)
 
     if (!log) {
         (*(env))->ExceptionClear((env));
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     exception = (*env)->ExceptionOccurred(env);
@@ -271,7 +271,7 @@ int ngli_jni_exception_check(JNIEnv *env, int log)
     LOG(ERROR, "%s", message);
     ngli_free(message);
 
-    return -1;
+    return NGL_ERROR_EXTERNAL;
 }
 
 int ngli_jni_init_jfields(JNIEnv *env, void *jfields, const struct JniField *jfields_mapping, int global)
@@ -303,7 +303,7 @@ int ngli_jni_init_jfields(JNIEnv *env, void *jfields, const struct JniField *jfi
         } else {
 
             if (!last_cls) {
-                ret = -1;
+                ret = NGL_ERROR_BUG;
                 break;
             }
 
@@ -346,7 +346,7 @@ int ngli_jni_init_jfields(JNIEnv *env, void *jfields, const struct JniField *jfi
             }
             default:
                 LOG(ERROR, "unknown JNI field type");
-                ret = -1;
+                ret = NGL_ERROR_BUG;
                 goto done;
             }
 

@@ -286,7 +286,7 @@ int ngli_android_surface_attach_to_gl_context(struct android_surface *surface, i
     JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(surface);
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     if (surface->tex_id != tex_id)
@@ -314,7 +314,7 @@ int ngli_android_surface_detach_from_gl_context(struct android_surface *surface)
     JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(surface);
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     (*env)->CallVoidMethod(env,
@@ -338,7 +338,7 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
     JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(surface);
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     pthread_mutex_lock(&surface->lock);
@@ -346,7 +346,7 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
 
     if (av_mediacodec_release_buffer(buffer, 1) < 0) {
         pthread_mutex_unlock(&surface->lock);
-        ret = -1;
+        ret = NGL_ERROR_EXTERNAL;
         goto fail;
     }
 
