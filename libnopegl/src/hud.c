@@ -1204,15 +1204,15 @@ int ngli_hud_init(struct hud *s)
 
     if (s->export_filename) {
 #if HAVE_USELOCALE
-    s->c_locale = newlocale(LC_CTYPE_MASK, "C", (locale_t)0);
-    if (!s->c_locale) {
-        LOG(ERROR, "unable to create C locale");
-        return NGL_ERROR_EXTERNAL;
-    }
+        s->c_locale = newlocale(LC_CTYPE_MASK, "C", (locale_t)0);
+        if (!s->c_locale) {
+            LOG(ERROR, "unable to create C locale");
+            return NGL_ERROR_EXTERNAL;
+        }
 #elif defined(_WIN32)
-    _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
+        _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
 #else
-    LOG(WARNING, "no locale support found, assuming C is currently in use");
+        LOG(WARNING, "no locale support found, assuming C is currently in use");
 #endif
 
         return widgets_csv_header(s);
