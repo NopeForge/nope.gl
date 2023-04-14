@@ -117,7 +117,7 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, int 
                                                                 &vt->ios_textures[index]);
     if (err != noErr) {
         LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     GLint id = CVOpenGLESTextureGetName(vt->ios_textures[index]);

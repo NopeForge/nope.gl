@@ -80,7 +80,7 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
                           NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR |
                           NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT))) {
         LOG(ERROR, "context does not support required extensions for vaapi");
-        return -1;
+        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
     ngli_glGenTextures(gl, 2, vaapi->gl_planes);
@@ -202,7 +202,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
                                             &vaapi->surface_descriptor);
     if (status != VA_STATUS_SUCCESS) {
         LOG(ERROR, "failed to export vaapi surface handle: 0x%x", status);
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
     vaapi->surface_acquired = 1;
 
@@ -214,7 +214,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         vaapi->surface_descriptor.fourcc != VA_FOURCC_P010 &&
         vaapi->surface_descriptor.fourcc != VA_FOURCC_P016) {
         LOG(ERROR, "unsupported vaapi surface format: 0x%x", vaapi->surface_descriptor.fourcc);
-        return -1;
+        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
     int num_layers = vaapi->surface_descriptor.num_layers;
@@ -266,7 +266,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
                                                       attribs);
         if (!vaapi->egl_images[i]) {
             LOG(ERROR, "failed to create egl image");
-            return -1;
+            return NGL_ERROR_EXTERNAL;
         }
 
         struct texture *plane = vaapi->planes[i];

@@ -108,7 +108,7 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, int in
                                           plane_gl->format, format_type, surface, index);
     if (err != kCGLNoError) {
         LOG(ERROR, "could not bind IOSurface plane %d to texture %d: %s", index, plane_gl->id, CGLErrorString(err));
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, 0);
@@ -129,7 +129,7 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     IOSurfaceRef surface = CVPixelBufferGetIOSurface(cvpixbuf);
     if (!surface) {
         LOG(ERROR, "could not get IOSurface from buffer");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     for (int i = 0; i < vt->format_desc.nb_planes; i++) {
