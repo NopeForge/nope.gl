@@ -46,7 +46,7 @@ static int wgl_init_extensions(struct glcontext *ctx)
 {
     struct wgl_priv *wgl = ctx->priv_data;
 
-    int ret = -1;
+    int ret = NGL_ERROR_EXTERNAL;
     HWND window = 0;
     HDC device_context = 0;
     HGLRC rendering_context = 0;
@@ -137,7 +137,7 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     wgl->module = LoadLibrary("opengl32.dll");
     if (!wgl->module) {
         LOG(ERROR, "could not load opengl32.dll (%lu)", GetLastError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     int ret = wgl_init_extensions(ctx);
@@ -148,20 +148,20 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         wgl->window = CreateWindowA("static", "nope.gl", WS_DISABLED, 0, 0, 1, 1, NULL, NULL, NULL, NULL);
         if (!wgl->window) {
             LOG(ERROR, "could not create offscreen window");
-            return -1;
+            return NGL_ERROR_EXTERNAL;
         }
     } else {
         wgl->window = (HWND)window;
         if (!wgl->window) {
             LOG(ERROR, "could not retrieve window");
-            return -1;
+            return NGL_ERROR_EXTERNAL;
         }
     }
 
     wgl->device_context = GetDC((HWND)wgl->window);
     if (!wgl->device_context) {
         LOG(ERROR, "could not retrieve dummy device context");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     const int pixel_format_attributes[] = {
@@ -186,14 +186,14 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     UINT pixel_format_count;
     if (wgl->ChoosePixelFormatARB(wgl->device_context, pixel_format_attributes, NULL, 1, &pixel_format, &pixel_format_count) == FALSE) {
         LOG(ERROR, "could not choose proper pixel format (%lu)", GetLastError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
     PIXELFORMATDESCRIPTOR pixel_format_descriptor;
     DescribePixelFormat(wgl->device_context, pixel_format, sizeof(PIXELFORMATDESCRIPTOR), &pixel_format_descriptor);
 
     if (SetPixelFormat(wgl->device_context, pixel_format, &pixel_format_descriptor) == FALSE) {
         LOG(ERROR, "could not apply pixel format (%lu)", GetLastError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     HGLRC shared_context = (HGLRC)other;
@@ -214,7 +214,7 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         if (!ngli_glcontext_check_extension("WGL_EXT_create_context_es2_profile", extensions) &&
             !ngli_glcontext_check_extension("WGL_EXT_create_context_es_profile", extensions)) {
             LOG(ERROR, "OpenGLES is not supported by this device");
-            return -1;
+            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
         static const int context_attributes[] = {
             WGL_CONTEXT_MAJOR_VERSION_ARB, 2,
@@ -229,12 +229,12 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     if (!wgl->rendering_context) {
         LOG(ERROR, "failed to create rendering context (%lu)", GetLastError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     if (wglMakeCurrent(wgl->device_context, wgl->rendering_context) == FALSE) {
         LOG(ERROR, "could not apply current rendering context (%lu)", GetLastError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     return 0;
@@ -247,19 +247,19 @@ static int wgl_init_external(struct glcontext *ctx, uintptr_t display, uintptr_t
     wgl->module = LoadLibrary("opengl32.dll");
     if (!wgl->module) {
         LOG(ERROR, "could not load opengl32.dll (%lu)", GetLastError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     wgl->device_context = wglGetCurrentDC();
     if (!wgl->device_context) {
         LOG(ERROR, "could not retrieve current device context");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     wgl->rendering_context = wglGetCurrentContext();
     if (!wgl->rendering_context) {
         LOG(ERROR, "could not retrieve current rendering context");
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     return 0;
@@ -293,7 +293,7 @@ static int wgl_resize(struct glcontext *ctx, int width, int height)
 
     RECT rect;
     if (GetWindowRect(wgl->window, &rect) == 0)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
 
     ctx->width = rect.right-rect.left;
     ctx->height = rect.bottom-rect.top;
@@ -306,7 +306,7 @@ static int wgl_make_current(struct glcontext *ctx, int current)
     struct wgl_priv *wgl = ctx->priv_data;
 
     if (wglMakeCurrent(wgl->device_context, current ? wgl->rendering_context : NULL) == FALSE)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
 
     return 0;
 }
@@ -323,12 +323,12 @@ static int wgl_set_swap_interval(struct glcontext *ctx, int interval)
 
     if (!wgl->SwapIntervalEXT) {
         LOG(WARNING, "context does not support swap interval operation");
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     if (wgl->SwapIntervalEXT(interval) == FALSE) {
         LOG(ERROR, "context failed to apply swap interval (%lu)", GetLastError());
-        return -1;
+        return NGL_ERROR_EXTERNAL;
     }
 
     return 0;
