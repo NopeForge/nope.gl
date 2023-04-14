@@ -514,8 +514,8 @@ def get_livectls(_Node scene):
         raise Exception('Error getting live controls')
 
     livectl_dict = {}
-    for i in range(nb_livectls):
-        livectl = &livectls[i]
+    for j in range(nb_livectls):
+        livectl = &livectls[j]
         py_cls, data_type = LIVECTL_INFO[livectl.node_type]
         data_count = _TYPES_COUNT[data_type]
         py_node = py_cls(ctx=<uintptr_t>livectl.node)
