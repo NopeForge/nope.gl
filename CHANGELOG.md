@@ -22,6 +22,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Changed
 - Project renamed to `nope.gl`, as part of the Nope Project
 
+----
+
 ## [2023.0] [libnodegl 0.7.0] - 2023-03-09
 ### Fixed
 - Color channel difference in `ngl-diff` is now done in linear space
