@@ -440,7 +440,7 @@ def probe_backends(mode, py_config):
     cdef ngl_config *configp = NULL
     cdef uintptr_t ptr
     if py_config is not None:
-        ptr = py_config.cptr()
+        ptr = py_config.cptr
         configp = <ngl_config *>ptr
     cdef int nb_backends = 0
     cdef ngl_backend *backend = NULL
@@ -529,6 +529,7 @@ cdef class ConfigGL:
         self.config.external = external
         self.config.external_framebuffer = external_framebuffer
 
+    @property
     def cptr(self):
         return <uintptr_t>&self.config
 
@@ -566,7 +567,7 @@ cdef class Config:
         self.config.backend = backend.value
         cdef uintptr_t ptr
         if backend_config is not None:
-            ptr = backend_config.cptr()
+            ptr = backend_config.cptr
             self.config.backend_config = <void *>ptr
         self.config.display = display
         self.config.window = window
@@ -591,6 +592,7 @@ cdef class Config:
             self.config.hud_export_filename = hud_export_filename
         self.config.hud_scale = hud_scale
 
+    @property
     def cptr(self):
         return <uintptr_t>&self.config
 
@@ -606,7 +608,7 @@ cdef class Context:
 
     def configure(self, py_config):
         self.capture_buffer = py_config.capture_buffer
-        cdef uintptr_t ptr = py_config.cptr()
+        cdef uintptr_t ptr = py_config.cptr
         cdef ngl_config *configp = <ngl_config *>ptr
         return ngl_configure(self.ctx, configp)
 
