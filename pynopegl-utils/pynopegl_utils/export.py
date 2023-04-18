@@ -115,7 +115,7 @@ class Exporter(QtCore.QThread):
                 capture_buffer=capture_buffer,
             )
         )
-        ctx.set_scene_from_string(cfg["scene"])
+        ctx.set_scene(cfg["scene"])
 
         if self._time is not None:
             ctx.draw(self._time)
