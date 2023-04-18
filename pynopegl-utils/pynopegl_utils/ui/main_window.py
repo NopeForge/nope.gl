@@ -43,12 +43,12 @@ class MainWindow(QtWidgets.QSplitter):
         self._win_title_base = "Nope.gl controller"
         self.setWindowTitle(self._win_title_base)
 
+        get_scene_func = self._get_scene
+
         self._module_pkgname = module_pkgname
         self._scripts_mgr = ScriptsManager(module_pkgname)
         self._hooks_caller = HooksCaller(hooks_scripts)
-        self._hooks_ctl = HooksController(self._get_scene, self._hooks_caller)
-
-        get_scene_func = self._get_scene
+        self._hooks_ctl = HooksController(get_scene_func, self._hooks_caller)
 
         self._config = Config(module_pkgname)
 
