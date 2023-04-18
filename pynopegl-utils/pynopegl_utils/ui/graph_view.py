@@ -140,11 +140,7 @@ class GraphView(QtWidgets.QWidget):
         painter.end()
 
     def enter(self):
-        cfg_overrides = {}
-        if not self._seek_chkbox.isChecked():
-            cfg_overrides["fmt"] = "dot"
-
-        cfg = self._get_scene_func(**cfg_overrides)
+        cfg = self._get_scene_func()
         if not cfg:
             return
 
@@ -154,12 +150,12 @@ class GraphView(QtWidgets.QWidget):
             self._init_ctx(cfg["backend"])
             self._framerate = cfg["framerate"]
             self._duration = cfg["duration"]
-            self._ctx.set_scene_from_string(cfg["scene"])
+            self._ctx.set_scene(cfg["scene"])
             self._clock.configure(self._framerate, self._duration)
             self._update()
         else:
             self._reset_ctx()
-            dot_scene = cfg["scene"]
+            dot_scene = cfg["scene"].dot()
             self._update_graph(dot_scene)
 
     def _reset_ctx(self):
