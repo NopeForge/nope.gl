@@ -1094,6 +1094,8 @@ static int craft_frag(struct pgcraft *s, const struct pgcraft_params *params)
                            "#define mediump\n"
                            "#define highp\n");
 
+    ngli_bstr_print(b, "\n");
+
     if (s->has_in_out_qualifiers) {
         if (s->has_in_out_layout_qualifiers) {
             const int out_location = s->next_out_locations[NGLI_PROGRAM_SHADER_FRAG]++;
@@ -1114,6 +1116,8 @@ static int craft_frag(struct pgcraft *s, const struct pgcraft_params *params)
         (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
         (ret = inject_ublock(s, b, NGLI_PROGRAM_SHADER_FRAG)) < 0)
         return ret;
+
+    ngli_bstr_print(b, "\n");
 
     ngli_bstr_print(b, params->frag_base);
     return samplers_preproc(s, params, b);
