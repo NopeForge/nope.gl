@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -39,7 +40,7 @@ struct pipeline_gl {
 
     uint64_t used_texture_units;
     GLuint vao_id;
-    GLenum barriers;
+    int use_barriers;
     void (*insert_memory_barriers)(struct pipeline *s);
 };
 

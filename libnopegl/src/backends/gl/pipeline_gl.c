@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -230,7 +231,7 @@ static int build_texture_bindings(struct pipeline *s, const struct pipeline_para
             s_priv->used_texture_units |= 1ULL << texture_desc->binding;
 
             if (texture_desc->access & NGLI_ACCESS_WRITE_BIT)
-                s_priv->barriers |= GL_ALL_BARRIER_BITS;
+                s_priv->use_barriers = 1;
         }
 
         struct texture_binding binding = {
@@ -343,7 +344,7 @@ static int build_buffer_bindings(struct pipeline *s, const struct pipeline_param
         }
 
         if (pipeline_buffer_desc->access & NGLI_ACCESS_WRITE_BIT)
-            s_priv->barriers |= GL_ALL_BARRIER_BITS;
+            s_priv->use_barriers = 1;
 
         struct buffer_binding binding = {
             .type = ngli_type_get_gl_type(pipeline_buffer_desc->type),
@@ -491,16 +492,52 @@ static int pipeline_compute_init(struct pipeline *s)
     return 0;
 }
 
+static GLbitfield get_memory_barriers(const struct pipeline *s)
+{
+    const struct pipeline_gl *s_priv = (const struct pipeline_gl *)s;
+
+    GLbitfield barriers = 0;
+    const struct buffer_binding *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
+    for (int i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
+        const struct buffer_binding *binding = &buffer_bindings[i];
+        const struct buffer_gl *buffer_gl = (const struct buffer_gl *)binding->buffer;
+        if (!buffer_gl)
+            continue;
+        const struct pipeline_buffer_desc *desc = &binding->desc;
+        if (desc->access & NGLI_ACCESS_WRITE_BIT)
+            barriers |= buffer_gl->barriers;
+    }
+
+    const struct texture_binding *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
+    for (int i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
+        const struct texture_binding *binding = &texture_bindings[i];
+        const struct texture_gl *texture_gl = (const struct texture_gl *)binding->texture;
+        if (!texture_gl)
+            continue;
+        const struct pipeline_texture_desc *desc = &binding->desc;
+        if (desc->access & NGLI_ACCESS_WRITE_BIT)
+            barriers |= texture_gl->barriers;
+    }
+
+    return barriers;
+}
+
 static void insert_memory_barriers_noop(struct pipeline *s)
 {
 }
 
 static void insert_memory_barriers(struct pipeline *s)
 {
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    ngli_glMemoryBarrier(gl, s_priv->barriers);
+
+    /*
+     * Compute the required barriers before execution as the associated
+     * resources (textures, buffers) can change between executions.
+     */
+    GLbitfield barriers = get_memory_barriers(s);
+    if (barriers)
+        ngli_glMemoryBarrier(gl, barriers);
 }
 
 struct pipeline *ngli_pipeline_gl_create(struct gpu_ctx *gpu_ctx)
@@ -543,7 +580,7 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
         ngli_assert(0);
     }
 
-    s_priv->insert_memory_barriers = s_priv->barriers
+    s_priv->insert_memory_barriers = s_priv->use_barriers
                                    ? insert_memory_barriers
                                    : insert_memory_barriers_noop;
 

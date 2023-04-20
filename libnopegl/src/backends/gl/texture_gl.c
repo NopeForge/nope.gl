@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -63,6 +64,20 @@ static const GLint gl_wrap_map[NGLI_NB_WRAP] = {
 GLint ngli_texture_get_gl_wrap(int wrap)
 {
     return gl_wrap_map[wrap];
+}
+
+static GLbitfield get_gl_barriers(int usage)
+{
+    GLbitfield barriers = 0;
+    if (usage & NGLI_TEXTURE_USAGE_TRANSFER_SRC_BIT)
+        barriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
+    if (usage & NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT)
+        barriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
+    if (usage & NGLI_TEXTURE_USAGE_STORAGE_BIT)
+        barriers |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+    if (usage & NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT)
+        barriers |= GL_FRAMEBUFFER_BARRIER_BIT;
+    return barriers;
 }
 
 static void texture_set_image(struct texture *s, const uint8_t *data)
@@ -296,6 +311,7 @@ static int texture_init_fields(struct texture *s)
         return ret;
 
     s_priv->bytes_per_pixel = ngli_format_get_bytes_per_pixel(params->format);
+    s_priv->barriers = get_gl_barriers(params->usage);
 
     return 0;
 }

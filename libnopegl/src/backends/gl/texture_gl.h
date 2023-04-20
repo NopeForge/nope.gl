@@ -44,6 +44,7 @@ struct texture_gl {
     GLenum format_type;
     int wrapped;
     int bytes_per_pixel;
+    GLbitfield barriers;
 };
 
 struct texture *ngli_texture_gl_create(struct gpu_ctx *gpu_ctx);
