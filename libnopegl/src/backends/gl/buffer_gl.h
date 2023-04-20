@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,6 +29,7 @@
 struct buffer_gl {
     struct buffer parent;
     GLuint id;
+    GLbitfield barriers;
 };
 
 struct gpu_ctx;

@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,6 +29,28 @@
 #include "memory.h"
 #include "internal.h"
 
+static GLbitfield get_gl_barriers(int usage)
+{
+    GLbitfield barriers = 0;
+    if (usage & NGLI_BUFFER_USAGE_TRANSFER_SRC_BIT)
+        barriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
+    if (usage & NGLI_BUFFER_USAGE_TRANSFER_DST_BIT)
+        barriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
+    if (usage & NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+        barriers |= GL_UNIFORM_BARRIER_BIT;
+    if (usage & NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+        barriers |= GL_SHADER_STORAGE_BARRIER_BIT;
+    if (usage & NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT)
+        barriers |= GL_ELEMENT_ARRAY_BARRIER_BIT;
+    if (usage & NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT)
+        barriers |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
+    if (usage & NGLI_BUFFER_USAGE_MAP_READ)
+        barriers |= GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT;
+    if (usage & NGLI_BUFFER_USAGE_MAP_WRITE)
+        barriers |= GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT;
+    return barriers;
+}
+
 static GLenum get_gl_usage(int usage)
 {
     if (usage & NGLI_BUFFER_USAGE_DYNAMIC_BIT)
@@ -55,6 +78,7 @@ int ngli_buffer_gl_init(struct buffer *s, int size, int usage)
     ngli_glGenBuffers(gl, 1, &s_priv->id);
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s_priv->id);
     ngli_glBufferData(gl, GL_ARRAY_BUFFER, size, NULL, get_gl_usage(usage));
+    s_priv->barriers = get_gl_barriers(usage);
     return 0;
 }
 

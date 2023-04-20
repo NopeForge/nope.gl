@@ -279,6 +279,8 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_FRAMEBUFFER_BARRIER_BIT            0x00000400
 # define GL_TRANSFORM_FEEDBACK_BARRIER_BIT     0x00000800
 # define GL_ATOMIC_COUNTER_BARRIER_BIT         0x00001000
+# define GL_SHADER_STORAGE_BARRIER_BIT         0x00002000
+# define GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT   0x00004000
 # define GL_ALL_BARRIER_BITS                   0xFFFFFFFF
 # define GL_IMAGE_2D                           0x904D
 # define GL_ACTIVE_RESOURCES                   0x92F5
