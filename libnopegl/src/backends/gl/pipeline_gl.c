@@ -715,6 +715,8 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
     struct pipeline_graphics *graphics = &s->graphics;
     struct program_gl *program_gl = (struct program_gl *)s->program;
 
+    s_priv->insert_memory_barriers(s);
+
     ngli_glstate_update(gl, glstate, &graphics->state);
     int scissor[4];
     get_scissor(s, scissor);
@@ -758,6 +760,8 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, const struct buffer *indi
     struct pipeline_graphics *graphics = &s->graphics;
     struct program_gl *program_gl = (struct program_gl *)s->program;
 
+    s_priv->insert_memory_barriers(s);
+
     ngli_glstate_update(gl, glstate, &graphics->state);
     int scissor[4];
     get_scissor(s, scissor);
@@ -798,11 +802,14 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, const struct buffer *indi
 
 void ngli_pipeline_gl_dispatch(struct pipeline *s, int nb_group_x, int nb_group_y, int nb_group_z)
 {
+    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct glstate *glstate = &gpu_ctx_gl->glstate;
     struct program_gl *program_gl = (struct program_gl *)s->program;
+
+    s_priv->insert_memory_barriers(s);
 
     ngli_glstate_use_program(gl, glstate, program_gl->id);
     set_uniforms(s, gl);
@@ -811,7 +818,6 @@ void ngli_pipeline_gl_dispatch(struct pipeline *s, int nb_group_x, int nb_group_
 
     ngli_glDispatchCompute(gl, nb_group_x, nb_group_y, nb_group_z);
 
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     s_priv->insert_memory_barriers(s);
 }
 
