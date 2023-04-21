@@ -649,7 +649,7 @@ NGL_API int ngl_backends_get(const struct ngl_config *user_config, int *nb_backe
 NGL_API void ngl_backends_freep(struct ngl_backend **backendsp);
 
 /**
- * Opaque structure identifying a nope.gl context
+ * Opaque structure identifying a nope.gl rendering context
  */
 struct ngl_ctx;
 
@@ -713,7 +713,7 @@ NGL_API int ngl_resize(struct ngl_ctx *s, int width, int height, const int *view
 NGL_API int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer);
 
 /**
- * Associate a scene with a nope.gl context.
+ * Associate a scene with a nope.gl rendering context.
  *
  * The reference counter of the root node will be incremented and all its node
  * will be associated with the specified nope.gl context.

@@ -46,9 +46,9 @@ pkg-config --cflags --libs libnopegl
 Check the `pkg-config` documentation and your build system for more
 information.
 
-## Create and configure the context
+## Create and configure the rendering context
 
-Allocating the context can be made at any time using `ngl_create()`:
+Allocating the rendering context can be made at any time using `ngl_create()`:
 
 ```c
     struct ngl_ctx *ctx = ngl_create();
@@ -142,7 +142,7 @@ children.  As a result, you **must release your own references** using
 
 ## Drawing
 
-First step is to associate the scene with the `nope.gl` context:
+First step is to associate the scene with the `nope.gl` rendering context:
 
 ```c
     struct ngl_ctx *ctx = ...;
@@ -176,7 +176,7 @@ operations such as media seeking, which may cause a delay in the rendering.
 ## Exit
 
 At the end of the rendering, you need to destroy the scene by unreferencing the
-root node and destroying the `nope.gl` context:
+root node and destroying the `nope.gl` rendering context:
 
 ```c
     ngl_node_unrefp(&scene);
