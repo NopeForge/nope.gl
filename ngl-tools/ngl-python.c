@@ -36,8 +36,6 @@ struct ctx {
     struct ngl_config cfg;
     int player_ui;
     int framerate[2];
-
-    double duration;
 };
 
 #define OFFSET(x) offsetof(struct ctx, x)
@@ -78,14 +76,14 @@ int main(int argc, char *argv[])
 
     const char *scene_func = argv[argc - 1];
     const char *module     = argv[argc - 2];
-    struct ngl_scene *scene = python_get_scene(module, scene_func, &s.duration, s.aspect);
+    struct ngl_scene *scene = python_get_scene(module, scene_func, s.aspect);
     if (!scene)
         return -1;
 
     get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
 
     struct player p;
-    ret = player_init(&p, "ngl-python", scene, &s.cfg, s.duration, s.framerate, s.player_ui);
+    ret = player_init(&p, "ngl-python", scene, &s.cfg, s.framerate, s.player_ui);
     ngl_scene_freep(&scene);
     if (ret < 0)
         goto end;

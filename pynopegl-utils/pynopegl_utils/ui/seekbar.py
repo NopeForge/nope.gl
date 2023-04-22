@@ -107,7 +107,8 @@ class Seekbar(QtWidgets.QWidget):
 
     @QtCore.Slot(dict)
     def set_scene_metadata(self, cfg):
-        self._scene_duration = cfg["duration"]
+        scene = cfg["scene"]
+        self._scene_duration = scene.duration
         self._framerate = Fraction(*cfg["framerate"])
         self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
         self._adjust_time_label_size()

@@ -52,7 +52,6 @@ struct ctx {
     const char *scene;
     int show_info;
     const char *uploadfile;
-    double duration;
     int aspect[2];
     int framerate[2];
     float clear_color[4];
@@ -74,7 +73,6 @@ static const struct opt options[] = {
     {"-f", "--scene",         OPT_TYPE_STR,      .offset=OFFSET(scene)},
     {"-?", "--info",          OPT_TYPE_TOGGLE,   .offset=OFFSET(show_info)},
     {"-u", "--uploadfile",    OPT_TYPE_STR,      .offset=OFFSET(uploadfile)},
-    {"-t", "--duration",      OPT_TYPE_TIME,     .offset=OFFSET(duration)},
     {"-a", "--aspect",        OPT_TYPE_RATIONAL, .offset=OFFSET(aspect)},
     {"-r", "--framerate",     OPT_TYPE_RATIONAL, .offset=OFFSET(framerate)},
     {"-c", "--clearcolor",    OPT_TYPE_COLOR,    .offset=OFFSET(clear_color)},
@@ -152,12 +150,6 @@ static int craft_packet(struct ctx *s, struct ipc_pkt *pkt)
             return NGL_ERROR_MEMORY;
 
         ret = ipc_pkt_add_qtag_file(pkt, name);
-        if (ret < 0)
-            return ret;
-    }
-
-    if (s->duration >= 0.) {
-        int ret = ipc_pkt_add_qtag_duration(pkt, s->duration);
         if (ret < 0)
             return ret;
     }
@@ -297,7 +289,6 @@ int main(int argc, char *argv[])
     struct ctx s = {
         .host           = "localhost",
         .port           = "1234",
-        .duration       = -1.,
         .aspect[0]      = -1,
         .framerate[0]   = -1,
         .clear_color[0] = -1.,

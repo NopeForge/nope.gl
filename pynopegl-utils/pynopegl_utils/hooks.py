@@ -58,7 +58,6 @@ class _HooksCaller:
         return self._module.scene_change(
             session_id,
             local_scene,
-            cfg["duration"],
             cfg["aspect_ratio"],
             cfg["framerate"],
             self._uint_clear_color(cfg["clear_color"]),

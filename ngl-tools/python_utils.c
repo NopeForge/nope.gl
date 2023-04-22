@@ -25,13 +25,13 @@
 
 #include "python_utils.h"
 
-struct ngl_scene *python_get_scene(const char *modname, const char *func_name, double *duration, int *aspect)
+struct ngl_scene *python_get_scene(const char *modname, const char *func_name, int *aspect)
 {
     PyObject *pyscene = NULL;
     PyObject *com = NULL, *load_script = NULL, *path = NULL;
     PyObject *mod = NULL;
     PyObject *ret_pydict = NULL;
-    PyObject *scene_func = NULL, *pyroot = NULL, *cptr = NULL, *pyduration = NULL;
+    PyObject *scene_func = NULL, *pyroot = NULL, *cptr = NULL;
 
     struct ngl_scene *scene = ngl_scene_create();
     if (!scene)
@@ -55,15 +55,8 @@ struct ngl_scene *python_get_scene(const char *modname, const char *func_name, d
         !(ret_pydict = PyObject_CallFunctionObjArgs(scene_func, NULL)) ||
         !(pyscene    = PyDict_GetItemString(ret_pydict, "scene"))      ||
         !(pyroot     = PyObject_GetAttrString(pyscene, "root"))        ||
-        !(cptr       = PyObject_GetAttrString(pyroot, "cptr"))         ||
-        !(pyduration = PyDict_GetItemString(ret_pydict, "duration"))) {
+        !(cptr       = PyObject_GetAttrString(pyroot, "cptr"))) {
         goto end;
-    }
-
-    if (duration) {
-        *duration = PyFloat_AsDouble(pyduration);
-        if (PyErr_Occurred())
-            goto end;
     }
 
     if (aspect) {

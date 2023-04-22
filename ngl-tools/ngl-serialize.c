@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     if (!of)
         return EXIT_FAILURE;
 
-    struct ngl_scene *scene = python_get_scene(argv[1], argv[2], NULL, NULL);
+    struct ngl_scene *scene = python_get_scene(argv[1], argv[2], NULL);
     if (!scene) {
         ret = EXIT_FAILURE;
         goto end;

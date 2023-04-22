@@ -245,13 +245,6 @@ static int handle_tag_filepart(struct ctx *s, const uint8_t *data, int size)
     return ipc_pkt_add_rtag_filepart(s->send_pkt, size);
 }
 
-static int handle_tag_duration(const uint8_t *data, int size)
-{
-    if (size != 8)
-        return NGL_ERROR_INVALID_DATA;
-    return send_player_signal(PLAYER_SIGNAL_DURATION, data, size);
-}
-
 static int handle_tag_clearcolor(const uint8_t *data, int size)
 {
     if (size != 16)
@@ -368,7 +361,6 @@ static int handle_commands(struct ctx *s, int fd)
             case IPC_SCENE:        ret = handle_tag_scene(data, size);        break;
             case IPC_FILE:         ret = handle_tag_file(s, data, size);      break;
             case IPC_FILEPART:     ret = handle_tag_filepart(s, data, size);  break;
-            case IPC_DURATION:     ret = handle_tag_duration(data, size);     break;
             case IPC_ASPECT_RATIO: ret = handle_tag_aspect_ratio(data, size); break;
             case IPC_FRAMERATE:    ret = handle_tag_framerate(data, size);    break;
             case IPC_CLEARCOLOR:   ret = handle_tag_clearcolor(data, size);   break;
@@ -476,6 +468,7 @@ static struct ngl_scene *get_default_scene(const char *host, const char *port)
     struct ngl_scene *scene = ngl_scene_create();
     if (!scene)
         return NULL;
+    scene->duration = 0.;
 
     char subtext_buf[64];
     snprintf(subtext_buf, sizeof(subtext_buf), "Listening on %s:%s", host, port);
@@ -706,7 +699,7 @@ int main(int argc, char *argv[])
         goto end;
     s.thread_started = 1;
 
-    ret = player_init(&s.p, "ngl-desktop", scene, &s.cfg, 0, s.framerate, s.player_ui);
+    ret = player_init(&s.p, "ngl-desktop", scene, &s.cfg, s.framerate, s.player_ui);
     if (ret < 0)
         goto end;
 
