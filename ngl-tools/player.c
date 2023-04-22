@@ -380,6 +380,8 @@ end:
     return group;
 }
 
+static int handle_duration(struct player *p, const void *data);
+
 static int set_scene(struct player *p, struct ngl_scene *scene)
 {
     int ret;
@@ -398,11 +400,15 @@ static int set_scene(struct player *p, struct ngl_scene *scene)
         p->pgbar_duration_node = NULL;
         p->pgbar_text_node     = NULL;
     }
-    return ret;
+
+    if ((ret = handle_duration(p, &scene->duration)) < 0)
+        return ret;
+
+    return 0;
 }
 
 int player_init(struct player *p, const char *win_title, struct ngl_scene *scene,
-                const struct ngl_config *cfg, double duration, int *framerate, int enable_ui)
+                const struct ngl_config *cfg, int *framerate, int enable_ui)
 {
     memset(p, 0, sizeof(*p));
 
@@ -418,8 +424,8 @@ int player_init(struct player *p, const char *win_title, struct ngl_scene *scene
     p->clock_off = -1;
     p->lasthover = -1;
     p->text_last_frame_index = -1;
-    p->duration_f = duration;
-    p->duration = (int64_t)(duration * 1000000.0);
+    p->duration_f = scene->duration;
+    p->duration = (int64_t)(scene->duration * 1000000.0);
     p->enable_ui = enable_ui;
     p->framerate[0] = 60;
     p->framerate[1] = 1;
@@ -567,7 +573,6 @@ typedef int (*handle_func)(struct player *p, const void *data);
 
 static const handle_func handle_map[] = {
     [PLAYER_SIGNAL_SCENE]        = handle_scene,
-    [PLAYER_SIGNAL_DURATION]     = handle_duration,
     [PLAYER_SIGNAL_ASPECT_RATIO] = handle_aspect_ratio,
     [PLAYER_SIGNAL_FRAMERATE]    = handle_framerate,
     [PLAYER_SIGNAL_CLEARCOLOR]   = handle_clearcolor,

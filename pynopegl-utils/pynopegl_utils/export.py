@@ -77,8 +77,9 @@ class Exporter(QtCore.QThread):
             self.failed.emit("You didn't select any scene to export.")
             return False
 
+        scene = cfg["scene"]
         fps = cfg["framerate"]
-        duration = cfg["duration"]
+        duration = scene.duration
         samples = cfg["samples"]
 
         cmd = [
@@ -115,7 +116,7 @@ class Exporter(QtCore.QThread):
                 capture_buffer=capture_buffer,
             )
         )
-        ctx.set_scene(cfg["scene"])
+        ctx.set_scene(scene)
 
         if self._time is not None:
             ctx.draw(self._time)

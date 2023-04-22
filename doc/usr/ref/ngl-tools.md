@@ -98,7 +98,7 @@ The detail of available options can be obtained with `ngl-desktop -h`.
 
 The detail of available options can be obtained with `ngl-ipc -h`.
 
-**Example**: `ngl-serialize pynopegl_utils.examples.misc fibo - | ngl-ipc -p 2000 -f - -t 5`
+**Example**: `ngl-serialize pynopegl_utils.examples.misc fibo - | ngl-ipc -p 2000 -f -`
 
 
 ## ngl-probe

@@ -104,8 +104,8 @@ class CompareSceneBase(CompareBase):
 
         ret = self._scene_func(idict=idict, **self._scene_kwargs)
         width, height = self._width, self._height
-        duration = ret["duration"]
         scene = ret["scene"]
+        duration = scene.duration
 
         capture_buffer = bytearray(width * height * 4)
         ctx = ngl.Context()

@@ -93,11 +93,6 @@ int ipc_pkt_add_qtag_filepart(struct ipc_pkt *pkt, const uint8_t *chunk, size_t 
     return pack(pkt, IPC_FILEPART, chunk, chunk_size);
 }
 
-int ipc_pkt_add_qtag_duration(struct ipc_pkt *pkt, double duration)
-{
-    return pack(pkt, IPC_DURATION, &duration, sizeof(duration));
-}
-
 int ipc_pkt_add_qtag_aspect(struct ipc_pkt *pkt, const int *aspect)
 {
     int ret = pack(pkt, IPC_ASPECT_RATIO, NULL, 2 * sizeof(*aspect));

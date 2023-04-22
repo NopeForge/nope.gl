@@ -146,16 +146,17 @@ class GraphView(QtWidgets.QWidget):
 
         self._seekbar.set_scene_metadata(cfg)
 
+        scene = cfg["scene"]
         if self._seek_chkbox.isChecked():
             self._init_ctx(cfg["backend"])
             self._framerate = cfg["framerate"]
-            self._duration = cfg["duration"]
-            self._ctx.set_scene(cfg["scene"])
+            self._duration = scene.duration
+            self._ctx.set_scene(scene)
             self._clock.configure(self._framerate, self._duration)
             self._update()
         else:
             self._reset_ctx()
-            dot_scene = cfg["scene"].dot()
+            dot_scene = scene.dot()
             self._update_graph(dot_scene)
 
     def _reset_ctx(self):

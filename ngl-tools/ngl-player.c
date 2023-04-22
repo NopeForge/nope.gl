@@ -144,10 +144,12 @@ int main(int argc, char *argv[])
     if (!scene)
         return -1;
 
+    scene->duration = s.media_info.duration;
+
     struct player p;
     s.cfg.width  = s.media_info.width;
     s.cfg.height = s.media_info.height;
-    ret = player_init(&p, "ngl-player", scene, &s.cfg, s.media_info.duration, s.framerate, s.player_ui);
+    ret = player_init(&p, "ngl-player", scene, &s.cfg, s.framerate, s.player_ui);
     ngl_scene_freep(&scene);
     if (ret < 0)
         goto end;

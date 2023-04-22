@@ -34,7 +34,6 @@
  */
 enum player_signal {
     PLAYER_SIGNAL_SCENE,
-    PLAYER_SIGNAL_DURATION,
     PLAYER_SIGNAL_ASPECT_RATIO,
     PLAYER_SIGNAL_FRAMERATE,
     PLAYER_SIGNAL_CLEARCOLOR,
@@ -72,7 +71,7 @@ struct player {
 };
 
 int player_init(struct player *p, const char *win_title, struct ngl_scene *scene,
-                const struct ngl_config *cfg, double duration, int *framerate, int enable_ui);
+                const struct ngl_config *cfg, int *framerate, int enable_ui);
 
 void player_uninit(struct player *p);
 
