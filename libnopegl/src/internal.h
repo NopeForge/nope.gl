@@ -67,7 +67,7 @@ struct api_impl {
     int (*configure)(struct ngl_ctx *s, const struct ngl_config *config);
     int (*resize)(struct ngl_ctx *s, int width, int height, const int *viewport);
     int (*set_capture_buffer)(struct ngl_ctx *s, void *capture_buffer);
-    int (*set_scene)(struct ngl_ctx *s, struct ngl_node *scene);
+    int (*set_scene)(struct ngl_ctx *s, struct ngl_scene *scene);
     int (*prepare_draw)(struct ngl_ctx *s, double t);
     int (*draw)(struct ngl_ctx *s, double t);
     void (*reset)(struct ngl_ctx *s, int action);
@@ -86,7 +86,7 @@ struct ngl_ctx {
     struct gpu_ctx *gpu_ctx;
     struct rnode rnode;
     struct rnode *rnode_pos;
-    struct ngl_node *scene;
+    struct ngl_scene *scene;
     struct ngl_config config;
     struct rendertarget *available_rendertargets[2];
     struct rendertarget *current_rendertarget;
@@ -130,7 +130,7 @@ int ngli_ctx_dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg);
 int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config);
 int ngli_ctx_resize(struct ngl_ctx *s, int width, int height, const int *viewport);
 int ngli_ctx_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer);
-int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_node *node);
+int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene);
 int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t);
 int ngli_ctx_draw(struct ngl_ctx *s, double t);
 void ngli_ctx_reset(struct ngl_ctx *s, int action);
@@ -619,7 +619,7 @@ void ngli_node_draw(struct ngl_node *node);
 int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 
-int ngli_node_livectls_get(const struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp);
+int ngli_node_livectls_get(const struct ngl_scene *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp);
 void ngli_node_livectls_freep(struct ngl_livectl **livectlsp);
 
 char *ngli_node_default_label(const char *class_name);

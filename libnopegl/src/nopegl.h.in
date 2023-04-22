@@ -531,7 +531,7 @@ struct ngl_livectl {
  *
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
-NGL_API int ngl_livectls_get(struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp);
+NGL_API int ngl_livectls_get(struct ngl_scene *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp);
 
 NGL_API void ngl_livectls_freep(struct ngl_livectl **livectlsp);
 
@@ -795,7 +795,7 @@ NGL_API int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer);
  *
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
-NGL_API int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene);
+NGL_API int ngl_set_scene(struct ngl_ctx *s, struct ngl_scene *scene);
 
 /**
  * Draw at the specified time.

@@ -129,10 +129,9 @@ class CompareSceneBase(CompareBase):
             assert scene.dot()
 
         if self._exercise_serialization:
-            scene_str = scene.serialize()
-            assert ctx.set_scene_from_string(scene_str) == 0
-        else:
-            assert ctx.set_scene(scene) == 0
+            scene = ngl.Scene.from_string(scene.serialize())
+
+        assert ctx.set_scene(scene) == 0
 
         for t_id in range(self._nb_keyframes):
             if self._keyframes_callback:

@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
     const char *scene_func = argv[argc - 1];
     const char *module     = argv[argc - 2];
-    struct ngl_node *scene = python_get_scene(module, scene_func, &s.duration, s.aspect);
+    struct ngl_scene *scene = python_get_scene(module, scene_func, &s.duration, s.aspect);
     if (!scene)
         return -1;
 
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 
     struct player p;
     ret = player_init(&p, "ngl-python", scene, &s.cfg, s.duration, s.framerate, s.player_ui);
-    ngl_node_unrefp(&scene);
+    ngl_scene_freep(&scene);
     if (ret < 0)
         goto end;
 

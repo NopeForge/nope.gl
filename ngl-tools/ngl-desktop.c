@@ -471,8 +471,12 @@ static void stop_server(struct ctx *s)
     pthread_mutex_unlock(&s->lock);
 }
 
-static struct ngl_node *get_default_scene(const char *host, const char *port)
+static struct ngl_scene *get_default_scene(const char *host, const char *port)
 {
+    struct ngl_scene *scene = ngl_scene_create();
+    if (!scene)
+        return NULL;
+
     char subtext_buf[64];
     snprintf(subtext_buf, sizeof(subtext_buf), "Listening on %s:%s", host, port);
     static const float fg_color[]  = {1.0f, 2.f/3.f, 0.0f};
@@ -485,7 +489,7 @@ static struct ngl_node *get_default_scene(const char *host, const char *port)
     };
 
     if (!group || !texts[0] || !texts[1]) {
-        ngl_node_unrefp(&group);
+        ngl_scene_freep(&scene);
         goto end;
     }
     ngl_node_param_set_str(texts[0], "text", "No scene");
@@ -494,10 +498,14 @@ static struct ngl_node *get_default_scene(const char *host, const char *port)
     ngl_node_param_set_vec3(texts[1], "box_height", subtext_h);
     ngl_node_param_add_nodes(group, "children", 2, texts);
 
+    if (ngl_scene_init_from_node(scene, group) < 0)
+        ngl_scene_freep(&scene);
+
 end:
+    ngl_node_unrefp(&group);
     ngl_node_unrefp(&texts[0]);
     ngl_node_unrefp(&texts[1]);
-    return group;
+    return scene;
 }
 
 static int setup_network(struct ctx *s)
@@ -650,7 +658,7 @@ static int update_window_title(const struct ctx *s)
 
 int main(int argc, char *argv[])
 {
-    struct ngl_node *scene = NULL;
+    struct ngl_scene *scene = NULL;
     struct ctx s = {
         .host               = "localhost",
         .port               = "1234",
@@ -709,7 +717,7 @@ int main(int argc, char *argv[])
     player_main_loop(&s.p);
 
 end:
-    ngl_node_unrefp(&scene);
+    ngl_scene_freep(&scene);
 
     remove_session_file(&s);
 

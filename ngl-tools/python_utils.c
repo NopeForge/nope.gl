@@ -25,14 +25,17 @@
 
 #include "python_utils.h"
 
-struct ngl_node *python_get_scene(const char *modname, const char *func_name, double *duration, int *aspect)
+struct ngl_scene *python_get_scene(const char *modname, const char *func_name, double *duration, int *aspect)
 {
     PyObject *pyscene = NULL;
     PyObject *com = NULL, *load_script = NULL, *path = NULL;
     PyObject *mod = NULL;
     PyObject *ret_pydict = NULL;
-    PyObject *scene_func = NULL, *cptr = NULL, *pyduration = NULL;
-    struct ngl_node *scene = NULL;
+    PyObject *scene_func = NULL, *pyroot = NULL, *cptr = NULL, *pyduration = NULL;
+
+    struct ngl_scene *scene = ngl_scene_create();
+    if (!scene)
+        return NULL;
 
     Py_Initialize();
 
@@ -51,7 +54,8 @@ struct ngl_node *python_get_scene(const char *modname, const char *func_name, do
     if (!(scene_func = PyObject_GetAttrString(mod, func_name))         ||
         !(ret_pydict = PyObject_CallFunctionObjArgs(scene_func, NULL)) ||
         !(pyscene    = PyDict_GetItemString(ret_pydict, "scene"))      ||
-        !(cptr       = PyObject_GetAttrString(pyscene, "cptr"))        ||
+        !(pyroot     = PyObject_GetAttrString(pyscene, "root"))        ||
+        !(cptr       = PyObject_GetAttrString(pyroot, "cptr"))         ||
         !(pyduration = PyDict_GetItemString(ret_pydict, "duration"))) {
         goto end;
     }
@@ -78,12 +82,15 @@ struct ngl_node *python_get_scene(const char *modname, const char *func_name, do
             goto end;
     }
 
-    scene = PyLong_AsVoidPtr(cptr);
-    ngl_node_ref(scene);
+    if (ngl_scene_init_from_node(scene, PyLong_AsVoidPtr(cptr)) < 0)
+        goto end;
 
 end:
     if (PyErr_Occurred())
         PyErr_PrintEx(0);
+
+    if (!scene->root)
+        ngl_scene_freep(&scene);
 
     Py_XDECREF(com);
     Py_XDECREF(load_script);
@@ -91,6 +98,7 @@ end:
     Py_XDECREF(mod);
     Py_XDECREF(scene_func);
     Py_XDECREF(ret_pydict);
+    Py_XDECREF(pyroot);
     Py_XDECREF(cptr);
 
     Py_Finalize();

@@ -66,12 +66,14 @@ Allocating the rendering context can be made at any time using `ngl_create()`:
 ### Method 1: de-serializing an existing scene
 
 When a scene is already available under the `nope.gl` serialized form (`.ngl`),
-obtaining the scene is a simple call:
+obtaining the scene can be achieved by creating a scene and initializing it from
+the string:
 
 ```c
-    struct ngl_node *scene = ngl_node_deserialize(str);
+    struct ngl_scene *scene = ngl_scene_create();
     if (!scene)
         return -1;
+    ngl_scene_init_from_str(scene, str);
 ```
 
 ### Method 2: getting the scene from Python
@@ -110,6 +112,10 @@ static struct ngl_node *get_scene(const char *filename)
     static const float width[3]  = { 2.0,  0.0, 0.0};
     static const float height[3] = { 0.0,  2.0, 0.0};
 
+    struct ngl_scene *scene = ngl_scene_create();
+    if (!scene)
+        return NULL;
+
     struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA);
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD);
@@ -127,12 +133,15 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_param_set_node(render, "program", program);
     ngl_node_param_set_dict(render, "textures", "tex0", texture);
 
+    ngl_scene_init_from_node(scene, render);
+
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);
     ngl_node_unrefp(&quad);
     ngl_node_unrefp(&program);
+    ngl_node_unrefp(&render);
 
-    return render;
+    return scene;
 }
 ```
 **Note**: When a node is referenced by another through parameters, its
@@ -179,6 +188,6 @@ At the end of the rendering, you need to destroy the scene by unreferencing the
 root node and destroying the `nope.gl` rendering context:
 
 ```c
-    ngl_node_unrefp(&scene);
+    ngl_scene_freep(&scene);
     ngl_freep(&ctx);
 ```

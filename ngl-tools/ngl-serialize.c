@@ -63,14 +63,14 @@ int main(int argc, char *argv[])
     if (!of)
         return EXIT_FAILURE;
 
-    struct ngl_node *scene = python_get_scene(argv[1], argv[2], NULL, NULL);
+    struct ngl_scene *scene = python_get_scene(argv[1], argv[2], NULL, NULL);
     if (!scene) {
         ret = EXIT_FAILURE;
         goto end;
     }
 
-    char *serialized_scene = ngl_node_serialize(scene);
-    ngl_node_unrefp(&scene);
+    char *serialized_scene = ngl_scene_serialize(scene);
+    ngl_scene_freep(&scene);
     if (!serialized_scene) {
         ret = EXIT_FAILURE;
         goto end;
