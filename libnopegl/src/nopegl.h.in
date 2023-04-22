@@ -97,6 +97,69 @@ NGL_API void ngl_log_set_min_level(int level);
  */
 struct ngl_node;
 
+/**
+ * Scene graph and its rendering parameters
+ */
+struct ngl_scene {
+    void *internal;         /* reserved internal pointer */
+    struct ngl_node *root;  /* root node of the scene graph */
+    double duration;        /* for how long the scene is to be rendered, in seconds */
+    int framerate[2];       /* fraction representing the expected rendering number of frames per seconds */
+    int aspect_ratio[2];    /* fraction representing the expected rendering aspect ratio */
+};
+
+/**
+ * Create a scene object
+ *
+ * Must be destroyed using ngl_scene_freep().
+ */
+NGL_API struct ngl_scene *ngl_scene_create(void);
+
+/**
+ * Initialize the scene graph passing down the graph directly.
+ *
+ * The reference counter of the passed node will be incremented.
+ */
+NGL_API int ngl_scene_init_from_node(struct ngl_scene *s, struct ngl_node *root);
+
+/**
+ * De-serialize a scene from a string.
+ *
+ * @param str string in nope.gl serialized format.
+ *
+ * Must be destroyed using ngl_node_unrefp().
+ *
+ * @return a pointer to the de-serialized node graph or NULL on error
+ */
+NGL_API int ngl_scene_init_from_str(struct ngl_scene *s, const char *str);
+
+/**
+ * Serialize scene in nope.gl format (.ngl).
+ *
+ * Must be destroyed using free().
+ *
+ * @return an allocated string in nope.gl format or NULL on error
+ */
+NGL_API char *ngl_scene_serialize(const struct ngl_scene *scene);
+
+/**
+ * Serialize scene in Graphviz format (.dot).
+ *
+ * Must be destroyed using free().
+ *
+ * @return an allocated string in dot format or NULL on error
+ *
+ * @see ngl_dot()
+ */
+NGL_API char *ngl_scene_dot(const struct ngl_scene *scene);
+
+/**
+ * Destroy a scene object. The passed pointer will also be set to NULL.
+ *
+ * @param ss    pointer to the pointer to the nope.gl context
+ */
+NGL_API void ngl_scene_freep(struct ngl_scene **sp);
+
 #define NGLI_FOURCC(a,b,c,d) (((uint32_t)(a))<<24 | (b)<<16 | (c)<<8 | (d))
 
 /**

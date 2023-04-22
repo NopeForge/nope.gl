@@ -486,7 +486,7 @@ static int serialize(struct hmap *nlist,
     return register_node(nlist, node);
 }
 
-char *ngl_node_serialize(const struct ngl_node *node)
+char *ngli_scene_serialize(const struct ngl_scene *scene)
 {
     char *s = NULL;
     struct hmap *nlist = ngli_hmap_create();
@@ -497,7 +497,7 @@ char *ngl_node_serialize(const struct ngl_node *node)
     ngli_hmap_set_free(nlist, free_func, NULL);
     ngli_bstr_printf(b, "# Nope.GL v%d.%d.%d\n",
                     NGL_VERSION_MAJOR, NGL_VERSION_MINOR, NGL_VERSION_MICRO);
-    if (serialize(nlist, b, node) < 0)
+    if (serialize(nlist, b, scene->root) < 0)
         goto end;
     s = ngli_bstr_strdup(b);
 
@@ -505,4 +505,17 @@ end:
     ngli_hmap_freep(&nlist);
     ngli_bstr_freep(&b);
     return s;
+}
+
+char *ngl_node_serialize(const struct ngl_node *node)
+{
+    struct ngl_scene *s = ngl_scene_create();
+    if (!s)
+        return NULL;
+    /*
+     * We cannot use ngl_scene_init_from_node() because node is const, so we are
+     * not allowed to ref-count it. The cast is still required though.
+     */
+    s->root = (struct ngl_node *)node;
+    return ngli_scene_serialize(s);
 }

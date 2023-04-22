@@ -524,8 +524,9 @@ static int set_node_params(struct darray *nodes_array, char *str,
     return 0;
 }
 
-struct ngl_node *ngl_node_deserialize(const char *str)
+int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
 {
+    int ret = 0;
     struct ngl_node *node = NULL;
     struct darray nodes_array;
 
@@ -533,7 +534,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
 
     char *s = ngli_strdup(str);
     if (!s)
-        return NULL;
+        return NGL_ERROR_MEMORY;
 
     char *sstart = s;
     char *send = s + strlen(s);
@@ -542,12 +543,14 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     int n = sscanf(s, "# Nope.GL v%d.%d.%d", &major, &minor, &micro);
     if (n != 3) {
         LOG(ERROR, "invalid serialized scene");
+        ret = NGL_ERROR_INVALID_DATA;
         goto end;
     }
     if (NGL_VERSION_INT != NGL_GET_VERSION(major, minor, micro)) {
         LOG(ERROR, "mismatching version: %d.%d.%d != %d.%d.%d",
             major, minor, micro,
             NGL_VERSION_MAJOR, NGL_VERSION_MINOR, NGL_VERSION_MICRO);
+        ret = NGL_ERROR_INVALID_DATA;
         goto end;
     }
     s += strcspn(s, "\n");
@@ -561,11 +564,16 @@ struct ngl_node *ngl_node_deserialize(const char *str)
             s++;
 
         node = ngl_node_create(type);
-        if (!node)
+        if (!node) {
+            // Could be a memory error as well but it's more likely the node
+            // type is wrong
+            ret = NGL_ERROR_INVALID_DATA;
             break;
+        }
 
         if (!ngli_darray_push(&nodes_array, &node)) {
             ngl_node_unrefp(&node);
+            ret = NGL_ERROR_MEMORY;
             break;
         }
 
@@ -582,7 +590,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     }
 
     if (node)
-        ngl_node_ref(node);
+        ret = ngl_scene_init_from_node(scene, node);
 
     struct ngl_node **nodes = ngli_darray_data(&nodes_array);
     for (int i = 0; i < ngli_darray_count(&nodes_array); i++)
@@ -591,5 +599,21 @@ struct ngl_node *ngl_node_deserialize(const char *str)
 end:
     ngli_darray_reset(&nodes_array);
     ngli_free(sstart);
-    return node;
+    return ret;
+}
+
+struct ngl_node *ngl_node_deserialize(const char *str)
+{
+    struct ngl_scene *s = ngl_scene_create();
+    if (!s)
+        return NULL;
+    int ret = ngli_scene_deserialize(s, str);
+    if (ret < 0) {
+        ngl_scene_freep(&s);
+        return NULL;
+    }
+    ngli_assert(s->root);
+    struct ngl_node *root = ngl_node_ref(s->root);
+    ngl_scene_freep(&s);
+    return root;
 }

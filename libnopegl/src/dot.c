@@ -430,9 +430,9 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
     }
 }
 
-char *ngl_node_dot(const struct ngl_node *node)
+char *ngli_scene_dot(const struct ngl_scene *scene)
 {
-    if (!node)
+    if (!scene || !scene->root)
         return NULL;
 
     char *graph = NULL;
@@ -450,6 +450,7 @@ char *ngl_node_dot(const struct ngl_node *node)
                     "    node [style=filled,%s];\n",
                     font_settings, font_settings);
 
+    const struct ngl_node *node = scene->root;
     print_all_decls(b, node, decls);
     print_all_links(b, node, links);
 
@@ -469,5 +470,26 @@ char *ngl_dot(struct ngl_ctx *s, double t)
     int ret = ngli_prepare_draw(s, t);
     if (ret < 0)
         return NULL;
-    return ngl_node_dot(s->scene);
+    struct ngl_scene *scene = ngl_scene_create();
+    if (!s)
+        return NULL;
+    ret = ngl_scene_init_from_node(scene, s->scene);
+    if (ret < 0) {
+        ngl_scene_freep(&scene);
+        return NULL;
+    }
+    return ngli_scene_dot(scene);
+}
+
+char *ngl_node_dot(const struct ngl_node *node)
+{
+    struct ngl_scene *s = ngl_scene_create();
+    if (!s)
+        return NULL;
+    /*
+     * We cannot use ngl_scene_init_from_node() because node is const, so we are
+     * not allowed to ref-count it. The cast is still required though.
+     */
+    s->root = (struct ngl_node *)node;
+    return ngli_scene_dot(s);
 }
