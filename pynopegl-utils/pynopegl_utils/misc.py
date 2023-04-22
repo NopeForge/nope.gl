@@ -46,8 +46,9 @@ def scene(**controls):
             elif isinstance(idict, SceneCfg):
                 idict = idict.as_dict()
             scene_cfg = SceneCfg(**idict)
-            scene = scene_func(scene_cfg, **extra_args)
+            root = scene_func(scene_cfg, **extra_args)
             odict = scene_cfg.as_dict()
+            scene = ngl.Scene.from_params(root)
             odict["scene"] = scene
             return odict
 

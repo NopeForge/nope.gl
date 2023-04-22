@@ -306,7 +306,7 @@ static const char *pgbar_frag =
     "    ngl_out_color = vec4(1.0) * alpha;"                                            "\n"
     "}";
 
-static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scene)
+static struct ngl_node *add_progress_bar(struct player *p, struct ngl_scene *scene)
 {
     static const float bar_corner[3] = {-1.0f, -1.0f + 0.1f, 0.0f};
     static const float bar_width[3]  = { 2.0f,  0.0f, 0.0f};
@@ -333,7 +333,7 @@ static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scen
         goto end;
     }
 
-    struct ngl_node *children[] = {scene, render, text};
+    struct ngl_node *children[] = {scene->root, render, text};
 
     ngl_node_param_set_vec3(quad, "corner", bar_corner);
     ngl_node_param_set_vec3(quad, "width",  bar_width);
@@ -380,16 +380,16 @@ end:
     return group;
 }
 
-static int set_scene(struct player *p, struct ngl_node *scene)
+static int set_scene(struct player *p, struct ngl_scene *scene)
 {
     int ret;
 
     if (p->enable_ui) {
-        scene = add_progress_bar(p, scene);
-        if (!scene)
+        scene->root = add_progress_bar(p, scene);
+        if (!scene->root)
             return NGL_ERROR_MEMORY;
         ret = ngl_set_scene(p->ngl, scene);
-        ngl_node_unrefp(&scene);
+        ngl_node_unrefp(&scene->root);
     } else {
         ret = ngl_set_scene(p->ngl, scene);
     }
@@ -401,7 +401,7 @@ static int set_scene(struct player *p, struct ngl_node *scene)
     return ret;
 }
 
-int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
+int player_init(struct player *p, const char *win_title, struct ngl_scene *scene,
                 const struct ngl_config *cfg, double duration, int *framerate, int enable_ui)
 {
     memset(p, 0, sizeof(*p));
@@ -487,11 +487,15 @@ void player_uninit(struct player *p)
 
 static int handle_scene(struct player *p, const void *data)
 {
-    struct ngl_node *scene = ngl_node_deserialize(data);
+    struct ngl_scene *scene = ngl_scene_create();
     if (!scene)
-        return NGL_ERROR_INVALID_DATA;
-    int ret = set_scene(p, scene);
-    ngl_node_unrefp(&scene);
+        return NGL_ERROR_MEMORY;
+    int ret = ngl_scene_init_from_str(scene, data);
+    if (ret < 0)
+        goto end;
+    ret = set_scene(p, scene);
+end:
+    ngl_scene_freep(&scene);
     return ret;
 }
 

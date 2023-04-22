@@ -60,8 +60,12 @@ static const struct opt options[] = {
     {NULL, "--mipmap",           OPT_TYPE_INT,      .offset=OFFSET(mipmap)},
 };
 
-static struct ngl_node *get_scene(const char *filename, int direct_rendering, int hwaccel, int mipmap)
+static struct ngl_scene *get_scene(const char *filename, int direct_rendering, int hwaccel, int mipmap)
 {
+    struct ngl_scene *scene = ngl_scene_create();
+    if (!scene)
+        return NULL;
+
     struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA);
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDERTEXTURE);
@@ -77,10 +81,14 @@ static struct ngl_node *get_scene(const char *filename, int direct_rendering, in
         ngl_node_param_set_bool(texture, "direct_rendering", direct_rendering);
     ngl_node_param_set_node(render, "texture", texture);
 
+    if (ngl_scene_init_from_node(scene, render) < 0)
+        ngl_scene_freep(&scene);
+
+    ngl_node_unrefp(&render);
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);
 
-    return render;
+    return scene;
 }
 
 static int probe(const char *filename, struct nmd_info *media_info)
@@ -132,7 +140,7 @@ int main(int argc, char *argv[])
     if (ret < 0)
         return ret;
 
-    struct ngl_node *scene = get_scene(filename, s.direct_rendering, s.hwaccel, s.mipmap);
+    struct ngl_scene *scene = get_scene(filename, s.direct_rendering, s.hwaccel, s.mipmap);
     if (!scene)
         return -1;
 
@@ -140,7 +148,7 @@ int main(int argc, char *argv[])
     s.cfg.width  = s.media_info.width;
     s.cfg.height = s.media_info.height;
     ret = player_init(&p, "ngl-player", scene, &s.cfg, s.media_info.duration, s.framerate, s.player_ui);
-    ngl_node_unrefp(&scene);
+    ngl_scene_freep(&scene);
     if (ret < 0)
         goto end;
 

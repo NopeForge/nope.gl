@@ -249,7 +249,7 @@ class Context(_ngl.Context):
     def set_capture_buffer(self, capture_buffer: Optional[bytearray]) -> int:
         return super().set_capture_buffer(capture_buffer)
 
-    def set_scene(self, scene: Optional[Node]) -> int:
+    def set_scene(self, scene: Optional[Scene]) -> int:
         return super().set_scene(scene)
 
     def set_scene_from_string(self, s: str) -> int:

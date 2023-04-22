@@ -214,7 +214,7 @@ class _Diff:
                 live_max=(self._MAX_SCALE, self._MAX_SCALE),
             ),
         )
-        return scene
+        return ngl.Scene.from_params(scene)
 
 
 def run():

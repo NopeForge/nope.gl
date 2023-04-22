@@ -42,13 +42,18 @@
 #define O_BINARY 0
 #endif
 
-static struct ngl_node *get_scene(const char *filename)
+static struct ngl_scene *get_scene(const char *filename)
 {
     char *buf = get_text_file_content(filename);
     if (!buf)
         return NULL;
-    struct ngl_node *scene = ngl_node_deserialize(buf);
+    struct ngl_scene *scene = ngl_scene_create();
+    if (!scene)
+        return NULL;
+    int ret = ngl_scene_init_from_str(scene, buf);
     free(buf);
+    if (ret < 0)
+        ngl_scene_freep(&scene);
     return scene;
 }
 
@@ -157,7 +162,7 @@ int main(int argc, char *argv[])
     uint8_t *capture_buffer = NULL;
     const size_t capture_buffer_size = 4 * s.cfg.width * s.cfg.height;
 
-    struct ngl_node *scene = get_scene(s.input);
+    struct ngl_scene *scene = get_scene(s.input);
     if (!scene) {
         ret = EXIT_FAILURE;
         goto end;
@@ -186,7 +191,7 @@ int main(int argc, char *argv[])
 
     ctx = ngl_create();
     if (!ctx) {
-        ngl_node_unrefp(&scene);
+        ngl_scene_freep(&scene);
         goto end;
     }
 
@@ -196,19 +201,19 @@ int main(int argc, char *argv[])
     if (!s.cfg.offscreen) {
         ret = wsi_set_ngl_config(&s.cfg, window);
         if (ret < 0) {
-            ngl_node_unrefp(&scene);
+            ngl_scene_freep(&scene);
             return ret;
         }
     }
 
     ret = ngl_configure(ctx, &s.cfg);
     if (ret < 0) {
-        ngl_node_unrefp(&scene);
+        ngl_scene_freep(&scene);
         goto end;
     }
 
     ret = ngl_set_scene(ctx, scene);
-    ngl_node_unrefp(&scene);
+    ngl_scene_freep(&scene);
     if (ret < 0)
         goto end;
 

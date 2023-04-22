@@ -39,7 +39,7 @@ _backend = get_backend(_backend_str) if _backend_str else ngl.Backend.AUTO
 
 
 def _get_scene(geometry=None):
-    return ngl.RenderColor(geometry=ngl.Quad() if geometry is None else geometry)
+    return ngl.Scene.from_params(ngl.RenderColor(geometry=ngl.Quad() if geometry is None else geometry))
 
 
 def api_backend():
@@ -163,7 +163,8 @@ def api_ctx_ownership_subgraph():
         if not shared:
             quad = ngl.Quad()
         render2 = _get_scene(quad)
-        scene = ngl.Group([render1, render2])
+        root = ngl.Group([render1.root, render2.root])
+        scene = ngl.Scene.from_params(root)
         assert ctx.set_scene(render2) == 0
         assert ctx.draw(0) == 0
         assert ctx2.set_scene(scene) != 0
@@ -248,7 +249,9 @@ def api_text_live_change(width=320, height=240):
 
     # Exercise the diamond-form/prepare mechanism
     text_node = ngl.Text()
-    assert ctx.set_scene(autogrid_simple([text_node] * 4)) == 0
+    root = autogrid_simple([text_node] * 4)
+    scene = ngl.Scene.from_params(root)
+    assert ctx.set_scene(scene) == 0
 
     ctx.draw(0)
     last_crc = zlib.crc32(capture_buffer)
@@ -272,7 +275,8 @@ def api_media_sharing_failure():
     ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
     m = ngl.Media("/dev/null")
-    scene = ngl.Group(children=(ngl.Texture2D(data_src=m), ngl.Texture2D(data_src=m)))
+    root = ngl.Group(children=(ngl.Texture2D(data_src=m), ngl.Texture2D(data_src=m)))
+    scene = ngl.Scene.from_params(root)
     assert _ret_to_fourcc(ctx.set_scene(scene)) == "Eusg"  # Usage error
 
 
@@ -281,26 +285,27 @@ def api_denied_node_live_change(width=320, height=240):
     ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     assert ret == 0
 
-    scene = ngl.Translate(ngl.Group())
+    root = ngl.Translate(ngl.Group())
+    scene = ngl.Scene.from_params(root)
 
     # Check that we can live change but not into a node
     assert ctx.set_scene(scene) == 0
-    assert scene.set_vector(1, 2, 3) == 0
-    assert scene.set_vector(ngl.UniformVec3(value=(3, 2, 1))) != 0
+    assert root.set_vector(1, 2, 3) == 0
+    assert root.set_vector(ngl.UniformVec3(value=(3, 2, 1))) != 0
 
     # Check that we can do the change after a reset of the context
     assert ctx.set_scene(None) == 0
-    assert scene.set_vector(ngl.UniformVec3(value=(4, 5, 6))) == 0
+    assert root.set_vector(ngl.UniformVec3(value=(4, 5, 6))) == 0
 
     # Check that we can not live unplug a node from a live changeable parameter
     assert ctx.set_scene(scene) == 0
-    assert scene.set_vector(ngl.UniformVec3(value=(7, 8, 9))) != 0
+    assert root.set_vector(ngl.UniformVec3(value=(7, 8, 9))) != 0
 
 
 def api_livectls():
     # Build a scene and extract its live controls
     rng = random.Random(0)
-    scene = ngl.Group(
+    root = ngl.Group(
         children=(
             ngl.UniformBool(live_id="b"),
             ngl.UniformFloat(live_id="f"),
@@ -318,6 +323,7 @@ def api_livectls():
             ngl.Text(live_id="txt"),
         )
     )
+    scene = ngl.Scene.from_params(root)
     livectls = ngl.get_livectls(scene)
     assert len(livectls) == 8
 
@@ -389,9 +395,10 @@ def api_shader_init_fail(width=320, height=240):
     assert ret == 0
 
     render = ngl.Render(ngl.Quad(), ngl.Program(vertex="<bug>", fragment="<bug>"))
+    scene = ngl.Scene.from_params(render)
 
-    assert ctx.set_scene(render) != 0
-    assert ctx.set_scene(render) != 0  # another try to make sure the state stays consistent
+    assert ctx.set_scene(scene) != 0
+    assert ctx.set_scene(scene) != 0  # another try to make sure the state stays consistent
     assert ctx.draw(0) == 0
 
 
@@ -426,7 +433,8 @@ def _create_trf_scene(start, end, keep_active=False):
         trf_keep_active = _create_trf(group, end + offset, end + offset + 1.0, prefetch_time)
         children += [trf_keep_active]
 
-    return ngl.Group(children=children)
+    root = ngl.Group(children=children)
+    return ngl.Scene.from_params(root)
 
 
 def api_trf_seek(width=320, height=240):

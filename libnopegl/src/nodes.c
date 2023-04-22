@@ -382,7 +382,7 @@ static int find_livectls(const struct ngl_node *node, struct hmap *hm)
     return 0;
 }
 
-int ngli_node_livectls_get(const struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp)
+int ngli_node_livectls_get(const struct ngl_scene *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp)
 {
     struct ngl_livectl *ctls = NULL;
     *livectlsp = NULL;
@@ -392,7 +392,7 @@ int ngli_node_livectls_get(const struct ngl_node *scene, int *nb_livectlsp, stru
     if (!livectls_index)
         return NGL_ERROR_MEMORY;
 
-    int ret = find_livectls(scene, livectls_index);
+    int ret = find_livectls(scene->root, livectls_index);
     if (ret < 0)
         goto end;
 

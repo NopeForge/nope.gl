@@ -71,7 +71,7 @@ struct player {
     struct ngl_node *pgbar_duration_node;
 };
 
-int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
+int player_init(struct player *p, const char *win_title, struct ngl_scene *scene,
                 const struct ngl_config *cfg, double duration, int *framerate, int enable_ui);
 
 void player_uninit(struct player *p);

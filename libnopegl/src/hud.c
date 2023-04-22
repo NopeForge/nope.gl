@@ -368,7 +368,7 @@ static int track_children_per_types(struct hmap *map, struct ngl_node *node, uin
     return 0;
 }
 
-static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, const uint32_t *node_types)
+static int make_nodes_set(struct ngl_scene *scene, struct darray *nodes_list, const uint32_t *node_types)
 {
     if (!scene)
         return 0;
@@ -378,7 +378,7 @@ static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, con
     if (!nodes_set)
         return NGL_ERROR_MEMORY;
     for (size_t n = 0; node_types[n] != NGLI_NODE_NONE; n++) {
-        int ret = track_children_per_types(nodes_set, scene, node_types[n]);
+        int ret = track_children_per_types(nodes_set, scene->root, node_types[n]);
         if (ret < 0) {
             ngli_hmap_freep(&nodes_set);
             return ret;
@@ -402,7 +402,7 @@ static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, con
 static int widget_memory_init(struct hud *s, struct widget *widget)
 {
     struct ngl_ctx *ctx = s->ctx;
-    struct ngl_node *scene = ctx->scene;
+    struct ngl_scene *scene = ctx->scene;
     struct widget_memory *priv = widget->priv_data;
 
     for (size_t i = 0; i < NB_MEMORY; i++) {
@@ -417,7 +417,7 @@ static int widget_memory_init(struct hud *s, struct widget *widget)
 static int widget_activity_init(struct hud *s, struct widget *widget)
 {
     struct ngl_ctx *ctx = s->ctx;
-    struct ngl_node *scene = ctx->scene;
+    struct ngl_scene *scene = ctx->scene;
     const struct activity_spec *spec = widget->user_data;
     struct widget_activity *priv = widget->priv_data;
     const uint32_t *node_types = spec->node_types;
@@ -427,7 +427,7 @@ static int widget_activity_init(struct hud *s, struct widget *widget)
 static int widget_drawcall_init(struct hud *s, struct widget *widget)
 {
     struct ngl_ctx *ctx = s->ctx;
-    struct ngl_node *scene = ctx->scene;
+    struct ngl_scene *scene = ctx->scene;
     const struct drawcall_spec *spec = widget->user_data;
     struct widget_drawcall *priv = widget->priv_data;
     const uint32_t *node_types = spec->node_types;
@@ -1095,7 +1095,7 @@ static int widgets_csv_header(struct hud *s)
 static void widgets_csv_report(struct hud *s)
 {
     const struct ngl_ctx *ctx = s->ctx;
-    const struct ngl_node *scene = ctx->scene;
+    const struct ngl_node *scene = ctx->scene->root;
 
     /*
      * Set C locale temporarily so floats are printed deterministically. We

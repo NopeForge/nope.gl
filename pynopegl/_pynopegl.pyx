@@ -185,10 +185,10 @@ cdef extern from "nopegl.h":
     int ngl_configure(ngl_ctx *s, ngl_config *config)
     int ngl_resize(ngl_ctx *s, int width, int height, const int *viewport)
     int ngl_set_capture_buffer(ngl_ctx *s, void *capture_buffer)
-    int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
+    int ngl_set_scene(ngl_ctx *s, ngl_scene *scene)
     int ngl_draw(ngl_ctx *s, double t) nogil
     char *ngl_dot(ngl_ctx *s, double t) nogil
-    int ngl_livectls_get(ngl_node *scene, int *nb_livectlsp, ngl_livectl **livectlsp)
+    int ngl_livectls_get(ngl_scene *scene, int *nb_livectlsp, ngl_livectl **livectlsp)
     void ngl_livectls_freep(ngl_livectl **livectlsp)
     void ngl_freep(ngl_ctx **ss)
 
@@ -493,7 +493,7 @@ _TYPES_COUNT = {
 }
 
 
-def get_livectls(_Node scene):
+def get_livectls(Scene scene):
     cdef int nb_livectls = 0
     cdef ngl_livectl *livectls = NULL
     cdef int ret = ngl_livectls_get(scene.ctx, &nb_livectls, &livectls)
@@ -712,13 +712,21 @@ cdef class Context:
             ptr = <uint8_t *>self.capture_buffer
         return ngl_set_capture_buffer(self.ctx, ptr)
 
-    def set_scene(self, _Node scene):
-        return ngl_set_scene(self.ctx, NULL if scene is None else scene.ctx)
+    def set_scene(self, Scene scene):
+        cdef ngl_scene *c_scene = NULL
+        cdef uintptr_t ptr
+        if scene is not None:
+            ptr = scene.cptr
+            c_scene = <ngl_scene *>ptr
+        return ngl_set_scene(self.ctx, c_scene)
 
     def set_scene_from_string(self, s):
-        cdef ngl_node *scene = ngl_node_deserialize(s)
+        cdef ngl_scene *scene = ngl_scene_create();
+        if scene is NULL:
+            raise MemoryError()
+        ngl_scene_init_from_str(scene, s)
         ret = ngl_set_scene(self.ctx, scene)
-        ngl_node_unrefp(&scene)
+        ngl_scene_freep(&scene)
         return ret
 
     def draw(self, double t):

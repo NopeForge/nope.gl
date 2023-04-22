@@ -470,15 +470,7 @@ char *ngl_dot(struct ngl_ctx *s, double t)
     int ret = ngli_prepare_draw(s, t);
     if (ret < 0)
         return NULL;
-    struct ngl_scene *scene = ngl_scene_create();
-    if (!s)
-        return NULL;
-    ret = ngl_scene_init_from_node(scene, s->scene);
-    if (ret < 0) {
-        ngl_scene_freep(&scene);
-        return NULL;
-    }
-    return ngli_scene_dot(scene);
+    return ngli_scene_dot(s->scene);
 }
 
 char *ngl_node_dot(const struct ngl_node *node)

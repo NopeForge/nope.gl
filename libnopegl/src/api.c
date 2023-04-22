@@ -117,14 +117,24 @@ static void reset_scene(struct ngl_ctx *s, int action)
 {
     ngli_hud_freep(&s->hud);
     if (s->scene) {
-        ngli_node_detach_ctx(s->scene, s);
+        ngli_node_detach_ctx(s->scene->root, s);
         if (action == NGLI_ACTION_UNREF_SCENE)
-            ngl_node_unrefp(&s->scene);
+            ngl_scene_freep(&s->scene);
     }
     ngli_rnode_reset(&s->rnode);
 }
 
-int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
+static struct ngl_scene *scene_copy(struct ngl_scene *s)
+{
+    struct ngl_scene *copy = ngli_calloc(1, sizeof(*copy));
+    if (!copy)
+        return NULL;
+    memcpy(copy, s, sizeof(*copy));
+    copy->root = ngl_node_ref(s->root);
+    return copy;
+}
+
+int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 {
     int ret = 0;
 
@@ -137,12 +147,22 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
     s->rnode_pos->rendertarget_desc = *ngli_gpu_ctx_get_default_rendertarget_desc(s->gpu_ctx);
 
     if (scene) {
-        int ret = ngli_node_attach_ctx(scene, s);
+        if (!scene->root) {
+            LOG(ERROR, "specified scene doesn't contain a graph");
+            ret = NGL_ERROR_INVALID_ARG;
+            goto fail;
+        }
+
+        int ret = ngli_node_attach_ctx(scene->root, s);
         if (ret < 0) {
-            ngli_node_detach_ctx(scene, s);
+            ngli_node_detach_ctx(scene->root, s);
             return ret;
         }
-        s->scene = ngl_node_ref(scene);
+        s->scene = scene_copy(scene);
+        if (!s->scene) {
+            ret = NGL_ERROR_MEMORY;
+            goto fail;
+        }
     }
 
     const struct ngl_config *config = &s->config;
@@ -227,14 +247,14 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
         goto fail;
     }
 
-    struct ngl_node *old_scene = s->scene; // note: the old scene is detached
+    struct ngl_scene *old_scene = s->scene; // note: the old scene is detached
     s->scene = NULL; // make sure the old scene is not unreferenced by set_scene()
     ret = ngli_ctx_set_scene(s, old_scene);
     if (ret < 0) {
         s->scene = old_scene; // restore detached scene on error
         goto fail;
     }
-    ngl_node_unrefp(&old_scene); // set_scene() incremented the reference, so we drop the old one
+    ngl_scene_freep(&old_scene); // ngli_ctx_set_scene() copied the scene safely so we drop the old one
 
     return 0;
 
@@ -271,18 +291,19 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
     if (ret < 0)
         return ret;
 
-    struct ngl_node *scene = s->scene;
+    struct ngl_scene *scene = s->scene;
     if (!scene) {
         return ngli_gpu_ctx_end_update(s->gpu_ctx, t);
     }
 
-    LOG(DEBUG, "prepare scene %s @ t=%f", scene->label, t);
+    struct ngl_node *root = scene->root;
+    LOG(DEBUG, "prepare scene %s @ t=%f", root->label, t);
 
-    ret = ngli_node_honor_release_prefetch(scene, t);
+    ret = ngli_node_honor_release_prefetch(root, t);
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_update(scene, t);
+    ret = ngli_node_update(root, t);
     if (ret < 0)
         return ret;
 
@@ -314,10 +335,10 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
     s->current_rendertarget = rt;
     s->render_pass_started = 0;
 
-    struct ngl_node *scene = s->scene;
+    struct ngl_scene *scene = s->scene;
     if (scene) {
-        LOG(DEBUG, "draw scene %s @ t=%f", scene->label, t);
-        ngli_node_draw(scene);
+        LOG(DEBUG, "draw scene %s @ t=%f", scene->root->label, t);
+        ngli_node_draw(scene->root);
     }
 
     if (!s->render_pass_started) {
@@ -681,7 +702,7 @@ int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
     return ret;
 }
 
-int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
+int ngl_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 {
     if (!s->configured) {
         LOG(ERROR, "context must be configured before setting a scene");
@@ -731,7 +752,7 @@ int ngl_gl_wrap_framebuffer(struct ngl_ctx *s, uint32_t framebuffer)
     return 0;
  }
 
-int ngl_livectls_get(struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp)
+int ngl_livectls_get(struct ngl_scene *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp)
 {
     return ngli_node_livectls_get(scene, nb_livectlsp, livectlsp);
 }

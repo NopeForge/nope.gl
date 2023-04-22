@@ -129,19 +129,19 @@ static int glw_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 {
-    struct ngl_node *node = arg;
-    return ngli_ctx_set_scene(s, node);
+    struct ngl_scene *scene = arg;
+    return ngli_ctx_set_scene(s, scene);
 }
 
-static int gl_set_scene(struct ngl_ctx *s, struct ngl_node *node)
+static int gl_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 {
-    return ngli_ctx_dispatch_cmd(s, cmd_set_scene, node);
+    return ngli_ctx_dispatch_cmd(s, cmd_set_scene, scene);
 }
 
-static int glw_set_scene(struct ngl_ctx *s, struct ngl_node *node)
+static int glw_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 {
     ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
-    int ret = ngli_ctx_set_scene(s, node);
+    int ret = ngli_ctx_set_scene(s, scene);
     ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
     return ret;
 }
@@ -243,9 +243,9 @@ static int glv_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
     return is_glw(&s->config) ? glw_set_capture_buffer(s, capture_buffer) : gl_set_capture_buffer(s, capture_buffer);
 }
 
-static int glv_set_scene(struct ngl_ctx *s, struct ngl_node *node)
+static int glv_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 {
-    return is_glw(&s->config) ? glw_set_scene(s, node) : gl_set_scene(s, node);
+    return is_glw(&s->config) ? glw_set_scene(s, scene) : gl_set_scene(s, scene);
 }
 
 static int glv_prepare_draw(struct ngl_ctx *s, double t)
