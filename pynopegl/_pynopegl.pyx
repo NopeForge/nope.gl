@@ -65,10 +65,6 @@ cdef extern from "nopegl.h":
     int ngl_node_param_set_vec2(ngl_node *node, const char *key, const float *value)
     int ngl_node_param_set_vec3(ngl_node *node, const char *key, const float *value)
     int ngl_node_param_set_vec4(ngl_node *node, const char *key, const float *value)
-    char *ngl_node_dot(const ngl_node *node)
-    char *ngl_node_serialize(const ngl_node *node)
-    ngl_node *ngl_node_deserialize(const char *s)
-
     int ngl_anim_evaluate(ngl_node *anim, void *dst, double t)
 
     cdef int NGL_PLATFORM_AUTO
@@ -272,12 +268,6 @@ cdef class _Node:
         self.ctx = ngl_node_create(self.type_id)
         if self.ctx is NULL:
             raise MemoryError()
-
-    def serialize(self):
-        return _ret_pystr(ngl_node_serialize(self.ctx))
-
-    def dot(self):
-        return _ret_pystr(ngl_node_dot(self.ctx))
 
     def __dealloc__(self):
         ngl_node_unrefp(&self.ctx)
@@ -719,15 +709,6 @@ cdef class Context:
             ptr = scene.cptr
             c_scene = <ngl_scene *>ptr
         return ngl_set_scene(self.ctx, c_scene)
-
-    def set_scene_from_string(self, s):
-        cdef ngl_scene *scene = ngl_scene_create();
-        if scene is NULL:
-            raise MemoryError()
-        ngl_scene_init_from_str(scene, s)
-        ret = ngl_set_scene(self.ctx, scene)
-        ngl_scene_freep(&scene)
-        return ret
 
     def draw(self, double t):
         with nogil:

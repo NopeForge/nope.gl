@@ -642,19 +642,3 @@ end:
     ngli_free(sstart);
     return ret;
 }
-
-struct ngl_node *ngl_node_deserialize(const char *str)
-{
-    struct ngl_scene *s = ngl_scene_create();
-    if (!s)
-        return NULL;
-    int ret = ngli_scene_deserialize(s, str);
-    if (ret < 0) {
-        ngl_scene_freep(&s);
-        return NULL;
-    }
-    ngli_assert(s->root);
-    struct ngl_node *root = ngl_node_ref(s->root);
-    ngl_scene_freep(&s);
-    return root;
-}

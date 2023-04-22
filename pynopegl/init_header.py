@@ -252,9 +252,6 @@ class Context(_ngl.Context):
     def set_scene(self, scene: Optional[Scene]) -> int:
         return super().set_scene(scene)
 
-    def set_scene_from_string(self, s: str) -> int:
-        return super().set_scene_from_string(s)
-
     def draw(self, t: float) -> int:
         return super().draw(t)
 

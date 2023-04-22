@@ -464,37 +464,6 @@ NGL_API int ngl_node_param_set_vec3(struct ngl_node *node, const char *key, cons
 NGL_API int ngl_node_param_set_vec4(struct ngl_node *node, const char *key, const float *value);
 
 /**
- * Serialize in Graphviz format (.dot) a node graph.
- *
- * Must be destroyed using free().
- *
- * @return an allocated string in dot format or NULL on error
- *
- * @see ngl_dot()
- */
-NGL_API char *ngl_node_dot(const struct ngl_node *node);
-
-/**
- * Serialize in nope.gl format (.ngl).
- *
- * Must be destroyed using free().
- *
- * @return an allocated string in nope.gl format or NULL on error
- */
-NGL_API char *ngl_node_serialize(const struct ngl_node *node);
-
-/**
- * De-serialize a scene.
- *
- * @param s  string in nope.gl serialized format.
- *
- * Must be destroyed using ngl_node_unrefp().
- *
- * @return a pointer to the de-serialized node graph or NULL on error
- */
-NGL_API struct ngl_node *ngl_node_deserialize(const char *s);
-
-/**
  * Live controls
  */
 
