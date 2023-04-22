@@ -212,6 +212,28 @@ class Node(_Node):
         return self._param_set_rational(param_name, ratio[0], ratio[1])
 
 
+class Scene(_ngl.Scene):
+    @classmethod
+    def from_params(
+        cls,
+        root: Node,
+        duration: Optional[float] = None,
+        framerate: Optional[Tuple[int, int]] = None,
+        aspect_ratio: Optional[Tuple[int, int]] = None,
+    ):
+        return super().from_params(root, duration, framerate, aspect_ratio)
+
+    @classmethod
+    def from_string(cls, s: str):
+        return super().from_string(s)
+
+    def serialize(self) -> str:
+        return super().serialize()
+
+    def dot(self) -> str:
+        return super().dot()
+
+
 class Context(_ngl.Context):
     def configure(self, config: Config) -> int:
         return super().configure(config)

@@ -227,6 +227,7 @@ lib_src = files(
   'src/program.c',
   'src/rendertarget.c',
   'src/rnode.c',
+  'src/scene.c',
   'src/serialize.c',
   'src/texture.c',
   'src/transforms.c',
