@@ -472,16 +472,3 @@ char *ngl_dot(struct ngl_ctx *s, double t)
         return NULL;
     return ngli_scene_dot(s->scene);
 }
-
-char *ngl_node_dot(const struct ngl_node *node)
-{
-    struct ngl_scene *s = ngl_scene_create();
-    if (!s)
-        return NULL;
-    /*
-     * We cannot use ngl_scene_init_from_node() because node is const, so we are
-     * not allowed to ref-count it. The cast is still required though.
-     */
-    s->root = (struct ngl_node *)node;
-    return ngli_scene_dot(s);
-}
