@@ -494,6 +494,7 @@ char *ngli_scene_serialize(const struct ngl_scene *scene)
     if (!nlist || !b)
         goto end;
 
+    /* Write header */
     ngli_hmap_set_free(nlist, free_func, NULL);
     ngli_bstr_printf(b, "# Nope.GL v%d.%d.%d\n",
                     NGL_VERSION_MAJOR, NGL_VERSION_MINOR, NGL_VERSION_MICRO);
@@ -505,6 +506,7 @@ char *ngli_scene_serialize(const struct ngl_scene *scene)
     ngli_bstr_printf(b, "# aspect_ratio=%d/%d\n", scene->aspect_ratio[0], scene->aspect_ratio[1]);
     ngli_bstr_printf(b, "# framerate=%d/%d\n", scene->framerate[0], scene->framerate[1]);
 
+    /* Write nodes (1 line = 1 node) */
     if (serialize(nlist, b, scene->root) < 0)
         goto end;
     s = ngli_bstr_strdup(b);
