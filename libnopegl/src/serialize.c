@@ -497,6 +497,14 @@ char *ngli_scene_serialize(const struct ngl_scene *scene)
     ngli_hmap_set_free(nlist, free_func, NULL);
     ngli_bstr_printf(b, "# Nope.GL v%d.%d.%d\n",
                     NGL_VERSION_MAJOR, NGL_VERSION_MINOR, NGL_VERSION_MICRO);
+
+    /* Write metadata */
+    ngli_bstr_printf(b, "# duration=");
+    print_double(b, scene->duration);
+    ngli_bstr_print(b, "\n");
+    ngli_bstr_printf(b, "# aspect_ratio=%d/%d\n", scene->aspect_ratio[0], scene->aspect_ratio[1]);
+    ngli_bstr_printf(b, "# framerate=%d/%d\n", scene->framerate[0], scene->framerate[1]);
+
     if (serialize(nlist, b, scene->root) < 0)
         goto end;
     s = ngli_bstr_strdup(b);

@@ -557,6 +557,45 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
     if (*s == '\n')
         s++;
 
+    /* Parse metadata: lines following "# key=value" */
+    while (*s == '#') {
+        char key[64], value[64];
+        n = sscanf(s, "# %63[^=]=%63[^\n]", key, value);
+        if (n != 2) {
+            LOG(ERROR, "unable to parse metadata line \"%s\"", s);
+            ret = NGL_ERROR_INVALID_DATA;
+            goto end;
+        }
+
+        if (!strcmp(key, "duration")) {
+            ret = parse_double(value, &scene->duration);
+            if (ret < 0) {
+                LOG(ERROR, "unable to parse duration \"%s\"", value);
+                goto end;
+            }
+        } else if (!strcmp(key, "aspect_ratio")) {
+            n = sscanf(value, "%d/%d", &scene->aspect_ratio[0], &scene->aspect_ratio[1]);
+            if (n != 2) {
+                LOG(ERROR, "unable to parse aspect ratio \"%s\"", value);
+                ret = NGL_ERROR_INVALID_DATA;
+                goto end;
+            }
+        } else if (!strcmp(key, "framerate")) {
+            n = sscanf(value, "%d/%d", &scene->framerate[0], &scene->framerate[1]);
+            if (n != 2) {
+                LOG(ERROR, "unable to parse framerate\"%s\"", value);
+                ret = NGL_ERROR_INVALID_DATA;
+                goto end;
+            }
+        } else {
+            LOG(WARNING, "unrecognized metadata key \"%s\"", key);
+        }
+
+        s += strcspn(s, "\n");
+        if (*s == '\n')
+            s++;
+    }
+
     while (s < send - 4) {
         const int type = NGLI_FOURCC(s[0], s[1], s[2], s[3]);
         s += 4;
