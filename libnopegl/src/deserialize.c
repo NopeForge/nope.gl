@@ -539,6 +539,7 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
     char *sstart = s;
     char *send = s + strlen(s);
 
+    /* Parse header */
     int major, minor, micro;
     int n = sscanf(s, "# Nope.GL v%d.%d.%d", &major, &minor, &micro);
     if (n != 3) {
@@ -596,6 +597,7 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
             s++;
     }
 
+    /* Parse nodes (1 line = 1 node) */
     while (s < send - 4) {
         const int type = NGLI_FOURCC(s[0], s[1], s[2], s[3]);
         s += 4;
