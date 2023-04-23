@@ -30,6 +30,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   handle their role; if multiple ranges are needed simulteanously, a `Group` can
   be used. `TimeRangeFilter.max_idle_time` is removed since its use was limited
   to inter range times (now only a single time segment is handled).
+- The API now mandates that node scenes have to be wrapped into a dedicated
+  scene object that holds extra metadata (duration, aspect ratio and framerate)
 
 ### Removed
 - `ResourceProps.variadic` bool flag as it was never a functional interface
