@@ -59,7 +59,6 @@ class _HooksCaller:
             session_id,
             local_scene,
             cfg["aspect_ratio"],
-            cfg["framerate"],
             self._uint_clear_color(cfg["clear_color"]),
             cfg["samples"],
         )

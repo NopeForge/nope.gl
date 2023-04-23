@@ -49,7 +49,8 @@ def scene(**controls):
             root = scene_func(scene_cfg, **extra_args)
             odict = scene_cfg.as_dict()
             duration = odict.pop("duration")
-            scene = ngl.Scene.from_params(root, duration)
+            framerate = odict.pop("framerate")
+            scene = ngl.Scene.from_params(root, duration, framerate)
             odict["scene"] = scene
             return odict
 

@@ -78,7 +78,7 @@ class Exporter(QtCore.QThread):
             return False
 
         scene = cfg["scene"]
-        fps = cfg["framerate"]
+        fps = scene.framerate
         duration = scene.duration
         samples = cfg["samples"]
 

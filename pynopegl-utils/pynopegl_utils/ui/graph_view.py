@@ -149,7 +149,7 @@ class GraphView(QtWidgets.QWidget):
         scene = cfg["scene"]
         if self._seek_chkbox.isChecked():
             self._init_ctx(cfg["backend"])
-            self._framerate = cfg["framerate"]
+            self._framerate = scene.framerate
             self._duration = scene.duration
             self._ctx.set_scene(scene)
             self._clock.configure(self._framerate, self._duration)

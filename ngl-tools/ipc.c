@@ -104,17 +104,6 @@ int ipc_pkt_add_qtag_aspect(struct ipc_pkt *pkt, const int *aspect)
     return 0;
 }
 
-int ipc_pkt_add_qtag_framerate(struct ipc_pkt *pkt, const int *framerate)
-{
-    int ret = pack(pkt, IPC_FRAMERATE, NULL, 2 * sizeof(*framerate));
-    if (ret < 0)
-        return ret;
-    uint8_t *dst = pkt->data + pkt->size - 8;
-    u32_write(dst,     framerate[0]);
-    u32_write(dst + 4, framerate[1]);
-    return 0;
-}
-
 int ipc_pkt_add_qtag_clearcolor(struct ipc_pkt *pkt, const float *clearcolor)
 {
     return pack(pkt, IPC_CLEARCOLOR, clearcolor, 4 * sizeof(*clearcolor));
