@@ -380,9 +380,41 @@ end:
     return group;
 }
 
-static int handle_duration(struct player *p, const void *data);
-static int handle_framerate(struct player *p, const void *data);
-static int handle_aspect_ratio(struct player *p, const void *data);
+static int handle_duration(struct player *p, const void *data)
+{
+    memcpy(&p->duration_f, data, sizeof(p->duration_f));
+    p->duration = (int64_t)(p->duration_f * 1000000.0);
+    p->duration_i = llrint(p->duration_f * p->framerate[0] / (double)p->framerate[1]);
+    if (p->pgbar_duration_node)
+        ngl_node_param_set_f32(p->pgbar_duration_node, "value", (float)p->duration_f);
+    return 0;
+}
+
+static int handle_framerate(struct player *p, const void *data)
+{
+    const int *rate = data;
+    if (!rate[0] || !rate[1]) {
+        fprintf(stderr, "Invalid framerate %d/%d\n", rate[0], rate[1]);
+        return -1;
+    }
+    memcpy(p->framerate, rate, sizeof(p->framerate));
+    p->duration_i = llrint(p->duration_f * rate[0] / (double)rate[1]);
+    set_frame_ts(p, p->frame_ts);
+    return 0;
+}
+
+static int handle_aspect_ratio(struct player *p, const void *data)
+{
+    memcpy(p->aspect, data, sizeof(p->aspect));
+    if (!p->aspect[0] || !p->aspect[1])
+        p->aspect[0] = p->aspect[1] = 1;
+    int width, height;
+    SDL_GetWindowSize(p->window, &width, &height);
+    size_callback(p, width, height);
+    if (p->pgbar_text_node)
+        ngl_node_param_set_rational(p->pgbar_text_node, "aspect_ratio", p->aspect[0], p->aspect[1]);
+    return 0;
+}
 
 static int set_scene(struct player *p, struct ngl_scene *scene)
 {
@@ -509,16 +541,6 @@ end:
     return ret;
 }
 
-static int handle_duration(struct player *p, const void *data)
-{
-    memcpy(&p->duration_f, data, sizeof(p->duration_f));
-    p->duration = (int64_t)(p->duration_f * 1000000.0);
-    p->duration_i = llrint(p->duration_f * p->framerate[0] / (double)p->framerate[1]);
-    if (p->pgbar_duration_node)
-        ngl_node_param_set_f32(p->pgbar_duration_node, "value", (float)p->duration_f);
-    return 0;
-}
-
 static int handle_clearcolor(struct player *p, const void *data)
 {
     memcpy(p->ngl_config.clear_color, data, sizeof(p->ngl_config.clear_color));
@@ -539,32 +561,6 @@ static int handle_samples(struct player *p, const void *data)
     }
 #endif
     memcpy(&p->ngl_config.samples, data, sizeof(p->ngl_config.samples));
-    return 0;
-}
-
-static int handle_aspect_ratio(struct player *p, const void *data)
-{
-    memcpy(p->aspect, data, sizeof(p->aspect));
-    if (!p->aspect[0] || !p->aspect[1])
-        p->aspect[0] = p->aspect[1] = 1;
-    int width, height;
-    SDL_GetWindowSize(p->window, &width, &height);
-    size_callback(p, width, height);
-    if (p->pgbar_text_node)
-        ngl_node_param_set_rational(p->pgbar_text_node, "aspect_ratio", p->aspect[0], p->aspect[1]);
-    return 0;
-}
-
-static int handle_framerate(struct player *p, const void *data)
-{
-    const int *rate = data;
-    if (!rate[0] || !rate[1]) {
-        fprintf(stderr, "Invalid framerate %d/%d\n", rate[0], rate[1]);
-        return -1;
-    }
-    memcpy(p->framerate, rate, sizeof(p->framerate));
-    p->duration_i = llrint(p->duration_f * rate[0] / (double)rate[1]);
-    set_frame_ts(p, p->frame_ts);
     return 0;
 }
 
