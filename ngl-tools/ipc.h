@@ -34,7 +34,6 @@ enum ipc_tag {
     IPC_FILE         = IPC_U32('f','i','l','e'),
     IPC_FILEPART     = IPC_U32('f','p','r','t'),
     IPC_FILEEND      = IPC_U32('f','e','n','d'),
-    IPC_ASPECT_RATIO = IPC_U32('r','t','i','o'),
     IPC_CLEARCOLOR   = IPC_U32('c','c','l','r'),
     IPC_SAMPLES      = IPC_U32('m','s','a','a'),
     IPC_INFO         = IPC_U32('i','n','f','o'),
@@ -54,7 +53,6 @@ void ipc_pkt_freep(struct ipc_pkt **pktp);
 int ipc_pkt_add_qtag_scene(struct ipc_pkt *pkt, const char *scene);
 int ipc_pkt_add_qtag_file(struct ipc_pkt *pkt, const char *filename);
 int ipc_pkt_add_qtag_filepart(struct ipc_pkt *pkt, const uint8_t *chunk, size_t chunk_size);
-int ipc_pkt_add_qtag_aspect(struct ipc_pkt *pkt, const int *aspect);
 int ipc_pkt_add_qtag_clearcolor(struct ipc_pkt *pkt, const float *clearcolor);
 int ipc_pkt_add_qtag_samples(struct ipc_pkt *pkt, int samples);
 int ipc_pkt_add_qtag_info(struct ipc_pkt *pkt);

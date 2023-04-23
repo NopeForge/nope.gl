@@ -52,7 +52,6 @@ struct ctx {
     const char *scene;
     int show_info;
     const char *uploadfile;
-    int aspect[2];
     float clear_color[4];
     int samples;
     int reconfigure;
@@ -72,7 +71,6 @@ static const struct opt options[] = {
     {"-f", "--scene",         OPT_TYPE_STR,      .offset=OFFSET(scene)},
     {"-?", "--info",          OPT_TYPE_TOGGLE,   .offset=OFFSET(show_info)},
     {"-u", "--uploadfile",    OPT_TYPE_STR,      .offset=OFFSET(uploadfile)},
-    {"-a", "--aspect",        OPT_TYPE_RATIONAL, .offset=OFFSET(aspect)},
     {"-c", "--clearcolor",    OPT_TYPE_COLOR,    .offset=OFFSET(clear_color)},
     {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(samples)},
     {"-g", "--reconfigure",   OPT_TYPE_TOGGLE,   .offset=OFFSET(reconfigure)},
@@ -148,12 +146,6 @@ static int craft_packet(struct ctx *s, struct ipc_pkt *pkt)
             return NGL_ERROR_MEMORY;
 
         ret = ipc_pkt_add_qtag_file(pkt, name);
-        if (ret < 0)
-            return ret;
-    }
-
-    if (s->aspect[0] > 0) {
-        int ret = ipc_pkt_add_qtag_aspect(pkt, s->aspect);
         if (ret < 0)
             return ret;
     }
@@ -281,7 +273,6 @@ int main(int argc, char *argv[])
     struct ctx s = {
         .host           = "localhost",
         .port           = "1234",
-        .aspect[0]      = -1,
         .clear_color[0] = -1.,
         .samples        = -1,
     };

@@ -72,7 +72,6 @@ struct ctx {
     const char *output;
     struct range *ranges;
     size_t nb_ranges;
-    int aspect[2];
 };
 
 static int opt_timerange(const char *arg, void *dst)
@@ -108,7 +107,6 @@ static const struct opt options[] = {
     {"-l", "--loglevel",      OPT_TYPE_LOGLEVEL, .offset=OFFSET(log_level)},
     {"-b", "--backend",       OPT_TYPE_BACKEND,  .offset=OFFSET(cfg.backend)},
     {"-s", "--size",          OPT_TYPE_RATIONAL, .offset=OFFSET(cfg.width)},
-    {"-a", "--aspect",        OPT_TYPE_RATIONAL, .offset=OFFSET(aspect)},
     {"-z", "--swap_interval", OPT_TYPE_INT,      .offset=OFFSET(cfg.swap_interval)},
     {"-c", "--clear_color",   OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
     {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
@@ -125,8 +123,6 @@ int main(int argc, char *argv[])
         .cfg.offscreen      = 1,
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
-        .aspect[0]          = 1,
-        .aspect[1]          = 1,
     };
 
     SDL_Window *window = NULL;
@@ -195,7 +191,7 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-    get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
+    get_viewport(s.cfg.width, s.cfg.height, scene->aspect_ratio, s.cfg.viewport);
     s.cfg.capture_buffer = capture_buffer;
 
     if (!s.cfg.offscreen) {

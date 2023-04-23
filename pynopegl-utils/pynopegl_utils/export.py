@@ -110,7 +110,7 @@ class Exporter(QtCore.QThread):
                 offscreen=True,
                 width=width,
                 height=height,
-                viewport=get_viewport(width, height, cfg["aspect_ratio"]),
+                viewport=get_viewport(width, height, scene.aspect_ratio),
                 samples=samples,
                 clear_color=cfg["clear_color"],
                 capture_buffer=capture_buffer,

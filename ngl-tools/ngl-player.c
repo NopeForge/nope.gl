@@ -141,6 +141,8 @@ int main(int argc, char *argv[])
         return -1;
 
     scene->duration = s.media_info.duration;
+    scene->aspect_ratio[0] = s.media_info.width;
+    scene->aspect_ratio[1] = s.media_info.height;
 
     struct player p;
     s.cfg.width  = s.media_info.width;

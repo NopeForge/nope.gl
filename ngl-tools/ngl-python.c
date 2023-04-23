@@ -32,7 +32,6 @@
 struct ctx {
     /* options */
     int log_level;
-    int aspect[2];
     struct ngl_config cfg;
     int player_ui;
 };
@@ -42,7 +41,6 @@ static const struct opt options[] = {
     {"-l", "--loglevel",      OPT_TYPE_LOGLEVEL, .offset=OFFSET(log_level)},
     {"-b", "--backend",       OPT_TYPE_BACKEND,  .offset=OFFSET(cfg.backend)},
     {"-s", "--size",          OPT_TYPE_RATIONAL, .offset=OFFSET(cfg.width)},
-    {"-a", "--aspect",        OPT_TYPE_RATIONAL, .offset=OFFSET(aspect)},
     {"-z", "--swap_interval", OPT_TYPE_INT,      .offset=OFFSET(cfg.swap_interval)},
     {"-c", "--clear_color",   OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
     {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
@@ -55,8 +53,6 @@ int main(int argc, char *argv[])
         .log_level  = NGL_LOG_INFO,
         .cfg.width  = DEFAULT_WIDTH,
         .cfg.height = DEFAULT_HEIGHT,
-        .aspect[0]  = 1,
-        .aspect[1]  = 1,
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
         .player_ui          = 1,
@@ -72,11 +68,11 @@ int main(int argc, char *argv[])
 
     const char *scene_func = argv[argc - 1];
     const char *module     = argv[argc - 2];
-    struct ngl_scene *scene = python_get_scene(module, scene_func, s.aspect);
+    struct ngl_scene *scene = python_get_scene(module, scene_func);
     if (!scene)
         return -1;
 
-    get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
+    get_viewport(s.cfg.width, s.cfg.height, scene->aspect_ratio, s.cfg.viewport);
 
     struct player p;
     ret = player_init(&p, "ngl-python", scene, &s.cfg, s.player_ui);
