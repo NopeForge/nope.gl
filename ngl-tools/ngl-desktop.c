@@ -66,7 +66,6 @@ struct ctx {
     const char *port;
     int log_level;
     struct ngl_config cfg;
-    int aspect[2];
     int player_ui;
 
     int sock_fd;
@@ -95,7 +94,6 @@ static const struct opt options[] = {
     {"-l", "--loglevel",      OPT_TYPE_LOGLEVEL, .offset=OFFSET(log_level)},
     {"-b", "--backend",       OPT_TYPE_BACKEND,  .offset=OFFSET(cfg.backend)},
     {"-s", "--size",          OPT_TYPE_RATIONAL, .offset=OFFSET(cfg.width)},
-    {"-a", "--aspect",        OPT_TYPE_RATIONAL, .offset=OFFSET(aspect)},
     {"-z", "--swap_interval", OPT_TYPE_INT,      .offset=OFFSET(cfg.swap_interval)},
     {"-c", "--clear_color",   OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
     {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
@@ -258,14 +256,6 @@ static int handle_tag_samples(const uint8_t *data, int size)
     return send_player_signal(PLAYER_SIGNAL_SAMPLES, &samples, sizeof(samples));
 }
 
-static int handle_tag_aspect_ratio(const uint8_t *data, int size)
-{
-    if (size != 8)
-        return NGL_ERROR_INVALID_DATA;
-    const int aspect[2] = {IPC_U32_READ(data), IPC_U32_READ(data + 4)};
-    return send_player_signal(PLAYER_SIGNAL_ASPECT_RATIO, aspect, sizeof(aspect));
-}
-
 static int handle_tag_reconfigure(const uint8_t *data, int size)
 {
     if (size != 0)
@@ -351,7 +341,6 @@ static int handle_commands(struct ctx *s, int fd)
             case IPC_SCENE:        ret = handle_tag_scene(data, size);        break;
             case IPC_FILE:         ret = handle_tag_file(s, data, size);      break;
             case IPC_FILEPART:     ret = handle_tag_filepart(s, data, size);  break;
-            case IPC_ASPECT_RATIO: ret = handle_tag_aspect_ratio(data, size); break;
             case IPC_CLEARCOLOR:   ret = handle_tag_clearcolor(data, size);   break;
             case IPC_SAMPLES:      ret = handle_tag_samples(data, size);      break;
             case IPC_RECONFIGURE:  ret = handle_tag_reconfigure(data, size);  break;
@@ -647,8 +636,6 @@ int main(int argc, char *argv[])
         .cfg.width          = DEFAULT_WIDTH,
         .cfg.height         = DEFAULT_HEIGHT,
         .log_level          = NGL_LOG_INFO,
-        .aspect[0]          = 1,
-        .aspect[1]          = 1,
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
         .lock               = PTHREAD_MUTEX_INITIALIZER,
@@ -677,7 +664,7 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-    get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
+    get_viewport(s.cfg.width, s.cfg.height, scene->aspect_ratio, s.cfg.viewport);
 
     if ((ret = setup_paths(&s)) < 0 ||
         (ret = setup_network(&s)) < 0 ||

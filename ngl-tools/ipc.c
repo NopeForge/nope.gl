@@ -93,17 +93,6 @@ int ipc_pkt_add_qtag_filepart(struct ipc_pkt *pkt, const uint8_t *chunk, size_t 
     return pack(pkt, IPC_FILEPART, chunk, chunk_size);
 }
 
-int ipc_pkt_add_qtag_aspect(struct ipc_pkt *pkt, const int *aspect)
-{
-    int ret = pack(pkt, IPC_ASPECT_RATIO, NULL, 2 * sizeof(*aspect));
-    if (ret < 0)
-        return ret;
-    uint8_t *dst = pkt->data + pkt->size - 8;
-    u32_write(dst,     aspect[0]);
-    u32_write(dst + 4, aspect[1]);
-    return 0;
-}
-
 int ipc_pkt_add_qtag_clearcolor(struct ipc_pkt *pkt, const float *clearcolor)
 {
     return pack(pkt, IPC_CLEARCOLOR, clearcolor, 4 * sizeof(*clearcolor));

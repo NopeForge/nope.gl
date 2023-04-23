@@ -24,6 +24,6 @@
 
 #include <nopegl.h>
 
-struct ngl_scene *python_get_scene(const char *modname, const char *func_name, int *aspect);
+struct ngl_scene *python_get_scene(const char *modname, const char *func_name);
 
 #endif

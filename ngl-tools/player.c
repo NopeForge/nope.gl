@@ -360,7 +360,7 @@ static struct ngl_node *add_progress_bar(struct player *p, struct ngl_scene *sce
     ngl_node_param_set_vec3(text, "box_height", text_height);
     ngl_node_param_set_f32(text, "bg_opacity", 0.f);
     ngl_node_param_set_f32(text, "fg_opacity", 0.f);
-    ngl_node_param_set_rational(text, "aspect_ratio", p->aspect[0], p->aspect[1]);
+    ngl_node_param_set_rational(text, "aspect_ratio", scene->aspect_ratio[0], scene->aspect_ratio[1]);
 
     p->pgbar_opacity_node  = v_opacity;
     p->pgbar_duration_node = v_duration;
@@ -382,6 +382,7 @@ end:
 
 static int handle_duration(struct player *p, const void *data);
 static int handle_framerate(struct player *p, const void *data);
+static int handle_aspect_ratio(struct player *p, const void *data);
 
 static int set_scene(struct player *p, struct ngl_scene *scene)
 {
@@ -403,7 +404,8 @@ static int set_scene(struct player *p, struct ngl_scene *scene)
     }
 
     if ((ret = handle_duration(p, &scene->duration)) < 0 ||
-        (ret = handle_framerate(p, scene->framerate)) < 0)
+        (ret = handle_framerate(p, scene->framerate)) < 0 ||
+        (ret = handle_aspect_ratio(p, scene->aspect_ratio)) < 0)
         return ret;
 
     return 0;
@@ -575,7 +577,6 @@ typedef int (*handle_func)(struct player *p, const void *data);
 
 static const handle_func handle_map[] = {
     [PLAYER_SIGNAL_SCENE]        = handle_scene,
-    [PLAYER_SIGNAL_ASPECT_RATIO] = handle_aspect_ratio,
     [PLAYER_SIGNAL_CLEARCOLOR]   = handle_clearcolor,
     [PLAYER_SIGNAL_SAMPLES]      = handle_samples,
     [PLAYER_SIGNAL_RECONFIGURE]  = handle_reconfigure,

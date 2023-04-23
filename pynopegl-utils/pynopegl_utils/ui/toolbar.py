@@ -264,7 +264,7 @@ class Toolbar(QtWidgets.QWidget):
 
     def set_cfg(self, cfg):
         try:
-            cfg_ar = Fraction(*cfg["aspect_ratio"])
+            cfg_ar = Fraction(*cfg["scene"].aspect_ratio)
             cfg_ar = (cfg_ar.numerator, cfg_ar.denominator)
             ar = Fraction(*Config.CHOICES["aspect_ratio"][self._ar_cbbox.currentIndex()])
             ar = (ar.numerator, ar.denominator)
