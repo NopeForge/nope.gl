@@ -650,6 +650,7 @@ static int update_window_title(const struct ctx *s)
 
 int main(int argc, char *argv[])
 {
+    struct ngl_node *scene = NULL;
     struct ctx s = {
         .host               = "localhost",
         .port               = "1234",
@@ -681,6 +682,13 @@ int main(int argc, char *argv[])
     }
 
     ngl_log_set_min_level(s.log_level);
+
+    scene = get_default_scene(s.host, s.port);
+    if (!scene) {
+        ret = EXIT_FAILURE;
+        goto end;
+    }
+
     get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
 
     if ((ret = setup_paths(&s)) < 0 ||
@@ -690,14 +698,7 @@ int main(int argc, char *argv[])
         goto end;
     s.thread_started = 1;
 
-    struct ngl_node *scene = get_default_scene(s.host, s.port);
-    if (!scene) {
-        ret = EXIT_FAILURE;
-        goto end;
-    }
-
     ret = player_init(&s.p, "ngl-desktop", scene, &s.cfg, 0, s.framerate, s.player_ui);
-    ngl_node_unrefp(&scene);
     if (ret < 0)
         goto end;
 
@@ -708,6 +709,8 @@ int main(int argc, char *argv[])
     player_main_loop(&s.p);
 
 end:
+    ngl_node_unrefp(&scene);
+
     remove_session_file(&s);
 
     if (s.thread_started)
