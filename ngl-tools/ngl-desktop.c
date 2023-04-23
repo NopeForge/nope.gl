@@ -691,6 +691,11 @@ int main(int argc, char *argv[])
     s.thread_started = 1;
 
     struct ngl_node *scene = get_default_scene(s.host, s.port);
+    if (!scene) {
+        ret = EXIT_FAILURE;
+        goto end;
+    }
+
     ret = player_init(&s.p, "ngl-desktop", scene, &s.cfg, 0, s.framerate, s.player_ui);
     ngl_node_unrefp(&scene);
     if (ret < 0)
