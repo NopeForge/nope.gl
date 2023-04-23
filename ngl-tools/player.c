@@ -380,7 +380,7 @@ end:
     return group;
 }
 
-static int handle_duration(struct player *p, double duration)
+static int set_duration(struct player *p, double duration)
 {
     p->duration_f = duration;
     p->duration = (int64_t)(p->duration_f * 1000000.0);
@@ -390,7 +390,7 @@ static int handle_duration(struct player *p, double duration)
     return 0;
 }
 
-static int handle_framerate(struct player *p, const int *rate)
+static int set_framerate(struct player *p, const int *rate)
 {
     if (!rate[0] || !rate[1]) {
         fprintf(stderr, "Invalid framerate %d/%d\n", rate[0], rate[1]);
@@ -402,7 +402,7 @@ static int handle_framerate(struct player *p, const int *rate)
     return 0;
 }
 
-static int handle_aspect_ratio(struct player *p, const int *aspect)
+static int set_aspect_ratio(struct player *p, const int *aspect)
 {
     memcpy(p->aspect, aspect, sizeof(p->aspect));
     if (!p->aspect[0] || !p->aspect[1])
@@ -434,9 +434,9 @@ static int set_scene(struct player *p, struct ngl_scene *scene)
         p->pgbar_text_node     = NULL;
     }
 
-    if ((ret = handle_duration(p, scene->duration)) < 0 ||
-        (ret = handle_framerate(p, scene->framerate)) < 0 ||
-        (ret = handle_aspect_ratio(p, scene->aspect_ratio)) < 0)
+    if ((ret = set_duration(p, scene->duration)) < 0 ||
+        (ret = set_framerate(p, scene->framerate)) < 0 ||
+        (ret = set_aspect_ratio(p, scene->aspect_ratio)) < 0)
         return ret;
 
     return 0;
