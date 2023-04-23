@@ -380,9 +380,9 @@ end:
     return group;
 }
 
-static int handle_duration(struct player *p, const void *data)
+static int handle_duration(struct player *p, double duration)
 {
-    memcpy(&p->duration_f, data, sizeof(p->duration_f));
+    p->duration_f = duration;
     p->duration = (int64_t)(p->duration_f * 1000000.0);
     p->duration_i = llrint(p->duration_f * p->framerate[0] / (double)p->framerate[1]);
     if (p->pgbar_duration_node)
@@ -390,9 +390,8 @@ static int handle_duration(struct player *p, const void *data)
     return 0;
 }
 
-static int handle_framerate(struct player *p, const void *data)
+static int handle_framerate(struct player *p, const int *rate)
 {
-    const int *rate = data;
     if (!rate[0] || !rate[1]) {
         fprintf(stderr, "Invalid framerate %d/%d\n", rate[0], rate[1]);
         return -1;
@@ -403,9 +402,9 @@ static int handle_framerate(struct player *p, const void *data)
     return 0;
 }
 
-static int handle_aspect_ratio(struct player *p, const void *data)
+static int handle_aspect_ratio(struct player *p, const int *aspect)
 {
-    memcpy(p->aspect, data, sizeof(p->aspect));
+    memcpy(p->aspect, aspect, sizeof(p->aspect));
     if (!p->aspect[0] || !p->aspect[1])
         p->aspect[0] = p->aspect[1] = 1;
     int width, height;
@@ -435,7 +434,7 @@ static int set_scene(struct player *p, struct ngl_scene *scene)
         p->pgbar_text_node     = NULL;
     }
 
-    if ((ret = handle_duration(p, &scene->duration)) < 0 ||
+    if ((ret = handle_duration(p, scene->duration)) < 0 ||
         (ret = handle_framerate(p, scene->framerate)) < 0 ||
         (ret = handle_aspect_ratio(p, scene->aspect_ratio)) < 0)
         return ret;
