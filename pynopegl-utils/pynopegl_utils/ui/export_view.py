@@ -85,7 +85,8 @@ class ExportView(QtWidgets.QWidget):
         if not cfg:
             return
 
-        self._framerate = cfg["framerate"]
+        scene = cfg["scene"]
+        self._framerate = scene.framerate
         self._aspect_ratio = cfg["aspect_ratio"]
 
         self._check_settings()

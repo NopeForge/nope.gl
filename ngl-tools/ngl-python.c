@@ -35,7 +35,6 @@ struct ctx {
     int aspect[2];
     struct ngl_config cfg;
     int player_ui;
-    int framerate[2];
 };
 
 #define OFFSET(x) offsetof(struct ctx, x)
@@ -48,7 +47,6 @@ static const struct opt options[] = {
     {"-c", "--clear_color",   OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
     {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
     {"-u", "--disable-ui",    OPT_TYPE_TOGGLE,   .offset=OFFSET(player_ui)},
-    {"-r", "--framerate",     OPT_TYPE_RATIONAL, .offset=OFFSET(framerate)},
 };
 
 int main(int argc, char *argv[])
@@ -62,8 +60,6 @@ int main(int argc, char *argv[])
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
         .player_ui          = 1,
-        .framerate[0]       = 60,
-        .framerate[1]       = 1,
     };
 
     int ret = opts_parse(argc, argc - 2, argv, options, ARRAY_NB(options), &s);
@@ -83,7 +79,7 @@ int main(int argc, char *argv[])
     get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
 
     struct player p;
-    ret = player_init(&p, "ngl-python", scene, &s.cfg, s.framerate, s.player_ui);
+    ret = player_init(&p, "ngl-python", scene, &s.cfg, s.player_ui);
     ngl_scene_freep(&scene);
     if (ret < 0)
         goto end;

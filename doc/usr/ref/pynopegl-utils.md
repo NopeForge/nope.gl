@@ -200,7 +200,7 @@ The hooks are exposed through a Python script implementing the following functio
 - `get_sessions()`
 - `get_session_info(session_id)`
 - `sync_file(session_id, ifile, ofile)`
-- `scene_change(session_id, scenefile, aspect_ratio, framerate, clear_color, samples)`
+- `scene_change(session_id, scenefile, aspect_ratio, clear_color, samples)`
 
 Following are the hook functions that will be executed and their expected
 behaviour.
@@ -257,17 +257,16 @@ $ python -c 'import desktop; print(desktop.sync_file("192.168.1.1-1234", "/tmp/n
 
 ### scene_change
 
-`scene_change(session_id, scenefile, aspect_ratio, framerate, clear_color, samples)` take the following arguments:
+`scene_change(session_id, scenefile, aspect_ratio, clear_color, samples)` take the following arguments:
 
 - `session_id`: the session identifier
 - `scenefile`: the path to the local serialized scene
 - `aspect_ratio`: a `tuple` of `int` (`num`, `den`) representing the aspect ratio
-- `framerate`: a `tuple` of `int` (`num`, `den`) representing the framerate
 - `clear_color`: a `unsigned int` representing the 4 color components of the clear color
 - `samples`: a `int` representing the number of `samples` used for multisample anti-aliasing
 
 **Example**:
 
 ```console
-$ python -c 'import desktop; desktop.scene_change("192.168.1.1-1234", "/tmp/scene.ngl", (60000,1001), (16,9), 0x4A646BFF, 4)'
+$ python -c 'import desktop; desktop.scene_change("192.168.1.1-1234", "/tmp/scene.ngl", (16,9), 0x4A646BFF, 4)'
 ```

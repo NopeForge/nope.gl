@@ -42,7 +42,7 @@ def sync_file(session_id, ifile, ofile):
     return _ipc_exec("-x", host, "-p", port, "-u", f"{ofile}={ifile}").rstrip()
 
 
-def scene_change(session_id, scenefile, aspect_ratio, framerate, clear_color, samples):
+def scene_change(session_id, scenefile, aspect_ratio, clear_color, samples):
     host, port = session_id.rsplit("-", maxsplit=1)
     _ipc_exec(
         # fmt: off
@@ -50,7 +50,6 @@ def scene_change(session_id, scenefile, aspect_ratio, framerate, clear_color, sa
         "-p", port,
         "-f", scenefile,
         "-a", "%d/%d" % aspect_ratio,
-        "-r", "%d/%d" % framerate,
         "-c", "%08X" % clear_color,
         "-m", "%d" % samples,
         # fmt: on

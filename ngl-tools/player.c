@@ -381,6 +381,7 @@ end:
 }
 
 static int handle_duration(struct player *p, const void *data);
+static int handle_framerate(struct player *p, const void *data);
 
 static int set_scene(struct player *p, struct ngl_scene *scene)
 {
@@ -401,14 +402,15 @@ static int set_scene(struct player *p, struct ngl_scene *scene)
         p->pgbar_text_node     = NULL;
     }
 
-    if ((ret = handle_duration(p, &scene->duration)) < 0)
+    if ((ret = handle_duration(p, &scene->duration)) < 0 ||
+        (ret = handle_framerate(p, scene->framerate)) < 0)
         return ret;
 
     return 0;
 }
 
 int player_init(struct player *p, const char *win_title, struct ngl_scene *scene,
-                const struct ngl_config *cfg, int *framerate, int enable_ui)
+                const struct ngl_config *cfg, int enable_ui)
 {
     memset(p, 0, sizeof(*p));
 
@@ -430,12 +432,12 @@ int player_init(struct player *p, const char *win_title, struct ngl_scene *scene
     p->framerate[0] = 60;
     p->framerate[1] = 1;
 
-    if (!framerate[0] || !framerate[1]) {
-        fprintf(stderr, "Invalid framerate %d/%d\n", framerate[0], framerate[1]);
+    if (!scene->framerate[0] || !scene->framerate[1]) {
+        fprintf(stderr, "Invalid framerate %d/%d\n", scene->framerate[0], scene->framerate[1]);
         return -1;
     }
-    memcpy(p->framerate, framerate, sizeof(p->framerate));
-    p->duration_i = llrint(p->duration_f * framerate[0] / (double)framerate[1]);
+    memcpy(p->framerate, scene->framerate, sizeof(p->framerate));
+    p->duration_i = llrint(p->duration_f * scene->framerate[0] / (double)scene->framerate[1]);
 
     p->ngl_config = *cfg;
 
@@ -574,7 +576,6 @@ typedef int (*handle_func)(struct player *p, const void *data);
 static const handle_func handle_map[] = {
     [PLAYER_SIGNAL_SCENE]        = handle_scene,
     [PLAYER_SIGNAL_ASPECT_RATIO] = handle_aspect_ratio,
-    [PLAYER_SIGNAL_FRAMERATE]    = handle_framerate,
     [PLAYER_SIGNAL_CLEARCOLOR]   = handle_clearcolor,
     [PLAYER_SIGNAL_SAMPLES]      = handle_samples,
     [PLAYER_SIGNAL_RECONFIGURE]  = handle_reconfigure,

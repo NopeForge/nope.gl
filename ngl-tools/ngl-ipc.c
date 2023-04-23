@@ -53,7 +53,6 @@ struct ctx {
     int show_info;
     const char *uploadfile;
     int aspect[2];
-    int framerate[2];
     float clear_color[4];
     int samples;
     int reconfigure;
@@ -74,7 +73,6 @@ static const struct opt options[] = {
     {"-?", "--info",          OPT_TYPE_TOGGLE,   .offset=OFFSET(show_info)},
     {"-u", "--uploadfile",    OPT_TYPE_STR,      .offset=OFFSET(uploadfile)},
     {"-a", "--aspect",        OPT_TYPE_RATIONAL, .offset=OFFSET(aspect)},
-    {"-r", "--framerate",     OPT_TYPE_RATIONAL, .offset=OFFSET(framerate)},
     {"-c", "--clearcolor",    OPT_TYPE_COLOR,    .offset=OFFSET(clear_color)},
     {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(samples)},
     {"-g", "--reconfigure",   OPT_TYPE_TOGGLE,   .offset=OFFSET(reconfigure)},
@@ -156,12 +154,6 @@ static int craft_packet(struct ctx *s, struct ipc_pkt *pkt)
 
     if (s->aspect[0] > 0) {
         int ret = ipc_pkt_add_qtag_aspect(pkt, s->aspect);
-        if (ret < 0)
-            return ret;
-    }
-
-    if (s->framerate[0] > 0) {
-        int ret = ipc_pkt_add_qtag_framerate(pkt, s->framerate);
         if (ret < 0)
             return ret;
     }
@@ -290,7 +282,6 @@ int main(int argc, char *argv[])
         .host           = "localhost",
         .port           = "1234",
         .aspect[0]      = -1,
-        .framerate[0]   = -1,
         .clear_color[0] = -1.,
         .samples        = -1,
     };
