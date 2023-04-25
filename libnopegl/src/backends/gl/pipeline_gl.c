@@ -494,6 +494,8 @@ static int pipeline_compute_init(struct pipeline *s)
 
 static GLbitfield get_memory_barriers(const struct pipeline *s)
 {
+    const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    const struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct pipeline_gl *s_priv = (const struct pipeline_gl *)s;
 
     GLbitfield barriers = 0;
@@ -517,6 +519,8 @@ static GLbitfield get_memory_barriers(const struct pipeline *s)
         const struct pipeline_texture_desc *desc = &binding->desc;
         if (desc->access & NGLI_ACCESS_WRITE_BIT)
             barriers |= texture_gl->barriers;
+        if (gl->workaround_radeonsi_sync)
+            barriers |= (texture_gl->barriers & GL_FRAMEBUFFER_BARRIER_BIT);
     }
 
     return barriers;
