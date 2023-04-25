@@ -178,12 +178,15 @@ static int glcontext_probe_version(struct glcontext *glcontext)
         glcontext->backend == NGL_BACKEND_OPENGLES ? "ES " : "");
 
     const char *renderer = (const char *)ngli_glGetString(glcontext, GL_RENDERER);
-    LOG(INFO, "OpenGL renderer: %s", renderer ? renderer : "unknown");
+    if (!renderer) {
+        LOG(ERROR, "could not get OpenGL renderer");
+        return NGL_ERROR_BUG;
+    }
+    LOG(INFO, "OpenGL renderer: %s", renderer);
 
-    if (renderer && (
-        strstr(renderer, "llvmpipe") || // Mesa llvmpipe
+    if (strstr(renderer, "llvmpipe") || // Mesa llvmpipe
         strstr(renderer, "softpipe") || // Mesa softpipe
-        strstr(renderer, "SWR"))) {     // Mesa swrast
+        strstr(renderer, "SWR")) {      // Mesa swrast
         glcontext->features |= NGLI_FEATURE_GL_SOFTWARE;
         LOG(INFO, "Software renderer detected");
     }
