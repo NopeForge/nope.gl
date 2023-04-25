@@ -309,12 +309,7 @@ def _get_random_layer(cfg: SceneCfg, rng, t0, t1, enable_computes, layer=4):
             rtt_render = _get_random_transform(rng, t0, t1, rtt_render)
             t_start, t_end = _get_random_time_range(rng, t0, t1)
             rtt_group = ngl.Group(children=(rtt, rtt_render))
-            t_filter = ngl.TimeRangeFilter(rtt_group)
-            t_filter.add_ranges(
-                ngl.TimeRangeModeNoop(0),
-                ngl.TimeRangeModeCont(t_start),
-                ngl.TimeRangeModeNoop(t_end),
-            )
+            t_filter = ngl.TimeRangeFilter(rtt_group, t_start, t_end)
 
             # Draw both the children and the rendered texture
             child = ngl.Group(children=(t_filter, child))
@@ -325,12 +320,7 @@ def _get_random_layer(cfg: SceneCfg, rng, t0, t1, enable_computes, layer=4):
             child = _get_random_render(cfg, rng, t_start, t_end, enable_computes)
             if rng.random() < 1 / 3:
                 child = _get_random_transform(rng, t_start, t_end, child)
-            child = ngl.TimeRangeFilter(child)
-            child.add_ranges(
-                ngl.TimeRangeModeNoop(0),
-                ngl.TimeRangeModeCont(t_start),
-                ngl.TimeRangeModeNoop(t_end),
-            )
+            child = ngl.TimeRangeFilter(child, t_start, t_end)
         children.append(child)
     return ngl.Group(children=children)
 

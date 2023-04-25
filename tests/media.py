@@ -58,12 +58,7 @@ def _get_time_scene(cfg: SceneCfg):
     t = ngl.Texture2D(data_src=m)
     r = ngl.RenderTexture(t)
 
-    time_ranges = [
-        ngl.TimeRangeModeNoop(0),
-        ngl.TimeRangeModeCont(range_start),
-        ngl.TimeRangeModeNoop(range_stop),
-    ]
-    rf = ngl.TimeRangeFilter(r, ranges=time_ranges, prefetch_time=prefetch_duration)
+    rf = ngl.TimeRangeFilter(r, range_start, range_stop, prefetch_time=prefetch_duration)
 
     return rf
 
@@ -160,6 +155,8 @@ def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
     ag = AutoGrid(range(nb_medias))
     for video_id, _, col, pos in ag:
         start = video_id * cfg.duration / nb_medias
+        end = start + cfg.duration / nb_medias + overlap_time
+
         animkf = [
             ngl.AnimKeyFrameFloat(start, 0),
             ngl.AnimKeyFrameFloat(start + cfg.duration, cfg.duration),
@@ -170,12 +167,7 @@ def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
         render = ngl.RenderTexture(texture)
         render = ag.place_node(render, (col, pos))
 
-        rf = ngl.TimeRangeFilter(render)
-        if start:
-            rf.add_ranges(ngl.TimeRangeModeNoop(0))
-        rf.add_ranges(
-            ngl.TimeRangeModeCont(start), ngl.TimeRangeModeNoop(start + cfg.duration / nb_medias + overlap_time)
-        )
+        rf = ngl.TimeRangeFilter(render, start, end)
 
         queued_medias.append(rf)
 
@@ -220,17 +212,7 @@ def media_timeranges_rtt(cfg: SceneCfg):
     # Split the presentation in 5 segments such that there are inactive times,
     # prefetch times and both overlapping and non-overlapping times for the
     # RTTs
-    ranges0 = (
-        ngl.TimeRangeModeNoop(0),
-        ngl.TimeRangeModeCont(1 / 5 * d),
-        ngl.TimeRangeModeNoop(3 / 5 * d),
-    )
-    ranges1 = (
-        ngl.TimeRangeModeNoop(0),
-        ngl.TimeRangeModeCont(2 / 5 * d),
-        ngl.TimeRangeModeNoop(4 / 5 * d),
-    )
-    trange0 = ngl.TimeRangeFilter(proxy0, ranges=ranges0, prefetch_time=prefetch_time, label="left")
-    trange1 = ngl.TimeRangeFilter(proxy1, ranges=ranges1, prefetch_time=prefetch_time, label="right")
+    trange0 = ngl.TimeRangeFilter(proxy0, start=1 / 5 * d, end=3 / 5 * d, prefetch_time=prefetch_time, label="left")
+    trange1 = ngl.TimeRangeFilter(proxy1, start=2 / 5 * d, end=4 / 5 * d, prefetch_time=prefetch_time, label="right")
 
     return ngl.Group(children=(trange0, trange1))

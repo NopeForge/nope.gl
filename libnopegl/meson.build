@@ -207,7 +207,6 @@ lib_src = files(
   'src/node_textureview.c',
   'src/node_time.c',
   'src/node_timerangefilter.c',
-  'src/node_timerangemodes.c',
   'src/node_transform.c',
   'src/node_translate.c',
   'src/node_triangle.c',

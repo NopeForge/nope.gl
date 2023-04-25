@@ -144,9 +144,6 @@
     action(NGL_NODE_TEXTUREVIEW,            ngli_textureview_class)             \
     action(NGL_NODE_TIME,                   ngli_time_class)                    \
     action(NGL_NODE_TIMERANGEFILTER,        ngli_timerangefilter_class)         \
-    action(NGL_NODE_TIMERANGEMODECONT,      ngli_timerangemodecont_class)       \
-    action(NGL_NODE_TIMERANGEMODENOOP,      ngli_timerangemodenoop_class)       \
-    action(NGL_NODE_TIMERANGEMODEONCE,      ngli_timerangemodeonce_class)       \
     action(NGL_NODE_TRANSFORM,              ngli_transform_class)               \
     action(NGL_NODE_TRANSLATE,              ngli_translate_class)               \
     action(NGL_NODE_TRIANGLE,               ngli_triangle_class)                \

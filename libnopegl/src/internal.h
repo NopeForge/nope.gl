@@ -291,15 +291,6 @@ struct media_priv {
 #endif
 };
 
-struct timerangemode_opts {
-    double start_time;
-    double render_time;
-};
-
-struct timerangemode_priv {
-    int updated;
-};
-
 struct transform {
     struct ngl_node *child;
     NGLI_ALIGNED_MAT(matrix);

@@ -982,43 +982,13 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `child` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) | time filtered scene | 
-`ranges` |  | [`node_list`](#parameter-types) ([TimeRangeModeOnce](#timerangemodeonce), [TimeRangeModeNoop](#timerangemodenoop), [TimeRangeModeCont](#timerangemodecont)) | key frame time filtering events | 
+`start` |  | [`f64`](#parameter-types) | start time (included) for the scene to be drawn | `0`
+`end` |  | [`f64`](#parameter-types) | end time (excluded) for the scene to be drawn, a negative value implies forever | `-1`
+`render_time` |  | [`f64`](#parameter-types) | chosen time to draw for a "once" mode, negative to ignore | `-1`
 `prefetch_time` |  | [`f64`](#parameter-types) | `child` is prefetched `prefetch_time` seconds in advance | `1`
-`max_idle_time` |  | [`f64`](#parameter-types) | `child` will not be released if it is required in the next incoming `max_idle_time` seconds | `4`
 
 
 **Source**: [src/node_timerangefilter.c](/libnopegl/src/node_timerangefilter.c)
-
-
-## TimeRangeModeCont
-
-Parameter | Flags | Type | Description | Default
---------- | ----- | ---- | ----------- | :-----:
-`start_time` |  | [`f64`](#parameter-types) | starting time for the scene to be drawn | `0`
-
-
-**Source**: [src/node_timerangemodes.c](/libnopegl/src/node_timerangemodes.c)
-
-
-## TimeRangeModeNoop
-
-Parameter | Flags | Type | Description | Default
---------- | ----- | ---- | ----------- | :-----:
-`start_time` |  | [`f64`](#parameter-types) | starting time for the scene to stop being drawn | `0`
-
-
-**Source**: [src/node_timerangemodes.c](/libnopegl/src/node_timerangemodes.c)
-
-
-## TimeRangeModeOnce
-
-Parameter | Flags | Type | Description | Default
---------- | ----- | ---- | ----------- | :-----:
-`start_time` |  | [`f64`](#parameter-types) | starting time for the scene to be drawn once | `0`
-`render_time` |  | [`f64`](#parameter-types) | chosen time to draw | `0`
-
-
-**Source**: [src/node_timerangemodes.c](/libnopegl/src/node_timerangemodes.c)
 
 
 ## Transform

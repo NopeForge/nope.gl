@@ -2342,11 +2342,25 @@
       "desc": "time filtered scene"
     },
     {
-      "name": "ranges",
-      "type": "node_list",
-      "node_types": ["TimeRangeModeOnce", "TimeRangeModeNoop", "TimeRangeModeCont"],
+      "name": "start",
+      "type": "f64",
+      "default": 0.000000,
       "flags": [],
-      "desc": "key frame time filtering events"
+      "desc": "start time (included) for the scene to be drawn"
+    },
+    {
+      "name": "end",
+      "type": "f64",
+      "default": -1.000000,
+      "flags": [],
+      "desc": "end time (excluded) for the scene to be drawn, a negative value implies forever"
+    },
+    {
+      "name": "render_time",
+      "type": "f64",
+      "default": -1.000000,
+      "flags": [],
+      "desc": "chosen time to draw for a \"once\" mode, negative to ignore"
     },
     {
       "name": "prefetch_time",
@@ -2354,47 +2368,6 @@
       "default": 1.000000,
       "flags": [],
       "desc": "`child` is prefetched `prefetch_time` seconds in advance"
-    },
-    {
-      "name": "max_idle_time",
-      "type": "f64",
-      "default": 4.000000,
-      "flags": [],
-      "desc": "`child` will not be released if it is required in the next incoming `max_idle_time` seconds"
-    }
-  ],
-  "TimeRangeModeCont": [
-    {
-      "name": "start_time",
-      "type": "f64",
-      "default": 0.000000,
-      "flags": [],
-      "desc": "starting time for the scene to be drawn"
-    }
-  ],
-  "TimeRangeModeNoop": [
-    {
-      "name": "start_time",
-      "type": "f64",
-      "default": 0.000000,
-      "flags": [],
-      "desc": "starting time for the scene to stop being drawn"
-    }
-  ],
-  "TimeRangeModeOnce": [
-    {
-      "name": "start_time",
-      "type": "f64",
-      "default": 0.000000,
-      "flags": [],
-      "desc": "starting time for the scene to be drawn once"
-    },
-    {
-      "name": "render_time",
-      "type": "f64",
-      "default": 0.000000,
-      "flags": [],
-      "desc": "chosen time to draw"
     }
   ],
   "Transform": [

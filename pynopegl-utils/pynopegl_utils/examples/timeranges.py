@@ -30,32 +30,22 @@ def parallel_playback(cfg: SceneCfg, fast=True, segment_time=2.0, constrained_ti
     render1 = ngl.Group(children=(render1, ngl.Text("media #1", **text_settings)))
     render2 = ngl.Group(children=(render2, ngl.Text("media #2", **text_settings)))
 
-    rf1 = ngl.TimeRangeFilter(render1)
-    rf2 = ngl.TimeRangeFilter(render2)
-
-    if constrained_timeranges:
-        rf1.set_prefetch_time(segment_time / 3.0)
-        rf2.set_prefetch_time(segment_time / 3.0)
-        rf1.set_max_idle_time(segment_time / 2.0)
-        rf2.set_max_idle_time(segment_time / 2.0)
-
-    t = 0
+    end_time = 0.0
     rr1 = []
     rr2 = []
-    while t < cfg.duration:
-        rr1.append(ngl.TimeRangeModeCont(t))
-        rr1.append(ngl.TimeRangeModeNoop(t + segment_time))
-
-        rr2.append(ngl.TimeRangeModeNoop(t))
-        rr2.append(ngl.TimeRangeModeCont(t + segment_time))
-
-        t += 2 * segment_time
-
-    rf1.add_ranges(*rr1)
-    rf2.add_ranges(*rr2)
+    i = 0
+    while end_time < cfg.duration:
+        (rr, render) = (rr2, render2) if i & 1 else (rr1, render1)
+        start_time = i * segment_time
+        end_time = (i + 1) * segment_time
+        tseg = ngl.TimeRangeFilter(render, start_time, end_time)
+        if constrained_timeranges:
+            tseg.set_prefetch_time(segment_time / 3)
+        rr.append(tseg)
+        i += 1
 
     g = ngl.Group()
-    g.add_children(rf1, rf2)
+    g.add_children(*rr1, *rr2)
     if fast:
         g.add_children(t1, t2)
     return g
@@ -103,18 +93,11 @@ def simple_transition(cfg: SceneCfg, transition_start=2, transition_duration=4):
     rr2 = []
     rr1_2 = []
 
-    rr1.append(ngl.TimeRangeModeNoop(transition_start))
+    transition_end = transition_start + transition_duration
 
-    rr2.append(ngl.TimeRangeModeNoop(0))
-    rr2.append(ngl.TimeRangeModeCont(transition_start + transition_duration))
-
-    rr1_2.append(ngl.TimeRangeModeNoop(0))
-    rr1_2.append(ngl.TimeRangeModeCont(transition_start))
-    rr1_2.append(ngl.TimeRangeModeNoop(transition_start + transition_duration))
-
-    rf1 = ngl.TimeRangeFilter(render1, ranges=rr1)
-    rf2 = ngl.TimeRangeFilter(render2, ranges=rr2)
-    rf1_2 = ngl.TimeRangeFilter(render1_2, ranges=rr1_2)
+    rf1 = ngl.TimeRangeFilter(render1, start=0, end=transition_start)
+    rf2 = ngl.TimeRangeFilter(render2, start=transition_end, end=None)
+    rf1_2 = ngl.TimeRangeFilter(render1_2, start=transition_start, end=transition_end)
 
     g = ngl.Group()
     g.add_children(rf1, rf1_2, rf2)

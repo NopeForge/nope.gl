@@ -81,12 +81,7 @@ def time_remapping(cfg: SceneCfg):
     t = ngl.Texture2D(data_src=m)
     r = ngl.RenderTexture(t)
 
-    time_ranges = [
-        ngl.TimeRangeModeNoop(0),
-        ngl.TimeRangeModeCont(range_start),
-        ngl.TimeRangeModeNoop(range_stop),
-    ]
-    rf = ngl.TimeRangeFilter(r, ranges=time_ranges, prefetch_time=prefetch_duration)
+    rf = ngl.TimeRangeFilter(r, range_start, range_stop, prefetch_time=prefetch_duration)
 
     base_string = "media time: {:2g} to {:2g}\nscene time: {:2g} to {:2g}\ntime range: {:2g} to {:2g}".format(
         media_seek, media_seek + playback_duration, play_start, play_stop, range_start, range_stop
@@ -111,12 +106,7 @@ def time_remapping(cfg: SceneCfg):
         text = ngl.Text(
             f"{start_time:g} to {end_time:g}: {description}", aspect_ratio=cfg.aspect_ratio, box_height=(0, 0.2, 0)
         )
-        text_tr = (
-            ngl.TimeRangeModeNoop(0),
-            ngl.TimeRangeModeCont(start_time),
-            ngl.TimeRangeModeNoop(end_time),
-        )
-        text_rf = ngl.TimeRangeFilter(text, ranges=text_tr, label="text-step-%d" % i)
+        text_rf = ngl.TimeRangeFilter(text, start_time, end_time, label="text-step-%d" % i)
         group.add_children(text_rf)
 
     return group
