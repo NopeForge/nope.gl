@@ -83,13 +83,9 @@ def autogrid_queue(scenes: Sequence[ngl.Node], duration: float, overlap_time: fl
     for scene, scene_id, col, row in ag:
         if duration is not None:
             assert overlap_time is not None
-            scene = ngl.TimeRangeFilter(scene)
             start = scene_id * duration / ag.nb
-            if start:
-                scene.add_ranges(ngl.TimeRangeModeNoop(0))
-            scene.add_ranges(
-                ngl.TimeRangeModeCont(start), ngl.TimeRangeModeNoop(start + duration / ag.nb + overlap_time)
-            )
+            end = start + duration / ag.nb + overlap_time
+            scene = ngl.TimeRangeFilter(scene, start, end)
         scene = ag.place_node(scene, (col, row))
         g.add_children(scene)
     return g

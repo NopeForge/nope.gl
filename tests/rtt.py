@@ -249,8 +249,7 @@ def rtt_clear_attachment_with_timeranges(cfg: SceneCfg):
     # Time-disabled full screen white quad
     render = ngl.RenderColor(COLORS.white)
 
-    time_range_filter = ngl.TimeRangeFilter(render)
-    time_range_filter.add_ranges(ngl.TimeRangeModeNoop(0))
+    time_range_filter = ngl.TimeRangeFilter(render, end=0)
 
     # Intermediate no-op RTT to force the use of a different render pass internally
     texture = ngl.Texture2D(width=32, height=32)

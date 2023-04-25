@@ -567,13 +567,9 @@ def text(cfg: SceneCfg, demo_str="Hello World!\n\nThis is a multi-line\ntext dem
             bg_opacity=1,
             font_scale=1 / 2.0,
         )
-        start = i * time_unit
-        text_range = [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(start)]
-        if i != nb_chars - 1:
-            end = (i + 1) * time_unit
-            text_range.append(ngl.TimeRangeModeNoop(end))
-        text_range_filter = ngl.TimeRangeFilter(ascii_text, ranges=text_range)
-        group.add_children(text_range_filter)
+        start_time = i * time_unit
+        end_time = None if i == nb_chars - 1 else (i + 1) * time_unit
+        group.add_children(ngl.TimeRangeFilter(ascii_text, start_time, end_time))
 
     for valign in ("top", "center", "bottom"):
         for halign in ("left", "center", "right"):

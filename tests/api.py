@@ -396,15 +396,9 @@ def api_shader_init_fail(width=320, height=240):
 
 
 def _create_trf(scene, start, end, prefetch_time=None):
-    trfs = (
-        ngl.TimeRangeModeNoop(-1),
-        ngl.TimeRangeModeCont(start),
-        ngl.TimeRangeModeNoop(end),
-    )
-    trf = ngl.TimeRangeFilter(scene, ranges=trfs)
+    trf = ngl.TimeRangeFilter(scene, start, end)
     if prefetch_time is not None:
         trf.set_prefetch_time(prefetch_time)
-        trf.set_max_idle_time(prefetch_time + 1)
     return trf
 
 

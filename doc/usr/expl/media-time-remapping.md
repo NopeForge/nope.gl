@@ -57,16 +57,11 @@ The time range filters will allow the prefetch and release mechanisms of the
 sub-tree (in our case, it will typically be a `Render` using a `Media` node as
 `data_src`).
 
-The typical use case for a video showing up randomly in a demo is to define 3
-time ranges, such as:
-
+The typical use case for a video showing up randomly in a demo is to define a
+single time ranges, such as:
 
 ```python
-timefilter = ngl.TimeRangeFilter(my_render, ranges=[
-    ngl.TimeRangeModeNoop(0),
-    ngl.TimeRangeModeCont(2),
-    ngl.TimeRangeModeNoop(9),
-])
+timefilter = ngl.TimeRangeFilter(my_render, start=2, end=9)
 ```
 
 In this case, `my_render` will be visible between `t=2` (included) and `t=9`
@@ -95,13 +90,7 @@ def media_time_remapping(cfg):
     r = ngl.RenderTexture(t)
 
     # Time range filter
-    tf = ngl.TimeRangeFilter(r, ranges=[
-        ngl.TimeRangeModeNoop(0),
-        ngl.TimeRangeModeCont(2),
-        ngl.TimeRangeModeNoop(9),
-    ])
-
-    return tf
+    return ngl.TimeRangeFilter(r, start=2, end=9)
 ```
 
 ## Behind the scene

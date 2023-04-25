@@ -23,6 +23,10 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `max_texture_dimensions_*` capabilities are renamed to `max_texture_dimension_*`
 - Backend probing in `pynopegl` now returns a more Pythonic output
 - `GraphicConfig.scissor` is now an `ivec4` parameter instead of `vec4`
+- `TimeRangeMode*` nodes are removed and `TimeRangeFilter` is simplified to
+  handle their role; if multiple ranges are needed simulteanously, a `Group` can
+  be used. `TimeRangeFilter.max_idle_time` is removed since its use was limited
+  to inter range times (now only a single time segment is handled).
 
 ### Removed
 - `ResourceProps.variadic` bool flag as it was never a functional interface

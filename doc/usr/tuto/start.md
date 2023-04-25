@@ -404,29 +404,21 @@ with `get_frag('color')`, grabbing the content of [color.frag][color-frag].
 Now back on the original topic: how are we going to *make each shape appear and
 disappear according to time?*
 
-`TimeRangeFilter` behaves similarly to animated nodes in the sense that it
-holds time key frames. If we want a branch to be hidden, then drawn, then
-hidden again, we will need 3 `TimeRangeMode*` entries, such as:
+`TimeRangeFilter` can limit draw events to a given time segment, for example:
 
 ```python
-    ranges = [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(1), ngl.TimeRangeModeNoop(4)]
-    node = ngl.TimeRangeFilter(child, ranges)
+    node = ngl.TimeRangeFilter(child, start=1, end=4)
 ```
-
-Here, `child` will be hidden at `t=0` ("*Noop*" as in "*No operation*"), then
-drawn starting `t=1` ("*Cont* as in "*Continuous*"), then hidden again starting
-`t=4`.
 
 Applying this new knowledge to our demo we can make our shapes appear and
 disappear rhythmically:
 
 ```python
-    ranges = [
-        [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(1), ngl.TimeRangeModeNoop(4)],
-        [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(2), ngl.TimeRangeModeNoop(5)],
-        [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(3), ngl.TimeRangeModeNoop(6)],
+    ranges = [(1, 4), (2, 5), (3, 6)]
+    range_filters = [
+        ngl.TimeRangeFilter(translate, start=time_segment[0], end=time_segment[1])
+        for (translate, time_segment) in zip(translates, ranges)
     ]
-    range_filters = [ngl.TimeRangeFilter(translates[i], r) for i, r in enumerate(ranges)]
     return ngl.Group(range_filters)
 ```
 
