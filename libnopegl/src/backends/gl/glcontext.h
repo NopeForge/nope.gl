@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -73,6 +74,14 @@ struct glcontext {
 
     /* GL functions */
     struct glfunctions funcs;
+
+    /*
+     * Workaround a radeonsi sync issue between fbo writes and compute reads
+     * using 2D samplers.
+     *
+     * See: https://gitlab.freedesktop.org/mesa/mesa/-/issues/8906
+     */
+    int workaround_radeonsi_sync;
 };
 
 struct glcontext_class {

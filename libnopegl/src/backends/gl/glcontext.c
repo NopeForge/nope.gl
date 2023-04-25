@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -35,6 +36,10 @@
 
 #include "gldefinitions_data.h"
 #include "glfeatures_data.h"
+
+#ifdef HAVE_GLPLATFORM_EGL
+#include "egl.h"
+#endif
 
 NGLI_STATIC_ASSERT(gfloat_size,  sizeof(GLfloat)  == sizeof(float));
 NGLI_STATIC_ASSERT(gbyte_size,   sizeof(GLbyte)   == sizeof(char));
@@ -402,6 +407,39 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
     return 0;
 }
 
+static int glcontext_check_driver(struct glcontext *glcontext)
+{
+    const char *gl_version = (const char *)ngli_glGetString(glcontext, GL_VERSION);
+    if (!gl_version) {
+        LOG(ERROR, "could not get OpenGL version");
+        return NGL_ERROR_BUG;
+    }
+
+    int mesa_version[3] = {0};
+    const char *mesa = strstr(gl_version, "Mesa");
+    if (mesa) {
+        int ret = sscanf(mesa, "Mesa %d.%d.%d", &mesa_version[0], &mesa_version[1], &mesa_version[2]);
+        if (ret != 3) {
+            LOG(ERROR, "could not parse Mesa version: \"%s\"", mesa);
+            return NGL_ERROR_BUG;
+        }
+        LOG(INFO, "Mesa version: %d.%d.%d", NGLI_ARG_VEC3(mesa_version));
+    }
+
+#ifdef HAVE_GLPLATFORM_EGL
+    if (glcontext->features & NGLI_FEATURE_GL_EGL_MESA_QUERY_DRIVER) {
+        const char *driver_name = ngli_eglGetDisplayDriverName(glcontext);
+        if (driver_name) {
+            LOG(INFO, "EGL driver name: %s", driver_name);
+            if (!strcmp(driver_name, "radeonsi"))
+                glcontext->workaround_radeonsi_sync = 1;
+        }
+    }
+#endif
+
+    return 0;
+}
+
 static int glcontext_load_extensions(struct glcontext *glcontext)
 {
     int ret = glcontext_load_functions(glcontext);
@@ -425,6 +463,10 @@ static int glcontext_load_extensions(struct glcontext *glcontext)
         return ret;
 
     ret = glcontext_probe_settings(glcontext);
+    if (ret < 0)
+        return ret;
+
+    ret = glcontext_check_driver(glcontext);
     if (ret < 0)
         return ret;
 
