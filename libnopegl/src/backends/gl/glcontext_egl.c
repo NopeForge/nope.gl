@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -65,6 +66,7 @@ struct egl_priv {
     EGLAPIENTRY EGLImageKHR (*CreateImageKHR)(EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLint *);
     EGLAPIENTRY EGLBoolean (*DestroyImageKHR)(EGLDisplay, EGLImageKHR);
     EGLAPIENTRY EGLBoolean (*QueryDevices)(EGLint max_devices, EGLDeviceEXT *devices, EGLint *num_devices);
+    EGLAPIENTRY const char* (*GetDisplayDriverName)(EGLDisplay dpy);
 #if defined(TARGET_ANDROID)
     EGLAPIENTRY EGLClientBuffer (*GetNativeClientBufferANDROID)(const struct AHardwareBuffer *);
 #endif
@@ -97,6 +99,12 @@ EGLClientBuffer ngli_eglGetNativeClientBufferANDROID(struct glcontext *gl, const
     return egl->GetNativeClientBufferANDROID(buffer);
 }
 #endif
+
+const char *ngli_eglGetDisplayDriverName(struct glcontext *gl)
+{
+    struct egl_priv *egl = gl->priv_data;
+    return egl->GetDisplayDriverName(egl->display);
+}
 
 static int egl_probe_extensions(struct glcontext *ctx)
 {
@@ -137,6 +145,15 @@ static int egl_probe_extensions(struct glcontext *ctx)
 
     if (ngli_glcontext_check_extension("EGL_KHR_surfaceless_context", egl->extensions)) {
         egl->has_surfaceless_context_ext = 1;
+    }
+
+    if (ngli_glcontext_check_extension("EGL_MESA_query_driver", egl->extensions)) {
+        egl->GetDisplayDriverName = (void *)eglGetProcAddress("eglGetDisplayDriverName");
+        if (!egl->GetDisplayDriverName) {
+            LOG(ERROR, "could not retrieve eglGetDisplayDriverName()");
+            return NGL_ERROR_EXTERNAL;
+        }
+        ctx->features |= NGLI_FEATURE_GL_EGL_MESA_QUERY_DRIVER;
     }
 
     return 0;

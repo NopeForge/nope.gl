@@ -42,4 +42,6 @@ EGLClientBuffer ngli_eglGetNativeClientBufferANDROID(struct glcontext *gl,
                                                      const struct AHardwareBuffer *buffer);
 #endif
 
+const char *ngli_eglGetDisplayDriverName(struct glcontext *gl);
+
 #endif
