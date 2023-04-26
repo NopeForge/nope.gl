@@ -165,7 +165,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
                          &major_version,
                          &minor_version);
         if (ret != 2) {
-            LOG(ERROR, "could not parse OpenGL ES version (%s)", gl_version);
+            LOG(ERROR, "could not parse OpenGL ES version: \"%s\"", gl_version);
             return NGL_ERROR_BUG;
         }
 
@@ -214,7 +214,7 @@ static int glcontext_probe_glsl_version(struct glcontext *glcontext)
         int minor_version;
         int ret = sscanf(glsl_version, "%d.%d", &major_version, &minor_version);
         if (ret != 2) {
-            LOG(ERROR, "could not parse GLSL version (%s)", glsl_version);
+            LOG(ERROR, "could not parse GLSL version: \"%s\"", glsl_version);
             return NGL_ERROR_BUG;
         }
         glcontext->glsl_version = major_version * 100 + minor_version;
