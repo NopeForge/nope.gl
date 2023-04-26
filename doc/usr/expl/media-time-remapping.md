@@ -93,11 +93,9 @@ def media_time_remapping(cfg):
     ]
 
     # Basic media playback tree
-    q = ngl.Quad()
     m = ngl.Media(cfg.medias[0].filename, time_anim=ngl.AnimatedTime(animkf))
     t = ngl.Texture2D(data_src=m)
-    r = ngl.Render(q)
-    r.update_frag_resources(tex0=t)
+    r = ngl.RenderTexture(t)
 
     # Time range filter
     tf = ngl.TimeRangeFilter(r, ranges=[
