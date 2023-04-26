@@ -69,7 +69,8 @@ timefilter = ngl.TimeRangeFilter(my_render, ranges=[
 ])
 ```
 
-In this case, `my_render` will be visible between `t=2` and `t=9`.
+In this case, `my_render` will be visible between `t=2` (included) and `t=9`
+(excluded).
 
 
 ## Complete example
