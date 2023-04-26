@@ -72,11 +72,7 @@ timefilter = ngl.TimeRangeFilter(my_render, ranges=[
 In this case, `my_render` will be visible between `t=2` and `t=9`.
 
 
-## Illustrated graph
-
-![Media time remapping](media-time-remapping.png)
-
-Associated code:
+## Complete example
 
 ```python
 import pynopegl as ngl
