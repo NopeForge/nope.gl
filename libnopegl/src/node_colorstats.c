@@ -78,6 +78,8 @@ struct colorstats_priv {
     struct pgcraft *crafter_sumscale;
     struct pipeline_compat *pipeline_compat_sumscale;
     int sumscale_wg_count;
+
+    int drawme;
 };
 
 NGLI_STATIC_ASSERT(block_priv_first, offsetof(struct colorstats_priv, blk) == 0);
@@ -345,6 +347,9 @@ static int colorstats_update(struct ngl_node *node, double t)
     struct colorstats_priv *s = node->priv_data;
     const struct colorstats_opts *o = node->opts;
 
+    /* Compute waveform and summary-scale in the next draw */
+    s->drawme = 1;
+
     int ret = ngli_node_update(o->texture_node, t);
     if (ret < 0)
         return ret;
@@ -372,6 +377,9 @@ static void colorstats_draw(struct ngl_node *node)
 {
     struct colorstats_priv *s = node->priv_data;
 
+    if (!s->drawme)
+        return;
+
     struct ngl_ctx *ctx = node->ctx;
     if (ctx->render_pass_started) {
         struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -393,6 +401,9 @@ static void colorstats_draw(struct ngl_node *node)
 
     /* Summary-scale */
     ngli_pipeline_compat_dispatch(s->pipeline_compat_sumscale, s->sumscale_wg_count, 1, 1);
+
+    /* Do not recompute the waveform and summary-scale unless an update happens */
+    s->drawme = 0;
 }
 
 static void colorstats_uninit(struct ngl_node *node)
