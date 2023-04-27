@@ -125,6 +125,7 @@ project_args = cc.get_supported_arguments([
   '-Wimplicit-fallthrough',
   '-Wlogical-op',
   '-fmacro-prefix-map=@0@/='.format(trim_prefix),
+  '-fno-math-errno',
 ])
 add_project_arguments(project_args, language: 'c')
 
