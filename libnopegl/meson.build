@@ -127,6 +127,7 @@ project_args = cc.get_supported_arguments([
   '-Wconversion',
   '-Wno-sign-conversion',
   '-fmacro-prefix-map=@0@/='.format(trim_prefix),
+  '-fno-math-errno',
 ])
 add_project_arguments(project_args, language: 'c')
 
