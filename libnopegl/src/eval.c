@@ -84,6 +84,9 @@ static float f_max(float a, float b) { return NGLI_MAX(a, b); }
 static float f_min(float a, float b) { return NGLI_MIN(a, b); }
 static float f_sat(float x) { return f_clamp(x, 0.f, 1.f); }
 static float f_mla(float a, float b, float c) { return a*b + c; }
+static float f_mod_e(float a, float b) { return a - b * f_sign(b) * floorf(a / fabsf(b)); }
+static float f_mod_f(float a, float b) { return a - b * floorf(a / b); }
+static float f_mod_t(float a, float b) { return a - b * truncf(a / b); }
 
 static float f_degrees(float x) { return 180.f / M_PI * x; }
 static float f_radians(float x) { return M_PI / 180.f * x; }
@@ -172,6 +175,9 @@ static const struct function {
     {"min",         2, f_min},
     {"mix",         3, f_mix},
     {"mla",         3, f_mla},
+    {"mod_e",       2, f_mod_e},
+    {"mod_f",       2, f_mod_f},
+    {"mod_t",       2, f_mod_t},
     {"pow",         2, powf},
     {"print",       1, f_print},
     {"radians",     1, f_radians},
