@@ -66,6 +66,9 @@ Whitespaces (including line breaks) are allowed as well.
 | `min(a,b)`          | minimum value between `a` and `b`                                              |
 | `mix(a,b,x)`        | linearly remap `x` in range `[0;1]` to `[a;b]`                                 |
 | `mla(a,b,c)`        | multiply-add in one operation (`a*b + c`)                                      |
+| `mod_e(a,b)`        | euclidean modulo: `a - b*sign(b)*floor(a/abs(b))`                              |
+| `mod_f(a,b)`        | floored modulo: `a - b*floor(a/b)`                                             |
+| `mod_t(a,b)`        | truncated modulo: `a - b*trunc(a/b)`                                           |
 | `pow(a,b)`          | `a` raised to the power of `b`                                                 |
 | `print(x)`          | leave `x` unchanged but print its value on the standard output (debug purpose) |
 | `radians(x)`        | convert `x` from degrees to radians                                            |
