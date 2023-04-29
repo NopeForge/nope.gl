@@ -66,7 +66,7 @@ struct ctx {
     const char *input;
     const char *output;
     struct range *ranges;
-    int nb_ranges;
+    size_t nb_ranges;
     int aspect[2];
 };
 
@@ -82,14 +82,14 @@ static int opt_timerange(const char *arg, void *dst)
     uint8_t *cur_ranges_p = dst;
     uint8_t *nb_cur_ranges_p = cur_ranges_p + sizeof(struct range *);
     struct range *cur_ranges = *(struct range **)cur_ranges_p;
-    const int nb_cur_ranges = *(int *)nb_cur_ranges_p;
-    const int nb_new_ranges = nb_cur_ranges + 1;
+    const size_t nb_cur_ranges = *(size_t *)nb_cur_ranges_p;
+    const size_t nb_new_ranges = nb_cur_ranges + 1;
     struct range *new_ranges = realloc(cur_ranges, nb_new_ranges * sizeof(*new_ranges));
     if (!new_ranges)
         return NGL_ERROR_MEMORY;
     new_ranges[nb_cur_ranges] = r;
     memcpy(dst, &new_ranges, sizeof(new_ranges));
-    *(int *)nb_cur_ranges_p = nb_new_ranges;
+    *(size_t *)nb_cur_ranges_p = nb_new_ranges;
     return 0;
 }
 
@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
     if (ret < 0)
         goto end;
 
-    for (int i = 0; i < s.nb_ranges; i++) {
-        int k = 0;
+    for (size_t i = 0; i < s.nb_ranges; i++) {
+        size_t k = 0;
         const struct range *r = &s.ranges[i];
         const float t0 = r->start;
         const float t1 = r->start + r->duration;
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
             if (t >= t1)
                 break;
             if (s.debug)
-                printf("draw @ t=%f [range %d/%d: %g-%g @ %dHz]\n",
+                printf("draw @ t=%f [range %zd/%zd: %g-%g @ %dHz]\n",
                        t, i + 1, s.nb_ranges, t0, t1, r->freq);
             ret = ngl_draw(ctx, t);
             if (ret < 0) {
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
         }
 
         const double tdiff = (double)(gettime_relative() - start) / 1000000.;
-        printf("Rendered %d frames in %g (FPS=%g)\n", k, tdiff, k / tdiff);
+        printf("Rendered %zd frames in %g (FPS=%g)\n", k, tdiff, (double)k / tdiff);
     }
 
 end:
