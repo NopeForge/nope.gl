@@ -79,7 +79,7 @@ static void print_node_params(const char *name, const struct node_param *p)
             printf(I "\"type\": \"%s\",\n", ngli_params_specs[p->type].name);
             switch (p->type) {
             case NGLI_PARAM_TYPE_SELECT: {
-                const int v = (int)p->def_value.i32;
+                const int v = p->def_value.i32;
                 const char *s = ngli_params_get_select_str(p->choices->consts, v);
                 ngli_assert(s);
                 printf(D "\"%s\",\n", s);
@@ -90,7 +90,7 @@ static void print_node_params(const char *name, const struct node_param *p)
                 break;
             }
             case NGLI_PARAM_TYPE_FLAGS: {
-                const int v = (int)p->def_value.i32;
+                const int v = p->def_value.i32;
                 char *s = ngli_params_get_flags_str(p->choices->consts, v);
                 if (!s)
                     abort();
