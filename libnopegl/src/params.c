@@ -838,7 +838,7 @@ int ngli_params_set_vec4(uint8_t *dstp, const struct node_param *par, const floa
 
 int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
 {
-    int last_offset = 0;
+    size_t last_offset = 0;
 
     if (!params)
         return 0;
