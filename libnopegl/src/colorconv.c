@@ -101,9 +101,9 @@ static int get_colormatrix_from_nopemd(int color_space)
 static const struct k_constants {
     float r, g, b;
 } k_constants_infos[] = {
-    [COLORMATRIX_BT601]  = {.r = 0.2990, .g = 0.5870, .b = 0.1140},
-    [COLORMATRIX_BT709]  = {.r = 0.2126, .g = 0.7152, .b = 0.0722},
-    [COLORMATRIX_BT2020] = {.r = 0.2627, .g = 0.6780, .b = 0.0593},
+    [COLORMATRIX_BT601]  = {.r = 0.2990f, .g = 0.5870f, .b = 0.1140f},
+    [COLORMATRIX_BT709]  = {.r = 0.2126f, .g = 0.7152f, .b = 0.0722f},
+    [COLORMATRIX_BT2020] = {.r = 0.2627f, .g = 0.6780f, .b = 0.0593f},
 };
 
 NGLI_STATIC_ASSERT(colormatrix_size, NGLI_ARRAY_NB(k_constants_infos) == COLORMATRIX_NB);
@@ -123,8 +123,8 @@ int ngli_colorconv_get_ycbcr_to_rgb_color_matrix(float *dst, const struct color_
     const struct k_constants k = k_constants_infos[colormatrix];
 
     const float y_factor = 255 / range.y;
-    const float r_scale  = 2 * (1. - k.r) / range.uv;
-    const float b_scale  = 2 * (1. - k.b) / range.uv;
+    const float r_scale  = 2 * (1.f - k.r) / range.uv;
+    const float b_scale  = 2 * (1.f - k.b) / range.uv;
     const float g_scale  = 2 / (k.g * range.uv);
     const float y_off    = -range.y_off / range.y;
 
