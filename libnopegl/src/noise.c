@@ -91,7 +91,7 @@ static float noise(const struct noise *s, float t)
 
     /* Interpolate between the 2 slope y-coordinates */
     const float a = s->interp_func(f);
-    const float r = NGLI_MIX_F64(y0, y1, a);
+    const float r = NGLI_MIX_F32(y0, y1, a);
     return r;
 }
 
