@@ -1082,7 +1082,7 @@ static int widgets_csv_header(struct hud *s)
 
     ngli_bstr_print(s->csv_line, "\n");
 
-    const int len = ngli_bstr_len(s->csv_line);
+    const size_t len = ngli_bstr_len(s->csv_line);
     size_t n = fwrite(ngli_bstr_strptr(s->csv_line), 1, len, s->fp_export);
     if (n != len) {
         LOG(ERROR, "unable to write CSV header");
@@ -1122,7 +1122,7 @@ static void widgets_csv_report(struct hud *s)
     }
     ngli_bstr_print(s->csv_line, "\n");
 
-    const int len = ngli_bstr_len(s->csv_line);
+    const size_t len = ngli_bstr_len(s->csv_line);
     fwrite(ngli_bstr_strptr(s->csv_line), 1, len, s->fp_export);
 
 #if HAVE_USELOCALE

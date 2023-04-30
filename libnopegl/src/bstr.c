@@ -31,8 +31,8 @@
 
 struct bstr {
     char *str;
-    int len;
-    int bufsize;
+    size_t len;
+    size_t bufsize;
     int state;
 };
 
@@ -57,7 +57,7 @@ void ngli_bstr_print(struct bstr *b, const char *str)
     const size_t len = strlen(str);
     const size_t avail = b->bufsize - b->len;
     if (len + 1 > avail) {
-        const int new_size = b->len + len + 1 + BUFFER_PADDING;
+        const size_t new_size = b->len + len + 1 + BUFFER_PADDING;
         void *ptr = ngli_realloc(b->str, new_size, 1);
         if (!ptr) {
             b->state = NGL_ERROR_MEMORY;
@@ -75,7 +75,7 @@ void ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
     va_list va;
 
     va_start(va, fmt);
-    const int avail = b->bufsize - b->len;
+    const size_t avail = b->bufsize - b->len;
     int len = vsnprintf(b->str + b->len, avail, fmt, va);
     va_end(va);
     if (len < 0) {
@@ -85,7 +85,7 @@ void ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
     }
 
     if (len + 1 > avail) {
-        const int new_size = b->len + len + 1 + BUFFER_PADDING;
+        const size_t new_size = b->len + len + 1 + BUFFER_PADDING;
         void *ptr = ngli_realloc(b->str, new_size, 1);
         if (!ptr) {
             b->state = NGL_ERROR_MEMORY;
@@ -113,9 +113,9 @@ void ngli_bstr_clear(struct bstr *b)
     b->state = 0;
 }
 
-int ngli_bstr_truncate(struct bstr *b, int len)
+int ngli_bstr_truncate(struct bstr *b, size_t len)
 {
-    if (len > b->len || len < 0)
+    if (len > b->len)
         return NGL_ERROR_INVALID_ARG;
     b->len = len;
     b->str[b->len] = 0;
@@ -132,7 +132,7 @@ const char *ngli_bstr_strptr(const struct bstr *b)
     return b->str;
 }
 
-int ngli_bstr_len(const struct bstr *b)
+size_t ngli_bstr_len(const struct bstr *b)
 {
     return b->len;
 }
