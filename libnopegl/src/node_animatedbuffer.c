@@ -65,7 +65,7 @@ static void mix_buffer(void *user_arg, void *dst,
     const int comp = layout->comp;
     for (int k = 0; k < layout->count; k++)
         for (int i = 0; i < comp; i++)
-            dstf[k*comp + i] = NGLI_MIX_F64(d0[k*comp + i], d1[k*comp + i], ratio);
+            dstf[k*comp + i] = NGLI_MIX_F32(d0[k*comp + i], d1[k*comp + i], (float)ratio);
 }
 
 static void cpy_buffer(void *user_arg, void *dst,
