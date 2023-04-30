@@ -32,10 +32,10 @@ struct bstr *ngli_bstr_create(void);
 void ngli_bstr_print(struct bstr *b, const char *str);
 void ngli_bstr_printf(struct bstr *b, const char *fmt, ...) ngli_printf_format(2, 3);
 void ngli_bstr_clear(struct bstr *b);
-int ngli_bstr_truncate(struct bstr *b, int len);
+int ngli_bstr_truncate(struct bstr *b, size_t len);
 char *ngli_bstr_strdup(const struct bstr *b);
 const char *ngli_bstr_strptr(const struct bstr *b);
-int ngli_bstr_len(const struct bstr *b);
+size_t ngli_bstr_len(const struct bstr *b);
 int ngli_bstr_check(const struct bstr *b);
 void ngli_bstr_freep(struct bstr **bp);
 
