@@ -123,7 +123,7 @@ static void mix_float(void *user_arg, void *dst,
                       double ratio)
 {
     float *dstd = dst;
-    dstd[0] = NGLI_MIX_F64(kf0->scalar, kf1->scalar, ratio);
+    dstd[0] = (float)NGLI_MIX_F64(kf0->scalar, kf1->scalar, ratio);
 }
 
 static void mix_path(void *user_arg, void *dst,
@@ -131,7 +131,7 @@ static void mix_path(void *user_arg, void *dst,
                      const struct animkeyframe_opts *kf1,
                      double ratio)
 {
-    const float t = NGLI_MIX_F64(kf0->scalar, kf1->scalar, ratio);
+    const float t = (float)NGLI_MIX_F64(kf0->scalar, kf1->scalar, ratio);
     const struct variable_opts *o = user_arg;
     struct path *path = *(struct path **)o->path_node->priv_data;
     ngli_path_evaluate(path, dst, t);
@@ -142,7 +142,7 @@ static void mix_quat(void *user_arg, void *dst,
                      const struct animkeyframe_opts *kf1,
                      double ratio)
 {
-    ngli_quat_slerp(dst, kf0->value, kf1->value, ratio);
+    ngli_quat_slerp(dst, kf0->value, kf1->value, (float)ratio);
 }
 
 static void mix_vector(void *user_arg, void *dst,
@@ -210,7 +210,7 @@ static void cpy_path(void *user_arg, void *dst,
 {
     const struct variable_opts *o = user_arg;
     struct path *path = *(struct path **)o->path_node->priv_data;
-    ngli_path_evaluate(path, dst, kf->scalar);
+    ngli_path_evaluate(path, dst, (float)kf->scalar);
 }
 
 static void cpy_time(void *user_arg, void *dst,
@@ -222,7 +222,7 @@ static void cpy_time(void *user_arg, void *dst,
 static void cpy_scalar(void *user_arg, void *dst,
                        const struct animkeyframe_opts *kf)
 {
-    *(float *)dst = kf->scalar;  // double → float
+    *(float *)dst = (float)kf->scalar;  // double → float
 }
 
 static ngli_animation_mix_func_type get_color_mix_func(int space)
