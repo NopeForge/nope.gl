@@ -261,7 +261,7 @@ int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct im
     }
 
 end:
-    image->ts = frame->ts;
+    image->ts = (float)frame->ts;
 
     if (!(hwmap->hwmap_class->flags &  HWMAP_FLAG_FRAME_OWNER))
         nmd_release_frame(frame);
