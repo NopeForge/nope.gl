@@ -124,6 +124,8 @@ project_args = cc.get_supported_arguments([
   '-Wignored-qualifiers',
   '-Wimplicit-fallthrough',
   '-Wlogical-op',
+  '-Wconversion',
+  '-Wno-sign-conversion',
   '-fmacro-prefix-map=@0@/='.format(trim_prefix),
 ])
 add_project_arguments(project_args, language: 'c')
