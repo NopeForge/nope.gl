@@ -107,7 +107,7 @@ static float f_smoothstep(float a, float b, float x)
 
 /* See https://bitbashing.io/comparing-floats.html */
 static float f_close_p(float a, float b, float p) { return fabsf(a - b) <= p * f_max(fabsf(a), fabsf(b)); }
-static float f_close(float a, float b) { return f_close_p(a, b, 1e-6); }
+static float f_close(float a, float b) { return f_close_p(a, b, 1e-6f); }
 
 static float f_eq(float a, float b) { return a == b; }
 static float f_gt(float a, float b) { return a > b; }
@@ -668,7 +668,7 @@ int ngli_eval_run(struct eval *s, float *dst)
     }
 
     const struct token *res = ngli_darray_pop(stack);
-    *dst = res ? res->value : 0.0;
+    *dst = res ? res->value : 0.f;
     return 0;
 }
 
