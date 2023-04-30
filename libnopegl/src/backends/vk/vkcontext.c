@@ -526,7 +526,7 @@ static VkResult select_physical_device(struct vkcontext *s, const struct ngl_con
         return NGL_ERROR_MEMORY;
     }
     LOG(DEBUG, "available memory types:");
-    for (int i = 0; i < s->phydev_mem_props.memoryTypeCount; i++) {
+    for (uint32_t i = 0; i < s->phydev_mem_props.memoryTypeCount; i++) {
         get_memory_property_flags_str(type, 1 << i);
         get_memory_property_flags_str(props, s->phydev_mem_props.memoryTypes[i].propertyFlags);
         LOG(DEBUG, "\t%s:\t%s", ngli_bstr_strptr(type), ngli_bstr_strptr(props));
@@ -697,7 +697,7 @@ VkFormat ngli_vkcontext_find_supported_format(struct vkcontext *s, const VkForma
 
 int ngli_vkcontext_find_memory_type(struct vkcontext *s, uint32_t type, VkMemoryPropertyFlags props)
 {
-    for (int i = 0; i < s->phydev_mem_props.memoryTypeCount; i++)
+    for (uint32_t i = 0; i < s->phydev_mem_props.memoryTypeCount; i++)
         if ((type & (1 << i)) && (s->phydev_mem_props.memoryTypes[i].propertyFlags & props) == props)
             return i;
     return NGL_ERROR_GRAPHICS_UNSUPPORTED;
