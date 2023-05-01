@@ -225,7 +225,7 @@ static int common_init(struct hwmap *hwmap, struct nmd_frame *frame)
 
     const int src_max = ((1 << desc->depth) - 1) << desc->shift;
     const int dst_max = (1 << desc->format_depth) - 1;
-    const float color_scale = (float)(dst_max)/(src_max);
+    const float color_scale = (float)dst_max / (float)src_max;
 
     struct image_params image_params = {
         .width = frame->width,
