@@ -156,7 +156,7 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
     ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_TIMESTAMP].index, &image->ts);
 
     if (image->params.layout) {
-        const float dimensions[] = {image->params.width, image->params.height, image->params.depth};
+        const float dimensions[] = {(float)image->params.width, (float)image->params.height, (float)image->params.depth};
         ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
     }
 
