@@ -130,16 +130,16 @@ static void update_text(struct player *p)
     if (!p->pgbar_text_node)
         return;
 
-    const int frame_ts = p->frame_time;
+    const int64_t frame_ts = (int64_t)p->frame_time;
     const int64_t duration = p->duration / 1000000;
     if (p->frame_index == p->text_last_frame_index && duration == p->text_last_duration)
         return;
 
     char buf[128];
-    const int cm = frame_ts / 60;
-    const int cs = frame_ts % 60;
-    const int dm = duration / 60;
-    const int ds = duration % 60;
+    const int cm = (int)(frame_ts / 60);
+    const int cs = (int)(frame_ts % 60);
+    const int dm = (int)(duration / 60);
+    const int ds = (int)(duration % 60);
     snprintf(buf, sizeof(buf), "%02d:%02d / %02d:%02d (%" PRId64 " @ %d/%d)",
              cm, cs, dm, ds, p->frame_index, p->framerate[0], p->framerate[1]);
     ngl_node_param_set_str(p->pgbar_text_node, "text", buf);
@@ -164,15 +164,15 @@ static void update_pgbar(struct player *p)
 static void set_frame_ts(struct player *p, int64_t frame_ts)
 {
     p->frame_ts = frame_ts;
-    p->frame_index = llrint((p->frame_ts * p->framerate[0]) / (double)(p->framerate[1] * 1000000));
-    p->frame_time = (p->frame_index * p->framerate[1]) / (double)p->framerate[0];
+    p->frame_index = llrint((double)(p->frame_ts * p->framerate[0]) / (double)(p->framerate[1] * 1000000));
+    p->frame_time = (double)(p->frame_index * p->framerate[1]) / (double)p->framerate[0];
 }
 
 static void set_frame_index(struct player *p, int64_t frame_index)
 {
     p->frame_index = frame_index;
-    p->frame_time = (p->frame_index * p->framerate[1]) / (double)p->framerate[0];
-    p->frame_ts = llrint(p->frame_index * p->framerate[1] * 1000000 / (double)p->framerate[0]);
+    p->frame_time = (double)(p->frame_index * p->framerate[1]) / (double)p->framerate[0];
+    p->frame_ts = llrint((double)(p->frame_index * p->framerate[1] * 1000000) / (double)p->framerate[0]);
 }
 
 static void update_time(struct player *p, int64_t seek_at)
@@ -343,7 +343,7 @@ static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scen
     ngl_node_param_set_str(program, "fragment", pgbar_frag);
     ngl_node_param_set_dict(program, "vert_out_vars", "coord", coord);
 
-    ngl_node_param_set_f32(v_duration, "value", p->duration_f);
+    ngl_node_param_set_f32(v_duration, "value", (float)p->duration_f);
     ngl_node_param_set_f32(v_opacity,  "value", 0.f);
 
     ngl_node_param_set_node(render, "geometry", quad);
@@ -419,7 +419,7 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     p->lasthover = -1;
     p->text_last_frame_index = -1;
     p->duration_f = duration;
-    p->duration = duration * 1000000;
+    p->duration = (int64_t)(duration * 1000000.0);
     p->enable_ui = enable_ui;
     p->framerate[0] = 60;
     p->framerate[1] = 1;
@@ -498,10 +498,10 @@ static int handle_scene(struct player *p, const void *data)
 static int handle_duration(struct player *p, const void *data)
 {
     memcpy(&p->duration_f, data, sizeof(p->duration_f));
-    p->duration = p->duration_f * 1000000;
+    p->duration = (int64_t)(p->duration_f * 1000000.0);
     p->duration_i = llrint(p->duration_f * p->framerate[0] / (double)p->framerate[1]);
     if (p->pgbar_duration_node)
-        ngl_node_param_set_f32(p->pgbar_duration_node, "value", p->duration_f);
+        ngl_node_param_set_f32(p->pgbar_duration_node, "value", (float)p->duration_f);
     return 0;
 }
 
