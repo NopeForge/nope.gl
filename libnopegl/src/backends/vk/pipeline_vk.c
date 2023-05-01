@@ -937,10 +937,10 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
     vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, s_priv->pipeline);
 
     const VkViewport viewport = {
-        .x        = gpu_ctx_vk->viewport[0],
-        .y        = gpu_ctx_vk->viewport[1],
-        .width    = gpu_ctx_vk->viewport[2],
-        .height   = gpu_ctx_vk->viewport[3],
+        .x        = (float)gpu_ctx_vk->viewport[0],
+        .y        = (float)gpu_ctx_vk->viewport[1],
+        .width    = (float)gpu_ctx_vk->viewport[2],
+        .height   = (float)gpu_ctx_vk->viewport[3],
         .minDepth = 0.f,
         .maxDepth = 1.f,
     };
