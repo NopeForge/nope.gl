@@ -34,7 +34,7 @@
 
 static void u32_write(uint8_t *buf, uint32_t v)
 {
-    buf[0] = v >> 24;
+    buf[0] = (uint8_t)(v >> 24);
     buf[1] = v >> 16 & 0xff;
     buf[2] = v >>  8 & 0xff;
     buf[3] = v       & 0xff;
