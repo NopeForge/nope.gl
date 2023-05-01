@@ -75,7 +75,7 @@ static int circle_init(struct ngl_node *node)
         goto end;
     }
 
-    const float step = 2.0 * PI_F64 / o->npoints;
+    const float step = TAU_F32 / o->npoints;
 
     vertices[0] = 0.0;
     vertices[1] = 0.0;
