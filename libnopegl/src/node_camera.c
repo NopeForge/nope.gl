@@ -96,7 +96,7 @@ static int update_matrices(struct ngl_node *node, double t)
     ngli_vec3_norm(ground, ground);
     ngli_vec3_cross(ground, ground, up);
 
-    if (!ground[0] && !ground[1] && !ground[2]) {
+    if (ground[0] == 0.f && ground[1] == 0.f && ground[2] == 0.f) {
         LOG(ERROR, "view and up are collinear");
         return NGL_ERROR_INVALID_ARG;
     }
