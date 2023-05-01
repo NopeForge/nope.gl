@@ -62,29 +62,29 @@ static int parse_bool(const char *s, int *valp)
     return ret;
 }
 
-#define DECLARE_FLT_PARSE_FUNC(type, nbit, shift_exp, expected_z)           \
-static int parse_##type(const char *s, type *valp)                          \
-{                                                                           \
-    int consumed = 0;                                                       \
-    union { uint##nbit##_t i; type f; } u = {.i = 0};                       \
-                                                                            \
-    if (*s == '-') {                                                        \
-        u.i = 1ULL << (nbit - 1);                                           \
-        consumed++;                                                         \
-    }                                                                       \
-                                                                            \
-    char *endptr = NULL;                                                    \
-    uint##nbit##_t exp = nbit == 64 ? strtoull(s + consumed, &endptr, 16)   \
-                                    : strtoul(s + consumed, &endptr, 16);   \
-    if (*endptr++ != expected_z)                                            \
-        return NGL_ERROR_INVALID_DATA;                                      \
-    uint##nbit##_t mant = nbit == 64 ? strtoull(endptr, &endptr, 16)        \
-                                     : strtoul(endptr, &endptr, 16);        \
-                                                                            \
-    u.i |= exp<<shift_exp | mant;                                           \
-                                                                            \
-    *valp = u.f;                                                            \
-    return (int)(endptr - s);                                               \
+#define DECLARE_FLT_PARSE_FUNC(type, nbit, shift_exp, expected_z)                           \
+static int parse_##type(const char *s, type *valp)                                          \
+{                                                                                           \
+    int consumed = 0;                                                                       \
+    union { uint##nbit##_t i; type f; } u = {.i = 0};                                       \
+                                                                                            \
+    if (*s == '-') {                                                                        \
+        u.i = 1ULL << (nbit - 1);                                                           \
+        consumed++;                                                                         \
+    }                                                                                       \
+                                                                                            \
+    char *endptr = NULL;                                                                    \
+    uint##nbit##_t exp = (uint##nbit##_t)(nbit == 64 ? strtoull(s + consumed, &endptr, 16)  \
+                                                     : strtoul(s + consumed, &endptr, 16)); \
+    if (*endptr++ != expected_z)                                                            \
+        return NGL_ERROR_INVALID_DATA;                                                      \
+    uint##nbit##_t mant = (uint##nbit##_t)(nbit == 64 ? strtoull(endptr, &endptr, 16)       \
+                                                      : strtoul(endptr, &endptr, 16));      \
+                                                                                            \
+    u.i |= exp<<shift_exp | mant;                                                           \
+                                                                                            \
+    *valp = u.f;                                                                            \
+    return (int)(endptr - s);                                                               \
 }
 
 DECLARE_FLT_PARSE_FUNC(float,  32, 23, 'z')
@@ -205,7 +205,7 @@ static const uint8_t hexm[256] = {
     ['c'] = 0xc, ['d'] = 0xd, ['e'] = 0xe, ['f'] = 0xf,
 };
 
-#define CHR_FROM_HEX(s) (hexm[(uint8_t)(s)[0]]<<4 | hexm[(uint8_t)(s)[1]])
+#define CHR_FROM_HEX(s) ((uint8_t)(hexm[(uint8_t)(s)[0]]<<4 | hexm[(uint8_t)(s)[1]]))
 
 #define DEFINE_LITERAL_PARSE_FUNC(parse_func, type, set_type)                       \
 static int parse_param_##set_type(struct darray *nodes_array, uint8_t *dstp,        \
