@@ -288,14 +288,14 @@ static int update_character_geometries(struct ngl_node *node)
 
     /* Width and height of 1 character */
     const float chr_width[3] = {
-        (width[0] - 2 * padw[0]) / (float)text_cols,
-        (width[1] - 2 * padw[1]) / (float)text_cols,
-        (width[2] - 2 * padw[2]) / (float)text_cols,
+        (width[0] - 2.f * padw[0]) / (float)text_cols,
+        (width[1] - 2.f * padw[1]) / (float)text_cols,
+        (width[2] - 2.f * padw[2]) / (float)text_cols,
     };
     const float chr_height[3] = {
-        (height[0] - 2 * padh[0]) / (float)text_rows,
-        (height[1] - 2 * padh[1]) / (float)text_rows,
-        (height[2] - 2 * padh[2]) / (float)text_rows,
+        (height[0] - 2.f * padh[0]) / (float)text_rows,
+        (height[1] - 2.f * padh[1]) / (float)text_rows,
+        (height[2] - 2.f * padh[2]) / (float)text_rows,
     };
 
     /* Adjust text position according to alignment settings */
