@@ -303,7 +303,7 @@ static VkResult create_sampler(struct texture *s)
         .compareOp               = VK_COMPARE_OP_ALWAYS,
         .mipmapMode              = get_vk_mipmap_mode(s->params.mipmap_filter),
         .minLod                  = 0.0f,
-        .maxLod                  = s_priv->mipmap_levels,
+        .maxLod                  = (float)s_priv->mipmap_levels,
         .mipLodBias              = 0.0f,
     };
     return vkCreateSampler(vk->device, &sampler_info, NULL, &s_priv->sampler);
