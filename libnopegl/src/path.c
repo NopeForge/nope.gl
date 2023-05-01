@@ -213,7 +213,7 @@ int ngli_path_init(struct path *s, int precision)
          * composed of P+1 step points.
          */
         segment->step_start = ngli_darray_count(&s->steps);
-        segment->time_scale = 1.f / precision;
+        segment->time_scale = 1.f / (float)precision;
 
         /*
          * This loop only calculates P step coordinates per segment instead of
@@ -222,7 +222,7 @@ int ngli_path_init(struct path *s, int precision)
          * handled in the next block.
          */
         for (int k = 0; k < precision; k++) {
-            const float t = k * segment->time_scale;
+            const float t = (float)k * segment->time_scale;
             struct path_step step = {.segment_id=i};
             poly_eval(step.position, segment, t);
             if (!ngli_darray_push(&s->steps, &step))
@@ -381,8 +381,8 @@ void ngli_path_evaluate(struct path *s, float *dst, float distance)
     const struct path_segment *segment = &segments[segment_id];
     const int step0 = arc_id;
     const int step1 = arc_id + 1;
-    const float t0 = (step0 - segment->step_start) * segment->time_scale;
-    const float t1 = (step1 - segment->step_start) * segment->time_scale;
+    const float t0 = (float)(step0 - segment->step_start) * segment->time_scale;
+    const float t1 = (float)(step1 - segment->step_start) * segment->time_scale;
     const float d0 = distances[step0];
     const float d1 = distances[step1];
     const float t = remap(t0, t1, d0, d1, distance);
