@@ -26,7 +26,7 @@
 #include "memory.h"
 #include "utils.h"
 
-static int reserve_non_aligned(struct darray *darray, int capacity)
+static int reserve_non_aligned(struct darray *darray, size_t capacity)
 {
     if (capacity < darray->capacity)
         return 0;
@@ -39,7 +39,7 @@ static int reserve_non_aligned(struct darray *darray, int capacity)
     return 0;
 }
 
-static int reserve_aligned(struct darray *darray, int capacity)
+static int reserve_aligned(struct darray *darray, size_t capacity)
 {
     if (capacity < darray->capacity)
         return 0;
