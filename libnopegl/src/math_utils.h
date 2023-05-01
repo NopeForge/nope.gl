@@ -34,7 +34,7 @@
 #define NGLI_POLY2(a, b, c, x)    (NGLI_POLY1(a, b, x) * (x) + (c))
 #define NGLI_POLY3(a, b, c, d, x) (NGLI_POLY2(a, b, c, x) * (x) + (d))
 
-#define NGLI_DEG2RAD(x) ((x) * (2.f * PI_F64 / 360.f))
+#define NGLI_DEG2RAD(x) ((x) * (TAU_F32 / 360.f))
 #define NGLI_CEIL_RSHIFT(a, b) -((-(a)) >> (b))
 
 /* Map a normalized value to [a;b] range */
