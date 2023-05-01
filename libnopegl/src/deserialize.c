@@ -20,6 +20,7 @@
  */
 
 #include <inttypes.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -272,7 +273,9 @@ static int parse_param_rational(struct darray *nodes_array, uint8_t *dstp,
 static int parse_param_flags(struct darray *nodes_array, uint8_t *dstp,
                              const struct node_param *par, const char *str)
 {
-    const int len = strcspn(str, " \n");
+    const size_t len = strcspn(str, " \n");
+    if (len > INT_MAX)
+        return NGL_ERROR_LIMIT_EXCEEDED;
     char *s = ngli_malloc(len + 1);
     if (!s)
         return NGL_ERROR_MEMORY;
@@ -282,13 +285,15 @@ static int parse_param_flags(struct darray *nodes_array, uint8_t *dstp,
     ngli_free(s);
     if (ret < 0)
         return ret;
-    return len;
+    return (int)len;
 }
 
 static int parse_param_select(struct darray *nodes_array, uint8_t *dstp,
                               const struct node_param *par, const char *str)
 {
-    const int len = strcspn(str, " \n");
+    const size_t len = strcspn(str, " \n");
+    if (len > INT_MAX)
+        return NGL_ERROR_LIMIT_EXCEEDED;
     char *s = ngli_malloc(len + 1);
     if (!s)
         return NGL_ERROR_MEMORY;
@@ -298,13 +303,15 @@ static int parse_param_select(struct darray *nodes_array, uint8_t *dstp,
     ngli_free(s);
     if (ret < 0)
         return ret;
-    return len;
+    return (int)len;
 }
 
 static int parse_param_str(struct darray *nodes_array, uint8_t *dstp,
                            const struct node_param *par, const char *str)
 {
-    const int len = strcspn(str, " \n");
+    const size_t len = strcspn(str, " \n");
+    if (len > INT_MAX)
+        return NGL_ERROR_LIMIT_EXCEEDED;
     char *s = ngli_malloc(len + 1);
     if (!s)
         return NGL_ERROR_MEMORY;
@@ -322,7 +329,7 @@ static int parse_param_str(struct darray *nodes_array, uint8_t *dstp,
     ngli_free(sstart);
     if (ret < 0)
         return ret;
-    return len;
+    return (int)len;
 }
 
 static int parse_param_data(struct darray *nodes_array, uint8_t *dstp,
@@ -351,7 +358,7 @@ static int parse_param_data(struct darray *nodes_array, uint8_t *dstp,
     ngli_free(data);
     if (ret < 0)
         return ret;
-    return cur - str;
+    return (int)(cur - str);
 }
 
 static int parse_param_node(struct darray *nodes_array, uint8_t *dstp,
