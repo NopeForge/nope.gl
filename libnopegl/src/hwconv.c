@@ -221,7 +221,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     const struct pgcraft_texture_info_field *fields = info->fields;
 
     if (image->params.layout) {
-        const float dimensions[] = {image->params.width, image->params.height, image->params.depth};
+        const float dimensions[] = {(float)image->params.width, (float)image->params.height, (float)image->params.depth};
         ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
     }
 
