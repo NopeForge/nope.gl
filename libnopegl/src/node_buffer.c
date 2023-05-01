@@ -127,7 +127,7 @@ static int buffer_init_from_filename(struct ngl_node *node)
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    s->buf.data_size = size;
+    s->buf.data_size = (int)size;
     layout->count = layout->count ? layout->count : s->buf.data_size / layout->stride;
 
     if (s->buf.data_size != layout->count * layout->stride) {
