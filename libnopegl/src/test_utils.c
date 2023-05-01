@@ -36,7 +36,7 @@ int main(void)
 
     char buf[256];
     for (int i = 0; i <= 0xff; i++)
-        buf[i] = 0xff - i;
+        buf[i] = (char)(0xff - i);
     ngli_assert(ngli_crc32(buf) == 0x5473AA4D);
 
 #define X "x\n"
