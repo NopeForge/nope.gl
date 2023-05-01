@@ -57,6 +57,11 @@ int main(void)
     count = ngli_darray_count(&darray);
     ngli_assert(count == 0);
 
+    for (int i = 0; i < 1000; i++) {
+        element = ngli_darray_push(&darray, NULL);
+        ngli_assert(element);
+    }
+
     ngli_darray_reset(&darray);
 
     return 0;
