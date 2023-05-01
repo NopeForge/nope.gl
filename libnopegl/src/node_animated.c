@@ -152,7 +152,7 @@ static void mix_vector(void *user_arg, void *dst,
 {
     float *dstf = dst;
     for (int i = 0; i < len; i++)
-        dstf[i] = NGLI_MIX_F64(kf0->value[i], kf1->value[i], ratio);
+        dstf[i] = NGLI_MIX_F32(kf0->value[i], kf1->value[i], (float)ratio);
 }
 
 #define DECLARE_COLOR_MIX_FUNCS(space)                          \
@@ -165,9 +165,9 @@ static void mix_##space(void *user_arg, void *dst,              \
     ngli_colorconv_##space##2linear(rgb0, kf0->value);          \
     ngli_colorconv_##space##2linear(rgb1, kf1->value);          \
     const float mixed[3] = {                                    \
-        NGLI_MIX_F64(rgb0[0], rgb1[0], ratio),                  \
-        NGLI_MIX_F64(rgb0[1], rgb1[1], ratio),                  \
-        NGLI_MIX_F64(rgb0[2], rgb1[2], ratio),                  \
+        NGLI_MIX_F32(rgb0[0], rgb1[0], (float)ratio),           \
+        NGLI_MIX_F32(rgb0[1], rgb1[1], (float)ratio),           \
+        NGLI_MIX_F32(rgb0[2], rgb1[2], (float)ratio),           \
     };                                                          \
     ngli_colorconv_linear2srgb(dst, mixed);                     \
 }                                                               \
