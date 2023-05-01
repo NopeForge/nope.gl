@@ -203,7 +203,7 @@ static const struct constant {
 struct token {
     enum token_type type;
     int precedence;
-    int pos;            // position of the token in the input string
+    size_t pos;            // position of the token in the input string
     char chr;           // TOKEN_UNARY_OPERATOR, TOKEN_BINARY_OPERATOR, TOKEN_SPECIAL
     float value;        // TOKEN_CONSTANT
     const float *ptr;   // TOKEN_VARIABLE (pointer to the changing data)
@@ -272,7 +272,7 @@ static int parse_opening_paren(struct eval *s, const char *expr, const char *p)
     if (!*p)
         return 0;
 
-    const int pos = p - expr;
+    const size_t pos = p - expr;
 
     if (*p == '(') {
         const struct token token = {.type=TOKEN_SPECIAL, .pos=pos, .chr='('};
@@ -280,7 +280,7 @@ static int parse_opening_paren(struct eval *s, const char *expr, const char *p)
         return parse_subexpr(s, expr, p + 1);
     }
 
-    LOG(ERROR, "expected '(' around position %d", pos);
+    LOG(ERROR, "expected '(' around position %zd", pos);
     return NGL_ERROR_INVALID_DATA;
 }
 
@@ -290,7 +290,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
     if (!*p)
         return 0;
 
-    const int pos = p - expr;
+    const size_t pos = p - expr;
 
     /* Parse unary operators */
     if (*p == '+' || *p == '-') {
@@ -325,7 +325,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
     /* At this point the token can only be a string identifier */
     const size_t token_len = strspn(p, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
     if (!token_len) {
-        LOG(ERROR, "parse error near '%.5s' at position %d", p, pos);
+        LOG(ERROR, "parse error near '%.5s' at position %zd", p, pos);
         return NGL_ERROR_INVALID_DATA;
     }
     char name[MAX_ID_LEN];
@@ -366,7 +366,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
         return parse_opening_paren(s, expr, p + token_len);
     }
 
-    LOG(ERROR, "unrecognized token '%s' at position %d", name, pos);
+    LOG(ERROR, "unrecognized token '%s' at position %zd", name, pos);
     return NGL_ERROR_INVALID_DATA;
 }
 
@@ -376,7 +376,7 @@ static int parse_post_subexpr(struct eval *s, const char *expr, const char *p)
     if (!*p)
         return 0;
 
-    const int pos = p - expr;
+    const size_t pos = p - expr;
 
     /* Parse binary operators */
     if (strchr("*/+-", *p)) {
@@ -403,7 +403,7 @@ static int parse_post_subexpr(struct eval *s, const char *expr, const char *p)
         return parse_subexpr(s, expr, p + 1);
     }
 
-    LOG(ERROR, "expected separator around position %d", pos);
+    LOG(ERROR, "expected separator around position %zd", pos);
     return NGL_ERROR_INVALID_DATA;
 }
 
@@ -446,12 +446,12 @@ static int tokenize(struct eval *s, const char *expr)
 static int missing_argument(const struct token *token, int got)
 {
     if (token->type == TOKEN_UNARY_OPERATOR || token->type == TOKEN_BINARY_OPERATOR)
-        LOG(ERROR, "missing argument for %s operator '%c' at position %d, "
+        LOG(ERROR, "missing argument for %s operator '%c' at position %zd, "
             "expected %d but got %d",
             token->type == TOKEN_UNARY_OPERATOR ? "unary" : "binary",
             token->chr, token->pos, token->nb_args, got);
     else if (token->type == TOKEN_FUNCTION)
-        LOG(ERROR, "missing argument for function '%s' at position %d, "
+        LOG(ERROR, "missing argument for function '%s' at position %zd, "
             "expected %d but got %d", token->name, token->pos, token->nb_args, got);
     return NGL_ERROR_INVALID_DATA;
 }
@@ -559,7 +559,7 @@ static int infix_to_rpn(struct eval *s, const char *expr)
             for (;;) {
                 const struct token *o = ngli_darray_pop(operators);
                 if (!o) {
-                    LOG(ERROR, "expected opening '(' not found for closing ')' at position %d", token->pos);
+                    LOG(ERROR, "expected opening '(' not found for closing ')' at position %zd", token->pos);
                     return NGL_ERROR_INVALID_DATA;
                 }
                 if (o->chr == '(')
@@ -573,7 +573,7 @@ static int infix_to_rpn(struct eval *s, const char *expr)
             for (;;) {
                 const struct token *o = ngli_darray_tail(operators);
                 if (!o) {
-                    LOG(ERROR, "unexpected comma outside a function call (at position %d)", token->pos);
+                    LOG(ERROR, "unexpected comma outside a function call (at position %zd)", token->pos);
                     return NGL_ERROR_INVALID_DATA;
                 }
                 if (o->chr == '(')
@@ -600,7 +600,7 @@ static int infix_to_rpn(struct eval *s, const char *expr)
         if (!token)
             break;
         if (token->chr == '(' || token->chr == ')') {
-            LOG(ERROR, "unexpected '%c' at position %d", token->chr, token->pos);
+            LOG(ERROR, "unexpected '%c' at position %zd", token->chr, token->pos);
             return NGL_ERROR_INVALID_DATA;
         }
         PUSH(&s->output, token);
