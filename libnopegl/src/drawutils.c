@@ -172,8 +172,8 @@ void ngli_drawutils_get_atlas_uvcoords(uint8_t chr, float *dst)
     const float scale_h = 1.f / ATLAS_H;
     const int col = c_id % ATLAS_COLS;
     const int row = c_id / ATLAS_COLS; // from the top of the buffer
-    const float cx =                 (col * ATLAS_CHR_W + ATLAS_CHAR_PAD) * scale_w;
-    const float cy = (ATLAS_H - (row + 1) * ATLAS_CHR_H + ATLAS_CHAR_PAD) * scale_h;
+    const float cx = (float)                (col * ATLAS_CHR_W + ATLAS_CHAR_PAD) * scale_w;
+    const float cy = (float)(ATLAS_H - (row + 1) * ATLAS_CHR_H + ATLAS_CHAR_PAD) * scale_h;
     const float cw = NGLI_FONT_W * scale_w;
     const float ch = NGLI_FONT_H * scale_h;
     const float chr_uvs[] = {
