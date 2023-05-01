@@ -115,10 +115,10 @@ static float f_gte(float a, float b) { return a >= b; }
 static float f_lt(float a, float b) { return a < b; }
 static float f_lte(float a, float b) { return a <= b; }
 
-static float f_isfinite(float x) { return isfinite(x); }
-static float f_isinf(float x) { return isinf(x); }
-static float f_isnan(float x) { return isnan(x); }
-static float f_isnormal(float x) { return isnormal(x); }
+static float f_isfinite(float x) { return (float)isfinite(x); }
+static float f_isinf(float x) { return (float)isinf(x); }
+static float f_isnan(float x) { return (float)isnan(x); }
+static float f_isnormal(float x) { return (float)isnormal(x); }
 
 #ifdef _WIN32
 /* Make sure all the math functions are declared as such and not as intrinsics so we can get their addresses */
