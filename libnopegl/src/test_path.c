@@ -38,9 +38,9 @@ static int check_value(struct path *path, float t, const float *ref)
         return 1;
     }
     const float err[3] = {
-        fabs(value[0] - ref[0]),
-        fabs(value[1] - ref[1]),
-        fabs(value[2] - ref[2]),
+        fabsf(value[0] - ref[0]),
+        fabsf(value[1] - ref[1]),
+        fabsf(value[2] - ref[2]),
     };
     int ret = err[0] > MAX_ERR || err[1] > MAX_ERR || err[2] > MAX_ERR ||
               isnan(err[0]) || isnan(err[1]) || isnan(err[2]);
