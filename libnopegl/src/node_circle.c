@@ -77,18 +77,18 @@ static int circle_init(struct ngl_node *node)
 
     const float step = TAU_F32 / o->npoints;
 
-    vertices[0] = 0.0;
-    vertices[1] = 0.0;
-    uvcoords[0] = 0.5;
-    uvcoords[1] = 0.5;
+    vertices[0] = 0.0f;
+    vertices[1] = 0.0f;
+    uvcoords[0] = 0.5f;
+    uvcoords[1] = 0.5f;
     for (int i = 1; i < nb_vertices; i++) {
         const float angle = (i - 1) * -step;
         const float x = sinf(angle) * o->radius;
         const float y = cosf(angle) * o->radius;
         vertices[i*3 + 0] = x;
         vertices[i*3 + 1] = y;
-        uvcoords[i*2 + 0] = (x + 1.0) / 2.0;
-        uvcoords[i*2 + 1] = (1.0 - y) / 2.0;
+        uvcoords[i*2 + 0] = (x + 1.0f) / 2.0f;
+        uvcoords[i*2 + 1] = (1.0f - y) / 2.0f;
         indices[(i - 1) * 3 + 0]  = 0; // point to center coordinate
         indices[(i - 1) * 3 + 1]  = i;
         indices[(i - 1) * 3 + 2]  = i + 1;
