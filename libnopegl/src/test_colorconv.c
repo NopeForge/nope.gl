@@ -90,7 +90,7 @@ static int compare_matrices(const float *a, const float *b)
     int fail = 0;
     float diff[4 * 4];
     for (int i = 0; i < NGLI_ARRAY_NB(diff); i++) {
-        diff[i] = fabs(a[i] - b[i]);
+        diff[i] = fabsf(a[i] - b[i]);
         fail += diff[i] > 1e-6;
     }
     printf("diff:\n" NGLI_FMT_MAT4 "\n\n", NGLI_ARG_MAT4(diff));
