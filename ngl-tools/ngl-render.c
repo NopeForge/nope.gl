@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
             k++;
         }
 
-        const double tdiff = (gettime_relative() - start) / 1000000.;
+        const double tdiff = (double)(gettime_relative() - start) / 1000000.;
         printf("Rendered %d frames in %g (FPS=%g)\n", k, tdiff, k / tdiff);
     }
 
