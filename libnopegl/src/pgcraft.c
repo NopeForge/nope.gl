@@ -774,7 +774,7 @@ static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcr
 }
 
 static int texture_needs_clamping(const struct pgcraft_params *params,
-                                  const char *name, int name_len)
+                                  const char *name, size_t name_len)
 {
     for (int i = 0; i < params->nb_textures; i++) {
         const struct pgcraft_texture *pgcraft_texture = &params->textures[i];
@@ -785,7 +785,7 @@ static int texture_needs_clamping(const struct pgcraft_params *params,
 }
 
 static enum pgcraft_shader_tex_type get_texture_type(const struct pgcraft_params *params,
-                                                     const char *name, int name_len)
+                                                     const char *name, size_t name_len)
 {
     for (int i = 0; i < params->nb_textures; i++) {
         const struct pgcraft_texture *pgcraft_texture = &params->textures[i];
@@ -863,7 +863,7 @@ static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
      * derive all the uniform names */
     const char *arg0_start = p;
     p = skip_arg(p);
-    ptrdiff_t arg0_len = p - arg0_start;
+    size_t arg0_len = p - arg0_start;
 
     if (!strcmp(token->id, "ngl_texvideo")) {
         if (*p != ',')
