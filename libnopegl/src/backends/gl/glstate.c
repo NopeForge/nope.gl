@@ -241,7 +241,7 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
         glstate->depth_test = depth_test;
     }
 
-    const GLboolean depth_write_mask = state->depth_write_mask;
+    const GLboolean depth_write_mask = (GLboolean)state->depth_write_mask;
     if (depth_write_mask != glstate->depth_write_mask) {
         ngli_glDepthMask(gl, depth_write_mask);
         glstate->depth_write_mask = depth_write_mask;
@@ -300,7 +300,7 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     }
 
     /* Face Culling */
-    const int cull_face = state->cull_mode != NGLI_CULL_MODE_NONE;
+    const GLboolean cull_face = state->cull_mode != NGLI_CULL_MODE_NONE;
     if (cull_face != glstate->cull_face) {
         if (cull_face)
             ngli_glEnable(gl, GL_CULL_FACE);
@@ -316,7 +316,7 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     }
 
     /* Scissor */
-    const int scissor_test = state->scissor_test;
+    const GLboolean scissor_test = (GLboolean)state->scissor_test;
     if (scissor_test != glstate->scissor_test) {
         if (scissor_test)
             ngli_glEnable(gl, GL_SCISSOR_TEST);
