@@ -270,9 +270,9 @@ static easing_type elastic_in(easing_type t, int args_nb, const easing_type *arg
         a = 1.0;
         s = p / 4.0;
     } else {
-        s = p / (2.0 * PI_F64) * asin(1.0 / a);
+        s = p / TAU_F64 * asin(1.0 / a);
     }
-    return -a * exp2(10.0 * (t - 1.0)) * sin((1.0 - t - s) * (2.0 * PI_F64) / p);
+    return -a * exp2(10.0 * (t - 1.0)) * sin((1.0 - t - s) * TAU_F64 / p);
 }
 
 static easing_type elastic_in_derivative(easing_type t, int args_nb, const easing_type *args)
@@ -284,10 +284,10 @@ static easing_type elastic_in_derivative(easing_type t, int args_nb, const easin
         a = 1.0;
         s = p / 4.0;
     } else {
-        s = p / (2.0 * PI_F64) * asin(1.0 / a);
+        s = p / TAU_F64 * asin(1.0 / a);
     }
-    const easing_type k = (s + t - 1.0) * 2.0 * PI_F64 / p;
-    return a * exp2(10.0 * (t - 1.0)) * (10.0 * p * log(2.0) * sin(k) + 2.0 * PI_F64 * cos(k)) / p;
+    const easing_type k = (s + t - 1.0) * TAU_F64 / p;
+    return a * exp2(10.0 * (t - 1.0)) * (10.0 * p * log(2.0) * sin(k) + TAU_F64 * cos(k)) / p;
 }
 
 static easing_type elastic_out(easing_type t, int args_nb, const easing_type *args)
