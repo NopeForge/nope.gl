@@ -45,7 +45,7 @@ static int time_init(struct ngl_node *node)
 static int time_update(struct ngl_node *node, double t)
 {
     struct time_priv *s = node->priv_data;
-    s->time = t;
+    s->time = (float)t;
     return 0;
 }
 
