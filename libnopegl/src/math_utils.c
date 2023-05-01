@@ -296,7 +296,7 @@ void ngli_mat4_orthographic(float * restrict dst, float left, float right,
 
 void ngli_mat4_perspective(float * restrict dst, float fov, float aspect, float near, float far)
 {
-    const float r = fov / 2.f * PI_F64 / 180.0f;
+    const float r = fov / 2.f * PI_F32 / 180.0f;
     const float s = sinf(r);
     const float z = far - near;
 
