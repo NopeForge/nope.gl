@@ -475,8 +475,8 @@ static struct ngl_node *get_default_scene(const char *host, const char *port)
 {
     char subtext_buf[64];
     snprintf(subtext_buf, sizeof(subtext_buf), "Listening on %s:%s", host, port);
-    static const float fg_color[]  = {1.0, 2/3., 0.0};
-    static const float subtext_h[] = {0.0, 0.5, 0.0};
+    static const float fg_color[]  = {1.0f, 2.f/3.f, 0.0f};
+    static const float subtext_h[] = {0.0f, 0.5f, 0.0f};
 
     struct ngl_node *group = ngl_node_create(NGL_NODE_GROUP);
     struct ngl_node *texts[] = {
