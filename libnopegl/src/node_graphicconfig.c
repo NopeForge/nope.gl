@@ -238,7 +238,7 @@ static int graphicconfig_init(struct ngl_node *node)
     static const float default_scissor[4] = DEFAULT_SCISSOR_F;
     s->use_scissor = memcmp(o->scissor_f, default_scissor, sizeof(o->scissor_f));
     const float *sf = o->scissor_f;
-    const int scissor[4] = {sf[0], sf[1], sf[2], sf[3]};
+    const int scissor[4] = {(int)sf[0], (int)sf[1], (int)sf[2], (int)sf[3]};
     memcpy(s->scissor, scissor, sizeof(s->scissor));
 
     return 0;
