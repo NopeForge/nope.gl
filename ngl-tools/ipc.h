@@ -23,6 +23,7 @@
 #define IPC_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #define IPC_U32(a,b,c,d) (((uint32_t)(a))<<24 | (b)<<16 | (c)<<8 | (d))
 #define IPC_U32_READ(buf) IPC_U32((buf)[0], (buf)[1], (buf)[2], (buf)[3])
@@ -44,7 +45,7 @@ enum ipc_tag {
 
 struct ipc_pkt {
     uint8_t *data;
-    int size;
+    size_t size;
 };
 
 struct ipc_pkt *ipc_pkt_create(void);
@@ -54,7 +55,7 @@ void ipc_pkt_freep(struct ipc_pkt **pktp);
 /* Query tags */
 int ipc_pkt_add_qtag_scene(struct ipc_pkt *pkt, const char *scene);
 int ipc_pkt_add_qtag_file(struct ipc_pkt *pkt, const char *filename);
-int ipc_pkt_add_qtag_filepart(struct ipc_pkt *pkt, const uint8_t *chunk, int chunk_size);
+int ipc_pkt_add_qtag_filepart(struct ipc_pkt *pkt, const uint8_t *chunk, size_t chunk_size);
 int ipc_pkt_add_qtag_duration(struct ipc_pkt *pkt, double duration);
 int ipc_pkt_add_qtag_aspect(struct ipc_pkt *pkt, const int *aspect);
 int ipc_pkt_add_qtag_framerate(struct ipc_pkt *pkt, const int *framerate);

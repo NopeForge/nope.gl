@@ -43,7 +43,7 @@ static void u32_write(uint8_t *buf, uint32_t v)
 static void pkt_update_header(struct ipc_pkt *pkt)
 {
     memcpy(pkt->data, "nglp", 4); // 'p' stands for packet
-    u32_write(pkt->data + 4, pkt->size - 8);
+    u32_write(pkt->data + 4, (uint32_t)(pkt->size - 8));
 }
 
 struct ipc_pkt *ipc_pkt_create(void)
@@ -61,14 +61,16 @@ struct ipc_pkt *ipc_pkt_create(void)
     return pkt;
 }
 
-static int pack(struct ipc_pkt *pkt, uint32_t tag, const void *data, int datalen)
+static int pack(struct ipc_pkt *pkt, uint32_t tag, const void *data, size_t datalen)
 {
+    if (datalen > UINT32_MAX)
+        return NGL_ERROR_LIMIT_EXCEEDED;
     uint8_t *dst = realloc(pkt->data, pkt->size + 8 + datalen);
     if (!dst)
         return NGL_ERROR_MEMORY;
     pkt->data = dst;
     u32_write(dst + pkt->size,     tag);
-    u32_write(dst + pkt->size + 4, datalen);
+    u32_write(dst + pkt->size + 4, (uint32_t)datalen);
     if (data)
         memcpy(dst + pkt->size + 8, data, datalen);
     pkt->size += 8 + datalen;
@@ -86,7 +88,7 @@ int ipc_pkt_add_qtag_file(struct ipc_pkt *pkt, const char *filename)
     return pack(pkt, IPC_FILE, filename, strlen(filename) + 1);
 }
 
-int ipc_pkt_add_qtag_filepart(struct ipc_pkt *pkt, const uint8_t *chunk, int chunk_size)
+int ipc_pkt_add_qtag_filepart(struct ipc_pkt *pkt, const uint8_t *chunk, size_t chunk_size)
 {
     return pack(pkt, IPC_FILEPART, chunk, chunk_size);
 }
@@ -182,7 +184,7 @@ int ipc_send(int fd, const struct ipc_pkt *pkt)
     }
     // XXX: should we loop instead?
     if (n != pkt->size) {
-        fprintf(stderr, "unable write packet (%d/%d sent)\n", n, pkt->size);
+        fprintf(stderr, "unable write packet (%d/%zd sent)\n", n, pkt->size);
         return NGL_ERROR_IO;
     }
     return 0;

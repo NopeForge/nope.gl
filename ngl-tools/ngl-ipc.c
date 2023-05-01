@@ -243,8 +243,11 @@ static int handle_fileend(struct ctx *s, const uint8_t *data, int size)
 
 static int handle_response(struct ctx *s, const struct ipc_pkt *pkt)
 {
+    if (pkt->size < 8)
+        return NGL_ERROR_INVALID_DATA;
+
     const uint8_t *data = pkt->data + 8;
-    int data_size = pkt->size - 8;
+    size_t data_size = pkt->size - 8;
     while (data_size) {
         if (data_size < 8)
             return NGL_ERROR_INVALID_DATA;
