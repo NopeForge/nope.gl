@@ -131,7 +131,7 @@ static void update_text(struct player *p)
         return;
 
     const int frame_ts = p->frame_time;
-    const int duration = p->duration / 1000000;
+    const int64_t duration = p->duration / 1000000;
     if (p->frame_index == p->text_last_frame_index && duration == p->text_last_duration)
         return;
 
