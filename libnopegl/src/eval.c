@@ -85,8 +85,8 @@ static float f_min(float a, float b) { return NGLI_MIN(a, b); }
 static float f_sat(float x) { return f_clamp(x, 0.f, 1.f); }
 static float f_mla(float a, float b, float c) { return a*b + c; }
 
-static float f_degrees(float x) { return 180.f / PI_F64 * x; }
-static float f_radians(float x) { return PI_F64 / 180.f * x; }
+static float f_degrees(float x) { return 180.f / PI_F32 * x; }
+static float f_radians(float x) { return PI_F32 / 180.f * x; }
 static float f_linear2srgb(float x) { return x < 0.0031308f ? x*12.92f : 1.055f * powf(x, 1.f/2.4f)-0.055f; }
 static float f_srgb2linear(float x) { return x < 0.04045f   ? x/12.92f : powf((x+.055f) / 1.055f, 2.4f); }
 static float f_mix(float a, float b, float x) { return NGLI_MIX_F32(a, b, x); }
@@ -196,8 +196,8 @@ static const struct constant {
 } constants_map[] = {
     {"e",   2.7182818284590451f},
     {"phi", 1.618033988749895f},
-    {"pi",  PI_F64},
-    {"tau", TAU_F64},
+    {"pi",  PI_F32},
+    {"tau", TAU_F32},
 };
 
 struct token {
