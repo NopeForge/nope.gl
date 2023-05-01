@@ -259,11 +259,11 @@ static int update_character_geometries(struct ngl_node *node)
     const float box_height_len = ngli_vec3_length(o->box_height);
     static const int default_ar[2] = {1, 1};
     const int *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
-    const float box_ratio = ar[0] * box_width_len / (float)(ar[1] * box_height_len);
+    const float box_ratio = (float)ar[0] * box_width_len / ((float)ar[1] * box_height_len);
 
     const int text_width   = text_cols * NGLI_FONT_W + 2 * o->padding;
     const int text_height  = text_rows * NGLI_FONT_H + 2 * o->padding;
-    const float text_ratio = text_width / (float)(text_height);
+    const float text_ratio = (float)text_width / (float)text_height;
 
     float ratio_w, ratio_h;
     if (text_ratio < box_ratio) {
@@ -283,8 +283,8 @@ static int update_character_geometries(struct ngl_node *node)
     /* User padding */
     float padw[3];
     float padh[3];
-    ngli_vec3_scale(padw, width,  o->padding / (float)text_width);
-    ngli_vec3_scale(padh, height, o->padding / (float)text_height);
+    ngli_vec3_scale(padw, width,  (float)o->padding / (float)text_width);
+    ngli_vec3_scale(padh, height, (float)o->padding / (float)text_height);
 
     /* Width and height of 1 character */
     const float chr_width[3] = {
@@ -327,9 +327,9 @@ static int update_character_geometries(struct ngl_node *node)
 
         /* quad vertices */
         const float chr_corner[3] = {
-            corner[0] + chr_width[0] * px + chr_height[0] * (text_rows - py - 1),
-            corner[1] + chr_width[1] * px + chr_height[1] * (text_rows - py - 1),
-            corner[2] + chr_width[2] * px + chr_height[2] * (text_rows - py - 1),
+            corner[0] + chr_width[0] * (float)px + chr_height[0] * (float)(text_rows - py - 1),
+            corner[1] + chr_width[1] * (float)px + chr_height[1] * (float)(text_rows - py - 1),
+            corner[2] + chr_width[2] * (float)px + chr_height[2] * (float)(text_rows - py - 1),
         };
         const float chr_vertices[] = {
             C(0),               C(1),               C(2),
@@ -343,7 +343,8 @@ static int update_character_geometries(struct ngl_node *node)
         ngli_drawutils_get_atlas_uvcoords(str[i], uvcoords + 4 * 2 * n);
 
         /* quad for each character is made of 2 triangles */
-        const short chr_indices[] = { n*4 + 0, n*4 + 1, n*4 + 2, n*4 + 1, n*4 + 3, n*4 + 2 };
+        const short n4 = (short)n * 4;
+        const short chr_indices[] = { n4 + 0, n4 + 1, n4 + 2, n4 + 1, n4 + 3, n4 + 2 };
         memcpy(indices + n * NGLI_ARRAY_NB(chr_indices), chr_indices, sizeof(chr_indices));
 
         n++;
