@@ -520,7 +520,7 @@ static void widget_drawcall_make_stats(struct hud *s, struct widget *widget)
 
 static inline uint8_t *set_color(uint8_t *p, uint32_t rgba)
 {
-    p[0] = rgba >> 24;
+    p[0] = (uint8_t)(rgba >> 24);
     p[1] = rgba >> 16 & 0xff;
     p[2] = rgba >>  8 & 0xff;
     p[3] = rgba       & 0xff;
