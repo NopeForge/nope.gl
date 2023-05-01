@@ -35,8 +35,8 @@ struct bucket {
 
 struct hmap {
     struct bucket *buckets;
-    int size;
-    uint32_t mask;
+    size_t size;
+    size_t mask;
     int count; // total number of entries
     user_free_func_type user_free_func;
     void *user_arg;
