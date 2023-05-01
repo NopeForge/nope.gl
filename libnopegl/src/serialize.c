@@ -59,7 +59,7 @@ static int get_node_id(const struct hmap *nlist, const struct ngl_node *node)
     char key[32];
     (void)snprintf(key, sizeof(key), "%p", node);
     const char *val = ngli_hmap_get(nlist, key);
-    return val ? strtol(val, NULL, 16) : -1;
+    return val ? (int)strtol(val, NULL, 16) : -1;
 }
 
 static int get_rel_node_id(const struct hmap *nlist, const struct ngl_node *node)
@@ -72,7 +72,7 @@ static void print_##type(struct bstr *b, type f)                        \
 {                                                                       \
     const union { uint##nbit##_t i; type f; } u = {.f = f};             \
     const uint##nbit##_t v = u.i;                                       \
-    const int sign = v >> (nbit - 1);                                   \
+    const int sign = (int)(v >> (nbit - 1));                            \
     const uint##nbit##_t exp_mask = (1 << (nbit - shift_exp - 1)) - 1;  \
     const uint##nbit##_t exp  = v >> shift_exp & exp_mask;              \
     const uint##nbit##_t mant = v & ((1ULL << shift_exp) - 1);          \
