@@ -342,9 +342,12 @@ static int handle_commands(struct ctx *s, int fd)
         if (ret <= 0)
             return ret;
 
+        if (s->recv_pkt->size < 8)
+            return NGL_ERROR_INVALID_DATA;
+
         int need_reconfigure = 0;
         const uint8_t *data = s->recv_pkt->data + 8;
-        int data_size = s->recv_pkt->size - 8;
+        size_t data_size = s->recv_pkt->size - 8;
         while (data_size) {
             if (data_size < 8)
                 return NGL_ERROR_INVALID_DATA;
