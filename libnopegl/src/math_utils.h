@@ -24,6 +24,7 @@
 
 #include "config.h"
 
+#define PI_F32 3.14159265358979323846f
 #define PI_F64 3.14159265358979323846
 
 #define NGLI_POLY1(a, b, x)       ((a) * (x) + (b))
