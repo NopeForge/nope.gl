@@ -64,8 +64,8 @@ struct player {
     int64_t lasthover;
     int mouse_down;
     int fullscreen;
-    int text_last_frame_index;
-    int text_last_duration;
+    int64_t text_last_frame_index;
+    int64_t text_last_duration;
     struct ngl_node *pgbar_opacity_node;
     struct ngl_node *pgbar_text_node;
     struct ngl_node *pgbar_duration_node;
