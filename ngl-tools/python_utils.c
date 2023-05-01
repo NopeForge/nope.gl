@@ -70,10 +70,10 @@ struct ngl_node *python_get_scene(const char *modname, const char *func_name, do
         if (!(pyaspect0 = PyTuple_GetItem(pyaspect, 0)) ||
             !(pyaspect1 = PyTuple_GetItem(pyaspect, 1)))
             goto end;
-        aspect[0] = PyLong_AsLong(pyaspect0);
+        aspect[0] = (int)PyLong_AsLong(pyaspect0);
         if (PyErr_Occurred())
             goto end;
-        aspect[1] = PyLong_AsLong(pyaspect1);
+        aspect[1] = (int)PyLong_AsLong(pyaspect1);
         if (PyErr_Occurred())
             goto end;
     }
