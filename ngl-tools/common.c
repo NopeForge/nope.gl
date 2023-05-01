@@ -98,13 +98,13 @@ int64_t clipi64(int64_t v, int64_t min, int64_t max)
 void get_viewport(int width, int height, const int *aspect_ratio, int *vp)
 {
     vp[2] = width;
-    vp[3] = width * aspect_ratio[1] / (double)aspect_ratio[0];
+    vp[3] = width * aspect_ratio[1] / aspect_ratio[0];
     if (vp[3] > height) {
         vp[3] = height;
-        vp[2] = height * aspect_ratio[0] / (double)aspect_ratio[1];
+        vp[2] = height * aspect_ratio[0] / aspect_ratio[1];
     }
-    vp[0] = (width  - vp[2]) / 2.0;
-    vp[1] = (height - vp[3]) / 2.0;
+    vp[0] = (width  - vp[2]) / 2;
+    vp[1] = (height - vp[3]) / 2;
 }
 
 #define BUF_SIZE 1024
