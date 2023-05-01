@@ -151,7 +151,7 @@ static void update_pgbar(struct player *p)
 {
     if (p->pgbar_opacity_node && p->lasthover >= 0) {
         const int64_t t64_diff = gettime_relative() - p->lasthover;
-        const double opacity = clipf64(1.5 - t64_diff / 1000000.0, 0, 1);
+        const float opacity = (float)clipf64(1.5 - (double)t64_diff / 1000000.0, 0, 1);
         ngl_node_param_set_f32(p->pgbar_opacity_node, "value", opacity);
 
         ngl_node_param_set_f32(p->pgbar_text_node, "bg_opacity", .8f * opacity);
