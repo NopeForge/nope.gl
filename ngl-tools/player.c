@@ -308,13 +308,13 @@ static const char *pgbar_frag =
 
 static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scene)
 {
-    static const float bar_corner[3] = {-1.0, -1.0 + 0.1, 0.0};
-    static const float bar_width[3]  = { 2.0,  0.0, 0.0};
-    static const float bar_height[3] = { 0.0,  2.0 * 0.01, 0.0}; // 1% of the height
+    static const float bar_corner[3] = {-1.0f, -1.0f + 0.1f, 0.0f};
+    static const float bar_width[3]  = { 2.0f,  0.0f, 0.0f};
+    static const float bar_height[3] = { 0.0f,  2.0f * 0.01f, 0.0f}; // 1% of the height
 
-    static const float text_corner[3] = {-1.0, -1.0, 0.0};
-    static const float text_width[3]  = { 2.0,  0.0, 0.0};
-    static const float text_height[3] = { 0.0,  2.0 * 0.05, 0.0}; // 5% of the height
+    static const float text_corner[3] = {-1.0f, -1.0f, 0.0f};
+    static const float text_width[3]  = { 2.0f,  0.0f, 0.0f};
+    static const float text_height[3] = { 0.0f,  2.0f * 0.05f, 0.0f}; // 5% of the height
 
     struct ngl_node *text       = ngl_node_create(NGL_NODE_TEXT);
     struct ngl_node *quad       = ngl_node_create(NGL_NODE_QUAD);
