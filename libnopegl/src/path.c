@@ -281,7 +281,7 @@ int ngli_path_init(struct path *s, int precision)
 
     /* Normalize distances (relative to the total length of the path) */
     float *steps_dist = ngli_darray_data(&s->steps_dist);
-    const float scale = total_length ? 1.f / total_length : 0.f;
+    const float scale = total_length != 0.f ? 1.f / total_length : 0.f;
     for (int i = 0; i < ngli_darray_count(&s->steps_dist); i++)
         steps_dist[i] *= scale;
 
