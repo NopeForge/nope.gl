@@ -141,7 +141,7 @@ static int opt_color(const char *arg, void *dst)
         fprintf(stderr, "invalid color format for \"%s\", expecting \"RRGGBBAA\"\n", arg);
         return NGL_ERROR_INVALID_ARG;
     }
-    const float c[4] = { r / 255.f, g / 255.f, b / 255.f, a / 255.f };
+    const float c[4] = { (float)r / 255.f, (float)g / 255.f, (float)b / 255.f, (float)a / 255.f };
     memcpy(dst, c, sizeof(c));
     return 0;
 }
