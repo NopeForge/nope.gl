@@ -76,7 +76,7 @@ static void mix_velocity_float(void *user_arg, void *dst,
                                double ratio)
 {
     float *dstf = dst;
-    dstf[0] = (kf1->scalar - kf0->scalar) * ratio;
+    dstf[0] = (float)((kf1->scalar - kf0->scalar) * ratio);
 }
 
 static void cpy_velocity_float(void *user_arg, void *dst,
@@ -95,7 +95,7 @@ static void mix_velocity_vec##len(void *user_arg, void *dst,            \
     float *dstf = dst;                                                  \
     ngli_vec##len##_sub(dstf, kf1->value, kf0->value);                  \
     ngli_vec##len##_norm(dstf, dstf);                                   \
-    ngli_vec##len##_scale(dstf, dstf, ratio);                           \
+    ngli_vec##len##_scale(dstf, dstf, (float)ratio);                    \
 }                                                                       \
                                                                         \
 static void cpy_velocity_vec##len(void *user_arg, void *dst,            \
