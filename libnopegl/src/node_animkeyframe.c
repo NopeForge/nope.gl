@@ -428,7 +428,7 @@ static int animkeyframe_init(struct ngl_node *node)
 
     const double x0 = o->offsets[0];
     const double x1 = o->offsets[1];
-    if (x0 || x1 != 1.0) {
+    if (x0 != 0.0 || x1 != 1.0) {
         int ret = check_offsets(x0, x1);
         if (ret < 0)
             return ret;
@@ -466,7 +466,7 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
         ngli_bstr_print(b, ") ");
     }
 
-    if (o->offsets[0] || o->offsets[1] != 1.0) { // can not use scale_boundaries yet (not initialized)
+    if (o->offsets[0] != 0.0 || o->offsets[1] != 1.0) { // can not use scale_boundaries yet (not initialized)
         ngli_bstr_printf(b, "on (%g,%g) ", o->offsets[0], o->offsets[1]);
     }
 
