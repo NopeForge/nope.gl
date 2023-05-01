@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
         const int64_t start = gettime_relative();
 
         for (;;) {
-            const float t = t0 + k*1./r->freq;
+            const float t = t0 + (float)k / (float)r->freq;
             if (t >= t1)
                 break;
             if (s.debug)
