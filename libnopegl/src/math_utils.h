@@ -27,6 +27,9 @@
 #define PI_F32 3.14159265358979323846f
 #define PI_F64 3.14159265358979323846
 
+#define TAU_F32 6.28318530717958647692f
+#define TAU_F64 6.28318530717958647692
+
 #define NGLI_POLY1(a, b, x)       ((a) * (x) + (b))
 #define NGLI_POLY2(a, b, c, x)    (NGLI_POLY1(a, b, x) * (x) + (c))
 #define NGLI_POLY3(a, b, c, d, x) (NGLI_POLY2(a, b, c, x) * (x) + (d))
