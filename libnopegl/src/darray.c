@@ -80,7 +80,7 @@ void ngli_darray_init(struct darray *darray, size_t element_size, int aligned)
 
 void *ngli_darray_push(struct darray *darray, const void *element)
 {
-    if (darray->count >= darray->capacity - 1) {
+    if (darray->count >= darray->capacity) {
 #if HAVE_BUILTIN_OVERFLOW
         size_t new_capacity;
         if (__builtin_mul_overflow(darray->capacity, 2, &new_capacity))
