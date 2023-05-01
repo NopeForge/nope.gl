@@ -197,7 +197,7 @@ static const struct constant {
     {"e",   2.7182818284590451f},
     {"phi", 1.618033988749895f},
     {"pi",  PI_F64},
-    {"tau", PI_F64 * 2.f},
+    {"tau", TAU_F64},
 };
 
 struct token {
