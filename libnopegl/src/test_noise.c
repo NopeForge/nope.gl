@@ -99,7 +99,7 @@ static int run_test(void)
 
         const int nb_values = NGLI_ARRAY_NB(test->expected_values);
         for (int i = 0; i < nb_values; i++) {
-            const float t = i / 10.f;
+            const float t = (float)i / 10.f;
             const float gv = ngli_noise_get(&noise, t);
             const float ev = test->expected_values[i];
             if (fabs(gv - ev) > 0.0001) {
@@ -126,14 +126,14 @@ int main(int ac, char **av)
     if (ac == 1)
         return run_test();
 
-    const float duration = ac > 1 ? atof(av[1]) : 3.f;
-    const float frequency = ac > 2 ? atof(av[2]) : 10.f;
+    const float duration = ac > 1 ? (float)atof(av[1]) : 3.f;
+    const float frequency = ac > 2 ? (float)atof(av[2]) : 10.f;
     const struct noise_params np = {
-        .amplitude  = ac > 3 ? atof(av[3]) : default_params.amplitude,
+        .amplitude  = ac > 3 ? (float)atof(av[3]) : default_params.amplitude,
         .octaves    = ac > 4 ? atoi(av[4]) : default_params.octaves,
-        .lacunarity = ac > 5 ? atof(av[5]) : default_params.lacunarity,
-        .gain       = ac > 6 ? atof(av[6]) : default_params.gain,
-        .seed       = ac > 7 ? strtol(av[7], NULL, 0) : default_params.seed,
+        .lacunarity = ac > 5 ? (float)atof(av[5]) : default_params.lacunarity,
+        .gain       = ac > 6 ? (float)atof(av[6]) : default_params.gain,
+        .seed       = ac > 7 ? (uint32_t)strtol(av[7], NULL, 0) : default_params.seed,
         .function   = ac > 8 ? atoi(av[8]) : default_params.function,
     };
 
@@ -148,7 +148,7 @@ int main(int ac, char **av)
 
     const int nb_values = (int)(duration * frequency);
     for (int i = 0; i < nb_values; i++) {
-        const float t = i / frequency;
+        const float t = (float)i / frequency;
         printf("%f %f\n", t, ngli_noise_get(&noise, t));
     }
 
