@@ -58,7 +58,7 @@ static int evaluate_points(struct path *path, const float *refs, const char *tit
     for (int i = 0; i < NB_REFS; i++) {
         /* We make sure t starts before 0 and ends after 1 to check for
          * outbounds */
-        const float t = (i - 1) / ((NB_REFS - 2) - 1.f);
+        const float t = (float)(i - 1) / ((NB_REFS - 2) - 1.f);
         ret |= check_value(path, t, refs ? &refs[i * 3] : NULL);
     }
 
