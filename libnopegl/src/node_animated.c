@@ -114,7 +114,7 @@ static void mix_time(void *user_arg, void *dst,
                      double ratio)
 {
     double *dstd = dst;
-    dstd[0] = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
+    dstd[0] = NGLI_MIX_F64(kf0->scalar, kf1->scalar, ratio);
 }
 
 static void mix_float(void *user_arg, void *dst,
@@ -123,7 +123,7 @@ static void mix_float(void *user_arg, void *dst,
                       double ratio)
 {
     float *dstd = dst;
-    dstd[0] = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
+    dstd[0] = NGLI_MIX_F64(kf0->scalar, kf1->scalar, ratio);
 }
 
 static void mix_path(void *user_arg, void *dst,
@@ -131,7 +131,7 @@ static void mix_path(void *user_arg, void *dst,
                      const struct animkeyframe_opts *kf1,
                      double ratio)
 {
-    const float t = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
+    const float t = NGLI_MIX_F64(kf0->scalar, kf1->scalar, ratio);
     const struct variable_opts *o = user_arg;
     struct path *path = *(struct path **)o->path_node->priv_data;
     ngli_path_evaluate(path, dst, t);
@@ -152,7 +152,7 @@ static void mix_vector(void *user_arg, void *dst,
 {
     float *dstf = dst;
     for (int i = 0; i < len; i++)
-        dstf[i] = NGLI_MIX(kf0->value[i], kf1->value[i], ratio);
+        dstf[i] = NGLI_MIX_F64(kf0->value[i], kf1->value[i], ratio);
 }
 
 #define DECLARE_COLOR_MIX_FUNCS(space)                          \
@@ -165,9 +165,9 @@ static void mix_##space(void *user_arg, void *dst,              \
     ngli_colorconv_##space##2linear(rgb0, kf0->value);          \
     ngli_colorconv_##space##2linear(rgb1, kf1->value);          \
     const float mixed[3] = {                                    \
-        NGLI_MIX(rgb0[0], rgb1[0], ratio),                      \
-        NGLI_MIX(rgb0[1], rgb1[1], ratio),                      \
-        NGLI_MIX(rgb0[2], rgb1[2], ratio),                      \
+        NGLI_MIX_F64(rgb0[0], rgb1[0], ratio),                  \
+        NGLI_MIX_F64(rgb0[1], rgb1[1], ratio),                  \
+        NGLI_MIX_F64(rgb0[2], rgb1[2], ratio),                  \
     };                                                          \
     ngli_colorconv_linear2srgb(dst, mixed);                     \
 }                                                               \
