@@ -539,12 +539,12 @@ static void draw_block_graph(struct hud *s,
                              const uint32_t c)
 {
     const int64_t graph_h = graph_max - graph_min;
-    const float vscale = (float)rect->h / graph_h;
+    const float vscale = (float)rect->h / (float)graph_h;
     const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
 
     for (int k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
-        const int h = (v - graph_min) * vscale;
+        const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - h, 0, rect->h);
         uint8_t *p = s->canvas.buf + get_pixel_pos(s, rect->x + k, rect->y + y);
 
@@ -562,13 +562,13 @@ static void draw_line_graph(struct hud *s,
                             const uint32_t c)
 {
     const int64_t graph_h = graph_max - graph_min;
-    const float vscale = (float)rect->h / graph_h;
+    const float vscale = (float)rect->h / (float)graph_h;
     const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
     int prev_y;
 
     for (int k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
-        const int h = (v - graph_min) * vscale;
+        const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - 1 - h, 0, rect->h - 1);
         uint8_t *p = s->canvas.buf + get_pixel_pos(s, rect->x + k, rect->y + y);
 
@@ -1365,7 +1365,7 @@ void ngli_hud_draw(struct hud *s)
         return;
     }
 
-    const double t = ngli_gettime_relative() / 1000000.;
+    const double t = (double)ngli_gettime_relative() / 1000000.;
     const int need_refresh = fabs(t - s->last_refresh_time) >= s->refresh_rate_interval;
     if (need_refresh) {
         s->last_refresh_time = t;
@@ -1376,8 +1376,8 @@ void ngli_hud_draw(struct hud *s)
     int viewport[4];
     ngli_gpu_ctx_get_viewport(gpu_ctx, viewport);
     const int scale = s->scale > 0 ? s->scale : 1;
-    const float ratio_w = scale * s->canvas.w / (double)viewport[2];
-    const float ratio_h = scale * s->canvas.h / (double)viewport[3];
+    const float ratio_w = (float)(scale * s->canvas.w) / (float)viewport[2];
+    const float ratio_h = (float)(scale * s->canvas.h) / (float)viewport[3];
     const float x =-1.0f + 2 * ratio_w;
     const float y = 1.0f - 2 * ratio_h;
     const float coords[] = {
