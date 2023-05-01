@@ -79,7 +79,7 @@ static int noisevec_update(struct ngl_node *node, double t, int n)
 {
     struct noise_priv *s = node->priv_data;
     const struct noise_opts *o = node->opts;
-    const float v = t * o->frequency;
+    const float v = (float)(t * o->frequency);
     for (int i = 0; i < n; i++)
         s->vector[i] = ngli_noise_get(&s->generator[i], v);
     return 0;
