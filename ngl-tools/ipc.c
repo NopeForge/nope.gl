@@ -127,11 +127,13 @@ int ipc_pkt_add_qtag_clearcolor(struct ipc_pkt *pkt, const float *clearcolor)
 
 int ipc_pkt_add_qtag_samples(struct ipc_pkt *pkt, int samples)
 {
+    if (samples > 0xff)
+        return NGL_ERROR_INVALID_ARG;
     int ret = pack(pkt, IPC_SAMPLES, NULL, 1);
     if (ret < 0)
         return ret;
     uint8_t *dst = pkt->data + pkt->size - 1;
-    *dst = samples;
+    *dst = (uint8_t)samples;
     return 0;
 }
 
