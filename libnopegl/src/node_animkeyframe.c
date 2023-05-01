@@ -499,7 +499,7 @@ int ngl_easing_evaluate(const char *name, const double *args, int nb_args,
         ret = check_offsets(offsets[0], offsets[1]);
         if (ret < 0)
             return ret;
-        t = NGLI_MIX(offsets[0], offsets[1], t);
+        t = NGLI_MIX_F64(offsets[0], offsets[1], t);
     }
     const easing_function eval_func = easings[easing_id].function;
     double value = eval_func(t, nb_args, args);
@@ -526,7 +526,7 @@ int ngl_easing_derivate(const char *name, const double *args, int nb_args,
         ret = check_offsets(offsets[0], offsets[1]);
         if (ret < 0)
             return ret;
-        t = NGLI_MIX(offsets[0], offsets[1], t);
+        t = NGLI_MIX_F64(offsets[0], offsets[1], t);
     }
     const easing_function derivative_func = easings[easing_id].derivative;
     double value = derivative_func(t, nb_args, args);
@@ -564,7 +564,7 @@ int ngl_easing_solve(const char *name, const double *args, int nb_args,
         ret = check_boundaries(y0, y1);
         if (ret < 0)
             return ret;
-        v = NGLI_MIX(y0, y1, v);
+        v = NGLI_MIX_F64(y0, y1, v);
     }
     double time = easings[easing_id].resolution(v, nb_args, args);
     if (offsets)

@@ -350,7 +350,7 @@ static int get_vector_id(const float *values, int nb_values, int *cache, float v
 static float remap(float a, float b, float c, float d, float x)
 {
     const float ratio = NGLI_LINEAR_NORM(c, d, x);
-    return NGLI_MIX(a, b, ratio);
+    return NGLI_MIX_F64(a, b, ratio);
 }
 
 /*

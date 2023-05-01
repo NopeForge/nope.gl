@@ -36,7 +36,7 @@
 #define NGLI_CEIL_RSHIFT(a, b) -((-(a)) >> (b))
 
 /* Map a normalized value to [a;b] range */
-#define NGLI_MIX(a, b, x) ((a)*(1.-(x)) + (b)*(x))
+#define NGLI_MIX_F64(a, b, x) ((a)*(1.0-(x)) + (b)*(x))
 
 /* Map a value in [a;b] range to a normalized value */
 #define NGLI_LINEAR_NORM(a, b, x) (((x) - (a)) / ((b) - (a)))
