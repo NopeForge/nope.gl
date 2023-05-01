@@ -28,9 +28,9 @@
 struct darray {
     uint8_t *data;
     int count;
-    int capacity;
+    size_t capacity;
     size_t element_size;
-    int (*reserve)(struct darray *darray, int capacity);
+    int (*reserve)(struct darray *darray, size_t capacity);
     void (*release)(void *ptr);
 };
 
