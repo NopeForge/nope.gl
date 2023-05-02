@@ -910,8 +910,8 @@
     },
     {
       "name": "scissor",
-      "type": "vec4",
-      "default": [-1.000000,-1.000000,-1.000000,-1.000000],
+      "type": "ivec4",
+      "default": [-1,-1,-1,-1],
       "flags": [],
       "desc": "define an area where all pixels outside are discarded"
     }

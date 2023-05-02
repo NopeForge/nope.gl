@@ -58,16 +58,15 @@ struct graphicconfig_opts {
     int cull_mode;
 
     int scissor_test;
-    float scissor_f[4];
+    int scissor[4];
 };
 
 struct graphicconfig_priv {
     struct graphicstate graphicstate;
     int use_scissor;
-    int scissor[4];
 };
 
-#define DEFAULT_SCISSOR_F {-1.0f, -1.0f, -1.0f, -1.0f}
+#define DEFAULT_SCISSOR {-1, -1, -1, -1}
 
 static const struct param_choices blend_factor_choices = {
     .name = "blend_factor",
@@ -213,7 +212,7 @@ static const struct node_param graphicconfig_params[] = {
                            .desc=NGLI_DOCSTRING("face culling mode")},
     {"scissor_test",       NGLI_PARAM_TYPE_BOOL,   OFFSET(scissor_test),       {.i32=-1},
                            .desc=NGLI_DOCSTRING("enable scissor testing")},
-    {"scissor",            NGLI_PARAM_TYPE_VEC4, OFFSET(scissor_f), {.vec=DEFAULT_SCISSOR_F},
+    {"scissor",            NGLI_PARAM_TYPE_IVEC4, OFFSET(scissor), {.ivec=DEFAULT_SCISSOR},
                            .desc=NGLI_DOCSTRING("define an area where all pixels outside are discarded")},
     {NULL}
 };
@@ -235,11 +234,8 @@ static int graphicconfig_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    static const float default_scissor[4] = DEFAULT_SCISSOR_F;
-    s->use_scissor = memcmp(o->scissor_f, default_scissor, sizeof(o->scissor_f));
-    const float *sf = o->scissor_f;
-    const int scissor[4] = {(int)sf[0], (int)sf[1], (int)sf[2], (int)sf[3]};
-    memcpy(s->scissor, scissor, sizeof(s->scissor));
+    static const int default_scissor[4] = DEFAULT_SCISSOR;
+    s->use_scissor = memcmp(o->scissor, default_scissor, sizeof(o->scissor));
 
     return 0;
 }
@@ -308,7 +304,7 @@ static void graphicconfig_draw(struct ngl_node *node)
     int prev_scissor[4];
     if (s->use_scissor) {
         ngli_gpu_ctx_get_scissor(gpu_ctx, prev_scissor);
-        ngli_gpu_ctx_set_scissor(gpu_ctx, s->scissor);
+        ngli_gpu_ctx_set_scissor(gpu_ctx, o->scissor);
     }
 
     ngli_node_draw(o->child);
