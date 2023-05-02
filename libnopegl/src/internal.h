@@ -243,8 +243,8 @@ struct block_info {
 };
 
 void ngli_node_block_extend_usage(struct ngl_node *node, int usage);
-int ngli_node_block_get_cpu_size(struct ngl_node *node);
-int ngli_node_block_get_gpu_size(struct ngl_node *node);
+size_t ngli_node_block_get_cpu_size(struct ngl_node *node);
+size_t ngli_node_block_get_gpu_size(struct ngl_node *node);
 
 struct program_opts {
     const char *vertex;
