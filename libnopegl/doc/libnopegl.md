@@ -437,7 +437,7 @@ Parameter | Flags | Type | Description | Default
 `stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil and depth test pass | `unset`
 `cull_mode` |  | [`cull_mode`](#cull_mode-choices) | face culling mode | `unset`
 `scissor_test` |  | [`bool`](#parameter-types) | enable scissor testing | `unset`
-`scissor` |  | [`vec4`](#parameter-types) | define an area where all pixels outside are discarded | (`-1`,`-1`,`-1`,`-1`)
+`scissor` |  | [`ivec4`](#parameter-types) | define an area where all pixels outside are discarded | (`-1`,`-1`,`-1`,`-1`)
 
 
 **Source**: [src/node_graphicconfig.c](/libnopegl/src/node_graphicconfig.c)
