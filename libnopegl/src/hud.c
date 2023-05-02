@@ -290,7 +290,7 @@ struct widget_latency {
 
 struct widget_memory {
     struct darray nodes[NB_MEMORY];
-    uint64_t sizes[NB_MEMORY];
+    size_t sizes[NB_MEMORY];
 };
 
 struct widget_activity {
@@ -670,18 +670,18 @@ static void widget_memory_draw(struct hud *s, struct widget *widget)
     char buf[MEMORY_WIDGET_TEXT_LEN + 1];
 
     for (size_t i = 0; i < NB_MEMORY; i++) {
-        const uint64_t size = priv->sizes[i];
+        const size_t size = priv->sizes[i];
         const uint32_t color = memory_specs[i].color;
         const char *label = memory_specs[i].label;
 
         if (size < 1024)
-            snprintf(buf, sizeof(buf), "%-12s %"PRIu64, label, size);
+            snprintf(buf, sizeof(buf), "%-12s %zu", label, size);
         else if (size < 1024 * 1024)
-            snprintf(buf, sizeof(buf), "%-12s %"PRIu64"K", label, size / 1024);
+            snprintf(buf, sizeof(buf), "%-12s %zuK", label, size / 1024);
         else if (size < 1024 * 1024 * 1024)
-            snprintf(buf, sizeof(buf), "%-12s %"PRIu64"M", label, size / (1024 * 1024));
+            snprintf(buf, sizeof(buf), "%-12s %zuM", label, size / (1024 * 1024));
         else
-            snprintf(buf, sizeof(buf), "%-12s %"PRIu64"G", label, size / (1024 * 1024 * 1024));
+            snprintf(buf, sizeof(buf), "%-12s %zuG", label, size / (1024 * 1024 * 1024));
         print_text(s, widget->text_x, widget->text_y + (int)i * NGLI_FONT_H, buf, color);
         register_graph_value(&widget->data_graph[i], size);
     }
@@ -774,8 +774,8 @@ static void widget_memory_csv_report(struct hud *s, struct widget *widget, struc
 {
     const struct widget_memory *priv = widget->priv_data;
     for (size_t i = 0; i < NB_MEMORY; i++) {
-        const uint64_t size = priv->sizes[i];
-        ngli_bstr_printf(dst, "%s%"PRIu64, i ? "," : "", size);
+        const size_t size = priv->sizes[i];
+        ngli_bstr_printf(dst, "%s%zu", i ? "," : "", size);
     }
 }
 
