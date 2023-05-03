@@ -51,10 +51,10 @@ struct geometry {
 struct geometry *ngli_geometry_create(struct gpu_ctx *gpu_ctx);
 
 /* Set vertices/uvs/normals/indices from CPU buffers */
-int ngli_geometry_set_vertices(struct geometry *s, int n, const float *vertices);
-int ngli_geometry_set_uvcoords(struct geometry *s, int n, const float *uvcoords);
-int ngli_geometry_set_normals(struct geometry *s, int n, const float *indices);
-int ngli_geometry_set_indices(struct geometry *s, int n, const uint16_t *indices);
+int ngli_geometry_set_vertices(struct geometry *s, size_t n, const float *vertices);
+int ngli_geometry_set_uvcoords(struct geometry *s, size_t n, const float *uvcoords);
+int ngli_geometry_set_normals(struct geometry *s, size_t n, const float *indices);
+int ngli_geometry_set_indices(struct geometry *s, size_t n, const uint16_t *indices);
 
 /* With the following functions, the user own the buffers already */
 void ngli_geometry_set_vertices_buffer(struct geometry *s, struct buffer *buffer, struct buffer_layout layout);
