@@ -170,7 +170,7 @@ const struct node_param *ngli_params_find(const struct node_param *params, const
 {
     if (!params)
         return NULL;
-    for (int i = 0; params[i].key; i++) {
+    for (size_t i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
         if (!strcmp(par->key, key))
             return par;
@@ -180,7 +180,7 @@ const struct node_param *ngli_params_find(const struct node_param *params, const
 
 int ngli_params_get_select_val(const struct param_const *consts, const char *s, int *dst)
 {
-    for (int i = 0; consts[i].key; i++) {
+    for (size_t i = 0; consts[i].key; i++) {
         if (!strcmp(consts[i].key, s)) {
             *dst = consts[i].value;
             return 0;
@@ -191,7 +191,7 @@ int ngli_params_get_select_val(const struct param_const *consts, const char *s, 
 
 const char *ngli_params_get_select_str(const struct param_const *consts, int val)
 {
-    for (int i = 0; consts[i].key; i++)
+    for (size_t i = 0; consts[i].key; i++)
         if (consts[i].value == val)
             return consts[i].key;
     return NULL;
@@ -246,7 +246,7 @@ char *ngli_params_get_flags_str(const struct param_const *consts, int val)
     if (!b)
         return NULL;
 
-    for (int i = 0; consts[i].key; i++)
+    for (size_t i = 0; consts[i].key; i++)
         if (val & consts[i].value)
             ngli_bstr_printf(b, "%.1s%s", *ngli_bstr_strptr(b) ? FLAGS_SEP : "", consts[i].key);
 
@@ -335,7 +335,7 @@ static int allowed_node(const struct ngl_node *node, const uint32_t *allowed_ids
     if (!allowed_ids)
         return 1;
     const uint32_t id = node->cls->id;
-    for (int i = 0; allowed_ids[i] != NGLI_NODE_NONE; i++)
+    for (size_t i = 0; allowed_ids[i] != NGLI_NODE_NONE; i++)
         if (id == allowed_ids[i])
             return 1;
     return 0;
@@ -843,7 +843,7 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
     if (!params)
         return 0;
 
-    for (int i = 0; params[i].key; i++) {
+    for (size_t i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
 
         // The offset must be monotonically incrementing to make the reset of the
@@ -1008,7 +1008,7 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
     if (!params)
         return;
 
-    for (int i = 0; params[i].key; i++) {
+    for (size_t i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
         uint8_t *parp = base_ptr + par->offset;
 
