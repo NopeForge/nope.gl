@@ -375,7 +375,7 @@ static int prepare_texture_info_fields(struct pgcraft *s, const struct pgcraft_p
 {
     const int *types_map = texture_types_map[texture->type];
 
-    for (int i = 0; i < NGLI_INFO_FIELD_NB; i++) {
+    for (size_t i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         struct pgcraft_texture_info_field *field = &info->fields[i];
         const int type = types_map[i];
         if (type == NGLI_TYPE_NONE || !is_type_supported(s, type))
@@ -428,7 +428,7 @@ static int prepare_texture_infos(struct pgcraft *s, const struct pgcraft_params 
 
 static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *info, int stage)
 {
-    for (int i = 0; i < NGLI_INFO_FIELD_NB; i++) {
+    for (size_t i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         const struct pgcraft_texture_info_field *field = &info->fields[i];
 
         if (field->type == NGLI_TYPE_NONE || field->stage != stage)
@@ -694,7 +694,7 @@ static int params_have_images(struct pgcraft *s, const struct pgcraft_params *pa
     const struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
     for (int i = 0; i < ngli_darray_count(texture_infos_array); i++) {
         const struct pgcraft_texture_info *info = &texture_infos[i];
-        for (int j = 0; j < NGLI_INFO_FIELD_NB; j++) {
+        for (size_t j = 0; j < NGLI_INFO_FIELD_NB; j++) {
             const struct pgcraft_texture_info_field *field = &info->fields[j];
             if (field->stage == stage && field->type == NGLI_TYPE_IMAGE_2D)
                 return 1;
@@ -1257,7 +1257,7 @@ static int get_texture_index(const struct pgcraft *s, const char *name)
 
 static void probe_texture_info_elems(const struct pgcraft *s, struct pgcraft_texture_info_field *fields)
 {
-    for (int i = 0; i < NGLI_INFO_FIELD_NB; i++) {
+    for (size_t i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         struct pgcraft_texture_info_field *field = &fields[i];
         if (field->type == NGLI_TYPE_NONE)
             field->index = -1;
@@ -1341,7 +1341,7 @@ static void setup_glsl_info_gl(struct pgcraft *s)
      * Bindings are shared across all stages. UBO, SSBO and texture bindings
      * use distinct binding points.
      */
-    for (int i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
+    for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_UBO)] = &s->bindings[0];
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_SSBO)] = &s->bindings[1];
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_TEXTURE)] = &s->bindings[2];
@@ -1373,7 +1373,7 @@ static void setup_glsl_info_vk(struct pgcraft *s)
     s->compat_info.use_ublocks      = 1;
 
     /* Bindings are shared across stages and types */
-    for (int i = 0; i < NB_BINDINGS; i++)
+    for (size_t i = 0; i < NB_BINDINGS; i++)
         s->next_bindings[i] = &s->bindings[0];
 }
 #endif
