@@ -59,7 +59,7 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
 
-    for (int i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
+    for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
         const struct block *block = &s->compat_info->ublocks[i];
         if (!block->size)
             continue;
@@ -82,7 +82,7 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
             return ret;
 
         const struct pipeline_params *pipeline_params = params->params;
-        const int index = get_pipeline_ubo_index(pipeline_params, s->compat_info->ubindings[i], i);
+        const int index = get_pipeline_ubo_index(pipeline_params, s->compat_info->ubindings[i], (int)i);
         ngli_pipeline_update_buffer(s->pipeline, index, buffer, 0, buffer->size);
     }
 
@@ -236,7 +236,7 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
         return;
     ngli_pipeline_freep(&s->pipeline);
     if (s->compat_info && s->compat_info->use_ublocks) {
-        for (int i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
+        for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
             if (s->ubuffers[i]) {
                 ngli_buffer_unmap(s->ubuffers[i]);
                 ngli_buffer_freep(&s->ubuffers[i]);
