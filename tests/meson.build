@@ -376,6 +376,14 @@ foreach backend : backends
 
   if has_texture_3d
     tests_texture += '3d'
+    if max_color_attachments >= 4
+      tests_texture += '3d_from_mrt'
+      if max_samples >= 4
+        # Resolving MSAA attachments to 3D textures does not work due to driver issues
+        # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
+        # tests_texture += '3d_from_mrt_msaa'
+      endif
+    endif
   endif
 
   if has_texture_cube
