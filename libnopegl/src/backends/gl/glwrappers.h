@@ -405,6 +405,12 @@ static inline void ngli_glFramebufferTexture2D(const struct glcontext *gl, GLenu
     check_error_code(gl, "glFramebufferTexture2D");
 }
 
+static inline void ngli_glFramebufferTexture3D(const struct glcontext *gl, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset)
+{
+    gl->funcs.FramebufferTexture3D(target, attachment, textarget, texture, level, zoffset);
+    check_error_code(gl, "glFramebufferTexture3D");
+}
+
 static inline void ngli_glGenBuffers(const struct glcontext *gl, GLsizei n, GLuint * buffers)
 {
     gl->funcs.GenBuffers(n, buffers);

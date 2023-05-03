@@ -110,6 +110,7 @@ static const struct glfeature {
         .funcs_offsets  = (const size_t[]){OFFSET(RenderbufferStorageMultisample),
                                            OFFSET(BlitFramebuffer),
                                            OFFSET(GetFramebufferAttachmentParameteriv),
+                                           OFFSET(FramebufferTexture3D),
                                            -1}
     }, {
         .name           = "internalformat_query",

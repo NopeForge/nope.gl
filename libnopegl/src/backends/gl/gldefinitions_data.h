@@ -78,6 +78,7 @@ static const struct gldefinition {
     {"glFlush", offsetof(struct glfunctions, Flush), M},
     {"glFramebufferRenderbuffer", offsetof(struct glfunctions, FramebufferRenderbuffer), M},
     {"glFramebufferTexture2D", offsetof(struct glfunctions, FramebufferTexture2D), M},
+    {"glFramebufferTexture3D", offsetof(struct glfunctions, FramebufferTexture3D), 0},
     {"glGenBuffers", offsetof(struct glfunctions, GenBuffers), M},
     {"glGenFramebuffers", offsetof(struct glfunctions, GenFramebuffers), M},
     {"glGenQueries", offsetof(struct glfunctions, GenQueries), 0},
