@@ -109,8 +109,8 @@ struct pgcraft_attribute {
     int type;
     int precision;
     int format;
-    int stride;
-    int offset;
+    size_t stride;
+    size_t offset;
     int rate;
     struct buffer *buffer;
 };

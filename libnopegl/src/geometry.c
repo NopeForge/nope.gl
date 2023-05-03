@@ -49,7 +49,7 @@ static int gen_buffer(struct geometry *s,
     if (!buffer)
         return NGL_ERROR_MEMORY;
 
-    const int size = layout->count * layout->stride;
+    const size_t size = layout->count * layout->stride;
 
     int ret = ngli_buffer_init(buffer, size, NGLI_BUFFER_USAGE_TRANSFER_DST_BIT | usage);
     if (ret < 0)

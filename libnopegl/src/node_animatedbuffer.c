@@ -110,8 +110,8 @@ static int animatedbuffer_init(struct ngl_node *node)
 
     for (int i = 0; i < o->nb_animkf; i++) {
         const struct animkeyframe_opts *kf = o->animkf[i]->opts;
-        const int data_count = kf->data_size / layout->stride;
-        const int data_pad   = kf->data_size % layout->stride;
+        const int data_count = (int)(kf->data_size / layout->stride);
+        const int data_pad   = (int)(kf->data_size % layout->stride);
 
         if (layout->count && layout->count != data_count) {
             static const char *types[] = {"float", "vec2", "vec3", "vec4"};

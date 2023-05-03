@@ -72,8 +72,8 @@ struct pipeline_attribute_desc {
     char name[MAX_ID_LEN];
     int location;
     int format;
-    int stride;
-    int offset;
+    size_t stride;
+    size_t offset;
     int rate;
 };
 

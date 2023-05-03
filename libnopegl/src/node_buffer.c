@@ -96,10 +96,10 @@ static int buffer_init_from_data(struct ngl_node *node)
     const struct buffer_opts *o = node->opts;
     struct buffer_layout *layout = &s->buf.layout;
 
-    layout->count = layout->count ? layout->count : o->data_size / layout->stride;
+    layout->count = layout->count ? layout->count : o->data_size / (int)layout->stride;
     if (o->data_size != layout->count * layout->stride) {
         LOG(ERROR,
-            "element count (%d) and data stride (%d) does not match data size (%d)",
+            "element count (%d) and data stride (%zd) does not match data size (%d)",
             layout->count,
             layout->stride,
             o->data_size);
@@ -132,7 +132,7 @@ static int buffer_init_from_filename(struct ngl_node *node)
 
     if (s->buf.data_size != layout->count * layout->stride) {
         LOG(ERROR,
-            "element count (%d) and data stride (%d) does not match data size (%zd)",
+            "element count (%d) and data stride (%zd) does not match data size (%zd)",
             layout->count,
             layout->stride,
             s->buf.data_size);

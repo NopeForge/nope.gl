@@ -376,7 +376,7 @@ static void set_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
         const GLuint location = attribute_binding->desc.location;
         const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
-        const GLint stride = attribute_binding->desc.stride;
+        const GLsizei stride = (GLsizei)attribute_binding->desc.stride;
 
         ngli_glEnableVertexAttribArray(gl, location);
         if ((gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY) && attribute_binding->desc.rate > 0)
@@ -663,7 +663,7 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, const struc
     if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT) {
         const GLuint location = attribute_binding->desc.location;
         const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
-        const GLint stride = attribute_binding->desc.stride;
+        const GLsizei stride = (GLsizei)attribute_binding->desc.stride;
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
         ngli_glBindVertexArray(gl, s_priv->vao_id);
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
