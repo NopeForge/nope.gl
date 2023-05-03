@@ -99,7 +99,7 @@ static int buffer_init_from_data(struct ngl_node *node)
     layout->count = layout->count ? layout->count : o->data_size / (int)layout->stride;
     if (o->data_size != layout->count * layout->stride) {
         LOG(ERROR,
-            "element count (%d) and data stride (%zd) does not match data size (%d)",
+            "element count (%zd) and data stride (%zd) does not match data size (%d)",
             layout->count,
             layout->stride,
             o->data_size);
@@ -128,11 +128,11 @@ static int buffer_init_from_filename(struct ngl_node *node)
     }
 
     s->buf.data_size = (size_t)size;
-    layout->count = layout->count ? layout->count : (int)(s->buf.data_size / layout->stride);
+    layout->count = layout->count ? layout->count : s->buf.data_size / layout->stride;
 
     if (s->buf.data_size != layout->count * layout->stride) {
         LOG(ERROR,
-            "element count (%d) and data stride (%zd) does not match data size (%zd)",
+            "element count (%zd) and data stride (%zd) does not match data size (%zd)",
             layout->count,
             layout->stride,
             s->buf.data_size);
@@ -215,7 +215,7 @@ static int buffer_init_from_block(struct ngl_node *node)
     }
 
     if (layout->count > fi->count) {
-        LOG(ERROR, "block buffer reference count can not be larger than target buffer count (%d > %d)",
+        LOG(ERROR, "block buffer reference count can not be larger than target buffer count (%zd > %d)",
             layout->count, fi->count);
         return NGL_ERROR_INVALID_ARG;
     }

@@ -197,7 +197,7 @@ static void set_uniforms(struct pipeline *s, struct glcontext *gl)
     for (size_t i = 0; i < ngli_darray_count(&s_priv->uniform_bindings); i++) {
         const struct uniform_binding *uniform_binding = &bindings[i];
         if (uniform_binding->data)
-            uniform_binding->set(gl, uniform_binding->location, uniform_binding->desc.count, uniform_binding->data);
+            uniform_binding->set(gl, uniform_binding->location, (int)uniform_binding->desc.count, uniform_binding->data);
     }
 }
 
@@ -689,7 +689,7 @@ int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *d
         struct glstate *glstate = &gpu_ctx_gl->glstate;
         struct program_gl *program_gl = (struct program_gl *)s->program;
         ngli_glstate_use_program(gl, glstate, program_gl->id);
-        uniform_binding->set(gl, uniform_binding->location, uniform_binding->desc.count, data);
+        uniform_binding->set(gl, uniform_binding->location, (int)uniform_binding->desc.count, data);
     }
     uniform_binding->data = NULL;
 

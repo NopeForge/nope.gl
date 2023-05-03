@@ -169,12 +169,12 @@ int ngli_geometry_init(struct geometry *s, int topology)
     s->topology = topology;
 
     if (s->uvcoords_layout.count && s->uvcoords_layout.count != s->vertices_layout.count) {
-        LOG(ERROR, "uvcoords count (%d) does not match vertices count (%d)", s->uvcoords_layout.count, s->vertices_layout.count);
+        LOG(ERROR, "uvcoords count (%zd) does not match vertices count (%zd)", s->uvcoords_layout.count, s->vertices_layout.count);
         return NGL_ERROR_INVALID_ARG;
     }
 
     if (s->normals_layout.count && s->normals_layout.count != s->vertices_layout.count) {
-        LOG(ERROR, "normals count (%d) does not match vertices count (%d)", s->normals_layout.count, s->vertices_layout.count);
+        LOG(ERROR, "normals count (%zd) does not match vertices count (%zd)", s->normals_layout.count, s->vertices_layout.count);
         return NGL_ERROR_INVALID_ARG;
     }
 

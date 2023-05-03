@@ -37,7 +37,7 @@ struct pgcraft_uniform { // also buffers (for arrays)
     char name[MAX_ID_LEN];
     int type;
     int stage;
-    int count;
+    size_t count;
     int precision;
     const void *data;
 };

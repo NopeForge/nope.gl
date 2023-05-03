@@ -259,7 +259,7 @@ static int inject_block_uniform(struct pgcraft *s, struct bstr *b,
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     struct block *block = &compat_info->ublocks[stage];
 
-    return ngli_block_add_field(block, uniform->name, uniform->type, uniform->count);
+    return ngli_block_add_field(block, uniform->name, uniform->type, (int)uniform->count);
 }
 
 static int inject_uniform(struct pgcraft *s, struct bstr *b,
@@ -278,7 +278,7 @@ static int inject_uniform(struct pgcraft *s, struct bstr *b,
     const char *type = get_glsl_type(uniform->type);
     const char *precision = get_precision_qualifier(s, uniform->type, uniform->precision, "highp");
     if (uniform->count)
-        ngli_bstr_printf(b, "uniform %s %s %s[%d];\n", precision, type, uniform->name, uniform->count);
+        ngli_bstr_printf(b, "uniform %s %s %s[%zd];\n", precision, type, uniform->name, uniform->count);
     else
         ngli_bstr_printf(b, "uniform %s %s %s;\n", precision, type, uniform->name);
 

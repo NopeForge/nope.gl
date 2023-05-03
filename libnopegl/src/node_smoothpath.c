@@ -92,8 +92,8 @@ static int smoothpath_init(struct ngl_node *node)
      * See https://pomax.github.io/bezierinfo/#catmullconv
      */
     const float scale = 1.f / (o->tension * 6.f);
-    const int nb_segments = points->layout.count - 1;
-    for (int i = 0; i < nb_segments; i++) {
+    const size_t nb_segments = points->layout.count - 1;
+    for (size_t i = 0; i < nb_segments; i++) {
         const float *p0 = i == 0 ? o->control1 : &p[(i - 1) * 3];
         const float *p1 = &p[i * 3];
         const float *p2 = &p[(i + 1) * 3];

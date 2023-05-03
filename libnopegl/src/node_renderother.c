@@ -478,7 +478,7 @@ static void draw_indexed(struct render_common *s, struct pipeline_compat *pl_com
     ngli_pipeline_compat_draw_indexed(pl_compat,
                                       s->geometry->indices_buffer,
                                       s->geometry->indices_layout.format,
-                                      s->geometry->indices_layout.count, 1);
+                                      (int)s->geometry->indices_layout.count, 1);
 }
 
 static int init(struct ngl_node *node,
@@ -552,7 +552,7 @@ static int init(struct ngl_node *node,
         s->uvcoord_attr.offset = uvcoords_layout.offset;
         s->uvcoord_attr.buffer = uvcoords;
 
-        s->nb_vertices = vertices_layout.count;
+        s->nb_vertices = (int)vertices_layout.count;
         s->topology = geometry->topology;
         s->draw = geometry->indices_buffer ? draw_indexed : draw_simple;
     }

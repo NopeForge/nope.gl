@@ -84,7 +84,7 @@ static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
     const struct streamed_opts *o = node->opts;
     const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
-    const int nb_timestamps = timestamps_priv->layout.count;
+    const int nb_timestamps = (int)timestamps_priv->layout.count;
 
     int ret = -1;
     for (int i = start; i < nb_timestamps; i++) {
@@ -139,7 +139,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
     const struct streamed_opts *o = node->opts;
     const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
-    const int nb_timestamps = timestamps_priv->layout.count;
+    const size_t nb_timestamps = timestamps_priv->layout.count;
 
     if (!nb_timestamps) {
         LOG(ERROR, "timestamps buffer must not be empty");
@@ -148,7 +148,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
 
     const struct buffer_info *buffer_info = o->buffer->priv_data;
     if (nb_timestamps != buffer_info->layout.count) {
-        LOG(ERROR, "timestamps count must match buffer data count: %d != %d", nb_timestamps, buffer_info->layout.count);
+        LOG(ERROR, "timestamps count must match buffer data count: %zd != %zd", nb_timestamps, buffer_info->layout.count);
         return NGL_ERROR_INVALID_ARG;
     }
 
