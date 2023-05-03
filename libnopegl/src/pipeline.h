@@ -101,13 +101,13 @@ struct pipeline_layout {
 
 struct pipeline_resources {
     struct texture **textures;
-    int nb_textures;
+    size_t nb_textures;
     void **uniforms;
-    int nb_uniforms;
+    size_t nb_uniforms;
     struct buffer **buffers;
-    int nb_buffers;
+    size_t nb_buffers;
     struct buffer **attributes;
-    int nb_attributes;
+    size_t nb_attributes;
 };
 
 struct pipeline_params {

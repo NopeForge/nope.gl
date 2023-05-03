@@ -604,30 +604,30 @@ int ngli_pipeline_gl_set_resources(struct pipeline *s, const struct pipeline_res
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
     ngli_assert(ngli_darray_count(&s_priv->attribute_bindings) == resources->nb_attributes);
-    for (int i = 0; i < resources->nb_attributes; i++) {
-        int ret = ngli_pipeline_gl_update_attribute(s, i, resources->attributes[i]);
+    for (size_t i = 0; i < resources->nb_attributes; i++) {
+        int ret = ngli_pipeline_gl_update_attribute(s, (int)i, resources->attributes[i]);
         if (ret < 0)
             return ret;
     }
 
     ngli_assert(ngli_darray_count(&s_priv->buffer_bindings) == resources->nb_buffers);
-    for (int i = 0; i < resources->nb_buffers; i++) {
+    for (size_t i = 0; i < resources->nb_buffers; i++) {
         const struct buffer_binding *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, i);
         const struct pipeline_buffer_desc *buffer_desc = &buffer_binding->desc;
-        int ret = ngli_pipeline_gl_update_buffer(s, i, resources->buffers[i], buffer_desc->offset, buffer_desc->size);
+        int ret = ngli_pipeline_gl_update_buffer(s, (int)i, resources->buffers[i], buffer_desc->offset, buffer_desc->size);
         if (ret < 0)
             return ret;
     }
 
     ngli_assert(ngli_darray_count(&s_priv->texture_bindings) == resources->nb_textures);
-    for (int i = 0; i < resources->nb_textures; i++) {
-        int ret = ngli_pipeline_gl_update_texture(s, i, resources->textures[i]);
+    for (size_t i = 0; i < resources->nb_textures; i++) {
+        int ret = ngli_pipeline_gl_update_texture(s, (int)i, resources->textures[i]);
         if (ret < 0)
             return ret;
     }
 
     ngli_assert(ngli_darray_count(&s_priv->uniform_bindings) == resources->nb_uniforms);
-    for (int i = 0; i < resources->nb_uniforms; i++) {
+    for (size_t i = 0; i < resources->nb_uniforms; i++) {
         struct uniform_binding *uniform_binding = ngli_darray_get(&s_priv->uniform_bindings, i);
         const void *uniform_data = resources->uniforms[i];
         uniform_binding->data = uniform_data;

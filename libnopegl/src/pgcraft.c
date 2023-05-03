@@ -1587,13 +1587,13 @@ struct pipeline_resources ngli_pgcraft_get_pipeline_resources(const struct pgcra
 {
     const struct pipeline_resources resources = {
         .uniforms      = ngli_darray_data(&s->filtered_pipeline_info.data.uniforms),
-        .nb_uniforms   = (int)ngli_darray_count(&s->filtered_pipeline_info.data.uniforms),
+        .nb_uniforms   = ngli_darray_count(&s->filtered_pipeline_info.data.uniforms),
         .textures      = ngli_darray_data(&s->filtered_pipeline_info.data.textures),
-        .nb_textures   = (int)ngli_darray_count(&s->filtered_pipeline_info.data.textures),
+        .nb_textures   = ngli_darray_count(&s->filtered_pipeline_info.data.textures),
         .attributes    = ngli_darray_data(&s->filtered_pipeline_info.data.attributes),
-        .nb_attributes = (int)ngli_darray_count(&s->filtered_pipeline_info.data.attributes),
+        .nb_attributes = ngli_darray_count(&s->filtered_pipeline_info.data.attributes),
         .buffers       = ngli_darray_data(&s->filtered_pipeline_info.data.buffers),
-        .nb_buffers    = (int)ngli_darray_count(&s->filtered_pipeline_info.data.buffers),
+        .nb_buffers    = ngli_darray_count(&s->filtered_pipeline_info.data.buffers),
     };
     return resources;
 }
