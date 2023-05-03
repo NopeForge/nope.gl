@@ -65,7 +65,7 @@ static int gen_buffer(struct geometry *s,
 
 static int gen_vec3(struct geometry *s,
                     struct buffer **bufferp, struct buffer_layout *layout,
-                    int count, const float *data)
+                    size_t count, const float *data)
 {
     const int format = NGLI_FORMAT_R32G32B32_SFLOAT;
     *layout = (struct buffer_layout){
@@ -79,14 +79,14 @@ static int gen_vec3(struct geometry *s,
     return gen_buffer(s, bufferp, layout, data, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 }
 
-int ngli_geometry_set_vertices(struct geometry *s, int n, const float *vertices)
+int ngli_geometry_set_vertices(struct geometry *s, size_t n, const float *vertices)
 {
     ngli_assert(!(s->buffer_ownership & OWN_VERTICES));
     s->buffer_ownership |= OWN_VERTICES;
     return gen_vec3(s, &s->vertices_buffer, &s->vertices_layout, n, vertices);
 }
 
-int ngli_geometry_set_normals(struct geometry *s, int n, const float *normals)
+int ngli_geometry_set_normals(struct geometry *s, size_t n, const float *normals)
 {
     ngli_assert(!(s->buffer_ownership & OWN_NORMALS));
     s->buffer_ownership |= OWN_NORMALS;
@@ -95,7 +95,7 @@ int ngli_geometry_set_normals(struct geometry *s, int n, const float *normals)
 
 static int gen_vec2(struct geometry *s,
                     struct buffer **bufferp, struct buffer_layout *layout,
-                    int count, const float *data)
+                    size_t count, const float *data)
 {
     const int format = NGLI_FORMAT_R32G32_SFLOAT;
     *layout = (struct buffer_layout){
@@ -109,14 +109,14 @@ static int gen_vec2(struct geometry *s,
     return gen_buffer(s, bufferp, layout, data, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 }
 
-int ngli_geometry_set_uvcoords(struct geometry *s, int n, const float *uvcoords)
+int ngli_geometry_set_uvcoords(struct geometry *s, size_t n, const float *uvcoords)
 {
     ngli_assert(!(s->buffer_ownership & OWN_UVCOORDS));
     s->buffer_ownership |= OWN_UVCOORDS;
     return gen_vec2(s, &s->uvcoords_buffer, &s->uvcoords_layout, n, uvcoords);
 }
 
-int ngli_geometry_set_indices(struct geometry *s, int count, const uint16_t *indices)
+int ngli_geometry_set_indices(struct geometry *s, size_t count, const uint16_t *indices)
 {
     ngli_assert(!(s->buffer_ownership & OWN_INDICES));
     s->buffer_ownership |= OWN_INDICES;
@@ -129,7 +129,7 @@ int ngli_geometry_set_indices(struct geometry *s, int count, const uint16_t *ind
         .count  = count,
         .offset = 0,
     };
-    for (int i = 0; i < count; i++)
+    for (size_t i = 0; i < count; i++)
         s->max_indices = NGLI_MAX(s->max_indices, indices[i]);
     return gen_buffer(s, &s->indices_buffer, &s->indices_layout, indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT);
 }
