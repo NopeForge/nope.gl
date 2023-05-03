@@ -62,8 +62,8 @@ static int circle_init(struct ngl_node *node)
         LOG(ERROR, "invalid number of points (%d < 3)", o->npoints);
         return NGL_ERROR_INVALID_ARG;
     }
-    const int nb_vertices = o->npoints + 1;
-    const int nb_indices  = o->npoints * 3;
+    const size_t nb_vertices = o->npoints + 1;
+    const size_t nb_indices  = o->npoints * 3;
 
     float *vertices  = ngli_calloc(nb_vertices, sizeof(*vertices)  * 3);
     float *uvcoords  = ngli_calloc(nb_vertices, sizeof(*uvcoords)  * 2);
@@ -81,7 +81,7 @@ static int circle_init(struct ngl_node *node)
     vertices[1] = 0.0f;
     uvcoords[0] = 0.5f;
     uvcoords[1] = 0.5f;
-    for (int i = 1; i < nb_vertices; i++) {
+    for (size_t i = 1; i < nb_vertices; i++) {
         const float angle = (float)(i - 1) * -step;
         const float x = sinf(angle) * o->radius;
         const float y = cosf(angle) * o->radius;
@@ -98,7 +98,7 @@ static int circle_init(struct ngl_node *node)
     indices[nb_indices - 1] = 1;
 
     ngli_vec3_normalvec(normals, vertices, vertices + 3, vertices + 6);
-    for (int i = 1; i < nb_vertices; i++)
+    for (size_t i = 1; i < nb_vertices; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
