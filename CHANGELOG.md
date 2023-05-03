@@ -32,6 +32,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   to inter range times (now only a single time segment is handled).
 - The API now mandates that node scenes have to be wrapped into a dedicated
   scene object that holds extra metadata (duration, aspect ratio and framerate)
+- All counters and size-based arguments in the public API are now using `size_t`
+  instead of `int`
 
 ### Removed
 - `ResourceProps.variadic` bool flag as it was never a functional interface
