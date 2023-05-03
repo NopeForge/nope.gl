@@ -2320,7 +2320,7 @@
     {
       "name": "texture",
       "type": "node",
-      "node_types": ["Texture2D", "TextureCube"],
+      "node_types": ["Texture2D", "Texture3D", "TextureCube"],
       "flags": ["nonull"],
       "desc": "texture used for the view"
     },
