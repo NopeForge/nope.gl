@@ -200,7 +200,7 @@ static void serialize_str(struct bstr *b, const uint8_t *srcp,
     if (!strcmp(par->key, "label") && ngli_is_default_label(label, s))
         return;
     ngli_bstr_printf(b, " %s:", par->key);
-    for (int i = 0; s[i]; i++)
+    for (size_t i = 0; s[i]; i++)
         if (s[i] >= '!' && s[i] <= '~' && s[i] != '%')
             ngli_bstr_printf(b, "%c", s[i]);
         else
