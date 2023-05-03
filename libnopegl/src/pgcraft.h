@@ -178,13 +178,13 @@ struct pgcraft_params {
     const char *comp_base;
 
     const struct pgcraft_uniform *uniforms;
-    int nb_uniforms;
+    size_t nb_uniforms;
     const struct pgcraft_texture *textures;
-    int nb_textures;
+    size_t nb_textures;
     const struct pgcraft_block *blocks;
-    int nb_blocks;
+    size_t nb_blocks;
     const struct pgcraft_attribute *attributes;
-    int nb_attributes;
+    size_t nb_attributes;
 
     const struct pgcraft_iovar *vert_out_vars;
     size_t nb_vert_out_vars;
