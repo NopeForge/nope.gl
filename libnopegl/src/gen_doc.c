@@ -60,7 +60,7 @@ static void print_node_type(struct bstr *b, const struct node_class *cls)
     const char *class_ref = cls->params_id ? cls->params_id : cls->name;
 
     ngli_bstr_printf(b, "[%s](#", cls->name);
-    for (int i = 0; class_ref[i]; i++)
+    for (size_t i = 0; class_ref[i]; i++)
         ngli_bstr_printf(b, "%c", LOWER(class_ref[i]));
     ngli_bstr_print(b, ")");
 }
@@ -78,7 +78,7 @@ static char *get_type_str(const struct node_param *p)
     }
     if (p->node_types) {
         ngli_bstr_print(b, " (");
-        for (int i = 0; p->node_types[i] != NGLI_NODE_NONE; i++) {
+        for (size_t i = 0; p->node_types[i] != NGLI_NODE_NONE; i++) {
             if (i)
                 ngli_bstr_print(b, ", ");
             print_node_type(b, get_node_class(p->node_types[i]));
@@ -223,7 +223,7 @@ static int check_node_params(const struct node_class *cls)
                 return NGL_ERROR_UNSUPPORTED;
             }
 
-            for (int i = 0; par->node_types[i] != NGLI_NODE_NONE; i++) {
+            for (size_t i = 0; par->node_types[i] != NGLI_NODE_NONE; i++) {
                 const struct node_class *child_cls = node_type_to_class(par->node_types[i]);
                 if (node_has_children(child_cls)) {
                     fprintf(stderr, "parameter %s.%s could be a node that has children nodes, "
@@ -291,7 +291,7 @@ static void print_choices(const struct param_choices *choices)
     const struct param_const *consts = choices->consts;
     printf("Constant | Description\n");
     printf("-------- | -----------\n");
-    for (int i = 0; consts[i].key; i++) {
+    for (size_t i = 0; consts[i].key; i++) {
         const struct param_const *c = &consts[i];
         ngli_assert(c->desc);
         printf("`%s` | %s\n", c->key, c->desc);
@@ -306,7 +306,7 @@ static void print_parameter_types(void)
         "\n"
         "Type | Description\n"
         "---- | -----------\n");
-    for (int i = 0; i < NGLI_PARAM_TYPE_NB; i++) {
+    for (size_t i = 0; i < NGLI_PARAM_TYPE_NB; i++) {
         const struct param_specs *ps = &ngli_params_specs[i];
         ngli_assert(ps->name && ps->desc);
         printf("`%s` | %s\n", ps->name, ps->desc);
