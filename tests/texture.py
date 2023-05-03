@@ -1,4 +1,5 @@
 #
+# Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
 # Copyright 2020-2022 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -336,6 +337,67 @@ def texture_3d(cfg: SceneCfg):
     render = ngl.Render(quad, program)
     render.update_frag_resources(tex0=texture)
     return render
+
+
+_RENDER_TO_TEXTURE3D_VERT = """
+void main()
+{
+    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+}
+"""
+
+_RENDER_TO_TEXTURE3D_FRAG = """
+void main()
+{
+    float x = floor(gl_FragCoord.x / ngl_resolution.x * steps) / steps;
+    ngl_out_color[0] = vec4(x, 0.0, 0.0, 1.0);
+    ngl_out_color[1] = vec4(0.0, x, 0.0, 1.0);
+    ngl_out_color[2] = vec4(0.0, 0.0, x, 1.0);
+}
+"""
+
+_STEPS = 4
+
+
+def _get_texture_3d_from_mrt_cuepoints():
+    f = float(_STEPS)
+    off = 1 / (2 * f)
+    c = lambda i: (i / f + off) * 2.0 - 1.0
+    return {f"{x}": (c(x), 0.0) for x in range(_STEPS)}
+
+
+def _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, samples=0):
+    depth = 3
+    program = ngl.Program(vertex=_RENDER_TO_TEXTURE3D_VERT, fragment=_RENDER_TO_TEXTURE3D_FRAG, nb_frag_output=depth)
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(steps=ngl.UniformFloat(value=_STEPS))
+    texture = ngl.Texture3D(width=64, height=64, depth=depth, min_filter="nearest", mag_filter="nearest")
+    rtt = ngl.RenderToTexture(render, [texture], samples=samples)
+
+    program = ngl.Program(vertex=_TEXTURE3D_VERT, fragment=_TEXTURE3D_FRAG)
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(tex0=texture)
+
+    group = ngl.Group(children=(rtt, render))
+    if show_dbg_points:
+        group.add_children(get_debug_points(cfg, _get_texture_3d_from_mrt_cuepoints()))
+
+    return group
+
+
+@test_cuepoints(points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def texture_3d_from_mrt(cfg: SceneCfg, show_dbg_points=False):
+    return _get_texture_3d_from_mrt_scene(cfg, show_dbg_points)
+
+
+@test_cuepoints(points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def texture_3d_from_mrt_msaa(cfg: SceneCfg, show_dbg_points=False):
+    return _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, 4)
 
 
 _RENDER_TEXTURE_LOD_VERT = """
