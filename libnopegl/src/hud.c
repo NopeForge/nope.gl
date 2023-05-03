@@ -335,7 +335,7 @@ static int widget_latency_init(struct hud *s, struct widget *widget)
     ngli_assert(NB_LATENCY == NGLI_ARRAY_NB(priv->measures));
 
     s->measure_window = NGLI_MAX(s->measure_window, 1);
-    for (int i = 0; i < NB_LATENCY; i++) {
+    for (size_t i = 0; i < NB_LATENCY; i++) {
         int64_t *times = ngli_calloc(s->measure_window, sizeof(*times));
         if (!times)
             return NGL_ERROR_MEMORY;
@@ -377,7 +377,7 @@ static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, con
     struct hmap *nodes_set = ngli_hmap_create();
     if (!nodes_set)
         return NGL_ERROR_MEMORY;
-    for (int n = 0; node_types[n] != NGLI_NODE_NONE; n++) {
+    for (size_t n = 0; node_types[n] != NGLI_NODE_NONE; n++) {
         int ret = track_children_per_types(nodes_set, scene, node_types[n]);
         if (ret < 0) {
             ngli_hmap_freep(&nodes_set);
@@ -405,7 +405,7 @@ static int widget_memory_init(struct hud *s, struct widget *widget)
     struct ngl_node *scene = ctx->scene;
     struct widget_memory *priv = widget->priv_data;
 
-    for (int i = 0; i < NB_MEMORY; i++) {
+    for (size_t i = 0; i < NB_MEMORY; i++) {
         const uint32_t *node_types = memory_specs[i].node_types;
         int ret = make_nodes_set(scene, &priv->nodes[i], node_types);
         if (ret < 0)
@@ -630,7 +630,7 @@ static void register_graph_value(struct data_graph *d, int64_t v)
     d->amax = NGLI_MAX(d->amax, d->max);
 }
 
-static int64_t get_latency_avg(const struct widget_latency *priv, int id)
+static int64_t get_latency_avg(const struct widget_latency *priv, size_t id)
 {
     const struct latency_measure *m = &priv->measures[id];
     return m->total_times / m->count / (latency_specs[id].unit == 'u' ? 1 : 1000);
@@ -641,24 +641,24 @@ static void widget_latency_draw(struct hud *s, struct widget *widget)
     struct widget_latency *priv = widget->priv_data;
 
     char buf[LATENCY_WIDGET_TEXT_LEN + 1];
-    for (int i = 0; i < NB_LATENCY; i++) {
+    for (size_t i = 0; i < NB_LATENCY; i++) {
         const int64_t t = get_latency_avg(priv, i);
 
         snprintf(buf, sizeof(buf), "%s %5" PRId64 "usec", latency_specs[i].label, t);
-        print_text(s, widget->text_x, widget->text_y + i * NGLI_FONT_H, buf, latency_specs[i].color);
+        print_text(s, widget->text_x, widget->text_y + (int)i * NGLI_FONT_H, buf, latency_specs[i].color);
         register_graph_value(&widget->data_graph[i], t);
     }
 
     int64_t graph_min = widget->data_graph[0].min;
     int64_t graph_max = widget->data_graph[0].max;
-    for (int i = 1; i < NB_LATENCY; i++) {
+    for (size_t i = 1; i < NB_LATENCY; i++) {
         graph_min = NGLI_MIN(graph_min, widget->data_graph[i].min);
         graph_max = NGLI_MAX(graph_max, widget->data_graph[i].max);
     }
 
     const int64_t graph_h = graph_max - graph_min;
     if (graph_h) {
-        for (int i = 0; i < NB_LATENCY; i++)
+        for (size_t i = 0; i < NB_LATENCY; i++)
             draw_line_graph(s, &widget->data_graph[i], &widget->graph_rect,
                             graph_min, graph_max, latency_specs[i].color);
     }
@@ -669,7 +669,7 @@ static void widget_memory_draw(struct hud *s, struct widget *widget)
     struct widget_memory *priv = widget->priv_data;
     char buf[MEMORY_WIDGET_TEXT_LEN + 1];
 
-    for (int i = 0; i < NB_MEMORY; i++) {
+    for (size_t i = 0; i < NB_MEMORY; i++) {
         const uint64_t size = priv->sizes[i];
         const uint32_t color = memory_specs[i].color;
         const char *label = memory_specs[i].label;
@@ -682,20 +682,20 @@ static void widget_memory_draw(struct hud *s, struct widget *widget)
             snprintf(buf, sizeof(buf), "%-12s %"PRIu64"M", label, size / (1024 * 1024));
         else
             snprintf(buf, sizeof(buf), "%-12s %"PRIu64"G", label, size / (1024 * 1024 * 1024));
-        print_text(s, widget->text_x, widget->text_y + i * NGLI_FONT_H, buf, color);
+        print_text(s, widget->text_x, widget->text_y + (int)i * NGLI_FONT_H, buf, color);
         register_graph_value(&widget->data_graph[i], size);
     }
 
     int64_t graph_min = widget->data_graph[0].min;
     int64_t graph_max = widget->data_graph[0].max;
-    for (int i = 1; i < NB_MEMORY; i++) {
+    for (size_t i = 1; i < NB_MEMORY; i++) {
         graph_min = NGLI_MIN(graph_min, widget->data_graph[i].min);
         graph_max = NGLI_MAX(graph_max, widget->data_graph[i].max);
     }
 
     const int64_t graph_h = graph_max - graph_min;
     if (graph_h) {
-        for (int i = 0; i < NB_MEMORY; i++)
+        for (size_t i = 0; i < NB_MEMORY; i++)
             draw_line_graph(s, &widget->data_graph[i], &widget->graph_rect,
                             graph_min, graph_max, memory_specs[i].color);
     }
@@ -737,13 +737,13 @@ static void widget_drawcall_draw(struct hud *s, struct widget *widget)
 
 static void widget_latency_csv_header(struct hud *s, struct widget *widget, struct bstr *dst)
 {
-    for (int i = 0; i < NB_LATENCY; i++)
+    for (size_t i = 0; i < NB_LATENCY; i++)
         ngli_bstr_printf(dst, "%s%s", i ? "," : "", latency_specs[i].label);
 }
 
 static void widget_memory_csv_header(struct hud *s, struct widget *widget, struct bstr *dst)
 {
-    for (int i = 0; i < NB_MEMORY; i++)
+    for (size_t i = 0; i < NB_MEMORY; i++)
         ngli_bstr_printf(dst, "%s%s memory", i ? "," : "", memory_specs[i].label);
 }
 
@@ -764,7 +764,7 @@ static void widget_drawcall_csv_header(struct hud *s, struct widget *widget, str
 static void widget_latency_csv_report(struct hud *s, struct widget *widget, struct bstr *dst)
 {
     const struct widget_latency *priv = widget->priv_data;
-    for (int i = 0; i < NB_LATENCY; i++) {
+    for (size_t i = 0; i < NB_LATENCY; i++) {
         const int64_t t = get_latency_avg(priv, i);
         ngli_bstr_printf(dst, "%s%"PRId64, i ? "," : "", t);
     }
@@ -773,7 +773,7 @@ static void widget_latency_csv_report(struct hud *s, struct widget *widget, stru
 static void widget_memory_csv_report(struct hud *s, struct widget *widget, struct bstr *dst)
 {
     const struct widget_memory *priv = widget->priv_data;
-    for (int i = 0; i < NB_MEMORY; i++) {
+    for (size_t i = 0; i < NB_MEMORY; i++) {
         const uint64_t size = priv->sizes[i];
         ngli_bstr_printf(dst, "%s%"PRIu64, i ? "," : "", size);
     }
@@ -796,14 +796,14 @@ static void widget_drawcall_csv_report(struct hud *s, struct widget *widget, str
 static void widget_latency_uninit(struct hud *s, struct widget *widget)
 {
     struct widget_latency *priv = widget->priv_data;
-    for (int i = 0; i < NB_LATENCY; i++)
+    for (size_t i = 0; i < NB_LATENCY; i++)
         ngli_free(priv->measures[i].times);
 }
 
 static void widget_memory_uninit(struct hud *s, struct widget *widget)
 {
     struct widget_memory *priv = widget->priv_data;
-    for (int i = 0; i < NB_MEMORY; i++)
+    for (size_t i = 0; i < NB_MEMORY; i++)
         ngli_darray_reset(&priv->nodes[i]);
 }
 
@@ -988,7 +988,7 @@ static int widgets_init(struct hud *s)
     int x_activity = WIDGET_MARGIN;
     const int y_activity = WIDGET_MARGIN + y_memory + get_widget_height(WIDGET_MEMORY);
     const int x_activity_step = get_widget_width(WIDGET_ACTIVITY) + WIDGET_MARGIN;
-    for (int i = 0; i < NB_ACTIVITY; i++) {
+    for (size_t i = 0; i < NB_ACTIVITY; i++) {
         ret = create_widget(s, WIDGET_ACTIVITY, &activity_specs[i], x_activity, y_activity);
         if (ret < 0)
             return ret;
@@ -999,7 +999,7 @@ static int widgets_init(struct hud *s)
     int x_drawcall = WIDGET_MARGIN;
     const int y_drawcall = WIDGET_MARGIN + y_activity + get_widget_height(WIDGET_ACTIVITY);
     const int x_drawcall_step = get_widget_width(WIDGET_DRAWCALL) + WIDGET_MARGIN;
-    for (int i = 0; i < NB_DRAWCALL; i++) {
+    for (size_t i = 0; i < NB_DRAWCALL; i++) {
         ret = create_widget(s, WIDGET_DRAWCALL, &drawcall_specs[i], x_drawcall, y_drawcall);
         if (ret < 0)
             return ret;
@@ -1022,7 +1022,7 @@ static int widgets_init(struct hud *s)
 static void widget_drawcall_reset_draws(struct widget *widget)
 {
     struct widget_drawcall *priv = widget->priv_data;
-    for (int i = 0; i < NB_DRAWCALL; i++) {
+    for (size_t i = 0; i < NB_DRAWCALL; i++) {
         struct darray *nodes_array = &priv->nodes;
         struct ngl_node **nodes = ngli_darray_data(nodes_array);
         for (int i = 0; i < ngli_darray_count(nodes_array); i++)
