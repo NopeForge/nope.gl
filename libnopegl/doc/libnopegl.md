@@ -965,7 +965,7 @@ Parameter | Flags | Type | Description | Default
 
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
-`texture` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([Texture2D](#texture2d), [TextureCube](#texturecube)) | texture used for the view | 
+`texture` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d), [TextureCube](#texturecube)) | texture used for the view | 
 `layer` |  | [`i32`](#parameter-types) | texture layer used for the view | `0`
 
 
