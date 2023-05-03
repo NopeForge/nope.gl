@@ -38,10 +38,10 @@ enum block_layout {
 struct block_field {
     char name[MAX_ID_LEN];
     int type;
-    int count;
-    int offset;
-    int size;
-    int stride;
+    size_t count;
+    size_t offset;
+    size_t size;
+    size_t stride;
 };
 
 void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uint8_t *src);
@@ -49,14 +49,14 @@ void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uin
 struct block {
     enum block_layout layout;
     struct darray fields; // block_field
-    int size;
+    size_t size;
 };
 
 #define NGLI_BLOCK_VARIADIC_COUNT -1
 
 void ngli_block_init(struct block *s, enum block_layout layout);
-int ngli_block_get_size(const struct block *s, int variadic_count);
-int ngli_block_add_field(struct block *s, const char *name, int type, int count);
+size_t ngli_block_get_size(const struct block *s, size_t variadic_count);
+int ngli_block_add_field(struct block *s, const char *name, int type, size_t count);
 void ngli_block_reset(struct block *s);
 
 #endif

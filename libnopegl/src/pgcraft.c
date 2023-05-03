@@ -259,7 +259,7 @@ static int inject_block_uniform(struct pgcraft *s, struct bstr *b,
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     struct block *block = &compat_info->ublocks[stage];
 
-    return ngli_block_add_field(block, uniform->name, uniform->type, (int)uniform->count);
+    return ngli_block_add_field(block, uniform->name, uniform->type, uniform->count);
 }
 
 static int inject_uniform(struct pgcraft *s, struct bstr *b,
@@ -571,7 +571,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
         if (fi->count == NGLI_BLOCK_VARIADIC_COUNT)
             ngli_bstr_printf(b, "    %s %s[];\n", type, fi->name);
         else if (fi->count)
-            ngli_bstr_printf(b, "    %s %s[%d];\n", type, fi->name, fi->count);
+            ngli_bstr_printf(b, "    %s %s[%zd];\n", type, fi->name, fi->count);
         else
             ngli_bstr_printf(b, "    %s %s;\n", type, fi->name);
     }

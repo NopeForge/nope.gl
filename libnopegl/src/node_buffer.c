@@ -215,7 +215,7 @@ static int buffer_init_from_block(struct ngl_node *node)
     }
 
     if (layout->count > fi->count) {
-        LOG(ERROR, "block buffer reference count can not be larger than target buffer count (%zd > %d)",
+        LOG(ERROR, "block buffer reference count can not be larger than target buffer count (%zd > %zd)",
             layout->count, fi->count);
         return NGL_ERROR_INVALID_ARG;
     }

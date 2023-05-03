@@ -33,7 +33,7 @@ void ngli_block_init(struct block *s, enum block_layout layout)
     s->layout = layout;
 }
 
-static const int strides_map[NGLI_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
+static const size_t strides_map[NGLI_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
     [NGLI_BLOCK_LAYOUT_STD140] = {
         [NGLI_TYPE_BOOL]   = sizeof(int)   * 4,
         [NGLI_TYPE_I32]    = sizeof(int32_t)  * 4,
@@ -70,7 +70,7 @@ static const int strides_map[NGLI_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
     },
 };
 
-static const int sizes_map[NGLI_TYPE_NB] = {
+static const size_t sizes_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_BOOL]   = sizeof(int)   * 1,
     [NGLI_TYPE_I32]    = sizeof(int32_t)  * 1,
     [NGLI_TYPE_IVEC2]  = sizeof(int32_t)  * 2,
@@ -88,7 +88,7 @@ static const int sizes_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_MAT4]   = sizeof(float) * 4 * 4,
 };
 
-static const int aligns_map[NGLI_TYPE_NB] = {
+static const size_t aligns_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_BOOL]   = sizeof(int)   * 1,
     [NGLI_TYPE_I32]    = sizeof(int32_t)  * 1,
     [NGLI_TYPE_IVEC2]  = sizeof(int32_t)  * 2,
@@ -106,31 +106,31 @@ static const int aligns_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_MAT4]   = sizeof(float) * 4,
 };
 
-static int get_buffer_stride(const struct block_field *field, int layout)
+static size_t get_buffer_stride(const struct block_field *field, int layout)
 {
     return strides_map[layout][field->type];
 }
 
-static int get_buffer_size(const struct block_field *field, int layout)
+static size_t get_buffer_size(const struct block_field *field, int layout)
 {
     return field->count * get_buffer_stride(field, layout);
 }
 
-static int get_field_size(const struct block_field *field, int layout)
+static size_t get_field_size(const struct block_field *field, int layout)
 {
     if (field->count)
         return get_buffer_size(field, layout);
     return sizes_map[field->type];
 }
 
-static int get_field_align(const struct block_field *field, int layout)
+static size_t get_field_align(const struct block_field *field, int layout)
 {
     if (field->count && field->type != NGLI_TYPE_MAT3 && field->type != NGLI_TYPE_MAT4)
         return get_buffer_stride(field, layout);
     return aligns_map[field->type];
 }
 
-static int fill_tail_field_info(const struct block *s, struct block_field *field)
+static size_t fill_tail_field_info(const struct block *s, struct block_field *field)
 {
     /* Ignore the last field until the count is known */
     if (field->count == NGLI_BLOCK_VARIADIC_COUNT) {
@@ -140,15 +140,15 @@ static int fill_tail_field_info(const struct block *s, struct block_field *field
         return s->size;
     }
 
-    const int size  = get_field_size(field, s->layout);
-    const int align = get_field_align(field, s->layout);
+    const size_t size  = get_field_size(field, s->layout);
+    const size_t align = get_field_align(field, s->layout);
 
     ngli_assert(field->type != NGLI_TYPE_NONE);
     ngli_assert(size);
     ngli_assert(align);
 
-    const int remain = s->size % align;
-    const int offset = s->size + (remain ? align - remain : 0);
+    const size_t remain = s->size % align;
+    const size_t offset = s->size + (remain ? align - remain : 0);
 
     field->size   = size;
     field->stride = get_buffer_stride(field, s->layout);
@@ -156,7 +156,7 @@ static int fill_tail_field_info(const struct block *s, struct block_field *field
     return offset + size;
 }
 
-int ngli_block_get_size(const struct block *s, int variadic_field_count)
+size_t ngli_block_get_size(const struct block *s, size_t variadic_field_count)
 {
     if (variadic_field_count == 0)
         return s->size;
@@ -174,7 +174,7 @@ int ngli_block_get_size(const struct block *s, int variadic_field_count)
     return fill_tail_field_info(s, &tmp);
 }
 
-int ngli_block_add_field(struct block *s, const char *name, int type, int count)
+int ngli_block_add_field(struct block *s, const char *name, int type, size_t count)
 {
     ngli_assert(s->layout != NGLI_BLOCK_LAYOUT_UNKNOWN);
 
@@ -201,10 +201,10 @@ void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uin
     const uint8_t *srcp = src;
 
     if (fi->type == NGLI_TYPE_MAT3) {
-        const int dst_vec_stride = fi->stride / 3;
-        const int src_vec_stride = sizes_map[NGLI_TYPE_VEC3];
-        const int count = 3 * NGLI_MAX(fi->count, 1);
-        for (int i = 0; i < count; i++) {
+        const size_t dst_vec_stride = fi->stride / 3;
+        const size_t src_vec_stride = sizes_map[NGLI_TYPE_VEC3];
+        const size_t count = 3 * NGLI_MAX(fi->count, 1);
+        for (size_t i = 0; i < count; i++) {
             memcpy(dstp, srcp, src_vec_stride);
             dstp += dst_vec_stride;
             srcp += src_vec_stride;
@@ -212,9 +212,9 @@ void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uin
         return;
     }
 
-    const int src_stride = sizes_map[fi->type];
-    const int count = NGLI_MAX(fi->count, 1);
-    for (int i = 0; i < count; i++) {
+    const size_t src_stride = sizes_map[fi->type];
+    const size_t count = NGLI_MAX(fi->count, 1);
+    for (size_t i = 0; i < count; i++) {
         memcpy(dstp, srcp, src_stride);
         dstp += fi->stride;
         srcp += src_stride;
