@@ -236,7 +236,7 @@ struct block_info {
     struct block block;
 
     uint8_t *data;
-    int data_size;
+    size_t data_size;
     int usage;
 
     struct buffer *buffer;

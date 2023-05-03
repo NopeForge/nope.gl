@@ -161,13 +161,13 @@ static int get_node_data_type(const struct ngl_node *node)
     }
 }
 
-static int get_node_data_count(const struct ngl_node *node)
+static size_t get_node_data_count(const struct ngl_node *node)
 {
     if (node->cls->category == NGLI_NODE_CATEGORY_VARIABLE) {
         return 0;
     } else if (node->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
         const struct buffer_info *buffer = node->priv_data;
-        return (int)buffer->layout.count;
+        return buffer->layout.count;
     } else {
         ngli_assert(0);
     }
@@ -304,7 +304,7 @@ static int block_init(struct ngl_node *node)
         }
 
         const int type  = get_node_data_type(field_node);
-        const int count = get_node_data_count(field_node);
+        const size_t count = get_node_data_count(field_node);
 
         int ret = ngli_block_add_field(&info->block, field_node->label, type, count);
         if (ret < 0)
@@ -312,7 +312,7 @@ static int block_init(struct ngl_node *node)
 
         const struct block_field *fields = ngli_darray_data(&info->block.fields);
         const struct block_field *fi = &fields[i];
-        LOG(DEBUG, "%s.field[%d]: %s offset=%d size=%d stride=%d",
+        LOG(DEBUG, "%s.field[%d]: %s offset=%zd size=%zd stride=%zd",
             node->label, i, field_node->label, fi->offset, fi->size, fi->stride);
 
         if (field_is_dynamic(field_node, fi))
@@ -320,7 +320,7 @@ static int block_init(struct ngl_node *node)
     }
 
     info->data_size = info->block.size;
-    LOG(DEBUG, "total %s size: %d", node->label, info->data_size);
+    LOG(DEBUG, "total %s size: %zd", node->label, info->data_size);
     info->data = ngli_calloc(1, info->data_size);
     if (!info->data)
         return NGL_ERROR_MEMORY;

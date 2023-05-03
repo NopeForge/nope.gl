@@ -203,7 +203,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
         LOG(DEBUG, "block %s has a std430 layout, declaring it as SSBO", name);
         type = NGLI_TYPE_STORAGE_BUFFER;
     } else if (block->size > limits->max_uniform_block_size) {
-        LOG(DEBUG, "block %s is larger than the max UBO size (%d > %d), declaring it as SSBO",
+        LOG(DEBUG, "block %s is larger than the max UBO size (%zd > %d), declaring it as SSBO",
             name, block->size, limits->max_uniform_block_size);
         type = NGLI_TYPE_STORAGE_BUFFER;
     }

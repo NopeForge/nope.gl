@@ -242,7 +242,7 @@ static int init_block(struct colorstats_priv *s, struct gpu_ctx *gpu_ctx)
     static const struct {
         const char *name;
         int type;
-        int count;
+        size_t count;
     } block_layout[] = {
         {"max_rgb",       NGLI_TYPE_UVEC2, 0},
         {"max_luma",      NGLI_TYPE_UVEC2, 0},
@@ -335,7 +335,7 @@ static int alloc_block_buffer(struct ngl_node *node, int length)
      * Compute the size of the buffer depending on the resolution of the image
      * and allocate the variadic buffer accordingly.
      */
-    const int data_field_count = length * s->depth;
+    const size_t data_field_count = length * s->depth;
     s->blk.data_size = ngli_block_get_size(&s->blk.block, data_field_count);
     return ngli_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
 }
