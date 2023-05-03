@@ -255,7 +255,7 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
 
-    for (int i = 0; i < 2; i++)
+    for (size_t i = 0; i < 2; i++)
         ngli_texture_freep(&vt->planes[i]);
 
     ngli_glDeleteTextures(gl, 2, vt->gl_planes);

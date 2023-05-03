@@ -85,7 +85,7 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
 
     ngli_glGenTextures(gl, 2, vaapi->gl_planes);
 
-    for (int i = 0; i < 2; i++) {
+    for (size_t i = 0; i < 2; i++) {
         const GLint min_filter = ngli_texture_get_gl_min_filter(params->texture_min_filter, NGLI_MIPMAP_FILTER_NONE);
         const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->texture_mag_filter);
         const GLint wrap_s = ngli_texture_get_gl_wrap(params->texture_wrap_s);
@@ -146,19 +146,19 @@ static void vaapi_uninit(struct hwmap *hwmap)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
-    for (int i = 0; i < 2; i++)
+    for (size_t i = 0; i < 2; i++)
         ngli_texture_freep(&vaapi->planes[i]);
 
     ngli_glDeleteTextures(gl, 2, vaapi->gl_planes);
 
     if (vaapi->surface_acquired) {
-        for (int i = 0; i < 2; i++) {
+        for (size_t i = 0; i < 2; i++) {
             if (vaapi->egl_images[i]) {
                 ngli_eglDestroyImageKHR(gl, vaapi->egl_images[i]);
                 vaapi->egl_images[i] = NULL;
             }
         }
-        for (int i = 0; i < vaapi->surface_descriptor.num_objects; i++) {
+        for (uint32_t i = 0; i < vaapi->surface_descriptor.num_objects; i++) {
             close(vaapi->surface_descriptor.objects[i].fd);
         }
         vaapi->surface_acquired = 0;
@@ -181,13 +181,13 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     vaapi->frame = frame;
 
     if (vaapi->surface_acquired) {
-        for (int i = 0; i < 2; i++) {
+        for (size_t i = 0; i < 2; i++) {
             if (vaapi->egl_images[i]) {
                 ngli_eglDestroyImageKHR(gl, vaapi->egl_images[i]);
                 vaapi->egl_images[i] = NULL;
             }
         }
-        for (int i = 0; i < vaapi->surface_descriptor.num_objects; i++) {
+        for (uint32_t i = 0; i < vaapi->surface_descriptor.num_objects; i++) {
             close(vaapi->surface_descriptor.objects[i].fd);
         }
         vaapi->surface_acquired = 0;

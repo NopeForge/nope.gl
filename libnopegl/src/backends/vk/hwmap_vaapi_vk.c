@@ -112,7 +112,7 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
-    for (int i = 0; i < 2; i++)
+    for (size_t i = 0; i < 2; i++)
         vaapi->fds[i] = -1;
 
     const struct image_params image_params = {
@@ -138,7 +138,7 @@ static void vaapi_release_frame_resources(struct hwmap *hwmap)
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
     if (vaapi->surface_acquired) {
-        for (int i = 0; i < 2; i++) {
+        for (size_t i = 0; i < 2; i++) {
             hwmap->mapped_image.planes[i] = NULL;
             ngli_texture_freep(&vaapi->planes[i]);
 

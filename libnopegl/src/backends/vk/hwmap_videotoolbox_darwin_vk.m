@@ -236,7 +236,7 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
         return NGL_ERROR_GRAPHICS_GENERIC;
     }
 
-    for (int i = 0; i < 2; i++) {
+    for (size_t i = 0; i < 2; i++) {
         vt->planes[i] = ngli_texture_create(gpu_ctx);
         if (!vt->planes[i])
             return NGL_ERROR_MEMORY;
@@ -260,7 +260,7 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
 {
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
 
-    for (int i = 0; i < 2; i++)
+    for (size_t i = 0; i < 2; i++)
         ngli_texture_freep(&vt->planes[i]);
 
     nmd_release_frame(vt->frame);
