@@ -84,7 +84,7 @@ static void print_node_params(const char *name, const struct node_param *p)
                 ngli_assert(s);
                 printf(D "\"%s\",\n", s);
                 printf(I "\"choices\": [");
-                for (int i = 0; p->choices->consts[i].key; i++)
+                for (size_t i = 0; p->choices->consts[i].key; i++)
                     printf("%s\"%s\"", i ? ", " : "", p->choices->consts[i].key);
                 printf("],\n");
                 break;
@@ -98,7 +98,7 @@ static void print_node_params(const char *name, const struct node_param *p)
                 printf(D "\"%s\",\n", s);
                 ngli_free(s);
                 printf(I "\"choices\": [");
-                for (int i = 0; p->choices->consts[i].key; i++)
+                for (size_t i = 0; p->choices->consts[i].key; i++)
                     printf("%s\"%s\"", i ? ", " : "", p->choices->consts[i].key);
                 printf("],\n");
                 break;
@@ -143,7 +143,7 @@ static void print_node_params(const char *name, const struct node_param *p)
             }
             if (p->node_types) {
                 printf(I "\"node_types\": [");
-                for (int i = 0; p->node_types[i] != -1; i++) {
+                for (size_t i = 0; p->node_types[i] != -1; i++) {
                     const struct node_class *cls = get_node_class(p->node_types[i]);
                     ngli_assert(cls);
                     printf("%s\"%s\"", i ? ", " : "", cls->name);
