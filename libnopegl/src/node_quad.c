@@ -95,7 +95,7 @@ static int quad_init(struct ngl_node *node)
     float normals[3 * NB_VERTICES];
     ngli_vec3_normalvec(normals, vertices, vertices + 3, vertices + 6);
 
-    for (int i = 1; i < NB_VERTICES; i++)
+    for (size_t i = 1; i < NB_VERTICES; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
