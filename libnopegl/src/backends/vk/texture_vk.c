@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -350,6 +351,8 @@ VkResult ngli_texture_vk_init(struct texture *s, const struct texture_params *pa
     VkImageCreateFlags flags = 0;
     if (s->params.type == NGLI_TEXTURE_TYPE_CUBE) {
         flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+    } else if (s->params.type == NGLI_TEXTURE_TYPE_3D) {
+        flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
     }
 
     const VkImageCreateInfo image_create_info = {
