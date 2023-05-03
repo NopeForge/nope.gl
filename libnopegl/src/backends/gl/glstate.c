@@ -220,7 +220,7 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
 
     /* Color */
     GLboolean color_write_mask[4];
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
         color_write_mask[i] = state->color_write_mask >> i & 1;
     if (memcmp(color_write_mask, glstate->color_write_mask, sizeof(glstate->color_write_mask))) {
         ngli_glColorMask(gl,
