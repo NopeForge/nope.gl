@@ -175,10 +175,10 @@ struct ngl_node {
 struct buffer_layout {
     int type;       // any of NGLI_TYPE_*
     int format;     // any of NGLI_FORMAT_*
-    int stride;     // stride of 1 element, in bytes
+    size_t stride;  // stride of 1 element, in bytes
     int comp;       // number of components per element
     int count;      // number of elements
-    int offset;     // offset where the data starts in the buffer, in bytes
+    size_t offset;  // offset where the data starts in the buffer, in bytes
 };
 
 #define NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD (1 << 0) /* The buffer is responsible for uploading its data to the GPU */

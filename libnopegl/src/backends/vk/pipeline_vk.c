@@ -186,7 +186,7 @@ static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline
 
         const VkVertexInputBindingDescription binding_desc = {
             .binding   = i,
-            .stride    = desc->stride,
+            .stride    = (uint32_t)desc->stride,
             .inputRate = desc->rate ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX,
         };
         if (!ngli_darray_push(&s_priv->vertex_binding_descs, &binding_desc))
@@ -196,7 +196,7 @@ static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline
             .binding  = i,
             .location = desc->location,
             .format   = ngli_format_ngl_to_vk(desc->format),
-            .offset   = desc->offset,
+            .offset   = (uint32_t)desc->offset,
         };
         if (!ngli_darray_push(&s_priv->vertex_attribute_descs, &attr_desc))
             return VK_ERROR_OUT_OF_HOST_MEMORY;
