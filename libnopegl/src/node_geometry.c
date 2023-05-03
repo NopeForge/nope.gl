@@ -90,7 +90,7 @@ NGLI_STATIC_ASSERT(geom_on_top_of_geometry, offsetof(struct geometry_priv, geom)
 
 #define GET_MAX_INDICES(type) do {                         \
     type *data = (type *)indices->data;                    \
-    for (int i = 0; i < indices->layout.count; i++) {      \
+    for (size_t i = 0; i < indices->layout.count; i++) {   \
         if (data[i] > max_indices)                         \
             max_indices = data[i];                         \
     }                                                      \

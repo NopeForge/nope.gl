@@ -83,7 +83,7 @@ static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
     const struct streamedbuffer_opts *o = node->opts;
     const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
-    const int nb_timestamps = timestamps_priv->layout.count;
+    const int nb_timestamps = (int)timestamps_priv->layout.count;
 
     int ret = -1;
     for (int i = start; i < nb_timestamps; i++) {
@@ -144,7 +144,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
     const struct buffer_info *info = &s->buf;
     const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
-    const int nb_timestamps = timestamps_priv->layout.count;
+    const size_t nb_timestamps = timestamps_priv->layout.count;
 
     if (!nb_timestamps) {
         LOG(ERROR, "timestamps buffer must not be empty");
@@ -152,9 +152,9 @@ static int check_timestamps_buffer(const struct ngl_node *node)
     }
 
     const struct buffer_info *buffer_info = o->buffer_node->priv_data;
-    const int count = buffer_info->layout.count / info->layout.count;
+    const size_t count = buffer_info->layout.count / info->layout.count;
     if (nb_timestamps != count) {
-        LOG(ERROR, "timestamps count must match buffer chunk count: %d != %d", nb_timestamps, count);
+        LOG(ERROR, "timestamps count must match buffer chunk count: %zd != %zd", nb_timestamps, count);
         return NGL_ERROR_INVALID_ARG;
     }
 
@@ -186,13 +186,13 @@ static int streamedbuffer_init(struct ngl_node *node)
     *layout = buffer_info->layout;
     layout->count = o->count;
 
-    if (layout->count <= 0) {
-        LOG(ERROR, "invalid number of elements (%d <= 0)", layout->count);
+    if (layout->count == 0) {
+        LOG(ERROR, "invalid number of elements (0)");
         return NGL_ERROR_INVALID_ARG;
     }
 
     if (buffer_info->layout.count % layout->count) {
-        LOG(ERROR, "buffer count (%d) is not a multiple of streamed buffer count (%d)",
+        LOG(ERROR, "buffer count (%zd) is not a multiple of streamed buffer count (%zd)",
             buffer_info->layout.count, layout->count);
         return NGL_ERROR_INVALID_ARG;
     }

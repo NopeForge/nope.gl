@@ -46,7 +46,7 @@ NGLI_STATIC_ASSERT(texture_access, (NGLI_ACCESS_READ_BIT | NGLI_ACCESS_WRITE_BIT
 struct pipeline_uniform_desc {
     char name[MAX_ID_LEN];
     int type;
-    int count;
+    size_t count;
 };
 
 struct pipeline_texture_desc {

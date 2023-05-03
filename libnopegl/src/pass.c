@@ -250,7 +250,7 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
     const struct geometry *geometry = s->params.geometry;
     const int64_t max_indices = geometry->max_indices;
 
-    const int nb_vertices = geometry->vertices_layout.count;
+    const size_t nb_vertices = geometry->vertices_layout.count;
 
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(attributes, entry))) {
@@ -259,20 +259,20 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
 
         if (per_instance) {
             if (buffer->layout.count != s->params.nb_instances) {
-                LOG(ERROR, "attribute buffer %s count (%d) does not match instance count (%d)",
+                LOG(ERROR, "attribute buffer %s count (%zd) does not match instance count (%d)",
                     entry->key, buffer->layout.count, s->params.nb_instances);
                 return NGL_ERROR_INVALID_ARG;
             }
         } else {
             if (geometry->indices_buffer) {
                 if (max_indices >= buffer->layout.count) {
-                    LOG(ERROR, "indices buffer contains values exceeding attribute buffer %s count (%" PRId64 " >= %d)",
+                    LOG(ERROR, "indices buffer contains values exceeding attribute buffer %s count (%" PRId64 " >= %zd)",
                         entry->key, max_indices, buffer->layout.count);
                     return NGL_ERROR_INVALID_ARG;
                 }
             } else {
                 if (buffer->layout.count != nb_vertices) {
-                    LOG(ERROR, "attribute buffer %s count (%d) does not match vertices count (%d)",
+                    LOG(ERROR, "attribute buffer %s count (%zd) does not match vertices count (%zd)",
                         entry->key, buffer->layout.count, nb_vertices);
                     return NGL_ERROR_INVALID_ARG;
                 }
@@ -392,7 +392,7 @@ static int pass_graphics_init(struct pass *s)
         s->indices = geometry->indices_buffer;
         s->indices_layout = &geometry->indices_layout;
     } else {
-        s->nb_vertices = geometry->vertices_layout.count;
+        s->nb_vertices = (int)geometry->vertices_layout.count;
     }
     s->nb_instances = s->params.nb_instances;
 
@@ -666,7 +666,7 @@ int ngli_pass_exec(struct pass *s)
 
         if (s->indices)
             ngli_pipeline_compat_draw_indexed(pipeline_compat, s->indices, s->indices_layout->format,
-                                              s->indices_layout->count, s->nb_instances);
+                                              (int)s->indices_layout->count, s->nb_instances);
         else
             ngli_pipeline_compat_draw(pipeline_compat, s->nb_vertices, s->nb_instances);
     } else {

@@ -167,7 +167,7 @@ static int get_node_data_count(const struct ngl_node *node)
         return 0;
     } else if (node->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
         const struct buffer_info *buffer = node->priv_data;
-        return buffer->layout.count;
+        return (int)buffer->layout.count;
     } else {
         ngli_assert(0);
     }

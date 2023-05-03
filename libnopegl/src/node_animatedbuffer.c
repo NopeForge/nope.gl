@@ -63,7 +63,7 @@ static void mix_buffer(void *user_arg, void *dst,
     const float *d1 = (const float *)kf1->data;
     const struct buffer_layout *layout = &info->layout;
     const int comp = layout->comp;
-    for (int k = 0; k < layout->count; k++)
+    for (size_t k = 0; k < layout->count; k++)
         for (int i = 0; i < comp; i++)
             dstf[k*comp + i] = NGLI_MIX_F32(d0[k*comp + i], d1[k*comp + i], (float)ratio);
 }
@@ -110,13 +110,13 @@ static int animatedbuffer_init(struct ngl_node *node)
 
     for (int i = 0; i < o->nb_animkf; i++) {
         const struct animkeyframe_opts *kf = o->animkf[i]->opts;
-        const int data_count = (int)(kf->data_size / layout->stride);
+        const size_t data_count = kf->data_size / layout->stride;
         const int data_pad   = (int)(kf->data_size % layout->stride);
 
         if (layout->count && layout->count != data_count) {
             static const char *types[] = {"float", "vec2", "vec3", "vec4"};
             LOG(ERROR, "the number of %s in buffer key frame %d "
-                "does not match the previous ones (%d vs %d)",
+                "does not match the previous ones (%zd vs %zd)",
                 types[layout->comp - 1], i, data_count, layout->count);
             return NGL_ERROR_INVALID_ARG;
         }
