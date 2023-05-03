@@ -98,8 +98,10 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, int 
 
     NGLI_CFRELEASE(vt->ios_textures[index]);
 
-    int width  = CVPixelBufferGetWidthOfPlane(cvpixbuf, index);
-    int height = CVPixelBufferGetHeightOfPlane(cvpixbuf, index);
+    size_t width  = CVPixelBufferGetWidthOfPlane(cvpixbuf, index);
+    size_t height = CVPixelBufferGetHeightOfPlane(cvpixbuf, index);
+    if (width > INT_MAX || height > INT_MAX)
+        return NGL_ERROR_LIMIT_EXCEEDED;
 
     CVOpenGLESTextureCacheRef *cache = ngli_glcontext_get_texture_cache(gl);
 
@@ -109,8 +111,8 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, int 
                                                                 NULL,
                                                                 GL_TEXTURE_2D,
                                                                 plane_gl->internal_format,
-                                                                width,
-                                                                height,
+                                                                (GLsizei)width,
+                                                                (GLsizei)height,
                                                                 plane_gl->format,
                                                                 plane_gl->format_type,
                                                                 index,
@@ -134,7 +136,7 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, int 
     ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
     ngli_texture_gl_set_id(plane, id);
-    ngli_texture_gl_set_dimensions(plane, width, height, 0);
+    ngli_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
 
     return 0;
 }
