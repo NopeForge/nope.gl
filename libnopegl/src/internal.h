@@ -188,7 +188,7 @@ struct buffer_info {
     struct buffer_layout layout;
 
     uint8_t *data;          // buffer of <count> elements
-    int data_size;          // total buffer data size in bytes
+    size_t data_size;       // total buffer data size in bytes
 
     struct ngl_node *block;
     int usage;              // flags defining buffer use

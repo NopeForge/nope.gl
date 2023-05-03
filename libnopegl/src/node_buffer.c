@@ -127,12 +127,12 @@ static int buffer_init_from_filename(struct ngl_node *node)
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    s->buf.data_size = (int)size;
-    layout->count = layout->count ? layout->count : s->buf.data_size / layout->stride;
+    s->buf.data_size = (size_t)size;
+    layout->count = layout->count ? layout->count : (int)(s->buf.data_size / layout->stride);
 
     if (s->buf.data_size != layout->count * layout->stride) {
         LOG(ERROR,
-            "element count (%d) and data stride (%d) does not match data size (%d)",
+            "element count (%d) and data stride (%d) does not match data size (%zd)",
             layout->count,
             layout->stride,
             s->buf.data_size);
@@ -156,7 +156,7 @@ static int buffer_init_from_filename(struct ngl_node *node)
     }
 
     if (n != s->buf.data_size) {
-        LOG(ERROR, "read %zd bytes does not match expected size of %d bytes", n, s->buf.data_size);
+        LOG(ERROR, "read %zd bytes does not match expected size of %zd bytes", n, s->buf.data_size);
         return NGL_ERROR_IO;
     }
 
