@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -235,7 +236,18 @@ static VkResult create_image_view(const struct rendertarget *s, const struct tex
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     const struct texture_vk *texture_vk = (struct texture_vk *)texture;
 
+    VkImageUsageFlags usage = 0;
+    if (texture->params.usage & NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT)
+        usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    if (texture->params.usage & NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+        usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+    const VkImageViewUsageCreateInfo usage_info = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO,
+        .usage = usage,
+    };
     const VkImageViewCreateInfo view_info = {
+        .pNext    = &usage_info,
         .sType    = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .image    = texture_vk->image,
         .viewType = VK_IMAGE_VIEW_TYPE_2D,
