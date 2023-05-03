@@ -62,9 +62,9 @@ static void mix_buffer(void *user_arg, void *dst,
     const float *d0 = (const float *)kf0->data;
     const float *d1 = (const float *)kf1->data;
     const struct buffer_layout *layout = &info->layout;
-    const int comp = layout->comp;
+    const size_t comp = layout->comp;
     for (size_t k = 0; k < layout->count; k++)
-        for (int i = 0; i < comp; i++)
+        for (size_t i = 0; i < comp; i++)
             dstf[k*comp + i] = NGLI_MIX_F32(d0[k*comp + i], d1[k*comp + i], (float)ratio);
 }
 
