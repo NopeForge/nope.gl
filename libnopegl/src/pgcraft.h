@@ -187,9 +187,9 @@ struct pgcraft_params {
     int nb_attributes;
 
     const struct pgcraft_iovar *vert_out_vars;
-    int nb_vert_out_vars;
+    size_t nb_vert_out_vars;
 
-    int nb_frag_output;
+    size_t nb_frag_output;
 
     int workgroup_size[3];
 };

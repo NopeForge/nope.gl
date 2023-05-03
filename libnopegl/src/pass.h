@@ -44,8 +44,8 @@ struct pass_params {
     struct hmap *attributes;
     struct hmap *instance_attributes;
     struct pgcraft_iovar *vert_out_vars;
-    int nb_vert_out_vars;
-    int nb_frag_output;
+    size_t nb_vert_out_vars;
+    size_t nb_frag_output;
     int blending;
 
     /* compute */

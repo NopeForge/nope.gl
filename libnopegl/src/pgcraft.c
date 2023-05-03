@@ -1117,7 +1117,7 @@ static int craft_frag(struct pgcraft *s, const struct pgcraft_params *params)
             ngli_bstr_printf(b, "layout(location=%d) ", out_location);
         }
         if (params->nb_frag_output)
-            ngli_bstr_printf(b, "out vec4 ngl_out_color[%d];\n", params->nb_frag_output);
+            ngli_bstr_printf(b, "out vec4 ngl_out_color[%zd];\n", params->nb_frag_output);
         else
             ngli_bstr_print(b, "out vec4 ngl_out_color;\n");
     } else {
@@ -1491,7 +1491,7 @@ static int get_program_graphics(struct pgcraft *s, const struct pgcraft_params *
     int ret;
 
     ngli_darray_init(&s->vert_out_vars, sizeof(struct pgcraft_iovar), 0);
-    for (int i = 0; i < params->nb_vert_out_vars; i++) {
+    for (size_t i = 0; i < params->nb_vert_out_vars; i++) {
         struct pgcraft_iovar *iovar = ngli_darray_push(&s->vert_out_vars, &params->vert_out_vars[i]);
         if (!iovar)
             return NGL_ERROR_MEMORY;
