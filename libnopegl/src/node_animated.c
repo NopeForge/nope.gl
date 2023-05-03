@@ -148,10 +148,10 @@ static void mix_quat(void *user_arg, void *dst,
 static void mix_vector(void *user_arg, void *dst,
                        const struct animkeyframe_opts *kf0,
                        const struct animkeyframe_opts *kf1,
-                       double ratio, int len)
+                       double ratio, size_t len)
 {
     float *dstf = dst;
-    for (int i = 0; i < len; i++)
+    for (size_t i = 0; i < len; i++)
         dstf[i] = NGLI_MIX_F32(kf0->value[i], kf1->value[i], (float)ratio);
 }
 
