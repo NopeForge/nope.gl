@@ -839,7 +839,7 @@ int ngli_pipeline_vk_update_texture(struct pipeline *s, int index, const struct 
     return 0;
 }
 
-int ngli_pipeline_vk_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, int offset, int size)
+int ngli_pipeline_vk_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 

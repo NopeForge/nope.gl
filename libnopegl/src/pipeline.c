@@ -53,7 +53,7 @@ int ngli_pipeline_update_texture(struct pipeline *s, int index, const struct tex
     return s->gpu_ctx->cls->pipeline_update_texture(s, index, texture);
 }
 
-int ngli_pipeline_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, int offset, int size)
+int ngli_pipeline_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size)
 {
     return s->gpu_ctx->cls->pipeline_update_buffer(s, index, buffer, offset, size);
 }
