@@ -96,15 +96,17 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, int in
 
     ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, plane_gl->id);
 
-    int width = IOSurfaceGetWidthOfPlane(surface, index);
-    int height = IOSurfaceGetHeightOfPlane(surface, index);
-    ngli_texture_gl_set_dimensions(plane, width, height, 0);
+    size_t width = IOSurfaceGetWidthOfPlane(surface, index);
+    size_t height = IOSurfaceGetHeightOfPlane(surface, index);
+    if (width > INT_MAX || height > INT_MAX)
+        return NGL_ERROR_LIMIT_EXCEEDED;
+    ngli_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
 
     /* CGLTexImageIOSurface2D() requires GL_UNSIGNED_INT_8_8_8_8_REV instead of GL_UNSIGNED_SHORT to map BGRA IOSurface2D */
     const GLenum format_type = plane_gl->format == GL_BGRA ? GL_UNSIGNED_INT_8_8_8_8_REV : plane_gl->format_type;
 
     CGLError err = CGLTexImageIOSurface2D(CGLGetCurrentContext(), GL_TEXTURE_RECTANGLE,
-                                          plane_gl->internal_format, width, height,
+                                          plane_gl->internal_format, (GLsizei)width, (GLsizei)height,
                                           plane_gl->format, format_type, surface, index);
     if (err != kCGLNoError) {
         LOG(ERROR, "could not bind IOSurface plane %d to texture %d: %s", index, plane_gl->id, CGLErrorString(err));
