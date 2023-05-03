@@ -77,12 +77,12 @@ void ngli_android_get_crop_matrix(float *matrix, const AHardwareBuffer_Desc *des
             }
         }
         if (width < desc->width) {
-            tx = (crop_rect->left + shrink) / (float)desc->width;
-            sx = (width - 2.0f * shrink) / (float)desc->width;
+            tx = ((float)crop_rect->left + shrink) / (float)desc->width;
+            sx = ((float)width - 2.0f * shrink) / (float)desc->width;
         }
         if (height < desc->height) {
-            ty = (crop_rect->top + shrink) / (float)desc->height;
-            sy = (height - 2.0f * shrink) / (float)desc->height;
+            ty = ((float)crop_rect->top + shrink) / (float)desc->height;
+            sy = ((float)height - 2.0f * shrink) / (float)desc->height;
         }
     }
     NGLI_ALIGNED_MAT(crop_matrix) = {
