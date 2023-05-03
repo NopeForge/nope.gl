@@ -176,7 +176,7 @@ struct buffer_layout {
     int type;       // any of NGLI_TYPE_*
     int format;     // any of NGLI_FORMAT_*
     size_t stride;  // stride of 1 element, in bytes
-    int comp;       // number of components per element
+    size_t comp;    // number of components per element
     size_t count;   // number of elements
     size_t offset;  // offset where the data starts in the buffer, in bytes
 };
