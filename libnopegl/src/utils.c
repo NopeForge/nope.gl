@@ -164,7 +164,7 @@ static const uint32_t crc_table[256] = {
 uint32_t ngli_crc32(const char *s)
 {
     uint32_t crc = ~0;
-    for (int i = 0; s[i]; i++)
+    for (size_t i = 0; s[i]; i++)
         crc = (crc >> 8) ^ crc_table[(crc & 0xff) ^ (uint8_t)s[i]];
     return ~crc;
 }
