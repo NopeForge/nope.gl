@@ -39,7 +39,7 @@ struct streamedbuffer_opts {
 
 struct streamedbuffer_priv {
     struct buffer_info buf;
-    int last_index;
+    size_t last_index;
 };
 
 NGLI_STATIC_ASSERT(buffer_info_is_first, offsetof(struct streamedbuffer_priv, buf) == 0);
@@ -78,15 +78,15 @@ DECLARE_STREAMED_PARAMS(vec3,   NGL_NODE_BUFFERVEC3)
 DECLARE_STREAMED_PARAMS(vec4,   NGL_NODE_BUFFERVEC4)
 DECLARE_STREAMED_PARAMS(mat4,   NGL_NODE_BUFFERMAT4)
 
-static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
+static size_t get_data_index(const struct ngl_node *node, size_t start, int64_t t64)
 {
     const struct streamedbuffer_opts *o = node->opts;
     const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
-    const int nb_timestamps = (int)timestamps_priv->layout.count;
+    const size_t nb_timestamps = timestamps_priv->layout.count;
 
-    int ret = -1;
-    for (int i = start; i < nb_timestamps; i++) {
+    size_t ret = SIZE_MAX;
+    for (size_t i = start; i < nb_timestamps; i++) {
         const int64_t ts = timestamps[i];
         if (ts > t64)
             break;
@@ -119,10 +119,10 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
     }
 
     const int64_t t64 = llrint(rt * o->timebase[1] / (double)o->timebase[0]);
-    int index = get_data_index(node, s->last_index, t64);
-    if (index < 0) {
+    size_t index = get_data_index(node, s->last_index, t64);
+    if (index == SIZE_MAX) {
         index = get_data_index(node, 0, t64);
-        if (index < 0) // the requested time `t` is before the first user timestamp
+        if (index == SIZE_MAX) // the requested time `t` is before the first user timestamp
             index = 0;
     }
     s->last_index = index;
@@ -159,7 +159,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
     }
 
     int64_t last_ts = timestamps[0];
-    for (int i = 1; i < nb_timestamps; i++) {
+    for (size_t i = 1; i < nb_timestamps; i++) {
         const int64_t ts = timestamps[i];
         if (ts < 0) {
             LOG(ERROR, "timestamps must be positive: %" PRId64, ts);
