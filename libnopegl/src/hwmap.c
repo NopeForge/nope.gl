@@ -42,7 +42,7 @@ static const struct hwmap_class *get_hwmap_class(const struct hwmap *hwmap, stru
     const struct hwmap_class **hwmap_classes = hwmap->hwmap_classes;
 
     if (hwmap_classes) {
-        for (int i = 0; hwmap_classes[i]; i++) {
+        for (size_t i = 0; hwmap_classes[i]; i++) {
             const struct hwmap_class *hwmap_class = hwmap_classes[i];
             if (hwmap_class->hwformat == frame->pix_fmt)
                 return hwmap_class;
@@ -148,10 +148,10 @@ static int is_image_layout_supported(const struct hwmap_class **classes, int ima
 {
     if (!classes)
         return 0;
-    for (int i = 0; classes[i]; i++) {
+    for (size_t i = 0; classes[i]; i++) {
         const int *layouts = classes[i]->layouts;
         ngli_assert(layouts);
-        for (int j = 0; layouts[j] != NGLI_IMAGE_LAYOUT_NONE; j++)
+        for (size_t j = 0; layouts[j] != NGLI_IMAGE_LAYOUT_NONE; j++)
             if (layouts[j] == image_layout)
                 return 1;
     }
