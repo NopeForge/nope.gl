@@ -1012,7 +1012,7 @@ void ngli_pipeline_vk_draw_indexed(struct pipeline *s, const struct buffer *indi
     vkCmdDrawIndexed(cmd_buf, nb_indices, nb_instances, 0, 0, 0);
 }
 
-void ngli_pipeline_vk_dispatch(struct pipeline *s, int nb_group_x, int nb_group_y, int nb_group_z)
+void ngli_pipeline_vk_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;

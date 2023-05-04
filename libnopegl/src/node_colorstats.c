@@ -60,24 +60,24 @@ struct colorstats_priv {
     struct block_info blk;
     int depth;
     int length_minus1;
-    int group_size;
+    uint32_t group_size;
 
     /* Init compute */
     struct pgcraft *crafter_init;
     struct pipeline_compat *pipeline_compat_init;
-    int init_wg_count;
+    uint32_t init_wg_count;
     int depth_index;
     int length_minus1_index;
 
     /* Waveform compute */
     struct pgcraft *crafter_waveform;
     struct pipeline_compat *pipeline_compat_waveform;
-    int waveform_wg_count;
+    uint32_t waveform_wg_count;
 
     /* Summary-scale compute */
     struct pgcraft *crafter_sumscale;
     struct pipeline_compat *pipeline_compat_sumscale;
-    int sumscale_wg_count;
+    uint32_t sumscale_wg_count;
 };
 
 NGLI_STATIC_ASSERT(block_priv_first, offsetof(struct colorstats_priv, blk) == 0);
@@ -201,7 +201,7 @@ static int init_computes(struct ngl_node *node)
     const struct gpu_limits *limits = &gpu_ctx->limits;
     const int max_group_size_x = limits->max_compute_work_group_size[0];
     s->group_size = max_group_size_x >= 256 ? 256 : 128;
-    LOG(DEBUG, "using a workgroup size of %d", s->group_size);
+    LOG(DEBUG, "using a workgroup size of %u", s->group_size);
 
     s->pipeline_compat_init     = ngli_pipeline_compat_create(gpu_ctx);
     s->pipeline_compat_waveform = ngli_pipeline_compat_create(gpu_ctx);
@@ -321,7 +321,7 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
      * length "depth") into an exact small number of workgroups (without any
      * remainder of data).
      */
-    const int nb_workgroups = s->depth / s->group_size;
+    const uint32_t nb_workgroups = s->depth / s->group_size;
     ngli_assert(nb_workgroups <= 128); // should be 1, 2, 4 or 8, so always safe
     s->init_wg_count = nb_workgroups;
     s->sumscale_wg_count = nb_workgroups;

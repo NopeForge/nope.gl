@@ -601,7 +601,7 @@
   "Compute": [
     {
       "name": "workgroup_count",
-      "type": "ivec3",
+      "type": "uvec3",
       "default": [0,0,0],
       "flags": [],
       "desc": "number of work groups to be executed"

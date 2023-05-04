@@ -68,7 +68,7 @@ void ngli_pipeline_draw_indexed(struct pipeline *s, const struct buffer *indices
     s->gpu_ctx->cls->pipeline_draw_indexed(s, indices, indices_format, nb_indices, nb_instances);
 }
 
-void ngli_pipeline_dispatch(struct pipeline *s, int nb_group_x, int nb_group_y, int nb_group_z)
+void ngli_pipeline_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
     s->gpu_ctx->cls->pipeline_dispatch(s, nb_group_x, nb_group_y, nb_group_z);
 }

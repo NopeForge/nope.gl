@@ -34,7 +34,7 @@
 #include "utils.h"
 
 struct compute_opts {
-    int workgroup_count[3];
+    uint32_t workgroup_count[3];
     struct ngl_node *program;
     struct hmap *resources;
 };
@@ -104,7 +104,7 @@ struct compute_priv {
 
 #define OFFSET(x) offsetof(struct compute_opts, x)
 static const struct node_param compute_params[] = {
-    {"workgroup_count", NGLI_PARAM_TYPE_IVEC3,      OFFSET(workgroup_count),
+    {"workgroup_count", NGLI_PARAM_TYPE_UVEC3,      OFFSET(workgroup_count),
                         .desc=NGLI_DOCSTRING("number of work groups to be executed")},
     {"program",    NGLI_PARAM_TYPE_NODE,     OFFSET(program),    .flags=NGLI_PARAM_FLAG_NON_NULL, .node_types=PROGRAMS_TYPES_LIST,
                    .desc=NGLI_DOCSTRING("compute program to be executed")},
