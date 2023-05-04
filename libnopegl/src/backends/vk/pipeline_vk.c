@@ -289,7 +289,7 @@ static VkResult pipeline_graphics_init(struct pipeline *s)
     };
 
     VkPipelineColorBlendAttachmentState colorblend_attachment_states[NGLI_MAX_COLOR_ATTACHMENTS] = {0};
-    for (int i = 0; i < graphics->rt_desc.nb_colors; i++) {
+    for (size_t i = 0; i < graphics->rt_desc.nb_colors; i++) {
         colorblend_attachment_states[i] = (VkPipelineColorBlendAttachmentState) {
             .blendEnable         = state->blend,
             .srcColorBlendFactor = get_vk_blend_factor(state->blend_src_factor),
@@ -304,7 +304,7 @@ static VkResult pipeline_graphics_init(struct pipeline *s)
 
     const VkPipelineColorBlendStateCreateInfo colorblend_state_create_info = {
         .sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-        .attachmentCount = graphics->rt_desc.nb_colors,
+        .attachmentCount = (uint32_t)graphics->rt_desc.nb_colors,
         .pAttachments    = colorblend_attachment_states,
     };
 

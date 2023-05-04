@@ -1292,7 +1292,7 @@ static void vk_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
         s_priv->cur_cmd_is_transient = 1;
     }
 
-    for (int i = 0; i < params->nb_colors; i++) {
+    for (size_t i = 0; i < params->nb_colors; i++) {
         struct texture *attachment = params->colors[i].attachment;
         ngli_texture_vk_transition_layout(attachment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
         struct texture *resolve_target = params->colors[i].resolve_target;
@@ -1338,7 +1338,7 @@ static void vk_end_render_pass(struct gpu_ctx *s)
     const struct rendertarget *rt = s_priv->current_rt;
     const struct rendertarget_params *params = &rt->params;
 
-    for (int i = 0; i < params->nb_colors; i++) {
+    for (size_t i = 0; i < params->nb_colors; i++) {
         struct texture *texture = params->colors[i].attachment;
         ngli_texture_vk_transition_to_default_layout(texture);
         struct texture *resolve_target = params->colors[i].resolve_target;

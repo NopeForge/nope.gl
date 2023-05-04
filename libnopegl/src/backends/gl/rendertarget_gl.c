@@ -70,25 +70,25 @@ static void resolve_draw_buffers(struct rendertarget *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct rendertarget_params *params = &s->params;
 
-    for (int i = 0; i < params->nb_colors; i++) {
+    for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
         if (!attachment->resolve_target)
             continue;
         GLbitfield flags = GL_COLOR_BUFFER_BIT;
         if (i == 0)
             flags |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-        ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0 + i);
+        ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0 + (GLenum)i);
 #if defined(TARGET_DARWIN)
-        ngli_glDrawBuffer(gl, GL_COLOR_ATTACHMENT0 + i);
+        ngli_glDrawBuffer(gl, GL_COLOR_ATTACHMENT0 + (GLenum)i);
 #else
         GLenum draw_buffers[NGLI_MAX_COLOR_ATTACHMENTS] = {0};
-        draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-        ngli_glDrawBuffers(gl, i + 1, draw_buffers);
+        draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
+        ngli_glDrawBuffers(gl, (GLsizei)i + 1, draw_buffers);
 #endif
         ngli_glBlitFramebuffer(gl, 0, 0, s->width, s->height, 0, 0, s->width, s->height, flags, GL_NEAREST);
     }
     ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0);
-    ngli_glDrawBuffers(gl, params->nb_colors, s_priv->draw_buffers);
+    ngli_glDrawBuffers(gl, (GLsizei)params->nb_colors, s_priv->draw_buffers);
 }
 
 static int create_fbo(struct rendertarget *s, int resolve, GLuint *idp)
@@ -105,7 +105,7 @@ static int create_fbo(struct rendertarget *s, int resolve, GLuint *idp)
     ngli_glGenFramebuffers(gl, 1, &id);
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, id);
 
-    for (int i = 0; i < params->nb_colors; i++) {
+    for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
         const struct texture *texture = resolve ? attachment->resolve_target : attachment->attachment;
         const int layer = resolve ? attachment->resolve_target_layer : attachment->attachment_layer;
@@ -188,7 +188,7 @@ fail:
 static int require_resolve_fbo(struct rendertarget *s)
 {
     const struct rendertarget_params *params = &s->params;
-    for (int i = 0; i < params->nb_colors; i++) {
+    for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
         if (attachment->resolve_target)
             return 1;
@@ -218,10 +218,10 @@ static void clear_buffers(struct rendertarget *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct rendertarget_params *params = &s->params;
 
-    for (int i = 0; i < params->nb_colors; i++) {
+    for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *color = &params->colors[i];
         if (color->load_op != NGLI_LOAD_OP_LOAD) {
-            ngli_glClearBufferfv(gl, GL_COLOR, i, color->clear_value);
+            ngli_glClearBufferfv(gl, GL_COLOR, (GLint)i, color->clear_value);
         }
     }
 
@@ -298,27 +298,27 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
     s_priv->resolve = resolve_no_draw_buffers;
     if (gl->features & NGLI_FEATURE_GL_DRAW_BUFFERS) {
         if (params->nb_colors > limits->max_draw_buffers) {
-            LOG(ERROR, "draw buffer count (%d) exceeds driver limit (%d)",
+            LOG(ERROR, "draw buffer count (%zd) exceeds driver limit (%d)",
                 params->nb_colors, limits->max_draw_buffers);
             ret = NGL_ERROR_GRAPHICS_UNSUPPORTED;
             goto done;
         }
         if (params->nb_colors > 1) {
-            for (int i = 0; i < params->nb_colors; i++)
-                s_priv->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-            ngli_glDrawBuffers(gl, params->nb_colors, s_priv->draw_buffers);
+            for (size_t i = 0; i < params->nb_colors; i++)
+                s_priv->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
+            ngli_glDrawBuffers(gl, (GLsizei)params->nb_colors, s_priv->draw_buffers);
             s_priv->resolve = resolve_draw_buffers;
         }
     }
 
-    for (int i = 0; i < params->nb_colors; i++) {
+    for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *color = &params->colors[i];
         if (color->load_op == NGLI_LOAD_OP_DONT_CARE ||
             color->load_op == NGLI_LOAD_OP_CLEAR) {
             s_priv->clear_flags |= GL_COLOR_BUFFER_BIT;
         }
         if (color->store_op == NGLI_STORE_OP_DONT_CARE) {
-            s_priv->invalidate_attachments[s_priv->nb_invalidate_attachments++] = GL_COLOR_ATTACHMENT0 + i;
+            s_priv->invalidate_attachments[s_priv->nb_invalidate_attachments++] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
         }
     }
 

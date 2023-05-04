@@ -425,7 +425,7 @@ static int rtt_prefetch(struct ngl_node *node)
     s->available_rendertargets[1] = s->rt;
 
     if (nb_interruptions) {
-        for (int i = 0; i < rt_params.nb_colors; i++)
+        for (size_t i = 0; i < rt_params.nb_colors; i++)
             rt_params.colors[i].load_op = NGLI_LOAD_OP_LOAD;
         rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
         if (o->depth_texture) {
