@@ -109,7 +109,7 @@ float ngli_noise_get(const struct noise *s, float t)
     const struct noise_params *p = &s->params;
     float sum = 0.f;
     float amp = p->amplitude;
-    for (int i = 0; i < p->octaves; i++) {
+    for (int32_t i = 0; i < p->octaves; i++) {
         sum += noise(s, t) * amp;
         t *= p->lacunarity;
         amp *= p->gain;
