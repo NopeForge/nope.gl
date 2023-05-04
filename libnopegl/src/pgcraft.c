@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -197,6 +198,7 @@ static const int type_flags_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_SAMPLER_EXTERNAL_OES]        = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
     [NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
     [NGLI_TYPE_IMAGE_2D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_IMAGE_3D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
     [NGLI_TYPE_UNIFORM_BUFFER]              = 0,
     [NGLI_TYPE_STORAGE_BUFFER]              = 0,
 };
@@ -347,6 +349,10 @@ static const int texture_types_map[NGLI_PGCRAFT_SHADER_TEX_TYPE_NB][NGLI_INFO_FI
         [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_SAMPLER_3D,
         [NGLI_INFO_FIELD_DIMENSIONS]        = NGLI_TYPE_VEC3,
     },
+    [NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D] = {
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_IMAGE_3D,
+        [NGLI_INFO_FIELD_DIMENSIONS]        = NGLI_TYPE_VEC3,
+    },
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_CUBE] = {
         [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_SAMPLER_CUBE,
     },
@@ -447,9 +453,10 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
             snprintf(pl_texture_desc.name, sizeof(pl_texture_desc.name), "%s", field->name);
 
             const char *prefix = "";
-            if (field->type == NGLI_TYPE_IMAGE_2D) {
+            if (field->type == NGLI_TYPE_IMAGE_2D ||
+                field->type == NGLI_TYPE_IMAGE_3D) {
                 if (info->format == NGLI_TYPE_NONE) {
-                    LOG(ERROR, "Texture2D.format must be set when accessing it as an image");
+                    LOG(ERROR, "texture format must be set when accessing it as an image");
                     return NGL_ERROR_INVALID_ARG;
                 }
                 const char *format = image_glsl_format_map[info->format].format;
@@ -696,7 +703,9 @@ static int params_have_images(struct pgcraft *s, const struct pgcraft_params *pa
         const struct pgcraft_texture_info *info = &texture_infos[i];
         for (size_t j = 0; j < NGLI_INFO_FIELD_NB; j++) {
             const struct pgcraft_texture_info_field *field = &info->fields[j];
-            if (field->stage == stage && field->type == NGLI_TYPE_IMAGE_2D)
+            if (field->stage == stage &&
+                (field->type == NGLI_TYPE_IMAGE_2D ||
+                 field->type == NGLI_TYPE_IMAGE_3D))
                 return 1;
         }
     }

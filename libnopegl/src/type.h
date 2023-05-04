@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -46,6 +47,7 @@ enum {
     NGLI_TYPE_SAMPLER_EXTERNAL_OES,
     NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT,
     NGLI_TYPE_IMAGE_2D,
+    NGLI_TYPE_IMAGE_3D,
     NGLI_TYPE_UNIFORM_BUFFER,
     NGLI_TYPE_STORAGE_BUFFER,
     NGLI_TYPE_NB
