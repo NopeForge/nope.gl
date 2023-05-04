@@ -155,7 +155,7 @@ static void vaapi_release_frame_resources(struct hwmap *hwmap)
                 vaapi->fds[i] = -1;
             }
         }
-        for (int i = 0; i < vaapi->surface_descriptor.num_objects; i++) {
+        for (uint32_t i = 0; i < vaapi->surface_descriptor.num_objects; i++) {
             close(vaapi->surface_descriptor.objects[i].fd);
         }
         vaapi->surface_acquired = 0;
