@@ -671,7 +671,7 @@ static int text_prepare(struct ngl_node *node)
     struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
     if (!desc)
         return NGL_ERROR_MEMORY;
-    ctx->rnode_pos->id = (int)ngli_darray_count(&s->pipeline_descs) - 1;
+    ctx->rnode_pos->id = ngli_darray_count(&s->pipeline_descs) - 1;
 
     memset(desc, 0, sizeof(*desc));
 

@@ -27,7 +27,7 @@
 #include "rendertarget.h"
 
 struct rnode {
-    int id;
+    size_t id;
     struct graphicstate graphicstate;
     struct rendertarget_desc rendertarget_desc;
     struct darray children;

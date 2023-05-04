@@ -629,7 +629,7 @@ static int init_desc(struct ngl_node *node, struct render_common *s,
     struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
     if (!desc)
         return NGL_ERROR_MEMORY;
-    rnode->id = (int)ngli_darray_count(&s->pipeline_descs) - 1;
+    rnode->id = ngli_darray_count(&s->pipeline_descs) - 1;
 
     memset(desc, 0, sizeof(*desc));
 
