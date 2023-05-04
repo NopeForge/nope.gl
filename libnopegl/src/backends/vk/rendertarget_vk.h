@@ -33,7 +33,7 @@ struct rendertarget_vk {
     VkFramebuffer framebuffer;
     VkRenderPass render_pass;
     VkClearValue clear_values[2*(NGLI_MAX_COLOR_ATTACHMENTS + 1)];
-    int nb_clear_values;
+    uint32_t nb_clear_values;
     VkBuffer staging_buffer;
     int staging_buffer_size;
     VkDeviceMemory staging_memory;
