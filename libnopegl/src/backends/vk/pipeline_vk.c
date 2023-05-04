@@ -534,7 +534,7 @@ static VkResult create_desc_sets(struct pipeline *s)
     if (!desc_set_layouts)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    for (int i = 0; i < gpu_ctx_vk->nb_in_flight_frames; i++)
+    for (uint32_t i = 0; i < gpu_ctx_vk->nb_in_flight_frames; i++)
         desc_set_layouts[i] = s_priv->desc_set_layout;
 
     const VkDescriptorSetAllocateInfo descriptor_set_allocate_info = {
