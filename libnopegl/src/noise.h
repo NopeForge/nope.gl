@@ -36,7 +36,7 @@ typedef float (*interp_func_type)(float t);
 
 struct noise_params {
     float amplitude;
-    int octaves;
+    int32_t octaves;
     float lacunarity;
     float gain;
     uint32_t seed;
