@@ -23,6 +23,8 @@
 #ifndef PATH_H
 #define PATH_H
 
+#include <stdint.h>
+
 struct path;
 
 struct path *ngli_path_create(void);
@@ -32,7 +34,7 @@ int ngli_path_line_to(struct path *s, const float *to);
 int ngli_path_bezier2_to(struct path *s, const float *ctl, const float *to);
 int ngli_path_bezier3_to(struct path *s, const float *ctl0, const float *ctl1, const float *to);
 
-int ngli_path_init(struct path *s, int precision);
+int ngli_path_init(struct path *s, int32_t precision);
 
 void ngli_path_evaluate(struct path *s, float *dst, float distance);
 void ngli_path_freep(struct path **sp);

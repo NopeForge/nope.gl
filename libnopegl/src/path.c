@@ -49,7 +49,7 @@ struct path_step {
 };
 
 struct path {
-    int precision;
+    int32_t precision;
     int current_arc;            /* cached arc index */
     int *arc_to_segment;        /* map arc indexes to segment indexes */
     struct darray segments;     /* array of struct path_segment */
@@ -179,7 +179,7 @@ static void poly_eval(float *dst, const struct path_segment *segment, float t)
  *   evaluation. With curves, this time is *NOT* correlated with the real clock
  *   time at all. See ngli_path_evaluate() for more information.
  */
-int ngli_path_init(struct path *s, int precision)
+int ngli_path_init(struct path *s, int32_t precision)
 {
     if (precision < 1) {
         LOG(ERROR, "precision must be 1 or superior");
@@ -206,7 +206,7 @@ int ngli_path_init(struct path *s, int precision)
          * Compared to curves, straight lines do not need to be divided into
          * small chunks because their length can be calculated exactly.
          */
-        const int precision = (segment->flags & SEGMENT_FLAG_LINE) ? 1 : s->precision;
+        const int32_t precision = (segment->flags & SEGMENT_FLAG_LINE) ? 1 : s->precision;
 
         /*
          * We're not using 1/(P-1) but 1/P for the scale because each segment is
@@ -221,7 +221,7 @@ int ngli_path_init(struct path *s, int precision)
          * first step of the next segment (t=0). The two exceptions to this are
          * handled in the next block.
          */
-        for (int k = 0; k < precision; k++) {
+        for (int32_t k = 0; k < precision; k++) {
             const float t = (float)k * segment->time_scale;
             struct path_step step = {.segment_id=(int)i};
             poly_eval(step.position, segment, t);
