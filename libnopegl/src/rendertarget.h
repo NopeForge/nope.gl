@@ -45,7 +45,7 @@ struct attachment_desc {
 
 struct rendertarget_desc {
     int samples;
-    int nb_colors;
+    size_t nb_colors;
     struct attachment_desc colors[NGLI_MAX_COLOR_ATTACHMENTS];
     struct attachment_desc depth_stencil;
 };
@@ -63,7 +63,7 @@ struct attachment {
 struct rendertarget_params {
     int width;
     int height;
-    int nb_colors;
+    size_t nb_colors;
     struct attachment colors[NGLI_MAX_COLOR_ATTACHMENTS];
     struct attachment depth_stencil;
 };

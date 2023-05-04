@@ -73,7 +73,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
     int nb_depth_stencil_refs = 0;
     const VkSampleCountFlags samples = ngli_ngl_samples_to_vk(desc->samples);
 
-    for (int i = 0; i < desc->nb_colors; i++) {
+    for (size_t i = 0; i < desc->nb_colors; i++) {
         VkFormat format = ngli_format_ngl_to_vk(desc->colors[i].format);
 
         VkFormatProperties properties;
@@ -293,7 +293,7 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct renderta
      * and ensure all the attachments have the same samples value */
     int samples = -1;
     struct rendertarget_desc desc = {0};
-    for (int i = 0; i < params->nb_colors; i++) {
+    for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
         const struct texture *texture = attachment->attachment;
         const struct texture_params *texture_params = &texture->params;
@@ -318,7 +318,7 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct renderta
     if (res != VK_SUCCESS)
         return res;
 
-    for (int i = 0; i < params->nb_colors; i++) {
+    for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
 
         VkImageView view;
