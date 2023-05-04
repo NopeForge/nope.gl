@@ -99,14 +99,14 @@ static char *get_default_str(const struct node_param *p)
 
     switch (p->type) {
         case NGLI_PARAM_TYPE_SELECT: {
-            const int v = (int)p->def_value.i32;
+            const int v = p->def_value.i32;
             const char *s = ngli_params_get_select_str(p->choices->consts, v);
             ngli_assert(s);
             ngli_bstr_printf(b, "`%s`", s);
             break;
         }
         case NGLI_PARAM_TYPE_FLAGS: {
-            const int v = (int)p->def_value.i32;
+            const int v = p->def_value.i32;
             char *s = ngli_params_get_flags_str(p->choices->consts, v);
             if (!s)
                 return NULL;
