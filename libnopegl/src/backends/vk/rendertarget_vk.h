@@ -28,7 +28,7 @@
 
 struct rendertarget_vk {
     struct rendertarget parent;
-    int nb_attachments;
+    uint32_t nb_attachments;
     VkImageView attachments[2*(NGLI_MAX_COLOR_ATTACHMENTS + 1)];
     VkFramebuffer framebuffer;
     VkRenderPass render_pass;

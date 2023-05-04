@@ -404,7 +404,7 @@ void ngli_rendertarget_vk_freep(struct rendertarget **sp)
     vkDestroyRenderPass(vk->device, s_priv->render_pass, NULL);
     vkDestroyFramebuffer(vk->device, s_priv->framebuffer, NULL);
 
-    for (int i = 0; i < s_priv->nb_attachments; i++)
+    for (uint32_t i = 0; i < s_priv->nb_attachments; i++)
         vkDestroyImageView(vk->device, s_priv->attachments[i], NULL);
 
     vkDestroyBuffer(vk->device, s_priv->staging_buffer, NULL);
