@@ -90,13 +90,13 @@ enum {
 
 struct pipeline_layout {
     const struct pipeline_texture_desc *textures_desc;
-    int nb_textures;
+    size_t nb_textures;
     const struct pipeline_uniform_desc *uniforms_desc;
-    int nb_uniforms;
+    size_t nb_uniforms;
     const struct pipeline_buffer_desc *buffers_desc;
-    int nb_buffers;
+    size_t nb_buffers;
     const struct pipeline_attribute_desc *attributes_desc;
-    int nb_attributes;
+    size_t nb_attributes;
 };
 
 struct pipeline_resources {

@@ -160,7 +160,7 @@ static int build_uniform_bindings(struct pipeline *s, const struct pipeline_para
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const struct pipeline_layout *layout = &params->layout;
-    for (int i = 0; i < layout->nb_uniforms; i++) {
+    for (size_t i = 0; i < layout->nb_uniforms; i++) {
         const struct pipeline_uniform_desc *uniform_desc = &layout->uniforms_desc[i];
         const struct program_variable_info *info = ngli_hmap_get(program->uniforms, uniform_desc->name);
         if (!info)
@@ -206,7 +206,7 @@ static int build_texture_bindings(struct pipeline *s, const struct pipeline_para
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
     const struct pipeline_layout *layout = &params->layout;
-    for (int i = 0; i < layout->nb_textures; i++) {
+    for (size_t i = 0; i < layout->nb_textures; i++) {
         const struct pipeline_texture_desc *texture_desc = &layout->textures_desc[i];
 
         if (texture_desc->type == NGLI_TYPE_IMAGE_2D ||
@@ -336,7 +336,7 @@ static int build_buffer_bindings(struct pipeline *s, const struct pipeline_param
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const struct pipeline_layout *layout = &params->layout;
-    for (int i = 0; i < layout->nb_buffers; i++) {
+    for (size_t i = 0; i < layout->nb_buffers; i++) {
         const struct pipeline_buffer_desc *pipeline_buffer_desc = &layout->buffers_desc[i];
 
         if (pipeline_buffer_desc->type == NGLI_TYPE_UNIFORM_BUFFER &&
@@ -410,7 +410,7 @@ static int build_attribute_bindings(struct pipeline *s, const struct pipeline_pa
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const struct pipeline_layout *layout = &params->layout;
-    for (int i = 0; i < layout->nb_attributes; i++) {
+    for (size_t i = 0; i < layout->nb_attributes; i++) {
         const struct pipeline_attribute_desc *pipeline_attribute_desc = &layout->attributes_desc[i];
 
         if (pipeline_attribute_desc->rate > 0 && !(gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY)) {

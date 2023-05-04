@@ -175,7 +175,7 @@ static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline
     ngli_darray_init(&s_priv->vertex_offsets, sizeof(VkDeviceSize), 0);
 
     const struct pipeline_layout *layout = &params->layout;
-    for (int i = 0; i < layout->nb_attributes; i++) {
+    for (size_t i = 0; i < layout->nb_attributes; i++) {
         const struct pipeline_attribute_desc *desc = &layout->attributes_desc[i];
 
         const struct attribute_binding attribute_binding = {
@@ -185,7 +185,7 @@ static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
         const VkVertexInputBindingDescription binding_desc = {
-            .binding   = i,
+            .binding   = (uint32_t)i,
             .stride    = (uint32_t)desc->stride,
             .inputRate = desc->rate ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX,
         };
@@ -193,7 +193,7 @@ static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
         const VkVertexInputAttributeDescription attr_desc = {
-            .binding  = i,
+            .binding  = (uint32_t)i,
             .location = desc->location,
             .format   = ngli_format_ngl_to_vk(desc->format),
             .offset   = (uint32_t)desc->offset,
@@ -435,7 +435,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s, const struct
     };
 
     const struct pipeline_layout *layout = &params->layout;
-    for (int i = 0; i < layout->nb_buffers; i++) {
+    for (size_t i = 0; i < layout->nb_buffers; i++) {
         const struct pipeline_buffer_desc *desc = &layout->buffers_desc[i];
 
         const VkDescriptorType type = get_vk_descriptor_type(desc->type);
@@ -458,7 +458,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s, const struct
         desc_pool_size_map[desc->type].descriptorCount += gpu_ctx_vk->nb_in_flight_frames;
     }
 
-    for (int i = 0; i < layout->nb_textures; i++) {
+    for (size_t i = 0; i < layout->nb_textures; i++) {
         const struct pipeline_texture_desc *desc = &layout->textures_desc[i];
 
         const VkDescriptorType type = get_vk_descriptor_type(desc->type);
