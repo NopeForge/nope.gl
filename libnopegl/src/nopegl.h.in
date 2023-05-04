@@ -580,11 +580,11 @@ struct ngl_config {
     int offscreen; /* Whether the rendering should happen offscreen or not.
                       This field is ignored if the context is external. */
 
-    int width;     /* Graphic context width, mandatory for offscreen rendering */
+    int32_t width; /* Graphic context width, mandatory for offscreen rendering */
 
-    int height;    /* Graphic context height, mandatory for offscreen rendering */
+    int32_t height; /* Graphic context height, mandatory for offscreen rendering */
 
-    int viewport[4]; /* Viewport defined as x, y, width and height */
+    int32_t viewport[4]; /* Viewport defined as x, y, width and height */
 
     int samples;   /* Number of samples used for multisample anti-aliasing */
 
@@ -731,7 +731,7 @@ NGL_API int ngl_configure(struct ngl_ctx *s, struct ngl_config *config);
  *                 dimensions of the swap chain buffers
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
-NGL_API int ngl_resize(struct ngl_ctx *s, int width, int height, const int *viewport);
+NGL_API int ngl_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport);
 
 /**
  * Set a new buffer for offscreen capture.

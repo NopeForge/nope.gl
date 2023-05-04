@@ -451,7 +451,7 @@ void ngli_texture_gl_set_id(struct texture *s, GLuint id)
     s_priv->id = id;
 }
 
-void ngli_texture_gl_set_dimensions(struct texture *s, int width, int height, int depth)
+void ngli_texture_gl_set_dimensions(struct texture *s, int32_t width, int32_t height, int depth)
 {
     struct texture_gl *s_priv = (struct texture_gl *)s;
 

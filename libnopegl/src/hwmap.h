@@ -54,8 +54,8 @@ struct hwmap {
     const struct hwmap_class *hwmap_class;
     void *hwmap_priv_data;
     int pix_fmt;
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
     struct image mapped_image;
     int require_hwconv;
     struct hwconv hwconv;

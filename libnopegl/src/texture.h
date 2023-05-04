@@ -72,8 +72,8 @@ NGLI_STATIC_ASSERT(texture_params_wrap_default,          NGLI_WRAP_CLAMP_TO_EDGE
 struct texture_params {
     enum texture_type type;
     int format;
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
     int depth;
     int samples;
     int min_filter;

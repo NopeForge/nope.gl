@@ -300,7 +300,7 @@ static int colorstats_init(struct ngl_node *node)
     return 0;
 }
 
-static int alloc_block_buffer(struct ngl_node *node, int length)
+static int alloc_block_buffer(struct ngl_node *node, int32_t length)
 {
     struct colorstats_priv *s = node->priv_data;
 
@@ -354,7 +354,7 @@ static int colorstats_update(struct ngl_node *node, double t)
      * dimensions
      */
     const struct texture_priv *texture_priv = o->texture_node->priv_data;
-    const int source_w = texture_priv->image.params.width;
+    const int32_t source_w = texture_priv->image.params.width;
     if (s->blk.buffer->size == 0)
         return alloc_block_buffer(node, source_w);
 

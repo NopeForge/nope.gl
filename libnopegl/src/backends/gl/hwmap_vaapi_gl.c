@@ -244,8 +244,8 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
                vaapi->surface_descriptor.layers[i].pitch[plane]);                    \
 } while (0)
 
-        int width = i == 0 ? frame->width : (frame->width + 1) >> 1;
-        int height = i == 0 ? frame->height : (frame->height + 1) >> 1;
+        int32_t width = i == 0 ? frame->width : (frame->width + 1) >> 1;
+        int32_t height = i == 0 ? frame->height : (frame->height + 1) >> 1;
 
         ADD_ATTRIB(EGL_LINUX_DRM_FOURCC_EXT, vaapi->surface_descriptor.layers[i].drm_format);
         ADD_ATTRIB(EGL_WIDTH,  width);

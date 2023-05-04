@@ -1373,7 +1373,7 @@ void ngli_hud_draw(struct hud *s)
         widgets_draw(s);
     }
 
-    int viewport[4];
+    int32_t viewport[4];
     ngli_gpu_ctx_get_viewport(gpu_ctx, viewport);
     const int scale = s->scale > 0 ? s->scale : 1;
     const float ratio_w = (float)(scale * s->canvas.w) / (float)viewport[2];

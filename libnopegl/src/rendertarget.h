@@ -61,8 +61,8 @@ struct attachment {
 };
 
 struct rendertarget_params {
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
     size_t nb_colors;
     struct attachment colors[NGLI_MAX_COLOR_ATTACHMENTS];
     struct attachment depth_stencil;
@@ -71,8 +71,8 @@ struct rendertarget_params {
 struct rendertarget {
     struct gpu_ctx *gpu_ctx;
     struct rendertarget_params params;
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
 };
 
 struct rendertarget *ngli_rendertarget_create(struct gpu_ctx *gpu_ctx);

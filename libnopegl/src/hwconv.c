@@ -206,10 +206,10 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     struct rendertarget *rt = hwconv->rt;
     ngli_gpu_ctx_begin_render_pass(gpu_ctx, rt);
 
-    int prev_vp[4] = {0};
+    int32_t prev_vp[4] = {0};
     ngli_gpu_ctx_get_viewport(gpu_ctx, prev_vp);
 
-    const int vp[4] = {0, 0, rt->width, rt->height};
+    const int32_t vp[4] = {0, 0, rt->width, rt->height};
     ngli_gpu_ctx_set_viewport(gpu_ctx, vp);
 
     struct pipeline_compat *pipeline = hwconv->pipeline_compat;

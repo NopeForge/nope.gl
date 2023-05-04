@@ -34,7 +34,7 @@ int64_t gettime_relative(void);
 double clipf64(double v, double min, double max);
 int clipi32(int v, int min, int max);
 int64_t clipi64(int64_t v, int64_t min, int64_t max);
-void get_viewport(int width, int height, const int *aspect_ratio, int *vp);
+void get_viewport(int32_t width, int32_t height, const int *aspect_ratio, int32_t *vp);
 char *get_text_file_content(const char *filename);
 
 #endif

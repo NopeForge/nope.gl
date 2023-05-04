@@ -147,13 +147,13 @@ static void reset_capture_cvpixelbuffer(struct gpu_ctx *s)
 }
 #endif
 
-static void gl_set_viewport(struct gpu_ctx *s, const int *viewport)
+static void gl_set_viewport(struct gpu_ctx *s, const int32_t *viewport)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     memcpy(&s_priv->viewport, viewport, sizeof(s_priv->viewport));
 }
 
-static void gl_get_viewport(struct gpu_ctx *s, int *viewport)
+static void gl_get_viewport(struct gpu_ctx *s, int32_t *viewport)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     memcpy(viewport, &s_priv->viewport, sizeof(s_priv->viewport));
@@ -563,7 +563,7 @@ static int gl_init(struct gpu_ctx *s)
 
     ngli_glstate_reset(gl, &s_priv->glstate);
 
-    const int *viewport = config->viewport;
+    const int32_t *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0) {
         gl_set_viewport(s, viewport);
     } else {
@@ -577,7 +577,7 @@ static int gl_init(struct gpu_ctx *s)
     return 0;
 }
 
-static int gl_resize(struct gpu_ctx *s, int width, int height, const int *viewport)
+static int gl_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;

@@ -214,7 +214,7 @@ static VkFormatFeatureFlags get_vk_format_features(int usage)
          | (usage & NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ? VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT : 0);
 }
 
-static int get_mipmap_levels(int width, int height)
+static int get_mipmap_levels(int32_t width, int32_t height)
 {
     int mipmap_levels = 1;
     while ((width | height) >> mipmap_levels)

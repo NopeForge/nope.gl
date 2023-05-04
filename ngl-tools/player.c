@@ -33,7 +33,7 @@
 #include "player.h"
 #include "wsi.h"
 
-static int save_ppm(const char *filename, uint8_t *data, int width, int height)
+static int save_ppm(const char *filename, uint8_t *data, int32_t width, int32_t height)
 {
     int ret = 0;
     FILE *fp = fopen(filename, "wb");
@@ -255,7 +255,7 @@ static int key_callback(struct player *p, SDL_KeyboardEvent *event)
     return 0;
 }
 
-static void size_callback(struct player *p, int width, int height)
+static void size_callback(struct player *p, int32_t width, int32_t height)
 {
     get_viewport(width, height, p->aspect, p->ngl_config.viewport);
     p->ngl_config.width = width;
@@ -265,7 +265,7 @@ static void size_callback(struct player *p, int width, int height)
 
 static void seek_event(struct player *p, int x)
 {
-    const int *vp = p->ngl_config.viewport;
+    const int32_t *vp = p->ngl_config.viewport;
     const int pos = clipi32(x - vp[0], 0, vp[2]);
     const int64_t seek_at64 = p->duration * pos / vp[2];
     p->lasthover = gettime_relative();
@@ -407,7 +407,7 @@ static int set_aspect_ratio(struct player *p, const int *aspect)
     memcpy(p->aspect, aspect, sizeof(p->aspect));
     if (!p->aspect[0] || !p->aspect[1])
         p->aspect[0] = p->aspect[1] = 1;
-    int width, height;
+    int32_t width, height;
     SDL_GetWindowSize(p->window, &width, &height);
     size_callback(p, width, height);
     if (p->pgbar_text_node)

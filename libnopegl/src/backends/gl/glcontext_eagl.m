@@ -266,7 +266,7 @@ static void eagl_uninit_external(struct glcontext *ctx)
         CFRelease(eagl->texture_cache);
 }
 
-static int eagl_resize(struct glcontext *ctx, int width, int height)
+static int eagl_resize(struct glcontext *ctx, int32_t width, int32_t height)
 {
     if (![NSThread isMainThread]) {
         LOG(ERROR, "eagl_resize() must be called from the UI thread");

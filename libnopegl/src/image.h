@@ -55,8 +55,8 @@ enum image_layout {
 };
 
 struct image_params {
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
     int depth;
     float color_scale;
     enum image_layout layout;

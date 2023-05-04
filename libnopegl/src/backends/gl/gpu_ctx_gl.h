@@ -46,7 +46,7 @@ struct gpu_ctx_gl {
     struct glcontext *glcontext;
     struct glstate glstate;
     struct rendertarget *current_rt;
-    int viewport[4];
+    int32_t viewport[4];
     int scissor[4];
     struct rendertarget_desc default_rt_desc;
     /* Default rendertarget with load op set to clear */

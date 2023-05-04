@@ -263,7 +263,7 @@ fail:
     return ret;
 }
 
-int ngli_ctx_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
+int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
 {
     return ngli_gpu_ctx_resize(s->gpu_ctx, width, height, viewport);
 }
@@ -682,7 +682,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
     return 0;
 }
 
-int ngl_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
+int ngl_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
 {
     if (!s->configured) {
         LOG(ERROR, "context must be configured before resizing rendering buffers");
