@@ -209,7 +209,8 @@ static int build_texture_bindings(struct pipeline *s, const struct pipeline_para
     for (int i = 0; i < layout->nb_textures; i++) {
         const struct pipeline_texture_desc *texture_desc = &layout->textures_desc[i];
 
-        if (texture_desc->type == NGLI_TYPE_IMAGE_2D) {
+        if (texture_desc->type == NGLI_TYPE_IMAGE_2D ||
+            texture_desc->type == NGLI_TYPE_IMAGE_3D) {
             struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
             struct glcontext *gl = gpu_ctx_gl->glcontext;
             const struct gpu_limits *limits = &gl->limits;
@@ -277,7 +278,8 @@ static void set_textures(struct pipeline *s, struct glcontext *gl)
         const struct texture *texture = texture_binding->texture;
         const struct texture_gl *texture_gl = (const struct texture_gl *)texture;
 
-        if (texture_binding->desc.type == NGLI_TYPE_IMAGE_2D) {
+        if (texture_binding->desc.type == NGLI_TYPE_IMAGE_2D ||
+            texture_binding->desc.type == NGLI_TYPE_IMAGE_3D) {
             GLuint texture_id = 0;
             const GLenum access = get_gl_access(texture_binding->desc.access);
             GLenum internal_format = GL_RGBA8;
@@ -285,7 +287,10 @@ static void set_textures(struct pipeline *s, struct glcontext *gl)
                 texture_id = texture_gl->id;
                 internal_format = texture_gl->internal_format;
             }
-            ngli_glBindImageTexture(gl, texture_binding->desc.binding, texture_id, 0, GL_FALSE, 0, access, internal_format);
+            GLboolean layered = GL_FALSE;
+            if (texture_binding->desc.type == NGLI_TYPE_IMAGE_3D)
+                layered = GL_TRUE;
+            ngli_glBindImageTexture(gl, texture_binding->desc.binding, texture_id, 0, layered, 0, access, internal_format);
         } else {
             const int texture_index = acquire_next_available_texture_unit(&texture_units);
             if (texture_index < 0)

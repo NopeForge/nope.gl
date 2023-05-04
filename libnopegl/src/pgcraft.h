@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -47,6 +48,7 @@ enum pgcraft_shader_tex_type {
     NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
     NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D,
     NGLI_PGCRAFT_SHADER_TEX_TYPE_3D,
+    NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D,
     NGLI_PGCRAFT_SHADER_TEX_TYPE_CUBE,
     NGLI_PGCRAFT_SHADER_TEX_TYPE_NB
 };
