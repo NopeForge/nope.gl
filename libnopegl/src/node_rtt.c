@@ -489,7 +489,7 @@ static void rtt_draw(struct ngl_node *node)
     int prev_scissor[4] = {0};
     ngli_gpu_ctx_get_scissor(gpu_ctx, prev_scissor);
 
-    const int scissor[4] = {0, 0, s->width, s->height};
+    const int32_t scissor[4] = {0, 0, s->width, s->height};
     ngli_gpu_ctx_set_scissor(gpu_ctx, scissor);
 
     struct rendertarget *prev_rendertargets[2] = {

@@ -191,12 +191,12 @@ void ngli_gpu_ctx_get_viewport(struct gpu_ctx *s, int32_t *viewport)
     s->cls->get_viewport(s, viewport);
 }
 
-void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const int *scissor)
+void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const int32_t *scissor)
 {
     s->cls->set_scissor(s, scissor);
 }
 
-void ngli_gpu_ctx_get_scissor(struct gpu_ctx *s, int *scissor)
+void ngli_gpu_ctx_get_scissor(struct gpu_ctx *s, int32_t *scissor)
 {
     s->cls->get_scissor(s, scissor);
 }
