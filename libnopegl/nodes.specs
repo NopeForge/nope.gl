@@ -1736,7 +1736,7 @@
     {
       "name": "color_textures",
       "type": "node_list",
-      "node_types": ["Texture2D", "TextureCube", "TextureView"],
+      "node_types": ["Texture2D", "Texture3D", "TextureCube", "TextureView"],
       "flags": [],
       "desc": "destination color texture"
     },
