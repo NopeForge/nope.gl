@@ -122,8 +122,8 @@ static int buffer_init_from_filename(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    if (size > INT_MAX) {
-        LOG(ERROR, "'%s' size (%" PRId64 ") exceeds supported limit (%d)", o->filename, size, INT_MAX);
+    if (size > SIZE_MAX) {
+        LOG(ERROR, "'%s' size (%" PRId64 ") exceeds supported limit (%zd)", o->filename, size, SIZE_MAX);
         return NGL_ERROR_UNSUPPORTED;
     }
 
