@@ -58,7 +58,7 @@ struct rtt_priv {
     struct texture *depth;
 
     struct texture *ms_colors[NGLI_MAX_COLOR_ATTACHMENTS];
-    int nb_ms_colors;
+    size_t nb_ms_colors;
     struct texture *ms_depth;
 };
 
@@ -543,7 +543,7 @@ static void rtt_release(struct ngl_node *node)
     ngli_rendertarget_freep(&s->rt_resume);
     ngli_texture_freep(&s->depth);
 
-    for (int i = 0; i < s->nb_ms_colors; i++)
+    for (size_t i = 0; i < s->nb_ms_colors; i++)
         ngli_texture_freep(&s->ms_colors[i]);
     s->nb_ms_colors = 0;
     ngli_texture_freep(&s->ms_depth);
