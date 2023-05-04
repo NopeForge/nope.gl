@@ -33,8 +33,8 @@
 #include "internal.h"
 
 struct hwmap_common {
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
     size_t nb_planes;
     struct texture *planes[4];
 };

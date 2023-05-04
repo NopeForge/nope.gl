@@ -40,7 +40,7 @@ int init_window(void)
     return 0;
 }
 
-SDL_Window *get_window(const char *title, int width, int height)
+SDL_Window *get_window(const char *title, int32_t width, int32_t height)
 {
     uint32_t flags = SDL_WINDOW_RESIZABLE;
 

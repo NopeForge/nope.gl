@@ -26,7 +26,7 @@
 #include <nopegl.h>
 
 int init_window(void);
-SDL_Window *get_window(const char *title, int width, int height);
+SDL_Window *get_window(const char *title, int32_t width, int32_t height);
 
 int wsi_set_ngl_config(struct ngl_config *config, SDL_Window *window);
 

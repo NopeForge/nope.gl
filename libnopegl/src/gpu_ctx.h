@@ -53,7 +53,7 @@ struct gpu_ctx_class {
 
     struct gpu_ctx *(*create)(const struct ngl_config *config);
     int (*init)(struct gpu_ctx *s);
-    int (*resize)(struct gpu_ctx *s, int width, int height, const int *viewport);
+    int (*resize)(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport);
     int (*set_capture_buffer)(struct gpu_ctx *s, void *capture_buffer);
     int (*begin_update)(struct gpu_ctx *s, double t);
     int (*end_update)(struct gpu_ctx *s, double t);
@@ -73,8 +73,8 @@ struct gpu_ctx_class {
     void (*begin_render_pass)(struct gpu_ctx *s, struct rendertarget *rt);
     void (*end_render_pass)(struct gpu_ctx *s);
 
-    void (*set_viewport)(struct gpu_ctx *s, const int *viewport);
-    void (*get_viewport)(struct gpu_ctx *s, int *viewport);
+    void (*set_viewport)(struct gpu_ctx *s, const int32_t *viewport);
+    void (*get_viewport)(struct gpu_ctx *s, int32_t *viewport);
     void (*set_scissor)(struct gpu_ctx *s, const int *scissor);
     void (*get_scissor)(struct gpu_ctx *s, int *scissor);
     int (*get_preferred_depth_format)(struct gpu_ctx *s);
@@ -130,7 +130,7 @@ struct gpu_ctx {
 
 struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config);
 int ngli_gpu_ctx_init(struct gpu_ctx *s);
-int ngli_gpu_ctx_resize(struct gpu_ctx *s, int width, int height, const int *viewport);
+int ngli_gpu_ctx_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport);
 int ngli_gpu_ctx_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer);
 int ngli_gpu_ctx_begin_update(struct gpu_ctx *s, double t);
 int ngli_gpu_ctx_end_update(struct gpu_ctx *s, double t);
@@ -150,8 +150,8 @@ const struct rendertarget_desc *ngli_gpu_ctx_get_default_rendertarget_desc(struc
 void ngli_gpu_ctx_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt);
 void ngli_gpu_ctx_end_render_pass(struct gpu_ctx *s);
 
-void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const int *viewport);
-void ngli_gpu_ctx_get_viewport(struct gpu_ctx *s, int *viewport);
+void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const int32_t *viewport);
+void ngli_gpu_ctx_get_viewport(struct gpu_ctx *s, int32_t *viewport);
 void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const int *scissor);
 void ngli_gpu_ctx_get_scissor(struct gpu_ctx *s, int *scissor);
 

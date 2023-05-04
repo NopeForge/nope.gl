@@ -78,8 +78,8 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 
 struct hwmap_vt_ios {
     struct texture *planes[2];
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
     OSType format;
     struct format_desc format_desc;
     CVOpenGLESTextureRef ios_textures[2];

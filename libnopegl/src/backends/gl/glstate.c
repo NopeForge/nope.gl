@@ -342,7 +342,7 @@ void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *gls
     ngli_glScissor(gl, scissor[0], scissor[1], scissor[2], scissor[3]);
 }
 
-void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *glstate, const int *viewport)
+void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *glstate, const int32_t *viewport)
 {
     if (!memcmp(glstate->viewport, viewport, sizeof(glstate->viewport)))
         return;

@@ -640,7 +640,7 @@ int ngli_pass_exec(struct pass *s)
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->projection_matrix_index, projection_matrix);
 
-    int viewport[4] = {0};
+    int32_t viewport[4] = {0};
     ngli_gpu_ctx_get_viewport(ctx->gpu_ctx, viewport);
 
     const float resolution[2] = {(float)viewport[2], (float)viewport[3]};

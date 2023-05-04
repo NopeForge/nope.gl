@@ -90,7 +90,7 @@ int ngli_gpu_ctx_init(struct gpu_ctx *s)
     return s->cls->init(s);
 }
 
-int ngli_gpu_ctx_resize(struct gpu_ctx *s, int width, int height, const int *viewport)
+int ngli_gpu_ctx_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
 {
     const struct gpu_ctx_class *cls = s->cls;
     return cls->resize(s, width, height, viewport);
@@ -181,12 +181,12 @@ const struct rendertarget_desc *ngli_gpu_ctx_get_default_rendertarget_desc(struc
     return s->cls->get_default_rendertarget_desc(s);
 }
 
-void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const int *viewport)
+void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const int32_t *viewport)
 {
     s->cls->set_viewport(s, viewport);
 }
 
-void ngli_gpu_ctx_get_viewport(struct gpu_ctx *s, int *viewport)
+void ngli_gpu_ctx_get_viewport(struct gpu_ctx *s, int32_t *viewport)
 {
     s->cls->get_viewport(s, viewport);
 }

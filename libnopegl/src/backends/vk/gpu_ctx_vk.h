@@ -55,8 +55,8 @@ struct gpu_ctx_vk {
     uint32_t cur_image_index;
     int64_t present_time_offset;
 
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
 
     uint32_t nb_in_flight_frames;
     uint32_t cur_frame_index;
@@ -83,7 +83,7 @@ struct gpu_ctx_vk {
     struct texture *dummy_texture;
 
     struct rendertarget *current_rt;
-    int viewport[4];
+    int32_t viewport[4];
     int scissor[4];
     float clear_color[4];
 };

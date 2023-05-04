@@ -49,8 +49,8 @@ struct rtt_opts {
 
 struct rtt_priv {
     struct renderpass_info renderpass_info;
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
 
     struct rendertarget *rt;
     struct rendertarget *rt_resume;
@@ -480,10 +480,10 @@ static void rtt_draw(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
     const struct rtt_opts *o = node->opts;
 
-    int prev_vp[4] = {0};
+    int32_t prev_vp[4] = {0};
     ngli_gpu_ctx_get_viewport(gpu_ctx, prev_vp);
 
-    const int vp[4] = {0, 0, s->width, s->height};
+    const int32_t vp[4] = {0, 0, s->width, s->height};
     ngli_gpu_ctx_set_viewport(gpu_ctx, vp);
 
     int prev_scissor[4] = {0};

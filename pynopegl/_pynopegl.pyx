@@ -147,9 +147,9 @@ cdef extern from "nopegl.h":
         uintptr_t window
         int  swap_interval
         int  offscreen
-        int  width
-        int  height
-        int  viewport[4]
+        int32_t width
+        int32_t height
+        int32_t viewport[4]
         int  samples
         int  set_surface_pts
         float clear_color[4]
@@ -181,7 +181,7 @@ cdef extern from "nopegl.h":
     int ngl_backends_get(const ngl_config *user_config, size_t *nb_backendsp, ngl_backend **backendsp)
     void ngl_backends_freep(ngl_backend **backendsp)
     int ngl_configure(ngl_ctx *s, ngl_config *config)
-    int ngl_resize(ngl_ctx *s, int width, int height, const int *viewport)
+    int ngl_resize(ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
     int ngl_set_capture_buffer(ngl_ctx *s, void *capture_buffer)
     int ngl_set_scene(ngl_ctx *s, ngl_scene *scene)
     int ngl_draw(ngl_ctx *s, double t) nogil
@@ -694,7 +694,7 @@ cdef class Context:
     def resize(self, width, height, viewport=None):
         if viewport is None:
             return ngl_resize(self.ctx, width, height, NULL)
-        cdef int c_viewport[4]
+        cdef int32_t c_viewport[4]
         for i in range(4):
             c_viewport[i] = viewport[i]
         return ngl_resize(self.ctx, width, height, c_viewport)

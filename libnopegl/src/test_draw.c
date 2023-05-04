@@ -27,7 +27,7 @@
 
 #include "drawutils.h"
 
-static int save_ppm(const char *filename, uint8_t *data, int width, int height)
+static int save_ppm(const char *filename, uint8_t *data, int32_t width, int32_t height)
 {
     int ret = 0;
     FILE *fp = fopen(filename, "wb");

@@ -65,7 +65,7 @@ typedef int (*cmd_func_type)(struct ngl_ctx *s, void *arg);
 
 struct api_impl {
     int (*configure)(struct ngl_ctx *s, const struct ngl_config *config);
-    int (*resize)(struct ngl_ctx *s, int width, int height, const int *viewport);
+    int (*resize)(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport);
     int (*set_capture_buffer)(struct ngl_ctx *s, void *capture_buffer);
     int (*set_scene)(struct ngl_ctx *s, struct ngl_scene *scene);
     int (*prepare_draw)(struct ngl_ctx *s, double t);
@@ -128,7 +128,7 @@ struct ngl_ctx {
 
 int ngli_ctx_dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg);
 int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config);
-int ngli_ctx_resize(struct ngl_ctx *s, int width, int height, const int *viewport);
+int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport);
 int ngli_ctx_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer);
 int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene);
 int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t);

@@ -1124,7 +1124,7 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
     ngli_pipeline_compat_update_uniform(pl_compat, desc->projection_matrix_index, projection_matrix);
 
     if (desc->aspect_index >= 0) {
-        int viewport[4] = {0};
+        int32_t viewport[4] = {0};
         ngli_gpu_ctx_get_viewport(ctx->gpu_ctx, viewport);
         const float aspect = (float)viewport[2] / (float)viewport[3];
         ngli_pipeline_compat_update_uniform(pl_compat, desc->aspect_index, &aspect);
