@@ -25,17 +25,17 @@
 #include "utils.h"
 #include "math_utils.h"
 
-static void flt_diff(float *dst, const float *a, const float *b, int size)
+static void flt_diff(float *dst, const float *a, const float *b, size_t size)
 {
-    for (int i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
         dst[i] = a[i] - b[i];
 }
 
-static void flt_check(const float *f, int size)
+static void flt_check(const float *f, size_t size)
 {
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         if (fabsf(f[i]) > 0.00001) {
-            fprintf(stderr, "float %d/%d too large\n", i + 1, size);
+            fprintf(stderr, "float %zd/%zd too large\n", i + 1, size);
             exit(1);
         }
     }
@@ -76,8 +76,8 @@ int main(void)
     printf("diff:\n" NGLI_FMT_MAT4 "\n", NGLI_ARG_MAT4(m_diff));
     flt_check(m_diff, 4*4);
 
-    for (int i = 0; i < 4; i++) {
-        printf(":: Testing mat4 mul vec4 %d/4\n", i + 1);
+    for (size_t i = 0; i < 4; i++) {
+        printf(":: Testing mat4 mul vec4 %zd/4\n", i + 1);
 
         const float *v = &m2[i * 4];
 
