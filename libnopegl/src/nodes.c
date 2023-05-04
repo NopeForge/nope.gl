@@ -99,7 +99,7 @@ char *ngli_node_default_label(const char *class_name)
     char *label = ngli_strdup(class_name);
     if (!label)
         return NULL;
-    for (int i = 0; label[i]; i++)
+    for (size_t i = 0; label[i]; i++)
         label[i] = DEF_NAME_CHR(label[i]);
     return label;
 }
@@ -109,7 +109,7 @@ int ngli_is_default_label(const char *class_name, const char *str)
     const size_t len = strlen(class_name);
     if (len != strlen(str))
         return 0;
-    for (int i = 0; i < len; i++)
+    for (size_t i = 0; i < len; i++)
         if (DEF_NAME_CHR(class_name[i]) != str[i])
             return 0;
     return 1;
@@ -474,7 +474,7 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
 {
     if (!params)
         return 0;
-    for (int i = 0; params[i].key; i++) {
+    for (size_t i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
         uint8_t *parp = base_ptr + par->offset;
 
