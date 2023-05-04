@@ -51,8 +51,8 @@ struct pass_params {
     /* compute */
     const char *comp_base;
     struct hmap *compute_resources;
-    int workgroup_count[3];
-    int workgroup_size[3];
+    uint32_t workgroup_count[3];
+    uint32_t workgroup_size[3];
 };
 
 enum {

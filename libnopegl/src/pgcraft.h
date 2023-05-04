@@ -193,7 +193,7 @@ struct pgcraft_params {
 
     size_t nb_frag_output;
 
-    int workgroup_size[3];
+    uint32_t workgroup_size[3];
 };
 
 struct pgcraft;

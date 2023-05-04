@@ -42,7 +42,7 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
 int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int index, const struct buffer *buffer, int offset, int size);
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances);
 void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances);
-void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, int nb_group_x, int nb_group_y, int nb_group_z);
+void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 void ngli_pipeline_compat_freep(struct pipeline_compat **sp);
 
 #endif

@@ -58,7 +58,7 @@ int ngli_pipeline_vk_update_texture(struct pipeline *s, int index, const struct 
 int ngli_pipeline_vk_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size);
 void ngli_pipeline_vk_draw(struct pipeline *s, int nb_vertices, int nb_instances);
 void ngli_pipeline_vk_draw_indexed(struct pipeline *s, const struct buffer *indices, int indices_format, int nb_vertices, int nb_instances);
-void ngli_pipeline_vk_dispatch(struct pipeline *s, int nb_group_x, int nb_group_y, int nb_group_z);
+void ngli_pipeline_vk_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 void ngli_pipeline_vk_freep(struct pipeline **sp);
 
 #endif

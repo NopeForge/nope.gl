@@ -250,7 +250,7 @@ struct program_opts {
     const char *vertex;
     const char *fragment;
     const char *compute;
-    int workgroup_size[3];
+    uint32_t workgroup_size[3];
     struct hmap *properties;
     struct hmap *vert_out_vars;
     int nb_frag_output;
