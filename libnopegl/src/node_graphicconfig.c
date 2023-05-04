@@ -58,7 +58,7 @@ struct graphicconfig_opts {
     int cull_mode;
 
     int scissor_test;
-    int scissor[4];
+    int32_t scissor[4];
 };
 
 struct graphicconfig_priv {

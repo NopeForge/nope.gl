@@ -334,7 +334,7 @@ void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstat
     }
 }
 
-void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *glstate, const int *scissor)
+void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *glstate, const int32_t *scissor)
 {
     if (!memcmp(glstate->scissor, scissor, sizeof(glstate->scissor)))
         return;

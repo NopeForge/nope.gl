@@ -804,7 +804,7 @@ static void set_viewport_and_scissor(struct gpu_ctx *s, int32_t width, int32_t h
         ngli_gpu_ctx_set_viewport(s, default_viewport);
     }
 
-    const int scissor[] = {0, 0, width, height};
+    const int32_t scissor[] = {0, 0, width, height};
     ngli_gpu_ctx_set_scissor(s, scissor);
 }
 
@@ -1378,13 +1378,13 @@ static void vk_get_viewport(struct gpu_ctx *s, int32_t *viewport)
     memcpy(viewport, &s_priv->viewport, sizeof(s_priv->viewport));
 }
 
-static void vk_set_scissor(struct gpu_ctx *s, const int *scissor)
+static void vk_set_scissor(struct gpu_ctx *s, const int32_t *scissor)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
     memcpy(&s_priv->scissor, scissor, sizeof(s_priv->scissor));
 }
 
-static void vk_get_scissor(struct gpu_ctx *s, int *scissor)
+static void vk_get_scissor(struct gpu_ctx *s, int32_t *scissor)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
     memcpy(scissor, &s_priv->scissor, sizeof(s_priv->scissor));

@@ -159,13 +159,13 @@ static void gl_get_viewport(struct gpu_ctx *s, int32_t *viewport)
     memcpy(viewport, &s_priv->viewport, sizeof(s_priv->viewport));
 }
 
-static void gl_set_scissor(struct gpu_ctx *s, const int *scissor)
+static void gl_set_scissor(struct gpu_ctx *s, const int32_t *scissor)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     memcpy(&s_priv->scissor, scissor, sizeof(s_priv->scissor));
 }
 
-static void gl_get_scissor(struct gpu_ctx *s, int *scissor)
+static void gl_get_scissor(struct gpu_ctx *s, int32_t *scissor)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     memcpy(scissor, &s_priv->scissor, sizeof(s_priv->scissor));
@@ -621,7 +621,7 @@ static int gl_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int
         gl_set_viewport(s, default_viewport);
     }
 
-    const int scissor[] = {0, 0, config->width, config->height};
+    const int32_t scissor[] = {0, 0, config->width, config->height};
     gl_set_scissor(s, scissor);
 
     return 0;
