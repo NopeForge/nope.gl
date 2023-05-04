@@ -45,7 +45,7 @@ struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx)
 static int get_pipeline_ubo_index(const struct pipeline_params *params, int binding, int stage)
 {
     const struct pipeline_layout *layout = &params->layout;
-    for (int i = 0; i < layout->nb_buffers; i++) {
+    for (int i = 0; i < (int)layout->nb_buffers; i++) {
         if (layout->buffers_desc[i].type == NGLI_TYPE_UNIFORM_BUFFER &&
             layout->buffers_desc[i].stage == stage &&
             layout->buffers_desc[i].binding == binding) {
