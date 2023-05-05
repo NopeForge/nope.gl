@@ -17,6 +17,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   (floored) and `mod_t` (truncated)
 - Support for rendering to 3D textures
 - Support for 3D textures image load/store
+- Support for cube maps image load/store
 
 ### Changed
 - CSV export in the HUD now always prints floats in C locale instead of quoted

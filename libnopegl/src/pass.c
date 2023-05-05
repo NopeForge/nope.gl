@@ -156,8 +156,9 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
             const struct resourceprops_opts *resprops = resprops_node->opts;
             if (resprops->as_image) {
                 if (texture->cls->id != NGL_NODE_TEXTURE2D &&
-                    texture->cls->id != NGL_NODE_TEXTURE3D) {
-                    LOG(ERROR, "\"%s\" can not be accessed as an image; only Texture{2D,3D} are supported", name);
+                    texture->cls->id != NGL_NODE_TEXTURE3D &&
+                    texture->cls->id != NGL_NODE_TEXTURECUBE) {
+                    LOG(ERROR, "\"%s\" can not be accessed as an image; only Texture{2D,3D,Cube} are supported", name);
                     return NGL_ERROR_UNSUPPORTED;
                 }
                 /* Disable direct rendering when using image load/store */
@@ -168,6 +169,8 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
                     crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D;
                 else if (texture->cls->id == NGL_NODE_TEXTURE3D)
                     crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D;
+                else if (texture->cls->id == NGL_NODE_TEXTURECUBE)
+                    crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE;
                 else
                     ngli_assert(0);
             }

@@ -199,6 +199,7 @@ static const int type_flags_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
     [NGLI_TYPE_IMAGE_2D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
     [NGLI_TYPE_IMAGE_3D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_IMAGE_CUBE]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
     [NGLI_TYPE_UNIFORM_BUFFER]              = 0,
     [NGLI_TYPE_STORAGE_BUFFER]              = 0,
 };
@@ -356,6 +357,9 @@ static const int texture_types_map[NGLI_PGCRAFT_SHADER_TEX_TYPE_NB][NGLI_INFO_FI
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_CUBE] = {
         [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_SAMPLER_CUBE,
     },
+    [NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE] = {
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_IMAGE_CUBE,
+    },
 };
 
 static int is_type_supported(struct pgcraft *s, int type)
@@ -454,7 +458,8 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
 
             const char *prefix = "";
             if (field->type == NGLI_TYPE_IMAGE_2D ||
-                field->type == NGLI_TYPE_IMAGE_3D) {
+                field->type == NGLI_TYPE_IMAGE_3D ||
+                field->type == NGLI_TYPE_IMAGE_CUBE) {
                 if (info->format == NGLI_TYPE_NONE) {
                     LOG(ERROR, "texture format must be set when accessing it as an image");
                     return NGL_ERROR_INVALID_ARG;
@@ -705,7 +710,8 @@ static int params_have_images(struct pgcraft *s, const struct pgcraft_params *pa
             const struct pgcraft_texture_info_field *field = &info->fields[j];
             if (field->stage == stage &&
                 (field->type == NGLI_TYPE_IMAGE_2D ||
-                 field->type == NGLI_TYPE_IMAGE_3D))
+                 field->type == NGLI_TYPE_IMAGE_3D ||
+                 field->type == NGLI_TYPE_IMAGE_CUBE))
                 return 1;
         }
     }
