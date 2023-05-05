@@ -439,3 +439,92 @@ def compute_image_3d_load_store(cfg: SceneCfg, show_dbg_points=False):
         group.add_children(get_debug_points(cfg, cuepoints))
 
     return group
+
+
+_IMAGE_CUBE_STORE_COMPUTE = """
+void main()
+{
+    ivec3 pos = ivec3(gl_LocalInvocationID.xyz);
+    vec4 color = vec4(0.0);
+    if (pos.z == 0) // right
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+    else if (pos.z == 1) // left
+        color = vec4(0.0, 1.0, 0.0, 1.0);
+    else if (pos.z == 2) // top
+        color = vec4(0.0, 0.0, 1.0, 1.0);
+    else if (pos.z == 3) // bottom
+        color = vec4(1.0, 1.0, 0.0, 1.0);
+    else if (pos.z == 4) // back
+        color = vec4(0.0, 1.0, 1.0, 1.0);
+    else if (pos.z == 5) // front
+        color = vec4(1.0, 0.0, 1.0, 1.0);
+    imageStore(texture, pos, color);
+}
+"""
+
+_IMAGE_CUBE_VERT = """
+void main()
+{
+    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+    var_uvcoord = ngl_position;
+}
+"""
+
+_IMAGE_CUBE_FRAG = """
+// Cube map texture selection is described in the OpenGL specification, see:
+// https://registry.khronos.org/OpenGL/specs/es/3.0/es_spec_3.0.pdf#table.3.21
+vec2 get_sample_cube_coord(vec3 r, out int face)
+{
+    vec3 r_abs = abs(r);
+    vec2 uv;  // sc,tc
+    float ma; // major axis
+    if (r_abs.z >= r_abs.x && r_abs.z >= r_abs.y) { // z major
+        uv = vec2(sign(r.z) * r.x, -r.y);
+        ma = r_abs.z;
+        face = r.z < 0.0 ? 5 : 4;
+    } else if (r_abs.y >= r_abs.x) { // y major
+        uv = vec2(r.x, sign(r.y) * r.z);
+        ma = r_abs.y;
+        face = r.y < 0.0 ? 3 : 2;
+    } else { // x major
+        uv = vec2(sign(r.x) * -r.z, -r.y);
+        ma = r_abs.x;
+        face = r.x < 0.0 ? 1 : 0;
+    }
+    return (uv / ma + 1.0) / 2.0;
+}
+
+void main()
+{
+    int face = 0;
+    vec2 uv = get_sample_cube_coord(vec3(var_uvcoord.xy, 0.5), face);
+    float size = float(imageSize(texture).x);
+    ngl_out_color = imageLoad(texture, ivec3(uv * size, face));
+}
+"""
+
+
+@test_fingerprint()
+@scene()
+def compute_image_cube_load_store(cfg: SceneCfg):
+    size = _N
+    texture = ngl.TextureCube(format="r32g32b32a32_sfloat", size=size)
+    program_store = ngl.ComputeProgram(_IMAGE_CUBE_STORE_COMPUTE, workgroup_size=(size, size, 6))
+    program_store.update_properties(
+        texture=ngl.ResourceProps(as_image=True, writable=True),
+    )
+    compute_store = ngl.Compute(workgroup_count=(1, 1, 1), program=program_store)
+    compute_store.update_resources(
+        texture=texture,
+    )
+
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    program = ngl.Program(vertex=_IMAGE_CUBE_VERT, fragment=_IMAGE_CUBE_FRAG)
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
+    program.update_properties(
+        texture=ngl.ResourceProps(as_image=True),
+    )
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(texture=texture)
+
+    return ngl.Group(children=(compute_store, render))
