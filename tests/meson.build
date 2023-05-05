@@ -118,6 +118,7 @@ foreach backend : backends
       'histogram',
       'image_load_store',
       'image_3d_load_store',
+      'image_cube_load_store',
       'particles',
     ]
   endif
