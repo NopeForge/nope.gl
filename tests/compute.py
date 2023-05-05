@@ -1,4 +1,5 @@
 #
+# Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
 # Copyright 2020-2022 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -356,6 +357,85 @@ def compute_image_load_store(cfg: SceneCfg, show_dbg_points=False):
 
     if show_dbg_points:
         cuepoints = _get_compute_histogram_cuepoints()
+        group.add_children(get_debug_points(cfg, cuepoints))
+
+    return group
+
+
+_IMAGE_3D_STORE_COMPUTE = """
+void main()
+{
+    ivec2 pos = ivec2(gl_LocalInvocationID.xy);
+    float size = float(imageSize(texture).x);
+    float color = (float(pos.y) * size + float(pos.x)) / (size * size);
+    imageStore(texture, ivec3(pos, 0), vec4(color));
+    imageStore(texture, ivec3(pos, 1), vec4(color));
+    imageStore(texture, ivec3(pos, 2), vec4(color));
+}
+"""
+
+_IMAGE_3D_LOAD_STORE_COMPUTE = """
+void main()
+{
+    ivec2 pos = ivec2(gl_LocalInvocationID.xy);
+    vec4 color;
+    color.r = imageLoad(texture, ivec3(pos, 0)).r;
+    color.g = imageLoad(texture, ivec3(pos, 1)).r;
+    color.b = imageLoad(texture, ivec3(pos, 2)).r;
+    color.a = 1.0;
+    color.rgb = color.rgb * scale.factors.x + scale.factors.y;
+    imageStore(texture_rgba, pos, color);
+}
+"""
+
+
+def _get_image_3d_load_store_cuepoints():
+    f = float(_N)
+    off = 1 / (2 * f)
+    c = lambda i: (i / f + off) * 2.0 - 1.0
+    return {f"{x}{y}": (c(x), c(y)) for y in range(_N) for x in range(_N)}
+
+
+@test_cuepoints(points=_get_image_3d_load_store_cuepoints(), tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def compute_image_3d_load_store(cfg: SceneCfg, show_dbg_points=False):
+    size = _N
+    texture = ngl.Texture3D(format="r32_sfloat", width=size, height=size, depth=3)
+    texture_rgba = ngl.Texture2D(width=size, height=size)
+    program_store = ngl.ComputeProgram(_IMAGE_3D_STORE_COMPUTE, workgroup_size=(size, size, 1))
+    program_store.update_properties(
+        texture=ngl.ResourceProps(as_image=True, writable=True),
+    )
+    compute_store = ngl.Compute(workgroup_count=(1, 1, 1), program=program_store)
+    compute_store.update_resources(
+        texture=texture,
+    )
+
+    # Each color component is stored in a separate layer of the 3D texture.
+    # This second compute pass load them, invert them using the scale factors
+    # declared in a block (to mix bindings of different type) and store them in a
+    # RGBA texture.
+    scale = ngl.Block(
+        fields=[ngl.UniformVec2(value=(-1.0, 1.0), label="factors")],
+        layout="std140",
+    )
+    program_load_store = ngl.ComputeProgram(_IMAGE_3D_LOAD_STORE_COMPUTE, workgroup_size=(size, size, 1))
+    program_load_store.update_properties(
+        texture=ngl.ResourceProps(as_image=True),
+        texture_rgba=ngl.ResourceProps(as_image=True, writable=True),
+    )
+    compute_load_store = ngl.Compute(workgroup_count=(1, 1, 1), program=program_load_store)
+    compute_load_store.update_resources(
+        texture=texture,
+        texture_rgba=texture_rgba,
+        scale=scale,
+    )
+
+    render = ngl.RenderTexture(texture_rgba)
+    group = ngl.Group(children=(compute_store, compute_load_store, render))
+
+    if show_dbg_points:
+        cuepoints = _get_image_3d_load_store_cuepoints()
         group.add_children(get_debug_points(cfg, cuepoints))
 
     return group

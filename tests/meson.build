@@ -117,6 +117,7 @@ foreach backend : backends
       'animation_post_render',
       'histogram',
       'image_load_store',
+      'image_3d_load_store',
       'particles',
     ]
   endif
