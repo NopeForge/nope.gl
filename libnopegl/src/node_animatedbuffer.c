@@ -32,7 +32,7 @@
 
 struct animatedbuffer_opts {
     struct ngl_node **animkf;
-    int nb_animkf;
+    size_t nb_animkf;
 };
 
 struct animatedbuffer_priv {
@@ -108,14 +108,14 @@ static int animatedbuffer_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    for (int i = 0; i < o->nb_animkf; i++) {
+    for (size_t i = 0; i < o->nb_animkf; i++) {
         const struct animkeyframe_opts *kf = o->animkf[i]->opts;
         const size_t data_count = kf->data_size / layout->stride;
         const size_t data_pad   = kf->data_size % layout->stride;
 
         if (layout->count && layout->count != data_count) {
             static const char *types[] = {"float", "vec2", "vec3", "vec4"};
-            LOG(ERROR, "the number of %s in buffer key frame %d "
+            LOG(ERROR, "the number of %s in buffer key frame %zd "
                 "does not match the previous ones (%zd vs %zd)",
                 types[layout->comp - 1], i, data_count, layout->count);
             return NGL_ERROR_INVALID_ARG;

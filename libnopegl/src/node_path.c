@@ -29,7 +29,7 @@
 
 struct path_opts {
     struct ngl_node **keyframes;
-    int nb_keyframes;
+    size_t nb_keyframes;
     int precision;
 };
 
@@ -66,7 +66,7 @@ static int path_init(struct ngl_node *node)
     if (!s->path)
         return NGL_ERROR_MEMORY;
 
-    for (int i = 0; i < o->nb_keyframes; i++) {
+    for (size_t i = 0; i < o->nb_keyframes; i++) {
         const struct ngl_node *kf = o->keyframes[i];
         int ret;
         if (kf->cls->id == NGL_NODE_PATHKEYMOVE) {

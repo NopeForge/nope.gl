@@ -199,15 +199,15 @@ static void table_footer(struct bstr *b)
 }
 
 static void print_list_packed_decls(struct bstr *b, const char *key,
-                                    struct ngl_node **children, int nb_children,
+                                    struct ngl_node **children, size_t nb_children,
                                     int is_active)
 {
     ngli_bstr_printf(b, "    %s_%p", key, children);
     table_header(b, key, is_active, 2);
-    for (int i = 0; i < nb_children; i++) {
+    for (size_t i = 0; i < nb_children; i++) {
         const struct ngl_node *node = children[i];
         char *info_str = node->cls->info_str ? node->cls->info_str(node) : NULL;
-        ngli_bstr_printf(b, "<tr><td>#%d</td><td align=\"left\">%s</td></tr>",
+        ngli_bstr_printf(b, "<tr><td>#%zd</td><td align=\"left\">%s</td></tr>",
                          i, info_str ? info_str : "?");
         ngli_free(info_str);
     }
@@ -257,14 +257,14 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
             }
             case NGLI_PARAM_TYPE_NODELIST: {
                 struct ngl_node **children = *(struct ngl_node ***)srcp;
-                const int nb_children = *(int *)(srcp + sizeof(struct ngl_node **));
+                const size_t nb_children = *(size_t *)(srcp + sizeof(struct ngl_node **));
 
                 if (nb_children && (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED)) {
                     print_list_packed_decls(b, p->key, children, nb_children, !node->ctx || node->is_active);
                     break;
                 }
 
-                for (int i = 0; i < nb_children; i++)
+                for (size_t i = 0; i < nb_children; i++)
                     print_all_decls(b, children[i], decls);
                 break;
             }
@@ -325,7 +325,7 @@ static void print_nodelist_links(struct bstr *b, const struct ngl_node *node,
                                  struct hmap *links, const char *edge_attrs)
 {
     struct ngl_node **children = *(struct ngl_node ***)srcp;
-    const int nb_children = *(int *)(srcp + sizeof(struct ngl_node **));
+    const size_t nb_children = *(size_t *)(srcp + sizeof(struct ngl_node **));
 
     if (!nb_children)
         return;
@@ -339,8 +339,8 @@ static void print_nodelist_links(struct bstr *b, const struct ngl_node *node,
     ngli_bstr_printf(b, "    %s_%p_%s", node->cls->name, node, p->key);
     table_header(b, p->key, !node->ctx || node->is_active, nb_children);
     ngli_bstr_print(b, "<tr>");
-    for (int i = 0; i < nb_children; i++)
-        ngli_bstr_printf(b, "<td port=\"e%d\">#%d</td>", i, i);
+    for (size_t i = 0; i < nb_children; i++)
+        ngli_bstr_printf(b, "<td port=\"e%zd\">#%zd</td>", i, i);
     ngli_bstr_print(b, "</tr>");
     table_footer(b);
 
@@ -349,9 +349,9 @@ static void print_nodelist_links(struct bstr *b, const struct ngl_node *node,
                      node->cls->name, node, node->cls->name, node, p->key);
 
     /* Link individual table cell to their dedicated nodes */
-    for (int i = 0; i < nb_children; i++) {
+    for (size_t i = 0; i < nb_children; i++) {
         const struct ngl_node *child = children[i];
-        ngli_bstr_printf(b, "    %s_%p_%s:e%d -> %s_%p\n", node->cls->name, node, p->key, i, child->cls->name, child);
+        ngli_bstr_printf(b, "    %s_%p_%s:e%zd -> %s_%p\n", node->cls->name, node, p->key, i, child->cls->name, child);
         print_all_links(b, child, links);
     }
 }

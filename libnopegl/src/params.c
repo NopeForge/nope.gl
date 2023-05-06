@@ -130,12 +130,12 @@ const struct param_specs ngli_params_specs[] = {
     },
     [NGLI_PARAM_TYPE_NODELIST] = {
         .name = "node_list",
-        .size = sizeof(struct ngl_node **) + sizeof(int),
+        .size = sizeof(struct ngl_node **) + sizeof(size_t),
         .desc = NGLI_DOCSTRING("List of nope.gl Node"),
     },
     [NGLI_PARAM_TYPE_F64LIST] = {
         .name = "f64_list",
-        .size = sizeof(double *) + sizeof(int),
+        .size = sizeof(double *) + sizeof(size_t),
         .desc = NGLI_DOCSTRING("List of 64-bit floats"),
     },
     [NGLI_PARAM_TYPE_NODEDICT] = {
@@ -320,8 +320,8 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
         case NGLI_PARAM_TYPE_F64LIST: {
             const uint8_t *nb_elems_p = srcp + sizeof(double *);
             const double *elems = *(const double **)srcp;
-            const int nb_elems = *(const int *)nb_elems_p;
-            for (int i = 0; i < nb_elems; i++)
+            const size_t nb_elems = *(const size_t *)nb_elems_p;
+            for (size_t i = 0; i < nb_elems; i++)
                 ngli_bstr_printf(b, "%s%g", i ? "," : "", elems[i]);
             break;
         }
@@ -937,13 +937,13 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
 }
 
 int ngli_params_add_nodes(uint8_t *dstp, const struct node_param *par,
-                          int nb_nodes, struct ngl_node **nodes)
+                          size_t nb_nodes, struct ngl_node **nodes)
 {
     uint8_t *cur_elems_p = dstp;
     uint8_t *nb_cur_elems_p = dstp + sizeof(struct ngl_node **);
     struct ngl_node **cur_elems = *(struct ngl_node ***)cur_elems_p;
-    const int nb_cur_elems = *(int *)nb_cur_elems_p;
-    const int nb_new_elems = nb_cur_elems + nb_nodes;
+    const size_t nb_cur_elems = *(size_t *)nb_cur_elems_p;
+    const size_t nb_new_elems = nb_cur_elems + nb_nodes;
     struct ngl_node **new_elems = ngli_realloc(cur_elems, nb_new_elems, sizeof(*new_elems));
     struct ngl_node **new_elems_addp = new_elems + nb_cur_elems;
 
@@ -951,7 +951,7 @@ int ngli_params_add_nodes(uint8_t *dstp, const struct node_param *par,
         return NGL_ERROR_MEMORY;
 
     *(struct ngl_node ***)cur_elems_p = new_elems;
-    for (int i = 0; i < nb_nodes; i++) {
+    for (size_t i = 0; i < nb_nodes; i++) {
         const struct ngl_node *e = nodes[i];
         if (!allowed_node(e, par->node_types)) {
             LOG(ERROR, "%s (%s) is not an allowed type for %s list",
@@ -959,38 +959,38 @@ int ngli_params_add_nodes(uint8_t *dstp, const struct node_param *par,
             return NGL_ERROR_INVALID_ARG;
         }
     }
-    for (int i = 0; i < nb_nodes; i++) {
+    for (size_t i = 0; i < nb_nodes; i++) {
         struct ngl_node *e = nodes[i];
         new_elems_addp[i] = ngl_node_ref(e);
     }
-    *(int *)nb_cur_elems_p = nb_new_elems;
+    *(size_t *)nb_cur_elems_p = nb_new_elems;
     return 0;
 }
 
 int ngli_params_add_f64s(uint8_t *dstp, const struct node_param *par,
-                         int nb_f64s, const double *f64s)
+                         size_t nb_f64s, const double *f64s)
 {
     uint8_t *cur_elems_p = dstp;
     uint8_t *nb_cur_elems_p = dstp + sizeof(double *);
     double *cur_elems = *(double **)cur_elems_p;
-    const int nb_cur_elems = *(int *)nb_cur_elems_p;
-    const int nb_new_elems = nb_cur_elems + nb_f64s;
+    const size_t nb_cur_elems = *(size_t *)nb_cur_elems_p;
+    const size_t nb_new_elems = nb_cur_elems + nb_f64s;
     double *new_elems = ngli_realloc(cur_elems, nb_new_elems, sizeof(*new_elems));
     double *new_elems_addp = new_elems + nb_cur_elems;
 
     if (!new_elems)
         return NGL_ERROR_MEMORY;
-    for (int i = 0; i < nb_f64s; i++)
+    for (size_t i = 0; i < nb_f64s; i++)
         new_elems_addp[i] = f64s[i];
     *(double **)cur_elems_p = new_elems;
-    *(int *)nb_cur_elems_p = nb_new_elems;
+    *(size_t *)nb_cur_elems_p = nb_new_elems;
     return 0;
 }
 
 int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
-                    int nb_elems, void *elems)
+                    size_t nb_elems, void *elems)
 {
-    LOG(VERBOSE, "add %d elems to %s", nb_elems, par->key);
+    LOG(VERBOSE, "add %zd elems to %s", nb_elems, par->key);
 
     int ret = 0;
     uint8_t *dstp = base_ptr + par->offset;
@@ -1038,8 +1038,8 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
             case NGLI_PARAM_TYPE_NODELIST: {
                 uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
                 struct ngl_node **elems = *(struct ngl_node ***)parp;
-                const int nb_elems = *(int *)nb_elems_p;
-                for (int j = 0; j < nb_elems; j++)
+                const size_t nb_elems = *(size_t *)nb_elems_p;
+                for (size_t j = 0; j < nb_elems; j++)
                     ngl_node_unrefp(&elems[j]);
                 ngli_free(elems);
                 break;

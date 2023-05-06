@@ -36,15 +36,15 @@ typedef void (*ngli_animation_cpy_func_type)(void *user_arg, void *dst,
 
 struct animation {
     struct ngl_node * const *kfs;
-    int nb_kfs;
-    int current_kf;
+    size_t nb_kfs;
+    size_t current_kf;
     void *user_arg;
     ngli_animation_mix_func_type mix_func;
     ngli_animation_cpy_func_type cpy_func;
 };
 
 int ngli_animation_init(struct animation *s, void *user_arg,
-                        struct ngl_node * const *kfs, int nb_kfs,
+                        struct ngl_node * const *kfs, size_t nb_kfs,
                         ngli_animation_mix_func_type mix_func,
                         ngli_animation_cpy_func_type cpy_func);
 

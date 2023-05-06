@@ -27,7 +27,7 @@
 
 struct group_opts {
     struct ngl_node **children;
-    int nb_children;
+    size_t nb_children;
 };
 
 #define OFFSET(x) offsetof(struct group_opts, x)
@@ -44,7 +44,7 @@ static int group_prepare(struct ngl_node *node)
 
     int ret = 0;
     struct rnode *rnode_pos = ctx->rnode_pos;
-    for (int i = 0; i < o->nb_children; i++) {
+    for (size_t i = 0; i < o->nb_children; i++) {
         struct rnode *rnode = ngli_rnode_add_child(rnode_pos);
         if (!rnode)
             return NGL_ERROR_MEMORY;
@@ -68,7 +68,7 @@ static void group_draw(struct ngl_node *node)
 
     struct rnode *rnode_pos = ctx->rnode_pos;
     struct rnode *rnodes = ngli_darray_data(&rnode_pos->children);
-    for (int i = 0; i < o->nb_children; i++) {
+    for (size_t i = 0; i < o->nb_children; i++) {
         ctx->rnode_pos = &rnodes[i];
         struct ngl_node *child = o->children[i];
         ngli_node_draw(child);

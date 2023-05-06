@@ -311,7 +311,7 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 
     struct animkeyframe_priv *kf0 = o->animkf[0]->priv_data;
     if (!kf0->function) {
-        for (int i = 0; i < o->nb_animkf; i++) {
+        for (size_t i = 0; i < o->nb_animkf; i++) {
             int ret = o->animkf[i]->cls->init(o->animkf[i]);
             if (ret < 0)
                 return ret;
@@ -359,7 +359,7 @@ static int animatedtime_init(struct ngl_node *node)
 
     // Sanity checks for time animation keyframe
     double prev_time = 0;
-    for (int i = 0; i < o->nb_animkf; i++) {
+    for (size_t i = 0; i < o->nb_animkf; i++) {
         const struct animkeyframe_opts *kf = o->animkf[i]->opts;
         if (kf->easing != EASING_LINEAR) {
             LOG(ERROR, "only linear interpolation is allowed for time animation");
