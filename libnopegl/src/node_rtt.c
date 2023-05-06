@@ -40,7 +40,7 @@ struct renderpass_info {
 struct rtt_opts {
     struct ngl_node *child;
     struct ngl_node **color_textures;
-    int nb_color_textures;
+    size_t nb_color_textures;
     struct ngl_node *depth_texture;
     int samples;
     float clear_color[4];
@@ -139,7 +139,7 @@ static int rtt_init(struct ngl_node *node)
 {
     const struct rtt_opts *o = node->opts;
 
-    for (int i = 0; i < o->nb_color_textures; i++) {
+    for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
         const struct texture_opts *texture_opts = info.texture_opts;
         if (texture_opts->data_src) {
@@ -204,7 +204,7 @@ static int rtt_prepare(struct ngl_node *node)
     struct rendertarget_desc desc = {
         .samples = o->samples,
     };
-    for (int i = 0; i < o->nb_color_textures; i++) {
+    for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
         struct texture_params *params = &info.texture_priv->params;
         params->usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -258,7 +258,7 @@ static int rtt_prefetch(struct ngl_node *node)
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    for (int i = 0; i < o->nb_color_textures; i++) {
+    for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
         const struct texture_priv *texture_priv = info.texture_priv;
         const struct texture *texture = texture_priv->texture;
@@ -297,7 +297,7 @@ static int rtt_prefetch(struct ngl_node *node)
         .height = s->height,
     };
 
-    for (int i = 0; i < o->nb_color_textures; i++) {
+    for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
         struct texture_priv *texture_priv = info.texture_priv;
         struct texture *texture = texture_priv->texture;
@@ -454,7 +454,7 @@ static int rtt_prefetch(struct ngl_node *node)
 
     /* transform the color and depth textures so the coordinates
      * match how the graphics context uv coordinate system works */
-    for (int i = 0; i < o->nb_color_textures; i++) {
+    for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
         struct texture_priv *texture_priv = info.texture_priv;
         struct image *image = &texture_priv->image;
@@ -522,7 +522,7 @@ static void rtt_draw(struct ngl_node *node)
     ngli_gpu_ctx_set_viewport(gpu_ctx, prev_vp);
     ngli_gpu_ctx_set_scissor(gpu_ctx, prev_scissor);
 
-    for (int i = 0; i < o->nb_color_textures; i++) {
+    for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
         struct texture_priv *texture_priv = info.texture_priv;
         struct texture *texture = texture_priv->texture;

@@ -27,7 +27,7 @@
 
 struct userselect_opts {
     struct ngl_node **branches;
-    int nb_branches;
+    size_t nb_branches;
     struct livectl live;
 };
 
@@ -77,7 +77,7 @@ static int userselect_prepare(struct ngl_node *node)
 
     int ret = 0;
     struct rnode *rnode_pos = ctx->rnode_pos;
-    for (int i = 0; i < o->nb_branches; i++) {
+    for (size_t i = 0; i < o->nb_branches; i++) {
         struct rnode *rnode = ngli_rnode_add_child(rnode_pos);
         if (!rnode)
             return NGL_ERROR_MEMORY;
@@ -97,7 +97,7 @@ static int userselect_visit(struct ngl_node *node, int is_active, double t)
     const struct userselect_opts *o = node->opts;
 
     const int branch_id = o->live.val.i[0];
-    for (int i = 0; i < o->nb_branches; i++) {
+    for (size_t i = 0; i < o->nb_branches; i++) {
         struct ngl_node *branch = o->branches[i];
         int ret = ngli_node_visit(branch, is_active && i == branch_id, t);
         if (ret < 0)

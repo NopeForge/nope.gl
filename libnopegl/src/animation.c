@@ -26,11 +26,11 @@
 #include "nopegl.h"
 #include "internal.h"
 
-static int get_kf_id(struct ngl_node * const *animkf, int nb_animkf, int start, double t)
+static size_t get_kf_id(struct ngl_node * const *animkf, size_t nb_animkf, size_t start, double t)
 {
-    int ret = -1;
+    size_t ret = SIZE_MAX;
 
-    for (int i = start; i < nb_animkf; i++) {
+    for (size_t i = start; i < nb_animkf; i++) {
         const struct animkeyframe_opts *kf = animkf[i]->opts;
         if (kf->time > t)
             break;
@@ -42,11 +42,11 @@ static int get_kf_id(struct ngl_node * const *animkf, int nb_animkf, int start, 
 int ngli_animation_evaluate(struct animation *s, void *dst, double t)
 {
     struct ngl_node * const *animkf = s->kfs;
-    const int nb_animkf = s->nb_kfs;
-    int kf_id = get_kf_id(animkf, nb_animkf, s->current_kf, t);
-    if (kf_id < 0)
+    const size_t nb_animkf = s->nb_kfs;
+    size_t kf_id = get_kf_id(animkf, nb_animkf, s->current_kf, t);
+    if (kf_id == SIZE_MAX)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
-    if (kf_id >= 0 && kf_id < nb_animkf - 1) {
+    if (kf_id != SIZE_MAX && kf_id < nb_animkf - 1) {
         const struct animkeyframe_priv *kf1_priv = animkf[kf_id + 1]->priv_data;
         const struct animkeyframe_opts *kf0 = animkf[kf_id    ]->opts;
         const struct animkeyframe_opts *kf1 = animkf[kf_id + 1]->opts;
@@ -74,11 +74,11 @@ int ngli_animation_evaluate(struct animation *s, void *dst, double t)
 int ngli_animation_derivate(struct animation *s, void *dst, double t)
 {
     struct ngl_node * const *animkf = s->kfs;
-    const int nb_animkf = s->nb_kfs;
-    int kf_id = get_kf_id(animkf, nb_animkf, s->current_kf, t);
-    if (kf_id < 0)
+    const size_t nb_animkf = s->nb_kfs;
+    size_t kf_id = get_kf_id(animkf, nb_animkf, s->current_kf, t);
+    if (kf_id == SIZE_MAX)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
-    if (kf_id >= 0 && kf_id < nb_animkf - 1) {
+    if (kf_id != SIZE_MAX && kf_id < nb_animkf - 1) {
         const struct animkeyframe_priv *kf1_priv = animkf[kf_id + 1]->priv_data;
         const struct animkeyframe_opts *kf0 = animkf[kf_id    ]->opts;
         const struct animkeyframe_opts *kf1 = animkf[kf_id + 1]->opts;
@@ -104,12 +104,12 @@ int ngli_animation_derivate(struct animation *s, void *dst, double t)
 }
 
 int ngli_animation_init(struct animation *s, void *user_arg,
-                        struct ngl_node * const *kfs, int nb_kfs,
+                        struct ngl_node * const *kfs, size_t nb_kfs,
                         ngli_animation_mix_func_type mix_func,
                         ngli_animation_cpy_func_type cpy_func)
 {
     if (nb_kfs < 1) {
-        LOG(ERROR, "invalid number of animated key frames: %d", nb_kfs);
+        LOG(ERROR, "invalid number of animated key frames: %zd", nb_kfs);
         return NGL_ERROR_INVALID_ARG;
     }
 
@@ -120,7 +120,7 @@ int ngli_animation_init(struct animation *s, void *user_arg,
     s->cpy_func = cpy_func;
 
     double prev_time = -DBL_MAX;
-    for (int i = 0; i < nb_kfs; i++) {
+    for (size_t i = 0; i < nb_kfs; i++) {
         const struct animkeyframe_opts *kf = kfs[i]->opts;
 
         if (kf->time < prev_time) {

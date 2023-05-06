@@ -414,7 +414,7 @@ NGL_API void ngl_node_unrefp(struct ngl_node **nodep);
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 NGL_API int ngl_node_param_add_nodes(struct ngl_node *node, const char *key,
-                                     int nb_nodes, struct ngl_node **nodes);
+                                     size_t nb_nodes, struct ngl_node **nodes);
 
 /**
  * Add double precision floats to a list-based parameter of an allocated node.
@@ -427,7 +427,7 @@ NGL_API int ngl_node_param_add_nodes(struct ngl_node *node, const char *key,
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 NGL_API int ngl_node_param_add_f64s(struct ngl_node *node, const char *key,
-                                    int nb_f64s, double *f64s);
+                                    size_t nb_f64s, double *f64s);
 
 /**
  * All ngl_node_param_set_* functions set a parameter value of an allocated

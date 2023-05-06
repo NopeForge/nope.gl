@@ -216,8 +216,8 @@ static int track_children(struct ngl_node *node)
                 uint8_t *elems_p = parp;
                 uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
                 struct ngl_node **elems = *(struct ngl_node ***)elems_p;
-                const int nb_elems = *(int *)nb_elems_p;
-                for (int i = 0; i < nb_elems; i++) {
+                const size_t nb_elems = *(size_t *)nb_elems_p;
+                for (size_t i = 0; i < nb_elems; i++) {
                     struct ngl_node *child = elems[i];
                     if (!ngli_darray_push(&node->children, &child))
                         return NGL_ERROR_MEMORY;
@@ -359,8 +359,8 @@ static int find_livectls(const struct ngl_node *node, struct hmap *hm)
             const uint8_t *elems_p = parp;
             const uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
             struct ngl_node * const *elems = *(struct ngl_node ***)elems_p;
-            const int nb_elems = *(int *)nb_elems_p;
-            for (int i = 0; i < nb_elems; i++) {
+            const size_t nb_elems = *(size_t *)nb_elems_p;
+            for (size_t i = 0; i < nb_elems; i++) {
                 int ret = find_livectls(elems[i], hm);
                 if (ret < 0)
                     return ret;
@@ -498,8 +498,8 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
             uint8_t *elems_p = parp;
             uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
             struct ngl_node **elems = *(struct ngl_node ***)elems_p;
-            const int nb_elems = *(int *)nb_elems_p;
-            for (int j = 0; j < nb_elems; j++) {
+            const size_t nb_elems = *(size_t *)nb_elems_p;
+            for (size_t j = 0; j < nb_elems; j++) {
                 int ret = node_set_ctx(elems[j], ctx, pctx);
                 if (ret < 0)
                     return ret;
@@ -794,7 +794,7 @@ const struct node_param *ngli_node_param_find(const struct ngl_node *node, const
     return par;
 }
 
-static int param_add(struct ngl_node *node, const char *key, int nb_elems, void *elems)
+static int param_add(struct ngl_node *node, const char *key, size_t nb_elems, void *elems)
 {
     int ret = 0;
 
@@ -821,13 +821,13 @@ static int param_add(struct ngl_node *node, const char *key, int nb_elems, void 
 }
 
 int ngl_node_param_add_nodes(struct ngl_node *node, const char *key,
-                             int nb_nodes, struct ngl_node **nodes)
+                             size_t nb_nodes, struct ngl_node **nodes)
 {
     return param_add(node, key, nb_nodes, nodes);
 }
 
 int ngl_node_param_add_f64s(struct ngl_node *node, const char *key,
-                            int nb_f64s, double *f64s)
+                            size_t nb_f64s, double *f64s)
 {
     return param_add(node, key, nb_f64s, f64s);
 }

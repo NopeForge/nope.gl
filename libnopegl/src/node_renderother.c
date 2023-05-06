@@ -92,7 +92,7 @@ struct render_common_opts {
     int blending;
     struct ngl_node *geometry;
     struct ngl_node **filters;
-    int nb_filters;
+    size_t nb_filters;
 };
 
 struct render_common {
@@ -453,7 +453,7 @@ static int combine_filters_code(struct render_common *s, const struct render_com
     if (ret < 0)
         return ret;
 
-    for (int i = 0; i < o->nb_filters; i++) {
+    for (size_t i = 0; i < o->nb_filters; i++) {
         const struct ngl_node *filter_node = o->filters[i];
         const struct filter *filter = filter_node->priv_data;
         ret = ngli_filterschain_add_filter(s->filterschain, filter);

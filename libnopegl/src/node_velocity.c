@@ -159,7 +159,7 @@ int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t)
 
     struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
     if (!kf0->derivative) {
-        for (int i = 0; i < anim->nb_animkf; i++) {
+        for (size_t i = 0; i < anim->nb_animkf; i++) {
             int ret = anim->animkf[i]->cls->init(anim->animkf[i]);
             if (ret < 0)
                 return ret;

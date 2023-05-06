@@ -213,7 +213,7 @@ struct variable_opts {
     struct livectl live;
 
     struct ngl_node **animkf;
-    int nb_animkf;
+    size_t nb_animkf;
 
     union {
         struct ngl_node *path_node; /* AnimatedPath only */
@@ -357,7 +357,7 @@ enum easing_id {
 };
 
 typedef double easing_type;
-typedef easing_type (*easing_function)(easing_type, int, const easing_type *);
+typedef easing_type (*easing_function)(easing_type, size_t, const easing_type *);
 
 struct animkeyframe_opts {
     double time;
@@ -367,7 +367,7 @@ struct animkeyframe_opts {
     size_t data_size;
     int easing;
     double *args;
-    int nb_args;
+    size_t nb_args;
     double offsets[2];
 };
 

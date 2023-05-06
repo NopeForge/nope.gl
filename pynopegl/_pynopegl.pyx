@@ -41,8 +41,8 @@ cdef extern from "nopegl.h":
     ngl_node *ngl_node_create(uint32_t type)
     ngl_node *ngl_node_ref(ngl_node *node)
     void ngl_node_unrefp(ngl_node **nodep)
-    int ngl_node_param_add_nodes(ngl_node *node, const char *key, int nb_nodes, ngl_node **nodes)
-    int ngl_node_param_add_f64s(ngl_node *node, const char *key, int nb_f64s, double *f64s)
+    int ngl_node_param_add_nodes(ngl_node *node, const char *key, size_t nb_nodes, ngl_node **nodes)
+    int ngl_node_param_add_f64s(ngl_node *node, const char *key, size_t nb_f64s, double *f64s)
     int ngl_node_param_set_bool(ngl_node *node, const char *key, int value)
     int ngl_node_param_set_data(ngl_node *node, const char *key, size_t size, const void *data)
     int ngl_node_param_set_dict(ngl_node *node, const char *key, const char *name, ngl_node *value)
@@ -351,11 +351,11 @@ cdef class _Node:
         cdef float[4] vec = value
         return ngl_node_param_set_vec4(self.ctx, key, vec)
 
-    def _param_add_nodes(self, const char *key, int nb_nodes, nodes):
+    def _param_add_nodes(self, const char *key, size_t nb_nodes, nodes):
         nodes_c = <ngl_node **>calloc(nb_nodes, sizeof(ngl_node *))
         if nodes_c is NULL:
             raise MemoryError()
-        cdef int i
+        cdef size_t i
         for i, node in enumerate(nodes):
             nodes_c[i] = (<_Node>node).ctx
         ret = ngl_node_param_add_nodes(self.ctx, key, nb_nodes, nodes_c)
@@ -382,11 +382,11 @@ cdef class _Node:
         ngl_anim_evaluate(self.ctx, vec, t)
         return (vec[0], vec[1], vec[2], vec[3])
 
-    def _param_add_f64s(self, const char *key, int nb_f64s, f64s):
+    def _param_add_f64s(self, const char *key, size_t nb_f64s, f64s):
         f64s_c = <double *>calloc(nb_f64s, sizeof(double))
         if f64s_c is NULL:
             raise MemoryError()
-        cdef int i
+        cdef size_t i
         for i, f64 in enumerate(f64s):
             f64s_c[i] = f64
         ret = ngl_node_param_add_f64s(self.ctx, key, nb_f64s, f64s_c)

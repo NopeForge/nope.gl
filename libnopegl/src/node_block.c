@@ -113,7 +113,7 @@ struct block_priv {
 
 struct block_opts {
     struct ngl_node **fields;
-    int nb_fields;
+    size_t nb_fields;
     int layout;
 };
 
@@ -214,7 +214,7 @@ static int update_block_data(struct ngl_node *node, int forced)
     struct block_info *info = &s->blk;
     const struct block_opts *o = node->opts;
     const struct block_field *field_info = ngli_darray_data(&info->block.fields);
-    for (int i = 0; i < o->nb_fields; i++) {
+    for (size_t i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
         const struct block_field *fi = &field_info[i];
         if (!forced && !field_is_dynamic(field_node, fi))
@@ -233,12 +233,12 @@ static int cmp_str(const void *a, const void *b)
     return strcmp(s0, s1);
 }
 
-static int check_dup_labels(const char *block_name, struct ngl_node * const *nodes, int nb_nodes)
+static int check_dup_labels(const char *block_name, struct ngl_node * const *nodes, size_t nb_nodes)
 {
     char **labels = ngli_calloc(nb_nodes, sizeof(*labels));
     if (!labels)
         return NGL_ERROR_MEMORY;
-    for (int i = 0; i < nb_nodes; i++) {
+    for (size_t i = 0; i < nb_nodes; i++) {
         if (!nodes[i]->label) {
             LOG(ERROR, "block field labels cannot be NULL");
             ngli_free(labels);
@@ -247,7 +247,7 @@ static int check_dup_labels(const char *block_name, struct ngl_node * const *nod
         labels[i] = nodes[i]->label;
     }
     qsort(labels, nb_nodes, sizeof(*labels), cmp_str);
-    for (int i = 1; i < nb_nodes; i++) {
+    for (size_t i = 1; i < nb_nodes; i++) {
         if (!strcmp(labels[i - 1], labels[i])) {
             LOG(ERROR, "duplicated label %s in block %s", labels[i], block_name);
             ngli_free(labels);
@@ -292,7 +292,7 @@ static int block_init(struct ngl_node *node)
 
     info->usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-    for (int i = 0; i < o->nb_fields; i++) {
+    for (size_t i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
 
         if (field_node->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
@@ -312,7 +312,7 @@ static int block_init(struct ngl_node *node)
 
         const struct block_field *fields = ngli_darray_data(&info->block.fields);
         const struct block_field *fi = &fields[i];
-        LOG(DEBUG, "%s.field[%d]: %s offset=%zd size=%zd stride=%zd",
+        LOG(DEBUG, "%s.field[%zd]: %s offset=%zd size=%zd stride=%zd",
             node->label, i, field_node->label, fi->offset, fi->size, fi->stride);
 
         if (field_is_dynamic(field_node, fi))

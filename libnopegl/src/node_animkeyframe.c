@@ -107,13 +107,15 @@ ANIMKEYFRAME_PARAMS(buffer, data, NGLI_PARAM_TYPE_DATA, data);
 #define DERIVATIVE_OUT_IN(df, x) ((x) < 0.5 ? DERIVATIVE_OUT(df, 2.0 * (x)) : DERIVATIVE_IN(df,  2.0 * (x) - 1.0))
 
 #define DECLARE_EASING(base_name, name, transform)                            \
-static easing_type name(easing_type x, int args_nb, const easing_type *args)  \
+static easing_type name(easing_type x, size_t args_nb,                        \
+                        const easing_type *args)                              \
 {                                                                             \
     return transform(base_name##_helper, x);                                  \
 }
 
 #define DECLARE_HELPER(base_name, formula)                                                        \
-static inline easing_type base_name##_helper(easing_type x, int args_nb, const easing_type *args) \
+static inline easing_type base_name##_helper(easing_type x, size_t args_nb,                       \
+                                             const easing_type *args)                             \
 {                                                                                                 \
     return formula;                                                                               \
 }
@@ -135,17 +137,17 @@ DECLARE_EASINGS(base_name, _resolution, resolution_function, TRANSFORM)         
 
 /* Linear */
 
-static easing_type linear(easing_type t, int args_nb, const easing_type *args)
+static easing_type linear(easing_type t, size_t args_nb, const easing_type *args)
 {
     return t;
 }
 
-static easing_type linear_derivative(easing_type t, int args_nb, const easing_type *args)
+static easing_type linear_derivative(easing_type t, size_t args_nb, const easing_type *args)
 {
     return 1.0;
 }
 
-static easing_type linear_resolution(easing_type v, int args_nb, const easing_type *args)
+static easing_type linear_resolution(easing_type v, size_t args_nb, const easing_type *args)
 {
     return v;
 }
@@ -230,25 +232,25 @@ static easing_type bounce_helper_derivative(easing_type t, easing_type a)
     return 7.5625 * 2 * a * t;
 }
 
-static easing_type bounce_in(easing_type t, int args_nb, const easing_type *args)
+static easing_type bounce_in(easing_type t, size_t args_nb, const easing_type *args)
 {
     const easing_type a = PARAM(0, 1.70158);
     return 1.0 - bounce_helper(1.0 - t, a);
 }
 
-static easing_type bounce_in_derivative(easing_type t, int args_nb, const easing_type *args)
+static easing_type bounce_in_derivative(easing_type t, size_t args_nb, const easing_type *args)
 {
     const easing_type a = PARAM(0, 1.70158);
     return bounce_helper_derivative(1.0 - t, a);
 }
 
-static easing_type bounce_out(easing_type t, int args_nb, const easing_type *args)
+static easing_type bounce_out(easing_type t, size_t args_nb, const easing_type *args)
 {
     const easing_type a = PARAM(0, 1.70158);
     return bounce_helper(t, a);
 }
 
-static easing_type bounce_out_derivative(easing_type t, int args_nb, const easing_type *args)
+static easing_type bounce_out_derivative(easing_type t, size_t args_nb, const easing_type *args)
 {
     const easing_type a = PARAM(0, 1.70158);
     return bounce_helper_derivative(t, a);
@@ -257,7 +259,7 @@ static easing_type bounce_out_derivative(easing_type t, int args_nb, const easin
 
 /* Elastic */
 
-static easing_type elastic_in(easing_type t, int args_nb, const easing_type *args)
+static easing_type elastic_in(easing_type t, size_t args_nb, const easing_type *args)
 {
     if (t <= 0.0)
         return 0.0;
@@ -275,7 +277,7 @@ static easing_type elastic_in(easing_type t, int args_nb, const easing_type *arg
     return -a * exp2(10.0 * (t - 1.0)) * sin((1.0 - t - s) * TAU_F64 / p);
 }
 
-static easing_type elastic_in_derivative(easing_type t, int args_nb, const easing_type *args)
+static easing_type elastic_in_derivative(easing_type t, size_t args_nb, const easing_type *args)
 {
     easing_type a = PARAM(0, 0.1); // amplitude
     const easing_type p = PARAM(1, 0.25); // period
@@ -290,12 +292,12 @@ static easing_type elastic_in_derivative(easing_type t, int args_nb, const easin
     return a * exp2(10.0 * (t - 1.0)) * (10.0 * p * log(2.0) * sin(k) + TAU_F64 * cos(k)) / p;
 }
 
-static easing_type elastic_out(easing_type t, int args_nb, const easing_type *args)
+static easing_type elastic_out(easing_type t, size_t args_nb, const easing_type *args)
 {
     return TRANSFORM_OUT(elastic_in, t);
 }
 
-static easing_type elastic_out_derivative(easing_type t, int args_nb, const easing_type *args)
+static easing_type elastic_out_derivative(easing_type t, size_t args_nb, const easing_type *args)
 {
     return DERIVATIVE_OUT(elastic_in_derivative, t);
 }

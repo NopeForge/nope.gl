@@ -188,9 +188,9 @@ int ngli_params_set_vec2(uint8_t *dstp, const struct node_param *par, const floa
 int ngli_params_set_vec3(uint8_t *dstp, const struct node_param *par, const float *value);
 int ngli_params_set_vec4(uint8_t *dstp, const struct node_param *par, const float *value);
 int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params);
-int ngli_params_add_nodes(uint8_t *dstp, const struct node_param *par, int nb_nodes, struct ngl_node **nodes);
-int ngli_params_add_f64s(uint8_t *dstp, const struct node_param *par, int nb_f64s, const double *f64s);
-int ngli_params_add(uint8_t *base_ptr, const struct node_param *par, int nb_elems, void *elems);
+int ngli_params_add_nodes(uint8_t *dstp, const struct node_param *par, size_t nb_nodes, struct ngl_node **nodes);
+int ngli_params_add_f64s(uint8_t *dstp, const struct node_param *par, size_t nb_f64s, const double *f64s);
+int ngli_params_add(uint8_t *base_ptr, const struct node_param *par, size_t nb_elems, void *elems);
 void ngli_params_free(uint8_t *base_ptr, const struct node_param *params);
 
 #endif

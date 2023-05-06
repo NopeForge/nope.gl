@@ -87,9 +87,9 @@ DECLARE_FLT_PRINT_FUNC(double, 64, 52, 'Z')
 #define print_u32(b, v) ngli_bstr_printf(b, "%u", v)
 
 #define DECLARE_PRINT_FUNC(name, type)                                  \
-static void print_##name##s(struct bstr *b, int n, const type *v)       \
+static void print_##name##s(struct bstr *b, size_t n, const type *v)    \
 {                                                                       \
-    for (int i = 0; i < n; i++) {                                       \
+    for (size_t i = 0; i < n; i++) {                                    \
         ngli_bstr_printf(b, "%s", i ? "," : "");                        \
         print_##name(b, v[i]);                                          \
     }                                                                   \
@@ -271,11 +271,11 @@ static void serialize_nodelist(struct bstr *b, const uint8_t *srcp,
                                const struct node_param *par, struct hmap *nlist)
 {
     struct ngl_node **nodes = *(struct ngl_node ***)srcp;
-    const int nb_nodes = *(int *)(srcp + sizeof(struct ngl_node **));
+    const size_t nb_nodes = *(size_t *)(srcp + sizeof(struct ngl_node **));
     if (!nb_nodes)
         return;
     ngli_bstr_printf(b, " %s:", par->key);
-    for (int i = 0; i < nb_nodes; i++) {
+    for (size_t i = 0; i < nb_nodes; i++) {
         const int node_id = get_rel_node_id(nlist, nodes[i]);
         ngli_bstr_printf(b, "%s%x", i ? "," : "", node_id);
     }
@@ -286,7 +286,7 @@ static void serialize_f64list(struct bstr *b, const uint8_t *srcp, const struct 
     const uint8_t *elems_p = srcp;
     const uint8_t *nb_elems_p = srcp + sizeof(double *);
     const double *elems = *(double **)elems_p;
-    const int nb_elems = *(int *)nb_elems_p;
+    const size_t nb_elems = *(size_t *)nb_elems_p;
     if (!nb_elems)
         return;
     ngli_bstr_printf(b, " %s:", par->key);
@@ -408,9 +408,9 @@ static int serialize_children(struct hmap *nlist,
             }
             case NGLI_PARAM_TYPE_NODELIST: {
                 struct ngl_node **children = *(struct ngl_node ***)srcp;
-                const int nb_children = *(int *)(srcp + sizeof(struct ngl_node **));
+                const size_t nb_children = *(size_t *)(srcp + sizeof(struct ngl_node **));
 
-                for (int i = 0; i < nb_children; i++) {
+                for (size_t i = 0; i < nb_children; i++) {
                     int ret = serialize(nlist, b, children[i]);
                     if (ret < 0)
                         return ret;
