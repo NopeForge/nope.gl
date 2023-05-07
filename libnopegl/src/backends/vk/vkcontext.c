@@ -34,6 +34,7 @@
 # define VK_USE_PLATFORM_IOS_MVK
 #endif
 
+#include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
@@ -70,10 +71,12 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverity
     if (type & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)       msg_type = "VALIDATION";
     else if (type & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) msg_type = "PERFORMANCE";
 
-    int msg_len = strlen(cb_data->pMessage);
+    size_t msg_len = strlen(cb_data->pMessage);
     while (msg_len > 0 && strchr(" \r\n", cb_data->pMessage[msg_len - 1]))
         msg_len--;
-    ngli_log_print(level, __FILE__, __LINE__, "debug_callback", "%s: %.*s", msg_type, msg_len, cb_data->pMessage);
+    if (msg_len > INT_MAX)
+        return VK_TRUE;
+    ngli_log_print(level, __FILE__, __LINE__, "debug_callback", "%s: %.*s", msg_type, (int)msg_len, cb_data->pMessage);
 
     /* Make the Vulkan call fail if the validation layer has returned an error */
     if ((severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) &&
