@@ -87,7 +87,7 @@ void *ngli_darray_push(struct darray *darray, const void *element)
             return NULL;
 #else
         /* Also includes the realloc overflow check */
-        if (darray->capacity >= 1 << (sizeof(darray->capacity)*8 - 2))
+        if (darray->capacity >= 1ULL << (sizeof(darray->capacity)*8 - 2))
             return NULL;
         size_t new_capacity = darray->capacity * 2;
 #endif

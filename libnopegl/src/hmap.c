@@ -235,7 +235,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
             return NGL_ERROR_LIMIT_EXCEEDED;
 #else
         /* Also includes the realloc overflow check */
-        if (hm->size >= 1 << (sizeof(hm->size)*8 - 2))
+        if (hm->size >= 1ULL << (sizeof(hm->size)*8 - 2))
             return NGL_ERROR_LIMIT_EXCEEDED;
         size_t new_size = hm->size * 2;
 #endif
