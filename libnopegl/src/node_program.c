@@ -47,8 +47,10 @@
 #define OFFSET(x) offsetof(struct program_opts, x)
 static const struct node_param program_params[] = {
     {"vertex",   NGLI_PARAM_TYPE_STR, OFFSET(vertex),   {.str=NULL},
+                 .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .desc=NGLI_DOCSTRING("vertex shader")},
     {"fragment", NGLI_PARAM_TYPE_STR, OFFSET(fragment), {.str=NULL},
+                 .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .desc=NGLI_DOCSTRING("fragment shader")},
     {"properties", NGLI_PARAM_TYPE_NODEDICT, OFFSET(properties),
                    .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
@@ -67,11 +69,6 @@ static int program_init(struct ngl_node *node)
 {
     struct program_priv *s = node->priv_data;
     const struct program_opts *o = node->opts;
-
-    if (!o->vertex || !o->fragment) {
-        LOG(ERROR, "both vertex and fragment shaders must be set");
-        return NGL_ERROR_INVALID_USAGE;
-    }
 
     ngli_darray_init(&s->vert_out_vars_array, sizeof(struct pgcraft_iovar), 0);
     if (o->vert_out_vars) {

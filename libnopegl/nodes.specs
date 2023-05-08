@@ -1278,13 +1278,13 @@
     {
       "name": "vertex",
       "type": "str",
-      "flags": [],
+      "flags": ["nonull"],
       "desc": "vertex shader"
     },
     {
       "name": "fragment",
       "type": "str",
-      "flags": [],
+      "flags": ["nonull"],
       "desc": "fragment shader"
     },
     {
