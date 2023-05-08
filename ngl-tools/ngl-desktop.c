@@ -559,7 +559,7 @@ static int setup_network(struct ctx *s)
     return 0;
 }
 
-static int makedirs(const char *path, int mode)
+static int makedirs(const char *path)
 {
     char cur_path[1024];
 
@@ -582,7 +582,7 @@ static int makedirs(const char *path, int mode)
 #ifdef _WIN32
         const int r = _mkdir(cur_path);
 #else
-        const int r = mkdir(cur_path, mode);
+        const int r = mkdir(cur_path, 0700);
 #endif
         *next = '/';
         if (r < 0 && errno != EEXIST) {
@@ -626,7 +626,7 @@ static int setup_paths(struct ctx *s)
     ret = snprintf(s->files_dir, sizeof(s->files_dir), "%sfiles/", s->root_dir);
     if (ret < 0 || ret >= sizeof(s->session_file))
         return ret;
-    ret = makedirs(s->files_dir, 0700);
+    ret = makedirs(s->files_dir);
     if (ret < 0)
         return ret;
     ret = snprintf(s->session_file, sizeof(s->session_file), "%ssession", s->root_dir);
