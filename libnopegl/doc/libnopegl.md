@@ -637,8 +637,8 @@ Parameter | Flags | Type | Description | Default
 
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
-`vertex` |  | [`str`](#parameter-types) | vertex shader | 
-`fragment` |  | [`str`](#parameter-types) | fragment shader | 
+`vertex` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | vertex shader | 
+`fragment` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | fragment shader | 
 `properties` |  | [`node_dict`](#parameter-types) ([ResourceProps](#resourceprops)) | resource properties | 
 `vert_out_vars` |  | [`node_dict`](#parameter-types) ([IOInt](#iovar), [IOIVec2](#iovar), [IOIVec3](#iovar), [IOIVec4](#iovar), [IOUInt](#iovar), [IOUIvec2](#iovar), [IOUIvec3](#iovar), [IOUIvec4](#iovar), [IOFloat](#iovar), [IOVec2](#iovar), [IOVec3](#iovar), [IOVec4](#iovar), [IOMat3](#iovar), [IOMat4](#iovar), [IOBool](#iovar)) | in/out communication variables shared between vertex and fragment stages | 
 `nb_frag_output` |  | [`i32`](#parameter-types) | number of color outputs in the fragment shader | `0`
