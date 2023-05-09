@@ -38,6 +38,7 @@ struct gpu_limits {
     uint32_t max_texture_dimension_2d;
     uint32_t max_texture_dimension_3d;
     uint32_t max_texture_dimension_cube;
+    uint32_t max_texture_array_layers;
     uint32_t max_color_attachments;
     uint32_t max_draw_buffers;
 };

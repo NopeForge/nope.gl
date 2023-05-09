@@ -420,12 +420,14 @@ static const char *get_cap_string_id(unsigned cap_id)
     case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Z:      return "max_compute_group_size_z";
     case NGL_CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE:return "max_compute_shared_memory_size";
     case NGL_CAP_MAX_SAMPLES:                   return "max_samples";
+    case NGL_CAP_MAX_TEXTURE_ARRAY_LAYERS:      return "max_texture_array_layers";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_1D:      return "max_texture_dimension_1d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_2D:      return "max_texture_dimension_2d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_3D:      return "max_texture_dimension_3d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE:    return "max_texture_dimension_cube";
     case NGL_CAP_NPOT_TEXTURE:                  return "npot_texture";
     case NGL_CAP_SHADER_TEXTURE_LOD:            return "shader_texture_lod";
+    case NGL_CAP_TEXTURE_2D_ARRAY:              return "texture_2d_array";
     case NGL_CAP_TEXTURE_3D:                    return "texture_3d";
     case NGL_CAP_TEXTURE_CUBE:                  return "texture_cube";
     case NGL_CAP_UINT_UNIFORMS:                 return "uint_uniforms";
@@ -445,6 +447,7 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
     const int has_instanced_draw = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_INSTANCED_DRAW);
     const int has_npot_texture   = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_NPOT);
     const int has_shader_texture_lod = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_SHADER_TEXTURE_LOD);
+    const int has_texture_2d_array   = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_2D_ARRAY);
     const int has_texture_3d     = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_3D);
     const int has_texture_cube   = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_CUBE_MAP);
     const int has_uint_uniforms  = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_UINT_UNIFORMS);
@@ -465,12 +468,14 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
         CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Z,      limits->max_compute_work_group_size[2]),
         CAP(NGL_CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE,limits->max_compute_shared_memory_size),
         CAP(NGL_CAP_MAX_SAMPLES,                   limits->max_samples),
+        CAP(NGL_CAP_MAX_TEXTURE_ARRAY_LAYERS,      limits->max_texture_array_layers),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_1D,      limits->max_texture_dimension_1d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_2D,      limits->max_texture_dimension_2d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_3D,      limits->max_texture_dimension_3d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE,    limits->max_texture_dimension_cube),
         CAP(NGL_CAP_NPOT_TEXTURE,                  has_npot_texture),
         CAP(NGL_CAP_SHADER_TEXTURE_LOD,            has_shader_texture_lod),
+        CAP(NGL_CAP_TEXTURE_2D_ARRAY,              has_texture_2d_array),
         CAP(NGL_CAP_TEXTURE_3D,                    has_texture_3d),
         CAP(NGL_CAP_TEXTURE_CUBE,                  has_texture_cube),
         CAP(NGL_CAP_UINT_UNIFORMS,                 has_uint_uniforms),

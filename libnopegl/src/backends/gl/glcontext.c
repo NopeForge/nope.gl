@@ -369,6 +369,8 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
         GET(GL_MAX_3D_TEXTURE_SIZE, &limits->max_texture_dimension_3d);
     if (glcontext->features & NGLI_FEATURE_GL_TEXTURE_CUBE_MAP)
         GET(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limits->max_texture_dimension_cube);
+    if (glcontext->features & NGLI_FEATURE_GL_TEXTURE_2D_ARRAY)
+        GET(GL_MAX_ARRAY_TEXTURE_LAYERS, &limits->max_texture_array_layers);
 
     limits->max_color_attachments = 1;
     if (glcontext->features & NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT) {
