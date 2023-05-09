@@ -118,6 +118,7 @@ foreach backend : backends
       'animation_post_render',
       'histogram',
       'image_load_store',
+      'image_2d_array_load_store',
       'image_3d_load_store',
       'image_cube_load_store',
       'particles',

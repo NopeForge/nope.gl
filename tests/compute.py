@@ -445,6 +445,12 @@ def compute_image_3d_load_store(cfg: SceneCfg, show_dbg_points=False):
     return _get_compute_image_layered_load_store_scene(cfg, ngl.Texture3D, show_dbg_points)
 
 
+@test_cuepoints(points=_get_image_layered_load_store_cuepoints(), tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def compute_image_2d_array_load_store(cfg: SceneCfg, show_dbg_points=False):
+    return _get_compute_image_layered_load_store_scene(cfg, ngl.Texture2DArray, show_dbg_points)
+
+
 _IMAGE_CUBE_STORE_COMPUTE = """
 void main()
 {
