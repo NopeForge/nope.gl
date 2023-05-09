@@ -393,13 +393,17 @@ foreach backend : backends
     if max_color_attachments >= 4
       tests_texture += 'cubemap_from_mrt_2_pass'
       if max_samples >= 4
-        tests_texture += 'cubemap_from_mrt_2_pass_msaa'
+        # Resolving MSAA attachments to cube maps does not work due to driver issues
+        # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
+        # tests_texture += 'cubemap_from_mrt_2_pass_msaa'
       endif
     endif
     if max_color_attachments >= 6
       tests_texture += 'cubemap_from_mrt'
       if max_samples >= 4
-        tests_texture += 'cubemap_from_mrt_msaa'
+        # Resolving MSAA attachments to cube maps does not work due to driver issues
+        # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
+        # tests_texture += 'cubemap_from_mrt_msaa'
       endif
     endif
   endif
