@@ -30,7 +30,7 @@
 static const struct node_param textureview_params[] = {
     {"texture", NGLI_PARAM_TYPE_NODE, OFFSET(texture),
                 .flags = NGLI_PARAM_FLAG_NON_NULL,
-                .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE3D, NGL_NODE_TEXTURECUBE, NGLI_NODE_NONE},
+                .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE2DARRAY, NGL_NODE_TEXTURE3D, NGL_NODE_TEXTURECUBE, NGLI_NODE_NONE},
                 .desc=NGLI_DOCSTRING("texture used for the view")},
     {"layer",   NGLI_PARAM_TYPE_I32, OFFSET(layer),
                 .desc=NGLI_DOCSTRING("texture layer used for the view")},
@@ -51,13 +51,18 @@ static int textureview_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
+    const struct texture_opts *texture_o = o->texture->opts;
+    const struct texture_params *texture_params = &texture_o->params;
+    if (o->texture->cls->id == NGL_NODE_TEXTURE2DARRAY && o->layer >= texture_params->depth) {
+        LOG(ERROR, "requested layer (%d) exceeds texture 2D array layer count (%d)", o->layer, texture_params->depth);
+        return NGL_ERROR_INVALID_ARG;
+    }
+
     if (o->texture->cls->id == NGL_NODE_TEXTURECUBE && o->layer >= 6) {
         LOG(ERROR, "cubemap textures only have 6 layers");
         return NGL_ERROR_INVALID_ARG;
     }
 
-    const struct texture_opts *texture_o = o->texture->opts;
-    const struct texture_params *texture_params = &texture_o->params;
     if (o->texture->cls->id == NGL_NODE_TEXTURE3D && o->layer >= texture_params->depth) {
         LOG(ERROR, "requested layer (%d) exceeds texture 3D layer count (%d)", o->layer, texture_params->depth);
         return NGL_ERROR_INVALID_ARG;

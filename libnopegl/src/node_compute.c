@@ -47,6 +47,7 @@ struct compute_priv {
                                                NGLI_NODE_NONE}
 
 #define DATA_TYPES_LIST     (const uint32_t[]){NGL_NODE_TEXTURE2D,       \
+                                               NGL_NODE_TEXTURE2DARRAY,  \
                                                NGL_NODE_TEXTURE3D,       \
                                                NGL_NODE_TEXTURECUBE,     \
                                                NGL_NODE_BLOCK,           \

@@ -80,7 +80,7 @@ static const struct node_param rtt_params[] = {
                       .flags=NGLI_PARAM_FLAG_NON_NULL,
                       .desc=NGLI_DOCSTRING("scene to be rasterized to `color_textures` and optionally to `depth_texture`")},
     {"color_textures", NGLI_PARAM_TYPE_NODELIST, OFFSET(color_textures),
-                      .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE3D, NGL_NODE_TEXTURECUBE, NGL_NODE_TEXTUREVIEW, NGLI_NODE_NONE},
+                      .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE2DARRAY, NGL_NODE_TEXTURE3D, NGL_NODE_TEXTURECUBE, NGL_NODE_TEXTUREVIEW, NGLI_NODE_NONE},
                       .desc=NGLI_DOCSTRING("destination color texture")},
     {"depth_texture", NGLI_PARAM_TYPE_NODE, OFFSET(depth_texture),
                       .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
@@ -124,6 +124,8 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
         if (node->cls->id == NGL_NODE_TEXTURECUBE)
             layer_count = 6;
         else if (node->cls->id == NGL_NODE_TEXTURE3D)
+            layer_count = texture_params->depth;
+        else if (node->cls->id == NGL_NODE_TEXTURE2DARRAY)
             layer_count = texture_params->depth;
         const struct rtt_texture_info info = {
             .texture_priv = texture_priv,
