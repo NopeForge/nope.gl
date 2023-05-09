@@ -881,7 +881,8 @@ static int vk_init(struct gpu_ctx *s)
                   NGLI_FEATURE_UINT_UNIFORMS |
                   NGLI_FEATURE_UNIFORM_BUFFER |
                   NGLI_FEATURE_STORAGE_BUFFER |
-                  NGLI_FEATURE_BUFFER_MAP;
+                  NGLI_FEATURE_BUFFER_MAP |
+                  NGLI_FEATURE_TEXTURE_2D_ARRAY;
 
     struct vkcontext *vk = s_priv->vkcontext;
     const VkPhysicalDeviceLimits *limits = &vk->phy_device_props.limits;
@@ -890,6 +891,7 @@ static int vk_init(struct gpu_ctx *s)
     s->limits.max_texture_dimension_2d           = limits->maxImageDimension2D;
     s->limits.max_texture_dimension_3d           = limits->maxImageDimension3D;
     s->limits.max_texture_dimension_cube         = limits->maxImageDimensionCube;
+    s->limits.max_texture_array_layers           = limits->maxImageArrayLayers;
     s->limits.max_compute_work_group_count[0]    = limits->maxComputeWorkGroupCount[0];
     s->limits.max_compute_work_group_count[1]    = limits->maxComputeWorkGroupCount[1];
     s->limits.max_compute_work_group_count[2]    = limits->maxComputeWorkGroupCount[2];
