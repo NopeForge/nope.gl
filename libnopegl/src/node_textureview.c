@@ -59,7 +59,7 @@ static int textureview_init(struct ngl_node *node)
     }
 
     if (o->texture->cls->id == NGL_NODE_TEXTURECUBE && o->layer >= 6) {
-        LOG(ERROR, "cubemap textures only have 6 layers");
+        LOG(ERROR, "requested layer (%d) exceeds cube map layer count (6)", o->layer);
         return NGL_ERROR_INVALID_ARG;
     }
 
