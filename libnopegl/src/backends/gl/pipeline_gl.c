@@ -210,6 +210,7 @@ static int build_texture_bindings(struct pipeline *s, const struct pipeline_para
         const struct pipeline_texture_desc *texture_desc = &layout->textures_desc[i];
 
         if (texture_desc->type == NGLI_TYPE_IMAGE_2D ||
+            texture_desc->type == NGLI_TYPE_IMAGE_2D_ARRAY ||
             texture_desc->type == NGLI_TYPE_IMAGE_3D ||
             texture_desc->type == NGLI_TYPE_IMAGE_CUBE) {
             struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
@@ -280,6 +281,7 @@ static void set_textures(struct pipeline *s, struct glcontext *gl)
         const struct texture_gl *texture_gl = (const struct texture_gl *)texture;
 
         if (texture_binding->desc.type == NGLI_TYPE_IMAGE_2D ||
+            texture_binding->desc.type == NGLI_TYPE_IMAGE_2D_ARRAY ||
             texture_binding->desc.type == NGLI_TYPE_IMAGE_3D ||
             texture_binding->desc.type == NGLI_TYPE_IMAGE_CUBE) {
             GLuint texture_id = 0;
@@ -290,7 +292,8 @@ static void set_textures(struct pipeline *s, struct glcontext *gl)
                 internal_format = texture_gl->internal_format;
             }
             GLboolean layered = GL_FALSE;
-            if (texture_binding->desc.type == NGLI_TYPE_IMAGE_3D ||
+            if (texture_binding->desc.type == NGLI_TYPE_IMAGE_2D_ARRAY ||
+                texture_binding->desc.type == NGLI_TYPE_IMAGE_3D ||
                 texture_binding->desc.type == NGLI_TYPE_IMAGE_CUBE)
                 layered = GL_TRUE;
             ngli_glBindImageTexture(gl, texture_binding->desc.binding, texture_id, 0, layered, 0, access, internal_format);
@@ -304,6 +307,8 @@ static void set_textures(struct pipeline *s, struct glcontext *gl)
                 ngli_glBindTexture(gl, texture_gl->target, texture_gl->id);
             } else {
                 ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+                if (gl->features & NGLI_FEATURE_GL_TEXTURE_2D_ARRAY)
+                    ngli_glBindTexture(gl, GL_TEXTURE_2D_ARRAY, 0);
                 if (gl->features & NGLI_FEATURE_GL_TEXTURE_3D)
                     ngli_glBindTexture(gl, GL_TEXTURE_3D, 0);
                 if (gl->features & NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE)

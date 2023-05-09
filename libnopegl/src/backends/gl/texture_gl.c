@@ -91,6 +91,9 @@ static void texture_set_image(struct texture *s, const uint8_t *data)
     case GL_TEXTURE_2D:
         ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, data);
         break;
+    case GL_TEXTURE_2D_ARRAY:
+        ngli_glTexImage3D(gl, GL_TEXTURE_2D_ARRAY, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, data);
+        break;
     case GL_TEXTURE_3D:
         ngli_glTexImage3D(gl, GL_TEXTURE_3D, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, data);
         break;
@@ -120,6 +123,26 @@ static void texture2d_set_sub_image(struct texture *s, const uint8_t *data, int 
         return;
     }
     ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, params->width, params->height, s_priv->format, s_priv->format_type, data);
+}
+
+
+static void texture2d_array_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
+{
+    struct texture_gl *s_priv = (struct texture_gl *)s;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
+    const struct texture_params *params = &s->params;
+
+    if (row_upload) {
+        for (int z = 0; z < params->depth; z++) {
+            for (int y = 0; y < params->height; y++) {
+                ngli_glTexSubImage3D(gl, GL_TEXTURE_2D_ARRAY, 0, 0, y, z, params->width, 1, 1, s_priv->format, s_priv->format_type, data);
+                data += linesize * s_priv->bytes_per_pixel;
+            }
+        }
+        return;
+    }
+    ngli_glTexSubImage3D(gl, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, params->width, params->height, params->depth, s_priv->format, s_priv->format_type, data);
 }
 
 static void texture3d_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
@@ -188,6 +211,9 @@ static void texture_set_sub_image(struct texture *s, const uint8_t *data, int li
     case GL_TEXTURE_2D:
         texture2d_set_sub_image(s, data, linesize, row_upload);
         break;
+    case GL_TEXTURE_2D_ARRAY:
+        texture2d_array_set_sub_image(s, data, linesize, row_upload);
+        break;
     case GL_TEXTURE_3D:
         texture3d_set_sub_image(s, data, linesize, row_upload);
         break;
@@ -215,6 +241,14 @@ static void texture_set_storage(struct texture *s)
             while ((params->width | params->height) >> mipmap_levels)
                 mipmap_levels += 1;
         ngli_glTexStorage2D(gl, s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
+        break;
+    }
+    case GL_TEXTURE_2D_ARRAY: {
+        int mipmap_levels = 1;
+        if (params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE)
+            while ((params->width | params->height) >> mipmap_levels)
+                mipmap_levels += 1;
+        ngli_glTexStorage3D(gl, s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height, params->depth);
         break;
     }
     case GL_TEXTURE_3D:
@@ -295,6 +329,8 @@ static int texture_init_fields(struct texture *s)
 
     if (params->type == NGLI_TEXTURE_TYPE_2D)
         s_priv->target = GL_TEXTURE_2D;
+    else if (params->type == NGLI_TEXTURE_TYPE_2D_ARRAY)
+        s_priv->target = GL_TEXTURE_2D_ARRAY;
     else if (params->type == NGLI_TEXTURE_TYPE_3D)
         s_priv->target = GL_TEXTURE_3D;
     else if (params->type == NGLI_TEXTURE_TYPE_CUBE)
@@ -365,11 +401,14 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
         ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_MAG_FILTER, mag_filter);
         ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_S, wrap_s);
         ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_T, wrap_t);
-        if (s_priv->target == GL_TEXTURE_3D || s_priv->target == GL_TEXTURE_CUBE_MAP)
+        if (s_priv->target == GL_TEXTURE_2D_ARRAY ||
+            s_priv->target == GL_TEXTURE_3D ||
+            s_priv->target == GL_TEXTURE_CUBE_MAP)
             ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_R, wrap_r);
 
         if (!params->width || !params->height ||
-            (params->type == NGLI_TEXTURE_TYPE_3D && !params->depth)) {
+            ((params->type == NGLI_TEXTURE_TYPE_3D ||
+              params->type == NGLI_TEXTURE_TYPE_2D_ARRAY) && !params->depth)) {
             LOG(ERROR, "invalid texture type %dx%dx%d",
                 params->width, params->height, params->depth);
             return NGL_ERROR_INVALID_ARG;

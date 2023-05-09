@@ -84,6 +84,7 @@ static VkImageAspectFlags get_vk_image_aspect_flags(VkFormat format)
 
 static const VkImageType image_type_map[NGLI_TEXTURE_TYPE_NB] = {
     [NGLI_TEXTURE_TYPE_2D]   = VK_IMAGE_TYPE_2D,
+    [NGLI_TEXTURE_TYPE_2D_ARRAY] = VK_IMAGE_TYPE_2D,
     [NGLI_TEXTURE_TYPE_3D]   = VK_IMAGE_TYPE_3D,
     [NGLI_TEXTURE_TYPE_CUBE] = VK_IMAGE_TYPE_2D,
 };
@@ -95,6 +96,7 @@ static VkImageType get_vk_image_type(int type)
 
 static const VkImageViewType image_view_type_map[NGLI_TEXTURE_TYPE_NB] = {
     [NGLI_TEXTURE_TYPE_2D]   = VK_IMAGE_VIEW_TYPE_2D,
+    [NGLI_TEXTURE_TYPE_2D_ARRAY] = VK_IMAGE_VIEW_TYPE_2D_ARRAY,
     [NGLI_TEXTURE_TYPE_3D]   = VK_IMAGE_VIEW_TYPE_3D,
     [NGLI_TEXTURE_TYPE_CUBE] = VK_IMAGE_VIEW_TYPE_CUBE,
 };
@@ -239,6 +241,8 @@ static int init_fields(struct texture *s, const struct texture_params *params)
     s_priv->array_layers = 1;
     if (params->type == NGLI_TEXTURE_TYPE_CUBE) {
         s_priv->array_layers = 6;
+    } else if (params->type == NGLI_TEXTURE_TYPE_2D_ARRAY) {
+        s_priv->array_layers = params->depth;
     }
 
     s_priv->mipmap_levels = 1;

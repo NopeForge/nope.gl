@@ -131,6 +131,9 @@ static int create_fbo(struct rendertarget *s, int resolve, GLuint *idp)
         case GL_TEXTURE_2D:
             ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, texture_gl->id, 0);
             break;
+        case GL_TEXTURE_2D_ARRAY:
+            ngli_glFramebufferTextureLayer(gl, GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, layer);
+            break;
         case GL_TEXTURE_3D:
             ngli_glFramebufferTexture3D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_3D, texture_gl->id, 0, layer);
             break;
