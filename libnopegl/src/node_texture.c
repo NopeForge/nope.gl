@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail,com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -191,6 +192,34 @@ static const struct node_param texture2d_params[] = {
                          .desc=NGLI_DOCSTRING("whether direct rendering is allowed or not for media playback")},
     {"clamp_video", NGLI_PARAM_TYPE_BOOL, OFFSET(clamp_video), {.i32=0},
                     .desc=NGLI_DOCSTRING("clamp ngl_texvideo() output to [0;1]")},
+    {NULL}
+};
+
+static const struct node_param texture2d_array_params[] = {
+    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGLI_FORMAT_R8G8B8A8_UNORM},
+               .choices=&format_choices,
+               .desc=NGLI_DOCSTRING("format of the pixel data")},
+    {"width", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i32=0},
+              .desc=NGLI_DOCSTRING("width of the texture")},
+    {"height", NGLI_PARAM_TYPE_I32, OFFSET(params.height), {.i32=0},
+               .desc=NGLI_DOCSTRING("height of the texture")},
+    {"depth", NGLI_PARAM_TYPE_I32, OFFSET(params.depth), {.i32=0},
+               .desc=NGLI_DOCSTRING("depth of the texture")},
+    {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGLI_FILTER_NEAREST}, .choices=&ngli_filter_choices,
+                   .desc=NGLI_DOCSTRING("texture minifying function")},
+    {"mag_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i32=NGLI_FILTER_NEAREST}, .choices=&ngli_filter_choices,
+                   .desc=NGLI_DOCSTRING("texture magnification function")},
+    {"mipmap_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i32=NGLI_MIPMAP_FILTER_NONE},
+                      .choices=&ngli_mipmap_filter_choices,
+                      .desc=NGLI_DOCSTRING("texture minifying mipmap function")},
+    {"wrap_s", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i32=NGLI_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+               .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
+    {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGLI_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+               .desc=NGLI_DOCSTRING("wrap parameter for the texture on the t dimension (vertical)")},
+    {"wrap_r", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_r), {.i32=NGLI_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+               .desc=NGLI_DOCSTRING("wrap parameter for the texture on the r dimension (depth)")},
+    {"data_src", NGLI_PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D,
+                 .desc=NGLI_DOCSTRING("data source")},
     {NULL}
 };
 
@@ -501,6 +530,36 @@ static int texture2d_init(struct ngl_node *node)
     return 0;
 }
 
+static int texture2d_array_init(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct texture_priv *s = node->priv_data;
+    const struct texture_opts *o = node->opts;
+
+    s->params = o->params;
+
+    if (!(gpu_ctx->features & NGLI_FEATURE_TEXTURE_2D_ARRAY)) {
+        LOG(ERROR, "context does not support arrays of 2D textures");
+        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+    }
+
+    const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
+    const int max_layers = gpu_ctx->limits.max_texture_array_layers;
+    if (s->params.width  > max_dimension ||
+        s->params.height > max_dimension ||
+        s->params.depth  > max_layers) {
+        LOG(ERROR, "texture dimensions (%d,%d,%d) exceeds device limits (%d,%d,%d)",
+            s->params.width, s->params.height, s->params.depth,
+            max_dimension, max_dimension, max_layers);
+        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+    }
+    s->params.type = NGLI_TEXTURE_TYPE_2D_ARRAY;
+    s->params.format = get_preferred_format(gpu_ctx, o->requested_format);
+
+    return 0;
+}
+
 static int texture3d_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -568,6 +627,20 @@ const struct node_class ngli_texture2d_class = {
     .opts_size = sizeof(struct texture_opts),
     .priv_size = sizeof(struct texture_priv),
     .params    = texture2d_params,
+    .file      = __FILE__,
+};
+
+const struct node_class ngli_texture2darray_class = {
+    .id        = NGL_NODE_TEXTURE2DARRAY,
+    .category  = NGLI_NODE_CATEGORY_TEXTURE,
+    .name      = "Texture2DArray",
+    .init      = texture2d_array_init,
+    .prefetch  = texture_prefetch,
+    .update    = texture_update,
+    .release   = texture_release,
+    .opts_size = sizeof(struct texture_opts),
+    .priv_size = sizeof(struct texture_priv),
+    .params    = texture2d_array_params,
     .file      = __FILE__,
 };
 

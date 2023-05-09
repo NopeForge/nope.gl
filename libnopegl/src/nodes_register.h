@@ -139,6 +139,7 @@
     action(NGL_NODE_SMOOTHPATH,             ngli_smoothpath_class)              \
     action(NGL_NODE_TEXT,                   ngli_text_class)                    \
     action(NGL_NODE_TEXTURE2D,              ngli_texture2d_class)               \
+    action(NGL_NODE_TEXTURE2DARRAY,         ngli_texture2darray_class)          \
     action(NGL_NODE_TEXTURE3D,              ngli_texture3d_class)               \
     action(NGL_NODE_TEXTURECUBE,            ngli_texturecube_class)             \
     action(NGL_NODE_TEXTUREVIEW,            ngli_textureview_class)             \
