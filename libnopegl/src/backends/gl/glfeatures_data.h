@@ -321,5 +321,12 @@ static const struct glfeature {
         .flag           = NGLI_FEATURE_GL_OES_STANDARD_DERIVATIVES,
         .es_version     = 300,
         .es_extensions  = (const char*[]){"GL_OES_standard_derivatives", NULL},
+    }, {
+        .name           = "texture_array",
+        .flag           = NGLI_FEATURE_GL_TEXTURE_2D_ARRAY,
+        .version        = 300,
+        .es_version     = 300,
+        .funcs_offsets  = (const size_t[]){OFFSET(FramebufferTextureLayer),
+                                           -1}
     }
 };
