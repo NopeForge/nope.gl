@@ -309,7 +309,6 @@ struct resourceprops_opts {
     int precision;
     int as_image;
     int writable;
-    int variadic;
 };
 
 enum easing_id {
