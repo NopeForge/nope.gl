@@ -2158,6 +2158,92 @@
       "desc": "clamp ngl_texvideo() output to [0;1]"
     }
   ],
+  "Texture2DArray": [
+    {
+      "name": "format",
+      "type": "select",
+      "default": "r8g8b8a8_unorm",
+      "choices": ["undefined", "r8_unorm", "r8_snorm", "r8_uint", "r8_sint", "r8g8_unorm", "r8g8_snorm", "r8g8_uint", "r8g8_sint", "r8g8b8a8_unorm", "r8g8b8a8_snorm", "r8g8b8a8_uint", "r8g8b8a8_sint", "r8g8b8a8_srgb", "b8g8r8a8_unorm", "b8g8r8a8_snorm", "b8g8r8a8_uint", "b8g8r8a8_sint", "r16_unorm", "r16_snorm", "r16_uint", "r16_sint", "r16_sfloat", "r16g16_unorm", "r16g16_snorm", "r16g16_uint", "r16g16_sint", "r16g16_sfloat", "r16g16b16a16_unorm", "r16g16b16a16_snorm", "r16g16b16a16_uint", "r16g16b16a16_sint", "r16g16b16a16_sfloat", "r32_uint", "r32_sint", "r32_sfloat", "r32g32_uint", "r32g32_sint", "r32g32_sfloat", "r32g32b32a32_uint", "r32g32b32a32_sint", "r32g32b32a32_sfloat", "d16_unorm", "d24_unorm", "d32_sfloat", "d24_unorm_s8_uint", "d32_sfloat_s8_uint", "s8_uint", "auto_depth", "auto_depth_stencil"],
+      "flags": [],
+      "desc": "format of the pixel data"
+    },
+    {
+      "name": "width",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "width of the texture"
+    },
+    {
+      "name": "height",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "height of the texture"
+    },
+    {
+      "name": "depth",
+      "type": "i32",
+      "default": 0,
+      "flags": [],
+      "desc": "depth of the texture"
+    },
+    {
+      "name": "min_filter",
+      "type": "select",
+      "default": "nearest",
+      "choices": ["nearest", "linear"],
+      "flags": [],
+      "desc": "texture minifying function"
+    },
+    {
+      "name": "mag_filter",
+      "type": "select",
+      "default": "nearest",
+      "choices": ["nearest", "linear"],
+      "flags": [],
+      "desc": "texture magnification function"
+    },
+    {
+      "name": "mipmap_filter",
+      "type": "select",
+      "default": "none",
+      "choices": ["none", "nearest", "linear"],
+      "flags": [],
+      "desc": "texture minifying mipmap function"
+    },
+    {
+      "name": "wrap_s",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the s dimension (horizontal)"
+    },
+    {
+      "name": "wrap_t",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the t dimension (vertical)"
+    },
+    {
+      "name": "wrap_r",
+      "type": "select",
+      "default": "clamp_to_edge",
+      "choices": ["clamp_to_edge", "mirrored_repeat", "repeat"],
+      "flags": [],
+      "desc": "wrap parameter for the texture on the r dimension (depth)"
+    },
+    {
+      "name": "data_src",
+      "type": "node",
+      "node_types": ["AnimatedBufferFloat", "AnimatedBufferVec2", "AnimatedBufferVec4", "BufferByte", "BufferBVec2", "BufferBVec4", "BufferInt", "BufferIVec2", "BufferIVec4", "BufferShort", "BufferSVec2", "BufferSVec4", "BufferUByte", "BufferUBVec2", "BufferUBVec4", "BufferUInt", "BufferUIVec2", "BufferUIVec4", "BufferUShort", "BufferUSVec2", "BufferUSVec4", "BufferFloat", "BufferVec2", "BufferVec4"],
+      "flags": [],
+      "desc": "data source"
+    }
+  ],
   "Texture3D": [
     {
       "name": "format",

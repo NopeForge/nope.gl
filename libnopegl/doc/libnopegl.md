@@ -923,6 +923,26 @@ Parameter | Flags | Type | Description | Default
 **Source**: [src/node_texture.c](/libnopegl/src/node_texture.c)
 
 
+## Texture2DArray
+
+Parameter | Flags | Type | Description | Default
+--------- | ----- | ---- | ----------- | :-----:
+`format` |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
+`width` |  | [`i32`](#parameter-types) | width of the texture | `0`
+`height` |  | [`i32`](#parameter-types) | height of the texture | `0`
+`depth` |  | [`i32`](#parameter-types) | depth of the texture | `0`
+`min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
+`mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
+`mipmap_filter` |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
+`wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
+`wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
+`wrap_r` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the r dimension (depth) | `clamp_to_edge`
+`data_src` |  | [`node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
+
+
+**Source**: [src/node_texture.c](/libnopegl/src/node_texture.c)
+
+
 ## Texture3D
 
 Parameter | Flags | Type | Description | Default
