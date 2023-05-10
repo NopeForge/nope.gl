@@ -396,9 +396,9 @@ def _get_image_layered_load_store_cuepoints():
     return {f"{x}{y}": (c(x), c(y)) for y in range(_N) for x in range(_N)}
 
 
-def _get_compute_image_layered_load_store_scene(cfg: SceneCfg, show_dbg_points=False):
+def _get_compute_image_layered_load_store_scene(cfg: SceneCfg, texture_cls, show_dbg_points=False):
     size = _N
-    texture = ngl.Texture3D(format="r32_sfloat", width=size, height=size, depth=3)
+    texture = texture_cls(format="r32_sfloat", width=size, height=size, depth=3)
     texture_rgba = ngl.Texture2D(width=size, height=size)
     program_store = ngl.ComputeProgram(_IMAGE_LAYERED_STORE_COMPUTE, workgroup_size=(size, size, 1))
     program_store.update_properties(
@@ -442,7 +442,7 @@ def _get_compute_image_layered_load_store_scene(cfg: SceneCfg, show_dbg_points=F
 @test_cuepoints(points=_get_image_layered_load_store_cuepoints(), tolerance=1)
 @scene(show_dbg_points=scene.Bool())
 def compute_image_3d_load_store(cfg: SceneCfg, show_dbg_points=False):
-    return _get_compute_image_layered_load_store_scene(cfg, show_dbg_points)
+    return _get_compute_image_layered_load_store_scene(cfg, ngl.Texture3D, show_dbg_points)
 
 
 _IMAGE_CUBE_STORE_COMPUTE = """
