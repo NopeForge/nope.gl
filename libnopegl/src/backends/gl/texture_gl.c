@@ -132,7 +132,7 @@ static void texture3d_set_sub_image(struct texture *s, const uint8_t *data, int 
     if (row_upload) {
         for (int z = 0; z < params->depth; z++) {
             for (int y = 0; y < params->height; y++) {
-                ngli_glTexSubImage3D(gl, GL_TEXTURE_3D, 0, 0, y, z, params->width, 1, params->depth, s_priv->format, s_priv->format_type, data);
+                ngli_glTexSubImage3D(gl, GL_TEXTURE_3D, 0, 0, y, z, params->width, 1, 1, s_priv->format, s_priv->format_type, data);
                 data += linesize * s_priv->bytes_per_pixel;
             }
         }
