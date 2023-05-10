@@ -540,7 +540,7 @@ cdef class Scene:
     def from_params(cls, _Node root, duration, framerate, aspect_ratio):
         scene = cls()
         cdef uintptr_t sptr = scene.cptr
-        cdef ngl_scene *scenep = <ngl_scene *>sptr;
+        cdef ngl_scene *scenep = <ngl_scene *>sptr
         cdef uintptr_t rptr = root.cptr
         cdef ngl_node *rootp = <ngl_node *>rptr
         cdef int ret = ngl_scene_init_from_node(scenep, rootp)
@@ -561,7 +561,7 @@ cdef class Scene:
     def from_string(cls, const char *s):
         scene = cls()
         cdef uintptr_t sptr = scene.cptr
-        cdef ngl_scene *scenep = <ngl_scene *>sptr;
+        cdef ngl_scene *scenep = <ngl_scene *>sptr
         cdef int ret = ngl_scene_init_from_str(scenep, s)
         if ret < 0:
             raise MemoryError()
