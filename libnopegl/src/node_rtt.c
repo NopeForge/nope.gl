@@ -42,7 +42,7 @@ struct rtt_opts {
     struct ngl_node **color_textures;
     size_t nb_color_textures;
     struct ngl_node *depth_texture;
-    int samples;
+    int32_t samples;
     float clear_color[4];
     int features;
 };

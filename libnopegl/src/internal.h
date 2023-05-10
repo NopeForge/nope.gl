@@ -253,7 +253,7 @@ struct program_opts {
     uint32_t workgroup_size[3];
     struct hmap *properties;
     struct hmap *vert_out_vars;
-    int nb_frag_output;
+    int32_t nb_frag_output;
 };
 
 struct program_priv {
@@ -400,7 +400,7 @@ struct pathkey_bezier3_opts {
 
 struct textureview_opts {
     struct ngl_node *texture;
-    int layer;
+    int32_t layer;
 };
 
 struct textureview_priv {

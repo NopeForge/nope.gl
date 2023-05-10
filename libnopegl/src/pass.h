@@ -40,7 +40,7 @@ struct pass_params {
     struct hmap *frag_resources;
     const struct hmap *properties;
     const struct geometry *geometry;
-    int nb_instances;
+    int32_t nb_instances;
     struct hmap *attributes;
     struct hmap *instance_attributes;
     struct pgcraft_iovar *vert_out_vars;

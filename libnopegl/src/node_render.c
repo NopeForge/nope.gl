@@ -39,7 +39,7 @@ struct render_opts {
     struct hmap *frag_resources;
     struct hmap *attributes;
     struct hmap *instance_attributes;
-    int nb_instances;
+    int32_t nb_instances;
     int blending;
 };
 

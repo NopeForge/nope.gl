@@ -31,7 +31,7 @@ struct smoothpath_opts {
     struct ngl_node *points_buffer;
     float control1[3];
     float control2[3];
-    int precision;
+    int32_t precision;
     float tension;
 };
 

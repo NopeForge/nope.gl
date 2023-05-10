@@ -46,11 +46,11 @@ struct media_opts {
     int nopemd_min_level;
     struct ngl_node *anim;
     int audio_tex;
-    int max_nb_packets;
-    int max_nb_frames;
-    int max_nb_sink;
-    int max_pixels;
-    int stream_idx;
+    int32_t max_nb_packets;
+    int32_t max_nb_frames;
+    int32_t max_nb_sink;
+    int32_t max_pixels;
+    int32_t stream_idx;
     int hwaccel;
     char *filters;
     char *vt_pix_fmt;

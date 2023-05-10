@@ -34,7 +34,7 @@
 
 struct circle_opts {
     float radius;
-    int npoints;
+    int32_t npoints;
 };
 
 struct circle_priv {

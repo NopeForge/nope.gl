@@ -47,10 +47,10 @@ struct graphicconfig_opts {
     int depth_func;
 
     int stencil_test;
-    int stencil_write_mask;
+    int32_t stencil_write_mask;
     int stencil_func;
-    int stencil_ref;
-    int stencil_read_mask;
+    int32_t stencil_ref;
+    int32_t stencil_read_mask;
     int stencil_fail;
     int stencil_depth_fail;
     int stencil_depth_pass;
