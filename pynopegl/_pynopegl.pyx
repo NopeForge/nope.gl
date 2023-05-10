@@ -124,7 +124,7 @@ cdef extern from "nopegl.h":
         ngl_node *root
         double duration
         int framerate[2]
-        int aspect_ratio[2]
+        int32_t aspect_ratio[2]
 
     ngl_scene *ngl_scene_create()
     int ngl_scene_init_from_node(ngl_scene *s, ngl_node *root)

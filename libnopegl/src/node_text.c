@@ -72,7 +72,7 @@ struct text_opts {
     int padding;
     float font_scale;
     int valign, halign;
-    int aspect_ratio[2];
+    int32_t aspect_ratio[2];
 };
 
 struct text_priv {
@@ -257,8 +257,8 @@ static int update_character_geometries(struct ngl_node *node)
     /* Text/Box ratio */
     const float box_width_len  = ngli_vec3_length(o->box_width);
     const float box_height_len = ngli_vec3_length(o->box_height);
-    static const int default_ar[2] = {1, 1};
-    const int *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
+    static const int32_t default_ar[2] = {1, 1};
+    const int32_t *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
     const float box_ratio = (float)ar[0] * box_width_len / ((float)ar[1] * box_height_len);
 
     const int text_width   = text_cols * NGLI_FONT_W + 2 * o->padding;

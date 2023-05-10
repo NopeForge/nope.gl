@@ -95,7 +95,7 @@ int64_t clipi64(int64_t v, int64_t min, int64_t max)
     return v;
 }
 
-void get_viewport(int32_t width, int32_t height, const int *aspect_ratio, int32_t *vp)
+void get_viewport(int32_t width, int32_t height, const int32_t *aspect_ratio, int32_t *vp)
 {
     vp[2] = width;
     vp[3] = width * aspect_ratio[1] / aspect_ratio[0];
