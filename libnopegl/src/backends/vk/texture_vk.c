@@ -695,7 +695,7 @@ VkResult ngli_texture_vk_generate_mipmap(struct texture *s)
         .subresourceRange = {
             .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
             .baseArrayLayer = 0,
-            .layerCount     = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1,
+            .layerCount     = s_priv->array_layers,
             .levelCount     = 1,
         }
     };
@@ -732,7 +732,7 @@ VkResult ngli_texture_vk_generate_mipmap(struct texture *s)
                 .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
                 .mipLevel       = i,
                 .baseArrayLayer = 0,
-                .layerCount     = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1,
+                .layerCount     = s_priv->array_layers,
             },
             .dstOffsets = {
                 {0, 0, 0},
