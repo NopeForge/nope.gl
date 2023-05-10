@@ -402,7 +402,7 @@ static int set_framerate(struct player *p, const int *rate)
     return 0;
 }
 
-static int set_aspect_ratio(struct player *p, const int *aspect)
+static int set_aspect_ratio(struct player *p, const int32_t *aspect)
 {
     memcpy(p->aspect, aspect, sizeof(p->aspect));
     if (!p->aspect[0] || !p->aspect[1])
