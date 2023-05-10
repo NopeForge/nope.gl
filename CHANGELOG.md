@@ -18,6 +18,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Support for rendering to 3D textures
 - Support for 3D textures image load/store
 - Support for cube maps image load/store
+- Support for array of 2D textures
 
 ### Changed
 - CSV export in the HUD now always prints floats in C locale instead of quoted
