@@ -32,6 +32,7 @@ struct ngl_scene *python_get_scene(const char *modname, const char *func_name)
     PyObject *mod = NULL;
     PyObject *ret_pydict = NULL;
     PyObject *scene_func = NULL, *pyroot = NULL, *cptr = NULL;
+    PyObject *pyaspect = NULL, *pyduration = NULL;
 
     struct ngl_scene *scene = ngl_scene_create();
     if (!scene)
@@ -55,10 +56,30 @@ struct ngl_scene *python_get_scene(const char *modname, const char *func_name)
         !(ret_pydict = PyObject_CallFunctionObjArgs(scene_func, NULL)) ||
         !(pyscene    = PyDict_GetItemString(ret_pydict, "scene"))      ||
         !(pyroot     = PyObject_GetAttrString(pyscene, "root"))        ||
+        !(pyduration = PyObject_GetAttrString(pyscene, "duration"))    ||
+        !(pyaspect   = PyObject_GetAttrString(pyscene, "aspect_ratio"))||
         !(cptr       = PyObject_GetAttrString(pyroot, "cptr"))) {
         goto end;
     }
 
+    /* Aspect ratio */
+    PyObject *pyaspect0, *pyaspect1;
+    if (!(pyaspect0 = PyTuple_GetItem(pyaspect, 0)) ||
+        !(pyaspect1 = PyTuple_GetItem(pyaspect, 1)))
+        goto end;
+    scene->aspect_ratio[0] = (int)PyLong_AsLong(pyaspect0);
+    if (PyErr_Occurred())
+        goto end;
+    scene->aspect_ratio[1] = (int)PyLong_AsLong(pyaspect1);
+    if (PyErr_Occurred())
+        goto end;
+
+    /* Duration */
+    scene->duration = PyFloat_AsDouble(pyduration);
+    if (PyErr_Occurred())
+        goto end;
+
+    /* Scene */
     if (ngl_scene_init_from_node(scene, PyLong_AsVoidPtr(cptr)) < 0)
         goto end;
 
@@ -76,6 +97,8 @@ end:
     Py_XDECREF(scene_func);
     Py_XDECREF(ret_pydict);
     Py_XDECREF(pyroot);
+    Py_XDECREF(pyduration);
+    Py_XDECREF(pyaspect);
     Py_XDECREF(cptr);
 
     Py_Finalize();
