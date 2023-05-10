@@ -22,12 +22,13 @@
 #ifndef VKUTILS_H
 #define VKUTILS_H
 
+#include <stdint.h>
 #include <vulkan/vulkan.h>
 
 const char *ngli_vk_res2str(VkResult res);
 int ngli_vk_res2ret(VkResult res);
 
-VkSampleCountFlagBits ngli_ngl_samples_to_vk(int samples);
+VkSampleCountFlagBits ngli_ngl_samples_to_vk(int32_t samples);
 int ngli_vk_samples_to_ngl(VkSampleCountFlags samples);
 
 #endif

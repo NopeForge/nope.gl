@@ -551,7 +551,7 @@ static int handle_samples(struct player *p, const void *data)
 #ifdef _WIN32
     if (p->ngl_config.backend == NGL_BACKEND_OPENGL ||
         p->ngl_config.backend == NGL_BACKEND_OPENGLES) {
-        const int *samples = data;
+        const int32_t *samples = data;
         if (*samples != p->ngl_config.samples) {
             fprintf(stderr, "MSAA cannot be reconfigured on Windows, "
                             "the player needs to be restarted instead\n");

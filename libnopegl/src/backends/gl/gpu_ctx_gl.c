@@ -171,7 +171,7 @@ static void gl_get_scissor(struct gpu_ctx *s, int *scissor)
     memcpy(scissor, &s_priv->scissor, sizeof(s_priv->scissor));
 }
 
-static int create_texture(struct gpu_ctx *s, int format, int samples, struct texture **texturep)
+static int create_texture(struct gpu_ctx *s, int format, int32_t samples, struct texture **texturep)
 {
     const struct ngl_config *config = &s->config;
 

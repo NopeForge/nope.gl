@@ -98,7 +98,7 @@ int ipc_pkt_add_qtag_clearcolor(struct ipc_pkt *pkt, const float *clearcolor)
     return pack(pkt, IPC_CLEARCOLOR, clearcolor, 4 * sizeof(*clearcolor));
 }
 
-int ipc_pkt_add_qtag_samples(struct ipc_pkt *pkt, int samples)
+int ipc_pkt_add_qtag_samples(struct ipc_pkt *pkt, int32_t samples)
 {
     if (samples > 0xff)
         return NGL_ERROR_INVALID_ARG;

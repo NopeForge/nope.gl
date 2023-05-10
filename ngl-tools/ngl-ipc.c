@@ -53,7 +53,7 @@ struct ctx {
     int show_info;
     const char *uploadfile;
     float clear_color[4];
-    int samples;
+    int32_t samples;
     int reconfigure;
 
     struct ipc_pkt *send_pkt;

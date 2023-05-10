@@ -85,7 +85,7 @@ int ngli_vk_res2ret(VkResult res)
     }
 }
 
-VkSampleCountFlagBits ngli_ngl_samples_to_vk(int samples)
+VkSampleCountFlagBits ngli_ngl_samples_to_vk(int32_t samples)
 {
     switch (samples) {
     case 0:

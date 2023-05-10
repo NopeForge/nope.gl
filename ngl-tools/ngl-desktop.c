@@ -252,7 +252,7 @@ static int handle_tag_samples(const uint8_t *data, int size)
 {
     if (size != 1)
         return NGL_ERROR_INVALID_DATA;
-    int samples = data[0];
+    int32_t samples = data[0];
     return send_player_signal(PLAYER_SIGNAL_SAMPLES, &samples, sizeof(samples));
 }
 

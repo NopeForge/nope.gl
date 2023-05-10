@@ -43,7 +43,7 @@ struct glcontext_params {
     int offscreen;
     int32_t width;
     int32_t height;
-    int samples;
+    int32_t samples;
 };
 
 struct glcontext {
@@ -58,7 +58,7 @@ struct glcontext {
     int offscreen;
     int32_t width;
     int32_t height;
-    int samples;
+    int32_t samples;
 
     /* GL api */
     int version;
