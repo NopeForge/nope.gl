@@ -30,7 +30,7 @@
 struct path_opts {
     struct ngl_node **keyframes;
     size_t nb_keyframes;
-    int precision;
+    int32_t precision;
 };
 
 struct path_priv {

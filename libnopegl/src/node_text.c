@@ -69,7 +69,7 @@ struct text_opts {
     float box_corner[3];
     float box_width[3];
     float box_height[3];
-    int padding;
+    int32_t padding;
     float font_scale;
     int valign, halign;
     int32_t aspect_ratio[2];

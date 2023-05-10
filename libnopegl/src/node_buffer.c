@@ -36,7 +36,7 @@
 #include "utils.h"
 
 struct buffer_opts {
-    int count;
+    int32_t count;
     uint8_t *data;
     size_t data_size;
     char *filename;

@@ -32,7 +32,7 @@
 struct streamed_opts {
     struct ngl_node *timestamps;
     struct ngl_node *buffer;
-    int timebase[2];
+    int32_t timebase[2];
     struct ngl_node *time_anim;
 };
 

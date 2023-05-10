@@ -74,8 +74,8 @@ struct texture_params {
     int format;
     int32_t width;
     int32_t height;
-    int depth;
-    int samples;
+    int32_t depth;
+    int32_t samples;
     int min_filter;
     int mag_filter;
     int mipmap_filter;

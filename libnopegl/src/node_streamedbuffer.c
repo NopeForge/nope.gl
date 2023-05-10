@@ -30,10 +30,10 @@
 #include "type.h"
 
 struct streamedbuffer_opts {
-    int count;
+    int32_t count;
     struct ngl_node *timestamps;
     struct ngl_node *buffer_node;
-    int timebase[2];
+    int32_t timebase[2];
     struct ngl_node *time_anim;
 };
 
