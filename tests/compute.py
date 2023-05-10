@@ -362,7 +362,7 @@ def compute_image_load_store(cfg: SceneCfg, show_dbg_points=False):
     return group
 
 
-_IMAGE_3D_STORE_COMPUTE = """
+_IMAGE_LAYERED_STORE_COMPUTE = """
 void main()
 {
     ivec2 pos = ivec2(gl_LocalInvocationID.xy);
@@ -374,7 +374,7 @@ void main()
 }
 """
 
-_IMAGE_3D_LOAD_STORE_COMPUTE = """
+_IMAGE_LAYERED_LOAD_STORE_COMPUTE = """
 void main()
 {
     ivec2 pos = ivec2(gl_LocalInvocationID.xy);
@@ -389,20 +389,18 @@ void main()
 """
 
 
-def _get_image_3d_load_store_cuepoints():
+def _get_image_layered_load_store_cuepoints():
     f = float(_N)
     off = 1 / (2 * f)
     c = lambda i: (i / f + off) * 2.0 - 1.0
     return {f"{x}{y}": (c(x), c(y)) for y in range(_N) for x in range(_N)}
 
 
-@test_cuepoints(points=_get_image_3d_load_store_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
-def compute_image_3d_load_store(cfg: SceneCfg, show_dbg_points=False):
+def _get_compute_image_layered_load_store_scene(cfg: SceneCfg, show_dbg_points=False):
     size = _N
     texture = ngl.Texture3D(format="r32_sfloat", width=size, height=size, depth=3)
     texture_rgba = ngl.Texture2D(width=size, height=size)
-    program_store = ngl.ComputeProgram(_IMAGE_3D_STORE_COMPUTE, workgroup_size=(size, size, 1))
+    program_store = ngl.ComputeProgram(_IMAGE_LAYERED_STORE_COMPUTE, workgroup_size=(size, size, 1))
     program_store.update_properties(
         texture=ngl.ResourceProps(as_image=True, writable=True),
     )
@@ -419,7 +417,7 @@ def compute_image_3d_load_store(cfg: SceneCfg, show_dbg_points=False):
         fields=[ngl.UniformVec2(value=(-1.0, 1.0), label="factors")],
         layout="std140",
     )
-    program_load_store = ngl.ComputeProgram(_IMAGE_3D_LOAD_STORE_COMPUTE, workgroup_size=(size, size, 1))
+    program_load_store = ngl.ComputeProgram(_IMAGE_LAYERED_LOAD_STORE_COMPUTE, workgroup_size=(size, size, 1))
     program_load_store.update_properties(
         texture=ngl.ResourceProps(as_image=True),
         texture_rgba=ngl.ResourceProps(as_image=True, writable=True),
@@ -435,10 +433,16 @@ def compute_image_3d_load_store(cfg: SceneCfg, show_dbg_points=False):
     group = ngl.Group(children=(compute_store, compute_load_store, render))
 
     if show_dbg_points:
-        cuepoints = _get_image_3d_load_store_cuepoints()
+        cuepoints = _get_image_layered_load_store_cuepoints()
         group.add_children(get_debug_points(cfg, cuepoints))
 
     return group
+
+
+@test_cuepoints(points=_get_image_layered_load_store_cuepoints(), tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def compute_image_3d_load_store(cfg: SceneCfg, show_dbg_points=False):
+    return _get_compute_image_layered_load_store_scene(cfg, show_dbg_points)
 
 
 _IMAGE_CUBE_STORE_COMPUTE = """
