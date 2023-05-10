@@ -22,6 +22,7 @@ foreach backend : backends
   has_ds_resolve         = run_command(cap_cmd + ['depth_stencil_resolve'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_instanced_draw     = run_command(cap_cmd + ['instanced_draw'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_shader_texture_lod = run_command(cap_cmd + ['shader_texture_lod'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
+  has_texture_2d_array   = run_command(cap_cmd + ['texture_2d_array'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_texture_3d         = run_command(cap_cmd + ['texture_3d'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_texture_cube       = run_command(cap_cmd + ['texture_cube'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_uint_uniforms      = run_command(cap_cmd + ['uint_uniforms'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
@@ -374,6 +375,18 @@ foreach backend : backends
 
   if has_shader_texture_lod
     tests_texture += 'mipmap'
+  endif
+
+  if has_texture_2d_array
+    tests_texture += '2d_array'
+    if max_color_attachments >= 4
+      tests_texture += '2d_array_from_mrt'
+      if max_samples >= 4
+        # Resolving MSAA attachments to array of 2D textures does not work due to driver issues
+        # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
+        # tests_texture += '2d_array_from_mrt_msaa'
+      endif
+    endif
   endif
 
   if has_texture_3d
