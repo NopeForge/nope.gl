@@ -297,6 +297,111 @@ def texture_scissor(cfg: SceneCfg):
     return ngl.Group(children=(rtt, render))
 
 
+_TEXTURE2D_ARRAY_VERT = """
+void main()
+{
+    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+    var_uvcoord = ngl_uvcoord;
+}
+"""
+
+
+_TEXTURE2D_ARRAY_FRAG = """
+void main()
+{
+    ngl_out_color  = texture(tex0, vec3(var_uvcoord, 0.0));
+    ngl_out_color += texture(tex0, vec3(var_uvcoord, 1.0));
+    ngl_out_color += texture(tex0, vec3(var_uvcoord, 2.0));
+}
+"""
+
+
+@test_fingerprint()
+@scene()
+def texture_2d_array(cfg: SceneCfg):
+    width, height, depth = 9, 9, 3
+    n = width * height
+    data = array.array("B")
+    for i in cfg.rng.sample(range(n), n):
+        data.extend([i * 255 // n, 0, 0, 255])
+    for i in cfg.rng.sample(range(n), n):
+        data.extend([0, i * 255 // n, 0, 255])
+    for i in cfg.rng.sample(range(n), n):
+        data.extend([0, 0, i * 255 // n, 255])
+    texture_buffer = ngl.BufferUBVec4(data=data)
+    texture = ngl.Texture2DArray(width=width, height=height, depth=depth, data_src=texture_buffer)
+
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_FRAG)
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(tex0=texture)
+    return render
+
+
+_RENDER_TO_TEXTURE2D_ARRAY_VERT = """
+void main()
+{
+    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+}
+"""
+
+_RENDER_TO_TEXTURE2D_ARRAY_FRAG = """
+void main()
+{
+    float x = floor(gl_FragCoord.x / ngl_resolution.x * steps) / steps;
+    ngl_out_color[0] = vec4(x, 0.0, 0.0, 1.0);
+    ngl_out_color[1] = vec4(0.0, x, 0.0, 1.0);
+    ngl_out_color[2] = vec4(0.0, 0.0, x, 1.0);
+}
+"""
+
+_STEPS = 4
+
+
+def _get_texture_2d_array_from_mrt_cuepoints():
+    f = float(_STEPS)
+    off = 1 / (2 * f)
+    c = lambda i: (i / f + off) * 2.0 - 1.0
+    return {f"{x}": (c(x), 0.0) for x in range(_STEPS)}
+
+
+def _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, samples=0):
+    depth = 3
+    program = ngl.Program(
+        vertex=_RENDER_TO_TEXTURE2D_ARRAY_VERT, fragment=_RENDER_TO_TEXTURE2D_ARRAY_FRAG, nb_frag_output=depth
+    )
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(steps=ngl.UniformFloat(value=_STEPS))
+    texture = ngl.Texture2DArray(width=64, height=64, depth=depth, min_filter="nearest", mag_filter="nearest")
+    rtt = ngl.RenderToTexture(render, [texture], samples=samples)
+
+    program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_FRAG)
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(tex0=texture)
+
+    group = ngl.Group(children=(rtt, render))
+    if show_dbg_points:
+        group.add_children(get_debug_points(cfg, _get_texture_3d_from_mrt_cuepoints()))
+
+    return group
+
+
+@test_cuepoints(points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def texture_2d_array_from_mrt(cfg: SceneCfg, show_dbg_points=False):
+    return _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points)
+
+
+@test_cuepoints(points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def texture_2d_array_from_mrt_msaa(cfg: SceneCfg, show_dbg_points=False):
+    return _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, 4)
+
+
 _TEXTURE3D_VERT = """
 void main()
 {
