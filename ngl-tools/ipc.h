@@ -54,7 +54,7 @@ int ipc_pkt_add_qtag_scene(struct ipc_pkt *pkt, const char *scene);
 int ipc_pkt_add_qtag_file(struct ipc_pkt *pkt, const char *filename);
 int ipc_pkt_add_qtag_filepart(struct ipc_pkt *pkt, const uint8_t *chunk, size_t chunk_size);
 int ipc_pkt_add_qtag_clearcolor(struct ipc_pkt *pkt, const float *clearcolor);
-int ipc_pkt_add_qtag_samples(struct ipc_pkt *pkt, int samples);
+int ipc_pkt_add_qtag_samples(struct ipc_pkt *pkt, int32_t samples);
 int ipc_pkt_add_qtag_info(struct ipc_pkt *pkt);
 int ipc_pkt_add_qtag_reconfigure(struct ipc_pkt *pkt);
 

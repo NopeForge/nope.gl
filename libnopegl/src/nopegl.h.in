@@ -586,7 +586,7 @@ struct ngl_config {
 
     int32_t viewport[4]; /* Viewport defined as x, y, width and height */
 
-    int samples;   /* Number of samples used for multisample anti-aliasing */
+    int32_t samples;     /* Number of samples used for multisample anti-aliasing */
 
     int set_surface_pts; /* Whether pts should be set to the surface or not (Android only).
                             Unsupported with offscreen rendering. */

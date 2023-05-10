@@ -150,7 +150,7 @@ cdef extern from "nopegl.h":
         int32_t width
         int32_t height
         int32_t viewport[4]
-        int  samples
+        int32_t samples
         int  set_surface_pts
         float clear_color[4]
         void *capture_buffer

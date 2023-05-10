@@ -291,7 +291,7 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct renderta
 
     /* Set the rendertarget samples value from the attachments samples value
      * and ensure all the attachments have the same samples value */
-    int samples = -1;
+    int32_t samples = -1;
     struct rendertarget_desc desc = {0};
     for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
