@@ -56,7 +56,7 @@ Allocating the context can be made at any time using `ngl_create()`:
         return -1;
 
     struct ngl_config config = {...};
-    int ret = ngl_set_configure(ctx, &config);
+    int ret = ngl_configure(ctx, &config);
     if (ret < 0)
         return ret;
 ```
