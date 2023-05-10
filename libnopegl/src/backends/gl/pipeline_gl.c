@@ -35,7 +35,7 @@
 #include "topology_gl.h"
 #include "type_gl.h"
 
-typedef void (*set_uniform_func)(struct glcontext *gl, GLint location, int count, const void *data);
+typedef void (*set_uniform_func)(struct glcontext *gl, GLint location, GLsizei count, const void *data);
 
 struct uniform_binding {
     GLuint location;
@@ -60,72 +60,72 @@ struct attribute_binding {
     const struct buffer *buffer;
 };
 
-static void set_uniform_1iv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_1iv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform1iv(gl, location, count, data);
 }
 
-static void set_uniform_2iv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_2iv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform2iv(gl, location, count, data);
 }
 
-static void set_uniform_3iv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_3iv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform3iv(gl, location, count, data);
 }
 
-static void set_uniform_4iv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_4iv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform4iv(gl, location, count, data);
 }
 
-static void set_uniform_1uiv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_1uiv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform1uiv(gl, location, count, data);
 }
 
-static void set_uniform_2uiv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_2uiv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform2uiv(gl, location, count, data);
 }
 
-static void set_uniform_3uiv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_3uiv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform3uiv(gl, location, count, data);
 }
 
-static void set_uniform_4uiv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_4uiv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform4uiv(gl, location, count, data);
 }
 
-static void set_uniform_1fv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_1fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform1fv(gl, location, count, data);
 }
 
-static void set_uniform_2fv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_2fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform2fv(gl, location, count, data);
 }
 
-static void set_uniform_3fv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_3fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform3fv(gl, location, count, data);
 }
 
-static void set_uniform_4fv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_4fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniform4fv(gl, location, count, data);
 }
 
-static void set_uniform_mat3fv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_mat3fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniformMatrix3fv(gl, location, count, GL_FALSE, data);
 }
 
-static void set_uniform_mat4fv(struct glcontext *gl, GLint location, int count, const void *data)
+static void set_uniform_mat4fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
 {
     ngli_glUniformMatrix4fv(gl, location, count, GL_FALSE, data);
 }
@@ -197,7 +197,7 @@ static void set_uniforms(struct pipeline *s, struct glcontext *gl)
     for (size_t i = 0; i < ngli_darray_count(&s_priv->uniform_bindings); i++) {
         const struct uniform_binding *uniform_binding = &bindings[i];
         if (uniform_binding->data)
-            uniform_binding->set(gl, uniform_binding->location, (int)uniform_binding->desc.count, uniform_binding->data);
+            uniform_binding->set(gl, uniform_binding->location, (GLsizei)uniform_binding->desc.count, uniform_binding->data);
     }
 }
 
@@ -689,7 +689,7 @@ int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *d
         struct glstate *glstate = &gpu_ctx_gl->glstate;
         struct program_gl *program_gl = (struct program_gl *)s->program;
         ngli_glstate_use_program(gl, glstate, program_gl->id);
-        uniform_binding->set(gl, uniform_binding->location, (int)uniform_binding->desc.count, data);
+        uniform_binding->set(gl, uniform_binding->location, (GLsizei)uniform_binding->desc.count, data);
     }
     uniform_binding->data = NULL;
 
