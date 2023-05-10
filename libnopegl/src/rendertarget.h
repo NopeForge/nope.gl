@@ -52,9 +52,9 @@ struct rendertarget_desc {
 
 struct attachment {
     struct texture *attachment;
-    int attachment_layer;
+    int32_t attachment_layer;
     struct texture *resolve_target;
-    int resolve_target_layer;
+    int32_t resolve_target_layer;
     int load_op;
     float clear_value[4];
     int store_op;

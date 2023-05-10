@@ -99,8 +99,8 @@ static const struct node_param rtt_params[] = {
 struct rtt_texture_info {
     struct texture_priv *texture_priv;
     const struct texture_opts *texture_opts;
-    int layer_base;
-    int layer_count;
+    int32_t layer_base;
+    int32_t layer_count;
 };
 
 static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
@@ -210,7 +210,7 @@ static int rtt_prepare(struct ngl_node *node)
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
         struct texture_params *params = &info.texture_priv->params;
         params->usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
-        for (int j = 0; j < info.layer_count; j++) {
+        for (int32_t j = 0; j < info.layer_count; j++) {
             desc.colors[desc.nb_colors].format = params->format;
             desc.colors[desc.nb_colors].resolve = o->samples > 1;
             desc.nb_colors++;
@@ -304,8 +304,8 @@ static int rtt_prefetch(struct ngl_node *node)
         struct texture_priv *texture_priv = info.texture_priv;
         struct texture *texture = texture_priv->texture;
         struct texture_params *params = &texture->params;
-        const int layer_end = info.layer_base + info.layer_count;
-        for (int j = info.layer_base; j < layer_end; j++) {
+        const int32_t layer_end = info.layer_base + info.layer_count;
+        for (int32_t j = info.layer_base; j < layer_end; j++) {
             if (o->samples) {
                 struct texture *ms_texture = ngli_texture_create(gpu_ctx);
                 if (!ms_texture)
