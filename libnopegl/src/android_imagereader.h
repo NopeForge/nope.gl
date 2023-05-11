@@ -57,7 +57,7 @@ void ngli_android_image_freep(struct android_image **sp);
 
 struct android_imagereader;
 
-struct android_imagereader *ngli_android_imagereader_create(struct android_ctx *api, int width, int height, int format, int max_images);
+struct android_imagereader *ngli_android_imagereader_create(struct android_ctx *api, int32_t width, int32_t height, int format, int max_images);
 int  ngli_android_imagereader_get_window(struct android_imagereader *s, void **window);
 int  ngli_android_imagereader_acquire_next_image(struct android_imagereader *s, struct android_image **imagep);
 void ngli_android_imagereader_freep(struct android_imagereader **sp);

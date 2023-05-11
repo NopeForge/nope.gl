@@ -136,7 +136,7 @@ static void on_buffer_available(void *context, AImageReader *reader)
     pthread_mutex_unlock(&s->lock);
 }
 
-struct android_imagereader *ngli_android_imagereader_create(struct android_ctx *android_ctx, int width, int height, int format, int max_images)
+struct android_imagereader *ngli_android_imagereader_create(struct android_ctx *android_ctx, int32_t width, int32_t height, int format, int max_images)
 {
     if (!android_ctx->has_native_imagereader_api)
         return NULL;
