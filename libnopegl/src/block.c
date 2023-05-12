@@ -195,7 +195,7 @@ int ngli_block_add_field(struct block *s, const char *name, int type, size_t cou
     return 0;
 }
 
-void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uint8_t *src)
+void ngli_block_field_copy(const struct block_field *fi, uint8_t * restrict dst, const uint8_t * restrict src)
 {
     uint8_t *dstp = dst;
     const uint8_t *srcp = src;
