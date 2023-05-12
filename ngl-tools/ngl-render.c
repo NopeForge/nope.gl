@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
             if (t >= t1)
                 break;
             if (s.debug)
-                printf("draw @ t=%f [range %zd/%zd: %g-%g @ %dHz]\n",
+                printf("draw @ t=%f [range %zu/%zu: %g-%g @ %dHz]\n",
                        t, i + 1, s.nb_ranges, t0, t1, r->freq);
             ret = ngl_draw(ctx, t);
             if (ret < 0) {
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
         }
 
         const double tdiff = (double)(gettime_relative() - start) / 1000000.;
-        printf("Rendered %zd frames in %g (FPS=%g)\n", k, tdiff, (double)k / tdiff);
+        printf("Rendered %zu frames in %g (FPS=%g)\n", k, tdiff, (double)k / tdiff);
     }
 
 end:

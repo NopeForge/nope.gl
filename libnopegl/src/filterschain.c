@@ -67,7 +67,7 @@ int ngli_filterschain_add_filter(struct filterschain *s, const struct filter *fi
     for (size_t i = 0; i < ngli_darray_count(&filter->resources); i++) {
         const struct pgcraft_uniform *res = &resources[i];
         struct pgcraft_uniform combined_res = *res;
-        snprintf(combined_res.name, sizeof(combined_res.name), "%s%zd_%s",
+        snprintf(combined_res.name, sizeof(combined_res.name), "%s%zu_%s",
                  filter->name, ngli_darray_count(&s->filters), res->name);
         if (!ngli_darray_push(&s->resources, &combined_res))
             return NGL_ERROR_MEMORY;
@@ -120,7 +120,7 @@ char *ngli_filterschain_get_combination(struct filterschain *s)
 
         const struct pgcraft_uniform *resources = ngli_darray_data(&filter->resources);
         for (size_t j = 0; j < ngli_darray_count(&filter->resources); j++)
-            ngli_bstr_printf(b, ", %s%zd_%s", filter->name, i, resources[j].name);
+            ngli_bstr_printf(b, ", %s%zu_%s", filter->name, i, resources[j].name);
 
         ngli_bstr_print(b, ");\n");
     }

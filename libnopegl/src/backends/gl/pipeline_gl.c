@@ -730,7 +730,7 @@ int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, const struct b
         if (buffer_binding->desc.type == NGLI_TYPE_UNIFORM_BUFFER) {
             ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
             if (buffer->size > limits->max_uniform_block_size) {
-                LOG(ERROR, "buffer %s size (%zd) exceeds max uniform block size (%d)",
+                LOG(ERROR, "buffer %s size (%zu) exceeds max uniform block size (%d)",
                     buffer_binding->desc.name, buffer->size, limits->max_uniform_block_size);
                 return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
             }

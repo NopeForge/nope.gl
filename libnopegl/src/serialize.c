@@ -213,7 +213,7 @@ static void serialize_data(struct bstr *b, const uint8_t *srcp, const struct nod
     const size_t size = *(size_t *)(srcp + sizeof(uint8_t *));
     if (!data || !size)
         return;
-    ngli_bstr_printf(b, " %s:%zd,", par->key, size);
+    ngli_bstr_printf(b, " %s:%zu,", par->key, size);
     for (size_t i = 0; i < size; i++)
         ngli_bstr_printf(b, "%02x", data[i]);
 }

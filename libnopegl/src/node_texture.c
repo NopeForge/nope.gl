@@ -346,8 +346,8 @@ static int texture_prefetch(struct ngl_node *node)
 
             if (params->type == NGLI_TEXTURE_TYPE_2D) {
                 if (buffer->layout.count != params->width * params->height) {
-                    LOG(ERROR, "dimensions (%dx%d) do not match buffer count (%zd),"
-                        " assuming %zdx1", params->width, params->height,
+                    LOG(ERROR, "dimensions (%dx%d) do not match buffer count (%zu),"
+                        " assuming %zux1", params->width, params->height,
                         buffer->layout.count, buffer->layout.count);
                     if (buffer->layout.count > INT_MAX)
                         return NGL_ERROR_LIMIT_EXCEEDED;
@@ -356,8 +356,8 @@ static int texture_prefetch(struct ngl_node *node)
                 }
             } else if (params->type == NGLI_TEXTURE_TYPE_3D) {
                 if (buffer->layout.count != params->width * params->height * params->depth) {
-                    LOG(ERROR, "dimensions (%dx%dx%d) do not match buffer count (%zd),"
-                        " assuming %zdx1x1", params->width, params->height, params->depth,
+                    LOG(ERROR, "dimensions (%dx%dx%d) do not match buffer count (%zu),"
+                        " assuming %zux1x1", params->width, params->height, params->depth,
                         buffer->layout.count, buffer->layout.count);
                     if (buffer->layout.count > INT_MAX)
                         return NGL_ERROR_LIMIT_EXCEEDED;

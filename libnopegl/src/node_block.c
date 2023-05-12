@@ -312,7 +312,7 @@ static int block_init(struct ngl_node *node)
 
         const struct block_field *fields = ngli_darray_data(&info->block.fields);
         const struct block_field *fi = &fields[i];
-        LOG(DEBUG, "%s.field[%zd]: %s offset=%zd size=%zd stride=%zd",
+        LOG(DEBUG, "%s.field[%zu]: %s offset=%zu size=%zu stride=%zu",
             node->label, i, field_node->label, fi->offset, fi->size, fi->stride);
 
         if (field_is_dynamic(field_node, fi))
@@ -320,7 +320,7 @@ static int block_init(struct ngl_node *node)
     }
 
     info->data_size = info->block.size;
-    LOG(DEBUG, "total %s size: %zd", node->label, info->data_size);
+    LOG(DEBUG, "total %s size: %zu", node->label, info->data_size);
     info->data = ngli_calloc(1, info->data_size);
     if (!info->data)
         return NGL_ERROR_MEMORY;

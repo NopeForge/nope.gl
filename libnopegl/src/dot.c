@@ -185,7 +185,7 @@ static void table_header(struct bstr *b, const char *label, int is_active, size_
         ngli_bstr_printf(b, "\"0.%u 0.2 0.8\"", hue); /* color of all the entries, more pale than HSLFMT */
     else
         ngli_bstr_print(b, INACTIVE_COLOR);
-    ngli_bstr_printf(b, "><tr><td colspan=\"%zd\" bgcolor=", colspan);
+    ngli_bstr_printf(b, "><tr><td colspan=\"%zu\" bgcolor=", colspan);
     if (is_active)
         ngli_bstr_printf(b, HSLFMT, hue);
     else
@@ -207,7 +207,7 @@ static void print_list_packed_decls(struct bstr *b, const char *key,
     for (size_t i = 0; i < nb_children; i++) {
         const struct ngl_node *node = children[i];
         char *info_str = node->cls->info_str ? node->cls->info_str(node) : NULL;
-        ngli_bstr_printf(b, "<tr><td>#%zd</td><td align=\"left\">%s</td></tr>",
+        ngli_bstr_printf(b, "<tr><td>#%zu</td><td align=\"left\">%s</td></tr>",
                          i, info_str ? info_str : "?");
         ngli_free(info_str);
     }
@@ -340,7 +340,7 @@ static void print_nodelist_links(struct bstr *b, const struct ngl_node *node,
     table_header(b, p->key, !node->ctx || node->is_active, nb_children);
     ngli_bstr_print(b, "<tr>");
     for (size_t i = 0; i < nb_children; i++)
-        ngli_bstr_printf(b, "<td port=\"e%zd\">#%zd</td>", i, i);
+        ngli_bstr_printf(b, "<td port=\"e%zu\">#%zu</td>", i, i);
     ngli_bstr_print(b, "</tr>");
     table_footer(b);
 
@@ -351,7 +351,7 @@ static void print_nodelist_links(struct bstr *b, const struct ngl_node *node,
     /* Link individual table cell to their dedicated nodes */
     for (size_t i = 0; i < nb_children; i++) {
         const struct ngl_node *child = children[i];
-        ngli_bstr_printf(b, "    %s_%p_%s:e%zd -> %s_%p\n", node->cls->name, node, p->key, i, child->cls->name, child);
+        ngli_bstr_printf(b, "    %s_%p_%s:e%zu -> %s_%p\n", node->cls->name, node, p->key, i, child->cls->name, child);
         print_all_links(b, child, links);
     }
 }

@@ -122,7 +122,7 @@ static int craft_packet(struct ctx *s, struct ipc_pkt *pkt)
             return NGL_ERROR_INVALID_ARG;
         }
         if (name_len >= sizeof(name)) {
-            fprintf(stderr, "remote file name too long %zd >= %zd\n", name_len, sizeof(name));
+            fprintf(stderr, "remote file name too long %zu >= %zu\n", name_len, sizeof(name));
             return NGL_ERROR_MEMORY;
         }
         int n = snprintf(name, sizeof(name), "%.*s", (int)name_len, s->uploadfile);

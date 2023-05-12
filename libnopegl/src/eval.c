@@ -286,7 +286,7 @@ static int parse_opening_paren(struct eval *s, const char *expr, const char *p)
         return parse_subexpr(s, expr, p + 1);
     }
 
-    LOG(ERROR, "expected '(' around position %zd", pos);
+    LOG(ERROR, "expected '(' around position %zu", pos);
     return NGL_ERROR_INVALID_DATA;
 }
 
@@ -331,7 +331,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
     /* At this point the token can only be a string identifier */
     const size_t token_len = strspn(p, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
     if (!token_len) {
-        LOG(ERROR, "parse error near '%.5s' at position %zd", p, pos);
+        LOG(ERROR, "parse error near '%.5s' at position %zu", p, pos);
         return NGL_ERROR_INVALID_DATA;
     }
     char name[MAX_ID_LEN];
@@ -372,7 +372,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
         return parse_opening_paren(s, expr, p + token_len);
     }
 
-    LOG(ERROR, "unrecognized token '%s' at position %zd", name, pos);
+    LOG(ERROR, "unrecognized token '%s' at position %zu", name, pos);
     return NGL_ERROR_INVALID_DATA;
 }
 
@@ -409,7 +409,7 @@ static int parse_post_subexpr(struct eval *s, const char *expr, const char *p)
         return parse_subexpr(s, expr, p + 1);
     }
 
-    LOG(ERROR, "expected separator around position %zd", pos);
+    LOG(ERROR, "expected separator around position %zu", pos);
     return NGL_ERROR_INVALID_DATA;
 }
 
@@ -452,12 +452,12 @@ static int tokenize(struct eval *s, const char *expr)
 static int missing_argument(const struct token *token, int got)
 {
     if (token->type == TOKEN_UNARY_OPERATOR || token->type == TOKEN_BINARY_OPERATOR)
-        LOG(ERROR, "missing argument for %s operator '%c' at position %zd, "
+        LOG(ERROR, "missing argument for %s operator '%c' at position %zu, "
             "expected %d but got %d",
             token->type == TOKEN_UNARY_OPERATOR ? "unary" : "binary",
             token->chr, token->pos, token->nb_args, got);
     else if (token->type == TOKEN_FUNCTION)
-        LOG(ERROR, "missing argument for function '%s' at position %zd, "
+        LOG(ERROR, "missing argument for function '%s' at position %zu, "
             "expected %d but got %d", token->name, token->pos, token->nb_args, got);
     return NGL_ERROR_INVALID_DATA;
 }
@@ -521,7 +521,7 @@ static int prepare_eval_run(struct eval *s)
 
     const size_t n = ngli_darray_count(stack);
     if (n > 1) {
-        LOG(ERROR, "detected %zd dangling expressions without operators between them", n);
+        LOG(ERROR, "detected %zu dangling expressions without operators between them", n);
         return NGL_ERROR_INVALID_DATA;
     }
 
@@ -565,7 +565,7 @@ static int infix_to_rpn(struct eval *s, const char *expr)
             for (;;) {
                 const struct token *o = ngli_darray_pop(operators);
                 if (!o) {
-                    LOG(ERROR, "expected opening '(' not found for closing ')' at position %zd", token->pos);
+                    LOG(ERROR, "expected opening '(' not found for closing ')' at position %zu", token->pos);
                     return NGL_ERROR_INVALID_DATA;
                 }
                 if (o->chr == '(')
@@ -579,7 +579,7 @@ static int infix_to_rpn(struct eval *s, const char *expr)
             for (;;) {
                 const struct token *o = ngli_darray_tail(operators);
                 if (!o) {
-                    LOG(ERROR, "unexpected comma outside a function call (at position %zd)", token->pos);
+                    LOG(ERROR, "unexpected comma outside a function call (at position %zu)", token->pos);
                     return NGL_ERROR_INVALID_DATA;
                 }
                 if (o->chr == '(')
@@ -606,7 +606,7 @@ static int infix_to_rpn(struct eval *s, const char *expr)
         if (!token)
             break;
         if (token->chr == '(' || token->chr == ')') {
-            LOG(ERROR, "unexpected '%c' at position %zd", token->chr, token->pos);
+            LOG(ERROR, "unexpected '%c' at position %zu", token->chr, token->pos);
             return NGL_ERROR_INVALID_DATA;
         }
         PUSH(&s->output, token);

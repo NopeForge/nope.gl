@@ -35,7 +35,7 @@ static void flt_check(const float *f, size_t size)
 {
     for (size_t i = 0; i < size; i++) {
         if (fabsf(f[i]) > 0.00001) {
-            fprintf(stderr, "float %zd/%zd too large\n", i + 1, size);
+            fprintf(stderr, "float %zu/%zu too large\n", i + 1, size);
             exit(1);
         }
     }
@@ -77,7 +77,7 @@ int main(void)
     flt_check(m_diff, 4*4);
 
     for (size_t i = 0; i < 4; i++) {
-        printf(":: Testing mat4 mul vec4 %zd/4\n", i + 1);
+        printf(":: Testing mat4 mul vec4 %zu/4\n", i + 1);
 
         const float *v = &m2[i * 4];
 

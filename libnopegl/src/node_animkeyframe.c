@@ -418,7 +418,7 @@ static int animkeyframe_init(struct ngl_node *node)
             node->cls->name, easing_name,
             o->scalar, o->time);
     else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEBUFFER)
-        LOG(VERBOSE, "%s of type %s starting with t=%f (data size: %zd)",
+        LOG(VERBOSE, "%s of type %s starting with t=%f (data size: %zu)",
             node->cls->name, easing_name,
             o->time, o->data_size);
     else
@@ -473,7 +473,7 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
     }
 
     if (node->cls->id == NGL_NODE_ANIMKEYFRAMEBUFFER) {
-        ngli_bstr_printf(b, "with data size of %zdB", o->data_size);
+        ngli_bstr_printf(b, "with data size of %zuB", o->data_size);
     } else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEQUAT) {
         ngli_bstr_printf(b, "with quat=(%g,%g,%g,%g)", NGLI_ARG_VEC4(o->value));
     } else if (node->cls->id == NGL_NODE_ANIMKEYFRAMECOLOR) {

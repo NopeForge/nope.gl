@@ -207,7 +207,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 
     const size_t nb_layers = vaapi->surface_descriptor.num_layers;
     if (nb_layers != desc.nb_planes) {
-        LOG(ERROR, "surface layer count (%zd) does not match plane count (%zd)",
+        LOG(ERROR, "surface layer count (%zu) does not match plane count (%zu)",
             nb_layers, desc.nb_planes);
         return NGL_ERROR_UNSUPPORTED;
     }
