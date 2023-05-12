@@ -159,7 +159,7 @@ int ipc_send(int fd, const struct ipc_pkt *pkt)
     }
     // XXX: should we loop instead?
     if (n != pkt->size) {
-        fprintf(stderr, "unable write packet (%d/%zd sent)\n", n, pkt->size);
+        fprintf(stderr, "unable write packet (%d/%zu sent)\n", n, pkt->size);
         return NGL_ERROR_IO;
     }
     return 0;

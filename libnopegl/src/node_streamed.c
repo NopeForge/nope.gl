@@ -148,7 +148,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
 
     const struct buffer_info *buffer_info = o->buffer->priv_data;
     if (nb_timestamps != buffer_info->layout.count) {
-        LOG(ERROR, "timestamps count must match buffer data count: %zd != %zd", nb_timestamps, buffer_info->layout.count);
+        LOG(ERROR, "timestamps count must match buffer data count: %zu != %zu", nb_timestamps, buffer_info->layout.count);
         return NGL_ERROR_INVALID_ARG;
     }
 

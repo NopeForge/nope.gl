@@ -219,7 +219,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 
     size_t num_layers = vaapi->surface_descriptor.num_layers;
     if (num_layers > NGLI_ARRAY_NB(vaapi->egl_images)) {
-        LOG(WARNING, "vaapi layer count (%zd) exceeds plane count (%zd)", num_layers, NGLI_ARRAY_NB(vaapi->egl_images));
+        LOG(WARNING, "vaapi layer count (%zu) exceeds plane count (%zu)", num_layers, NGLI_ARRAY_NB(vaapi->egl_images));
         num_layers = NGLI_ARRAY_NB(vaapi->egl_images);
     }
 

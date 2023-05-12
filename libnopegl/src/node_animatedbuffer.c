@@ -115,14 +115,14 @@ static int animatedbuffer_init(struct ngl_node *node)
 
         if (layout->count && layout->count != data_count) {
             static const char *types[] = {"float", "vec2", "vec3", "vec4"};
-            LOG(ERROR, "the number of %s in buffer key frame %zd "
-                "does not match the previous ones (%zd vs %zd)",
+            LOG(ERROR, "the number of %s in buffer key frame %zu "
+                "does not match the previous ones (%zu vs %zu)",
                 types[layout->comp - 1], i, data_count, layout->count);
             return NGL_ERROR_INVALID_ARG;
         }
 
         if (data_pad)
-            LOG(WARNING, "the data buffer has %zd trailing bytes", data_pad);
+            LOG(WARNING, "the data buffer has %zu trailing bytes", data_pad);
 
         layout->count = data_count;
     }

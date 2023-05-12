@@ -112,7 +112,7 @@ int main(void)
             check_order(hm);
         }
 
-        PRINT_HMAP("init [%zd entries] [custom_alloc:%s]:\n",
+        PRINT_HMAP("init [%zu entries] [custom_alloc:%s]:\n",
                    ngli_hmap_count(hm), custom_alloc ? "yes" : "no");
 
         for (size_t i = 0; i < NGLI_ARRAY_NB(kvs) - 1; i++) {
@@ -131,7 +131,7 @@ int main(void)
             /* Test delete */
             ngli_assert(ngli_hmap_set(hm, kvs[i].key, NULL) == 1);
             ngli_assert(ngli_hmap_set(hm, kvs[i].key, NULL) == 0);
-            PRINT_HMAP("drop %s (%zd remaining):\n", kvs[i].key, ngli_hmap_count(hm));
+            PRINT_HMAP("drop %s (%zu remaining):\n", kvs[i].key, ngli_hmap_count(hm));
             check_order(hm);
         }
 

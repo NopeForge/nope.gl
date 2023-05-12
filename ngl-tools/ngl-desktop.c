@@ -233,7 +233,7 @@ static int handle_tag_filepart(struct ctx *s, const uint8_t *data, int size)
     }
     // XXX: should we loop instead?
     if (n != size) {
-        fprintf(stderr, "unable to write file part: %zd/%d written\n", n, size);
+        fprintf(stderr, "unable to write file part: %zu/%d written\n", n, size);
         close_upload_file(s);
         return NGL_ERROR_IO;
     }
@@ -544,7 +544,7 @@ static int makedirs(const char *path)
 
     int n = snprintf(cur_path, sizeof(cur_path), "%s", path);
     if (n != strlen(path)) {
-        fprintf(stderr, "%s: path too long (%d > %zd)\n", path, n, strlen(path));
+        fprintf(stderr, "%s: path too long (%d > %zu)\n", path, n, strlen(path));
         return NGL_ERROR_MEMORY;
     }
 

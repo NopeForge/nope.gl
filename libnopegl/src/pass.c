@@ -209,7 +209,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
         LOG(DEBUG, "block %s has a std430 layout, declaring it as SSBO", name);
         type = NGLI_TYPE_STORAGE_BUFFER;
     } else if (block->size > limits->max_uniform_block_size) {
-        LOG(DEBUG, "block %s is larger than the max UBO size (%zd > %d), declaring it as SSBO",
+        LOG(DEBUG, "block %s is larger than the max UBO size (%zu > %d), declaring it as SSBO",
             name, block->size, limits->max_uniform_block_size);
         type = NGLI_TYPE_STORAGE_BUFFER;
     }
@@ -265,20 +265,20 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
 
         if (per_instance) {
             if (buffer->layout.count != s->params.nb_instances) {
-                LOG(ERROR, "attribute buffer %s count (%zd) does not match instance count (%d)",
+                LOG(ERROR, "attribute buffer %s count (%zu) does not match instance count (%d)",
                     entry->key, buffer->layout.count, s->params.nb_instances);
                 return NGL_ERROR_INVALID_ARG;
             }
         } else {
             if (geometry->indices_buffer) {
                 if (max_indices >= buffer->layout.count) {
-                    LOG(ERROR, "indices buffer contains values exceeding attribute buffer %s count (%" PRId64 " >= %zd)",
+                    LOG(ERROR, "indices buffer contains values exceeding attribute buffer %s count (%" PRId64 " >= %zu)",
                         entry->key, max_indices, buffer->layout.count);
                     return NGL_ERROR_INVALID_ARG;
                 }
             } else {
                 if (buffer->layout.count != nb_vertices) {
-                    LOG(ERROR, "attribute buffer %s count (%zd) does not match vertices count (%zd)",
+                    LOG(ERROR, "attribute buffer %s count (%zu) does not match vertices count (%zu)",
                         entry->key, buffer->layout.count, nb_vertices);
                     return NGL_ERROR_INVALID_ARG;
                 }

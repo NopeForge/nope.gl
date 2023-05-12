@@ -109,7 +109,7 @@ int ngli_animation_init(struct animation *s, void *user_arg,
                         ngli_animation_cpy_func_type cpy_func)
 {
     if (nb_kfs < 1) {
-        LOG(ERROR, "invalid number of animated key frames: %zd", nb_kfs);
+        LOG(ERROR, "invalid number of animated key frames: %zu", nb_kfs);
         return NGL_ERROR_INVALID_ARG;
     }
 

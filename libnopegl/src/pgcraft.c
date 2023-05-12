@@ -280,7 +280,7 @@ static int inject_uniform(struct pgcraft *s, struct bstr *b,
     const char *type = get_glsl_type(uniform->type);
     const char *precision = get_precision_qualifier(s, uniform->type, uniform->precision, "highp");
     if (uniform->count)
-        ngli_bstr_printf(b, "uniform %s %s %s[%zd];\n", precision, type, uniform->name, uniform->count);
+        ngli_bstr_printf(b, "uniform %s %s %s[%zu];\n", precision, type, uniform->name, uniform->count);
     else
         ngli_bstr_printf(b, "uniform %s %s %s;\n", precision, type, uniform->name);
 
@@ -582,7 +582,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
         if (fi->count == NGLI_BLOCK_VARIADIC_COUNT)
             ngli_bstr_printf(b, "    %s %s[];\n", type, fi->name);
         else if (fi->count)
-            ngli_bstr_printf(b, "    %s %s[%zd];\n", type, fi->name, fi->count);
+            ngli_bstr_printf(b, "    %s %s[%zu];\n", type, fi->name, fi->count);
         else
             ngli_bstr_printf(b, "    %s %s;\n", type, fi->name);
     }
@@ -1129,7 +1129,7 @@ static int craft_frag(struct pgcraft *s, const struct pgcraft_params *params)
             ngli_bstr_printf(b, "layout(location=%d) ", out_location);
         }
         if (params->nb_frag_output)
-            ngli_bstr_printf(b, "out vec4 ngl_out_color[%zd];\n", params->nb_frag_output);
+            ngli_bstr_printf(b, "out vec4 ngl_out_color[%zu];\n", params->nb_frag_output);
         else
             ngli_bstr_print(b, "out vec4 ngl_out_color;\n");
     } else {

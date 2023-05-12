@@ -708,7 +708,7 @@ static void widget_activity_draw(struct hud *s, struct widget *widget)
     const uint32_t color = 0x3df4f4ff;
 
     char buf[ACTIVITY_WIDGET_TEXT_LEN + 1];
-    snprintf(buf, sizeof(buf), "%d/%zd", priv->nb_actives, priv->nodes.count);
+    snprintf(buf, sizeof(buf), "%d/%zu", priv->nb_actives, priv->nodes.count);
     print_text(s, widget->text_x, widget->text_y, spec->label, color);
     print_text(s, widget->text_x, widget->text_y + NGLI_FONT_H, buf, color);
 
@@ -782,7 +782,7 @@ static void widget_memory_csv_report(struct hud *s, struct widget *widget, struc
 static void widget_activity_csv_report(struct hud *s, struct widget *widget, struct bstr *dst)
 {
     const struct widget_activity *priv = widget->priv_data;
-    ngli_bstr_printf(dst, "%d,%zd", priv->nb_actives, priv->nodes.count);
+    ngli_bstr_printf(dst, "%d,%zu", priv->nb_actives, priv->nodes.count);
 }
 
 static void widget_drawcall_csv_report(struct hud *s, struct widget *widget, struct bstr *dst)

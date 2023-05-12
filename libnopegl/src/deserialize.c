@@ -341,7 +341,7 @@ static int parse_param_data(struct darray *nodes_array, uint8_t *dstp,
     int consumed = 0;
     const char *cur = str;
     const char *end = str + strlen(str);
-    int ret = sscanf(str, "%zd,%n", &size, &consumed);
+    int ret = sscanf(str, "%zu,%n", &size, &consumed);
     if (ret != 1 || !size || cur >= end - consumed)
         return NGL_ERROR_INVALID_DATA;
     cur += consumed;

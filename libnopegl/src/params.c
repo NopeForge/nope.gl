@@ -380,7 +380,7 @@ int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, size_t siz
     if (ret < 0)
         return ret;
 
-    LOG(VERBOSE, "set %s to %p (of size %zd)", par->key, data, size);
+    LOG(VERBOSE, "set %s to %p (of size %zu)", par->key, data, size);
     uint8_t **dst = (uint8_t **)dstp;
 
     ngli_freep(dst);
@@ -990,7 +990,7 @@ int ngli_params_add_f64s(uint8_t *dstp, const struct node_param *par,
 int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
                     size_t nb_elems, void *elems)
 {
-    LOG(VERBOSE, "add %zd elems to %s", nb_elems, par->key);
+    LOG(VERBOSE, "add %zu elems to %s", nb_elems, par->key);
 
     int ret = 0;
     uint8_t *dstp = base_ptr + par->offset;

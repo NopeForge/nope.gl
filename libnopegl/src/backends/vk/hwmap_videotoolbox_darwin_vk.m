@@ -136,7 +136,7 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         CVMetalTextureRef texture_ref = NULL;
         CVReturn status = CVMetalTextureCacheCreateTextureFromImage(NULL, vt->texture_cache, cvpixbuf, NULL, mtl_format, width, height, i, &texture_ref);
         if (status != kCVReturnSuccess) {
-            LOG(ERROR, "could not create texture from image on plane %zd: %d", i, status);
+            LOG(ERROR, "could not create texture from image on plane %zu: %d", i, status);
             return NGL_ERROR_GRAPHICS_GENERIC;
         }
 

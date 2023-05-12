@@ -182,10 +182,10 @@ int main(int ac, char **av)
         failed += test_expr(vars, &expressions[i]) < 0;
 
     if (failed) {
-        fprintf(stderr, "%zd/%zd failed test(s)\n", failed, nb_expr);
+        fprintf(stderr, "%zu/%zu failed test(s)\n", failed, nb_expr);
         ret = 1;
     } else {
-        printf("%zd/%zd tests passing\n", nb_expr, nb_expr);
+        printf("%zu/%zu tests passing\n", nb_expr, nb_expr);
     }
 
 end:

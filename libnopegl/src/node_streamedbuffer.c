@@ -154,7 +154,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
     const struct buffer_info *buffer_info = o->buffer_node->priv_data;
     const size_t count = buffer_info->layout.count / info->layout.count;
     if (nb_timestamps != count) {
-        LOG(ERROR, "timestamps count must match buffer chunk count: %zd != %zd", nb_timestamps, count);
+        LOG(ERROR, "timestamps count must match buffer chunk count: %zu != %zu", nb_timestamps, count);
         return NGL_ERROR_INVALID_ARG;
     }
 
@@ -192,7 +192,7 @@ static int streamedbuffer_init(struct ngl_node *node)
     }
 
     if (buffer_info->layout.count % layout->count) {
-        LOG(ERROR, "buffer count (%zd) is not a multiple of streamed buffer count (%zd)",
+        LOG(ERROR, "buffer count (%zu) is not a multiple of streamed buffer count (%zu)",
             buffer_info->layout.count, layout->count);
         return NGL_ERROR_INVALID_ARG;
     }
