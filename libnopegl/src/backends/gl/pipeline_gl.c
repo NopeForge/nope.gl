@@ -429,7 +429,6 @@ static int build_attribute_bindings(struct pipeline *s)
         if (!ngli_darray_push(&s_priv->attribute_bindings, &desc))
             return NGL_ERROR_MEMORY;
     }
-    s_priv->nb_unbound_attributes = layout->nb_attributes;
 
     return 0;
 }
@@ -651,12 +650,6 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, const struc
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
     struct attribute_binding *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
-    const struct buffer *current_buffer = attribute_binding->buffer;
-    if (!current_buffer && buffer)
-        s_priv->nb_unbound_attributes--;
-    else if (current_buffer && !buffer)
-        s_priv->nb_unbound_attributes++;
-
     attribute_binding->buffer = buffer;
 
     if (!buffer)
@@ -762,11 +755,6 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
     set_textures(s, gl);
     bind_vertex_attribs(s, gl);
 
-    if (s_priv->nb_unbound_attributes) {
-        LOG(ERROR, "pipeline has unbound vertex attributes");
-        return;
-    }
-
     if (nb_instances > 1 && !(gl->features & NGLI_FEATURE_GL_DRAW_INSTANCED)) {
         LOG(ERROR, "context does not support instanced draws");
         return;
@@ -802,11 +790,6 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, const struct buffer *indi
     set_buffers(s, gl);
     set_textures(s, gl);
     bind_vertex_attribs(s, gl);
-
-    if (s_priv->nb_unbound_attributes) {
-        LOG(ERROR, "pipeline has unbound vertex attributes");
-        return;
-    }
 
     if (nb_instances > 1 && !(gl->features & NGLI_FEATURE_GL_DRAW_INSTANCED)) {
         LOG(ERROR, "context does not support instanced draws");
