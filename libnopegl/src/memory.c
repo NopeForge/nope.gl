@@ -133,3 +133,12 @@ void ngli_freep_aligned(void *ptr)
     ngli_free_aligned(*(void **)ptr);
     memset(ptr, 0, sizeof(void *));
 }
+
+void *ngli_memdup(const void *src, size_t n)
+{
+    void *dst = ngli_malloc(n);
+    if (!dst)
+        return NULL;
+    memcpy(dst, src, n);
+    return dst;
+}

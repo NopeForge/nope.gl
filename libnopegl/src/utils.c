@@ -57,15 +57,6 @@ char *ngli_strdup(const char *s)
     return r;
 }
 
-void *ngli_memdup(const void *src, size_t n)
-{
-    void *dst = ngli_malloc(n);
-    if (!dst)
-        return NULL;
-    memcpy(dst, src, n);
-    return dst;
-}
-
 int64_t ngli_gettime_relative(void)
 {
 #ifdef _WIN32
