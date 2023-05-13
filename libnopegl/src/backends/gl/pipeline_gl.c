@@ -41,7 +41,6 @@ struct uniform_binding {
     GLuint location;
     set_uniform_func set;
     struct pipeline_uniform_desc desc;
-    const void *data;
 };
 
 struct texture_binding {
@@ -187,18 +186,6 @@ static int build_uniform_bindings(struct pipeline *s)
     }
 
     return 0;
-}
-
-static void set_uniforms(struct pipeline *s, struct glcontext *gl)
-{
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-
-    const struct uniform_binding *bindings = ngli_darray_data(&s_priv->uniform_bindings);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->uniform_bindings); i++) {
-        const struct uniform_binding *uniform_binding = &bindings[i];
-        if (uniform_binding->data)
-            uniform_binding->set(gl, uniform_binding->location, (GLsizei)uniform_binding->desc.count, uniform_binding->data);
-    }
 }
 
 static int build_texture_bindings(struct pipeline *s)
@@ -634,9 +621,9 @@ int ngli_pipeline_gl_set_resources(struct pipeline *s, const struct pipeline_res
 
     ngli_assert(ngli_darray_count(&s_priv->uniform_bindings) == resources->nb_uniforms);
     for (size_t i = 0; i < resources->nb_uniforms; i++) {
-        struct uniform_binding *uniform_binding = ngli_darray_get(&s_priv->uniform_bindings, i);
-        const void *uniform_data = resources->uniforms[i];
-        uniform_binding->data = uniform_data;
+        int ret = ngli_pipeline_gl_update_uniform(s, (int)i, resources->uniforms[i]);
+        if (ret < 0)
+            return ret;
     }
 
     return 0;
@@ -682,7 +669,6 @@ int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *d
         ngli_glstate_use_program(gl, glstate, program_gl->id);
         uniform_binding->set(gl, uniform_binding->location, (GLsizei)uniform_binding->desc.count, data);
     }
-    uniform_binding->data = NULL;
 
     return 0;
 }
@@ -750,7 +736,6 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
     set_graphics_state(s);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
-    set_uniforms(s, gl);
     set_buffers(s, gl);
     set_textures(s, gl);
     bind_vertex_attribs(s, gl);
@@ -786,7 +771,6 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, const struct buffer *indi
     set_graphics_state(s);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
-    set_uniforms(s, gl);
     set_buffers(s, gl);
     set_textures(s, gl);
     bind_vertex_attribs(s, gl);
@@ -824,7 +808,6 @@ void ngli_pipeline_gl_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t
     s_priv->insert_memory_barriers(s);
 
     ngli_glstate_use_program(gl, glstate, program_gl->id);
-    set_uniforms(s, gl);
     set_buffers(s, gl);
     set_textures(s, gl);
 
