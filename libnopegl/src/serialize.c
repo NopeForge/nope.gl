@@ -68,7 +68,7 @@ static int get_rel_node_id(const struct hmap *nlist, const struct ngl_node *node
 }
 
 #define DECLARE_FLT_PRINT_FUNC(type, nbit, shift_exp, z)                \
-static void print_##type(struct bstr *b, type f)                        \
+static void print_f##nbit(struct bstr *b, type f)                       \
 {                                                                       \
     const union { uint##nbit##_t i; type f; } u = {.f = f};             \
     const uint##nbit##_t v = u.i;                                       \
@@ -95,8 +95,8 @@ static void print_##name##s(struct bstr *b, size_t n, const type *v)    \
     }                                                                   \
 }
 
-DECLARE_PRINT_FUNC(float, float)
-DECLARE_PRINT_FUNC(double, double)
+DECLARE_PRINT_FUNC(f32, float)
+DECLARE_PRINT_FUNC(f64, double)
 DECLARE_PRINT_FUNC(i32, int32_t)
 DECLARE_PRINT_FUNC(u32, uint32_t)
 
@@ -171,7 +171,7 @@ static void serialize_f32(struct bstr *b, const uint8_t *srcp, const struct node
     const float v = *(float *)srcp;
     if (v != par->def_value.f32) {
         ngli_bstr_printf(b, " %s:", par->key);
-        print_float(b, v);
+        print_f32(b, v);
     }
 }
 
@@ -180,7 +180,7 @@ static void serialize_f64(struct bstr *b, const uint8_t *srcp, const struct node
     const double v = *(double *)srcp;
     if (v != par->def_value.f64) {
         ngli_bstr_printf(b, " %s:", par->key);
-        print_double(b, v);
+        print_f64(b, v);
     }
 }
 
@@ -244,7 +244,7 @@ static void serialize_vec(struct bstr *b, const uint8_t *srcp, const struct node
     const int n = par->type - NGLI_PARAM_TYPE_VEC2 + 2;
     if (memcmp(v, par->def_value.vec, n * sizeof(*v))) {
         ngli_bstr_printf(b, " %s:", par->key);
-        print_floats(b, n, v);
+        print_f32s(b, n, v);
     }
 }
 
@@ -253,7 +253,7 @@ static void serialize_mat4(struct bstr *b, const uint8_t *srcp, const struct nod
     const float *m = (float *)srcp;
     if (memcmp(m, par->def_value.mat, 16 * sizeof(*m))) {
         ngli_bstr_printf(b, " %s:", par->key);
-        print_floats(b, 16, m);
+        print_f32s(b, 16, m);
     }
 }
 
@@ -290,7 +290,7 @@ static void serialize_f64list(struct bstr *b, const uint8_t *srcp, const struct 
     if (!nb_elems)
         return;
     ngli_bstr_printf(b, " %s:", par->key);
-    print_doubles(b, nb_elems, elems);
+    print_f64s(b, nb_elems, elems);
 }
 
 static int serialize_nodedict(struct bstr *b, const uint8_t *srcp,
@@ -501,7 +501,7 @@ char *ngli_scene_serialize(const struct ngl_scene *scene)
 
     /* Write metadata */
     ngli_bstr_printf(b, "# duration=");
-    print_double(b, scene->duration);
+    print_f64(b, scene->duration);
     ngli_bstr_print(b, "\n");
     ngli_bstr_printf(b, "# aspect_ratio=%d/%d\n", scene->aspect_ratio[0], scene->aspect_ratio[1]);
     ngli_bstr_printf(b, "# framerate=%d/%d\n", scene->framerate[0], scene->framerate[1]);
