@@ -384,6 +384,7 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
     }
 
     if (glcontext->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT) {
+        GET(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &limits->max_storage_block_size);
         GET(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &limits->min_storage_block_offset_alignment);
     }
 
