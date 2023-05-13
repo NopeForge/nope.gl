@@ -63,7 +63,7 @@ static int parse_bool(const char *s, int *valp)
 }
 
 #define DECLARE_FLT_PARSE_FUNC(type, nbit, shift_exp, expected_z)                           \
-static int parse_##type(const char *s, type *valp)                                          \
+static int parse_f##nbit(const char *s, type *valp)                                         \
 {                                                                                           \
     int consumed = 0;                                                                       \
     union { uint##nbit##_t i; type f; } u = {.i = 0};                                       \
@@ -128,8 +128,8 @@ static int parse_func##s(const char *s, type **valsp, size_t *nb_valsp)     \
     return consumed;                                                        \
 }
 
-DECLARE_PARSE_LIST_FUNC(float,    parse_float)
-DECLARE_PARSE_LIST_FUNC(double,   parse_double)
+DECLARE_PARSE_LIST_FUNC(float,    parse_f32)
+DECLARE_PARSE_LIST_FUNC(double,   parse_f64)
 DECLARE_PARSE_LIST_FUNC(size_t,   parse_hexsize)
 DECLARE_PARSE_LIST_FUNC(int32_t,  parse_i32)
 DECLARE_PARSE_LIST_FUNC(uint32_t, parse_u32)
@@ -226,8 +226,8 @@ static int parse_param_##set_type(struct darray *nodes_array, uint8_t *dstp,    
 DEFINE_LITERAL_PARSE_FUNC(parse_i32,    int32_t,  i32)
 DEFINE_LITERAL_PARSE_FUNC(parse_u32,    uint32_t, u32)
 DEFINE_LITERAL_PARSE_FUNC(parse_bool,   int,      bool)
-DEFINE_LITERAL_PARSE_FUNC(parse_float,  float,    f32)
-DEFINE_LITERAL_PARSE_FUNC(parse_double, double,   f64)
+DEFINE_LITERAL_PARSE_FUNC(parse_f32,    float,    f32)
+DEFINE_LITERAL_PARSE_FUNC(parse_f64,    double,   f64)
 
 #define DEFINE_VEC_PARSE_FUNC(parse_func, type, set_type, expected_nb_vals)         \
 static int parse_param_##set_type(struct darray *nodes_array, uint8_t *dstp,        \
@@ -253,10 +253,10 @@ DEFINE_VEC_PARSE_FUNC(parse_i32s,   int32_t,  ivec4, 4)
 DEFINE_VEC_PARSE_FUNC(parse_u32s,   uint32_t, uvec2, 2)
 DEFINE_VEC_PARSE_FUNC(parse_u32s,   uint32_t, uvec3, 3)
 DEFINE_VEC_PARSE_FUNC(parse_u32s,   uint32_t, uvec4, 4)
-DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec2,  2)
-DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec3,  3)
-DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec4,  4)
-DEFINE_VEC_PARSE_FUNC(parse_floats, float,    mat4, 16)
+DEFINE_VEC_PARSE_FUNC(parse_f32s,   float,    vec2,  2)
+DEFINE_VEC_PARSE_FUNC(parse_f32s,   float,    vec3,  3)
+DEFINE_VEC_PARSE_FUNC(parse_f32s,   float,    vec4,  4)
+DEFINE_VEC_PARSE_FUNC(parse_f32s,   float,    mat4, 16)
 
 static int parse_param_rational(struct darray *nodes_array, uint8_t *dstp,
                                 const struct node_param *par, const char *str)
@@ -408,7 +408,7 @@ static int parse_param_f64list(struct darray *nodes_array, uint8_t *dstp,
 {
     double *dbls;
     size_t nb_dbls;
-    const int len = parse_doubles(str, &dbls, &nb_dbls);
+    const int len = parse_f64s(str, &dbls, &nb_dbls);
     if (len < 0)
         return len;
     int ret = ngli_params_add_f64s(dstp, par, nb_dbls, dbls);
@@ -572,7 +572,7 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
         }
 
         if (!strcmp(key, "duration")) {
-            ret = parse_double(value, &scene->duration);
+            ret = parse_f64(value, &scene->duration);
             if (ret < 0) {
                 LOG(ERROR, "unable to parse duration \"%s\"", value);
                 goto end;
