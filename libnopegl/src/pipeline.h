@@ -123,7 +123,11 @@ struct pipeline {
     int type;
     struct pipeline_graphics graphics;
     const struct program *program;
+    struct pipeline_layout layout;
 };
+
+int ngli_pipeline_layout_copy(struct pipeline_layout *dst, const struct pipeline_layout *src);
+void ngli_pipeline_layout_reset(struct pipeline_layout *layout);
 
 struct pipeline *ngli_pipeline_create(struct gpu_ctx *gpu_ctx);
 int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params);

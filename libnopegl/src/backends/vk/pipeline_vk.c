@@ -165,7 +165,7 @@ static VkColorComponentFlags get_vk_color_write_mask(int color_write_mask)
          | (color_write_mask & NGLI_COLOR_COMPONENT_A_BIT ? VK_COLOR_COMPONENT_A_BIT : 0);
 }
 
-static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline_params *params)
+static VkResult create_attribute_descs(struct pipeline *s)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
@@ -174,7 +174,7 @@ static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline
     ngli_darray_init(&s_priv->vertex_buffers, sizeof(VkBuffer), 0);
     ngli_darray_init(&s_priv->vertex_offsets, sizeof(VkDeviceSize), 0);
 
-    const struct pipeline_layout *layout = &params->layout;
+    const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_attributes; i++) {
         const struct pipeline_attribute_desc *desc = &layout->attributes_desc[i];
 
@@ -417,7 +417,7 @@ static VkDescriptorType get_vk_descriptor_type(int type)
     return descriptor_type;
 }
 
-static VkResult create_desc_set_layout_bindings(struct pipeline *s, const struct pipeline_params *params)
+static VkResult create_desc_set_layout_bindings(struct pipeline *s)
 {
     const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -438,7 +438,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s, const struct
         [NGLI_TYPE_IMAGE_CUBE]     = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
     };
 
-    const struct pipeline_layout *layout = &params->layout;
+    const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_buffers; i++) {
         const struct pipeline_buffer_desc *desc = &layout->buffers_desc[i];
 
@@ -696,18 +696,21 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
     s->type     = params->type;
     s->graphics = params->graphics;
     s->program  = params->program;
+    int ret = ngli_pipeline_layout_copy(&s->layout, &params->layout);
+    if (ret < 0)
+        return VK_ERROR_OUT_OF_HOST_MEMORY;
 
     ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding), 0);
     ngli_darray_init(&s_priv->buffer_bindings,  sizeof(struct buffer_binding), 0);
     ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding), 0);
 
     if (params->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
-        VkResult res = create_attribute_descs(s, params);
+        VkResult res = create_attribute_descs(s);
         if (res != VK_SUCCESS)
             return res;
     }
 
-    VkResult res = create_desc_set_layout_bindings(s, params);
+    VkResult res = create_desc_set_layout_bindings(s);
     if (res != VK_SUCCESS)
         return res;
 
@@ -1059,6 +1062,7 @@ void ngli_pipeline_vk_freep(struct pipeline **sp)
     struct pipeline *s = *sp;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
+    ngli_pipeline_layout_reset(&s->layout);
     destroy_pipeline(s);
 
     struct texture_binding *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
