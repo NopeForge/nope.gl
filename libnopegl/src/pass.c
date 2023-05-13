@@ -211,6 +211,11 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     } else if (block->size > limits->max_uniform_block_size) {
         LOG(DEBUG, "block %s is larger than the max UBO size (%zu > %d), declaring it as SSBO",
             name, block->size, limits->max_uniform_block_size);
+        if (block->size > limits->max_storage_block_size) {
+            LOG(ERROR, "block %s is larger than the max SSBO size (%zd > %d)",
+                name, block->size, limits->max_storage_block_size);
+            return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+        }
         type = NGLI_TYPE_STORAGE_BUFFER;
     }
 
