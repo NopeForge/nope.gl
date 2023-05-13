@@ -748,9 +748,6 @@ int ngli_pipeline_vk_update_attribute(struct pipeline *s, int index, const struc
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    if (index == -1)
-        return NGL_ERROR_NOT_FOUND;
-
     ngli_assert(s->type == NGLI_PIPELINE_TYPE_GRAPHICS);
 
     struct attribute_binding *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
@@ -800,9 +797,6 @@ int ngli_pipeline_vk_update_texture(struct pipeline *s, int index, const struct 
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    if (index == -1)
-        return NGL_ERROR_NOT_FOUND;
-
     struct texture_binding *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
     ngli_assert(texture_binding);
 
@@ -846,9 +840,6 @@ int ngli_pipeline_vk_update_texture(struct pipeline *s, int index, const struct 
 int ngli_pipeline_vk_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    if (index == -1)
-        return NGL_ERROR_NOT_FOUND;
 
     struct buffer_binding *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
     ngli_assert(buffer_binding);

@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -40,21 +41,33 @@ int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resour
 
 int ngli_pipeline_update_attribute(struct pipeline *s, int index, const struct buffer *buffer)
 {
+    if (index == -1)
+        return NGL_ERROR_NOT_FOUND;
+
     return s->gpu_ctx->cls->pipeline_update_attribute(s, index, buffer);
 }
 
 int ngli_pipeline_update_uniform(struct pipeline *s, int index, const void *value)
 {
+    if (index == -1)
+        return NGL_ERROR_NOT_FOUND;
+
     return s->gpu_ctx->cls->pipeline_update_uniform(s, index, value);
 }
 
 int ngli_pipeline_update_texture(struct pipeline *s, int index, const struct texture *texture)
 {
+    if (index == -1)
+        return NGL_ERROR_NOT_FOUND;
+
     return s->gpu_ctx->cls->pipeline_update_texture(s, index, texture);
 }
 
 int ngli_pipeline_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size)
 {
+    if (index == -1)
+        return NGL_ERROR_NOT_FOUND;
+
     return s->gpu_ctx->cls->pipeline_update_buffer(s, index, buffer, offset, size);
 }
 

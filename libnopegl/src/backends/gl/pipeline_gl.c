@@ -648,9 +648,6 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, const struc
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
-    if (index == -1)
-        return NGL_ERROR_NOT_FOUND;
-
     ngli_assert(s->type == NGLI_PIPELINE_TYPE_GRAPHICS);
 
     struct attribute_binding *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
@@ -681,10 +678,6 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, const struc
 int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *data)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-
-    if (index == -1)
-        return NGL_ERROR_NOT_FOUND;
-
     struct uniform_binding *uniform_binding = ngli_darray_get(&s_priv->uniform_bindings, index);
 
     if (data) {
@@ -704,10 +697,6 @@ int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *d
 int ngli_pipeline_gl_update_texture(struct pipeline *s, int index, const struct texture *texture)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-
-    if (index == -1)
-        return NGL_ERROR_NOT_FOUND;
-
     struct texture_binding *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
     texture_binding->texture = texture;
 
@@ -717,10 +706,6 @@ int ngli_pipeline_gl_update_texture(struct pipeline *s, int index, const struct 
 int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-
-    if (index == -1)
-        return NGL_ERROR_NOT_FOUND;
-
     struct buffer_binding *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
 
     if (buffer) {
