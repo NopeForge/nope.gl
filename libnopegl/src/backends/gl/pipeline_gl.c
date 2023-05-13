@@ -650,8 +650,6 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, const struc
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
-    ngli_assert(s->type == NGLI_PIPELINE_TYPE_GRAPHICS);
-
     struct attribute_binding *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
     const struct buffer *current_buffer = attribute_binding->buffer;
     if (!current_buffer && buffer)

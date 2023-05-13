@@ -751,8 +751,6 @@ int ngli_pipeline_vk_update_attribute(struct pipeline *s, int index, const struc
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    ngli_assert(s->type == NGLI_PIPELINE_TYPE_GRAPHICS);
-
     struct attribute_binding *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
     attribute_binding->buffer = buffer;
 
