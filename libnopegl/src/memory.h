@@ -35,4 +35,6 @@ void ngli_freep(void *ptr);
 void ngli_free_aligned(void *ptr);
 void ngli_freep_aligned(void *ptr);
 
+void *ngli_memdup(const void *src, size_t n);
+
 #endif
