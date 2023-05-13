@@ -36,7 +36,6 @@ struct pipeline_gl {
     struct darray texture_bindings;   // texture_binding
     struct darray buffer_bindings;    // buffer_binding
     struct darray attribute_bindings; // attribute_binding
-    size_t nb_unbound_attributes;
 
     uint64_t used_texture_units;
     GLuint vao_id;
