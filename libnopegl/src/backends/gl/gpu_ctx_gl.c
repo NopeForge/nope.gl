@@ -1026,7 +1026,6 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
                                                                                  \
     .pipeline_create                    = ngli_pipeline_gl_create,               \
     .pipeline_init                      = ngli_pipeline_gl_init,                 \
-    .pipeline_set_resources             = ngli_pipeline_gl_set_resources,        \
     .pipeline_update_attribute          = ngli_pipeline_gl_update_attribute,     \
     .pipeline_update_uniform            = ngli_pipeline_gl_update_uniform,       \
     .pipeline_update_texture            = ngli_pipeline_gl_update_texture,       \
