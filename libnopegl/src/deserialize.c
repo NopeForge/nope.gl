@@ -48,7 +48,7 @@ static int parse_u32(const char *s, uint32_t *valp)
 static int parse_hexsize(const char *s, size_t *valp)
 {
     char *endptr = NULL;
-    *valp = (size_t)strtol(s, &endptr, 16);
+    *valp = (size_t)strtoll(s, &endptr, 16);
     return (int)(endptr - s);
 }
 
