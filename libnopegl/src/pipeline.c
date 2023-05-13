@@ -76,7 +76,37 @@ int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params)
 
 int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resources *resources)
 {
-    return s->gpu_ctx->cls->pipeline_set_resources(s, resources);
+    const struct pipeline_layout *layout = &s->layout;
+    ngli_assert(layout->nb_attributes == resources->nb_attributes);
+    for (size_t i = 0; i < resources->nb_attributes; i++) {
+        int ret = ngli_pipeline_update_attribute(s, (int)i, resources->attributes[i]);
+        if (ret < 0)
+            return ret;
+    }
+
+    ngli_assert(layout->nb_buffers == resources->nb_buffers);
+    for (size_t i = 0; i < resources->nb_buffers; i++) {
+        const struct pipeline_buffer_desc *desc = &layout->buffers_desc[i];
+        int ret = ngli_pipeline_update_buffer(s, (int)i, resources->buffers[i], desc->offset, desc->size);
+        if (ret < 0)
+            return ret;
+    }
+
+    ngli_assert(layout->nb_textures == resources->nb_textures);
+    for (size_t i = 0; i < resources->nb_textures; i++) {
+        int ret = ngli_pipeline_update_texture(s, (int)i, resources->textures[i]);
+        if (ret < 0)
+            return ret;
+    }
+
+    ngli_assert(layout->nb_uniforms == resources->nb_uniforms);
+    for (size_t i = 0; i < resources->nb_uniforms; i++) {
+        int ret = ngli_pipeline_update_uniform(s, (int)i, resources->uniforms[i]);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
 }
 
 int ngli_pipeline_update_attribute(struct pipeline *s, int index, const struct buffer *buffer)

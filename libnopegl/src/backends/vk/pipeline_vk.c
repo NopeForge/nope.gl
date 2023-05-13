@@ -717,36 +717,6 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
     return create_pipeline(s);
 }
 
-int ngli_pipeline_vk_set_resources(struct pipeline *s, const struct pipeline_resources *resources)
-{
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    ngli_assert(ngli_darray_count(&s_priv->attribute_bindings) == resources->nb_attributes);
-    for (size_t i = 0; i < resources->nb_attributes; i++) {
-        int ret = ngli_pipeline_vk_update_attribute(s, (int)i, resources->attributes[i]);
-        if (ret < 0)
-            return ret;
-    }
-
-    ngli_assert(ngli_darray_count(&s_priv->buffer_bindings) == resources->nb_buffers);
-    for (size_t i = 0; i < resources->nb_buffers; i++) {
-        const struct buffer_binding *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, i);
-        const struct pipeline_buffer_desc *buffer_desc = &buffer_binding->desc;
-        int ret = ngli_pipeline_vk_update_buffer(s, (int)i, resources->buffers[i], buffer_desc->offset, buffer_desc->size);
-        if (ret < 0)
-            return ret;
-    }
-
-    ngli_assert(ngli_darray_count(&s_priv->texture_bindings) == resources->nb_textures);
-    for (size_t i = 0; i < resources->nb_textures; i++) {
-        int ret = ngli_pipeline_vk_update_texture(s, (int)i, resources->textures[i]);
-        if (ret < 0)
-            return ret;
-    }
-
-    return 0;
-}
-
 int ngli_pipeline_vk_update_attribute(struct pipeline *s, int index, const struct buffer *buffer)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
