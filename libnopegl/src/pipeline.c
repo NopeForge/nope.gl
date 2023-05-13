@@ -108,6 +108,26 @@ int ngli_pipeline_update_buffer(struct pipeline *s, int index, const struct buff
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
+    if (buffer) {
+        const struct pipeline_buffer_desc *desc = &s->layout.buffers_desc[index];
+        const struct gpu_limits *limits = &s->gpu_ctx->limits;
+        if (desc->type == NGLI_TYPE_UNIFORM_BUFFER) {
+            ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+            if (buffer->size > limits->max_uniform_block_size) {
+                LOG(ERROR, "buffer %s size (%zu) exceeds max uniform block size (%d)",
+                    desc->name, buffer->size, limits->max_uniform_block_size);
+                return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+            }
+        } else if (desc->type == NGLI_TYPE_STORAGE_BUFFER) {
+            ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+            if (buffer->size > limits->max_storage_block_size) {
+                LOG(ERROR, "buffer %s size (%zu) exceeds max storage block size (%d)",
+                    desc->name, buffer->size, limits->max_storage_block_size);
+                return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+            }
+        }
+    }
+
     return s->gpu_ctx->cls->pipeline_update_buffer(s, index, buffer, offset, size);
 }
 

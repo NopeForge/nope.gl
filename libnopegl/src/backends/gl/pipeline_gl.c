@@ -709,23 +709,6 @@ int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, const struct b
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct buffer_binding *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
-
-    if (buffer) {
-        struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-        struct glcontext *gl = gpu_ctx_gl->glcontext;
-        const struct gpu_limits *limits = &gl->limits;
-        if (buffer_binding->desc.type == NGLI_TYPE_UNIFORM_BUFFER) {
-            ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-            if (buffer->size > limits->max_uniform_block_size) {
-                LOG(ERROR, "buffer %s size (%zu) exceeds max uniform block size (%d)",
-                    buffer_binding->desc.name, buffer->size, limits->max_uniform_block_size);
-                return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
-            }
-        } else if (buffer_binding->desc.type == NGLI_TYPE_STORAGE_BUFFER) {
-            ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-        }
-    }
-
     buffer_binding->buffer = buffer;
     buffer_binding->desc.offset = offset;
     buffer_binding->desc.size = size;
