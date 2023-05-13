@@ -20,9 +20,49 @@
  * under the License.
  */
 
+#include <string.h>
 
 #include "gpu_ctx.h"
+#include "log.h"
+#include "memory.h"
 #include "pipeline.h"
+#include "buffer.h"
+#include "type.h"
+#include "utils.h"
+
+int ngli_pipeline_layout_copy(struct pipeline_layout *dst, const struct pipeline_layout *src)
+{
+    dst->textures_desc = ngli_memdup(src->textures_desc, src->nb_textures * sizeof(*src->textures_desc));
+    if (!dst->textures_desc)
+        return NGL_ERROR_MEMORY;
+    dst->nb_textures = src->nb_textures;
+
+    dst->uniforms_desc = ngli_memdup(src->uniforms_desc, src->nb_uniforms * sizeof(*src->uniforms_desc));
+    if (!dst->uniforms_desc)
+        return NGL_ERROR_MEMORY;
+    dst->nb_uniforms = src->nb_uniforms;
+
+    dst->buffers_desc = ngli_memdup(src->buffers_desc, src->nb_buffers * sizeof(*src->buffers_desc));
+    if (!dst->buffers_desc)
+        return NGL_ERROR_MEMORY;
+    dst->nb_buffers = src->nb_buffers;
+
+    dst->attributes_desc = ngli_memdup(src->attributes_desc, src->nb_attributes * sizeof(*src->attributes_desc));
+    if (!dst->attributes_desc)
+        return NGL_ERROR_MEMORY;
+    dst->nb_attributes = src->nb_attributes;
+
+    return 0;
+}
+
+void ngli_pipeline_layout_reset(struct pipeline_layout *layout)
+{
+    ngli_freep(&layout->textures_desc);
+    ngli_freep(&layout->uniforms_desc);
+    ngli_freep(&layout->buffers_desc);
+    ngli_freep(&layout->attributes_desc);
+    memset(layout, 0, sizeof(*layout));
+}
 
 struct pipeline *ngli_pipeline_create(struct gpu_ctx *gpu_ctx)
 {

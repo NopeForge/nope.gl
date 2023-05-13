@@ -148,10 +148,10 @@ static const set_uniform_func set_uniform_func_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_MAT4]   = set_uniform_mat4fv,
 };
 
-static int build_uniform_bindings(struct pipeline *s, const struct pipeline_params *params)
+static int build_uniform_bindings(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-    const struct program *program = params->program;
+    const struct program *program = s->program;
 
     if (!program->uniforms)
         return 0;
@@ -159,7 +159,7 @@ static int build_uniform_bindings(struct pipeline *s, const struct pipeline_para
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    const struct pipeline_layout *layout = &params->layout;
+    const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_uniforms; i++) {
         const struct pipeline_uniform_desc *uniform_desc = &layout->uniforms_desc[i];
         const struct program_variable_info *info = ngli_hmap_get(program->uniforms, uniform_desc->name);
@@ -201,11 +201,11 @@ static void set_uniforms(struct pipeline *s, struct glcontext *gl)
     }
 }
 
-static int build_texture_bindings(struct pipeline *s, const struct pipeline_params *params)
+static int build_texture_bindings(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
-    const struct pipeline_layout *layout = &params->layout;
+    const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_textures; i++) {
         const struct pipeline_texture_desc *texture_desc = &layout->textures_desc[i];
 
@@ -334,13 +334,13 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
     }
 }
 
-static int build_buffer_bindings(struct pipeline *s, const struct pipeline_params *params)
+static int build_buffer_bindings(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    const struct pipeline_layout *layout = &params->layout;
+    const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_buffers; i++) {
         const struct pipeline_buffer_desc *pipeline_buffer_desc = &layout->buffers_desc[i];
 
@@ -408,13 +408,13 @@ static void reset_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
     }
 }
 
-static int build_attribute_bindings(struct pipeline *s, const struct pipeline_params *params)
+static int build_attribute_bindings(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    const struct pipeline_layout *layout = &params->layout;
+    const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_attributes; i++) {
         const struct pipeline_attribute_desc *pipeline_attribute_desc = &layout->attributes_desc[i];
 
@@ -473,13 +473,13 @@ static void unbind_vertex_attribs(const struct pipeline *s, struct glcontext *gl
         reset_vertex_attribs(s, gl);
 }
 
-static int pipeline_graphics_init(struct pipeline *s, const struct pipeline_params *params)
+static int pipeline_graphics_init(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    int ret = build_attribute_bindings(s, params);
+    int ret = build_attribute_bindings(s);
     if (ret < 0)
         return ret;
 
@@ -573,20 +573,22 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
     s->type     = params->type;
     s->graphics = params->graphics;
     s->program  = params->program;
+    int ret = ngli_pipeline_layout_copy(&s->layout, &params->layout);
+    if (ret < 0)
+        return ret;
 
     ngli_darray_init(&s_priv->uniform_bindings, sizeof(struct uniform_binding), 0);
     ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding), 0);
     ngli_darray_init(&s_priv->buffer_bindings, sizeof(struct buffer_binding), 0);
     ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding), 0);
 
-    int ret;
-    if ((ret = build_uniform_bindings(s, params)) < 0 ||
-        (ret = build_texture_bindings(s, params)) < 0 ||
-        (ret = build_buffer_bindings(s, params)) < 0)
+    if ((ret = build_uniform_bindings(s)) < 0 ||
+        (ret = build_texture_bindings(s)) < 0 ||
+        (ret = build_buffer_bindings(s)) < 0)
         return ret;
 
     if (params->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
-        ret = pipeline_graphics_init(s, params);
+        ret = pipeline_graphics_init(s);
         if (ret < 0)
             return ret;
     } else if (params->type == NGLI_PIPELINE_TYPE_COMPUTE) {
@@ -867,6 +869,9 @@ void ngli_pipeline_gl_freep(struct pipeline **sp)
 
     struct pipeline *s = *sp;
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
+
+    ngli_pipeline_layout_reset(&s->layout);
+
     ngli_darray_reset(&s_priv->uniform_bindings);
     ngli_darray_reset(&s_priv->texture_bindings);
     ngli_darray_reset(&s_priv->buffer_bindings);
