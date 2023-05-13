@@ -906,6 +906,7 @@ static int vk_init(struct gpu_ctx *s)
      * direct Vulkan equivalent so use a sane default value */
     s->limits.max_texture_image_units            = 32;
     s->limits.max_uniform_block_size             = limits->maxUniformBufferRange;
+    s->limits.max_storage_block_size             = limits->maxStorageBufferRange;
 
     if (config->set_surface_pts &&
         !ngli_vkcontext_has_extension(vk, VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME, 1)) {
