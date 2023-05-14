@@ -78,8 +78,8 @@ struct hud {
     struct pipeline_compat *pipeline_compat;
     struct graphicstate graphicstate;
 
-    int modelview_matrix_index;
-    int projection_matrix_index;
+    int32_t modelview_matrix_index;
+    int32_t projection_matrix_index;
 };
 
 #define WIDGET_PADDING 4

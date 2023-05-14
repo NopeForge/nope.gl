@@ -89,10 +89,10 @@ struct gpu_ctx_class {
 
     struct pipeline *(*pipeline_create)(struct gpu_ctx *ctx);
     int (*pipeline_init)(struct pipeline *s, const struct pipeline_params *params);
-    int (*pipeline_update_attribute)(struct pipeline *s, int index, const struct buffer *buffer);
-    int (*pipeline_update_uniform)(struct pipeline *s, int index, const void *value);
-    int (*pipeline_update_texture)(struct pipeline *s, int index, const struct texture *texture);
-    int (*pipeline_update_buffer)(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size);
+    int (*pipeline_update_attribute)(struct pipeline *s, int32_t index, const struct buffer *buffer);
+    int (*pipeline_update_uniform)(struct pipeline *s, int32_t index, const void *value);
+    int (*pipeline_update_texture)(struct pipeline *s, int32_t index, const struct texture *texture);
+    int (*pipeline_update_buffer)(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
     void (*pipeline_draw)(struct pipeline *s, int nb_vertices, int nb_instances);
     void (*pipeline_draw_indexed)(struct pipeline *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances);
     void (*pipeline_dispatch)(struct pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);

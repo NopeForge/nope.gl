@@ -49,17 +49,17 @@
 #include "utils.h"
 
 struct uniform_map {
-    int index;
+    int32_t index;
     const void *data;
 };
 
 struct pipeline_desc {
     struct pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
-    int modelview_matrix_index;
-    int projection_matrix_index;
-    int normal_matrix_index;
-    int resolution_index;
+    int32_t modelview_matrix_index;
+    int32_t projection_matrix_index;
+    int32_t normal_matrix_index;
+    int32_t resolution_index;
     struct darray uniforms_map;
 };
 
@@ -465,7 +465,7 @@ static int build_uniforms_map(struct pipeline_desc *desc, struct darray *crafter
     struct pgcraft_uniform *uniforms = ngli_darray_data(crafter_uniforms);
     for (size_t i = 0; i < ngli_darray_count(crafter_uniforms); i++) {
         const struct pgcraft_uniform *uniform = &uniforms[i];
-        const int index = ngli_pgcraft_get_uniform_index(desc->crafter, uniform->name, uniform->stage);
+        const int32_t index = ngli_pgcraft_get_uniform_index(desc->crafter, uniform->name, uniform->stage);
 
         /* The following can happen if the driver makes optimisation and
          * removes unused uniforms */

@@ -717,7 +717,7 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
     return create_pipeline(s);
 }
 
-int ngli_pipeline_vk_update_attribute(struct pipeline *s, int index, const struct buffer *buffer)
+int ngli_pipeline_vk_update_attribute(struct pipeline *s, int32_t index, const struct buffer *buffer)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
@@ -735,7 +735,7 @@ int ngli_pipeline_vk_update_attribute(struct pipeline *s, int index, const struc
     return 0;
 }
 
-int ngli_pipeline_vk_update_uniform(struct pipeline *s, int index, const void *value)
+int ngli_pipeline_vk_update_uniform(struct pipeline *s, int32_t index, const void *value)
 {
     return NGL_ERROR_GRAPHICS_UNSUPPORTED;
 }
@@ -762,7 +762,7 @@ static int need_desc_set_layout_update(const struct texture_binding *binding,
     return 0;
 }
 
-int ngli_pipeline_vk_update_texture(struct pipeline *s, int index, const struct texture *texture)
+int ngli_pipeline_vk_update_texture(struct pipeline *s, int32_t index, const struct texture *texture)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
@@ -807,7 +807,7 @@ int ngli_pipeline_vk_update_texture(struct pipeline *s, int index, const struct 
     return 0;
 }
 
-int ngli_pipeline_vk_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size)
+int ngli_pipeline_vk_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
