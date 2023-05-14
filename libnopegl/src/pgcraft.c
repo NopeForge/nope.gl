@@ -1582,14 +1582,14 @@ struct program *ngli_pgcraft_get_program(const struct pgcraft *s)
 struct pipeline_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s)
 {
     const struct pipeline_layout layout = {
-        .uniforms_desc   = ngli_darray_data(&s->filtered_pipeline_info.desc.uniforms),
-        .nb_uniforms     = ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms),
-        .textures_desc   = ngli_darray_data(&s->filtered_pipeline_info.desc.textures),
-        .nb_textures     = ngli_darray_count(&s->filtered_pipeline_info.desc.textures),
-        .attributes_desc = ngli_darray_data(&s->filtered_pipeline_info.desc.attributes),
-        .nb_attributes   = ngli_darray_count(&s->filtered_pipeline_info.desc.attributes),
-        .buffers_desc    = ngli_darray_data(&s->filtered_pipeline_info.desc.buffers),
-        .nb_buffers      = ngli_darray_count(&s->filtered_pipeline_info.desc.buffers),
+        .uniform_descs      = ngli_darray_data(&s->filtered_pipeline_info.desc.uniforms),
+        .nb_uniform_descs   = ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms),
+        .texture_descs      = ngli_darray_data(&s->filtered_pipeline_info.desc.textures),
+        .nb_texture_descs   = ngli_darray_count(&s->filtered_pipeline_info.desc.textures),
+        .attribute_descs    = ngli_darray_data(&s->filtered_pipeline_info.desc.attributes),
+        .nb_attribute_descs = ngli_darray_count(&s->filtered_pipeline_info.desc.attributes),
+        .buffer_descs       = ngli_darray_data(&s->filtered_pipeline_info.desc.buffers),
+        .nb_buffer_descs    = ngli_darray_count(&s->filtered_pipeline_info.desc.buffers),
     };
     return layout;
 }

@@ -159,8 +159,8 @@ static int build_uniform_bindings(struct pipeline *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_uniforms; i++) {
-        const struct pipeline_uniform_desc *uniform_desc = &layout->uniforms_desc[i];
+    for (size_t i = 0; i < layout->nb_uniform_descs; i++) {
+        const struct pipeline_uniform_desc *uniform_desc = &layout->uniform_descs[i];
         const struct program_variable_info *info = ngli_hmap_get(program->uniforms, uniform_desc->name);
         if (!info)
             continue;
@@ -193,8 +193,8 @@ static int build_texture_bindings(struct pipeline *s)
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
     const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_textures; i++) {
-        const struct pipeline_texture_desc *texture_desc = &layout->textures_desc[i];
+    for (size_t i = 0; i < layout->nb_texture_descs; i++) {
+        const struct pipeline_texture_desc *texture_desc = &layout->texture_descs[i];
 
         if (texture_desc->type == NGLI_TYPE_IMAGE_2D ||
             texture_desc->type == NGLI_TYPE_IMAGE_2D_ARRAY ||
@@ -328,8 +328,8 @@ static int build_buffer_bindings(struct pipeline *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_buffers; i++) {
-        const struct pipeline_buffer_desc *pipeline_buffer_desc = &layout->buffers_desc[i];
+    for (size_t i = 0; i < layout->nb_buffer_descs; i++) {
+        const struct pipeline_buffer_desc *pipeline_buffer_desc = &layout->buffer_descs[i];
 
         if (pipeline_buffer_desc->type == NGLI_TYPE_UNIFORM_BUFFER &&
             !(gl->features & NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT)) {
@@ -402,8 +402,8 @@ static int build_attribute_bindings(struct pipeline *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_attributes; i++) {
-        const struct pipeline_attribute_desc *pipeline_attribute_desc = &layout->attributes_desc[i];
+    for (size_t i = 0; i < layout->nb_attribute_descs; i++) {
+        const struct pipeline_attribute_desc *pipeline_attribute_desc = &layout->attribute_descs[i];
 
         if (pipeline_attribute_desc->rate > 0 && !(gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY)) {
             LOG(ERROR, "context does not support instanced arrays");

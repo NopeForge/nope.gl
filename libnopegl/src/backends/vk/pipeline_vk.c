@@ -175,8 +175,8 @@ static VkResult create_attribute_descs(struct pipeline *s)
     ngli_darray_init(&s_priv->vertex_offsets, sizeof(VkDeviceSize), 0);
 
     const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_attributes; i++) {
-        const struct pipeline_attribute_desc *desc = &layout->attributes_desc[i];
+    for (size_t i = 0; i < layout->nb_attribute_descs; i++) {
+        const struct pipeline_attribute_desc *desc = &layout->attribute_descs[i];
 
         const struct attribute_binding attribute_binding = {
             .desc = *desc,
@@ -439,8 +439,8 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s)
     };
 
     const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_buffers; i++) {
-        const struct pipeline_buffer_desc *desc = &layout->buffers_desc[i];
+    for (size_t i = 0; i < layout->nb_buffer_descs; i++) {
+        const struct pipeline_buffer_desc *desc = &layout->buffer_descs[i];
 
         const VkDescriptorType type = get_vk_descriptor_type(desc->type);
         const VkDescriptorSetLayoutBinding binding = {
@@ -462,8 +462,8 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s)
         desc_pool_size_map[desc->type].descriptorCount += gpu_ctx_vk->nb_in_flight_frames;
     }
 
-    for (size_t i = 0; i < layout->nb_textures; i++) {
-        const struct pipeline_texture_desc *desc = &layout->textures_desc[i];
+    for (size_t i = 0; i < layout->nb_texture_descs; i++) {
+        const struct pipeline_texture_desc *desc = &layout->texture_descs[i];
 
         const VkDescriptorType type = get_vk_descriptor_type(desc->type);
         const VkDescriptorSetLayoutBinding binding = {

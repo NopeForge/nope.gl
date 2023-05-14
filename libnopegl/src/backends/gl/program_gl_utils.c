@@ -38,8 +38,8 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     const char *name = NULL;
     int need_relink = 0;
     const struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
-    for (size_t i = 0; i < layout.nb_attributes; i++) {
-        const struct pipeline_attribute_desc *attribute_desc = &layout.attributes_desc[i];
+    for (size_t i = 0; i < layout.nb_attribute_descs; i++) {
+        const struct pipeline_attribute_desc *attribute_desc = &layout.attribute_descs[i];
         if (name && !strcmp(name, attribute_desc->name))
             continue;
         name = attribute_desc->name;
@@ -53,8 +53,8 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     if (need_relink)
         ngli_glLinkProgram(gl, s_priv->id);
 
-    for (size_t i = 0; i < layout.nb_buffers; i++) {
-        const struct pipeline_buffer_desc *buffer_desc = &layout.buffers_desc[i];
+    for (size_t i = 0; i < layout.nb_buffer_descs; i++) {
+        const struct pipeline_buffer_desc *buffer_desc = &layout.buffer_descs[i];
         if (buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER)
             continue;
         const GLuint block_index = ngli_glGetUniformBlockIndex(gl, s_priv->id, buffer_desc->name);
