@@ -79,7 +79,7 @@ int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resour
     const struct pipeline_layout *layout = &s->layout;
     ngli_assert(layout->nb_attributes == resources->nb_attributes);
     for (size_t i = 0; i < resources->nb_attributes; i++) {
-        int ret = ngli_pipeline_update_attribute(s, (int)i, resources->attributes[i]);
+        int ret = ngli_pipeline_update_attribute(s, (int32_t)i, resources->attributes[i]);
         if (ret < 0)
             return ret;
     }
@@ -87,21 +87,21 @@ int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resour
     ngli_assert(layout->nb_buffers == resources->nb_buffers);
     for (size_t i = 0; i < resources->nb_buffers; i++) {
         const struct pipeline_buffer_desc *desc = &layout->buffers_desc[i];
-        int ret = ngli_pipeline_update_buffer(s, (int)i, resources->buffers[i], desc->offset, desc->size);
+        int ret = ngli_pipeline_update_buffer(s, (int32_t)i, resources->buffers[i], desc->offset, desc->size);
         if (ret < 0)
             return ret;
     }
 
     ngli_assert(layout->nb_textures == resources->nb_textures);
     for (size_t i = 0; i < resources->nb_textures; i++) {
-        int ret = ngli_pipeline_update_texture(s, (int)i, resources->textures[i]);
+        int ret = ngli_pipeline_update_texture(s, (int32_t)i, resources->textures[i]);
         if (ret < 0)
             return ret;
     }
 
     ngli_assert(layout->nb_uniforms == resources->nb_uniforms);
     for (size_t i = 0; i < resources->nb_uniforms; i++) {
-        int ret = ngli_pipeline_update_uniform(s, (int)i, resources->uniforms[i]);
+        int ret = ngli_pipeline_update_uniform(s, (int32_t)i, resources->uniforms[i]);
         if (ret < 0)
             return ret;
     }
@@ -109,7 +109,7 @@ int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resour
     return 0;
 }
 
-int ngli_pipeline_update_attribute(struct pipeline *s, int index, const struct buffer *buffer)
+int ngli_pipeline_update_attribute(struct pipeline *s, int32_t index, const struct buffer *buffer)
 {
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
@@ -117,7 +117,7 @@ int ngli_pipeline_update_attribute(struct pipeline *s, int index, const struct b
     return s->gpu_ctx->cls->pipeline_update_attribute(s, index, buffer);
 }
 
-int ngli_pipeline_update_uniform(struct pipeline *s, int index, const void *value)
+int ngli_pipeline_update_uniform(struct pipeline *s, int32_t index, const void *value)
 {
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
@@ -125,7 +125,7 @@ int ngli_pipeline_update_uniform(struct pipeline *s, int index, const void *valu
     return s->gpu_ctx->cls->pipeline_update_uniform(s, index, value);
 }
 
-int ngli_pipeline_update_texture(struct pipeline *s, int index, const struct texture *texture)
+int ngli_pipeline_update_texture(struct pipeline *s, int32_t index, const struct texture *texture)
 {
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
@@ -133,7 +133,7 @@ int ngli_pipeline_update_texture(struct pipeline *s, int index, const struct tex
     return s->gpu_ctx->cls->pipeline_update_texture(s, index, texture);
 }
 
-int ngli_pipeline_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size)
+int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size)
 {
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;

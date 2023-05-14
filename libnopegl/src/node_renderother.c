@@ -74,16 +74,16 @@
                                               NGLI_NODE_NONE}
 
 struct uniform_map {
-    int index;
+    int32_t index;
     const void *data;
 };
 
 struct pipeline_desc {
     struct pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
-    int modelview_matrix_index;
-    int projection_matrix_index;
-    int aspect_index;
+    int32_t modelview_matrix_index;
+    int32_t projection_matrix_index;
+    int32_t aspect_index;
     struct darray uniforms_map; // struct uniform_map
     struct darray uniforms; // struct pgcraft_uniform
 };
@@ -656,7 +656,7 @@ static int build_uniforms_map(struct pipeline_desc *desc)
     const struct pgcraft_uniform *uniforms = ngli_darray_data(&desc->uniforms);
     for (size_t i = 0; i < ngli_darray_count(&desc->uniforms); i++) {
         const struct pgcraft_uniform *uniform = &uniforms[i];
-        const int index = ngli_pgcraft_get_uniform_index(desc->crafter, uniform->name, uniform->stage);
+        const int32_t index = ngli_pgcraft_get_uniform_index(desc->crafter, uniform->name, uniform->stage);
 
         /* The following can happen if the driver makes optimisation (MESA is
          * typically able to optimize several passes of the same filter) */

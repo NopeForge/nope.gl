@@ -35,11 +35,11 @@ struct pipeline_compat;
 
 struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx);
 int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_compat_params *params);
-int ngli_pipeline_compat_update_attribute(struct pipeline_compat *s, int index, const struct buffer *buffer);
-int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int index, const void *value);
-int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int index, const struct texture *texture);
+int ngli_pipeline_compat_update_attribute(struct pipeline_compat *s, int32_t index, const struct buffer *buffer);
+int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index, const void *value);
+int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture);
 void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const struct pgcraft_texture_info *info);
-int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int index, const struct buffer *buffer, int offset, int size);
+int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer, int offset, int size);
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances);
 void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances);
 void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);

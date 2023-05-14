@@ -592,7 +592,7 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
     return 0;
 }
 
-int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, const struct buffer *buffer)
+int ngli_pipeline_gl_update_attribute(struct pipeline *s, int32_t index, const struct buffer *buffer)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
@@ -618,7 +618,7 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, const struc
     return 0;
 }
 
-int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *data)
+int ngli_pipeline_gl_update_uniform(struct pipeline *s, int32_t index, const void *data)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct uniform_binding *uniform_binding = ngli_darray_get(&s_priv->uniform_bindings, index);
@@ -636,7 +636,7 @@ int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *d
     return 0;
 }
 
-int ngli_pipeline_gl_update_texture(struct pipeline *s, int index, const struct texture *texture)
+int ngli_pipeline_gl_update_texture(struct pipeline *s, int32_t index, const struct texture *texture)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct texture_binding *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
@@ -645,7 +645,7 @@ int ngli_pipeline_gl_update_texture(struct pipeline *s, int index, const struct 
     return 0;
 }
 
-int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, size_t offset, size_t size)
+int ngli_pipeline_gl_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct buffer_binding *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);

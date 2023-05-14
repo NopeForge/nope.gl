@@ -42,10 +42,10 @@ struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx)
     return s;
 }
 
-static int get_pipeline_ubo_index(const struct pipeline_params *params, int binding, int stage)
+static int32_t get_pipeline_ubo_index(const struct pipeline_params *params, int binding, int stage)
 {
     const struct pipeline_layout *layout = &params->layout;
-    for (int i = 0; i < (int)layout->nb_buffers; i++) {
+    for (int32_t i = 0; i < (int32_t)layout->nb_buffers; i++) {
         if (layout->buffers_desc[i].type == NGLI_TYPE_UNIFORM_BUFFER &&
             layout->buffers_desc[i].stage == stage &&
             layout->buffers_desc[i].binding == binding) {
@@ -82,7 +82,7 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
             return ret;
 
         const struct pipeline_params *pipeline_params = params->params;
-        const int index = get_pipeline_ubo_index(pipeline_params, s->compat_info->ubindings[i], (int)i);
+        const int32_t index = get_pipeline_ubo_index(pipeline_params, s->compat_info->ubindings[i], (int)i);
         ngli_pipeline_update_buffer(s->pipeline, index, buffer, 0, buffer->size);
     }
 
@@ -115,12 +115,12 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     return 0;
 }
 
-int ngli_pipeline_compat_update_attribute(struct pipeline_compat *s, int index, const struct buffer *buffer)
+int ngli_pipeline_compat_update_attribute(struct pipeline_compat *s, int32_t index, const struct buffer *buffer)
 {
     return ngli_pipeline_update_attribute(s->pipeline, index, buffer);
 }
 
-int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int index, const void *value)
+int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index, const void *value)
 {
     if (!s->compat_info->use_ublocks)
         return ngli_pipeline_update_uniform(s->pipeline, index, value);
@@ -128,8 +128,8 @@ int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int index, co
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
-    const int stage = index >> 16;
-    const int field_index = index & 0xffff;
+    const int32_t stage = index >> 16;
+    const int32_t field_index = index & 0xffff;
     const struct block *block = &s->compat_info->ublocks[stage];
     const struct block_field *fields = ngli_darray_data(&block->fields);
     const struct block_field *field = &fields[field_index];
@@ -141,7 +141,7 @@ int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int index, co
     return 0;
 }
 
-int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int index, const struct texture *texture)
+int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture)
 {
     return ngli_pipeline_update_texture(s->pipeline, index, texture);
 }
@@ -200,7 +200,7 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
     int ret = 1;
     for (size_t i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
         const int sampler = samplers[i];
-        const int index = fields[sampler].index;
+        const int32_t index = fields[sampler].index;
         const struct texture *texture = textures[sampler];
         ret &= ngli_pipeline_compat_update_texture(s, index, texture);
     };
@@ -209,7 +209,7 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
     ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &layout);
 }
 
-int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int index, const struct buffer *buffer, int offset, int size)
+int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer, int offset, int size)
 {
     return ngli_pipeline_update_buffer(s->pipeline, index, buffer, offset, size);
 }

@@ -142,7 +142,7 @@ enum {
 struct pgcraft_texture_info_field {
     char name[MAX_ID_LEN];
     int type;
-    int index;
+    int32_t index;
     int stage;
 };
 
@@ -170,7 +170,7 @@ struct pgcraft_texture_info {
 struct pgcraft_compat_info {
     int use_ublocks;
     struct block ublocks[NGLI_PROGRAM_SHADER_NB];
-    int ubindings[NGLI_PROGRAM_SHADER_NB];
+    int32_t ubindings[NGLI_PROGRAM_SHADER_NB];
 };
 
 struct pgcraft_params {
@@ -200,7 +200,7 @@ struct pgcraft;
 
 struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx);
 int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params);
-int ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);
+int32_t ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);
 const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s);
 const struct pgcraft_compat_info *ngli_pgcraft_get_compat_info(const struct pgcraft *s);
 struct program *ngli_pgcraft_get_program(const struct pgcraft *s);

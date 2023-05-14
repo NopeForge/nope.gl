@@ -1245,10 +1245,10 @@ static int filter_pipeline_elems(struct pgcraft *s, probe_func_type probe_func,
     return 0;
 }
 
-static int get_uniform_index(const struct pgcraft *s, const char *name)
+static int32_t get_uniform_index(const struct pgcraft *s, const char *name)
 {
     const struct pipeline_uniform_desc *pipeline_uniform_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.uniforms);
-    for (int i = 0; i < (int)ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms); i++) {
+    for (int32_t i = 0; i < (int32_t)ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms); i++) {
         const struct pipeline_uniform_desc *pipeline_uniform_desc = &pipeline_uniform_descs[i];
         if (!strcmp(pipeline_uniform_desc->name, name))
             return i;
@@ -1256,21 +1256,21 @@ static int get_uniform_index(const struct pgcraft *s, const char *name)
     return -1;
 }
 
-static int get_ublock_index(const struct pgcraft *s, const char *name, int stage)
+static int32_t get_ublock_index(const struct pgcraft *s, const char *name, int stage)
 {
     const struct pgcraft_compat_info *compat_info = &s->compat_info;
     const struct darray *fields_array = &compat_info->ublocks[stage].fields;
     const struct block_field *fields = ngli_darray_data(fields_array);
-    for (int i = 0; i < (int)ngli_darray_count(fields_array); i++)
+    for (int32_t i = 0; i < (int32_t)ngli_darray_count(fields_array); i++)
         if (!strcmp(fields[i].name, name))
             return stage << 16 | i;
     return -1;
 }
 
-static int get_texture_index(const struct pgcraft *s, const char *name)
+static int32_t get_texture_index(const struct pgcraft *s, const char *name)
 {
     const struct pipeline_texture_desc *pipeline_texture_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
-    for (int i = 0; i < (int)ngli_darray_count(&s->filtered_pipeline_info.desc.textures); i++) {
+    for (int32_t i = 0; i < (int32_t)ngli_darray_count(&s->filtered_pipeline_info.desc.textures); i++) {
         const struct pipeline_texture_desc *pipeline_texture_desc = &pipeline_texture_descs[i];
         if (!strcmp(pipeline_texture_desc->name, name))
             return i;
@@ -1555,7 +1555,7 @@ int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params)
     return 0;
 }
 
-int ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage)
+int32_t ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage)
 {
     const struct pgcraft_compat_info *compat_info = &s->compat_info;
     if (compat_info->use_ublocks)

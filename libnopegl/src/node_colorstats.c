@@ -66,8 +66,8 @@ struct colorstats_priv {
     struct pgcraft *crafter_init;
     struct pipeline_compat *pipeline_compat_init;
     uint32_t init_wg_count;
-    int depth_index;
-    int length_minus1_index;
+    int32_t depth_index;
+    int32_t length_minus1_index;
 
     /* Waveform compute */
     struct pgcraft *crafter_waveform;

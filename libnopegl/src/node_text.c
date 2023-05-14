@@ -49,10 +49,10 @@
 struct pipeline_subdesc {
     struct pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
-    int modelview_matrix_index;
-    int projection_matrix_index;
-    int color_index;
-    int opacity_index;
+    int32_t modelview_matrix_index;
+    int32_t projection_matrix_index;
+    int32_t color_index;
+    int32_t opacity_index;
 };
 
 struct pipeline_desc {
