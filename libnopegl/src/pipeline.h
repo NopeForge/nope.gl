@@ -89,14 +89,14 @@ enum {
 };
 
 struct pipeline_layout {
-    const struct pipeline_texture_desc *textures_desc;
-    size_t nb_textures;
-    const struct pipeline_uniform_desc *uniforms_desc;
-    size_t nb_uniforms;
-    const struct pipeline_buffer_desc *buffers_desc;
-    size_t nb_buffers;
-    const struct pipeline_attribute_desc *attributes_desc;
-    size_t nb_attributes;
+    const struct pipeline_texture_desc *texture_descs;
+    size_t nb_texture_descs;
+    const struct pipeline_uniform_desc *uniform_descs;
+    size_t nb_uniform_descs;
+    const struct pipeline_buffer_desc *buffer_descs;
+    size_t nb_buffer_descs;
+    const struct pipeline_attribute_desc *attribute_descs;
+    size_t nb_attribute_descs;
 };
 
 struct pipeline_resources {

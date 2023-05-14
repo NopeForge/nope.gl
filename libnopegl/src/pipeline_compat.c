@@ -45,10 +45,10 @@ struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx)
 static int32_t get_pipeline_ubo_index(const struct pipeline_params *params, int binding, int stage)
 {
     const struct pipeline_layout *layout = &params->layout;
-    for (int32_t i = 0; i < (int32_t)layout->nb_buffers; i++) {
-        if (layout->buffers_desc[i].type == NGLI_TYPE_UNIFORM_BUFFER &&
-            layout->buffers_desc[i].stage == stage &&
-            layout->buffers_desc[i].binding == binding) {
+    for (int32_t i = 0; i < (int32_t)layout->nb_buffer_descs; i++) {
+        if (layout->buffer_descs[i].type == NGLI_TYPE_UNIFORM_BUFFER &&
+            layout->buffer_descs[i].stage == stage &&
+            layout->buffer_descs[i].binding == binding) {
             return i;
         }
     }
