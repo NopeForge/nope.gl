@@ -189,7 +189,7 @@ static int nsgl_set_swap_interval(struct glcontext *ctx, int interval)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
 
-    [nsgl->handle setValues:&interval forParameter:NSOpenGLCPSwapInterval];
+    [nsgl->handle setValues:&interval forParameter:NSOpenGLContextParameterSwapInterval];
 
     return 0;
 }
