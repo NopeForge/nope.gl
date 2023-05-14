@@ -89,13 +89,13 @@ static void texture_set_image(struct texture *s, const uint8_t *data)
 
     switch (s_priv->target) {
     case GL_TEXTURE_2D:
-        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, data);
+        ngli_glTexImage2D(gl, s_priv->target, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_2D_ARRAY:
-        ngli_glTexImage3D(gl, GL_TEXTURE_2D_ARRAY, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, data);
+        ngli_glTexImage3D(gl, s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_3D:
-        ngli_glTexImage3D(gl, GL_TEXTURE_3D, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, data);
+        ngli_glTexImage3D(gl, s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_CUBE_MAP: {
         const int face_size = data ? s_priv->bytes_per_pixel * params->width * params->height : 0;
@@ -117,14 +117,13 @@ static void texture2d_set_sub_image(struct texture *s, const uint8_t *data, int 
 
     if (row_upload) {
         for (int y = 0; y < params->height; y++) {
-            ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, y, params->width, 1, s_priv->format, s_priv->format_type, data);
+            ngli_glTexSubImage2D(gl, s_priv->target, 0, 0, y, params->width, 1, s_priv->format, s_priv->format_type, data);
             data += linesize * s_priv->bytes_per_pixel;
         }
         return;
     }
-    ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, params->width, params->height, s_priv->format, s_priv->format_type, data);
+    ngli_glTexSubImage2D(gl, s_priv->target, 0, 0, 0, params->width, params->height, s_priv->format, s_priv->format_type, data);
 }
-
 
 static void texture2d_array_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
 {
@@ -136,13 +135,13 @@ static void texture2d_array_set_sub_image(struct texture *s, const uint8_t *data
     if (row_upload) {
         for (int z = 0; z < params->depth; z++) {
             for (int y = 0; y < params->height; y++) {
-                ngli_glTexSubImage3D(gl, GL_TEXTURE_2D_ARRAY, 0, 0, y, z, params->width, 1, 1, s_priv->format, s_priv->format_type, data);
+                ngli_glTexSubImage3D(gl, s_priv->target, 0, 0, y, z, params->width, 1, 1, s_priv->format, s_priv->format_type, data);
                 data += linesize * s_priv->bytes_per_pixel;
             }
         }
         return;
     }
-    ngli_glTexSubImage3D(gl, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, params->width, params->height, params->depth, s_priv->format, s_priv->format_type, data);
+    ngli_glTexSubImage3D(gl, s_priv->target, 0, 0, 0, 0, params->width, params->height, params->depth, s_priv->format, s_priv->format_type, data);
 }
 
 static void texture3d_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
@@ -155,13 +154,13 @@ static void texture3d_set_sub_image(struct texture *s, const uint8_t *data, int 
     if (row_upload) {
         for (int z = 0; z < params->depth; z++) {
             for (int y = 0; y < params->height; y++) {
-                ngli_glTexSubImage3D(gl, GL_TEXTURE_3D, 0, 0, y, z, params->width, 1, 1, s_priv->format, s_priv->format_type, data);
+                ngli_glTexSubImage3D(gl, s_priv->target, 0, 0, y, z, params->width, 1, 1, s_priv->format, s_priv->format_type, data);
                 data += linesize * s_priv->bytes_per_pixel;
             }
         }
         return;
     }
-    ngli_glTexSubImage3D(gl, GL_TEXTURE_3D, 0, 0, 0, 0, params->width, params->height, params->depth, s_priv->format, s_priv->format_type, data);
+    ngli_glTexSubImage3D(gl, s_priv->target, 0, 0, 0, 0, params->width, params->height, params->depth, s_priv->format, s_priv->format_type, data);
 }
 
 static void texturecube_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
