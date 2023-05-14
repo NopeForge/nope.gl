@@ -79,7 +79,7 @@ struct text_priv {
     struct buffer *vertices;
     struct buffer *uvcoords;
     struct buffer *indices;
-    int nb_indices;
+    size_t nb_indices;
 
     struct buffer *bg_vertices;
 
@@ -203,12 +203,12 @@ static const struct pgcraft_iovar vert_out_vars[] = {
 #define W(index) chr_width[index]
 #define H(index) chr_height[index]
 
-static void get_char_box_dim(const char *s, int *wp, int *hp, int *np)
+static void get_char_box_dim(const char *s, int *wp, int *hp, size_t *np)
 {
     int w = 0, h = 1;
     int cur_w = 0;
-    int n = 0;
-    for (int i = 0; s[i]; i++) {
+    size_t n = 0;
+    for (size_t i = 0; s[i]; i++) {
         if (s[i] == '\n') {
             cur_w = 0;
             h++;
@@ -233,7 +233,8 @@ static int update_character_geometries(struct ngl_node *node)
     int ret = 0;
     const char *str = o->live.val.s;
 
-    int text_cols, text_rows, text_nbchr;
+    size_t text_nbchr;
+    int text_cols, text_rows;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
     if (!text_nbchr) {
         ngli_buffer_freep(&s->vertices);
@@ -243,9 +244,12 @@ static int update_character_geometries(struct ngl_node *node)
         return 0;
     }
 
-    const int nb_vertices = text_nbchr * 4;
-    const int nb_uvcoords = text_nbchr * 4;
-    const int nb_indices  = text_nbchr * 6;
+    const size_t nb_vertices = text_nbchr * 4;
+    const size_t nb_uvcoords = text_nbchr * 4;
+    const size_t nb_indices  = text_nbchr * 6;
+    if (nb_indices > INT32_MAX)
+        return NGL_ERROR_LIMIT_EXCEEDED;
+
     float *vertices = ngli_calloc(nb_vertices, 3 * sizeof(*vertices));
     float *uvcoords = ngli_calloc(nb_uvcoords, 2 * sizeof(*uvcoords));
     short *indices  = ngli_calloc(nb_indices, sizeof(*indices));
@@ -316,9 +320,9 @@ static int update_character_geometries(struct ngl_node *node)
     };
 
     int px = 0, py = 0;
-    int n = 0;
+    size_t n = 0;
 
-    for (int i = 0; str[i]; i++) {
+    for (size_t i = 0; str[i]; i++) {
         if (str[i] == '\n') {
             py++;
             px = 0;
@@ -730,7 +734,7 @@ static void text_draw(struct ngl_node *node)
         ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->projection_matrix_index, projection_matrix);
         ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->color_index, o->fg_color);
         ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->opacity_index, &o->fg_opacity);
-        ngli_pipeline_compat_draw_indexed(fg_desc->pipeline_compat, s->indices, NGLI_FORMAT_R16_UNORM, s->nb_indices, 1);
+        ngli_pipeline_compat_draw_indexed(fg_desc->pipeline_compat, s->indices, NGLI_FORMAT_R16_UNORM, (int)s->nb_indices, 1);
     }
 }
 
