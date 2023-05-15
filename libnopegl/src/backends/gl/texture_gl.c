@@ -258,7 +258,7 @@ static void texture_set_storage(struct texture *s)
         break;
     case GL_TEXTURE_CUBE_MAP:
         /* glTexStorage2D automatically accomodates for 6 faces when using the cubemap target */
-        ngli_glTexStorage2D(gl, s_priv->target, 1, s_priv->internal_format, params->width, params->height);
+        ngli_glTexStorage2D(gl, s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
         break;
     }
 }
