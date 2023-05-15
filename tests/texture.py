@@ -222,9 +222,7 @@ def _get_texture_cubemap_from_mrt_scene_2_pass(samples=0):
     return group
 
 
-@test_fingerprint()
-@scene()
-def texture_cubemap(_):
+def _get_texture_cubemap(mipmap_filter="none"):
     n = 64
     p = n * n
     cb_data = array.array(
@@ -237,9 +235,37 @@ def texture_cubemap(_):
         + (255, 0, 255, 255) * p,
     )
     cb_buffer = ngl.BufferUBVec4(data=cb_data)
-    cube = ngl.TextureCube(size=n, min_filter="linear", mag_filter="linear", data_src=cb_buffer)
+    cube = ngl.TextureCube(
+        size=n, min_filter="linear", mag_filter="linear", data_src=cb_buffer, mipmap_filter=mipmap_filter
+    )
+    return cube
 
+
+@test_fingerprint()
+@scene()
+def texture_cubemap(_):
+    cube = _get_texture_cubemap()
     program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_FRAG)
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(tex0=cube)
+    return render
+
+
+_RENDER_CUBEMAP_LOD_FRAG = """
+void main()
+{
+    ngl_out_color = ngl_texcubelod(tex0, vec3(var_uvcoord.xy, 0.5), 1.0);
+}
+"""
+
+
+@test_fingerprint(tolerance=1)
+@scene()
+def texture_cubemap_mipmap(_):
+    cube = _get_texture_cubemap(mipmap_filter="nearest")
+    program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_LOD_FRAG)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     render = ngl.Render(quad, program)
@@ -316,9 +342,7 @@ void main()
 """
 
 
-@test_fingerprint()
-@scene()
-def texture_2d_array(cfg: SceneCfg):
+def _get_texture_2d_array(cfg: SceneCfg, mipmap_filter="none"):
     width, height, depth = 9, 9, 3
     n = width * height
     data = array.array("B")
@@ -329,10 +353,40 @@ def texture_2d_array(cfg: SceneCfg):
     for i in cfg.rng.sample(range(n), n):
         data.extend([0, 0, i * 255 // n, 255])
     texture_buffer = ngl.BufferUBVec4(data=data)
-    texture = ngl.Texture2DArray(width=width, height=height, depth=depth, data_src=texture_buffer)
+    texture = ngl.Texture2DArray(
+        width=width, height=height, depth=depth, data_src=texture_buffer, mipmap_filter=mipmap_filter
+    )
+    return texture
 
+
+@test_fingerprint()
+@scene()
+def texture_2d_array(cfg: SceneCfg):
+    texture = _get_texture_2d_array(cfg)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_FRAG)
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(tex0=texture)
+    return render
+
+
+_TEXTURE2D_ARRAY_LOD_FRAG = """
+void main()
+{
+    ngl_out_color  = textureLod(tex0, vec3(var_uvcoord, 0.0), 2.0);
+    ngl_out_color += textureLod(tex0, vec3(var_uvcoord, 1.0), 2.0);
+    ngl_out_color += textureLod(tex0, vec3(var_uvcoord, 2.0), 2.0);
+}
+"""
+
+
+@test_fingerprint(tolerance=4)
+@scene()
+def texture_2d_array_mipmap(cfg: SceneCfg):
+    texture = _get_texture_2d_array(cfg, mipmap_filter="nearest")
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_LOD_FRAG)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
     render = ngl.Render(quad, program)
     render.update_frag_resources(tex0=texture)

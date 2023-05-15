@@ -380,6 +380,9 @@ foreach backend : backends
 
   if has_texture_2d_array
     tests_texture += '2d_array'
+    if has_shader_texture_lod
+      tests_texture += '2d_array_mipmap'
+    endif
     if max_color_attachments >= 4
       tests_texture += '2d_array_from_mrt'
       if max_samples >= 4
@@ -404,6 +407,9 @@ foreach backend : backends
 
   if has_texture_cube
     tests_texture += 'cubemap'
+    if has_shader_texture_lod
+      tests_texture += 'cubemap_mipmap'
+    endif
     if max_color_attachments >= 4
       tests_texture += 'cubemap_from_mrt_2_pass'
       if max_samples >= 4
