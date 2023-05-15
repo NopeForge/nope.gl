@@ -226,6 +226,18 @@ static void texture_set_sub_image(struct texture *s, const uint8_t *data, int li
         ngli_glPixelStorei(gl, GL_UNPACK_ROW_LENGTH, 0);
 }
 
+static int get_mipmap_levels(const struct texture *s)
+{
+    const struct texture_params *params = &s->params;
+
+    int mipmap_levels = 1;
+    if (params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE) {
+        while ((params->width | params->height) >> mipmap_levels)
+            mipmap_levels += 1;
+    }
+    return mipmap_levels;
+}
+
 static void texture_set_storage(struct texture *s)
 {
     struct texture_gl *s_priv = (struct texture_gl *)s;
@@ -233,23 +245,14 @@ static void texture_set_storage(struct texture *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct texture_params *params = &s->params;
 
+    const int mipmap_levels = get_mipmap_levels(s);
     switch (s_priv->target) {
-    case GL_TEXTURE_2D: {
-        int mipmap_levels = 1;
-        if (params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE)
-            while ((params->width | params->height) >> mipmap_levels)
-                mipmap_levels += 1;
+    case GL_TEXTURE_2D:
         ngli_glTexStorage2D(gl, s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
         break;
-    }
-    case GL_TEXTURE_2D_ARRAY: {
-        int mipmap_levels = 1;
-        if (params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE)
-            while ((params->width | params->height) >> mipmap_levels)
-                mipmap_levels += 1;
+    case GL_TEXTURE_2D_ARRAY:
         ngli_glTexStorage3D(gl, s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height, params->depth);
         break;
-    }
     case GL_TEXTURE_3D:
         ngli_glTexStorage3D(gl, s_priv->target, 1, s_priv->internal_format, params->width, params->height, params->depth);
         break;
