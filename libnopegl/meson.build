@@ -653,6 +653,10 @@ shaders = {
   'source_texture.vert': 'source_texture_vert.h',
   'source_waveform.frag': 'source_waveform_frag.h',
   'source_waveform.vert': 'source_waveform_vert.h',
+  'text_bg.frag': 'text_bg_frag.h',
+  'text_bg.vert': 'text_bg_vert.h',
+  'text_chars.frag': 'text_chars_frag.h',
+  'text_chars.vert': 'text_chars_vert.h',
 }
 glsl2c = find_program('scripts/glsl2c.py')
 shaders_h = []

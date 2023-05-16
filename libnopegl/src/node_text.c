@@ -36,6 +36,11 @@
 #include "topology.h"
 #include "utils.h"
 
+/* GLSL fragments as string */
+#include "text_bg_frag.h"
+#include "text_bg_vert.h"
+#include "text_chars_frag.h"
+#include "text_chars_vert.h"
 
 #define VERTEX_USAGE_FLAGS (NGLI_BUFFER_USAGE_TRANSFER_DST_BIT | \
                             NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT) \
@@ -164,32 +169,6 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("box aspect ratio")},
     {NULL}
 };
-
-static const char * const bg_vertex_data =
-    "void main()"                                                                       "\n"
-    "{"                                                                                 "\n"
-    "    ngl_out_pos = projection_matrix * modelview_matrix * vec4(position, 1.0);"     "\n"
-    "}";
-
-static const char * const bg_fragment_data =
-    "void main()"                                                                       "\n"
-    "{"                                                                                 "\n"
-    "    ngl_out_color = vec4(color, 1.0) * opacity;"                                   "\n"
-    "}";
-
-static const char * const vertex_data =
-    "void main()"                                                                       "\n"
-    "{"                                                                                 "\n"
-    "    ngl_out_pos = projection_matrix * modelview_matrix * vec4(position, 1.0);"     "\n"
-    "    tex_coord = uvcoord;"                                                          "\n"
-    "}";
-
-static const char * const fragment_data =
-    "void main()"                                                                       "\n"
-    "{"                                                                                 "\n"
-    "    float v = ngl_tex2d(tex, tex_coord).r;"                                        "\n"
-    "    ngl_out_color = vec4(color, 1.0) * opacity * v;"                               "\n"
-    "}";
 
 static const struct pgcraft_iovar vert_out_vars[] = {
     {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
@@ -575,8 +554,8 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
 
     const struct pgcraft_params crafter_params = {
         .program_label    = "nopegl/text-bg",
-        .vert_base        = bg_vertex_data,
-        .frag_base        = bg_fragment_data,
+        .vert_base        = text_bg_vert,
+        .frag_base        = text_bg_frag,
         .uniforms         = uniforms,
         .nb_uniforms      = NGLI_ARRAY_NB(uniforms),
         .attributes       = attributes,
@@ -645,8 +624,8 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
 
     const struct pgcraft_params crafter_params = {
         .program_label    = "nopegl/text-fg",
-        .vert_base        = vertex_data,
-        .frag_base        = fragment_data,
+        .vert_base        = text_chars_vert,
+        .frag_base        = text_chars_frag,
         .uniforms         = uniforms,
         .nb_uniforms      = NGLI_ARRAY_NB(uniforms),
         .textures         = textures,
