@@ -202,6 +202,14 @@ static void get_char_box_dim(const char *s, int *wp, int *hp, size_t *np)
     *np = n;
 }
 
+static void destroy_characters_resources(struct text_priv *s)
+{
+    ngli_buffer_freep(&s->vertices);
+    ngli_buffer_freep(&s->uvcoords);
+    ngli_buffer_freep(&s->indices);
+    s->nb_indices = 0;
+}
+
 static int update_character_geometries(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -216,10 +224,7 @@ static int update_character_geometries(struct ngl_node *node)
     int text_cols, text_rows;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
     if (!text_nbchr) {
-        ngli_buffer_freep(&s->vertices);
-        ngli_buffer_freep(&s->uvcoords);
-        ngli_buffer_freep(&s->indices);
-        s->nb_indices = 0;
+        destroy_characters_resources(s);
         return 0;
     }
 
@@ -335,9 +340,7 @@ static int update_character_geometries(struct ngl_node *node)
     }
 
     if (nb_indices > s->nb_indices) { // need re-alloc
-        ngli_buffer_freep(&s->vertices);
-        ngli_buffer_freep(&s->uvcoords);
-        ngli_buffer_freep(&s->indices);
+        destroy_characters_resources(s);
 
         s->vertices = ngli_buffer_create(gpu_ctx);
         s->uvcoords = ngli_buffer_create(gpu_ctx);
@@ -730,9 +733,7 @@ static void text_uninit(struct ngl_node *node)
     }
     ngli_darray_reset(&s->pipeline_descs);
     ngli_buffer_freep(&s->bg_vertices);
-    ngli_buffer_freep(&s->vertices);
-    ngli_buffer_freep(&s->uvcoords);
-    ngli_buffer_freep(&s->indices);
+    destroy_characters_resources(s);
 }
 
 const struct node_class ngli_text_class = {
