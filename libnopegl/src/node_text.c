@@ -236,7 +236,7 @@ static int update_character_geometries(struct ngl_node *node)
 
     float *vertices = ngli_calloc(nb_vertices, 3 * sizeof(*vertices));
     float *uvcoords = ngli_calloc(nb_uvcoords, 2 * sizeof(*uvcoords));
-    short *indices  = ngli_calloc(nb_indices, sizeof(*indices));
+    int16_t *indices = ngli_calloc(nb_indices, sizeof(*indices));
     if (!vertices || !uvcoords || !indices) {
         ret = NGL_ERROR_MEMORY;
         goto end;
@@ -331,8 +331,8 @@ static int update_character_geometries(struct ngl_node *node)
         ngli_drawutils_get_atlas_uvcoords(str[i], uvcoords + 4 * 2 * n);
 
         /* quad for each character is made of 2 triangles */
-        const short n4 = (short)n * 4;
-        const short chr_indices[] = { n4 + 0, n4 + 1, n4 + 2, n4 + 1, n4 + 3, n4 + 2 };
+        const int16_t n4 = (int16_t)n * 4;
+        const int16_t chr_indices[] = { n4 + 0, n4 + 1, n4 + 2, n4 + 1, n4 + 3, n4 + 2 };
         memcpy(indices + n * NGLI_ARRAY_NB(chr_indices), chr_indices, sizeof(chr_indices));
 
         n++;
