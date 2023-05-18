@@ -182,10 +182,10 @@ static const struct pgcraft_iovar vert_out_vars[] = {
 #define W(index) chr_width[index]
 #define H(index) chr_height[index]
 
-static void get_char_box_dim(const char *s, int *wp, int *hp, size_t *np)
+static void get_char_box_dim(const char *s, int32_t *wp, int32_t *hp, size_t *np)
 {
-    int w = 0, h = 1;
-    int cur_w = 0;
+    int32_t w = 0, h = 1;
+    int32_t cur_w = 0;
     size_t n = 0;
     for (size_t i = 0; s[i]; i++) {
         if (s[i] == '\n') {
@@ -221,7 +221,7 @@ static int update_character_geometries(struct ngl_node *node)
     const char *str = o->live.val.s;
 
     size_t text_nbchr;
-    int text_cols, text_rows;
+    int32_t text_cols, text_rows;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
     if (!text_nbchr) {
         destroy_characters_resources(s);
@@ -249,8 +249,8 @@ static int update_character_geometries(struct ngl_node *node)
     const int32_t *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
     const float box_ratio = (float)ar[0] * box_width_len / ((float)ar[1] * box_height_len);
 
-    const int text_width   = text_cols * NGLI_FONT_W + 2 * o->padding;
-    const int text_height  = text_rows * NGLI_FONT_H + 2 * o->padding;
+    const int32_t text_width  = text_cols * NGLI_FONT_W + 2 * o->padding;
+    const int32_t text_height = text_rows * NGLI_FONT_H + 2 * o->padding;
     const float text_ratio = (float)text_width / (float)text_height;
 
     float ratio_w, ratio_h;
@@ -303,7 +303,7 @@ static int update_character_geometries(struct ngl_node *node)
         BC(2) + align_padw[2] * spx + align_padh[2] * spy + padw[2] + padh[2],
     };
 
-    int px = 0, py = 0;
+    int32_t px = 0, py = 0;
     size_t n = 0;
 
     for (size_t i = 0; str[i]; i++) {
