@@ -313,7 +313,7 @@ static int update_character_geometries(struct ngl_node *node)
                        o->valign == VALIGN_TOP    ? 1.f :
                        0.f);
 
-    float corner[3] = {
+    const float corner[3] = {
         BC(0) + align_padw[0] * spx + align_padh[0] * spy + padw[0] + padh[0],
         BC(1) + align_padw[1] * spx + align_padh[1] * spy + padw[1] + padh[1],
         BC(2) + align_padw[2] * spx + align_padh[2] * spy + padw[2] + padh[2],
