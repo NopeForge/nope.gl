@@ -437,6 +437,11 @@ def _nopegl_install(cfg):
     return _meson_compile_install_cmd("libnopegl")
 
 
+@_block("nopegl-install-nosetup")
+def _nopegl_install_nosetup(cfg):
+    return _meson_compile_install_cmd("libnopegl")
+
+
 @_block("pynopegl-deps-install", [_nopegl_install])
 def _pynopegl_deps_install(cfg):
     return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "pynopegl", "requirements.txt"))]
@@ -481,6 +486,11 @@ def _ngl_tools_setup(cfg):
 
 @_block("ngl-tools-install", [_ngl_tools_setup])
 def _ngl_tools_install(cfg):
+    return _meson_compile_install_cmd("ngl-tools")
+
+
+@_block("ngl-tools-install-nosetup", [_nopegl_install_nosetup])
+def _ngl_tools_install_nosetup(cfg):
     return _meson_compile_install_cmd("ngl-tools")
 
 
@@ -785,6 +795,7 @@ def _run():
         _nopegl_updatedoc,
         _nopegl_updatespecs,
         _nopegl_updateglwrappers,
+        _ngl_tools_install_nosetup,
     ]
     if args.coverage:
         blocks += [_coverage_html, _coverage_xml]
