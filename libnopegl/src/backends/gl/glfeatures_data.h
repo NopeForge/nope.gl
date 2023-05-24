@@ -42,10 +42,17 @@ static const struct glfeature {
         .version        = 300,
         .es_version     = 300,
         .extensions     = (const char*[]){"GL_ARB_vertex_array_object", NULL},
-        .es_extensions  = (const char*[]){"GL_OES_vertex_array_object", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(GenVertexArrays),
                                            OFFSET(BindVertexArray),
                                            OFFSET(DeleteVertexArrays),
+                                           -1}
+    }, {
+        .name           = "oes_vertex_array_object",
+        .flag           = NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT,
+        .es_extensions  = (const char*[]){"GL_OES_vertex_array_object", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(GenVertexArraysOES),
+                                           OFFSET(BindVertexArrayOES),
+                                           OFFSET(DeleteVertexArraysOES),
                                            -1}
     }, {
         .name           = "texture3d",

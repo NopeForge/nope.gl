@@ -174,6 +174,8 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
     /* VAO */
     if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT)
         ngli_glBindVertexArray(gl, 0);
+    else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT)
+        ngli_glBindVertexArrayOES(gl, 0);
 }
 
 void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct graphicstate *state)

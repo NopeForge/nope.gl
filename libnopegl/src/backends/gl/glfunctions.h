@@ -19,6 +19,7 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *BindRenderbuffer)(GLenum target, GLuint renderbuffer);
     void (NGLI_GL_APIENTRY *BindTexture)(GLenum target, GLuint texture);
     void (NGLI_GL_APIENTRY *BindVertexArray)(GLuint array);
+    void (NGLI_GL_APIENTRY *BindVertexArrayOES)(GLuint array);
     void (NGLI_GL_APIENTRY *BlendColor)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
     void (NGLI_GL_APIENTRY *BlendEquation)(GLenum mode);
     void (NGLI_GL_APIENTRY *BlendEquationSeparate)(GLenum modeRGB, GLenum modeAlpha);
@@ -49,6 +50,7 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *DeleteShader)(GLuint shader);
     void (NGLI_GL_APIENTRY *DeleteTextures)(GLsizei n, const GLuint * textures);
     void (NGLI_GL_APIENTRY *DeleteVertexArrays)(GLsizei n, const GLuint * arrays);
+    void (NGLI_GL_APIENTRY *DeleteVertexArraysOES)(GLsizei n, const GLuint * arrays);
     void (NGLI_GL_APIENTRY *DepthFunc)(GLenum func);
     void (NGLI_GL_APIENTRY *DepthMask)(GLboolean flag);
     void (NGLI_GL_APIENTRY *DetachShader)(GLuint program, GLuint shader);
@@ -80,6 +82,7 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *GenRenderbuffers)(GLsizei n, GLuint * renderbuffers);
     void (NGLI_GL_APIENTRY *GenTextures)(GLsizei n, GLuint * textures);
     void (NGLI_GL_APIENTRY *GenVertexArrays)(GLsizei n, GLuint * arrays);
+    void (NGLI_GL_APIENTRY *GenVertexArraysOES)(GLsizei n, GLuint * arrays);
     void (NGLI_GL_APIENTRY *GenerateMipmap)(GLenum target);
     void (NGLI_GL_APIENTRY *GetActiveAttrib)(GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name);
     void (NGLI_GL_APIENTRY *GetActiveUniform)(GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name);
