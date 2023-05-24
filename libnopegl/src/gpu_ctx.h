@@ -76,6 +76,7 @@ struct gpu_ctx_class {
     void (*get_viewport)(struct gpu_ctx *s, int32_t *viewport);
     void (*set_scissor)(struct gpu_ctx *s, const int32_t *scissor);
     void (*get_scissor)(struct gpu_ctx *s, int32_t *scissor);
+
     int (*get_preferred_depth_format)(struct gpu_ctx *s);
     int (*get_preferred_depth_stencil_format)(struct gpu_ctx *s);
 
