@@ -210,3 +210,23 @@ int ngli_gpu_ctx_get_preferred_depth_stencil_format(struct gpu_ctx *s)
 {
     return s->cls->get_preferred_depth_stencil_format(s);
 }
+
+void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline)
+{
+    s->cls->set_pipeline(s, pipeline);
+}
+
+void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
+{
+    s->cls->draw(s, nb_vertices, nb_instances);
+}
+
+void ngli_gpu_ctx_draw_indexed(struct gpu_ctx *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
+{
+    s->cls->draw_indexed(s, indices, indices_format, nb_indices, nb_instances);
+}
+
+void ngli_gpu_ctx_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
+{
+    s->cls->dispatch(s, nb_group_x, nb_group_y, nb_group_z);
+}

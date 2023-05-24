@@ -984,6 +984,39 @@ static int gl_get_preferred_depth_stencil_format(struct gpu_ctx *s)
     return NGLI_FORMAT_D24_UNORM_S8_UINT;
 }
 
+static void gl_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    s_priv->current_pipeline = pipeline;
+}
+
+static void gl_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct pipeline *pipeline = s_priv->current_pipeline;
+
+    ngli_assert(pipeline);
+    ngli_pipeline_gl_draw(pipeline, nb_vertices, nb_instances);
+}
+
+static void gl_draw_indexed(struct gpu_ctx *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct pipeline *pipeline = s_priv->current_pipeline;
+
+    ngli_assert(pipeline);
+    ngli_pipeline_gl_draw_indexed(pipeline, indices, indices_format, nb_indices, nb_instances);
+}
+
+static void gl_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct pipeline *pipeline = s_priv->current_pipeline;
+
+    ngli_assert(pipeline);
+    ngli_pipeline_gl_dispatch(pipeline, nb_group_x, nb_group_y, nb_group_z);
+}
+
 #define DECLARE_GPU_CTX_CLASS(cls_suffix, cls_name)                              \
 const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                         \
     .name                               = cls_name,                              \
@@ -1016,6 +1049,11 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
     .get_preferred_depth_format         = gl_get_preferred_depth_format,         \
     .get_preferred_depth_stencil_format = gl_get_preferred_depth_stencil_format, \
                                                                                  \
+    .set_pipeline                       = gl_set_pipeline,                       \
+    .draw                               = gl_draw,                               \
+    .draw_indexed                       = gl_draw_indexed,                       \
+    .dispatch                           = gl_dispatch,                           \
+                                                                                 \
     .buffer_create                      = ngli_buffer_gl_create,                 \
     .buffer_init                        = ngli_buffer_gl_init,                   \
     .buffer_upload                      = ngli_buffer_gl_upload,                 \
@@ -1029,9 +1067,6 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
     .pipeline_update_uniform            = ngli_pipeline_gl_update_uniform,       \
     .pipeline_update_texture            = ngli_pipeline_gl_update_texture,       \
     .pipeline_update_buffer             = ngli_pipeline_gl_update_buffer,        \
-    .pipeline_draw                      = ngli_pipeline_gl_draw,                 \
-    .pipeline_draw_indexed              = ngli_pipeline_gl_draw_indexed,         \
-    .pipeline_dispatch                  = ngli_pipeline_gl_dispatch,             \
     .pipeline_freep                     = ngli_pipeline_gl_freep,                \
                                                                                  \
     .program_create                     = ngli_program_gl_create,                \
