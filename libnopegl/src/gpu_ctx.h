@@ -80,6 +80,11 @@ struct gpu_ctx_class {
     int (*get_preferred_depth_format)(struct gpu_ctx *s);
     int (*get_preferred_depth_stencil_format)(struct gpu_ctx *s);
 
+    void (*set_pipeline)(struct gpu_ctx *s, struct pipeline *pipeline);
+    void (*draw)(struct gpu_ctx *s, int nb_vertices, int nb_instances);
+    void (*draw_indexed)(struct gpu_ctx *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances);
+    void (*dispatch)(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
+
     struct buffer *(*buffer_create)(struct gpu_ctx *ctx);
     int (*buffer_init)(struct buffer *s, size_t size, int usage);
     int (*buffer_upload)(struct buffer *s, const void *data, size_t size, size_t offset);
@@ -93,9 +98,6 @@ struct gpu_ctx_class {
     int (*pipeline_update_uniform)(struct pipeline *s, int32_t index, const void *value);
     int (*pipeline_update_texture)(struct pipeline *s, int32_t index, const struct texture *texture);
     int (*pipeline_update_buffer)(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
-    void (*pipeline_draw)(struct pipeline *s, int nb_vertices, int nb_instances);
-    void (*pipeline_draw_indexed)(struct pipeline *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances);
-    void (*pipeline_dispatch)(struct pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
     void (*pipeline_freep)(struct pipeline **sp);
 
     struct program *(*program_create)(struct gpu_ctx *ctx);
@@ -156,5 +158,10 @@ void ngli_gpu_ctx_get_scissor(struct gpu_ctx *s, int32_t *scissor);
 
 int ngli_gpu_ctx_get_preferred_depth_format(struct gpu_ctx *s);
 int ngli_gpu_ctx_get_preferred_depth_stencil_format(struct gpu_ctx *s);
+
+void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline);
+void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances);
+void ngli_gpu_ctx_draw_indexed(struct gpu_ctx *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances);
+void ngli_gpu_ctx_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 
 #endif

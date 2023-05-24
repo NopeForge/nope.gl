@@ -160,21 +160,6 @@ int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct 
     return s->gpu_ctx->cls->pipeline_update_buffer(s, index, buffer, offset, size);
 }
 
-void ngli_pipeline_draw(struct pipeline *s, int nb_vertices, int nb_instances)
-{
-    s->gpu_ctx->cls->pipeline_draw(s, nb_vertices, nb_instances);
-}
-
-void ngli_pipeline_draw_indexed(struct pipeline *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
-{
-    s->gpu_ctx->cls->pipeline_draw_indexed(s, indices, indices_format, nb_indices, nb_instances);
-}
-
-void ngli_pipeline_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
-{
-    s->gpu_ctx->cls->pipeline_dispatch(s, nb_group_x, nb_group_y, nb_group_z);
-}
-
 void ngli_pipeline_freep(struct pipeline **sp)
 {
     if (!*sp)

@@ -20,6 +20,7 @@
  */
 
 #include "darray.h"
+#include "gpu_ctx.h"
 #include "memory.h"
 #include "nopegl.h"
 #include "pipeline_compat.h"
@@ -216,17 +217,26 @@ int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index,
 
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances)
 {
-    ngli_pipeline_draw(s->pipeline, nb_vertices, nb_instances);
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct pipeline *pipeline = s->pipeline;
+    ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
+    ngli_gpu_ctx_draw(gpu_ctx, nb_vertices, nb_instances);
 }
 
 void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
 {
-    ngli_pipeline_draw_indexed(s->pipeline, indices, indices_format, nb_indices, nb_instances);
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct pipeline *pipeline = s->pipeline;
+    ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
+    ngli_gpu_ctx_draw_indexed(gpu_ctx, indices, indices_format, nb_indices, nb_instances);
 }
 
 void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
-    ngli_pipeline_dispatch(s->pipeline, nb_group_x, nb_group_y, nb_group_z);
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct pipeline *pipeline = s->pipeline;
+    ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
+    ngli_gpu_ctx_dispatch(gpu_ctx, nb_group_x, nb_group_y, nb_group_z);
 }
 
 void ngli_pipeline_compat_freep(struct pipeline_compat **sp)

@@ -1408,6 +1408,39 @@ static int vk_get_preferred_depth_stencil_format(struct gpu_ctx *s)
     return vk->preferred_depth_stencil_format;
 }
 
+static void vk_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    s_priv->current_pipeline = pipeline;
+}
+
+static void vk_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct pipeline *pipeline = s_priv->current_pipeline;
+
+    ngli_assert(pipeline);
+    ngli_pipeline_vk_draw(pipeline, nb_vertices, nb_instances);
+}
+
+static void vk_draw_indexed(struct gpu_ctx *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct pipeline *pipeline = s_priv->current_pipeline;
+
+    ngli_assert(pipeline);
+    ngli_pipeline_vk_draw_indexed(pipeline, indices, indices_format, nb_indices, nb_instances);
+}
+
+static void vk_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct pipeline *pipeline = s_priv->current_pipeline;
+
+    ngli_assert(pipeline);
+    ngli_pipeline_vk_dispatch(pipeline, nb_group_x, nb_group_y, nb_group_z);
+}
+
 static int vk_buffer_init(struct buffer *s, size_t size, int usage)
 {
     VkResult res = ngli_buffer_vk_init(s, size, usage);
@@ -1509,6 +1542,11 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .get_preferred_depth_format         = vk_get_preferred_depth_format,
     .get_preferred_depth_stencil_format = vk_get_preferred_depth_stencil_format,
 
+    .set_pipeline                       = vk_set_pipeline,
+    .draw                               = vk_draw,
+    .draw_indexed                       = vk_draw_indexed,
+    .dispatch                           = vk_dispatch,
+
     .buffer_create                      = ngli_buffer_vk_create,
     .buffer_init                        = vk_buffer_init,
     .buffer_upload                      = vk_buffer_upload,
@@ -1522,9 +1560,6 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .pipeline_update_uniform            = ngli_pipeline_vk_update_uniform,
     .pipeline_update_texture            = ngli_pipeline_vk_update_texture,
     .pipeline_update_buffer             = ngli_pipeline_vk_update_buffer,
-    .pipeline_draw                      = ngli_pipeline_vk_draw,
-    .pipeline_draw_indexed              = ngli_pipeline_vk_draw_indexed,
-    .pipeline_dispatch                  = ngli_pipeline_vk_dispatch,
     .pipeline_freep                     = ngli_pipeline_vk_freep,
 
     .program_create                     = ngli_program_vk_create,
