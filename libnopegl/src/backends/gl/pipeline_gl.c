@@ -356,44 +356,6 @@ static int build_buffer_bindings(struct pipeline *s)
     return 0;
 }
 
-static void set_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
-{
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-
-    const struct attribute_binding *bindings = ngli_darray_data(&s_priv->attribute_bindings);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->attribute_bindings); i++) {
-        const struct attribute_binding *attribute_binding = &bindings[i];
-        const struct buffer *buffer = attribute_binding->buffer;
-        const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
-        const GLuint location = attribute_binding->desc.location;
-        const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
-        const GLsizei stride = (GLsizei)attribute_binding->desc.stride;
-
-        ngli_glEnableVertexAttribArray(gl, location);
-        if ((gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY) && attribute_binding->desc.rate > 0)
-            ngli_glVertexAttribDivisor(gl, location, attribute_binding->desc.rate);
-
-        if (buffer_gl) {
-            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
-            ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute_binding->desc.offset));
-        }
-    }
-}
-
-static void reset_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
-{
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-
-    const struct attribute_binding *bindings = ngli_darray_data(&s_priv->attribute_bindings);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->attribute_bindings); i++) {
-        const struct attribute_binding *attribute_binding = &bindings[i];
-        const GLuint location = attribute_binding->desc.location;
-        ngli_glDisableVertexAttribArray(gl, location);
-        if (gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY)
-            ngli_glVertexAttribDivisor(gl, location, 0);
-    }
-}
-
 static int build_attribute_bindings(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
@@ -448,14 +410,10 @@ static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
     const struct pipeline_gl *s_priv = (const struct pipeline_gl *)s;
     if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT)
         ngli_glBindVertexArray(gl, s_priv->vao_id);
+    else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT)
+        ngli_glBindVertexArrayOES(gl, s_priv->vao_id);
     else
-        set_vertex_attribs(s, gl);
-}
-
-static void unbind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
-{
-    if (!(gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT))
-        reset_vertex_attribs(s, gl);
+        ngli_assert(0);
 }
 
 static int pipeline_graphics_init(struct pipeline *s)
@@ -471,8 +429,14 @@ static int pipeline_graphics_init(struct pipeline *s)
     if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT) {
         ngli_glGenVertexArrays(gl, 1, &s_priv->vao_id);
         ngli_glBindVertexArray(gl, s_priv->vao_id);
-        init_vertex_attribs(s, gl);
+    } else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT) {
+        ngli_glGenVertexArraysOES(gl, 1, &s_priv->vao_id);
+        ngli_glBindVertexArrayOES(gl, s_priv->vao_id);
+    } else {
+        ngli_assert(0);
     }
+    
+    init_vertex_attribs(s, gl);
 
     return 0;
 }
@@ -604,15 +568,19 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int32_t index, const s
     if (!buffer)
         return 0;
 
-    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT) {
-        const GLuint location = attribute_binding->desc.location;
-        const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
-        const GLsizei stride = (GLsizei)attribute_binding->desc.stride;
-        const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
+    const GLuint location = attribute_binding->desc.location;
+    const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
+    const GLsizei stride = (GLsizei)attribute_binding->desc.stride;
+    const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
+    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT)
         ngli_glBindVertexArray(gl, s_priv->vao_id);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
-        ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute_binding->desc.offset));
-    }
+    else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT)
+        ngli_glBindVertexArrayOES(gl, s_priv->vao_id);
+    else
+        ngli_assert(0);
+
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
+    ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute_binding->desc.offset));
 
     return 0;
 }
@@ -713,8 +681,6 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
     else
         ngli_glDrawArrays(gl, gl_topology, 0, nb_vertices);
 
-    unbind_vertex_attribs(s, gl);
-
     s_priv->insert_memory_barriers(s);
 }
 
@@ -752,8 +718,6 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, const struct buffer *indi
         ngli_glDrawElementsInstanced(gl, gl_topology, nb_indices, gl_indices_type, 0, nb_instances);
     else
         ngli_glDrawElements(gl, gl_topology, nb_indices, gl_indices_type, 0);
-
-    unbind_vertex_attribs(s, gl);
 
     s_priv->insert_memory_barriers(s);
 }

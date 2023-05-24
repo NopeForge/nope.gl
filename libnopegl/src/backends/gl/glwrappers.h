@@ -88,6 +88,12 @@ static inline void ngli_glBindVertexArray(const struct glcontext *gl, GLuint arr
     check_error_code(gl, "glBindVertexArray");
 }
 
+static inline void ngli_glBindVertexArrayOES(const struct glcontext *gl, GLuint array)
+{
+    gl->funcs.BindVertexArrayOES(array);
+    check_error_code(gl, "glBindVertexArrayOES");
+}
+
 static inline void ngli_glBlendColor(const struct glcontext *gl, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 {
     gl->funcs.BlendColor(red, green, blue, alpha);
@@ -270,6 +276,12 @@ static inline void ngli_glDeleteVertexArrays(const struct glcontext *gl, GLsizei
 {
     gl->funcs.DeleteVertexArrays(n, arrays);
     check_error_code(gl, "glDeleteVertexArrays");
+}
+
+static inline void ngli_glDeleteVertexArraysOES(const struct glcontext *gl, GLsizei n, const GLuint * arrays)
+{
+    gl->funcs.DeleteVertexArraysOES(n, arrays);
+    check_error_code(gl, "glDeleteVertexArraysOES");
 }
 
 static inline void ngli_glDepthFunc(const struct glcontext *gl, GLenum func)
@@ -457,6 +469,12 @@ static inline void ngli_glGenVertexArrays(const struct glcontext *gl, GLsizei n,
 {
     gl->funcs.GenVertexArrays(n, arrays);
     check_error_code(gl, "glGenVertexArrays");
+}
+
+static inline void ngli_glGenVertexArraysOES(const struct glcontext *gl, GLsizei n, GLuint * arrays)
+{
+    gl->funcs.GenVertexArraysOES(n, arrays);
+    check_error_code(gl, "glGenVertexArraysOES");
 }
 
 static inline void ngli_glGenerateMipmap(const struct glcontext *gl, GLenum target)

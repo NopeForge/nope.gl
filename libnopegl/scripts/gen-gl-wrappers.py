@@ -43,6 +43,10 @@ cmds_optional = [
     "glBindVertexArray",
     "glDeleteVertexArrays",
     "glGenVertexArrays",
+    # Vertex Arrays OES
+    "glBindVertexArrayOES",
+    "glDeleteVertexArraysOES",
+    "glGenVertexArraysOES",
     # Barrier
     "glMemoryBarrier",
     #  Buffers

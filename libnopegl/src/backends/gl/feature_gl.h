@@ -65,6 +65,7 @@
 #define NGLI_FEATURE_GL_OES_STANDARD_DERIVATIVES                   (1ULL << 40)
 #define NGLI_FEATURE_GL_EGL_MESA_QUERY_DRIVER                      (1ULL << 41)
 #define NGLI_FEATURE_GL_TEXTURE_2D_ARRAY                           (1ULL << 42)
+#define NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT                    (1ULL << 43)
 
 #define NGLI_FEATURE_GL_COMPUTE_SHADER_ALL (NGLI_FEATURE_GL_COMPUTE_SHADER           | \
                                             NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY  | \
