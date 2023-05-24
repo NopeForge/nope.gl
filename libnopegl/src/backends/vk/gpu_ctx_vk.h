@@ -75,7 +75,7 @@ struct gpu_ctx_vk {
     struct rendertarget_desc default_rt_desc;
 
     /*
-     * The nope.gl pipeline API allows the execution a pipeline with unbound
+     * The nope.gl pipeline API allows executing a pipeline with unbound
      * textures. The Vulkan API doesn't allow this, thus, to overcome this
      * restriction we allocate a dummy texture and bind it to any unbound
      * binding point of a pipeline.
