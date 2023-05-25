@@ -639,6 +639,8 @@ shaders = {
   'helper_linear2srgb.glsl': 'helper_linear2srgb_glsl.h',
   'helper_srgb2linear.glsl': 'helper_srgb2linear_glsl.h',
   'helper_misc_utils.glsl': 'helper_misc_utils_glsl.h',
+  'hwconv.frag': 'hwconv_frag.h',
+  'hwconv.vert': 'hwconv_vert.h',
   'source_color.frag': 'source_color_frag.h',
   'source_color.vert': 'source_color_vert.h',
   'source_displace.frag': 'source_displace_frag.h',

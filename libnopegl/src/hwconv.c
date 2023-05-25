@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Nope Project
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -37,19 +38,8 @@
 /* GLSL fragments as string */
 #include "hdr_hlg2sdr_frag.h"
 #include "hdr_pq2sdr_frag.h"
-
-static const char *default_vert_base =
-    "void main()"                                                               "\n"
-    "{"                                                                         "\n"
-    "    ngl_out_pos = vec4(position.xy, 0.0, 1.0);"                            "\n"
-    "    var_tex_coord = (tex_coord_matrix * vec4(position.zw, 0.0, 1.0)).xy;"  "\n"
-    "}";
-
-static const char *default_frag_base =
-    "void main()"                                                               "\n"
-    "{"                                                                         "\n"
-    "    ngl_out_color = ngl_texvideo(tex, var_tex_coord);"                     "\n"
-    "}";
+#include "hwconv_frag.h"
+#include "hwconv_vert.h"
 
 static const struct pgcraft_iovar vert_out_vars[] = {
     {.name = "var_tex_coord", .type = NGLI_TYPE_VEC2},
@@ -134,8 +124,8 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         },
     };
 
-    const char *vert_base = default_vert_base;
-    const char *frag_base = default_frag_base;
+    const char *vert_base = hwconv_vert;
+    const char *frag_base = hwconv_frag;
 
     const struct color_info *src_color_info = &src_params->color_info;
     if (src_color_info->space == NMD_COL_SPC_BT2020_NCL) {
