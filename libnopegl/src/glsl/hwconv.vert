@@ -20,8 +20,16 @@
  * under the License.
  */
 
+const vec4 positions[] = {
+    vec4(-1.0, -1.0, 0.0, 0.0),
+    vec4( 1.0, -1.0, 1.0, 0.0),
+    vec4(-1.0,  1.0, 0.0, 1.0),
+    vec4( 1.0,  1.0, 1.0, 1.0),
+};
+
 void main()
 {
+    vec4 position = positions[ngl_vertex_index];
     ngl_out_pos = vec4(position.xy, 0.0, 1.0);
     var_tex_coord = (tex_coord_matrix * vec4(position.zw, 0.0, 1.0)).xy;
 }
