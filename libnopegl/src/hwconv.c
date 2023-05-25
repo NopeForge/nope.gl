@@ -133,7 +133,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     const struct pipeline_params pipeline_params = {
         .type         = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
-            .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+            .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
             .state    = NGLI_GRAPHICSTATE_DEFAULTS,
             .rt_desc  = rt_desc,
         },
@@ -214,7 +214,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
     ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
 
-    ngli_pipeline_compat_draw(pipeline, 4, 1);
+    ngli_pipeline_compat_draw(pipeline, 3, 1);
 
     ngli_gpu_ctx_end_render_pass(gpu_ctx);
     ngli_gpu_ctx_set_viewport(gpu_ctx, prev_vp);
