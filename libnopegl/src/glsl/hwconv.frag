@@ -22,5 +22,5 @@
 
 void main()
 {
-    ngl_out_color = ngl_texvideo(tex, var_tex_coord);
+    ngl_out_color = ngl_texvideo(tex, tex_coord);
 }

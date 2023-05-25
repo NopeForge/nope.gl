@@ -111,7 +111,7 @@ float pq_eetf(float x)
 
 void main()
 {
-    vec4 hdr = ngl_texvideo(tex, var_tex_coord);
+    vec4 hdr = ngl_texvideo(tex, tex_coord);
 
     /* Linearize the PQ signal and ensure it is in the [0; 10000] range */
     vec3 rgb_linear = pq_eotf3(hdr.rgb);

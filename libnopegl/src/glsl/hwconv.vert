@@ -26,5 +26,5 @@ void main()
 {
     vec2 uv = positions[ngl_vertex_index];
     ngl_out_pos = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
-    var_tex_coord = (tex_coord_matrix * vec4(uv, 0.0, 1.0)).xy;
+    tex_coord = (tex_coord_matrix * vec4(uv, 0.0, 1.0)).xy;
 }
