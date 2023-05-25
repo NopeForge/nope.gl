@@ -92,36 +92,8 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    static const float vertices[] = {
-        -1.0f, -1.0f, 0.0f, 0.0f,
-         1.0f, -1.0f, 1.0f, 0.0f,
-        -1.0f,  1.0f, 0.0f, 1.0f,
-         1.0f,  1.0f, 1.0f, 1.0f,
-    };
-    hwconv->vertices = ngli_buffer_create(gpu_ctx);
-    if (!hwconv->vertices)
-        return NGL_ERROR_MEMORY;
-    ret = ngli_buffer_init(hwconv->vertices, sizeof(vertices), NGLI_BUFFER_USAGE_TRANSFER_DST_BIT |
-                                                               NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-    if (ret < 0)
-        return ret;
-
-    ret = ngli_buffer_upload(hwconv->vertices, vertices, sizeof(vertices), 0);
-    if (ret < 0)
-        return ret;
-
     struct pgcraft_texture textures[] = {
         {.name = "tex", .type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO, .stage = NGLI_PROGRAM_SHADER_FRAG},
-    };
-
-    const struct pgcraft_attribute attributes[] = {
-        {
-            .name     = "position",
-            .type     = NGLI_TYPE_VEC4,
-            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
-            .stride   = 4 * 4,
-            .buffer   = hwconv->vertices,
-        },
     };
 
     const char *vert_base = hwconv_vert;
@@ -142,8 +114,6 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         .frag_base        = frag_base,
         .textures         = textures,
         .nb_textures      = NGLI_ARRAY_NB(textures),
-        .attributes       = attributes,
-        .nb_attributes    = NGLI_ARRAY_NB(attributes),
         .vert_out_vars    = vert_out_vars,
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
@@ -260,7 +230,6 @@ void ngli_hwconv_reset(struct hwconv *hwconv)
 
     ngli_pipeline_compat_freep(&hwconv->pipeline_compat);
     ngli_pgcraft_freep(&hwconv->crafter);
-    ngli_buffer_freep(&hwconv->vertices);
     ngli_rendertarget_freep(&hwconv->rt);
 
     memset(hwconv, 0, sizeof(*hwconv));
