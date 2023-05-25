@@ -42,7 +42,7 @@
 #include "hwconv_vert.h"
 
 static const struct pgcraft_iovar vert_out_vars[] = {
-    {.name = "var_tex_coord", .type = NGLI_TYPE_VEC2},
+    {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
 };
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
