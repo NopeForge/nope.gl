@@ -181,18 +181,18 @@ static const char * const vertex_data =
     "void main()"                                                                       "\n"
     "{"                                                                                 "\n"
     "    ngl_out_pos = projection_matrix * modelview_matrix * vec4(position, 1.0);"     "\n"
-    "    var_tex_coord = uvcoord;"                                                      "\n"
+    "    tex_coord = uvcoord;"                                                          "\n"
     "}";
 
 static const char * const fragment_data =
     "void main()"                                                                       "\n"
     "{"                                                                                 "\n"
-    "    float v = ngl_tex2d(tex, var_tex_coord).r;"                                    "\n"
+    "    float v = ngl_tex2d(tex, tex_coord).r;"                                        "\n"
     "    ngl_out_color = vec4(color, 1.0) * opacity * v;"                               "\n"
     "}";
 
 static const struct pgcraft_iovar vert_out_vars[] = {
-    {.name = "var_tex_coord", .type = NGLI_TYPE_VEC2},
+    {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
 };
 
 #define BC(index) o->box_corner[index]
