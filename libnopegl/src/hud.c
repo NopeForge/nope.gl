@@ -1158,17 +1158,17 @@ static const char * const vertex_data =
     "    ngl_out_pos = projection_matrix"                                   "\n"
     "                * modelview_matrix"                                    "\n"
     "                * vec4(coords.xy, 0.0, 1.0);"                          "\n"
-    "    var_tex_coord = coords.zw;"                                        "\n"
+    "    tex_coord = coords.zw;"                                            "\n"
     "}";
 
 static const char * const fragment_data =
     "void main()"                                                           "\n"
     "{"                                                                     "\n"
-    "    ngl_out_color = ngl_tex2d(tex, var_tex_coord);"                    "\n"
+    "    ngl_out_color = ngl_tex2d(tex, tex_coord);"                        "\n"
     "}";
 
 static const struct pgcraft_iovar vert_out_vars[] = {
-    {.name = "var_tex_coord", .type = NGLI_TYPE_VEC2},
+    {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
 };
 
 struct hud *ngli_hud_create(struct ngl_ctx *ctx)
