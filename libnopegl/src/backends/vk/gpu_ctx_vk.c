@@ -909,6 +909,8 @@ static int vk_init(struct gpu_ctx *s)
     s->limits.max_image_units                    = 32;
     s->limits.max_uniform_block_size             = limits->maxUniformBufferRange;
     s->limits.max_storage_block_size             = limits->maxStorageBufferRange;
+    s->limits.min_uniform_block_offset_alignment = limits->minUniformBufferOffsetAlignment;
+    s->limits.min_storage_block_offset_alignment = limits->minStorageBufferOffsetAlignment;
 
     if (config->set_surface_pts &&
         !ngli_vkcontext_has_extension(vk, VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME, 1)) {
