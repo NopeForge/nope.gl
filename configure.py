@@ -322,45 +322,18 @@ def _sdl2_install(cfg):
     dirs = (
         "lib",
         "include",
+        "cmake",
     )
     cmds = []
     for d in dirs:
         src = op.join(cfg.externals["sdl2"], d, "*")
         dst = op.join(cfg.prefix, d)
+        os.makedirs(dst, exist_ok=True)
         cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
 
     src = op.join(cfg.externals["sdl2"], "lib", "x64", "SDL2.dll")
     dst = op.join(cfg.prefix, "Scripts")
     cmds.append(_cmd_join("xcopy", src, dst, "/y"))
-
-    # On Windows, the SDL2 library is generally provided with only CMake config
-    # files and no pkg-config file. Until meson supports falling back on CMake
-    # to find the SDL2 library we need to manually create a pkg-config file so
-    # it can be detected.
-    # See: https://github.com/mesonbuild/meson/pull/11661.
-    pc = textwrap.dedent(
-        """\
-        prefix=${pcfiledir}/../..
-        # sdl pkg-config source file
-
-        exec_prefix=${prefix}
-        libdir=${exec_prefix}/lib/x64
-        includedir=${prefix}/../include
-
-        Name: sdl2
-        Description: Simple DirectMedia Layer
-        Version: 2.26.5
-        Requires:
-        Conflicts:
-        Libs: "-L${libdir}" -lSDL2
-        Libs.private: -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lversion -luuid -ladvapi32 -lsetupapi -lshell32 -ldinput8
-        Cflags: "-I${includedir}" "-I${includedir}/SDL2"
-        """
-    )
-    pc_dir = op.join(cfg.prefix, "lib", "pkgconfig")
-    os.makedirs(pc_dir, exist_ok=True)
-    with open(op.join(pc_dir, "sdl2.pc"), "w") as fp:
-        fp.write(pc)
 
     return cmds
 
@@ -753,6 +726,7 @@ class _Config:
         if _SYSTEM == "Windows":
             env["PKG_CONFIG_ALLOW_SYSTEM_LIBS"] = "1"
             env["PKG_CONFIG_ALLOW_SYSTEM_CFLAGS"] = "1"
+            env["CMAKE_PREFIX_PATH"] = op.join(self.prefix, "cmake")
         elif _SYSTEM == "MinGW":
             # See https://setuptools.pypa.io/en/latest/deprecated/distutils-legacy.html
             env["SETUPTOOLS_USE_DISTUTILS"] = "stdlib"
