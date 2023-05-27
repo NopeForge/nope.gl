@@ -52,6 +52,8 @@ struct buffer_binding {
     GLuint type;
     struct pipeline_buffer_desc desc;
     const struct buffer *buffer;
+    size_t offset;
+    size_t size;
 };
 
 struct attribute_binding {
@@ -315,8 +317,8 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
         const struct buffer *buffer = buffer_binding->buffer;
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
         const struct pipeline_buffer_desc *buffer_desc = &buffer_binding->desc;
-        const size_t offset = buffer_desc->offset;
-        const size_t size = buffer_desc->size ? buffer_desc->size : buffer->size;
+        const size_t offset = buffer_binding->offset;
+        const size_t size = buffer_binding->size ? buffer_binding->size : buffer->size;
         ngli_glBindBufferRange(gl, buffer_binding->type, buffer_desc->binding, buffer_gl->id, offset, size);
     }
 }
@@ -650,8 +652,8 @@ int ngli_pipeline_gl_update_buffer(struct pipeline *s, int32_t index, const stru
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct buffer_binding *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
     buffer_binding->buffer = buffer;
-    buffer_binding->desc.offset = offset;
-    buffer_binding->desc.size = size;
+    buffer_binding->offset = offset;
+    buffer_binding->size = size;
 
     return 0;
 }

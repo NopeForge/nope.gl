@@ -64,8 +64,6 @@ struct pipeline_buffer_desc {
     int binding;
     int access;
     int stage;
-    size_t offset;
-    size_t size;
 };
 
 struct pipeline_attribute_desc {

@@ -86,8 +86,7 @@ int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resour
 
     ngli_assert(layout->nb_buffer_descs == resources->nb_buffers);
     for (size_t i = 0; i < resources->nb_buffers; i++) {
-        const struct pipeline_buffer_desc *desc = &layout->buffer_descs[i];
-        int ret = ngli_pipeline_update_buffer(s, (int32_t)i, resources->buffers[i], desc->offset, desc->size);
+        int ret = ngli_pipeline_update_buffer(s, (int32_t)i, resources->buffers[i], 0, 0);
         if (ret < 0)
             return ret;
     }

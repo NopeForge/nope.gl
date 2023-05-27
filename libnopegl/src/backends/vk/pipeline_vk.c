@@ -58,6 +58,8 @@ struct buffer_binding {
     struct pipeline_buffer_desc desc;
     const struct buffer *buffer;
     uint32_t update_desc_flags;
+    size_t offset;
+    size_t size;
 };
 
 struct texture_binding {
@@ -815,8 +817,8 @@ int ngli_pipeline_vk_update_buffer(struct pipeline *s, int32_t index, const stru
     ngli_assert(buffer_binding);
 
     buffer_binding->buffer = buffer;
-    buffer_binding->desc.offset = offset;
-    buffer_binding->desc.size = size;
+    buffer_binding->offset = offset;
+    buffer_binding->size = size;
     buffer_binding->update_desc_flags = ~0;
 
     return 0;
@@ -873,8 +875,8 @@ static int update_descriptor_set(struct pipeline *s)
             const struct buffer_vk *buffer_vk = (struct buffer_vk *)(binding->buffer);
             const VkDescriptorBufferInfo descriptor_buffer_info = {
                 .buffer = buffer_vk->buffer,
-                .offset = desc->offset,
-                .range  = desc->size ? desc->size : binding->buffer->size,
+                .offset = binding->offset,
+                .range  = binding->size ? binding->size : binding->buffer->size,
             };
             const VkWriteDescriptorSet write_descriptor_set = {
                 .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
