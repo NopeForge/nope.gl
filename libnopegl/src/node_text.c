@@ -32,6 +32,7 @@
 #include "pgcache.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
+#include "text.h"
 #include "type.h"
 #include "topology.h"
 #include "utils.h"
@@ -92,20 +93,12 @@ struct text_priv {
     int live_changed;
 };
 
-#define VALIGN_CENTER 0
-#define VALIGN_TOP    1
-#define VALIGN_BOTTOM 2
-
-#define HALIGN_CENTER 0
-#define HALIGN_RIGHT  1
-#define HALIGN_LEFT   2
-
 static const struct param_choices valign_choices = {
     .name = "valign",
     .consts = {
-        {"center", VALIGN_CENTER, .desc=NGLI_DOCSTRING("vertically centered")},
-        {"bottom", VALIGN_BOTTOM, .desc=NGLI_DOCSTRING("bottom positioned")},
-        {"top",    VALIGN_TOP,    .desc=NGLI_DOCSTRING("top positioned")},
+        {"center", NGLI_TEXT_VALIGN_CENTER, .desc=NGLI_DOCSTRING("vertically centered")},
+        {"bottom", NGLI_TEXT_VALIGN_BOTTOM, .desc=NGLI_DOCSTRING("bottom positioned")},
+        {"top",    NGLI_TEXT_VALIGN_TOP,    .desc=NGLI_DOCSTRING("top positioned")},
         {NULL}
     }
 };
@@ -113,9 +106,9 @@ static const struct param_choices valign_choices = {
 static const struct param_choices halign_choices = {
     .name = "halign",
     .consts = {
-        {"center", HALIGN_CENTER, .desc=NGLI_DOCSTRING("horizontally centered")},
-        {"right",  HALIGN_RIGHT,  .desc=NGLI_DOCSTRING("right positioned")},
-        {"left",   HALIGN_LEFT,   .desc=NGLI_DOCSTRING("left positioned")},
+        {"center", NGLI_TEXT_HALIGN_CENTER, .desc=NGLI_DOCSTRING("horizontally centered")},
+        {"right",  NGLI_TEXT_HALIGN_RIGHT,  .desc=NGLI_DOCSTRING("right positioned")},
+        {"left",   NGLI_TEXT_HALIGN_LEFT,   .desc=NGLI_DOCSTRING("left positioned")},
         {NULL}
     }
 };
@@ -157,10 +150,10 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("pixel padding around the text")},
     {"font_scale",   NGLI_PARAM_TYPE_F32, OFFSET(font_scale), {.f32=1.f},
                      .desc=NGLI_DOCSTRING("scaling of the font")},
-    {"valign",       NGLI_PARAM_TYPE_SELECT, OFFSET(valign), {.i32=VALIGN_CENTER},
+    {"valign",       NGLI_PARAM_TYPE_SELECT, OFFSET(valign), {.i32=NGLI_TEXT_VALIGN_CENTER},
                      .choices=&valign_choices,
                      .desc=NGLI_DOCSTRING("vertical alignment of the text in the box")},
-    {"halign",       NGLI_PARAM_TYPE_SELECT, OFFSET(halign), {.i32=HALIGN_CENTER},
+    {"halign",       NGLI_PARAM_TYPE_SELECT, OFFSET(halign), {.i32=NGLI_TEXT_HALIGN_CENTER},
                      .choices=&halign_choices,
                      .desc=NGLI_DOCSTRING("horizontal alignment of the text in the box")},
     {"aspect_ratio", NGLI_PARAM_TYPE_RATIONAL, OFFSET(aspect_ratio),
@@ -283,11 +276,11 @@ static int update_character_geometries(struct ngl_node *node)
     const float align_padw[3] = NGLI_VEC3_SUB(o->box_width, width);
     const float align_padh[3] = NGLI_VEC3_SUB(o->box_height, height);
 
-    const float spx = (o->halign == HALIGN_CENTER ? .5f :
-                       o->halign == HALIGN_RIGHT  ? 1.f :
+    const float spx = (o->halign == NGLI_TEXT_HALIGN_CENTER ? .5f :
+                       o->halign == NGLI_TEXT_HALIGN_RIGHT  ? 1.f :
                        0.f);
-    const float spy = (o->valign == VALIGN_CENTER ? .5f :
-                       o->valign == VALIGN_TOP    ? 1.f :
+    const float spy = (o->valign == NGLI_TEXT_VALIGN_CENTER ? .5f :
+                       o->valign == NGLI_TEXT_VALIGN_TOP    ? 1.f :
                        0.f);
 
     const float corner[3] = {
