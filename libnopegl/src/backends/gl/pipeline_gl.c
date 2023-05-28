@@ -193,7 +193,10 @@ static int build_uniform_bindings(struct pipeline *s)
 static int build_texture_bindings(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
+    const struct gpu_limits *limits = &s->gpu_ctx->limits;
 
+    size_t nb_textures = 0;
+    size_t nb_images = 0;
     const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_texture_descs; i++) {
         const struct pipeline_texture_desc *texture_desc = &layout->texture_descs[i];
@@ -204,26 +207,17 @@ static int build_texture_bindings(struct pipeline *s)
             texture_desc->type == NGLI_TYPE_IMAGE_CUBE) {
             struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
             struct glcontext *gl = gpu_ctx_gl->glcontext;
-            const struct gpu_limits *limits = &gl->limits;
 
             if (!(gl->features & NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE)) {
                 LOG(ERROR, "context does not support shader image load store operations");
                 return NGL_ERROR_GRAPHICS_UNSUPPORTED;
             }
 
-            int max_nb_textures = NGLI_MIN(limits->max_texture_image_units, sizeof(s_priv->used_texture_units) * 8);
-            if (texture_desc->binding >= max_nb_textures) {
-                LOG(ERROR, "maximum number (%d) of texture unit reached", max_nb_textures);
-                return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
-            }
-            if (s_priv->used_texture_units & (1ULL << texture_desc->binding)) {
-                LOG(ERROR, "texture unit %d is already used by another image", texture_desc->binding);
-                return NGL_ERROR_INVALID_DATA;
-            }
-            s_priv->used_texture_units |= 1ULL << texture_desc->binding;
-
             if (texture_desc->access & NGLI_ACCESS_WRITE_BIT)
                 s_priv->use_barriers = 1;
+            nb_images++;
+        } else {
+            nb_textures++;
         }
 
         struct texture_binding binding = {
@@ -233,19 +227,17 @@ static int build_texture_bindings(struct pipeline *s)
             return NGL_ERROR_MEMORY;
     }
 
-    return 0;
-}
-
-static int acquire_next_available_texture_unit(uint64_t *texture_units)
-{
-    for (int i = 0; i < sizeof(*texture_units) * 8; i++) {
-        if (!(*texture_units & (1ULL << i))) {
-            *texture_units |= (1ULL << i);
-            return i;
-        }
+    if (nb_textures > limits->max_texture_image_units) {
+        LOG(ERROR, "number of texture units (%zu) exceeds device limits (%u)", nb_textures, limits->max_texture_image_units);
+        return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
-    LOG(ERROR, "no texture unit available");
-    return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+
+    if (nb_images > limits->max_image_units) {
+        LOG(ERROR, "number of image units (%zu) exceeds device limits (%u)", nb_images, limits->max_image_units);
+        return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+    }
+
+    return 0;
 }
 
 static const GLenum gl_access_map[NGLI_ACCESS_NB] = {
@@ -262,7 +254,6 @@ static GLenum get_gl_access(int access)
 static void set_textures(struct pipeline *s, struct glcontext *gl)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-    uint64_t texture_units = s_priv->used_texture_units;
     const struct texture_binding *bindings = ngli_darray_data(&s_priv->texture_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
         const struct texture_binding *texture_binding = &bindings[i];
@@ -287,11 +278,7 @@ static void set_textures(struct pipeline *s, struct glcontext *gl)
                 layered = GL_TRUE;
             ngli_glBindImageTexture(gl, texture_binding->desc.binding, texture_id, 0, layered, 0, access, internal_format);
         } else {
-            const int texture_index = acquire_next_available_texture_unit(&texture_units);
-            if (texture_index < 0)
-                return;
-            ngli_glUniform1i(gl, texture_binding->desc.location, texture_index);
-            ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
+            ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_binding->desc.binding);
             if (texture) {
                 ngli_glBindTexture(gl, texture_gl->target, texture_gl->id);
             } else {
