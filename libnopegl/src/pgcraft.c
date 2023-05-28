@@ -46,6 +46,7 @@ enum {
     NGLI_BINDING_TYPE_UBO,
     NGLI_BINDING_TYPE_SSBO,
     NGLI_BINDING_TYPE_TEXTURE,
+    NGLI_BINDING_TYPE_IMAGE,
     NGLI_BINDING_TYPE_NB
 };
 
@@ -170,9 +171,10 @@ static const struct {
 };
 
 enum {
-    TYPE_FLAG_IS_SAMPLER_OR_IMAGE = 1 << 0,
+    TYPE_FLAG_IS_SAMPLER          = 1 << 0,
     TYPE_FLAG_HAS_PRECISION       = 1 << 1,
     TYPE_FLAG_IS_INT              = 1 << 2,
+    TYPE_FLAG_IS_IMAGE            = 1 << 3,
 };
 
 static const int type_flags_map[NGLI_TYPE_NB] = {
@@ -191,24 +193,29 @@ static const int type_flags_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_MAT3]                        = TYPE_FLAG_HAS_PRECISION,
     [NGLI_TYPE_MAT4]                        = TYPE_FLAG_HAS_PRECISION,
     [NGLI_TYPE_BOOL]                        = 0,
-    [NGLI_TYPE_SAMPLER_2D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_SAMPLER_2D_ARRAY]            = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_SAMPLER_2D_RECT]             = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_SAMPLER_3D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_SAMPLER_CUBE]                = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_SAMPLER_EXTERNAL_OES]        = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_IMAGE_2D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_IMAGE_2D_ARRAY]              = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_IMAGE_3D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
-    [NGLI_TYPE_IMAGE_CUBE]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_SAMPLER_2D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGLI_TYPE_SAMPLER_2D_ARRAY]            = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGLI_TYPE_SAMPLER_2D_RECT]             = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGLI_TYPE_SAMPLER_3D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGLI_TYPE_SAMPLER_CUBE]                = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGLI_TYPE_SAMPLER_EXTERNAL_OES]        = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGLI_TYPE_IMAGE_2D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
+    [NGLI_TYPE_IMAGE_2D_ARRAY]              = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
+    [NGLI_TYPE_IMAGE_3D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
+    [NGLI_TYPE_IMAGE_CUBE]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
     [NGLI_TYPE_UNIFORM_BUFFER]              = 0,
     [NGLI_TYPE_STORAGE_BUFFER]              = 0,
 };
 
-static int is_sampler_or_image(int type)
+static int is_sampler(int type)
 {
-    return type_flags_map[type] & TYPE_FLAG_IS_SAMPLER_OR_IMAGE;
+    return type_flags_map[type] & TYPE_FLAG_IS_SAMPLER;
+}
+
+static int is_image(int type)
+{
+    return type_flags_map[type] & TYPE_FLAG_IS_IMAGE;
 }
 
 static int type_has_precision(int type)
@@ -456,21 +463,21 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
 
         struct bstr *b = s->shaders[stage];
 
-        if (is_sampler_or_image(field->type)) {
+        if (is_sampler(field->type) || is_image(field->type)) {
+            int binding_type = NGLI_BINDING_TYPE_TEXTURE;
+            if (is_image(field->type))
+                binding_type = NGLI_BINDING_TYPE_IMAGE;
             struct pipeline_texture_desc pl_texture_desc = {
                 .type     = field->type,
                 .location = -1,
-                .binding  = request_next_binding(s, stage, NGLI_BINDING_TYPE_TEXTURE),
+                .binding  = request_next_binding(s, stage, binding_type),
                 .access   = info->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
                 .stage    = stage,
             };
             snprintf(pl_texture_desc.name, sizeof(pl_texture_desc.name), "%s", field->name);
 
             const char *prefix = "";
-            if (field->type == NGLI_TYPE_IMAGE_2D ||
-                field->type == NGLI_TYPE_IMAGE_2D_ARRAY ||
-                field->type == NGLI_TYPE_IMAGE_3D ||
-                field->type == NGLI_TYPE_IMAGE_CUBE) {
+            if (is_image(field->type)) {
                 if (info->format == NGLI_TYPE_NONE) {
                     LOG(ERROR, "texture format must be set when accessing it as an image");
                     return NGL_ERROR_INVALID_ARG;
@@ -1284,7 +1291,7 @@ static void probe_texture_info_elems(const struct pgcraft *s, struct pgcraft_tex
         struct pgcraft_texture_info_field *field = &fields[i];
         if (field->type == NGLI_TYPE_NONE)
             field->index = -1;
-        else if (is_sampler_or_image(field->type))
+        else if (is_sampler(field->type) || is_image(field->type))
             field->index = get_texture_index(s, field->name);
         else
             field->index = ngli_pgcraft_get_uniform_index(s, field->name, field->stage);
@@ -1361,21 +1368,25 @@ static void setup_glsl_info_gl(struct pgcraft *s)
                                (gl->features & NGLI_FEATURE_GL_SHADING_LANGUAGE_420PACK);
 
     /*
-     * Bindings are shared across all stages. UBO, SSBO and texture bindings
-     * use distinct binding points.
+     * Bindings are shared across all stages. UBO, SSBO, texture and image
+     * bindings use distinct binding points.
      */
     for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_UBO)] = &s->bindings[0];
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_SSBO)] = &s->bindings[1];
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_TEXTURE)] = &s->bindings[2];
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_IMAGE)] = &s->bindings[3];
     }
 
-    /* Force non-explicit texture bindings for contexts that do not support
-     * explicit locations and bindings */
+    /* Force non-explicit texture and image bindings for contexts that do not
+     * support explicit locations and bindings */
     if (!s->has_explicit_bindings) {
         s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_VERT, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
         s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_FRAG, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
         s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_COMP, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
+        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_VERT, NGLI_BINDING_TYPE_IMAGE)] = NULL;
+        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_FRAG, NGLI_BINDING_TYPE_IMAGE)] = NULL;
+        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_COMP, NGLI_BINDING_TYPE_IMAGE)] = NULL;
     }
 }
 #endif
