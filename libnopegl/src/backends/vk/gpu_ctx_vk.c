@@ -902,9 +902,10 @@ static int vk_init(struct gpu_ctx *s)
     s->limits.max_compute_shared_memory_size     = limits->maxComputeSharedMemorySize;
     s->limits.max_draw_buffers                   = limits->maxColorAttachments;
     s->limits.max_samples                        = get_max_supported_samples(limits);
-    /* max_texture_image_units is specific to the OpenGL backend and has no
-     * direct Vulkan equivalent so use a sane default value */
+    /* max_texture_image_units and max_image_units are specific to the OpenGL
+     * backend and have no direct Vulkan equivalent so use sane default values */
     s->limits.max_texture_image_units            = 32;
+    s->limits.max_image_units                    = 32;
     s->limits.max_uniform_block_size             = limits->maxUniformBufferRange;
     s->limits.max_storage_block_size             = limits->maxStorageBufferRange;
 

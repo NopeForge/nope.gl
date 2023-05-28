@@ -388,6 +388,10 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
         GET(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &limits->min_storage_block_offset_alignment);
     }
 
+    if (glcontext->features & NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE) {
+        GET(GL_MAX_IMAGE_UNITS, &limits->max_image_units);
+    }
+
     if (glcontext->features & NGLI_FEATURE_GL_COMPUTE_SHADER) {
         for (GLuint i = 0; i < (GLuint)NGLI_ARRAY_NB(limits->max_compute_work_group_count); i++) {
             GET_I(GL_MAX_COMPUTE_WORK_GROUP_COUNT, i, &limits->max_compute_work_group_count[i]);
