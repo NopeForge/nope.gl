@@ -205,14 +205,6 @@ static int build_texture_bindings(struct pipeline *s)
             texture_desc->type == NGLI_TYPE_IMAGE_2D_ARRAY ||
             texture_desc->type == NGLI_TYPE_IMAGE_3D ||
             texture_desc->type == NGLI_TYPE_IMAGE_CUBE) {
-            struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-            struct glcontext *gl = gpu_ctx_gl->glcontext;
-
-            if (!(gl->features & NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE)) {
-                LOG(ERROR, "context does not support shader image load store operations");
-                return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-            }
-
             if (texture_desc->access & NGLI_ACCESS_WRITE_BIT)
                 s_priv->use_barriers = 1;
             nb_images++;
@@ -230,6 +222,14 @@ static int build_texture_bindings(struct pipeline *s)
     if (nb_textures > limits->max_texture_image_units) {
         LOG(ERROR, "number of texture units (%zu) exceeds device limits (%u)", nb_textures, limits->max_texture_image_units);
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+    }
+
+    const struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    const struct glcontext *gl = gpu_ctx_gl->glcontext;
+    if (nb_images && !(gl->features & NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE)) {
+        LOG(ERROR, "context does not support shader image load store operations");
+        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
     if (nb_images > limits->max_image_units) {
