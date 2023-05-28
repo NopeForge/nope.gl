@@ -469,7 +469,6 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
                 binding_type = NGLI_BINDING_TYPE_IMAGE;
             struct pipeline_texture_desc pl_texture_desc = {
                 .type     = field->type,
-                .location = -1,
                 .binding  = request_next_binding(s, stage, binding_type),
                 .access   = info->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
                 .stage    = stage,
@@ -490,7 +489,8 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
                 }
 
                 ngli_bstr_printf(b, "layout(%s", format);
-                if (pl_texture_desc.binding != -1)
+
+                if (s->has_explicit_bindings)
                     ngli_bstr_printf(b, ", binding=%d", pl_texture_desc.binding);
 
                 /*
@@ -508,7 +508,7 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
                     writable_qualifier = "writeonly";
                 }
                 ngli_bstr_printf(b, ") %s ", info->writable ? writable_qualifier : "readonly");
-            } else if (pl_texture_desc.binding != -1) {
+            } else if (s->has_explicit_bindings) {
                 ngli_bstr_printf(b, "layout(binding=%d) ", pl_texture_desc.binding);
             }
 
@@ -1203,16 +1203,15 @@ static int probe_pipeline_buffer(const struct hmap *info_map, void *arg)
 
 static int probe_pipeline_texture(const struct hmap *info_map, void *arg)
 {
-    struct pipeline_texture_desc *elem_desc = arg;
-    if (elem_desc->location != -1)
+    if (!info_map)
         return 0;
+    struct pipeline_texture_desc *elem_desc = arg;
+    /* Remove texture from the filtered list if it has been stripped during
+     * shader compilation */
     const struct program_variable_info *info = ngli_hmap_get(info_map, elem_desc->name);
     if (!info)
         return NGL_ERROR_NOT_FOUND;
-    elem_desc->location = info->location;
-    if (elem_desc->binding == -1)
-        elem_desc->binding = info->binding;
-    return elem_desc->location != -1 ? 0 : NGL_ERROR_NOT_FOUND;
+    return 0;
 }
 
 static int probe_pipeline_attribute(const struct hmap *info_map, void *arg)
@@ -1376,17 +1375,6 @@ static void setup_glsl_info_gl(struct pgcraft *s)
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_SSBO)] = &s->bindings[1];
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_TEXTURE)] = &s->bindings[2];
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_IMAGE)] = &s->bindings[3];
-    }
-
-    /* Force non-explicit texture and image bindings for contexts that do not
-     * support explicit locations and bindings */
-    if (!s->has_explicit_bindings) {
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_VERT, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_FRAG, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_COMP, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_VERT, NGLI_BINDING_TYPE_IMAGE)] = NULL;
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_FRAG, NGLI_BINDING_TYPE_IMAGE)] = NULL;
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_COMP, NGLI_BINDING_TYPE_IMAGE)] = NULL;
     }
 }
 #endif

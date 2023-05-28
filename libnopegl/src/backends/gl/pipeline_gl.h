@@ -37,7 +37,6 @@ struct pipeline_gl {
     struct darray buffer_bindings;    // buffer_binding
     struct darray attribute_bindings; // attribute_binding
 
-    uint64_t used_texture_units;
     GLuint vao_id;
     int use_barriers;
     void (*insert_memory_barriers)(struct pipeline *s);

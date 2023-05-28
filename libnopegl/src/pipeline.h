@@ -52,7 +52,6 @@ struct pipeline_uniform_desc {
 struct pipeline_texture_desc {
     char name[MAX_ID_LEN];
     int type;
-    int location;
     int binding;
     int access;
     int stage;
