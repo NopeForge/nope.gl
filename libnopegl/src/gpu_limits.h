@@ -26,6 +26,7 @@
 
 struct gpu_limits {
     uint32_t max_texture_image_units;
+    uint32_t max_image_units;
     uint32_t max_compute_work_group_count[3];
     uint32_t max_compute_work_group_invocations;
     uint32_t max_compute_work_group_size[3];
