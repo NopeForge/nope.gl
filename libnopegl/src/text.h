@@ -22,6 +22,9 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#include "darray.h"
+#include "nopegl.h"
+
 enum text_valign {
     NGLI_TEXT_VALIGN_CENTER,
     NGLI_TEXT_VALIGN_TOP,
@@ -33,5 +36,28 @@ enum text_halign {
     NGLI_TEXT_HALIGN_RIGHT,
     NGLI_TEXT_HALIGN_LEFT,
 };
+
+struct char_info {
+    float x, y, w, h;
+    float uvcoords[4 * 2];
+};
+
+struct text_config {
+    int32_t padding;
+};
+
+struct text {
+    struct ngl_ctx *ctx;
+    struct text_config config;
+
+    int32_t width;
+    int32_t height;
+    struct darray chars; // struct char_info
+};
+
+struct text *ngli_text_create(struct ngl_ctx *ctx);
+int ngli_text_init(struct text *s, const struct text_config *cfg);
+int ngli_text_set_string(struct text *s, const char *str);
+void ngli_text_freep(struct text **sp);
 
 #endif

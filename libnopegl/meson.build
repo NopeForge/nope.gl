@@ -229,6 +229,7 @@ lib_src = files(
   'src/rnode.c',
   'src/scene.c',
   'src/serialize.c',
+  'src/text.c',
   'src/texture.c',
   'src/transforms.c',
   'src/type.c',

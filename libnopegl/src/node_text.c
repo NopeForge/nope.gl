@@ -82,6 +82,7 @@ struct text_opts {
 };
 
 struct text_priv {
+    struct text *text_ctx;
     struct buffer *vertices;
     struct buffer *uvcoords;
     struct buffer *indices;
@@ -175,26 +176,6 @@ static const struct pgcraft_iovar vert_out_vars[] = {
 #define W(index) chr_width[index]
 #define H(index) chr_height[index]
 
-static void get_char_box_dim(const char *s, int32_t *wp, int32_t *hp, size_t *np)
-{
-    int32_t w = 0, h = 1;
-    int32_t cur_w = 0;
-    size_t n = 0;
-    for (size_t i = 0; s[i]; i++) {
-        if (s[i] == '\n') {
-            cur_w = 0;
-            h++;
-        } else {
-            cur_w++;
-            w = NGLI_MAX(w, cur_w);
-            n++;
-        }
-    }
-    *wp = w;
-    *hp = h;
-    *np = n;
-}
-
 static void destroy_characters_resources(struct text_priv *s)
 {
     ngli_buffer_freep(&s->vertices);
@@ -210,12 +191,14 @@ static int update_character_geometries(struct ngl_node *node)
     struct text_priv *s = node->priv_data;
     struct text_opts *o = node->opts;
 
-    int ret = 0;
     const char *str = o->live.val.s;
+    struct text *text = s->text_ctx;
 
-    size_t text_nbchr;
-    int32_t text_cols, text_rows;
-    get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
+    int ret = ngli_text_set_string(s->text_ctx, str);
+    if (ret < 0)
+        return ret;
+
+    const size_t text_nbchr = ngli_darray_count(&text->chars);
     if (!text_nbchr) {
         destroy_characters_resources(s);
         return 0;
@@ -242,8 +225,8 @@ static int update_character_geometries(struct ngl_node *node)
     const int32_t *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
     const float box_ratio = (float)ar[0] * box_width_len / ((float)ar[1] * box_height_len);
 
-    const int32_t text_width  = text_cols * NGLI_FONT_W + 2 * o->padding;
-    const int32_t text_height = text_rows * NGLI_FONT_H + 2 * o->padding;
+    const int32_t text_width  = text->width;
+    const int32_t text_height = text->height;
     const float text_ratio = (float)text_width / (float)text_height;
 
     float ratio_w, ratio_h;
@@ -260,17 +243,6 @@ static int update_character_geometries(struct ngl_node *node)
     float height[3];
     ngli_vec3_scale(width, o->box_width, ratio_w * o->font_scale);
     ngli_vec3_scale(height, o->box_height, ratio_h * o->font_scale);
-
-    /* User padding */
-    const float padx = (float)o->padding / (float)text_width;
-    const float pady = (float)o->padding / (float)text_height;
-
-    /* Width and height of 1 character */
-    float chr_width[3], chr_height[3];
-    const float chr_w = (1.f - 2.f * padx) / (float)text_cols;
-    const float chr_h = (1.f - 2.f * pady) / (float)text_rows;
-    ngli_vec3_scale(chr_width, width, chr_w);
-    ngli_vec3_scale(chr_height, height, chr_h);
 
     /* Adjust text position according to alignment settings */
     const float align_padw[3] = NGLI_VEC3_SUB(o->box_width, width);
@@ -289,18 +261,17 @@ static int update_character_geometries(struct ngl_node *node)
         BC(2) + align_padw[2] * spx + align_padh[2] * spy,
     };
 
-    int32_t px = 0, py = 0;
-    size_t n = 0;
+    const struct char_info *chars = ngli_darray_data(&text->chars);
+    for (size_t n = 0; n < text_nbchr; n++) {
+        const struct char_info *chr = &chars[n];
+        float chr_width[3], chr_height[3];
 
-    for (size_t i = 0; str[i]; i++) {
-        if (str[i] == '\n') {
-            py++;
-            px = 0;
-            continue;
-        }
+        const float chr_x = chr->x;
+        const float chr_y = chr->y;
 
-        const float chr_x = chr_w * (float)px + padx;
-        const float chr_y = chr_h * (float)(text_rows - py - 1) + pady;
+        /* character dimension */
+        ngli_vec3_scale(chr_width, width, chr->w);
+        ngli_vec3_scale(chr_height, height, chr->h);
 
         /* quad vertices */
         const float chr_corner[3] = {
@@ -316,16 +287,13 @@ static int update_character_geometries(struct ngl_node *node)
         };
         memcpy(vertices + 4 * 3 * n, chr_vertices, sizeof(chr_vertices));
 
-        /* focus uvcoords on the character in the atlas texture */
-        ngli_drawutils_get_atlas_uvcoords(str[i], uvcoords + 4 * 2 * n);
+        /* uvcoords of the character in the atlas texture */
+        memcpy(uvcoords + 4 * 2 * n, chr->uvcoords, sizeof(chr->uvcoords));
 
         /* quad for each character is made of 2 triangles */
         const int16_t n4 = (int16_t)n * 4;
         const int16_t chr_indices[] = { n4 + 0, n4 + 1, n4 + 2, n4 + 1, n4 + 3, n4 + 2 };
         memcpy(indices + n * NGLI_ARRAY_NB(chr_indices), chr_indices, sizeof(chr_indices));
-
-        n++;
-        px++;
     }
 
     if (nb_indices > s->nb_indices) { // need re-alloc
@@ -441,8 +409,21 @@ end:
 static int text_init(struct ngl_node *node)
 {
     struct text_priv *s = node->priv_data;
+    const struct text_opts *o = node->opts;
 
     int ret = atlas_create(node);
+    if (ret < 0)
+        return ret;
+
+    s->text_ctx = ngli_text_create(node->ctx);
+    if (!s->text_ctx)
+        return NGL_ERROR_MEMORY;
+
+    const struct text_config config = {
+        .padding = o->padding,
+    };
+
+    ret = ngli_text_init(s->text_ctx, &config);
     if (ret < 0)
         return ret;
 
@@ -723,6 +704,7 @@ static void text_uninit(struct ngl_node *node)
     ngli_darray_reset(&s->pipeline_descs);
     ngli_buffer_freep(&s->bg_vertices);
     destroy_characters_resources(s);
+    ngli_text_freep(&s->text_ctx);
 }
 
 const struct node_class ngli_text_class = {
