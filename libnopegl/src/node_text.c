@@ -51,18 +51,28 @@
 #define DYNAMIC_VERTEX_USAGE_FLAGS (NGLI_BUFFER_USAGE_DYNAMIC_BIT | VERTEX_USAGE_FLAGS)
 #define DYNAMIC_INDEX_USAGE_FLAGS  (NGLI_BUFFER_USAGE_DYNAMIC_BIT | INDEX_USAGE_FLAGS)
 
-struct pipeline_subdesc {
+struct pipeline_desc_common {
     struct pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
     int32_t modelview_matrix_index;
     int32_t projection_matrix_index;
+};
+
+struct pipeline_desc_bg {
+    struct pipeline_desc_common common;
+    int32_t color_index;
+    int32_t opacity_index;
+};
+
+struct pipeline_desc_fg {
+    struct pipeline_desc_common common;
     int32_t color_index;
     int32_t opacity_index;
 };
 
 struct pipeline_desc {
-    struct pipeline_subdesc bg; /* Background (bounding box) */
-    struct pipeline_subdesc fg; /* Foreground (characters) */
+    struct pipeline_desc_bg bg; /* Background (bounding box) */
+    struct pipeline_desc_fg fg; /* Foreground (characters) */
 };
 
 struct text_opts {
@@ -309,7 +319,7 @@ static int update_character_geometries(struct ngl_node *node)
 
         struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
         for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
-            struct pipeline_subdesc *desc = &descs[i].fg;
+            struct pipeline_desc_common *desc = &descs[i].fg.common;
 
             ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 0, s->vertices);
             ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 1, s->uvcoords);
@@ -387,7 +397,7 @@ static int text_init(struct ngl_node *node)
 }
 
 static int init_subdesc(struct ngl_node *node,
-                        struct pipeline_subdesc *desc,
+                        struct pipeline_desc_common *desc,
                         struct pipeline_params *pipeline_params,
                         const struct pgcraft_params *crafter_params)
 {
@@ -424,13 +434,11 @@ static int init_subdesc(struct ngl_node *node,
 
     desc->modelview_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "projection_matrix", NGLI_PROGRAM_SHADER_VERT);
-    desc->color_index = ngli_pgcraft_get_uniform_index(desc->crafter, "color", NGLI_PROGRAM_SHADER_FRAG);
-    desc->opacity_index = ngli_pgcraft_get_uniform_index(desc->crafter, "opacity", NGLI_PROGRAM_SHADER_FRAG);
 
     return 0;
 }
 
-static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
+static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct rnode *rnode = ctx->rnode_pos;
@@ -481,10 +489,17 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
         .nb_attributes    = NGLI_ARRAY_NB(attributes),
     };
 
-    return init_subdesc(node, desc, &pipeline_params, &crafter_params);
+    int ret = init_subdesc(node, &desc->common, &pipeline_params, &crafter_params);
+    if (ret < 0)
+        return ret;
+
+    desc->color_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "color", NGLI_PROGRAM_SHADER_FRAG);
+    desc->opacity_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "opacity", NGLI_PROGRAM_SHADER_FRAG);
+
+    return 0;
 }
 
-static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
+static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct rnode *rnode = ctx->rnode_pos;
@@ -555,9 +570,12 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    int ret = init_subdesc(node, desc, &pipeline_params, &crafter_params);
+    int ret = init_subdesc(node, &desc->common, &pipeline_params, &crafter_params);
     if (ret < 0)
         return ret;
+
+    desc->color_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "color", NGLI_PROGRAM_SHADER_FRAG);
+    desc->opacity_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "opacity", NGLI_PROGRAM_SHADER_FRAG);
 
     ngli_assert(!strcmp("position", pipeline_params.layout.attribute_descs[0].name));
     ngli_assert(!strcmp("uvcoord", pipeline_params.layout.attribute_descs[1].name));
@@ -619,20 +637,20 @@ static void text_draw(struct ngl_node *node)
         ctx->render_pass_started = 1;
     }
 
-    struct pipeline_subdesc *bg_desc = &desc->bg;
-    ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->modelview_matrix_index, modelview_matrix);
-    ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->projection_matrix_index, projection_matrix);
-    ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->color_index, o->bg_color);
-    ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->opacity_index, &o->bg_opacity);
-    ngli_pipeline_compat_draw(bg_desc->pipeline_compat, 4, 1);
+    struct pipeline_desc_bg *bg_desc = &desc->bg;
+    ngli_pipeline_compat_update_uniform(bg_desc->common.pipeline_compat, bg_desc->common.modelview_matrix_index, modelview_matrix);
+    ngli_pipeline_compat_update_uniform(bg_desc->common.pipeline_compat, bg_desc->common.projection_matrix_index, projection_matrix);
+    ngli_pipeline_compat_update_uniform(bg_desc->common.pipeline_compat, bg_desc->color_index, o->bg_color);
+    ngli_pipeline_compat_update_uniform(bg_desc->common.pipeline_compat, bg_desc->opacity_index, &o->bg_opacity);
+    ngli_pipeline_compat_draw(bg_desc->common.pipeline_compat, 4, 1);
 
     if (s->nb_indices) {
-        struct pipeline_subdesc *fg_desc = &desc->fg;
-        ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->modelview_matrix_index, modelview_matrix);
-        ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->projection_matrix_index, projection_matrix);
-        ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->color_index, o->fg_color);
-        ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->opacity_index, &o->fg_opacity);
-        ngli_pipeline_compat_draw_indexed(fg_desc->pipeline_compat, s->indices, NGLI_FORMAT_R16_UNORM, (int)s->nb_indices, 1);
+        struct pipeline_desc_fg *fg_desc = &desc->fg;
+        ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->common.modelview_matrix_index, modelview_matrix);
+        ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->common.projection_matrix_index, projection_matrix);
+        ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->color_index, o->fg_color);
+        ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->opacity_index, &o->fg_opacity);
+        ngli_pipeline_compat_draw_indexed(fg_desc->common.pipeline_compat, s->indices, NGLI_FORMAT_R16_UNORM, (int)s->nb_indices, 1);
     }
 }
 
@@ -642,10 +660,10 @@ static void text_uninit(struct ngl_node *node)
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
     for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
         struct pipeline_desc *desc = &descs[i];
-        ngli_pipeline_compat_freep(&desc->bg.pipeline_compat);
-        ngli_pipeline_compat_freep(&desc->fg.pipeline_compat);
-        ngli_pgcraft_freep(&desc->bg.crafter);
-        ngli_pgcraft_freep(&desc->fg.crafter);
+        ngli_pipeline_compat_freep(&desc->bg.common.pipeline_compat);
+        ngli_pipeline_compat_freep(&desc->fg.common.pipeline_compat);
+        ngli_pgcraft_freep(&desc->bg.common.crafter);
+        ngli_pgcraft_freep(&desc->fg.common.crafter);
     }
     ngli_darray_reset(&s->pipeline_descs);
     ngli_buffer_freep(&s->bg_vertices);
