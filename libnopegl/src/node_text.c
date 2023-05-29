@@ -81,12 +81,14 @@ struct text_opts {
 };
 
 struct text_priv {
+    /* characters */
     struct text *text_ctx;
     struct buffer *vertices;
     struct buffer *uvcoords;
     struct buffer *indices;
     size_t nb_indices;
 
+    /* background box */
     struct buffer *bg_vertices;
 
     struct darray pipeline_descs;
