@@ -24,6 +24,7 @@
 
 #include "darray.h"
 #include "nopegl.h"
+#include "texture.h"
 
 enum text_valign {
     NGLI_TEXT_VALIGN_CENTER,
@@ -53,6 +54,7 @@ struct text {
     int32_t width;
     int32_t height;
     struct darray chars; // struct char_info
+    struct texture *texture;
 };
 
 struct text *ngli_text_create(struct ngl_ctx *ctx);
