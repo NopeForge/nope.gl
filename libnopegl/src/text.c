@@ -23,7 +23,6 @@
 #include "internal.h"
 #include "memory.h"
 #include "text.h"
-#include "texture.h"
 #include "utils.h"
 
 struct text *ngli_text_create(struct ngl_ctx *ctx)
@@ -88,6 +87,8 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
     int ret = atlas_create(s->ctx);
     if (ret < 0)
         return ret;
+
+    s->texture = s->ctx->font_atlas;
 
     return 0;
 }
