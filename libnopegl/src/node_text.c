@@ -266,18 +266,15 @@ static int update_character_geometries(struct ngl_node *node)
         const struct char_info *chr = &chars[n];
         float chr_width[3], chr_height[3];
 
-        const float chr_x = chr->x;
-        const float chr_y = chr->y;
-
         /* character dimension */
         ngli_vec3_scale(chr_width, width, chr->w);
         ngli_vec3_scale(chr_height, height, chr->h);
 
         /* quad vertices */
         const float chr_corner[3] = {
-            corner[0] + width[0] * chr_x + height[0] * chr_y,
-            corner[1] + width[1] * chr_x + height[1] * chr_y,
-            corner[2] + width[2] * chr_x + height[2] * chr_y,
+            corner[0] + width[0] * chr->x + height[0] * chr->y,
+            corner[1] + width[1] * chr->x + height[1] * chr->y,
+            corner[2] + width[2] * chr->x + height[2] * chr->y,
         };
         const float chr_vertices[] = {
             C(0),               C(1),               C(2),
