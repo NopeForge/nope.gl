@@ -25,7 +25,6 @@
 #include "memory.h"
 #include "internal.h"
 #include "darray.h"
-#include "drawutils.h"
 #include "gpu_ctx.h"
 #include "log.h"
 #include "math_utils.h"
@@ -355,58 +354,10 @@ static int init_bounding_box_geometry(struct ngl_node *node)
     return 0;
 }
 
-static int atlas_create(struct ngl_ctx *ctx)
-{
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-
-    if (ctx->font_atlas)
-        return 0;
-
-    struct canvas canvas = {0};
-    int ret = ngli_drawutils_get_font_atlas(&canvas);
-    if (ret < 0)
-        goto end;
-
-    struct texture_params tex_params = {
-        .type          = NGLI_TEXTURE_TYPE_2D,
-        .width         = canvas.w,
-        .height        = canvas.h,
-        .format        = NGLI_FORMAT_R8_UNORM,
-        .min_filter    = NGLI_FILTER_LINEAR,
-        .mag_filter    = NGLI_FILTER_NEAREST,
-        .mipmap_filter = NGLI_MIPMAP_FILTER_LINEAR,
-        .usage         = NGLI_TEXTURE_USAGE_TRANSFER_SRC_BIT
-                       | NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT
-                       | NGLI_TEXTURE_USAGE_SAMPLED_BIT,
-    };
-
-    ctx->font_atlas = ngli_texture_create(gpu_ctx); // freed at context reconfiguration/destruction
-    if (!ctx->font_atlas) {
-        ret = NGL_ERROR_MEMORY;
-        goto end;
-    }
-
-    ret = ngli_texture_init(ctx->font_atlas, &tex_params);
-    if (ret < 0)
-        goto end;
-
-    ret = ngli_texture_upload(ctx->font_atlas, canvas.buf, 0);
-    if (ret < 0)
-        goto end;
-
-end:
-    ngli_free(canvas.buf);
-    return ret;
-}
-
 static int text_init(struct ngl_node *node)
 {
     struct text_priv *s = node->priv_data;
     const struct text_opts *o = node->opts;
-
-    int ret = atlas_create(node->ctx);
-    if (ret < 0)
-        return ret;
 
     s->text_ctx = ngli_text_create(node->ctx);
     if (!s->text_ctx)
@@ -416,7 +367,7 @@ static int text_init(struct ngl_node *node)
         .padding = o->padding,
     };
 
-    ret = ngli_text_init(s->text_ctx, &config);
+    int ret = ngli_text_init(s->text_ctx, &config);
     if (ret < 0)
         return ret;
 
