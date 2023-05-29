@@ -355,9 +355,8 @@ static int init_bounding_box_geometry(struct ngl_node *node)
     return 0;
 }
 
-static int atlas_create(struct ngl_node *node)
+static int atlas_create(struct ngl_ctx *ctx)
 {
-    struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
     if (ctx->font_atlas)
@@ -405,7 +404,7 @@ static int text_init(struct ngl_node *node)
     struct text_priv *s = node->priv_data;
     const struct text_opts *o = node->opts;
 
-    int ret = atlas_create(node);
+    int ret = atlas_create(node->ctx);
     if (ret < 0)
         return ret;
 
