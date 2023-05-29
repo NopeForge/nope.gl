@@ -310,11 +310,14 @@ static int update_character_geometries(struct ngl_node *node)
             continue;
         }
 
+        const float chr_x = (float)px;
+        const float chr_y = (float)(text_rows - py - 1);
+
         /* quad vertices */
         const float chr_corner[3] = {
-            corner[0] + chr_width[0] * (float)px + chr_height[0] * (float)(text_rows - py - 1),
-            corner[1] + chr_width[1] * (float)px + chr_height[1] * (float)(text_rows - py - 1),
-            corner[2] + chr_width[2] * (float)px + chr_height[2] * (float)(text_rows - py - 1),
+            corner[0] + chr_width[0] * chr_x + chr_height[0] * chr_y,
+            corner[1] + chr_width[1] * chr_x + chr_height[1] * chr_y,
+            corner[2] + chr_width[2] * chr_x + chr_height[2] * chr_y,
         };
         const float chr_vertices[] = {
             C(0),               C(1),               C(2),
