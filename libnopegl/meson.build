@@ -368,7 +368,6 @@ gbackends_cfg = {
       'src/backends/gl/rendertarget_gl.c',
       'src/backends/gl/texture_gl.c',
       'src/backends/gl/topology_gl.c',
-      'src/backends/gl/type_gl.c',
     ),
     'cfg': 'BACKEND_GL',
     'hosts_cfg': {
@@ -404,7 +403,6 @@ gbackends_cfg = {
       'src/backends/gl/rendertarget_gl.c',
       'src/backends/gl/texture_gl.c',
       'src/backends/gl/topology_gl.c',
-      'src/backends/gl/type_gl.c',
     ),
     'cfg': 'BACKEND_GLES',
     'hosts_cfg': {
