@@ -33,7 +33,7 @@
 #include "program_gl.h"
 #include "texture_gl.h"
 #include "topology_gl.h"
-#include "type_gl.h"
+#include "type.h"
 
 typedef void (*set_uniform_func)(struct glcontext *gl, GLint location, GLsizei count, const void *data);
 
@@ -310,6 +310,16 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
     }
 }
 
+static const GLenum gl_target_map[NGLI_TYPE_NB] = {
+    [NGLI_TYPE_UNIFORM_BUFFER] = GL_UNIFORM_BUFFER,
+    [NGLI_TYPE_STORAGE_BUFFER] = GL_SHADER_STORAGE_BUFFER,
+};
+
+static GLenum get_gl_target(int type)
+{
+    return gl_target_map[type];
+}
+
 static int build_buffer_bindings(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
@@ -336,7 +346,7 @@ static int build_buffer_bindings(struct pipeline *s)
             s_priv->use_barriers = 1;
 
         struct buffer_binding binding = {
-            .type = ngli_type_get_gl_type(pipeline_buffer_desc->type),
+            .type = get_gl_target(pipeline_buffer_desc->type),
             .desc = *pipeline_buffer_desc,
         };
         if (!ngli_darray_push(&s_priv->buffer_bindings, &binding))
