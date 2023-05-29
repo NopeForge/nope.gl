@@ -269,12 +269,8 @@ static int update_character_geometries(struct ngl_node *node)
     ngli_vec3_scale(height, o->box_height, ratio_h * o->font_scale);
 
     /* User padding */
-    float padw[3];
-    float padh[3];
     const float padx = (float)o->padding / (float)text_width;
     const float pady = (float)o->padding / (float)text_height;
-    ngli_vec3_scale(padw, width,  padx);
-    ngli_vec3_scale(padh, height, pady);
 
     /* Width and height of 1 character */
     float chr_width[3], chr_height[3];
@@ -295,9 +291,9 @@ static int update_character_geometries(struct ngl_node *node)
                        0.f);
 
     const float corner[3] = {
-        BC(0) + align_padw[0] * spx + align_padh[0] * spy + padw[0] + padh[0],
-        BC(1) + align_padw[1] * spx + align_padh[1] * spy + padw[1] + padh[1],
-        BC(2) + align_padw[2] * spx + align_padh[2] * spy + padw[2] + padh[2],
+        BC(0) + align_padw[0] * spx + align_padh[0] * spy,
+        BC(1) + align_padw[1] * spx + align_padh[1] * spy,
+        BC(2) + align_padw[2] * spx + align_padh[2] * spy,
     };
 
     int32_t px = 0, py = 0;
@@ -310,14 +306,14 @@ static int update_character_geometries(struct ngl_node *node)
             continue;
         }
 
-        const float chr_x = (float)px;
-        const float chr_y = (float)(text_rows - py - 1);
+        const float chr_x = chr_w * (float)px + padx;
+        const float chr_y = chr_h * (float)(text_rows - py - 1) + pady;
 
         /* quad vertices */
         const float chr_corner[3] = {
-            corner[0] + chr_width[0] * chr_x + chr_height[0] * chr_y,
-            corner[1] + chr_width[1] * chr_x + chr_height[1] * chr_y,
-            corner[2] + chr_width[2] * chr_x + chr_height[2] * chr_y,
+            corner[0] + width[0] * chr_x + height[0] * chr_y,
+            corner[1] + width[1] * chr_x + height[1] * chr_y,
+            corner[2] + width[2] * chr_x + height[2] * chr_y,
         };
         const float chr_vertices[] = {
             C(0),               C(1),               C(2),
