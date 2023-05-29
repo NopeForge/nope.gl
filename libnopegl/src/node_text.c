@@ -224,10 +224,7 @@ static int update_character_geometries(struct ngl_node *node)
     static const int32_t default_ar[2] = {1, 1};
     const int32_t *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
     const float box_ratio = (float)ar[0] * box_width_len / ((float)ar[1] * box_height_len);
-
-    const int32_t text_width  = text->width;
-    const int32_t text_height = text->height;
-    const float text_ratio = (float)text_width / (float)text_height;
+    const float text_ratio = (float)text->width / (float)text->height;
 
     float ratio_w, ratio_h;
     if (text_ratio < box_ratio) {
