@@ -277,16 +277,11 @@ static int update_character_geometries(struct ngl_node *node)
     ngli_vec3_scale(padh, height, pady);
 
     /* Width and height of 1 character */
-    const float chr_width[3] = {
-        (width[0] - 2.f * padw[0]) / (float)text_cols,
-        (width[1] - 2.f * padw[1]) / (float)text_cols,
-        (width[2] - 2.f * padw[2]) / (float)text_cols,
-    };
-    const float chr_height[3] = {
-        (height[0] - 2.f * padh[0]) / (float)text_rows,
-        (height[1] - 2.f * padh[1]) / (float)text_rows,
-        (height[2] - 2.f * padh[2]) / (float)text_rows,
-    };
+    float chr_width[3], chr_height[3];
+    const float chr_w = (1.f - 2.f * padx) / (float)text_cols;
+    const float chr_h = (1.f - 2.f * pady) / (float)text_rows;
+    ngli_vec3_scale(chr_width, width, chr_w);
+    ngli_vec3_scale(chr_height, height, chr_h);
 
     /* Adjust text position according to alignment settings */
     const float align_padw[3] = NGLI_VEC3_SUB(o->box_width, width);
