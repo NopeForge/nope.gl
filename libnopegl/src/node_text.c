@@ -271,8 +271,10 @@ static int update_character_geometries(struct ngl_node *node)
     /* User padding */
     float padw[3];
     float padh[3];
-    ngli_vec3_scale(padw, width,  (float)o->padding / (float)text_width);
-    ngli_vec3_scale(padh, height, (float)o->padding / (float)text_height);
+    const float padx = (float)o->padding / (float)text_width;
+    const float pady = (float)o->padding / (float)text_height;
+    ngli_vec3_scale(padw, width,  padx);
+    ngli_vec3_scale(padh, height, pady);
 
     /* Width and height of 1 character */
     const float chr_width[3] = {
