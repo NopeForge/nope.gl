@@ -232,6 +232,7 @@ lib_src = files(
   'src/serialize.c',
   'src/text.c',
   'src/text_builtin.c',
+  'src/text_external.c',
   'src/texture.c',
   'src/transforms.c',
   'src/type.c',
@@ -291,6 +292,21 @@ if 'frameworks' in host_cfg
 endif
 lib_src += host_cfg.get('src', [])
 
+
+#
+# Text library dependencies
+#
+
+opt_text_libs = get_option('text-libraries')
+dep_harfbuzz = dependency('harfbuzz', required: opt_text_libs)
+dep_freetype = dependency('freetype2', required: opt_text_libs)
+dep_fribidi  = dependency('fribidi', required: opt_text_libs)
+if dep_harfbuzz.found() and dep_freetype.found() and dep_fribidi.found()
+  lib_deps += [dep_harfbuzz, dep_freetype, dep_fribidi]
+  conf_data.set10('HAVE_TEXT_LIBRARIES', true)
+else
+  conf_data.set10('HAVE_TEXT_LIBRARIES', false)
+endif
 
 #
 # VAAPI dependency

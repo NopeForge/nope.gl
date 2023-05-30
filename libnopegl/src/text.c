@@ -25,6 +25,7 @@
 #include "text.h"
 
 extern const struct text_cls ngli_text_builtin;
+extern const struct text_cls ngli_text_external;
 
 struct box_stats {
     enum writing_mode writing_mode;
@@ -116,7 +117,7 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
 
     ngli_darray_init(&s->chars, sizeof(struct char_info), 0);
 
-    s->cls = &ngli_text_builtin;
+    s->cls = cfg->font_files ? &ngli_text_external : &ngli_text_builtin;
     if (s->cls->priv_size) {
         s->priv_data = ngli_calloc(1, s->cls->priv_size);
         if (!s->priv_data)
