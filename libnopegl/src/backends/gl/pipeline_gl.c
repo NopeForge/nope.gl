@@ -49,7 +49,7 @@ struct texture_binding {
 };
 
 struct buffer_binding {
-    GLuint type;
+    GLenum type;
     struct pipeline_buffer_desc desc;
     const struct buffer *buffer;
     size_t offset;
