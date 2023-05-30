@@ -2036,6 +2036,12 @@
       "desc": "box height vector"
     },
     {
+      "name": "font_files",
+      "type": "str",
+      "flags": [],
+      "desc": "paths to font files (use ',' or ';' to separate paths, require build with external text libraries)"
+    },
+    {
       "name": "padding",
       "type": "i32",
       "default": 3,

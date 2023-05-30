@@ -69,6 +69,7 @@ struct char_info {
 };
 
 struct text_config {
+    char *font_files;
     int32_t padding;
     enum text_valign valign;
     enum text_halign halign;
