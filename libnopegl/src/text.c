@@ -52,7 +52,7 @@ int ngli_text_set_string(struct text *s, const char *str)
 {
     ngli_darray_clear(&s->chars);
 
-    int ret = s->cls->set_string(s, str);
+    int ret = s->cls->set_string(s, str, &s->chars);
     if (ret < 0)
         return ret;
 

@@ -53,7 +53,7 @@ struct text;
 /* structure reserved for internal implementations */
 struct text_cls {
     int (*init)(struct text *text);
-    int (*set_string)(struct text *text, const char *str);
+    int (*set_string)(struct text *text, const char *str, struct darray *chars_dst);
     void (*reset)(struct text *text);
     size_t priv_size;
 };
