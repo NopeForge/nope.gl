@@ -95,7 +95,7 @@ static void get_char_box_dim(const char *s, int32_t *wp, int32_t *hp, size_t *np
     *np = n;
 }
 
-static int text_builtin_set_string(struct text *text, const char *str)
+static int text_builtin_set_string(struct text *text, const char *str, struct darray *chars_dst)
 {
     size_t text_nbchr;
     int32_t text_cols, text_rows;
@@ -136,7 +136,7 @@ static int text_builtin_set_string(struct text *text, const char *str)
             },
         };
 
-        if (!ngli_darray_push(&text->chars, &chr))
+        if (!ngli_darray_push(chars_dst, &chr))
             return NGL_ERROR_MEMORY;
 
         px++;
