@@ -101,8 +101,8 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
     int32_t text_cols, text_rows;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
 
-    text->width  = text_cols * NGLI_FONT_W + 2 * text->config.padding;
-    text->height = text_rows * NGLI_FONT_H + 2 * text->config.padding;
+    text->width  = NGLI_I32_TO_I26D6(text_cols * NGLI_FONT_W + 2 * text->config.padding);
+    text->height = NGLI_I32_TO_I26D6(text_rows * NGLI_FONT_H + 2 * text->config.padding);
 
     const int32_t padx = text->config.padding;
     const int32_t pady = text->config.padding;
@@ -124,10 +124,10 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
         ngli_atlas_get_bitmap_coords(text->ctx->font_atlas, atlas_id, atlas_coords);
 
         const struct char_info_internal chr = {
-            .x = chr_w * px + padx,
-            .y = chr_h * (text_rows - py - 1) + pady,
-            .w = chr_w,
-            .h = chr_h,
+            .x = NGLI_I32_TO_I26D6(chr_w * px + padx),
+            .y = NGLI_I32_TO_I26D6(chr_h * (text_rows - py - 1) + pady),
+            .w = NGLI_I32_TO_I26D6(chr_w),
+            .h = NGLI_I32_TO_I26D6(chr_h),
             .atlas_coords = {NGLI_ARG_VEC4(atlas_coords)},
         };
 

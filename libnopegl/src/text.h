@@ -27,6 +27,10 @@
 #include "nopegl.h"
 #include "texture.h"
 
+#define NGLI_I32_TO_I26D6(x) ((x) * (1 << 6))     // convert i32 to 26.6 fixed point
+#define NGLI_I26D6_TO_F32(x) ((float)(x) / 64.f)  // convert 26.6 fixed point to f32
+#define NGLI_I26D6_TO_I32_TRUNCATED(x) ((x) >> 6) // convert 26.6 fixed point to i32 (truncated/rounded down)
+
 enum text_valign {
     NGLI_TEXT_VALIGN_CENTER,
     NGLI_TEXT_VALIGN_TOP,
@@ -41,7 +45,7 @@ enum text_halign {
 
 /* Exposed by text drivers  */
 struct char_info_internal {
-    int32_t x, y, w, h; // pixels canvas coordinates
+    int32_t x, y, w, h; // pixels canvas coordinates encoded in 26.6 fixed point
     int32_t atlas_coords[4]; // pixel atlas coordinates
 };
 
