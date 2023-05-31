@@ -104,11 +104,11 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
     text->width  = text_cols * NGLI_FONT_W + 2 * text->config.padding;
     text->height = text_rows * NGLI_FONT_H + 2 * text->config.padding;
 
-    const float padx = (float)text->config.padding / (float)text->width;
-    const float pady = (float)text->config.padding / (float)text->height;
+    const int32_t padx = text->config.padding;
+    const int32_t pady = text->config.padding;
 
-    const float chr_w = (1.f - 2.f * padx) / (float)text_cols;
-    const float chr_h = (1.f - 2.f * pady) / (float)text_rows;
+    const int32_t chr_w = NGLI_FONT_W;
+    const int32_t chr_h = NGLI_FONT_H;
 
     int32_t px = 0, py = 0;
 
@@ -123,17 +123,12 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
         int32_t atlas_coords[4];
         ngli_atlas_get_bitmap_coords(text->ctx->font_atlas, atlas_id, atlas_coords);
 
-        const struct char_info chr = {
-            .x = chr_w * (float)px + padx,
-            .y = chr_h * (float)(text_rows - py - 1) + pady,
+        const struct char_info_internal chr = {
+            .x = chr_w * px + padx,
+            .y = chr_h * (text_rows - py - 1) + pady,
             .w = chr_w,
             .h = chr_h,
-            .atlas_coords = {
-                (float)atlas_coords[0] / (float)text->texture->params.width,
-                (float)atlas_coords[1] / (float)text->texture->params.height,
-                (float)atlas_coords[2] / (float)text->texture->params.width,
-                (float)atlas_coords[3] / (float)text->texture->params.height,
-            },
+            .atlas_coords = {NGLI_ARG_VEC4(atlas_coords)},
         };
 
         if (!ngli_darray_push(chars_dst, &chr))

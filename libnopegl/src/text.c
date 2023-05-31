@@ -50,13 +50,41 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
 
 int ngli_text_set_string(struct text *s, const char *str)
 {
-    ngli_darray_clear(&s->chars);
+    struct darray chars_internal_array;
+    ngli_darray_init(&chars_internal_array, sizeof(struct char_info_internal), 0);
 
-    int ret = s->cls->set_string(s, str, &s->chars);
+    int ret = s->cls->set_string(s, str, &chars_internal_array);
     if (ret < 0)
-        return ret;
+        goto end;
 
-    return 0;
+    /* Expose characters publicly */
+    ngli_darray_clear(&s->chars);
+    struct char_info_internal *chars_internal = ngli_darray_data(&chars_internal_array);
+    for (size_t i = 0; i < ngli_darray_count(&chars_internal_array); i++) {
+        const struct char_info_internal *chr_internal = &chars_internal[i];
+
+        const struct char_info chr = {
+            .x = (float)chr_internal->x / (float)s->width,
+            .y = (float)chr_internal->y / (float)s->height,
+            .w = (float)chr_internal->w / (float)s->width,
+            .h = (float)chr_internal->h / (float)s->height,
+            .atlas_coords = {
+                (float)chr_internal->atlas_coords[0] / (float)s->texture->params.width,
+                (float)chr_internal->atlas_coords[1] / (float)s->texture->params.height,
+                (float)chr_internal->atlas_coords[2] / (float)s->texture->params.width,
+                (float)chr_internal->atlas_coords[3] / (float)s->texture->params.height,
+            },
+        };
+
+        if (!ngli_darray_push(&s->chars, &chr)) {
+            ret = NGL_ERROR_MEMORY;
+            goto end;
+        }
+    }
+
+end:
+    ngli_darray_reset(&chars_internal_array);
+    return ret;
 }
 
 void ngli_text_freep(struct text **sp)
