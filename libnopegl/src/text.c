@@ -57,6 +57,9 @@ int ngli_text_set_string(struct text *s, const char *str)
     if (ret < 0)
         goto end;
 
+    s->width  = NGLI_I26D6_TO_I32_TRUNCATED(s->width);
+    s->height = NGLI_I26D6_TO_I32_TRUNCATED(s->height);
+
     /* Expose characters publicly */
     ngli_darray_clear(&s->chars);
     struct char_info_internal *chars_internal = ngli_darray_data(&chars_internal_array);
@@ -64,10 +67,10 @@ int ngli_text_set_string(struct text *s, const char *str)
         const struct char_info_internal *chr_internal = &chars_internal[i];
 
         const struct char_info chr = {
-            .x = (float)chr_internal->x / (float)s->width,
-            .y = (float)chr_internal->y / (float)s->height,
-            .w = (float)chr_internal->w / (float)s->width,
-            .h = (float)chr_internal->h / (float)s->height,
+            .x = NGLI_I26D6_TO_F32(chr_internal->x) / (float)s->width,
+            .y = NGLI_I26D6_TO_F32(chr_internal->y) / (float)s->height,
+            .w = NGLI_I26D6_TO_F32(chr_internal->w) / (float)s->width,
+            .h = NGLI_I26D6_TO_F32(chr_internal->h) / (float)s->height,
             .atlas_coords = {
                 (float)chr_internal->atlas_coords[0] / (float)s->texture->params.width,
                 (float)chr_internal->atlas_coords[1] / (float)s->texture->params.height,
