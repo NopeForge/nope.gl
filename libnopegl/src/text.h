@@ -39,6 +39,13 @@ enum text_halign {
     NGLI_TEXT_HALIGN_LEFT,
 };
 
+/* Exposed by text drivers  */
+struct char_info_internal {
+    int32_t x, y, w, h; // pixels canvas coordinates
+    int32_t atlas_coords[4]; // pixel atlas coordinates
+};
+
+/* Exposed by the text API */
 struct char_info {
     float x, y, w, h;
     float atlas_coords[4];
