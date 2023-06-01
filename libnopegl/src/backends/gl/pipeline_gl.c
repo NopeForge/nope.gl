@@ -37,18 +37,18 @@
 
 typedef void (*set_uniform_func)(struct glcontext *gl, GLint location, GLsizei count, const void *data);
 
-struct uniform_binding {
+struct uniform_binding_gl {
     GLuint location;
     set_uniform_func set;
     struct pipeline_uniform_desc desc;
 };
 
-struct texture_binding {
+struct texture_binding_gl {
     struct pipeline_texture_desc desc;
     const struct texture *texture;
 };
 
-struct buffer_binding {
+struct buffer_binding_gl {
     GLenum type;
     struct pipeline_buffer_desc desc;
     const struct buffer *buffer;
@@ -56,7 +56,7 @@ struct buffer_binding {
     size_t size;
 };
 
-struct attribute_binding {
+struct attribute_binding_gl {
     struct pipeline_attribute_desc desc;
     const struct buffer *buffer;
 };
@@ -178,7 +178,7 @@ static int build_uniform_bindings(struct pipeline *s)
 
         const set_uniform_func set_func = set_uniform_func_map[uniform_desc->type];
         ngli_assert(set_func);
-        struct uniform_binding binding = {
+        struct uniform_binding_gl binding = {
             .location = info->location,
             .set = set_func,
             .desc = *uniform_desc,
@@ -212,7 +212,7 @@ static int build_texture_bindings(struct pipeline *s)
             nb_textures++;
         }
 
-        struct texture_binding binding = {
+        struct texture_binding_gl binding = {
             .desc = *texture_desc,
         };
         if (!ngli_darray_push(&s_priv->texture_bindings, &binding))
@@ -254,9 +254,9 @@ static GLenum get_gl_access(int access)
 static void set_textures(struct pipeline *s, struct glcontext *gl)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-    const struct texture_binding *bindings = ngli_darray_data(&s_priv->texture_bindings);
+    const struct texture_binding_gl *bindings = ngli_darray_data(&s_priv->texture_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
-        const struct texture_binding *texture_binding = &bindings[i];
+        const struct texture_binding_gl *texture_binding = &bindings[i];
         const struct texture *texture = texture_binding->texture;
         const struct texture_gl *texture_gl = (const struct texture_gl *)texture;
 
@@ -298,9 +298,9 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
-    const struct buffer_binding *bindings = ngli_darray_data(&s_priv->buffer_bindings);
+    const struct buffer_binding_gl *bindings = ngli_darray_data(&s_priv->buffer_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
-        const struct buffer_binding *buffer_binding = &bindings[i];
+        const struct buffer_binding_gl *buffer_binding = &bindings[i];
         const struct buffer *buffer = buffer_binding->buffer;
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
         const struct pipeline_buffer_desc *buffer_desc = &buffer_binding->desc;
@@ -345,7 +345,7 @@ static int build_buffer_bindings(struct pipeline *s)
         if (pipeline_buffer_desc->access & NGLI_ACCESS_WRITE_BIT)
             s_priv->use_barriers = 1;
 
-        struct buffer_binding binding = {
+        struct buffer_binding_gl binding = {
             .type = get_gl_target(pipeline_buffer_desc->type),
             .desc = *pipeline_buffer_desc,
         };
@@ -379,7 +379,7 @@ static int build_attribute_bindings(struct pipeline *s)
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
 
-        struct attribute_binding binding = {
+        struct attribute_binding_gl binding = {
             .desc = *pipeline_attribute_desc,
         };
         if (!ngli_darray_push(&s_priv->attribute_bindings, &binding))
@@ -445,9 +445,9 @@ static GLbitfield get_memory_barriers(const struct pipeline *s)
     const struct pipeline_gl *s_priv = (const struct pipeline_gl *)s;
 
     GLbitfield barriers = 0;
-    const struct buffer_binding *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
+    const struct buffer_binding_gl *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
-        const struct buffer_binding *binding = &buffer_bindings[i];
+        const struct buffer_binding_gl *binding = &buffer_bindings[i];
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)binding->buffer;
         if (!buffer_gl)
             continue;
@@ -456,9 +456,9 @@ static GLbitfield get_memory_barriers(const struct pipeline *s)
             barriers |= buffer_gl->barriers;
     }
 
-    const struct texture_binding *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
+    const struct texture_binding_gl *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
-        const struct texture_binding *binding = &texture_bindings[i];
+        const struct texture_binding_gl *binding = &texture_bindings[i];
         const struct texture_gl *texture_gl = (const struct texture_gl *)binding->texture;
         if (!texture_gl)
             continue;
@@ -510,10 +510,10 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
     if (ret < 0)
         return ret;
 
-    ngli_darray_init(&s_priv->uniform_bindings, sizeof(struct uniform_binding), 0);
-    ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding), 0);
-    ngli_darray_init(&s_priv->buffer_bindings, sizeof(struct buffer_binding), 0);
-    ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding), 0);
+    ngli_darray_init(&s_priv->uniform_bindings, sizeof(struct uniform_binding_gl), 0);
+    ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_gl), 0);
+    ngli_darray_init(&s_priv->buffer_bindings, sizeof(struct buffer_binding_gl), 0);
+    ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding_gl), 0);
 
     if ((ret = build_uniform_bindings(s)) < 0 ||
         (ret = build_texture_bindings(s)) < 0 ||
@@ -546,7 +546,7 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int32_t index, const s
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
-    struct attribute_binding *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
+    struct attribute_binding_gl *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
     attribute_binding->buffer = buffer;
 
     if (!buffer)
@@ -572,7 +572,7 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int32_t index, const s
 int ngli_pipeline_gl_update_uniform(struct pipeline *s, int32_t index, const void *data)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-    struct uniform_binding *uniform_binding = ngli_darray_get(&s_priv->uniform_bindings, index);
+    struct uniform_binding_gl *uniform_binding = ngli_darray_get(&s_priv->uniform_bindings, index);
 
     if (data) {
         struct gpu_ctx *gpu_ctx = s->gpu_ctx;
@@ -590,7 +590,7 @@ int ngli_pipeline_gl_update_uniform(struct pipeline *s, int32_t index, const voi
 int ngli_pipeline_gl_update_texture(struct pipeline *s, int32_t index, const struct texture *texture)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-    struct texture_binding *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
+    struct texture_binding_gl *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
     texture_binding->texture = texture;
 
     return 0;
@@ -599,7 +599,7 @@ int ngli_pipeline_gl_update_texture(struct pipeline *s, int32_t index, const str
 int ngli_pipeline_gl_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-    struct buffer_binding *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
+    struct buffer_binding_gl *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
     buffer_binding->buffer = buffer;
     buffer_binding->offset = offset;
     buffer_binding->size = size;

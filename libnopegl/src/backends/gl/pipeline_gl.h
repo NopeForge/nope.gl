@@ -32,10 +32,10 @@ struct glcontext;
 struct pipeline_gl {
     struct pipeline parent;
 
-    struct darray uniform_bindings;   // uniform_binding
-    struct darray texture_bindings;   // texture_binding
-    struct darray buffer_bindings;    // buffer_binding
-    struct darray attribute_bindings; // attribute_binding
+    struct darray uniform_bindings;   // uniform_binding_gl
+    struct darray texture_bindings;   // texture_binding_gl
+    struct darray buffer_bindings;    // buffer_binding_gl
+    struct darray attribute_bindings; // attribute_binding_gl
 
     GLuint vao_id;
     int use_barriers;
