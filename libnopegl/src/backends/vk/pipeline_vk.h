@@ -32,9 +32,9 @@ struct gpu_ctx;
 struct pipeline_vk {
     struct pipeline parent;
 
-    struct darray buffer_bindings;          // array of struct buffer_binding
-    struct darray texture_bindings;         // array of struct texture_binding
-    struct darray attribute_bindings;       // array of struct attribute_binding
+    struct darray buffer_bindings;          // array of struct buffer_binding_vk
+    struct darray texture_bindings;         // array of struct texture_binding_vk
+    struct darray attribute_bindings;       // array of struct attribute_binding_vk
 
     struct darray vertex_attribute_descs;   // array of VkVertexInputAttributeDescription
     struct darray vertex_binding_descs;     // array of VkVertexInputBindingDescription

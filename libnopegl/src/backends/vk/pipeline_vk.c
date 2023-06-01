@@ -49,12 +49,12 @@
 #include "rendertarget_vk.h"
 #include "ycbcr_sampler_vk.h"
 
-struct attribute_binding {
+struct attribute_binding_vk {
     struct pipeline_attribute_desc desc;
     const struct buffer *buffer;
 };
 
-struct buffer_binding {
+struct buffer_binding_vk {
     struct pipeline_buffer_desc desc;
     const struct buffer *buffer;
     uint32_t update_desc_flags;
@@ -62,7 +62,7 @@ struct buffer_binding {
     size_t size;
 };
 
-struct texture_binding {
+struct texture_binding_vk {
     struct pipeline_texture_desc desc;
     uint32_t desc_binding_index;
     const struct texture *texture;
@@ -180,7 +180,7 @@ static VkResult create_attribute_descs(struct pipeline *s)
     for (size_t i = 0; i < layout->nb_attribute_descs; i++) {
         const struct pipeline_attribute_desc *desc = &layout->attribute_descs[i];
 
-        const struct attribute_binding attribute_binding = {
+        const struct attribute_binding_vk attribute_binding = {
             .desc = *desc,
         };
         if (!ngli_darray_push(&s_priv->attribute_bindings, &attribute_binding))
@@ -454,7 +454,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s)
         if (!ngli_darray_push(&s_priv->desc_set_layout_bindings, &binding))
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        const struct buffer_binding buffer_binding = {
+        const struct buffer_binding_vk buffer_binding = {
             .desc = *desc,
         };
         if (!ngli_darray_push(&s_priv->buffer_bindings, &buffer_binding))
@@ -477,7 +477,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s)
         if (!ngli_darray_push(&s_priv->desc_set_layout_bindings, &binding))
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        const struct texture_binding texture_binding = {
+        const struct texture_binding_vk texture_binding = {
             .desc = *desc,
             .desc_binding_index = (uint32_t)ngli_darray_count(&s_priv->desc_set_layout_bindings) - 1,
         };
@@ -638,15 +638,15 @@ static void request_desc_sets_update(struct pipeline *s)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    struct texture_binding *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
+    struct texture_binding_vk *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
-        struct texture_binding *binding = &texture_bindings[i];
+        struct texture_binding_vk *binding = &texture_bindings[i];
         binding->update_desc_flags = ~0;
     }
 
-    struct buffer_binding *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
+    struct buffer_binding_vk *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
-        struct buffer_binding *binding = &buffer_bindings[i];
+        struct buffer_binding_vk *binding = &buffer_bindings[i];
         binding->update_desc_flags = ~0;
     }
 }
@@ -702,9 +702,9 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
     if (ret < 0)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding), 0);
-    ngli_darray_init(&s_priv->buffer_bindings,  sizeof(struct buffer_binding), 0);
-    ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding), 0);
+    ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_vk), 0);
+    ngli_darray_init(&s_priv->buffer_bindings,  sizeof(struct buffer_binding_vk), 0);
+    ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding_vk), 0);
 
     if (params->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
         VkResult res = create_attribute_descs(s);
@@ -723,7 +723,7 @@ int ngli_pipeline_vk_update_attribute(struct pipeline *s, int32_t index, const s
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    struct attribute_binding *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
+    struct attribute_binding_vk *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
     attribute_binding->buffer = buffer;
 
     VkBuffer *vertex_buffers = ngli_darray_data(&s_priv->vertex_buffers);
@@ -742,7 +742,7 @@ int ngli_pipeline_vk_update_uniform(struct pipeline *s, int32_t index, const voi
     return NGL_ERROR_GRAPHICS_UNSUPPORTED;
 }
 
-static int need_desc_set_layout_update(const struct texture_binding *binding,
+static int need_desc_set_layout_update(const struct texture_binding_vk *binding,
                                        const struct texture *texture)
 {
     const struct texture_vk *texture_vk = (const struct texture_vk *)texture;
@@ -769,7 +769,7 @@ int ngli_pipeline_vk_update_texture(struct pipeline *s, int32_t index, const str
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    struct texture_binding *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
+    struct texture_binding_vk *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
     ngli_assert(texture_binding);
 
     texture_binding->texture = texture ? texture : gpu_ctx_vk->dummy_texture;
@@ -813,7 +813,7 @@ int ngli_pipeline_vk_update_buffer(struct pipeline *s, int32_t index, const stru
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    struct buffer_binding *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
+    struct buffer_binding_vk *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
     ngli_assert(buffer_binding);
 
     buffer_binding->buffer = buffer;
@@ -842,9 +842,9 @@ static int update_descriptor_set(struct pipeline *s)
     const uint32_t update_desc_flags = (1 << gpu_ctx_vk->cur_frame_index);
     const uint32_t update_desc_mask = ~update_desc_flags;
 
-    struct texture_binding *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
+    struct texture_binding_vk *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
-        struct texture_binding *binding = &texture_bindings[i];
+        struct texture_binding_vk *binding = &texture_bindings[i];
         if (binding->update_desc_flags & update_desc_flags) {
             const struct texture_vk *texture_vk = (struct texture_vk *)binding->texture;
             const VkDescriptorImageInfo image_info = {
@@ -867,9 +867,9 @@ static int update_descriptor_set(struct pipeline *s)
         }
     }
 
-    struct buffer_binding *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
+    struct buffer_binding_vk *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
-        struct buffer_binding *binding = &buffer_bindings[i];
+        struct buffer_binding_vk *binding = &buffer_bindings[i];
         if (binding->update_desc_flags & update_desc_flags) {
             const struct pipeline_buffer_desc *desc = &binding->desc;
             const struct buffer_vk *buffer_vk = (struct buffer_vk *)(binding->buffer);
@@ -1034,9 +1034,9 @@ void ngli_pipeline_vk_freep(struct pipeline **sp)
     ngli_pipeline_layout_reset(&s->layout);
     destroy_pipeline(s);
 
-    struct texture_binding *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
+    struct texture_binding_vk *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
-        struct texture_binding *binding = &texture_bindings[i];
+        struct texture_binding_vk *binding = &texture_bindings[i];
         ngli_ycbcr_sampler_vk_unrefp(&binding->ycbcr_sampler);
     }
     ngli_darray_reset(&s_priv->texture_bindings);
