@@ -379,10 +379,10 @@ static int build_attribute_bindings(struct pipeline *s)
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
 
-        struct attribute_binding desc = {
+        struct attribute_binding binding = {
             .desc = *pipeline_attribute_desc,
         };
-        if (!ngli_darray_push(&s_priv->attribute_bindings, &desc))
+        if (!ngli_darray_push(&s_priv->attribute_bindings, &binding))
             return NGL_ERROR_MEMORY;
 
         const GLuint location = pipeline_attribute_desc->location;
