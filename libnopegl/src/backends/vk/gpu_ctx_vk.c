@@ -1423,13 +1423,13 @@ static void vk_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
     ngli_pipeline_vk_draw(pipeline, nb_vertices, nb_instances);
 }
 
-static void vk_draw_indexed(struct gpu_ctx *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
+static void vk_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
     struct pipeline *pipeline = s_priv->current_pipeline;
 
     ngli_assert(pipeline);
-    ngli_pipeline_vk_draw_indexed(pipeline, indices, indices_format, nb_indices, nb_instances);
+    ngli_pipeline_vk_draw_indexed(pipeline, nb_indices, nb_instances);
 }
 
 static void vk_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
@@ -1439,6 +1439,44 @@ static void vk_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_grou
 
     ngli_assert(pipeline);
     ngli_pipeline_vk_dispatch(pipeline, nb_group_x, nb_group_y, nb_group_z);
+}
+
+static void vk_set_vertex_buffer(struct gpu_ctx *s, uint32_t index, const struct buffer *buffer)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    ngli_assert(index < s->limits.max_vertex_attributes);
+
+    struct cmd_vk *cmd = s_priv->cur_cmd;
+    ngli_assert(cmd);
+
+    VkCommandBuffer cmd_buf = cmd->cmd_buf;
+    const struct buffer_vk *buffer_vk = (const struct buffer_vk *)buffer;
+    const VkBuffer vertex_buffer = buffer_vk->buffer;
+    const VkDeviceSize vertex_offset = 0;
+    vkCmdBindVertexBuffers(cmd_buf, index, 1, &vertex_buffer, &vertex_offset);
+}
+
+static const VkIndexType vk_indices_type_map[NGLI_FORMAT_NB] = {
+    [NGLI_FORMAT_R16_UNORM] = VK_INDEX_TYPE_UINT16,
+    [NGLI_FORMAT_R32_UINT]  = VK_INDEX_TYPE_UINT32,
+};
+
+static VkIndexType get_vk_indices_type(int indices_format)
+{
+    return vk_indices_type_map[indices_format];
+}
+
+static void vk_set_index_buffer(struct gpu_ctx *s, const struct buffer *buffer, int format)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+
+    struct cmd_vk *cmd = s_priv->cur_cmd;
+    ngli_assert(cmd);
+
+    VkCommandBuffer cmd_buf = cmd->cmd_buf;
+    const struct buffer_vk *index_buffer = (const struct buffer_vk *)buffer;
+    const VkIndexType indices_type = get_vk_indices_type(format);
+    vkCmdBindIndexBuffer(cmd_buf, index_buffer->buffer, 0, indices_type);
 }
 
 static int vk_buffer_init(struct buffer *s, size_t size, int usage)
@@ -1547,6 +1585,9 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .draw_indexed                       = vk_draw_indexed,
     .dispatch                           = vk_dispatch,
 
+    .set_vertex_buffer                  = vk_set_vertex_buffer,
+    .set_index_buffer                   = vk_set_index_buffer,
+
     .buffer_create                      = ngli_buffer_vk_create,
     .buffer_init                        = vk_buffer_init,
     .buffer_upload                      = vk_buffer_upload,
@@ -1556,7 +1597,6 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
 
     .pipeline_create                    = ngli_pipeline_vk_create,
     .pipeline_init                      = vk_pipeline_init,
-    .pipeline_update_attribute          = ngli_pipeline_vk_update_attribute,
     .pipeline_update_uniform            = ngli_pipeline_vk_update_uniform,
     .pipeline_update_texture            = ngli_pipeline_vk_update_texture,
     .pipeline_update_buffer             = ngli_pipeline_vk_update_buffer,
