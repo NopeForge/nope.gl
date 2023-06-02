@@ -24,6 +24,8 @@
 #include <string.h>
 
 #include "blending.h"
+#include "gpu_ctx.h"
+#include "gpu_limits.h"
 #include "hmap.h"
 #include "log.h"
 #include "nopegl.h"
@@ -169,6 +171,15 @@ static int render_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct render_priv *s = node->priv_data;
     const struct render_opts *o = node->opts;
+
+    const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct gpu_limits *limits = &gpu_ctx->limits;
+    const size_t nb_attributes = o->attributes ? ngli_hmap_count(o->attributes) : 0;
+    if (nb_attributes > limits->max_vertex_attributes) {
+        LOG(ERROR, "number of attributes (%zu) exceeds device limits (%u)",
+            nb_attributes, limits->max_vertex_attributes);
+        return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+    }
 
     if (o->nb_instances < 1) {
         LOG(ERROR, "nb_instances must be > 0");
