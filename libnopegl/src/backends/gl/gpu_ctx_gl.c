@@ -553,6 +553,11 @@ static int gl_init(struct gpu_ctx *s)
 
     gpu_ctx_info_init(s);
 
+    const struct gpu_limits *limits = &s->limits;
+    s_priv->vertex_buffers = ngli_calloc(limits->max_vertex_attributes, sizeof(struct buffer *));
+    if (!s_priv->vertex_buffers)
+        return NGL_ERROR_MEMORY;
+
     s_priv->default_rt_desc.samples = gl->samples;
     s_priv->default_rt_desc.nb_colors = 1;
     s_priv->default_rt_desc.colors[0].format = NGLI_FORMAT_R8G8B8A8_UNORM;
@@ -892,6 +897,7 @@ static void gl_destroy(struct gpu_ctx *s)
         ngli_gpu_capture_end(s->gpu_capture_ctx);
     ngli_gpu_capture_freep(&s->gpu_capture_ctx);
 #endif
+    ngli_freep(&s_priv->vertex_buffers);
     ngli_glcontext_freep(&s_priv->glcontext);
 }
 
@@ -999,13 +1005,13 @@ static void gl_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
     ngli_pipeline_gl_draw(pipeline, nb_vertices, nb_instances);
 }
 
-static void gl_draw_indexed(struct gpu_ctx *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
+static void gl_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct pipeline *pipeline = s_priv->current_pipeline;
 
     ngli_assert(pipeline);
-    ngli_pipeline_gl_draw_indexed(pipeline, indices, indices_format, nb_indices, nb_instances);
+    ngli_pipeline_gl_draw_indexed(pipeline, nb_indices, nb_instances);
 }
 
 static void gl_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
@@ -1015,6 +1021,21 @@ static void gl_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_grou
 
     ngli_assert(pipeline);
     ngli_pipeline_gl_dispatch(pipeline, nb_group_x, nb_group_y, nb_group_z);
+}
+
+static void gl_set_vertex_buffer(struct gpu_ctx *s, uint32_t index, const struct buffer *buffer)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct gpu_limits *limits = &s->limits;
+    ngli_assert(index < limits->max_vertex_attributes);
+    s_priv->vertex_buffers[index] = buffer;
+}
+
+static void gl_set_index_buffer(struct gpu_ctx *s, const struct buffer *buffer, int format)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    s_priv->index_buffer = buffer;
+    s_priv->index_format = format;
 }
 
 #define DECLARE_GPU_CTX_CLASS(cls_suffix, cls_name)                              \
@@ -1054,6 +1075,9 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
     .draw_indexed                       = gl_draw_indexed,                       \
     .dispatch                           = gl_dispatch,                           \
                                                                                  \
+    .set_vertex_buffer                  = gl_set_vertex_buffer,                  \
+    .set_index_buffer                   = gl_set_index_buffer,                   \
+                                                                                 \
     .buffer_create                      = ngli_buffer_gl_create,                 \
     .buffer_init                        = ngli_buffer_gl_init,                   \
     .buffer_upload                      = ngli_buffer_gl_upload,                 \
@@ -1063,7 +1087,6 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
                                                                                  \
     .pipeline_create                    = ngli_pipeline_gl_create,               \
     .pipeline_init                      = ngli_pipeline_gl_init,                 \
-    .pipeline_update_attribute          = ngli_pipeline_gl_update_attribute,     \
     .pipeline_update_uniform            = ngli_pipeline_gl_update_uniform,       \
     .pipeline_update_texture            = ngli_pipeline_gl_update_texture,       \
     .pipeline_update_buffer             = ngli_pipeline_gl_update_buffer,        \

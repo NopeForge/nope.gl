@@ -49,11 +49,6 @@
 #include "rendertarget_vk.h"
 #include "ycbcr_sampler_vk.h"
 
-struct attribute_binding_vk {
-    struct pipeline_attribute_desc desc;
-    const struct buffer *buffer;
-};
-
 struct buffer_binding_vk {
     struct pipeline_buffer_desc desc;
     const struct buffer *buffer;
@@ -173,18 +168,10 @@ static VkResult create_attribute_descs(struct pipeline *s)
 
     ngli_darray_init(&s_priv->vertex_attribute_descs, sizeof(VkVertexInputAttributeDescription), 0);
     ngli_darray_init(&s_priv->vertex_binding_descs,   sizeof(VkVertexInputBindingDescription), 0);
-    ngli_darray_init(&s_priv->vertex_buffers, sizeof(VkBuffer), 0);
-    ngli_darray_init(&s_priv->vertex_offsets, sizeof(VkDeviceSize), 0);
 
     const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_attribute_descs; i++) {
         const struct pipeline_attribute_desc *desc = &layout->attribute_descs[i];
-
-        const struct attribute_binding_vk attribute_binding = {
-            .desc = *desc,
-        };
-        if (!ngli_darray_push(&s_priv->attribute_bindings, &attribute_binding))
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
 
         const VkVertexInputBindingDescription binding_desc = {
             .binding   = (uint32_t)i,
@@ -201,14 +188,6 @@ static VkResult create_attribute_descs(struct pipeline *s)
             .offset   = (uint32_t)desc->offset,
         };
         if (!ngli_darray_push(&s_priv->vertex_attribute_descs, &attr_desc))
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-        const VkBuffer buffer = VK_NULL_HANDLE;
-        if (!ngli_darray_push(&s_priv->vertex_buffers, &buffer))
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-        const VkDeviceSize offset = 0;
-        if (!ngli_darray_push(&s_priv->vertex_offsets, &offset))
             return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
@@ -704,7 +683,6 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
 
     ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_vk), 0);
     ngli_darray_init(&s_priv->buffer_bindings,  sizeof(struct buffer_binding_vk), 0);
-    ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding_vk), 0);
 
     if (params->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
         VkResult res = create_attribute_descs(s);
@@ -717,24 +695,6 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
         return res;
 
     return create_pipeline(s);
-}
-
-int ngli_pipeline_vk_update_attribute(struct pipeline *s, int32_t index, const struct buffer *buffer)
-{
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    struct attribute_binding_vk *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
-    attribute_binding->buffer = buffer;
-
-    VkBuffer *vertex_buffers = ngli_darray_data(&s_priv->vertex_buffers);
-    if (buffer) {
-        struct buffer_vk *buffer_vk = (struct buffer_vk *)buffer;
-        vertex_buffers[index] = buffer_vk->buffer;
-    } else {
-        vertex_buffers[index] = VK_NULL_HANDLE;
-    }
-
-    return 0;
 }
 
 int ngli_pipeline_vk_update_uniform(struct pipeline *s, int32_t index, const void *value)
@@ -822,16 +782,6 @@ int ngli_pipeline_vk_update_buffer(struct pipeline *s, int32_t index, const stru
     buffer_binding->update_desc_flags = ~0;
 
     return 0;
-}
-
-static const VkIndexType vk_indices_type_map[NGLI_FORMAT_NB] = {
-    [NGLI_FORMAT_R16_UNORM] = VK_INDEX_TYPE_UINT16,
-    [NGLI_FORMAT_R32_UINT]  = VK_INDEX_TYPE_UINT32,
-};
-
-static VkIndexType get_vk_indices_type(int indices_format)
-{
-    return vk_indices_type_map[indices_format];
 }
 
 static int update_descriptor_set(struct pipeline *s)
@@ -939,11 +889,6 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
         vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, s_priv->pipeline_layout,
                                 0, 1, &s_priv->desc_sets[gpu_ctx_vk->cur_frame_index], 0, NULL);
 
-    const uint32_t nb_vertex_buffers = (uint32_t)ngli_darray_count(&s_priv->vertex_buffers);
-    const VkBuffer *vertex_buffers = ngli_darray_data(&s_priv->vertex_buffers);
-    const VkDeviceSize *vertex_offsets = ngli_darray_data(&s_priv->vertex_offsets);
-    vkCmdBindVertexBuffers(cmd_buf, 0, nb_vertex_buffers, vertex_buffers, vertex_offsets);
-
     return 0;
 }
 
@@ -959,7 +904,7 @@ void ngli_pipeline_vk_draw(struct pipeline *s, int nb_vertices, int nb_instances
     vkCmdDraw(cmd_buf, nb_vertices, nb_instances, 0, 0);
 }
 
-void ngli_pipeline_vk_draw_indexed(struct pipeline *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
+void ngli_pipeline_vk_draw_indexed(struct pipeline *s, int nb_indices, int nb_instances)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
@@ -967,10 +912,6 @@ void ngli_pipeline_vk_draw_indexed(struct pipeline *s, const struct buffer *indi
     int ret = prepare_pipeline(s, cmd_buf);
     if (ret < 0)
         return;
-
-    struct buffer_vk *indices_vk = (struct buffer_vk *)indices;
-    const VkIndexType indices_type = get_vk_indices_type(indices_format);
-    vkCmdBindIndexBuffer(cmd_buf, indices_vk->buffer, 0, indices_type);
 
     vkCmdDrawIndexed(cmd_buf, nb_indices, nb_instances, 0, 0, 0);
 }
@@ -1041,12 +982,9 @@ void ngli_pipeline_vk_freep(struct pipeline **sp)
     }
     ngli_darray_reset(&s_priv->texture_bindings);
     ngli_darray_reset(&s_priv->buffer_bindings);
-    ngli_darray_reset(&s_priv->attribute_bindings);
 
     ngli_darray_reset(&s_priv->vertex_attribute_descs);
     ngli_darray_reset(&s_priv->vertex_binding_descs);
-    ngli_darray_reset(&s_priv->vertex_buffers);
-    ngli_darray_reset(&s_priv->vertex_offsets);
     ngli_darray_reset(&s_priv->desc_set_layout_bindings);
 
     ngli_freep(sp);

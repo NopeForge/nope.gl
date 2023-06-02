@@ -129,7 +129,6 @@ void ngli_pipeline_layout_reset(struct pipeline_layout *layout);
 struct pipeline *ngli_pipeline_create(struct gpu_ctx *gpu_ctx);
 int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params);
 int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resources *resources);
-int ngli_pipeline_update_attribute(struct pipeline *s, int32_t index, const struct buffer *buffer);
 int ngli_pipeline_update_uniform(struct pipeline *s, int32_t index, const void *value);
 int ngli_pipeline_update_texture(struct pipeline *s, int32_t index, const struct texture *texture);
 int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);

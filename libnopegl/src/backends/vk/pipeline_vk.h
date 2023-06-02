@@ -34,12 +34,9 @@ struct pipeline_vk {
 
     struct darray buffer_bindings;          // array of struct buffer_binding_vk
     struct darray texture_bindings;         // array of struct texture_binding_vk
-    struct darray attribute_bindings;       // array of struct attribute_binding_vk
 
     struct darray vertex_attribute_descs;   // array of VkVertexInputAttributeDescription
     struct darray vertex_binding_descs;     // array of VkVertexInputBindingDescription
-    struct darray vertex_buffers;           // array of VkBuffer
-    struct darray vertex_offsets;           // array of VkDeviceSize
 
     VkDescriptorPool desc_pool;
     struct darray desc_set_layout_bindings; // array of VkDescriptorSetLayoutBinding
@@ -51,12 +48,11 @@ struct pipeline_vk {
 
 struct pipeline *ngli_pipeline_vk_create(struct gpu_ctx *gpu_ctx);
 VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params *params);
-int ngli_pipeline_vk_update_attribute(struct pipeline *s, int32_t index, const struct buffer *buffer);
 int ngli_pipeline_vk_update_uniform(struct pipeline *s, int32_t index, const void *value);
 int ngli_pipeline_vk_update_texture(struct pipeline *s, int32_t index, const struct texture *texture);
 int ngli_pipeline_vk_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
 void ngli_pipeline_vk_draw(struct pipeline *s, int nb_vertices, int nb_instances);
-void ngli_pipeline_vk_draw_indexed(struct pipeline *s, const struct buffer *indices, int indices_format, int nb_vertices, int nb_instances);
+void ngli_pipeline_vk_draw_indexed(struct pipeline *s, int nb_vertices, int nb_instances);
 void ngli_pipeline_vk_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 void ngli_pipeline_vk_freep(struct pipeline **sp);
 

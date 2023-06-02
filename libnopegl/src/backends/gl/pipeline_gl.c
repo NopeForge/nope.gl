@@ -58,7 +58,6 @@ struct buffer_binding_gl {
 
 struct attribute_binding_gl {
     struct pipeline_attribute_desc desc;
-    const struct buffer *buffer;
 };
 
 static void set_uniform_1iv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
@@ -420,13 +419,27 @@ static GLenum get_gl_indices_type(int indices_format)
 
 static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
 {
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     const struct pipeline_gl *s_priv = (const struct pipeline_gl *)s;
+
     if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT)
         ngli_glBindVertexArray(gl, s_priv->vao_id);
     else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT)
         ngli_glBindVertexArrayOES(gl, s_priv->vao_id);
     else
         ngli_assert(0);
+
+    const struct buffer **vertex_buffers = gpu_ctx_gl->vertex_buffers;
+    const struct attribute_binding_gl *bindings = ngli_darray_data(&s_priv->attribute_bindings);
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->attribute_bindings); i++) {
+        const struct buffer_gl *buffer_gl = (const struct buffer_gl *)vertex_buffers[i];
+        const struct attribute_binding_gl *attribute_binding = &bindings[i];
+        const GLuint location = attribute_binding->desc.location;
+        const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
+        const GLsizei stride = (GLsizei)attribute_binding->desc.stride;
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
+        ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute_binding->desc.offset));
+    }
 }
 
 static int pipeline_graphics_init(struct pipeline *s)
@@ -552,36 +565,6 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
     return 0;
 }
 
-int ngli_pipeline_gl_update_attribute(struct pipeline *s, int32_t index, const struct buffer *buffer)
-{
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-
-    struct attribute_binding_gl *attribute_binding = ngli_darray_get(&s_priv->attribute_bindings, index);
-    attribute_binding->buffer = buffer;
-
-    if (!buffer)
-        return 0;
-
-    const GLuint location = attribute_binding->desc.location;
-    const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
-    const GLsizei stride = (GLsizei)attribute_binding->desc.stride;
-    const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
-    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT)
-        ngli_glBindVertexArray(gl, s_priv->vao_id);
-    else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT)
-        ngli_glBindVertexArrayOES(gl, s_priv->vao_id);
-    else
-        ngli_assert(0);
-
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
-    ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute_binding->desc.offset));
-
-    return 0;
-}
-
 int ngli_pipeline_gl_update_uniform(struct pipeline *s, int32_t index, const void *data)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
@@ -681,7 +664,7 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
     s_priv->insert_memory_barriers(s);
 }
 
-void ngli_pipeline_gl_draw_indexed(struct pipeline *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
+void ngli_pipeline_gl_draw_indexed(struct pipeline *s, int nb_indices, int nb_instances)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
@@ -705,9 +688,8 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, const struct buffer *indi
         return;
     }
 
-    ngli_assert(indices);
-    const struct buffer_gl *indices_gl = (const struct buffer_gl *)indices;
-    const GLenum gl_indices_type = get_gl_indices_type(indices_format);
+    const struct buffer_gl *indices_gl = (const struct buffer_gl *)gpu_ctx_gl->index_buffer;
+    const GLenum gl_indices_type = get_gl_indices_type(gpu_ctx_gl->index_format);
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_gl->id);
 
     const GLenum gl_topology = get_gl_topology(graphics->topology);

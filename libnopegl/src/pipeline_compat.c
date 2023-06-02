@@ -21,6 +21,7 @@
 
 #include "darray.h"
 #include "gpu_ctx.h"
+#include "gpu_limits.h"
 #include "memory.h"
 #include "nopegl.h"
 #include "pipeline_compat.h"
@@ -29,6 +30,8 @@
 struct pipeline_compat {
     struct gpu_ctx *gpu_ctx;
     struct pipeline *pipeline;
+    const struct buffer **vertex_buffers;
+    size_t nb_vertex_buffers;
     const struct pgcraft_compat_info *compat_info;
     struct buffer *ubuffers[NGLI_PROGRAM_SHADER_NB];
     uint8_t *mapped_datas[NGLI_PROGRAM_SHADER_NB];
@@ -106,6 +109,14 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
         (ret = ngli_pipeline_set_resources(s->pipeline, pipeline_resources)) < 0)
         return ret;
 
+    const size_t nb_attributes = pipeline_resources->nb_attributes;
+    if (nb_attributes) {
+        s->vertex_buffers = ngli_calloc(nb_attributes, sizeof(struct buffer *));
+        for (size_t i = 0; i < nb_attributes; i++)
+            s->vertex_buffers[i] = pipeline_resources->attributes[i];
+        s->nb_vertex_buffers = nb_attributes;
+    }
+
     s->compat_info = params->compat_info;
     if (s->compat_info->use_ublocks) {
         ret = init_blocks_buffers(s, params);
@@ -118,7 +129,9 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
 
 int ngli_pipeline_compat_update_attribute(struct pipeline_compat *s, int32_t index, const struct buffer *buffer)
 {
-    return ngli_pipeline_update_attribute(s->pipeline, index, buffer);
+    ngli_assert(index >= 0 && index < s->nb_vertex_buffers);
+    s->vertex_buffers[index] = buffer;
+    return 0;
 }
 
 int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index, const void *value)
@@ -220,6 +233,8 @@ void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int n
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct pipeline *pipeline = s->pipeline;
     ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
+    for (size_t i = 0; i < s->nb_vertex_buffers; i++)
+        ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
     ngli_gpu_ctx_draw(gpu_ctx, nb_vertices, nb_instances);
 }
 
@@ -228,7 +243,10 @@ void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct b
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct pipeline *pipeline = s->pipeline;
     ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
-    ngli_gpu_ctx_draw_indexed(gpu_ctx, indices, indices_format, nb_indices, nb_instances);
+    for (size_t i = 0; i < s->nb_vertex_buffers; i++)
+        ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
+    ngli_gpu_ctx_set_index_buffer(gpu_ctx, indices, indices_format);
+    ngli_gpu_ctx_draw_indexed(gpu_ctx, nb_indices, nb_instances);
 }
 
 void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
@@ -245,6 +263,7 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
     if (!s)
         return;
     ngli_pipeline_freep(&s->pipeline);
+    ngli_freep(&s->vertex_buffers);
     if (s->compat_info && s->compat_info->use_ublocks) {
         for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
             if (s->ubuffers[i]) {
