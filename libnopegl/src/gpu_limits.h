@@ -26,6 +26,7 @@
 #include <stdlib.h>
 
 struct gpu_limits {
+    uint32_t max_vertex_attributes;
     uint32_t max_texture_image_units;
     uint32_t max_image_units;
     uint32_t max_compute_work_group_count[3];
