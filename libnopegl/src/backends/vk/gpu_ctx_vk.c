@@ -886,6 +886,7 @@ static int vk_init(struct gpu_ctx *s)
 
     struct vkcontext *vk = s_priv->vkcontext;
     const VkPhysicalDeviceLimits *limits = &vk->phy_device_props.limits;
+    s->limits.max_vertex_attributes              = limits->maxVertexInputAttributes;
     s->limits.max_color_attachments              = limits->maxColorAttachments;
     s->limits.max_texture_dimension_1d           = limits->maxImageDimension1D;
     s->limits.max_texture_dimension_2d           = limits->maxImageDimension2D;
