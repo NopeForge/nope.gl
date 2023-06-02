@@ -362,6 +362,14 @@ static int build_attribute_bindings(struct pipeline *s)
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
+    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT) {
+        ngli_glGenVertexArrays(gl, 1, &s_priv->vao_id);
+        ngli_glBindVertexArray(gl, s_priv->vao_id);
+    } else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT) {
+        ngli_glGenVertexArraysOES(gl, 1, &s_priv->vao_id);
+        ngli_glBindVertexArrayOES(gl, s_priv->vao_id);
+    }
+
     const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_attribute_descs; i++) {
         const struct pipeline_attribute_desc *pipeline_attribute_desc = &layout->attribute_descs[i];
@@ -376,6 +384,12 @@ static int build_attribute_bindings(struct pipeline *s)
         };
         if (!ngli_darray_push(&s_priv->attribute_bindings, &desc))
             return NGL_ERROR_MEMORY;
+
+        const GLuint location = pipeline_attribute_desc->location;
+        const GLuint rate = pipeline_attribute_desc->rate;
+        ngli_glEnableVertexAttribArray(gl, location);
+        if (rate > 0)
+            ngli_glVertexAttribDivisor(gl, location, rate);
     }
 
     return 0;
@@ -391,20 +405,6 @@ static GLenum get_gl_indices_type(int indices_format)
     return gl_indices_type_map[indices_format];
 }
 
-static void init_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
-{
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-
-    const struct attribute_binding *descs = ngli_darray_data(&s_priv->attribute_bindings);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->attribute_bindings); i++) {
-        const struct attribute_binding *attribute_binding = &descs[i];
-        const GLuint location = attribute_binding->desc.location;
-        ngli_glEnableVertexAttribArray(gl, location);
-        if ((gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY) && attribute_binding->desc.rate > 0)
-            ngli_glVertexAttribDivisor(gl, location, attribute_binding->desc.rate);
-    }
-}
-
 static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
 {
     const struct pipeline_gl *s_priv = (const struct pipeline_gl *)s;
@@ -418,25 +418,9 @@ static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
 
 static int pipeline_graphics_init(struct pipeline *s)
 {
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-
     int ret = build_attribute_bindings(s);
     if (ret < 0)
         return ret;
-
-    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT) {
-        ngli_glGenVertexArrays(gl, 1, &s_priv->vao_id);
-        ngli_glBindVertexArray(gl, s_priv->vao_id);
-    } else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT) {
-        ngli_glGenVertexArraysOES(gl, 1, &s_priv->vao_id);
-        ngli_glBindVertexArrayOES(gl, s_priv->vao_id);
-    } else {
-        ngli_assert(0);
-    }
-    
-    init_vertex_attribs(s, gl);
 
     return 0;
 }
