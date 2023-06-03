@@ -150,6 +150,10 @@ int ngli_text_set_string(struct text *s, const char *str)
         if (!(chr->tags & NGLI_TEXT_CHAR_TAG_GLYPH))
             continue;
 
+        /* Recenter text so that it starts at (0,0) */
+        chr->x -= stats.xmin;
+        chr->y -= stats.ymin;
+
         chr->x += padding;
         chr->y += padding;
     }
