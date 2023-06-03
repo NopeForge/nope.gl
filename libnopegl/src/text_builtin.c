@@ -95,17 +95,23 @@ static void get_char_box_dim(const char *s, int32_t *wp, int32_t *hp, size_t *np
     *np = n;
 }
 
+static uint32_t get_char_tags(char c)
+{
+    if (c == ' ')
+        return NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR;
+    if (c == '\n')
+        return NGLI_TEXT_CHAR_TAG_LINE_BREAK | NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR;
+    return NGLI_TEXT_CHAR_TAG_GLYPH;
+}
+
 static int text_builtin_set_string(struct text *text, const char *str, struct darray *chars_dst)
 {
     size_t text_nbchr;
     int32_t text_cols, text_rows;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
 
-    text->width  = NGLI_I32_TO_I26D6(text_cols * NGLI_FONT_W + 2 * text->config.padding);
-    text->height = NGLI_I32_TO_I26D6(text_rows * NGLI_FONT_H + 2 * text->config.padding);
-
-    const int32_t padx = text->config.padding;
-    const int32_t pady = text->config.padding;
+    text->width  = NGLI_I32_TO_I26D6(text_cols * NGLI_FONT_W);
+    text->height = NGLI_I32_TO_I26D6(text_rows * NGLI_FONT_H);
 
     const int32_t chr_w = NGLI_FONT_W;
     const int32_t chr_h = NGLI_FONT_H;
@@ -113,9 +119,19 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
     int32_t px = 0, py = 0;
 
     for (size_t i = 0; str[i]; i++) {
-        if (str[i] == '\n') {
-            py++;
-            px = 0;
+        const enum char_tag tags = get_char_tags(str[i]);
+        if ((tags & NGLI_TEXT_CHAR_TAG_GLYPH) != NGLI_TEXT_CHAR_TAG_GLYPH) {
+            const struct char_info_internal chr = {.tags = tags};
+            if (!ngli_darray_push(chars_dst, &chr))
+                return NGL_ERROR_MEMORY;
+            if (tags & NGLI_TEXT_CHAR_TAG_LINE_BREAK) {
+                py++;
+                px = 0;
+            } else if (tags & NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR) {
+                px++;
+            } else {
+                ngli_assert(0);
+            }
             continue;
         }
 
@@ -124,11 +140,12 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
         ngli_atlas_get_bitmap_coords(text->ctx->font_atlas, atlas_id, atlas_coords);
 
         const struct char_info_internal chr = {
-            .x = NGLI_I32_TO_I26D6(chr_w * px + padx),
-            .y = NGLI_I32_TO_I26D6(chr_h * (text_rows - py - 1) + pady),
+            .x = NGLI_I32_TO_I26D6(chr_w * px),
+            .y = NGLI_I32_TO_I26D6(chr_h * (text_rows - py - 1)),
             .w = NGLI_I32_TO_I26D6(chr_w),
             .h = NGLI_I32_TO_I26D6(chr_h),
             .atlas_coords = {NGLI_ARG_VEC4(atlas_coords)},
+            .tags = NGLI_TEXT_CHAR_TAG_GLYPH,
         };
 
         if (!ngli_darray_push(chars_dst, &chr))

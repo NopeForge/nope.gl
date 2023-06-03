@@ -57,14 +57,33 @@ int ngli_text_set_string(struct text *s, const char *str)
     if (ret < 0)
         goto end;
 
+    /* Padding */
+    const int32_t padding = NGLI_I32_TO_I26D6(s->config.padding);
+    s->width += 2 * padding;
+    s->height += 2 * padding;
+
     s->width  = NGLI_I26D6_TO_I32_TRUNCATED(s->width);
     s->height = NGLI_I26D6_TO_I32_TRUNCATED(s->height);
 
-    /* Expose characters publicly */
-    ngli_darray_clear(&s->chars);
+    /* Honor layout */
     struct char_info_internal *chars_internal = ngli_darray_data(&chars_internal_array);
     for (size_t i = 0; i < ngli_darray_count(&chars_internal_array); i++) {
+        struct char_info_internal *chr = &chars_internal[i];
+
+        if (!(chr->tags & NGLI_TEXT_CHAR_TAG_GLYPH))
+            continue;
+
+        chr->x += padding;
+        chr->y += padding;
+    }
+
+    /* Expose characters publicly */
+    ngli_darray_clear(&s->chars);
+    for (size_t i = 0; i < ngli_darray_count(&chars_internal_array); i++) {
         const struct char_info_internal *chr_internal = &chars_internal[i];
+
+        if (!(chr_internal->tags & NGLI_TEXT_CHAR_TAG_GLYPH))
+            continue;
 
         const struct char_info chr = {
             .x = NGLI_I26D6_TO_F32(chr_internal->x) / (float)s->width,
