@@ -43,10 +43,17 @@ enum text_halign {
     NGLI_TEXT_HALIGN_LEFT,
 };
 
+enum char_tag {
+    NGLI_TEXT_CHAR_TAG_GLYPH          = 1 << 0,
+    NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR = 1 << 1,
+    NGLI_TEXT_CHAR_TAG_LINE_BREAK     = 1 << 2,
+};
+
 /* Exposed by text drivers  */
 struct char_info_internal {
     int32_t x, y, w, h; // pixels canvas coordinates encoded in 26.6 fixed point
     int32_t atlas_coords[4]; // pixel atlas coordinates
+    uint32_t tags; // combination of NGLI_TEXT_CHAR_TAG_*
 };
 
 /* Exposed by the text API */
