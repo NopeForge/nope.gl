@@ -19,10 +19,80 @@
  * under the License.
  */
 
+#include <string.h>
+
 #include "memory.h"
 #include "text.h"
 
 extern const struct text_cls ngli_text_builtin;
+
+struct box_stats {
+    struct darray linelens;         // int32_t, length of each line
+    int32_t max_linelen;            // maximum value in the linelens array
+    int32_t linemin, linemax;       // current line min/max
+    int32_t xmin, xmax;             // current box min/max on x-axis
+    int32_t ymin, ymax;             // current box min/max on y-axis
+};
+
+static void box_stats_init(struct box_stats *s)
+{
+    ngli_darray_init(&s->linelens, sizeof(int32_t), 0);
+    s->max_linelen = INT32_MIN;
+    s->linemin = s->xmin = s->ymin = INT32_MAX;
+    s->linemax = s->xmax = s->ymax = INT32_MIN;
+}
+
+static int box_stats_register_eol(struct box_stats *s)
+{
+    const int32_t len = s->linemax == INT32_MIN ? 0 : s->linemax - s->linemin;
+    if (!ngli_darray_push(&s->linelens, &len))
+        return NGL_ERROR_MEMORY;
+    s->max_linelen = NGLI_MAX(s->max_linelen, len);
+    s->linemin = INT32_MAX;
+    s->linemax = INT32_MIN;
+    return 0;
+}
+
+static void box_stats_register_chr(struct box_stats *s, int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    s->linemin = NGLI_MIN(s->linemin, x);
+    s->linemax = NGLI_MAX(s->linemax, x + w);
+    s->xmin = NGLI_MIN(s->xmin, x);
+    s->xmax = NGLI_MAX(s->xmax, x + w);
+    s->ymin = NGLI_MIN(s->ymin, y);
+    s->ymax = NGLI_MAX(s->ymax, y + h);
+}
+
+static void box_stats_reset(struct box_stats *s)
+{
+    ngli_darray_reset(&s->linelens);
+    memset(s, 0, sizeof(*s));
+}
+
+static int build_stats(struct box_stats *stats, struct darray *chars_array)
+{
+    box_stats_init(stats);
+
+    const struct char_info_internal *chars_internal = ngli_darray_data(chars_array);
+    for (size_t i = 0; i < ngli_darray_count(chars_array); i++) {
+        const struct char_info_internal *chr = &chars_internal[i];
+        if (chr->tags & NGLI_TEXT_CHAR_TAG_GLYPH)
+            box_stats_register_chr(stats, chr->x, chr->y, chr->w, chr->h);
+
+        if (chr->tags & NGLI_TEXT_CHAR_TAG_LINE_BREAK) {
+            int ret = box_stats_register_eol(stats);
+            if (ret < 0)
+                return ret;
+        }
+    }
+
+    /* We simulate an EOF to make sure the last line length is taken into account */
+    int ret = box_stats_register_eol(stats);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
 
 struct text *ngli_text_create(struct ngl_ctx *ctx)
 {
@@ -50,12 +120,23 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
 
 int ngli_text_set_string(struct text *s, const char *str)
 {
+    struct box_stats stats = {0};
     struct darray chars_internal_array;
     ngli_darray_init(&chars_internal_array, sizeof(struct char_info_internal), 0);
 
     int ret = s->cls->set_string(s, str, &chars_internal_array);
     if (ret < 0)
         goto end;
+
+    /* Build bounding box statistics for the layout logic */
+    build_stats(&stats, &chars_internal_array);
+
+    /* Make sure it doesn't explode if the string is empty or only contains line breaks */
+    if (stats.max_linelen <= 0) {
+        s->width = 0;
+        s->height = 0;
+        goto end;
+    }
 
     /* Padding */
     const int32_t padding = NGLI_I32_TO_I26D6(s->config.padding);
@@ -106,6 +187,7 @@ int ngli_text_set_string(struct text *s, const char *str)
 
 end:
     ngli_darray_reset(&chars_internal_array);
+    box_stats_reset(&stats);
     return ret;
 }
 
