@@ -897,6 +897,7 @@ Parameter | Flags | Type | Description | Default
 `font_scale` |  | [`f32`](#parameter-types) | scaling of the font | `1`
 `valign` |  | [`valign`](#valign-choices) | vertical alignment of the text in the box | `center`
 `halign` |  | [`halign`](#halign-choices) | horizontal alignment of the text in the box | `center`
+`writing_mode` |  | [`writing_mode`](#writing_mode-choices) | direction flow per character and line | `horizontal-tb`
 `aspect_ratio` |  [`live`](#Parameter-flags) | [`rational`](#parameter-types) | box aspect ratio | `0/0`
 
 
@@ -1943,6 +1944,14 @@ Constant | Description
 `center` | horizontally centered
 `right` | right positioned
 `left` | left positioned
+
+## writing_mode choices
+
+Constant | Description
+-------- | -----------
+`horizontal-tb` | left-to-right flow then top-to-bottom per line
+`vertical-rl` | top-to-bottom flow then right-to-left per line
+`vertical-lr` | top-to-bottom flow then left-to-right per line
 
 ## format choices
 

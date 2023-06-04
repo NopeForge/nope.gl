@@ -88,3 +88,15 @@ def text_align_tr(_):
 @scene()
 def text_align_tl(_):
     return _text(valign="top", halign="left")
+
+
+@test_fingerprint(tolerance=1)
+@scene()
+def text_vertical_rl(_):
+    return _text(writing_mode="vertical-rl")
+
+
+@test_fingerprint(tolerance=1)
+@scene()
+def text_vertical_lr(_):
+    return _text(writing_mode="vertical-lr")

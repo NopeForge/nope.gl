@@ -31,6 +31,12 @@
 #define NGLI_I26D6_TO_F32(x) ((float)(x) / 64.f)  // convert 26.6 fixed point to f32
 #define NGLI_I26D6_TO_I32_TRUNCATED(x) ((x) >> 6) // convert 26.6 fixed point to i32 (truncated/rounded down)
 
+enum writing_mode {
+    NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB,
+    NGLI_TEXT_WRITING_MODE_VERTICAL_RL,
+    NGLI_TEXT_WRITING_MODE_VERTICAL_LR,
+};
+
 enum text_valign {
     NGLI_TEXT_VALIGN_CENTER,
     NGLI_TEXT_VALIGN_TOP,
@@ -66,6 +72,7 @@ struct text_config {
     int32_t padding;
     enum text_valign valign;
     enum text_halign halign;
+    enum writing_mode writing_mode;
 };
 
 struct text;

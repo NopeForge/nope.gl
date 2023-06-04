@@ -2066,6 +2066,14 @@
       "desc": "horizontal alignment of the text in the box"
     },
     {
+      "name": "writing_mode",
+      "type": "select",
+      "default": "horizontal-tb",
+      "choices": ["horizontal-tb", "vertical-rl", "vertical-lr"],
+      "flags": [],
+      "desc": "direction flow per character and line"
+    },
+    {
       "name": "aspect_ratio",
       "type": "rational",
       "default": [0,0],

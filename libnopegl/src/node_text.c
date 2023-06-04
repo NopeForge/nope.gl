@@ -87,6 +87,7 @@ struct text_opts {
     int32_t padding;
     float font_scale;
     int valign, halign;
+    int writing_mode;
     int32_t aspect_ratio[2];
 };
 
@@ -120,6 +121,19 @@ static const struct param_choices halign_choices = {
         {"center", NGLI_TEXT_HALIGN_CENTER, .desc=NGLI_DOCSTRING("horizontally centered")},
         {"right",  NGLI_TEXT_HALIGN_RIGHT,  .desc=NGLI_DOCSTRING("right positioned")},
         {"left",   NGLI_TEXT_HALIGN_LEFT,   .desc=NGLI_DOCSTRING("left positioned")},
+        {NULL}
+    }
+};
+
+static const struct param_choices writing_mode_choices = {
+    .name = "writing_mode",
+    .consts = {
+        {"horizontal-tb", NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB,
+                          .desc=NGLI_DOCSTRING("left-to-right flow then top-to-bottom per line")},
+        {"vertical-rl",   NGLI_TEXT_WRITING_MODE_VERTICAL_RL,
+                          .desc=NGLI_DOCSTRING("top-to-bottom flow then right-to-left per line")},
+        {"vertical-lr",   NGLI_TEXT_WRITING_MODE_VERTICAL_LR,
+                          .desc=NGLI_DOCSTRING("top-to-bottom flow then left-to-right per line")},
         {NULL}
     }
 };
@@ -167,6 +181,9 @@ static const struct node_param text_params[] = {
     {"halign",       NGLI_PARAM_TYPE_SELECT, OFFSET(halign), {.i32=NGLI_TEXT_HALIGN_CENTER},
                      .choices=&halign_choices,
                      .desc=NGLI_DOCSTRING("horizontal alignment of the text in the box")},
+    {"writing_mode", NGLI_PARAM_TYPE_SELECT, OFFSET(writing_mode), {.i32=NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB},
+                     .choices=&writing_mode_choices,
+                     .desc=NGLI_DOCSTRING("direction flow per character and line")},
     {"aspect_ratio", NGLI_PARAM_TYPE_RATIONAL, OFFSET(aspect_ratio),
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                      .update_func=set_live_changed,
@@ -362,6 +379,7 @@ static int text_init(struct ngl_node *node)
         .padding = o->padding,
         .valign = o->valign,
         .halign = o->halign,
+        .writing_mode = o->writing_mode,
     };
 
     int ret = ngli_text_init(s->text_ctx, &config);
