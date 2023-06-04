@@ -334,6 +334,8 @@ foreach backend : backends
     'align_tc',
     'align_tr',
     'align_tl',
+    'vertical_rl',
+    'vertical_lr',
   ]
 
   tests_texture = [

@@ -122,10 +122,19 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
             if (!ngli_darray_push(chars_dst, &chr))
                 return NGL_ERROR_MEMORY;
             if (tags & NGLI_TEXT_CHAR_TAG_LINE_BREAK) {
-                py++;
-                px = 0;
+                switch (text->config.writing_mode) {
+                case NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB: py++; px = 0; break;
+                case NGLI_TEXT_WRITING_MODE_VERTICAL_RL:   px--; py = 0; break;
+                case NGLI_TEXT_WRITING_MODE_VERTICAL_LR:   px++; py = 0; break;
+                default: ngli_assert(0);
+                }
             } else if (tags & NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR) {
-                px++;
+                switch (text->config.writing_mode) {
+                case NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB: px++; break;
+                case NGLI_TEXT_WRITING_MODE_VERTICAL_RL:
+                case NGLI_TEXT_WRITING_MODE_VERTICAL_LR:   py++; break;
+                default: ngli_assert(0);
+                }
             } else {
                 ngli_assert(0);
             }
@@ -148,7 +157,12 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
         if (!ngli_darray_push(chars_dst, &chr))
             return NGL_ERROR_MEMORY;
 
-        px++;
+        switch (text->config.writing_mode) {
+        case NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB: px++; break;
+        case NGLI_TEXT_WRITING_MODE_VERTICAL_RL:
+        case NGLI_TEXT_WRITING_MODE_VERTICAL_LR:   py++; break;
+        default: ngli_assert(0);
+        }
     }
 
     return 0;

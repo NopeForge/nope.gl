@@ -27,15 +27,17 @@
 extern const struct text_cls ngli_text_builtin;
 
 struct box_stats {
-    struct darray linelens;         // int32_t, length of each line
+    enum writing_mode writing_mode;
+    struct darray linelens;         // int32_t, length of each line (not necessarily horizontal)
     int32_t max_linelen;            // maximum value in the linelens array
     int32_t linemin, linemax;       // current line min/max
     int32_t xmin, xmax;             // current box min/max on x-axis
     int32_t ymin, ymax;             // current box min/max on y-axis
 };
 
-static void box_stats_init(struct box_stats *s)
+static void box_stats_init(struct box_stats *s, enum writing_mode writing_mode)
 {
+    s->writing_mode = writing_mode;
     ngli_darray_init(&s->linelens, sizeof(int32_t), 0);
     s->max_linelen = INT32_MIN;
     s->linemin = s->xmin = s->ymin = INT32_MAX;
@@ -55,8 +57,13 @@ static int box_stats_register_eol(struct box_stats *s)
 
 static void box_stats_register_chr(struct box_stats *s, int32_t x, int32_t y, int32_t w, int32_t h)
 {
-    s->linemin = NGLI_MIN(s->linemin, x);
-    s->linemax = NGLI_MAX(s->linemax, x + w);
+    if (s->writing_mode == NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB) {
+        s->linemin = NGLI_MIN(s->linemin, x);
+        s->linemax = NGLI_MAX(s->linemax, x + w);
+    } else {
+        s->linemin = NGLI_MIN(s->linemin, y);
+        s->linemax = NGLI_MAX(s->linemax, y + h);
+    }
     s->xmin = NGLI_MIN(s->xmin, x);
     s->xmax = NGLI_MAX(s->xmax, x + w);
     s->ymin = NGLI_MIN(s->ymin, y);
@@ -69,9 +76,9 @@ static void box_stats_reset(struct box_stats *s)
     memset(s, 0, sizeof(*s));
 }
 
-static int build_stats(struct box_stats *stats, struct darray *chars_array)
+static int build_stats(struct box_stats *stats, struct darray *chars_array, enum writing_mode writing_mode)
 {
-    box_stats_init(stats);
+    box_stats_init(stats, writing_mode);
 
     const struct char_info_internal *chars_internal = ngli_darray_data(chars_array);
     for (size_t i = 0; i < ngli_darray_count(chars_array); i++) {
@@ -129,7 +136,7 @@ int ngli_text_set_string(struct text *s, const char *str)
         goto end;
 
     /* Build bounding box statistics for the layout logic */
-    build_stats(&stats, &chars_internal_array);
+    build_stats(&stats, &chars_internal_array, s->config.writing_mode);
 
     /* Make sure it doesn't explode if the string is empty or only contains line breaks */
     if (stats.max_linelen <= 0) {
@@ -164,8 +171,13 @@ int ngli_text_set_string(struct text *s, const char *str)
 
         /* Honor the alignment setting for each line */
         const int32_t space = stats.max_linelen - linelens[line];
-        if      (s->config.halign == NGLI_TEXT_HALIGN_CENTER) chr->x += space / 2;
-        else if (s->config.halign == NGLI_TEXT_HALIGN_RIGHT)  chr->x += space;
+        if (s->config.writing_mode == NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB) {
+            if      (s->config.halign == NGLI_TEXT_HALIGN_CENTER) chr->x += space / 2;
+            else if (s->config.halign == NGLI_TEXT_HALIGN_RIGHT)  chr->x += space;
+        } else {
+            if      (s->config.valign == NGLI_TEXT_VALIGN_CENTER) chr->y -= space / 2;
+            else if (s->config.valign == NGLI_TEXT_VALIGN_BOTTOM) chr->y -= space;
+        }
     }
 
     /* Expose characters publicly */
