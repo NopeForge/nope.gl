@@ -360,6 +360,8 @@ static int text_init(struct ngl_node *node)
 
     const struct text_config config = {
         .padding = o->padding,
+        .valign = o->valign,
+        .halign = o->halign,
     };
 
     int ret = ngli_text_init(s->text_ctx, &config);
