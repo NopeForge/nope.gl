@@ -35,6 +35,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   scene object that holds extra metadata (duration, aspect ratio and framerate)
 - All counters and size-based arguments in the public API are now using `size_t`
   instead of `int`
+- The `Text.valign` and `Text.halign` parameters now also align the text per line
 
 ### Removed
 - `ResourceProps.variadic` bool flag as it was never a functional interface

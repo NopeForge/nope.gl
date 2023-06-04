@@ -64,6 +64,8 @@ struct char_info {
 
 struct text_config {
     int32_t padding;
+    enum text_valign valign;
+    enum text_halign halign;
 };
 
 struct text;

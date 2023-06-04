@@ -143,9 +143,14 @@ int ngli_text_set_string(struct text *s, const char *str)
     s->height = NGLI_I26D6_TO_I32_TRUNCATED(stats.ymax - stats.ymin + 2 * padding);
 
     /* Honor layout */
+    int32_t line = 0;
+    const int32_t *linelens = ngli_darray_data(&stats.linelens);
     struct char_info_internal *chars_internal = ngli_darray_data(&chars_internal_array);
     for (size_t i = 0; i < ngli_darray_count(&chars_internal_array); i++) {
         struct char_info_internal *chr = &chars_internal[i];
+
+        if (chr->tags & NGLI_TEXT_CHAR_TAG_LINE_BREAK)
+            line++;
 
         if (!(chr->tags & NGLI_TEXT_CHAR_TAG_GLYPH))
             continue;
@@ -156,6 +161,11 @@ int ngli_text_set_string(struct text *s, const char *str)
 
         chr->x += padding;
         chr->y += padding;
+
+        /* Honor the alignment setting for each line */
+        const int32_t space = stats.max_linelen - linelens[line];
+        if      (s->config.halign == NGLI_TEXT_HALIGN_CENTER) chr->x += space / 2;
+        else if (s->config.halign == NGLI_TEXT_HALIGN_RIGHT)  chr->x += space;
     }
 
     /* Expose characters publicly */
