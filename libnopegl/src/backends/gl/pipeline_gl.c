@@ -32,7 +32,7 @@
 #include "pipeline_gl.h"
 #include "program_gl.h"
 #include "texture_gl.h"
-#include "topology_gl.h"
+#include "topology.h"
 #include "type.h"
 
 typedef void (*set_uniform_func)(struct glcontext *gl, GLint location, GLsizei count, const void *data);
@@ -395,6 +395,19 @@ static int build_attribute_bindings(struct pipeline *s)
     return 0;
 }
 
+static const GLenum gl_primitive_topology_map[NGLI_PRIMITIVE_TOPOLOGY_NB] = {
+    [NGLI_PRIMITIVE_TOPOLOGY_POINT_LIST]     = GL_POINTS,
+    [NGLI_PRIMITIVE_TOPOLOGY_LINE_LIST]      = GL_LINES,
+    [NGLI_PRIMITIVE_TOPOLOGY_LINE_STRIP]     = GL_LINE_STRIP,
+    [NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST]  = GL_TRIANGLES,
+    [NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP] = GL_TRIANGLE_STRIP,
+};
+
+static GLenum get_gl_topology(int topology)
+{
+    return gl_primitive_topology_map[topology];
+}
+
 static const GLenum gl_indices_type_map[NGLI_FORMAT_NB] = {
     [NGLI_FORMAT_R16_UNORM] = GL_UNSIGNED_SHORT,
     [NGLI_FORMAT_R32_UINT]  = GL_UNSIGNED_INT,
@@ -659,7 +672,7 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
         return;
     }
 
-    const GLenum gl_topology = ngli_topology_get_gl_topology(graphics->topology);
+    const GLenum gl_topology = get_gl_topology(graphics->topology);
     if (nb_instances > 1)
         ngli_glDrawArraysInstanced(gl, gl_topology, 0, nb_vertices, nb_instances);
     else
@@ -697,7 +710,7 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, const struct buffer *indi
     const GLenum gl_indices_type = get_gl_indices_type(indices_format);
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_gl->id);
 
-    const GLenum gl_topology = ngli_topology_get_gl_topology(graphics->topology);
+    const GLenum gl_topology = get_gl_topology(graphics->topology);
     if (nb_instances > 1)
         ngli_glDrawElementsInstanced(gl, gl_topology, nb_indices, gl_indices_type, 0, nb_instances);
     else
