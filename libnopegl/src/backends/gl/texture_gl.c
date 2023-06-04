@@ -331,11 +331,6 @@ static int texture_init_fields(struct texture *s)
     return 0;
 }
 
-static int is_pow2(int x)
-{
-    return x && !(x & (x - 1));
-}
-
 struct texture *ngli_texture_gl_create(struct gpu_ctx *gpu_ctx)
 {
     struct texture_gl *s = ngli_calloc(1, sizeof(*s));
@@ -364,13 +359,6 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
     } else {
         ngli_glGenTextures(gl, 1, &s_priv->id);
         ngli_glBindTexture(gl, s_priv->target, s_priv->id);
-        if (s->params.mipmap_filter &&
-            !(gl->features & NGLI_FEATURE_GL_TEXTURE_NPOT) &&
-            (!is_pow2(params->width) || !is_pow2(params->height))) {
-            LOG(WARNING, "context does not support non-power of two textures, "
-                "mipmapping will be disabled");
-            s->params.mipmap_filter = NGLI_MIPMAP_FILTER_NONE;
-        }
         const GLint min_filter = ngli_texture_get_gl_min_filter(params->min_filter, s->params.mipmap_filter);
         const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->mag_filter);
         const GLint wrap_s = ngli_texture_get_gl_wrap(params->wrap_s);
