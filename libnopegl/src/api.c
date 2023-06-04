@@ -425,7 +425,6 @@ static const char *get_cap_string_id(unsigned cap_id)
     case NGL_CAP_MAX_TEXTURE_DIMENSION_2D:      return "max_texture_dimension_2d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_3D:      return "max_texture_dimension_3d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE:    return "max_texture_dimension_cube";
-    case NGL_CAP_NPOT_TEXTURE:                  return "npot_texture";
     case NGL_CAP_SHADER_TEXTURE_LOD:            return "shader_texture_lod";
     case NGL_CAP_TEXTURE_2D_ARRAY:              return "texture_2d_array";
     case NGL_CAP_TEXTURE_3D:                    return "texture_3d";
@@ -445,7 +444,6 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
     const int has_compute        = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_COMPUTE);
     const int has_ds_resolve     = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_DEPTH_STENCIL_RESOLVE);
     const int has_instanced_draw = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_INSTANCED_DRAW);
-    const int has_npot_texture   = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_NPOT);
     const int has_shader_texture_lod = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_SHADER_TEXTURE_LOD);
     const int has_texture_2d_array   = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_2D_ARRAY);
     const int has_texture_3d     = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_3D);
@@ -473,7 +471,6 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_2D,      limits->max_texture_dimension_2d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_3D,      limits->max_texture_dimension_3d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE,    limits->max_texture_dimension_cube),
-        CAP(NGL_CAP_NPOT_TEXTURE,                  has_npot_texture),
         CAP(NGL_CAP_SHADER_TEXTURE_LOD,            has_shader_texture_lod),
         CAP(NGL_CAP_TEXTURE_2D_ARRAY,              has_texture_2d_array),
         CAP(NGL_CAP_TEXTURE_3D,                    has_texture_3d),

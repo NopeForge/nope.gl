@@ -38,6 +38,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ### Removed
 - `ResourceProps.variadic` bool flag as it was never a functional interface
+- `NGL_CAP_NPOT_TEXTURE` as we mandate full support for textures with
+   non-power-of-two dimensions
 
 ## [2023.1] [libnopegl 0.8.0] - 2023-04-07
 ### Changed

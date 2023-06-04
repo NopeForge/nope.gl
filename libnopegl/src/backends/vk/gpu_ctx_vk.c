@@ -877,7 +877,6 @@ static int vk_init(struct gpu_ctx *s)
                   NGLI_FEATURE_SHADER_TEXTURE_LOD |
                   NGLI_FEATURE_TEXTURE_3D |
                   NGLI_FEATURE_TEXTURE_CUBE_MAP |
-                  NGLI_FEATURE_TEXTURE_NPOT |
                   NGLI_FEATURE_UINT_UNIFORMS |
                   NGLI_FEATURE_UNIFORM_BUFFER |
                   NGLI_FEATURE_STORAGE_BUFFER |

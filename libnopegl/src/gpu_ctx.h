@@ -38,7 +38,6 @@
 #define NGLI_FEATURE_SOFTWARE                          (1 << 4)
 #define NGLI_FEATURE_TEXTURE_3D                        (1 << 5)
 #define NGLI_FEATURE_TEXTURE_CUBE_MAP                  (1 << 6)
-#define NGLI_FEATURE_TEXTURE_NPOT                      (1 << 7)
 #define NGLI_FEATURE_UINT_UNIFORMS                     (1 << 8)
 #define NGLI_FEATURE_UNIFORM_BUFFER                    (1 << 9)
 #define NGLI_FEATURE_STORAGE_BUFFER                    (1 << 10)
