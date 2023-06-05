@@ -145,6 +145,7 @@ lib_version = '0.0.0'
 lib_src = files(
   'src/animation.c',
   'src/api.c',
+  'src/atlas.c',
   'src/blending.c',
   'src/block.c',
   'src/bstr.c',
