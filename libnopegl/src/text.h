@@ -22,6 +22,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#include "atlas.h"
 #include "darray.h"
 #include "nopegl.h"
 #include "texture.h"
@@ -56,6 +57,7 @@ struct text {
     struct darray chars; // struct char_info
     struct texture *texture;
     int32_t atlas_dim[2];
+    struct atlas *atlas;
 };
 
 struct text *ngli_text_create(struct ngl_ctx *ctx);

@@ -43,8 +43,6 @@ struct rect {
 
 void ngli_drawutils_draw_rect(struct canvas *canvas, const struct rect *rect, uint32_t color);
 void ngli_drawutils_print(struct canvas *canvas, int x, int y, const char *str, uint32_t color);
-int ngli_drawutils_get_font_atlas(struct canvas *c_dst);
-int32_t ngli_drawutils_get_atlas_id(uint8_t chr);
-void ngli_drawutils_get_atlas_dim(int32_t *scale);
+void ngli_drawutils_get_glyph(uint8_t *dst, uint8_t chr);
 
 #endif
