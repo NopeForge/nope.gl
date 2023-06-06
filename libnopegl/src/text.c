@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include "atlas.h"
 #include "drawutils.h"
 #include "internal.h"
 #include "memory.h"
@@ -36,45 +37,41 @@ struct text *ngli_text_create(struct ngl_ctx *ctx)
 
 static int atlas_create(struct ngl_ctx *ctx)
 {
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-
     if (ctx->font_atlas)
         return 0;
 
-    struct canvas canvas = {0};
-    int ret = ngli_drawutils_get_font_atlas(&canvas);
+    ctx->font_atlas = ngli_atlas_create(ctx);
+    if (!ctx->font_atlas)
+        return NGL_ERROR_MEMORY;
+
+    int ret = ngli_atlas_init(ctx->font_atlas);
     if (ret < 0)
-        goto end;
+        return 0;
 
-    struct texture_params tex_params = {
-        .type          = NGLI_TEXTURE_TYPE_2D,
-        .width         = canvas.w,
-        .height        = canvas.h,
-        .format        = NGLI_FORMAT_R8_UNORM,
-        .min_filter    = NGLI_FILTER_LINEAR,
-        .mag_filter    = NGLI_FILTER_NEAREST,
-        .usage         = NGLI_TEXTURE_USAGE_TRANSFER_SRC_BIT
-                       | NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT
-                       | NGLI_TEXTURE_USAGE_SAMPLED_BIT,
-    };
+    for (uint8_t chr = 32; chr < 127; chr++) {
+        /* Load the glyph corresponding to the ASCII character */
+        uint8_t glyph[NGLI_FONT_W * NGLI_FONT_H];
+        const struct bitmap bitmap = {
+            .buffer = glyph,
+            .stride = NGLI_FONT_W,
+            .width  = NGLI_FONT_W,
+            .height = NGLI_FONT_H,
+        };
+        ngli_drawutils_get_glyph(bitmap.buffer, chr);
 
-    ctx->font_atlas = ngli_texture_create(gpu_ctx); // freed at context reconfiguration/destruction
-    if (!ctx->font_atlas) {
-        ret = NGL_ERROR_MEMORY;
-        goto end;
+        /* Register the glyph in the atlas */
+        int32_t bitmap_id;
+        ret = ngli_atlas_add_bitmap(ctx->font_atlas, &bitmap, &bitmap_id);
+        if (ret < 0)
+            return ret;
+
+        /* Map the character codepoint to its bitmap ID in the atlas */
+        ctx->char_map[chr] = bitmap_id;
     }
 
-    ret = ngli_texture_init(ctx->font_atlas, &tex_params);
-    if (ret < 0)
-        goto end;
+    ngli_atlas_finalize(ctx->font_atlas);
 
-    ret = ngli_texture_upload(ctx->font_atlas, canvas.buf, 0);
-    if (ret < 0)
-        goto end;
-
-end:
-    ngli_free(canvas.buf);
-    return ret;
+    return 0;
 }
 
 int ngli_text_init(struct text *s, const struct text_config *cfg)
@@ -87,8 +84,8 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
     if (ret < 0)
         return ret;
 
-    s->texture = s->ctx->font_atlas;
-    ngli_drawutils_get_atlas_dim(s->atlas_dim);
+    s->texture = ngli_atlas_get_texture(s->ctx->font_atlas);
+    ngli_atlas_get_dimensions(s->ctx->font_atlas, s->atlas_dim);
 
     return 0;
 }
@@ -140,7 +137,7 @@ int ngli_text_set_string(struct text *s, const char *str)
         }
 
         const struct char_info chr = {
-            .atlas_id = ngli_drawutils_get_atlas_id(str[i]),
+            .atlas_id = s->ctx->char_map[(uint8_t)str[i]],
             .x = chr_w * (float)px + padx,
             .y = chr_h * (float)(text_rows - py - 1) + pady,
             .w = chr_w,

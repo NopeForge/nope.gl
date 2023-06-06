@@ -196,7 +196,8 @@ void ngli_ctx_reset(struct ngl_ctx *s, int action)
 #if defined(TARGET_ANDROID)
     ngli_android_ctx_reset(&s->android_ctx);
 #endif
-    ngli_texture_freep(&s->font_atlas); // allocated by the first node text
+    ngli_atlas_freep(&s->font_atlas); // allocated by the first node text
+    memset(s->char_map, 0, sizeof(s->char_map));
     ngli_pgcache_reset(&s->pgcache);
     ngli_gpu_ctx_freep(&s->gpu_ctx);
     ngli_config_reset(&s->config);

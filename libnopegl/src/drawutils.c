@@ -22,7 +22,6 @@
 #include <string.h>
 
 #include "drawutils.h"
-#include "memory.h"
 #include "nopegl.h"
 
 #define BYTES_PER_PIXEL 4 /* RGBA */
@@ -130,45 +129,10 @@ void ngli_drawutils_print(struct canvas *canvas, int x, int y, const char *str, 
     }
 }
 
-#define ATLAS_COLS 16
-#define ATLAS_ROWS  6
-#define ATLAS_W (ATLAS_COLS * NGLI_FONT_W)
-#define ATLAS_H (ATLAS_ROWS * NGLI_FONT_H)
-
-int ngli_drawutils_get_font_atlas(struct canvas *c_dst)
+void ngli_drawutils_get_glyph(uint8_t *dst, uint8_t chr)
 {
-    struct canvas c = {.w = ATLAS_W, .h = ATLAS_H};
-    c.buf = ngli_calloc(c.w * c.h, 1);
-    if (!c.buf)
-        return NGL_ERROR_MEMORY;
-
-    uint8_t chr = 0;
-    for (int y = 0; y < ATLAS_ROWS; y++) {
-        for (int x = 0; x < ATLAS_COLS; x++) {
-            for (int char_y = 0; char_y < NGLI_FONT_H; char_y++) {
-                for (int char_x = 0; char_x < NGLI_FONT_W; char_x++) {
-                    const int pix_x = x * NGLI_FONT_W + char_x;
-                    const int pix_y = y * NGLI_FONT_H + char_y;
-                    uint8_t *p = c.buf + (pix_y * c.w + pix_x);
-                    if (font8[chr][char_y] & (1 << char_x))
-                        *p = 0xff;
-                }
-            }
-            chr++;
-        }
-    }
-
-    *c_dst = c;
-    return 0;
-}
-
-int32_t ngli_drawutils_get_atlas_id(uint8_t chr)
-{
-    return chr < FONT_OFFSET || chr > 127 ? 0 : chr - FONT_OFFSET;
-}
-
-void ngli_drawutils_get_atlas_dim(int32_t *dim)
-{
-    dim[0] = ATLAS_COLS;
-    dim[1] = ATLAS_ROWS;
+    const uint8_t *c = chr < FONT_OFFSET || chr > 127 ? font8[0] : font8[chr - FONT_OFFSET];
+    for (int32_t char_y = 0; char_y < NGLI_FONT_H; char_y++)
+        for (int32_t char_x = 0; char_x < NGLI_FONT_W; char_x++)
+            *dst++ = (c[char_y] & (1 << char_x)) ? 0xff : 0x00;
 }

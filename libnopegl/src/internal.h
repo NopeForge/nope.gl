@@ -39,6 +39,7 @@
 #endif
 
 #include "animation.h"
+#include "atlas.h"
 #include "block.h"
 #include "drawutils.h"
 #include "graphicstate.h"
@@ -101,7 +102,9 @@ struct ngl_ctx {
      */
     struct darray activitycheck_nodes;
 
-    struct texture *font_atlas;
+    struct atlas *font_atlas;
+    int32_t char_map[256];
+
     struct pgcache pgcache;
 #if defined(HAVE_VAAPI)
     struct vaapi_ctx vaapi_ctx;
