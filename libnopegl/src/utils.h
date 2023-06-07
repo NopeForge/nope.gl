@@ -109,6 +109,7 @@
                          NGLI_ARG_VEC4((v)+4*2),    \
                          NGLI_ARG_VEC4((v)+4*3)
 
+#define NGLI_HAS_ALL_FLAGS(a, b) (((a) & (b)) == (b))
 
 char *ngli_strdup(const char *s);
 int64_t ngli_gettime_relative(void);
