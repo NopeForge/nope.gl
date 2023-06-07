@@ -671,6 +671,7 @@ void ngli_pipeline_gl_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t
 
     s_priv->insert_memory_barriers(s);
 
+    ngli_assert(gl->features & NGLI_FEATURE_GL_COMPUTE_SHADER);
     ngli_glDispatchCompute(gl, nb_group_x, nb_group_y, nb_group_z);
 
     s_priv->insert_memory_barriers(s);
