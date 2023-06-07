@@ -116,12 +116,7 @@ static int create_fbo(struct rendertarget *s, int resolve, GLuint *idp)
         const struct texture_gl *texture_gl = (const struct texture_gl *)texture;
         GLenum attachment_index = get_gl_attachment_index(texture_gl->format);
         ngli_assert(attachment_index == GL_COLOR_ATTACHMENT0);
-
-        if (nb_color_attachments >= limits->max_color_attachments) {
-            LOG(ERROR, "could not attach color buffer %d (maximum %d)",
-                nb_color_attachments, limits->max_color_attachments);
-            goto fail;
-        }
+        ngli_assert(nb_color_attachments < limits->max_color_attachments);
         attachment_index = attachment_index + nb_color_attachments++;
 
         switch (texture_gl->target) {
@@ -265,12 +260,8 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
     s_priv->clear = clear_buffers;
 
     s_priv->resolve = resolve_no_draw_buffers;
-    if (params->nb_colors > limits->max_draw_buffers) {
-        LOG(ERROR, "draw buffer count (%zu) exceeds driver limit (%d)",
-            params->nb_colors, limits->max_draw_buffers);
-        ret = NGL_ERROR_GRAPHICS_UNSUPPORTED;
-        goto done;
-    }
+
+    ngli_assert(params->nb_colors <= limits->max_draw_buffers);
     if (params->nb_colors > 1) {
         for (size_t i = 0; i < params->nb_colors; i++)
             s_priv->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
