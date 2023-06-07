@@ -419,10 +419,7 @@ static int pipeline_compute_init(struct pipeline *s)
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    if (NGLI_HAS_ALL_FLAGS(gl->features, NGLI_FEATURE_GL_COMPUTE_SHADER_ALL)) {
-        LOG(ERROR, "context does not support compute shaders");
-        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-    }
+    ngli_assert(NGLI_HAS_ALL_FLAGS(gl->features, NGLI_FEATURE_GL_COMPUTE_SHADER_ALL));
 
     return 0;
 }
