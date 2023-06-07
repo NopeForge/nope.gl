@@ -181,6 +181,8 @@ static int build_texture_bindings(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     const struct gpu_limits *limits = &s->gpu_ctx->limits;
+    const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    const struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     size_t nb_textures = 0;
     size_t nb_images = 0;
@@ -211,13 +213,8 @@ static int build_texture_bindings(struct pipeline *s)
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
 
-    const struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
-    const struct glcontext *gl = gpu_ctx_gl->glcontext;
-    if (nb_images && !(gl->features & NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE)) {
-        LOG(ERROR, "context does not support shader image load store operations");
-        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-    }
+    if (nb_images)
+        ngli_assert(gl->features & NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE);
 
     if (nb_images > limits->max_image_units) {
         LOG(ERROR, "number of image units (%zu) exceeds device limits (%u)", nb_images, limits->max_image_units);
