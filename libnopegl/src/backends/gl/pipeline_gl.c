@@ -314,18 +314,16 @@ static int build_buffer_bindings(struct pipeline *s)
     const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_buffer_descs; i++) {
         const struct pipeline_buffer_desc *pipeline_buffer_desc = &layout->buffer_descs[i];
+        const int type = pipeline_buffer_desc->type;
 
-        if (pipeline_buffer_desc->type == NGLI_TYPE_STORAGE_BUFFER &&
-            !(gl->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT)) {
-            LOG(ERROR, "context does not support shader storage buffer objects");
-            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-        }
+        if (type == NGLI_TYPE_STORAGE_BUFFER)
+            ngli_assert(gl->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT);
 
         if (pipeline_buffer_desc->access & NGLI_ACCESS_WRITE_BIT)
             s_priv->use_barriers = 1;
 
         struct buffer_binding_gl binding = {
-            .type = get_gl_target(pipeline_buffer_desc->type),
+            .type = get_gl_target(type),
             .desc = *pipeline_buffer_desc,
         };
         if (!ngli_darray_push(&s_priv->buffer_bindings, &binding))
