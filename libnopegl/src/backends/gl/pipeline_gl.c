@@ -606,14 +606,14 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
     struct pipeline_graphics *graphics = &s->graphics;
     struct program_gl *program_gl = (struct program_gl *)s->program;
 
-    s_priv->insert_memory_barriers(s);
-
     set_graphics_state(s);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
     set_buffers(s, gl);
     set_textures(s, gl);
     bind_vertex_attribs(s, gl);
+
+    s_priv->insert_memory_barriers(s);
 
     const GLenum gl_topology = get_gl_topology(graphics->topology);
     if (nb_instances > 1)
@@ -634,8 +634,6 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, int nb_indices, int nb_in
     struct pipeline_graphics *graphics = &s->graphics;
     struct program_gl *program_gl = (struct program_gl *)s->program;
 
-    s_priv->insert_memory_barriers(s);
-
     set_graphics_state(s);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
@@ -646,6 +644,8 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, int nb_indices, int nb_in
     const struct buffer_gl *indices_gl = (const struct buffer_gl *)gpu_ctx_gl->index_buffer;
     const GLenum gl_indices_type = get_gl_indices_type(gpu_ctx_gl->index_format);
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_gl->id);
+
+    s_priv->insert_memory_barriers(s);
 
     const GLenum gl_topology = get_gl_topology(graphics->topology);
     if (nb_instances > 1)
@@ -665,11 +665,11 @@ void ngli_pipeline_gl_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t
     struct glstate *glstate = &gpu_ctx_gl->glstate;
     struct program_gl *program_gl = (struct program_gl *)s->program;
 
-    s_priv->insert_memory_barriers(s);
-
     ngli_glstate_use_program(gl, glstate, program_gl->id);
     set_buffers(s, gl);
     set_textures(s, gl);
+
+    s_priv->insert_memory_barriers(s);
 
     ngli_glDispatchCompute(gl, nb_group_x, nb_group_y, nb_group_z);
 
