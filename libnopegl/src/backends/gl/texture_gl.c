@@ -315,6 +315,11 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
+    ngli_assert(params->width && params->height);
+    if (params->type == NGLI_TEXTURE_TYPE_2D_ARRAY ||
+        params->type == NGLI_TEXTURE_TYPE_3D)
+        ngli_assert(params->depth);
+
     s->params = *params;
 
     int ret = texture_init_fields(s);
@@ -341,14 +346,6 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
             s_priv->target == GL_TEXTURE_3D ||
             s_priv->target == GL_TEXTURE_CUBE_MAP)
             ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_R, wrap_r);
-
-        if (!params->width || !params->height ||
-            ((params->type == NGLI_TEXTURE_TYPE_3D ||
-              params->type == NGLI_TEXTURE_TYPE_2D_ARRAY) && !params->depth)) {
-            LOG(ERROR, "invalid texture type %dx%dx%d",
-                params->width, params->height, params->depth);
-            return NGL_ERROR_INVALID_ARG;
-        }
         if (gl->features & NGLI_FEATURE_GL_TEXTURE_STORAGE) {
             texture_set_storage(s);
         } else {
