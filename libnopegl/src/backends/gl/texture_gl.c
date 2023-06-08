@@ -330,27 +330,28 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
         ngli_glGenRenderbuffers(gl, 1, &s_priv->id);
         ngli_glBindRenderbuffer(gl, s_priv->target, s_priv->id);
         renderbuffer_set_storage(s);
+        return 0;
+    }
+
+    ngli_glGenTextures(gl, 1, &s_priv->id);
+    ngli_glBindTexture(gl, s_priv->target, s_priv->id);
+    const GLint min_filter = ngli_texture_get_gl_min_filter(params->min_filter, s->params.mipmap_filter);
+    const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->mag_filter);
+    const GLint wrap_s = ngli_texture_get_gl_wrap(params->wrap_s);
+    const GLint wrap_t = ngli_texture_get_gl_wrap(params->wrap_t);
+    const GLint wrap_r = ngli_texture_get_gl_wrap(params->wrap_r);
+    ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_MIN_FILTER, min_filter);
+    ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_MAG_FILTER, mag_filter);
+    ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_S, wrap_s);
+    ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_T, wrap_t);
+    if (s_priv->target == GL_TEXTURE_2D_ARRAY ||
+        s_priv->target == GL_TEXTURE_3D ||
+        s_priv->target == GL_TEXTURE_CUBE_MAP)
+        ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_R, wrap_r);
+    if (gl->features & NGLI_FEATURE_GL_TEXTURE_STORAGE) {
+        texture_set_storage(s);
     } else {
-        ngli_glGenTextures(gl, 1, &s_priv->id);
-        ngli_glBindTexture(gl, s_priv->target, s_priv->id);
-        const GLint min_filter = ngli_texture_get_gl_min_filter(params->min_filter, s->params.mipmap_filter);
-        const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->mag_filter);
-        const GLint wrap_s = ngli_texture_get_gl_wrap(params->wrap_s);
-        const GLint wrap_t = ngli_texture_get_gl_wrap(params->wrap_t);
-        const GLint wrap_r = ngli_texture_get_gl_wrap(params->wrap_r);
-        ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_MIN_FILTER, min_filter);
-        ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_MAG_FILTER, mag_filter);
-        ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_S, wrap_s);
-        ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_T, wrap_t);
-        if (s_priv->target == GL_TEXTURE_2D_ARRAY ||
-            s_priv->target == GL_TEXTURE_3D ||
-            s_priv->target == GL_TEXTURE_CUBE_MAP)
-            ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_R, wrap_r);
-        if (gl->features & NGLI_FEATURE_GL_TEXTURE_STORAGE) {
-            texture_set_storage(s);
-        } else {
-            texture_set_image(s, NULL);
-        }
+        texture_set_image(s, NULL);
     }
 
     return 0;
