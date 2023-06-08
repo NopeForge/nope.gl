@@ -39,8 +39,8 @@ enum text_halign {
 };
 
 struct char_info {
+    int32_t atlas_id;
     float x, y, w, h;
-    float uvcoords[4 * 2];
 };
 
 struct text_config {
@@ -55,6 +55,7 @@ struct text {
     int32_t height;
     struct darray chars; // struct char_info
     struct texture *texture;
+    int32_t atlas_dim[2];
 };
 
 struct text *ngli_text_create(struct ngl_ctx *ctx);
