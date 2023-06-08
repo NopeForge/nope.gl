@@ -228,6 +228,8 @@ static int init_fields(struct texture *s, const struct texture_params *params)
 
     s->params = *params;
 
+    ngli_assert(params->width && params->height);
+
     uint32_t depth = 1;
     if (params->type == NGLI_TEXTURE_TYPE_3D) {
         ngli_assert(params->depth);
