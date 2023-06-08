@@ -66,6 +66,7 @@ struct pipeline_desc_bg {
 
 struct pipeline_desc_fg {
     struct pipeline_desc_common common;
+    int32_t atlas_dim_index;
     int32_t color_index;
     int32_t opacity_index;
 };
@@ -93,10 +94,9 @@ struct text_opts {
 struct text_priv {
     /* characters */
     struct text *text_ctx;
-    struct buffer *vertices;
-    struct buffer *uvcoords;
-    struct buffer *indices;
-    size_t nb_indices;
+    struct buffer *transforms;
+    struct buffer *atlas_ids;
+    size_t nb_chars;
 
     /* background box */
     struct buffer *bg_vertices;
@@ -176,23 +176,19 @@ static const struct node_param text_params[] = {
 };
 
 static const struct pgcraft_iovar vert_out_vars[] = {
-    {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
+    {.name = "uv",           .type = NGLI_TYPE_VEC2},
+    {.name = "atlas_coords", .type = NGLI_TYPE_VEC4},
 };
 
 #define BC(index) o->box_corner[index]
 #define BW(index) o->box_width[index]
 #define BH(index) o->box_height[index]
 
-#define C(index) chr_corner[index]
-#define W(index) chr_width[index]
-#define H(index) chr_height[index]
-
 static void destroy_characters_resources(struct text_priv *s)
 {
-    ngli_buffer_freep(&s->vertices);
-    ngli_buffer_freep(&s->uvcoords);
-    ngli_buffer_freep(&s->indices);
-    s->nb_indices = 0;
+    ngli_buffer_freep(&s->transforms);
+    ngli_buffer_freep(&s->atlas_ids);
+    s->nb_chars = 0;
 }
 
 static int update_character_geometries(struct ngl_node *node)
@@ -215,16 +211,9 @@ static int update_character_geometries(struct ngl_node *node)
         return 0;
     }
 
-    const size_t nb_vertices = text_nbchr * 4;
-    const size_t nb_uvcoords = text_nbchr * 4;
-    const size_t nb_indices  = text_nbchr * 6;
-    if (nb_indices > INT32_MAX)
-        return NGL_ERROR_LIMIT_EXCEEDED;
-
-    float *vertices = ngli_calloc(nb_vertices, 3 * sizeof(*vertices));
-    float *uvcoords = ngli_calloc(nb_uvcoords, 2 * sizeof(*uvcoords));
-    int16_t *indices = ngli_calloc(nb_indices, sizeof(*indices));
-    if (!vertices || !uvcoords || !indices) {
+    float *transforms = ngli_calloc(text_nbchr, 4 * 4 * sizeof(*transforms));
+    int32_t *atlas_ids = ngli_calloc(text_nbchr, sizeof(*atlas_ids));
+    if (!transforms || !atlas_ids) {
         ret = NGL_ERROR_MEMORY;
         goto end;
     }
@@ -283,60 +272,55 @@ static int update_character_geometries(struct ngl_node *node)
             corner[2] + width[2] * chr->x + height[2] * chr->y,
         };
 
-        /* deduce quad vertices from chr_{width,height,corner} */
-        const float chr_vertices[] = {
-            C(0),               C(1),               C(2),
-            C(0) + W(0),        C(1) + W(1),        C(2) + W(2),
-            C(0) + H(0),        C(1) + H(1),        C(2) + H(2),
-            C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2),
+        /* deduce character transform from chr_{width,height,corner} */
+        const NGLI_ALIGNED_MAT(transform) = {
+             chr_width[0],  chr_width[1],  chr_width[2], 0,
+            chr_height[0], chr_height[1], chr_height[2], 0,
+            chr_corner[0], chr_corner[1], chr_corner[2], 0,
+                        0,             0,             0, 1,
         };
-        memcpy(vertices + 4 * 3 * n, chr_vertices, sizeof(chr_vertices));
+        memcpy(transforms + 4 * 4 * n, transform, sizeof(transform));
 
-        /* uvcoords of the character in the atlas texture */
-        memcpy(uvcoords + 4 * 2 * n, chr->uvcoords, sizeof(chr->uvcoords));
-
-        /* quad for each character is made of 2 triangles */
-        const int16_t n4 = (int16_t)n * 4;
-        const int16_t chr_indices[] = { n4 + 0, n4 + 1, n4 + 2, n4 + 1, n4 + 3, n4 + 2 };
-        memcpy(indices + n * NGLI_ARRAY_NB(chr_indices), chr_indices, sizeof(chr_indices));
+        /* register atlas identifier */
+        atlas_ids[n] = chr->atlas_id;
     }
 
-    if (nb_indices > s->nb_indices) { // need re-alloc
+    if (text_nbchr > s->nb_chars) { // need re-alloc
         destroy_characters_resources(s);
 
-        s->vertices = ngli_buffer_create(gpu_ctx);
-        s->uvcoords = ngli_buffer_create(gpu_ctx);
-        s->indices  = ngli_buffer_create(gpu_ctx);
-        if (!s->vertices || !s->uvcoords || !s->indices) {
+        s->transforms = ngli_buffer_create(gpu_ctx);
+        s->atlas_ids = ngli_buffer_create(gpu_ctx);
+        if (!s->transforms || !s->atlas_ids) {
             ret = NGL_ERROR_MEMORY;
             goto end;
         }
 
-        if ((ret = ngli_buffer_init(s->vertices, nb_vertices * 3 * sizeof(*vertices), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->uvcoords, nb_uvcoords * 2 * sizeof(*uvcoords), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->indices,  nb_indices  * sizeof(*indices),  DYNAMIC_INDEX_USAGE_FLAGS)) < 0)
+        if ((ret = ngli_buffer_init(s->transforms, text_nbchr * 4 * 4 * sizeof(*transforms), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_buffer_init(s->atlas_ids, text_nbchr * sizeof(*atlas_ids), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
             goto end;
 
         struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
         for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
             struct pipeline_desc_common *desc = &descs[i].fg.common;
 
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 0, s->vertices);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 1, s->uvcoords);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 0, s->transforms);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 1, s->transforms);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 2, s->transforms);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 3, s->transforms);
+
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 4, s->atlas_ids);
         }
     }
 
-    if ((ret = ngli_buffer_upload(s->vertices, vertices, nb_vertices * 3 * sizeof(*vertices), 0)) < 0 ||
-        (ret = ngli_buffer_upload(s->uvcoords, uvcoords, nb_uvcoords * 2 * sizeof(*uvcoords), 0)) < 0 ||
-        (ret = ngli_buffer_upload(s->indices, indices, nb_indices * sizeof(*indices), 0)) < 0)
+    if ((ret = ngli_buffer_upload(s->transforms, transforms, text_nbchr * 4 * 4 * sizeof(*transforms), 0)) < 0 ||
+        (ret = ngli_buffer_upload(s->atlas_ids, atlas_ids, text_nbchr * sizeof(*atlas_ids), 0)) < 0)
         goto end;
 
-    s->nb_indices = nb_indices;
+    s->nb_chars = text_nbchr;
 
 end:
-    ngli_free(vertices);
-    ngli_free(uvcoords);
-    ngli_free(indices);
+    ngli_free(transforms);
+    ngli_free(atlas_ids);
     return ret;
 }
 
@@ -509,6 +493,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     const struct pgcraft_uniform uniforms[] = {
         {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
         {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "atlas_dim",         .type = NGLI_TYPE_IVEC2,.stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
         {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = o->fg_color},
         {.name = "opacity",           .type = NGLI_TYPE_F32,  .stage = NGLI_PROGRAM_SHADER_FRAG, .data = &o->fg_opacity},
     };
@@ -524,18 +509,20 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
 
     const struct pgcraft_attribute attributes[] = {
         {
-            .name     = "position",
-            .type     = NGLI_TYPE_VEC3,
-            .format   = NGLI_FORMAT_R32G32B32_SFLOAT,
-            .stride   = 3 * sizeof(float),
-            .buffer   = s->vertices,
+            .name     = "transform",
+            .type     = NGLI_TYPE_MAT4,
+            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .stride   = 4 * 4 * sizeof(float),
+            .buffer   = s->transforms,
+            .rate     = 1,
         },
         {
-            .name     = "uvcoord",
-            .type     = NGLI_TYPE_VEC2,
-            .format   = NGLI_FORMAT_R32G32_SFLOAT,
-            .stride   = 2 * sizeof(float),
-            .buffer   = s->uvcoords,
+            .name     = "atlas_id",
+            .type     = NGLI_TYPE_I32,
+            .format   = NGLI_FORMAT_R32_SINT,
+            .stride   = sizeof(int32_t),
+            .buffer   = s->atlas_ids,
+            .rate     = 1,
         },
     };
 
@@ -550,7 +537,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     struct pipeline_params pipeline_params = {
         .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics      = {
-            .topology       = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .topology       = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state          = state,
             .rt_desc        = rnode->rendertarget_desc,
         }
@@ -574,11 +561,12 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     if (ret < 0)
         return ret;
 
+    desc->atlas_dim_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "atlas_dim", NGLI_PROGRAM_SHADER_VERT);
     desc->color_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "color", NGLI_PROGRAM_SHADER_FRAG);
     desc->opacity_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "opacity", NGLI_PROGRAM_SHADER_FRAG);
 
-    ngli_assert(!strcmp("position", pipeline_params.layout.attribute_descs[0].name));
-    ngli_assert(!strcmp("uvcoord", pipeline_params.layout.attribute_descs[1].name));
+    ngli_assert(!strcmp("transform", pipeline_params.layout.attribute_descs[0].name));
+    ngli_assert(!strcmp("atlas_id", pipeline_params.layout.attribute_descs[4].name));
 
     return 0;
 }
@@ -644,13 +632,14 @@ static void text_draw(struct ngl_node *node)
     ngli_pipeline_compat_update_uniform(bg_desc->common.pipeline_compat, bg_desc->opacity_index, &o->bg_opacity);
     ngli_pipeline_compat_draw(bg_desc->common.pipeline_compat, 4, 1);
 
-    if (s->nb_indices) {
+    if (s->nb_chars) {
         struct pipeline_desc_fg *fg_desc = &desc->fg;
         ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->common.modelview_matrix_index, modelview_matrix);
         ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->common.projection_matrix_index, projection_matrix);
+        ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->atlas_dim_index, s->text_ctx->atlas_dim);
         ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->color_index, o->fg_color);
         ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->opacity_index, &o->fg_opacity);
-        ngli_pipeline_compat_draw_indexed(fg_desc->common.pipeline_compat, s->indices, NGLI_FORMAT_R16_UNORM, (int)s->nb_indices, 1);
+        ngli_pipeline_compat_draw(fg_desc->common.pipeline_compat, 4, (int)s->nb_chars);
     }
 }
 

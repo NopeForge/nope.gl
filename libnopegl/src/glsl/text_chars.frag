@@ -22,6 +22,22 @@
 
 void main()
 {
-    float v = ngl_tex2d(tex, tex_coord).r;
+    /*
+     * uv is a normalized [0;1] quad coordinate which we map to the atlas
+     * element coordinate boundaries
+     */
+    vec2 chr_uv = mix(atlas_coords.xy, atlas_coords.zw, uv);
+
+    /*
+     * The half texel clamping is here to prevent texture bleeding when the
+     * texture has bilinear filtering: we're preventing the filter from reading
+     * the neighbour atlas elements. The small delta is here to prevent the 0.5
+     * ambiguity and float inaccuracies. It could become an issue only in the
+     * case of a huge atlas.
+     */
+    vec2 half_texel = 0.5 / vec2(textureSize(tex, 0)) + 1e-8;
+    vec2 clamp_uv = clamp(chr_uv, atlas_coords.xy + half_texel, atlas_coords.zw - half_texel);
+
+    float v = ngl_tex2d(tex, clamp_uv).r;
     ngl_out_color = vec4(color, 1.0) * opacity * v;
 }

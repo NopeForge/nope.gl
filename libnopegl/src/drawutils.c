@@ -132,11 +132,8 @@ void ngli_drawutils_print(struct canvas *canvas, int x, int y, const char *str, 
 
 #define ATLAS_COLS 16
 #define ATLAS_ROWS  6
-#define ATLAS_CHAR_PAD 1 // prevent interpolation overlap issues with texture picking
-#define ATLAS_CHR_W (NGLI_FONT_W + 2 * ATLAS_CHAR_PAD)
-#define ATLAS_CHR_H (NGLI_FONT_H + 2 * ATLAS_CHAR_PAD)
-#define ATLAS_W (ATLAS_COLS * ATLAS_CHR_W)
-#define ATLAS_H (ATLAS_ROWS * ATLAS_CHR_H)
+#define ATLAS_W (ATLAS_COLS * NGLI_FONT_W)
+#define ATLAS_H (ATLAS_ROWS * NGLI_FONT_H)
 
 int ngli_drawutils_get_font_atlas(struct canvas *c_dst)
 {
@@ -150,8 +147,8 @@ int ngli_drawutils_get_font_atlas(struct canvas *c_dst)
         for (int x = 0; x < ATLAS_COLS; x++) {
             for (int char_y = 0; char_y < NGLI_FONT_H; char_y++) {
                 for (int char_x = 0; char_x < NGLI_FONT_W; char_x++) {
-                    const int pix_x = x * ATLAS_CHR_W + ATLAS_CHAR_PAD + char_x;
-                    const int pix_y = y * ATLAS_CHR_H + ATLAS_CHAR_PAD + char_y;
+                    const int pix_x = x * NGLI_FONT_W + char_x;
+                    const int pix_y = y * NGLI_FONT_H + char_y;
                     uint8_t *p = c.buf + (pix_y * c.w + pix_x);
                     if (font8[chr][char_y] & (1 << char_x))
                         *p = 0xff;
@@ -165,22 +162,13 @@ int ngli_drawutils_get_font_atlas(struct canvas *c_dst)
     return 0;
 }
 
-void ngli_drawutils_get_atlas_uvcoords(uint8_t chr, float *dst)
+int32_t ngli_drawutils_get_atlas_id(uint8_t chr)
 {
-    const int c_id = chr < FONT_OFFSET || chr > 127 ? 0 : chr - FONT_OFFSET;
-    const float scale_w = 1.f / ATLAS_W;
-    const float scale_h = 1.f / ATLAS_H;
-    const int col = c_id % ATLAS_COLS;
-    const int row = c_id / ATLAS_COLS; // from the top of the buffer
-    const float cx = (float)                (col * ATLAS_CHR_W + ATLAS_CHAR_PAD) * scale_w;
-    const float cy = (float)(ATLAS_H - (row + 1) * ATLAS_CHR_H + ATLAS_CHAR_PAD) * scale_h;
-    const float cw = NGLI_FONT_W * scale_w;
-    const float ch = NGLI_FONT_H * scale_h;
-    const float chr_uvs[] = {
-        cx,      1.f - cy,
-        cx + cw, 1.f - cy,
-        cx,      1.f - cy - ch,
-        cx + cw, 1.f - cy - ch,
-    };
-    memcpy(dst, chr_uvs, sizeof(chr_uvs));
+    return chr < FONT_OFFSET || chr > 127 ? 0 : chr - FONT_OFFSET;
+}
+
+void ngli_drawutils_get_atlas_dim(int32_t *dim)
+{
+    dim[0] = ATLAS_COLS;
+    dim[1] = ATLAS_ROWS;
 }

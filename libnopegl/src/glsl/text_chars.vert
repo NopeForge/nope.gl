@@ -20,8 +20,24 @@
  * under the License.
  */
 
+const vec2 uvs[] = vec2[](vec2(0.0, 0.0), vec2(1.0, 0.0), vec2(0.0, 1.0), vec2(1.0, 1.0));
+
 void main()
 {
-    ngl_out_pos = projection_matrix * modelview_matrix * vec4(position, 1.0);
-    tex_coord = uvcoord;
+    vec2 ref_uv = uvs[ngl_vertex_index];
+
+    /* y-flip UV for the texture sampling */
+    uv = vec2(ref_uv.x, 1.0 - ref_uv.y);
+
+    /* Identify the 2D position within the atlas (in "atlas element" units) */
+    ivec2 atlas_pos = ivec2(atlas_id % atlas_dim.x, atlas_id / atlas_dim.x);
+
+    /*
+     * These are the normalized top-left and bottom-right coordinates of the
+     * character in the atlas.
+     */
+    atlas_coords = vec4(atlas_pos, atlas_pos + 1) / vec4(atlas_dim, atlas_dim);
+
+    vec4 position = transform * vec4(ref_uv, 1.0, 1.0);
+    ngl_out_pos = projection_matrix * modelview_matrix * position;
 }

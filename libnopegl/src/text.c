@@ -88,6 +88,7 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
         return ret;
 
     s->texture = s->ctx->font_atlas;
+    ngli_drawutils_get_atlas_dim(s->atlas_dim);
 
     return 0;
 }
@@ -138,14 +139,13 @@ int ngli_text_set_string(struct text *s, const char *str)
             continue;
         }
 
-        struct char_info chr = {
+        const struct char_info chr = {
+            .atlas_id = ngli_drawutils_get_atlas_id(str[i]),
             .x = chr_w * (float)px + padx,
             .y = chr_h * (float)(text_rows - py - 1) + pady,
             .w = chr_w,
             .h = chr_h,
         };
-
-        ngli_drawutils_get_atlas_uvcoords(str[i], chr.uvcoords);
 
         if (!ngli_darray_push(&s->chars, &chr))
             return NGL_ERROR_MEMORY;
