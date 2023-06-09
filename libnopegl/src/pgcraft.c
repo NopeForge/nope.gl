@@ -93,11 +93,8 @@ struct pgcraft {
     const char *glsl_version_suffix;
     const char *sym_vertex_index;
     const char *sym_instance_index;
-    const char *rg; // 2-component texture picking (could be either rg or ra depending on the OpenGL version)
-    int has_in_out_qualifiers;
     int has_in_out_layout_qualifiers;
     int has_precision_qualifiers;
-    int has_modern_texture_picking;
     int has_explicit_bindings;
 };
 
@@ -639,9 +636,8 @@ static int inject_attribute(struct pgcraft *s, struct bstr *b,
         ngli_bstr_printf(b, "layout(location=%d) ", base_location);
     }
 
-    const char *qualifier = s->has_in_out_qualifiers ? "in" : "attribute";
     const char *precision = get_precision_qualifier(s, attribute->type, attribute->precision, "highp");
-    ngli_bstr_printf(b, "%s %s %s %s;\n", qualifier, precision, type, attribute->name);
+    ngli_bstr_printf(b, "in %s %s %s;\n", precision, type, attribute->name);
 
     const int attribute_offset = ngli_format_get_bytes_per_pixel(attribute->format);
     for (int i = 0; i < attribute_count; i++) {
@@ -748,8 +744,7 @@ static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcr
     const int require_ssbo_feature = params_have_ssbos(s, params, stage);
     const int require_image_feature = params_have_images(s, params, stage);
 #if defined(TARGET_ANDROID)
-    const int require_image_external_feature       = ngli_darray_count(&s->texture_infos) > 0 && s->glsl_version  < 300;
-    const int require_image_external_essl3_feature = ngli_darray_count(&s->texture_infos) > 0 && s->glsl_version >= 300;
+    const int require_image_external_essl3_feature = ngli_darray_count(&s->texture_infos) > 0;
 #endif
 
     const struct {
@@ -767,10 +762,8 @@ static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcr
 
         /* OpenGLES */
 #if defined(TARGET_ANDROID)
-        {NGL_BACKEND_OPENGLES, "GL_OES_EGL_image_external",       INT_MAX, require_image_external_feature},
         {NGL_BACKEND_OPENGLES, "GL_OES_EGL_image_external_essl3", INT_MAX, require_image_external_essl3_feature},
 #endif
-        {NGL_BACKEND_OPENGLES, "GL_OES_standard_derivatives",         300, stage == NGLI_PROGRAM_SHADER_FRAG},
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(features); i++) {
@@ -781,23 +774,13 @@ static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcr
     }
 
     if (ngli_darray_count(&s->texture_infos) > 0) {
-        if (s->has_modern_texture_picking)
-            ngli_bstr_print(b, "#define ngl_tex2d   texture\n"
-                               "#define ngl_tex3d   texture\n"
-                               "#define ngl_texcube texture\n");
-        else
-            ngli_bstr_print(b, "#define ngl_tex2d   texture2D\n"
-                               "#define ngl_tex3d   texture3D\n"
-                               "#define ngl_texcube textureCube\n");
+        ngli_bstr_print(b, "#define ngl_tex2d   texture\n"
+                           "#define ngl_tex3d   texture\n"
+                           "#define ngl_texcube texture\n");
 
-        if (config->backend == NGL_BACKEND_OPENGLES && s->glsl_version < 300)
-            ngli_bstr_print(b, "#define ngl_tex2dlod   texture2DLodEXT\n"
-                               "#define ngl_tex3dlod   texture3DLodEXT\n"
-                               "#define ngl_texcubelod textureCubeLodEXT\n");
-        else
-            ngli_bstr_print(b, "#define ngl_tex2dlod   textureLod\n"
-                               "#define ngl_tex3dlod   textureLod\n"
-                               "#define ngl_texcubelod textureLod\n");
+        ngli_bstr_print(b, "#define ngl_tex2dlod   textureLod\n"
+                           "#define ngl_tex3dlod   textureLod\n"
+                           "#define ngl_texcubelod textureLod\n");
     }
 
     ngli_bstr_print(b, "\n");
@@ -944,10 +927,10 @@ static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
         if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_NV12)) {
             ngli_bstr_printf(dst, "%.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_NV12);
             ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(ngl_tex2d(%.*s,   %.*s).r, "
-                                                           "ngl_tex2d(%.*s_1, %.*s).%s, 1.0) : ",
+                                                           "ngl_tex2d(%.*s_1, %.*s).rg, 1.0) : ",
                              ARG_FMT(arg0),
                              ARG_FMT(arg0), ARG_FMT(coords),
-                             ARG_FMT(arg0), ARG_FMT(coords), s->rg);
+                             ARG_FMT(arg0), ARG_FMT(coords));
         }
 
         if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_YUV)) {
@@ -1052,11 +1035,11 @@ static int samplers_preproc(struct pgcraft *s, const struct pgcraft_params *para
 
 static int inject_iovars(struct pgcraft *s, struct bstr *b, int stage)
 {
-    static const char *qualifiers[2][2] = {
-        [NGLI_PROGRAM_SHADER_VERT] = {"varying", "out"},
-        [NGLI_PROGRAM_SHADER_FRAG] = {"varying", "in"},
+    static const char *qualifiers[2] = {
+        [NGLI_PROGRAM_SHADER_VERT] = "out",
+        [NGLI_PROGRAM_SHADER_FRAG] = "in",
     };
-    const char *qualifier = qualifiers[stage][s->has_in_out_qualifiers];
+    const char *qualifier = qualifiers[stage];
     const struct pgcraft_iovar *iovars = ngli_darray_data(&s->vert_out_vars);
     int location = 0;
     for (size_t i = 0; i < ngli_darray_count(&s->vert_out_vars); i++) {
@@ -1128,18 +1111,14 @@ static int craft_frag(struct pgcraft *s, const struct pgcraft_params *params)
 
     ngli_bstr_print(b, "\n");
 
-    if (s->has_in_out_qualifiers) {
-        if (s->has_in_out_layout_qualifiers) {
-            const int out_location = s->next_out_locations[NGLI_PROGRAM_SHADER_FRAG]++;
-            ngli_bstr_printf(b, "layout(location=%d) ", out_location);
-        }
-        if (params->nb_frag_output)
-            ngli_bstr_printf(b, "out vec4 ngl_out_color[%zu];\n", params->nb_frag_output);
-        else
-            ngli_bstr_print(b, "out vec4 ngl_out_color;\n");
-    } else {
-        ngli_bstr_print(b, "#define ngl_out_color gl_FragColor\n");
+    if (s->has_in_out_layout_qualifiers) {
+        const int out_location = s->next_out_locations[NGLI_PROGRAM_SHADER_FRAG]++;
+        ngli_bstr_printf(b, "layout(location=%d) ", out_location);
     }
+    if (params->nb_frag_output)
+        ngli_bstr_printf(b, "out vec4 ngl_out_color[%zu];\n", params->nb_frag_output);
+    else
+        ngli_bstr_print(b, "out vec4 ngl_out_color;\n");
 
     int ret;
     if ((ret = inject_iovars(s, b, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
@@ -1347,18 +1326,11 @@ static void setup_glsl_info_gl(struct pgcraft *s)
 
     s->glsl_version = gpu_ctx->language_version;
 
-    if (config->backend == NGL_BACKEND_OPENGLES) {
-        if (gpu_ctx->version >= 300) {
-            s->glsl_version_suffix = " es";
-        } else {
-            s->rg = "ra";
-        }
-    }
+    if (config->backend == NGL_BACKEND_OPENGLES)
+        s->glsl_version_suffix = " es";
 
-    s->has_in_out_qualifiers        = IS_GLSL_ES_MIN(300) || IS_GLSL_MIN(150);
     s->has_in_out_layout_qualifiers = IS_GLSL_ES_MIN(310) || IS_GLSL_MIN(410);
     s->has_precision_qualifiers     = IS_GLSL_ES_MIN(100);
-    s->has_modern_texture_picking   = IS_GLSL_ES_MIN(300) || IS_GLSL_MIN(330);
     s->compat_info.use_ublocks       = 0;
 
     s->has_explicit_bindings = IS_GLSL_ES_MIN(310) || IS_GLSL_MIN(420) ||
@@ -1386,10 +1358,8 @@ static void setup_glsl_info_vk(struct pgcraft *s)
     s->sym_instance_index = "gl_InstanceIndex";
 
     s->has_explicit_bindings        = 1;
-    s->has_in_out_qualifiers        = 1;
     s->has_in_out_layout_qualifiers = 1;
     s->has_precision_qualifiers     = 0;
-    s->has_modern_texture_picking   = 1;
     s->compat_info.use_ublocks      = 1;
 
     /* Bindings are shared across stages and types */
@@ -1403,7 +1373,6 @@ static void setup_glsl_info(struct pgcraft *s)
     struct ngl_ctx *ctx = s->ctx;
     ngli_unused const struct ngl_config *config = &ctx->config;
 
-    s->rg = "rg";
     s->glsl_version_suffix = "";
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
