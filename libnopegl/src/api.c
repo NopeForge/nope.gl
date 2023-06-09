@@ -440,15 +440,15 @@ static const char *get_cap_string_id(unsigned cap_id)
 
 static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
 {
-    const int has_block          = ANY_FEATURES(gpu_ctx->features, NGLI_FEATURE_UNIFORM_BUFFER | NGLI_FEATURE_STORAGE_BUFFER);
+    const int has_block          = 1;
     const int has_compute        = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_COMPUTE);
     const int has_ds_resolve     = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_DEPTH_STENCIL_RESOLVE);
-    const int has_instanced_draw = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_INSTANCED_DRAW);
-    const int has_shader_texture_lod = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_SHADER_TEXTURE_LOD);
-    const int has_texture_2d_array   = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_2D_ARRAY);
-    const int has_texture_3d     = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_3D);
-    const int has_texture_cube   = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_CUBE_MAP);
-    const int has_uint_uniforms  = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_UINT_UNIFORMS);
+    const int has_instanced_draw = 1;
+    const int has_shader_texture_lod = 1;
+    const int has_texture_2d_array   = 1;
+    const int has_texture_3d     = 1;
+    const int has_texture_cube   = 1;
+    const int has_uint_uniforms  = 1;
 
     const struct gpu_limits *limits = &gpu_ctx->limits;
     const struct ngl_cap caps[] = {
