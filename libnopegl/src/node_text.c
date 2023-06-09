@@ -449,7 +449,7 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
             .name     = "position",
             .type     = NGLI_TYPE_VEC3,
             .format   = NGLI_FORMAT_R32G32B32_SFLOAT,
-            .stride   = 3 * 4,
+            .stride   = 3 * sizeof(float),
             .buffer   = s->bg_vertices,
         },
     };
@@ -512,14 +512,14 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
             .name     = "position",
             .type     = NGLI_TYPE_VEC3,
             .format   = NGLI_FORMAT_R32G32B32_SFLOAT,
-            .stride   = 3 * 4,
+            .stride   = 3 * sizeof(float),
             .buffer   = s->vertices,
         },
         {
             .name     = "uvcoord",
             .type     = NGLI_TYPE_VEC2,
             .format   = NGLI_FORMAT_R32G32_SFLOAT,
-            .stride   = 2 * 4,
+            .stride   = 2 * sizeof(float),
             .buffer   = s->uvcoords,
         },
     };
