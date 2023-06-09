@@ -1285,7 +1285,7 @@ int ngli_hud_init(struct hud *s)
             .name     = "coords",
             .type     = NGLI_TYPE_VEC4,
             .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
-            .stride   = 4 * 4,
+            .stride   = 4 * sizeof(float),
             .buffer   = s->coords,
         },
     };
