@@ -40,6 +40,10 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `ResourceProps.variadic` bool flag as it was never a functional interface
 - `NGL_CAP_NPOT_TEXTURE` as we mandate full support for textures with
    non-power-of-two dimensions
+- Support for OpenGL < 3.3 and OpenGL ES < 3.0 and the associated capabilities:
+  `NGL_CAP_BLOCK`, `NGL_CAP_INSTANCED_DRAW`, `NGL_CAP_SHADER_TEXTURE_LOD`,
+  `NGL_CAP_TEXTURE_2D_ARRAY`, `NGL_CAP_TEXTURE_3D`, `NGL_CAP_TEXTURE_CUBE`,
+  `NGL_CAP_UINT_UNIFORMS`
 
 ## [2023.1] [libnopegl 0.8.0] - 2023-04-07
 ### Changed
