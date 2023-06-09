@@ -795,6 +795,11 @@ static int get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
     return NGLI_MIN(max_color_samples, NGLI_MIN(max_depth_samples, max_stencil_samples));
 }
 
+static int get_max_color_attachments(const VkPhysicalDeviceLimits *limits)
+{
+    return NGLI_MIN(limits->maxColorAttachments, NGLI_MAX_COLOR_ATTACHMENTS);
+}
+
 static void set_viewport_and_scissor(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
 {
     if (viewport && viewport[2] > 0 && viewport[3] > 0) {
@@ -879,7 +884,7 @@ static int vk_init(struct gpu_ctx *s)
     struct vkcontext *vk = s_priv->vkcontext;
     const VkPhysicalDeviceLimits *limits = &vk->phy_device_props.limits;
     s->limits.max_vertex_attributes              = limits->maxVertexInputAttributes;
-    s->limits.max_color_attachments              = limits->maxColorAttachments;
+    s->limits.max_color_attachments              = get_max_color_attachments(limits);
     s->limits.max_texture_dimension_1d           = limits->maxImageDimension1D;
     s->limits.max_texture_dimension_2d           = limits->maxImageDimension2D;
     s->limits.max_texture_dimension_3d           = limits->maxImageDimension3D;
