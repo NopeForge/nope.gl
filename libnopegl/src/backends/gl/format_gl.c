@@ -120,14 +120,6 @@ int ngli_format_get_gl_texture_format(struct glcontext *gl, int data_format,
     if (ret < 0)
         return ret;
 
-    if (gl->backend == NGL_BACKEND_OPENGLES && gl->version < 300) {
-        if (format == GL_RED)
-            format = GL_LUMINANCE;
-        else if (format == GL_RG)
-            format = GL_LUMINANCE_ALPHA;
-        internal_format = format == GL_BGRA ? GL_RGBA : format;
-    }
-
     if (formatp)
         *formatp = format;
     if (internal_formatp)
