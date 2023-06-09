@@ -169,8 +169,8 @@ static int glcontext_probe_version(struct glcontext *glcontext)
             return NGL_ERROR_BUG;
         }
 
-        if (major_version < 2) {
-            LOG(ERROR, "nope.gl only supports OpenGL ES >= 2.0");
+        if (major_version < 3) {
+            LOG(ERROR, "nope.gl only supports OpenGL ES >= 3.0");
             return NGL_ERROR_UNSUPPORTED;
         }
     } else {
@@ -219,7 +219,7 @@ static int glcontext_probe_glsl_version(struct glcontext *glcontext)
         }
         glcontext->glsl_version = major_version * 100 + minor_version;
     } else if (glcontext->backend == NGL_BACKEND_OPENGLES) {
-        glcontext->glsl_version = glcontext->version >= 300 ? glcontext->version : 100;
+        glcontext->glsl_version = glcontext->version;
     } else {
         ngli_assert(0);
     }
@@ -322,28 +322,6 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
 
     LOG(INFO, "OpenGL%s features:%s", es ? " ES" : "", ngli_bstr_strptr(features_str));
     ngli_bstr_freep(&features_str);
-
-    return 0;
-}
-
-static int glcontext_check_mandatory_extensions(struct glcontext *glcontext)
-{
-    if (glcontext->version >= 300)
-        return 0;
-
-    const int64_t features = NGLI_FEATURE_GL_RGB8_RGBA8 |
-                             NGLI_FEATURE_GL_DEPTH_TEXTURE |
-                             NGLI_FEATURE_GL_PACKED_DEPTH_STENCIL |
-                             NGLI_FEATURE_GL_OES_STANDARD_DERIVATIVES |
-                             NGLI_FEATURE_GL_TEXTURE_NPOT |
-                             NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT;
-
-    if ((glcontext->features & features) != features) {
-        LOG(ERROR,
-            "OpenGLES 2.0 context does not support mandatory extensions: "
-            "OES_rgb8_rgba8, OES_depth_texture, OES_packed_depth_stencil, OES_standard_derivatives, OES_texture_npot, OES_vertex_array_object");
-        return NGL_ERROR_UNSUPPORTED;
-    }
 
     return 0;
 }
@@ -465,10 +443,6 @@ static int glcontext_load_extensions(struct glcontext *glcontext)
         return ret;
 
     ret = glcontext_probe_extensions(glcontext);
-    if (ret < 0)
-        return ret;
-
-    ret = glcontext_check_mandatory_extensions(glcontext);
     if (ret < 0)
         return ret;
 
