@@ -29,30 +29,21 @@
 # if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
 #  include <OpenGLES/ES3/gl.h>
 #  include <OpenGLES/ES3/glext.h>
-#  define NGL_GLES2_COMPAT_INCLUDES 1
-#  define NGL_CS_COMPAT_INCLUDES 1
 # elif TARGET_OS_MAC
 #  include <OpenGL/gl3.h>
 #  include <OpenGL/glext.h>
-#  define NGL_CS_COMPAT_INCLUDES 1
-#  define NGL_OGL3_COMPAT_INCLUDES 1
 # endif
-# define NGL_KHR_DEBUG_COMPAT_INCLUDES 1
 #endif
 
 #if __ANDROID__
 # include <GLES3/gl3.h>
 # include <GLES3/gl3ext.h>
-# define NGL_GLES2_COMPAT_INCLUDES 1
-# define NGL_CS_COMPAT_INCLUDES 1
-# define NGL_KHR_DEBUG_COMPAT_INCLUDES 1
 #endif
 
 #if __linux__ && !__ANDROID__
 # define GL_GLEXT_PROTOTYPES
 # include <GL/glcorearb.h>
 # include <GL/glext.h>
-# define NGL_OGL3_COMPAT_INCLUDES 1
 #endif
 
 #ifdef _WIN32
@@ -60,7 +51,6 @@
 # include <GL/gl.h>
 # include <GL/glcorearb.h>
 # include <GL/glext.h>
-# define NGL_OGL3_COMPAT_INCLUDES 1
 #endif
 
 #ifdef _WIN32
@@ -77,7 +67,7 @@ typedef void* GLeglImageOES;
 typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *user_param);
 #endif
 
-#if NGL_KHR_DEBUG_COMPAT_INCLUDES
+/* Debug */
 # define GL_DEBUG_OUTPUT                       0x92E0
 # define GL_DEBUG_OUTPUT_SYNCHRONOUS           0x8242
 # define GL_DEBUG_SOURCE_API                   0x8246
@@ -99,15 +89,12 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_DEBUG_SEVERITY_MEDIUM              0x9147
 # define GL_DEBUG_SEVERITY_LOW                 0x9148
 # define GL_DEBUG_SEVERITY_NOTIFICATION        0x826B
-#endif
 
-#if NGL_OGL3_COMPAT_INCLUDES
+/* OES external images */
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
-#endif
 
-#if NGL_GLES2_COMPAT_INCLUDES
+/* Desktop formats and features */
 # define GL_STENCIL_INDEX                      0x1901
-# define GL_TEXTURE_EXTERNAL_OES               0x8D65
 # define GL_R16                                0x822A
 # define GL_RG16                               0x822C
 # define GL_RGB16                              0x8054
@@ -124,9 +111,8 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_TIMESTAMP                          0x8E28
 # define GL_TEXTURE_CUBE_MAP_SEAMLESS          0x884F
 # define GL_FRONT_LEFT                         0x0400
-#endif
 
-#if NGL_CS_COMPAT_INCLUDES
+/* Compute shaders */
 # define GL_COMPUTE_SHADER                     0x91B9
 # define GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS 0x90EB
 # define GL_MAX_COMPUTE_WORK_GROUP_COUNT       0x91BE
@@ -160,6 +146,5 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_IMAGE_2D                           0x904D
 # define GL_ACTIVE_RESOURCES                   0x92F5
 # define GL_MAX_IMAGE_UNITS                    0x8F38
-#endif
 
 #endif /* GLINCLUDES_H */
