@@ -288,7 +288,7 @@ static int colorstats_init(struct ngl_node *node)
     struct colorstats_priv *s = node->priv_data;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
-    if (!(gpu_ctx->features & NGLI_FEATURE_STORAGE_BUFFER)) {
+    if (!(gpu_ctx->features & NGLI_FEATURE_COMPUTE)) {
         LOG(ERROR, "ColorStats is not supported by this context (requires compute shaders and SSBO support)");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
