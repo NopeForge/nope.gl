@@ -27,8 +27,8 @@
 #if __APPLE__
 # include <TargetConditionals.h>
 # if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
-#  include <OpenGLES/ES2/gl.h>
-#  include <OpenGLES/ES2/glext.h>
+#  include <OpenGLES/ES3/gl.h>
+#  include <OpenGLES/ES3/glext.h>
 #  define NGL_GLES2_COMPAT_INCLUDES 1
 #  define NGL_CS_COMPAT_INCLUDES 1
 # elif TARGET_OS_MAC
@@ -41,12 +41,11 @@
 #endif
 
 #if __ANDROID__
-# include <GLES2/gl2.h>
-# include <GLES2/gl2ext.h>
+# include <GLES3/gl3.h>
+# include <GLES3/gl3ext.h>
 # define NGL_GLES2_COMPAT_INCLUDES 1
 # define NGL_CS_COMPAT_INCLUDES 1
 # define NGL_KHR_DEBUG_COMPAT_INCLUDES 1
-# define GL_BGRA GL_BGRA_EXT
 #endif
 
 #if __linux__ && !__ANDROID__
@@ -112,146 +111,24 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 #endif
 
 #if NGL_GLES2_COMPAT_INCLUDES
-# define GL_COLOR                              0x1800
-# define GL_DEPTH                              0x1801
-# define GL_STENCIL                            0x1802
-# define GL_UNPACK_ROW_LENGTH                  0x0CF2
-# define GL_MAX_DRAW_BUFFERS                   0x8824
-# define GL_MAX_SAMPLES                        0x8D57
-# define GL_MAX_COLOR_ATTACHMENTS              0x8CDF
-# define GL_SYNC_GPU_COMMANDS_COMPLETE         0x9117
-# define GL_TIMEOUT_IGNORED                    0xFFFFFFFFFFFFFFFFull
-# define GL_TEXTURE_RECTANGLE                  0x84F5
 # define GL_STENCIL_INDEX                      0x1901
-# define GL_STENCIL_INDEX8                     0x8D48
-# define GL_UNSIGNED_INT_VEC2                  0x8DC6
-# define GL_UNSIGNED_INT_VEC3                  0x8DC7
-# define GL_UNSIGNED_INT_VEC4                  0x8DC8
-# define GL_SAMPLER_2D_RECT                    0x8B63
-# define GL_SAMPLER_3D                         0x8B5F
-# define GL_SAMPLER_CUBE                       0x8B60
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
-# define GL_SAMPLER_EXTERNAL_OES               0x8D66
-# define GL_TEXTURE_BINDING_EXTERNAL_OES       0x8D67
-# define GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT        0x8BE7
-# define GL_MAJOR_VERSION                      0x821B
-# define GL_MINOR_VERSION                      0x821C
-# define GL_NUM_EXTENSIONS                     0x821D
-# define GL_HALF_FLOAT                         0x140B
-# define GL_RED                                0x1903
-# define GL_RED_INTEGER                        0x8D94
-# define GL_RG                                 0x8227
-# define GL_RG_INTEGER                         0x8228
-# define GL_RGB_INTEGER                        0x8D98
-# define GL_RGBA_INTEGER                       0x8D99
-# define GL_R8                                 0x8229
 # define GL_R16                                0x822A
-# define GL_RG8                                0x822B
 # define GL_RG16                               0x822C
-# define GL_R16F                               0x822D
-# define GL_R32F                               0x822E
-# define GL_RG16F                              0x822F
-# define GL_RG32F                              0x8230
-# define GL_R8I                                0x8231
-# define GL_R8UI                               0x8232
-# define GL_R16I                               0x8233
-# define GL_R16UI                              0x8234
-# define GL_R32I                               0x8235
-# define GL_R32UI                              0x8236
-# define GL_RG8I                               0x8237
-# define GL_RG8UI                              0x8238
-# define GL_RG16I                              0x8239
-# define GL_RG16UI                             0x823A
-# define GL_RG32I                              0x823B
-# define GL_RG32UI                             0x823C
-# define GL_RGB8                               0x8051
 # define GL_RGB16                              0x8054
-# define GL_RGBA8                              0x8058
 # define GL_RGBA16                             0x805B
-# define GL_RGBA32UI                           0x8D70
-# define GL_RGB32UI                            0x8D71
-# define GL_RGBA16UI                           0x8D76
-# define GL_RGB16UI                            0x8D77
-# define GL_RGBA8UI                            0x8D7C
-# define GL_RGB8UI                             0x8D7D
-# define GL_RGBA32I                            0x8D82
-# define GL_RGB32I                             0x8D83
-# define GL_RGBA16I                            0x8D88
-# define GL_RGB16I                             0x8D89
-# define GL_RGBA8I                             0x8D8E
-# define GL_RGB8I                              0x8D8F
-# define GL_R8_SNORM                           0x8F94
-# define GL_RG8_SNORM                          0x8F95
-# define GL_RGB8_SNORM                         0x8F96
-# define GL_RGBA8_SNORM                        0x8F97
-# define GL_RGBA32F                            0x8814
-# define GL_RGB32F                             0x8815
-# define GL_RGBA16F                            0x881A
-# define GL_SRGB8                              0x8C41
-# define GL_SRGB8_ALPHA8                       0x8C43
-# define GL_BGRA_INTEGER                       0x8D9B
 # define GL_R16_SNORM                          0x8F98
 # define GL_RG16_SNORM                         0x8F99
 # define GL_RGB16_SNORM                        0x8F9A
 # define GL_RGBA16_SNORM                       0x8F9B
-# define GL_RGB16F                             0x881B
-# define GL_QUERY_RESULT                       0x8866
-# define GL_QUERY_RESULT_AVAILABLE             0x8867
-# define GL_DEPTH_COMPONENT24                  0x81A6
-# define GL_DEPTH_COMPONENT32F                 0x8CAC
-# define GL_DEPTH32F_STENCIL8                  0x8CAD
-# define GL_FLOAT_32_UNSIGNED_INT_24_8_REV     0x8DAD
-# define GL_DEPTH_STENCIL                      0x84F9
-# define GL_UNSIGNED_INT_24_8                  0x84FA
-# define GL_DEPTH24_STENCIL8                   0x88F0
+# define GL_BGRA                               0x80E1
+# define GL_BGRA_INTEGER                       0x8D9B
 # define GL_READ_ONLY                          0x88B8
 # define GL_WRITE_ONLY                         0x88B9
 # define GL_READ_WRITE                         0x88BA
-# define GL_TIME_ELAPSED                       0x88BF
 # define GL_TIMESTAMP                          0x8E28
-# define GL_STREAM_READ                        0x88E1
-# define GL_STREAM_COPY                        0x88E2
-# define GL_STATIC_READ                        0x88E5
-# define GL_STATIC_COPY                        0x88E6
-# define GL_DYNAMIC_READ                       0x88E9
-# define GL_DYNAMIC_COPY                       0x88EA
-# define GL_INVALID_INDEX                      0xFFFFFFFFU
-# define GL_POLYGON_MODE                       0x0B40
-# define GL_FILL                               0x1B02
-# define GL_TEXTURE_3D                         0x806F
-# define GL_TEXTURE_WRAP_R                     0x8072
-# define GL_MAX_3D_TEXTURE_SIZE                0x8073
-# define GL_MIN                                0x8007
-# define GL_MAX                                0x8008
-# define GL_DRAW_FRAMEBUFFER_BINDING           0x8CA6
-# define GL_READ_FRAMEBUFFER                   0x8CA8
-# define GL_DRAW_FRAMEBUFFER                   0x8CA9
-# define GL_READ_FRAMEBUFFER_BINDING           0x8CAA
-# define GL_DEPTH_STENCIL_ATTACHMENT           0x821A
-# define GL_ACTIVE_RESOURCES                   0x92F5
-# define GL_ACTIVE_UNIFORM_BLOCKS              0x8A36
-# define GL_UNIFORM_BUFFER                     0x8A11
-# define GL_UNIFORM_BLOCK_BINDING              0x8A3F
-# define GL_MAX_UNIFORM_BLOCK_SIZE             0x8A30
-# define GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT    0x8A34
-# define GL_TEXTURE_CUBE_MAP                   0x8513
-# define GL_TEXTURE_BINDING_CUBE_MAP           0x8514
-# define GL_TEXTURE_CUBE_MAP_POSITIVE_X        0x8515
-# define GL_TEXTURE_CUBE_MAP_NEGATIVE_X        0x8516
-# define GL_TEXTURE_CUBE_MAP_POSITIVE_Y        0x8517
-# define GL_TEXTURE_CUBE_MAP_NEGATIVE_Y        0x8518
-# define GL_TEXTURE_CUBE_MAP_POSITIVE_Z        0x8519
-# define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z        0x851A
 # define GL_TEXTURE_CUBE_MAP_SEAMLESS          0x884F
 # define GL_FRONT_LEFT                         0x0400
-# define GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE    0x8212
-# define GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE  0x8213
-# define GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE   0x8214
-# define GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE  0x8215
-# define GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE  0x8216
-# define GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE 0x8217
-# define GL_TEXTURE_2D_ARRAY                   0x8C1A
-# define GL_MAX_ARRAY_TEXTURE_LAYERS           0x88FF
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES
