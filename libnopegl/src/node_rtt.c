@@ -139,15 +139,31 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
 
 static int rtt_init(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct gpu_limits *limits = &gpu_ctx->limits;
     const struct rtt_opts *o = node->opts;
 
+    if (!o->nb_color_textures) {
+        LOG(ERROR, "at least one color texture must be specified");
+        return NGL_ERROR_INVALID_ARG;
+    }
+
+    size_t nb_color_attachments = 0;
     for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
+        nb_color_attachments += info.layer_count;
+
         const struct texture_opts *texture_opts = info.texture_opts;
         if (texture_opts->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
         }
+    }
+
+    if (nb_color_attachments > limits->max_color_attachments) {
+        LOG(ERROR, "context does not support more than %d color attachments", limits->max_color_attachments);
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     if (o->depth_texture) {
@@ -156,6 +172,10 @@ static int rtt_init(struct ngl_node *node)
         if (texture_opts->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
+        }
+        if (!(gpu_ctx->features & NGLI_FEATURE_DEPTH_STENCIL_RESOLVE) && o->samples > 0) {
+            LOG(ERROR, "context does not support resolving depth/stencil attachments");
+            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
     }
 
@@ -240,25 +260,9 @@ static int rtt_prefetch(struct ngl_node *node)
     int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct gpu_limits *limits = &gpu_ctx->limits;
     struct rtt_priv *s = node->priv_data;
     const int nb_interruptions = s->renderpass_info.nb_interruptions;
-    struct rtt_opts *o = node->opts;
-
-    if (!o->nb_color_textures) {
-        LOG(ERROR, "at least one color texture must be specified");
-        return NGL_ERROR_INVALID_ARG;
-    }
-
-    size_t nb_color_attachments = 0;
-    for (size_t i = 0; i < o->nb_color_textures; i++) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        nb_color_attachments += info.layer_count;
-    }
-    if (nb_color_attachments > limits->max_color_attachments) {
-        LOG(ERROR, "context does not support more than %d color attachments", limits->max_color_attachments);
-        return NGL_ERROR_UNSUPPORTED;
-    }
+    const struct rtt_opts *o = node->opts;
 
     for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
@@ -284,11 +288,6 @@ static int rtt_prefetch(struct ngl_node *node)
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
                 s->width, s->height, depth_texture_params->width, depth_texture_params->height);
             return NGL_ERROR_INVALID_ARG;
-        }
-        if (!(gpu_ctx->features & NGLI_FEATURE_DEPTH_STENCIL_RESOLVE) && o->samples > 0) {
-            LOG(WARNING, "context does not support resolving depth/stencil attachments, "
-                "multisample anti-aliasing will be disabled");
-            o->samples = 0;
         }
     }
 
