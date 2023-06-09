@@ -188,8 +188,8 @@ static int glcontext_probe_version(struct glcontext *glcontext)
 
     glcontext->version = major_version * 100 + minor_version * 10;
 
-    if (glcontext->backend == NGL_BACKEND_OPENGL && glcontext->version < 300) {
-        LOG(ERROR, "nope.gl only supports OpenGL >= 3.0");
+    if (glcontext->backend == NGL_BACKEND_OPENGL && glcontext->version < 330) {
+        LOG(ERROR, "nope.gl only supports OpenGL >= 3.3");
         return NGL_ERROR_UNSUPPORTED;
     } else if (glcontext->backend == NGL_BACKEND_OPENGLES && glcontext->version < 300) {
         LOG(ERROR, "nope.gl only supports OpenGL ES >= 3.0");
