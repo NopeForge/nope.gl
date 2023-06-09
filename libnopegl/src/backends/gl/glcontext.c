@@ -154,11 +154,6 @@ static int glcontext_probe_version(struct glcontext *glcontext)
     if (glcontext->backend == NGL_BACKEND_OPENGL) {
         ngli_glGetIntegerv(glcontext, GL_MAJOR_VERSION, &major_version);
         ngli_glGetIntegerv(glcontext, GL_MINOR_VERSION, &minor_version);
-
-        if (major_version < 3) {
-            LOG(ERROR, "nope.gl only supports OpenGL >= 3.0");
-            return NGL_ERROR_UNSUPPORTED;
-        }
     } else if (glcontext->backend == NGL_BACKEND_OPENGLES) {
         int ret = sscanf(gl_version,
                          "OpenGL ES %d.%d",
@@ -167,11 +162,6 @@ static int glcontext_probe_version(struct glcontext *glcontext)
         if (ret != 2) {
             LOG(ERROR, "could not parse OpenGL ES version: \"%s\"", gl_version);
             return NGL_ERROR_BUG;
-        }
-
-        if (major_version < 3) {
-            LOG(ERROR, "nope.gl only supports OpenGL ES >= 3.0");
-            return NGL_ERROR_UNSUPPORTED;
         }
     } else {
         ngli_assert(0);
@@ -197,6 +187,14 @@ static int glcontext_probe_version(struct glcontext *glcontext)
     }
 
     glcontext->version = major_version * 100 + minor_version * 10;
+
+    if (glcontext->backend == NGL_BACKEND_OPENGL && glcontext->version < 300) {
+        LOG(ERROR, "nope.gl only supports OpenGL >= 3.0");
+        return NGL_ERROR_UNSUPPORTED;
+    } else if (glcontext->backend == NGL_BACKEND_OPENGLES && glcontext->version < 300) {
+        LOG(ERROR, "nope.gl only supports OpenGL ES >= 3.0");
+        return NGL_ERROR_UNSUPPORTED;
+    }
 
     return 0;
 }
