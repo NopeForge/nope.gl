@@ -20,7 +20,7 @@
  * under the License.
  */
 
-const vec2 positions[] = {vec2(0.0, 0.0), vec2(2.0, 0.0), vec2(0.0, 2.0)};
+const vec2 positions[] = vec2[](vec2(0.0, 0.0), vec2(2.0, 0.0), vec2(0.0, 2.0));
 
 void main()
 {
