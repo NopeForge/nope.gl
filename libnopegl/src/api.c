@@ -429,7 +429,6 @@ static const char *get_cap_string_id(unsigned cap_id)
 
 #define CAP(cap_id, value) {cap_id, get_cap_string_id(cap_id), value}
 #define ALL_FEATURES(features, mask) ((features & (mask)) == mask)
-#define ANY_FEATURES(features, mask) ((features & (mask)) != 0)
 
 static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
 {
