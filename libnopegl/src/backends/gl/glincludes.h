@@ -103,9 +103,6 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 
 #if NGL_OGL3_COMPAT_INCLUDES
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
-# define GL_SAMPLER_EXTERNAL_OES               0x8D66
-# define GL_TEXTURE_BINDING_EXTERNAL_OES       0x8D67
-# define GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT        0x8BE7
 #endif
 
 #if NGL_GLES2_COMPAT_INCLUDES
