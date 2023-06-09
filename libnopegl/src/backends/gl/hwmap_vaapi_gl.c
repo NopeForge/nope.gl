@@ -124,7 +124,7 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
             return ret;
     }
 
-    struct image_params image_params = {
+    const struct image_params image_params = {
         .width = frame->width,
         .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_NV12,
