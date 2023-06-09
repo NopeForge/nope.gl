@@ -515,7 +515,14 @@ static int texture2d_init(struct ngl_node *node)
      * prevents us from sharing the Media node across multiple textures.
      */
     struct ngl_node *data_src = o->data_src;
-    if (data_src && data_src->cls->id == NGL_NODE_MEDIA) {
+    if (!data_src) {
+        /* If there is no data_src, the texture dimensions must be set and valid */
+        if (s->params.width <= 0 || s->params.height <= 0) {
+            LOG(ERROR, "texture dimensions (%d,%d) are invalid",
+                s->params.width, s->params.height);
+            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+        }
+    } else if (data_src && data_src->cls->id == NGL_NODE_MEDIA) {
         struct media_priv *media_priv = data_src->priv_data;
         if (media_priv->nb_parents++ > 0) {
             LOG(ERROR, "A media node (label=%s) can not be shared, "
@@ -538,10 +545,10 @@ static int texture2d_array_init(struct ngl_node *node)
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
     const int max_layers = gpu_ctx->limits.max_texture_array_layers;
-    if (s->params.width  > max_dimension ||
-        s->params.height > max_dimension ||
-        s->params.depth  > max_layers) {
-        LOG(ERROR, "texture dimensions (%d,%d,%d) exceeds device limits (%d,%d,%d)",
+    if (s->params.width  <= 0 || s->params.width  > max_dimension ||
+        s->params.height <= 0 || s->params.height > max_dimension ||
+        s->params.depth  <= 0 || s->params.depth  > max_layers) {
+        LOG(ERROR, "texture dimensions (%d,%d,%d) are invalid or exceeds device limits (%d,%d,%d)",
             s->params.width, s->params.height, s->params.depth,
             max_dimension, max_dimension, max_layers);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
@@ -562,10 +569,10 @@ static int texture3d_init(struct ngl_node *node)
     s->params = o->params;
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_3d;
-    if (s->params.width  > max_dimension ||
-        s->params.height > max_dimension ||
-        s->params.depth  > max_dimension) {
-        LOG(ERROR, "texture dimensions (%d,%d,%d) exceeds device limits (%d,%d,%d)",
+    if (s->params.width  <= 0 || s->params.width  > max_dimension ||
+        s->params.height <= 0 || s->params.height > max_dimension ||
+        s->params.depth  <= 0 || s->params.depth  > max_dimension) {
+        LOG(ERROR, "texture dimensions (%d,%d,%d) are invalid or exceeds device limits (%d,%d,%d)",
             s->params.width, s->params.height, s->params.depth,
             max_dimension, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
@@ -587,9 +594,9 @@ static int texturecube_init(struct ngl_node *node)
     s->params.height = s->params.width;
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
-    if (s->params.width  > max_dimension ||
-        s->params.height > max_dimension) {
-        LOG(ERROR, "texture dimensions (%d,%d) exceeds device limits (%d,%d)",
+    if (s->params.width  <= 0 || s->params.width  > max_dimension ||
+        s->params.height <= 0 || s->params.height > max_dimension) {
+        LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
             s->params.width, s->params.height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
