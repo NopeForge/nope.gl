@@ -22,8 +22,8 @@
 #include <CoreVideo/CoreVideo.h>
 #include <UIKit/UIKit.h>
 #include <OpenGLES/EAGL.h>
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
+#include <OpenGLES/ES3/gl.h>
+#include <OpenGLES/ES3/glext.h>
 
 #include "glcontext.h"
 #include "log.h"
@@ -187,7 +187,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
     if (!ctx->samples) {
         ngli_glGenRenderbuffers(ctx, 1, &eagl->depthbuffer);
         ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->depthbuffer);
-        ngli_glRenderbufferStorage(ctx, GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, ctx->width, ctx->height);
+        ngli_glRenderbufferStorage(ctx, GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
         ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
         ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
     }
@@ -209,7 +209,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 
         ngli_glGenRenderbuffers(ctx, 1, &eagl->depthbuffer);
         ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->depthbuffer);
-        ngli_glRenderbufferStorageMultisample(ctx, GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8_OES, ctx->width, ctx->height);
+        ngli_glRenderbufferStorageMultisample(ctx, GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
         ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
         ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
 
