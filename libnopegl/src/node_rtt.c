@@ -240,6 +240,7 @@ static int rtt_prefetch(struct ngl_node *node)
     int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct gpu_limits *limits = &gpu_ctx->limits;
     struct rtt_priv *s = node->priv_data;
     const int nb_interruptions = s->renderpass_info.nb_interruptions;
     struct rtt_opts *o = node->opts;
@@ -249,8 +250,8 @@ static int rtt_prefetch(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (o->nb_color_textures > NGLI_MAX_COLOR_ATTACHMENTS) {
-        LOG(ERROR, "context does not support more than %d color attachments", NGLI_MAX_COLOR_ATTACHMENTS);
+    if (o->nb_color_textures > limits->max_color_attachments) {
+        LOG(ERROR, "context does not support more than %d color attachments", limits->max_color_attachments);
         return NGL_ERROR_UNSUPPORTED;
     }
 
