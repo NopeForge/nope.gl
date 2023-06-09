@@ -428,12 +428,11 @@ static const char *get_cap_string_id(unsigned cap_id)
 }
 
 #define CAP(cap_id, value) {cap_id, get_cap_string_id(cap_id), value}
-#define ALL_FEATURES(features, mask) ((features & (mask)) == mask)
 
 static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
 {
-    const int has_compute        = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_COMPUTE);
-    const int has_ds_resolve     = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_DEPTH_STENCIL_RESOLVE);
+    const int has_compute        = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_FEATURE_COMPUTE);
+    const int has_ds_resolve     = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_FEATURE_DEPTH_STENCIL_RESOLVE);
 
     const struct gpu_limits *limits = &gpu_ctx->limits;
     const struct ngl_cap caps[] = {
