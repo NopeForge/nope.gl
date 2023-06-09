@@ -199,21 +199,6 @@ static int require_resolve_fbo(struct rendertarget *s)
     return 0;
 }
 
-static void clear_buffer(struct rendertarget *s)
-{
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
-    const struct rendertarget_params *params = &s->params;
-
-    if (params->nb_colors >= 1) {
-        const struct attachment *color = &params->colors[0];
-        const float *clear_value = color->clear_value;
-        ngli_glClearColor(gl, clear_value[0], clear_value[1], clear_value[2], clear_value[3]);
-        ngli_glClear(gl, s_priv->clear_flags);
-    }
-}
-
 static void clear_buffers(struct rendertarget *s)
 {
     struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
@@ -272,11 +257,6 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
 
     int ret;
     if (require_resolve_fbo(s)) {
-        if (!(gl->features & NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT)) {
-            LOG(ERROR, "context does not support the framebuffer object feature, "
-                       "resolving MSAA attachments is not supported");
-            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-        }
         ret = create_fbo(s, 1, &s_priv->resolve_id);
         if (ret < 0)
             goto done;
@@ -292,26 +272,20 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
         s_priv->invalidate = invalidate_noop;
     }
 
-    if (gl->features & NGLI_FEATURE_GL_CLEAR_BUFFER) {
-        s_priv->clear = clear_buffers;
-    } else {
-        s_priv->clear = clear_buffer;
-    }
+    s_priv->clear = clear_buffers;
 
     s_priv->resolve = resolve_no_draw_buffers;
-    if (gl->features & NGLI_FEATURE_GL_DRAW_BUFFERS) {
-        if (params->nb_colors > limits->max_draw_buffers) {
-            LOG(ERROR, "draw buffer count (%zu) exceeds driver limit (%d)",
-                params->nb_colors, limits->max_draw_buffers);
-            ret = NGL_ERROR_GRAPHICS_UNSUPPORTED;
-            goto done;
-        }
-        if (params->nb_colors > 1) {
-            for (size_t i = 0; i < params->nb_colors; i++)
-                s_priv->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
-            ngli_glDrawBuffers(gl, (GLsizei)params->nb_colors, s_priv->draw_buffers);
-            s_priv->resolve = resolve_draw_buffers;
-        }
+    if (params->nb_colors > limits->max_draw_buffers) {
+        LOG(ERROR, "draw buffer count (%zu) exceeds driver limit (%d)",
+            params->nb_colors, limits->max_draw_buffers);
+        ret = NGL_ERROR_GRAPHICS_UNSUPPORTED;
+        goto done;
+    }
+    if (params->nb_colors > 1) {
+        for (size_t i = 0; i < params->nb_colors; i++)
+            s_priv->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
+        ngli_glDrawBuffers(gl, (GLsizei)params->nb_colors, s_priv->draw_buffers);
+        s_priv->resolve = resolve_draw_buffers;
     }
 
     for (size_t i = 0; i < params->nb_colors; i++) {
@@ -449,11 +423,7 @@ int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_
         s_priv->invalidate = invalidate_noop;
     }
 
-    if (gl->features & NGLI_FEATURE_GL_CLEAR_BUFFER) {
-        s_priv->clear = clear_buffers;
-    } else {
-        s_priv->clear = clear_buffer;
-    }
+    s_priv->clear = clear_buffers;
 
     s_priv->resolve = resolve_no_draw_buffers;
 

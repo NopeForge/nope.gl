@@ -175,9 +175,6 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         return NULL;
     ngli_hmap_set_free(bmap, free_pinfo, NULL);
 
-    if (!(gl->features & NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT))
-        return bmap;
-
     /* Uniform Buffers */
     GLint nb_active_uniform_buffers;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);

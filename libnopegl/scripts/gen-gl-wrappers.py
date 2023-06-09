@@ -25,35 +25,15 @@ import textwrap
 from xml.etree import ElementTree as ET
 
 cmds_optional = [
-    # Framebuffer
-    "glBlitFramebuffer",
-    "glInvalidateFramebuffer",
-    "glGetFramebufferAttachmentParameteriv",
-    "glFramebufferTexture3D",
-    "glFramebufferTextureLayer",
-    # Renderbuffer
-    "glRenderbufferStorageMultisample",
     # Texture
-    "glTexImage3D",
     "glTexStorage2D",
     "glTexStorage3D",
-    "glTexSubImage3D",
     "glBindImageTexture",
-    # Vertex Arrays
-    "glBindVertexArray",
-    "glDeleteVertexArrays",
-    "glGenVertexArrays",
-    # Vertex Arrays OES
-    "glBindVertexArrayOES",
-    "glDeleteVertexArraysOES",
-    "glGenVertexArraysOES",
     # Barrier
     "glMemoryBarrier",
     #  Buffers
     "glBindBufferBase",
     "glBindBufferRange",
-    "glMapBufferRange",
-    "glUnmapBuffer",
     "glBufferStorage",
     # Compute shaders
     "glDispatchCompute",
@@ -83,33 +63,8 @@ cmds_optional = [
     "glDeleteQueriesEXT",
     "glQueryCounterEXT",
     "glGetQueryObjectui64vEXT",
-    # Instancing
-    "glDrawArraysInstanced",
-    "glDrawElementsInstanced",
-    "glVertexAttribDivisor",
-    # Uniform Block Object
-    "glGetUniformBlockIndex",
-    "glUniformBlockBinding",
-    "glGetActiveUniformBlockName",
-    "glGetActiveUniformBlockiv",
     # EGL OES image
     "glEGLImageTargetTexture2DOES",
-    # Sync object
-    "glFenceSync",
-    "glWaitSync",
-    "glClientWaitSync",
-    # Read/Draw Buffer
-    "glReadBuffer",
-    "glDrawBuffer",
-    "glDrawBuffers",
-    # Clear Buffer
-    "glClearBufferfv",
-    "glClearBufferfi",
-    # UInt uniforms
-    "glUniform1uiv",
-    "glUniform2uiv",
-    "glUniform3uiv",
-    "glUniform4uiv",
 ]
 
 cmds = [
@@ -144,6 +99,10 @@ cmds = [
     # Draw
     "glDrawArrays",
     "glDrawElements",
+    # Instancing
+    "glDrawArraysInstanced",
+    "glDrawElementsInstanced",
+    "glVertexAttribDivisor",
     # Texture
     "glActiveTexture",
     "glBindTexture",
@@ -154,6 +113,8 @@ cmds = [
     "glTexImage2D",
     "glTexParameteri",
     "glTexSubImage2D",
+    "glTexImage3D",
+    "glTexSubImage3D",
     # Framebuffer
     "glCheckFramebufferStatus",
     "glBindFramebuffer",
@@ -162,6 +123,13 @@ cmds = [
     "glFramebufferTexture2D",
     "glGenFramebuffers",
     "glReadPixels",
+    "glBlitFramebuffer",
+    "glInvalidateFramebuffer",
+    "glGetFramebufferAttachmentParameteriv",
+    "glFramebufferTexture3D",
+    "glFramebufferTextureLayer",
+    # Renderbuffer
+    "glRenderbufferStorageMultisample",
     # Buffer
     "glBindBuffer",
     "glBufferData",
@@ -207,12 +175,16 @@ cmds = [
     "glUniform1fv",
     "glUniform1i",
     "glUniform1iv",
+    "glUniform1uiv",
     "glUniform2fv",
     "glUniform2iv",
+    "glUniform2uiv",
     "glUniform3fv",
     "glUniform3iv",
+    "glUniform3uiv",
     "glUniform4fv",
     "glUniform4iv",
+    "glUniform4uiv",
     "glUniformMatrix2fv",
     "glUniformMatrix3fv",
     "glUniformMatrix4fv",
@@ -228,6 +200,29 @@ cmds = [
     # Sync
     "glFlush",
     "glFinish",
+    # Vertex Arrays
+    "glBindVertexArray",
+    "glDeleteVertexArrays",
+    "glGenVertexArrays",
+    # Uniform Block Object
+    "glGetUniformBlockIndex",
+    "glUniformBlockBinding",
+    "glGetActiveUniformBlockName",
+    "glGetActiveUniformBlockiv",
+    # Sync object
+    "glFenceSync",
+    "glWaitSync",
+    "glClientWaitSync",
+    # Read/Draw Buffer
+    "glReadBuffer",
+    "glDrawBuffer",
+    "glDrawBuffers",
+    # Clear Buffer
+    "glClearBufferfv",
+    "glClearBufferfi",
+    #  Map buffer range
+    "glMapBufferRange",
+    "glUnmapBuffer",
 ] + cmds_optional
 
 

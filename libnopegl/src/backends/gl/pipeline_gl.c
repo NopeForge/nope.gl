@@ -156,24 +156,12 @@ static int build_uniform_bindings(struct pipeline *s)
     if (!program->uniforms)
         return 0;
 
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-
     const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_uniform_descs; i++) {
         const struct pipeline_uniform_desc *uniform_desc = &layout->uniform_descs[i];
         const struct program_variable_info *info = ngli_hmap_get(program->uniforms, uniform_desc->name);
         if (!info)
             continue;
-
-        if (!(gl->features & NGLI_FEATURE_GL_UINT_UNIFORMS) &&
-            (uniform_desc->type == NGLI_TYPE_U32 ||
-             uniform_desc->type == NGLI_TYPE_UVEC2 ||
-             uniform_desc->type == NGLI_TYPE_UVEC3 ||
-             uniform_desc->type == NGLI_TYPE_UVEC4)) {
-            LOG(ERROR, "context does not support unsigned int uniform flavours");
-            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-        }
 
         const set_uniform_func set_func = set_uniform_func_map[uniform_desc->type];
         ngli_assert(set_func);
@@ -282,10 +270,8 @@ static void set_textures(struct pipeline *s, struct glcontext *gl)
                 ngli_glBindTexture(gl, texture_gl->target, texture_gl->id);
             } else {
                 ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-                if (gl->features & NGLI_FEATURE_GL_TEXTURE_2D_ARRAY)
-                    ngli_glBindTexture(gl, GL_TEXTURE_2D_ARRAY, 0);
-                if (gl->features & NGLI_FEATURE_GL_TEXTURE_3D)
-                    ngli_glBindTexture(gl, GL_TEXTURE_3D, 0);
+                ngli_glBindTexture(gl, GL_TEXTURE_2D_ARRAY, 0);
+                ngli_glBindTexture(gl, GL_TEXTURE_3D, 0);
                 if (gl->features & NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE)
                     ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
             }
@@ -329,12 +315,6 @@ static int build_buffer_bindings(struct pipeline *s)
     for (size_t i = 0; i < layout->nb_buffer_descs; i++) {
         const struct pipeline_buffer_desc *pipeline_buffer_desc = &layout->buffer_descs[i];
 
-        if (pipeline_buffer_desc->type == NGLI_TYPE_UNIFORM_BUFFER &&
-            !(gl->features & NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT)) {
-            LOG(ERROR, "context does not support uniform buffer objects");
-            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-        }
-
         if (pipeline_buffer_desc->type == NGLI_TYPE_STORAGE_BUFFER &&
             !(gl->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT)) {
             LOG(ERROR, "context does not support shader storage buffer objects");
@@ -361,22 +341,12 @@ static int build_attribute_bindings(struct pipeline *s)
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT) {
-        ngli_glGenVertexArrays(gl, 1, &s_priv->vao_id);
-        ngli_glBindVertexArray(gl, s_priv->vao_id);
-    } else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT) {
-        ngli_glGenVertexArraysOES(gl, 1, &s_priv->vao_id);
-        ngli_glBindVertexArrayOES(gl, s_priv->vao_id);
-    }
+    ngli_glGenVertexArrays(gl, 1, &s_priv->vao_id);
+    ngli_glBindVertexArray(gl, s_priv->vao_id);
 
     const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_attribute_descs; i++) {
         const struct pipeline_attribute_desc *pipeline_attribute_desc = &layout->attribute_descs[i];
-
-        if (pipeline_attribute_desc->rate > 0 && !(gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY)) {
-            LOG(ERROR, "context does not support instanced arrays");
-            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-        }
 
         struct attribute_binding_gl binding = {
             .desc = *pipeline_attribute_desc,
@@ -422,12 +392,7 @@ static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     const struct pipeline_gl *s_priv = (const struct pipeline_gl *)s;
 
-    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT)
-        ngli_glBindVertexArray(gl, s_priv->vao_id);
-    else if (gl->features & NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT)
-        ngli_glBindVertexArrayOES(gl, s_priv->vao_id);
-    else
-        ngli_assert(0);
+    ngli_glBindVertexArray(gl, s_priv->vao_id);
 
     const struct buffer **vertex_buffers = gpu_ctx_gl->vertex_buffers;
     const struct attribute_binding_gl *bindings = ngli_darray_data(&s_priv->attribute_bindings);
@@ -650,11 +615,6 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
     set_textures(s, gl);
     bind_vertex_attribs(s, gl);
 
-    if (nb_instances > 1 && !(gl->features & NGLI_FEATURE_GL_DRAW_INSTANCED)) {
-        LOG(ERROR, "context does not support instanced draws");
-        return;
-    }
-
     const GLenum gl_topology = get_gl_topology(graphics->topology);
     if (nb_instances > 1)
         ngli_glDrawArraysInstanced(gl, gl_topology, 0, nb_vertices, nb_instances);
@@ -682,11 +642,6 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, int nb_indices, int nb_in
     set_buffers(s, gl);
     set_textures(s, gl);
     bind_vertex_attribs(s, gl);
-
-    if (nb_instances > 1 && !(gl->features & NGLI_FEATURE_GL_DRAW_INSTANCED)) {
-        LOG(ERROR, "context does not support instanced draws");
-        return;
-    }
 
     const struct buffer_gl *indices_gl = (const struct buffer_gl *)gpu_ctx_gl->index_buffer;
     const GLenum gl_indices_type = get_gl_indices_type(gpu_ctx_gl->index_format);

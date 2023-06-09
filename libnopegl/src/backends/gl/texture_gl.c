@@ -106,58 +106,33 @@ static void texture_set_image(struct texture *s, const uint8_t *data)
     }
 }
 
-static void texture2d_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
+static void texture2d_set_sub_image(struct texture *s, const uint8_t *data, int linesize)
 {
     struct texture_gl *s_priv = (struct texture_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct texture_params *params = &s->params;
 
-    if (row_upload) {
-        for (int y = 0; y < params->height; y++) {
-            ngli_glTexSubImage2D(gl, s_priv->target, 0, 0, y, params->width, 1, s_priv->format, s_priv->format_type, data);
-            data += linesize * s_priv->bytes_per_pixel;
-        }
-        return;
-    }
     ngli_glTexSubImage2D(gl, s_priv->target, 0, 0, 0, params->width, params->height, s_priv->format, s_priv->format_type, data);
 }
 
-static void texture3d_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
+static void texture3d_set_sub_image(struct texture *s, const uint8_t *data, int linesize)
 {
     struct texture_gl *s_priv = (struct texture_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct texture_params *params = &s->params;
 
-    if (row_upload) {
-        for (int z = 0; z < params->depth; z++) {
-            for (int y = 0; y < params->height; y++) {
-                ngli_glTexSubImage3D(gl, s_priv->target, 0, 0, y, z, params->width, 1, 1, s_priv->format, s_priv->format_type, data);
-                data += linesize * s_priv->bytes_per_pixel;
-            }
-        }
-        return;
-    }
     ngli_glTexSubImage3D(gl, s_priv->target, 0, 0, 0, 0, params->width, params->height, params->depth, s_priv->format, s_priv->format_type, data);
 }
 
-static void texturecube_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
+static void texturecube_set_sub_image(struct texture *s, const uint8_t *data, int linesize)
 {
     struct texture_gl *s_priv = (struct texture_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct texture_params *params = &s->params;
 
-    if (row_upload) {
-        for (int face = 0; face < 6; face++) {
-            for (int y = 0; y < params->height; y++) {
-                ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, y, params->width, 1, s_priv->format, s_priv->format_type, data);
-                data += linesize * s_priv->bytes_per_pixel;
-            }
-        }
-        return;
-    }
     const int face_size = data ? s_priv->bytes_per_pixel * linesize * params->height : 0;
     for (int face = 0; face < 6; face++) {
         ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0, params->width, params->height, s_priv->format, s_priv->format_type, data);
@@ -178,29 +153,23 @@ static void texture_set_sub_image(struct texture *s, const uint8_t *data, int li
     const int bytes_per_row = linesize * ngli_format_get_bytes_per_pixel(params->format);
     const int alignment = NGLI_MIN(bytes_per_row & ~(bytes_per_row - 1), 8);
     ngli_glPixelStorei(gl, GL_UNPACK_ALIGNMENT, alignment);
-
-    int row_upload = 0;
-    if (gl->features & NGLI_FEATURE_GL_ROW_LENGTH)
-        ngli_glPixelStorei(gl, GL_UNPACK_ROW_LENGTH, linesize);
-    else if (params->width != linesize)
-        row_upload = 1;
+    ngli_glPixelStorei(gl, GL_UNPACK_ROW_LENGTH, linesize);
 
     switch (s_priv->target) {
     case GL_TEXTURE_2D:
-        texture2d_set_sub_image(s, data, linesize, row_upload);
+        texture2d_set_sub_image(s, data, linesize);
         break;
     case GL_TEXTURE_2D_ARRAY:
     case GL_TEXTURE_3D:
-        texture3d_set_sub_image(s, data, linesize, row_upload);
+        texture3d_set_sub_image(s, data, linesize);
         break;
     case GL_TEXTURE_CUBE_MAP:
-        texturecube_set_sub_image(s, data, linesize, row_upload);
+        texturecube_set_sub_image(s, data, linesize);
         break;
     }
 
     ngli_glPixelStorei(gl, GL_UNPACK_ALIGNMENT, 4);
-    if (gl->features & NGLI_FEATURE_GL_ROW_LENGTH)
-        ngli_glPixelStorei(gl, GL_UNPACK_ROW_LENGTH, 0);
+    ngli_glPixelStorei(gl, GL_UNPACK_ROW_LENGTH, 0);
 }
 
 static int get_mipmap_levels(const struct texture *s)
