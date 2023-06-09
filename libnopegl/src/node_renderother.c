@@ -511,10 +511,10 @@ static int init(struct ngl_node *node,
             (ret = ngli_buffer_upload(s->uvcoords, default_uvcoords, sizeof(default_uvcoords), 0)) < 0)
             return ret;
 
-        s->position_attr.stride = 3 * 4;
+        s->position_attr.stride = 3 * sizeof(float);
         s->position_attr.buffer = s->vertices;
 
-        s->uvcoord_attr.stride = 2 * 4;
+        s->uvcoord_attr.stride = 2 * sizeof(float);
         s->uvcoord_attr.buffer = s->uvcoords;
 
         s->nb_vertices = 4;
