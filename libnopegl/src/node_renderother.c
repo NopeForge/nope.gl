@@ -836,7 +836,7 @@ static int renderdisplace_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nodegl/renderdisplace",
+        .program_label    = "nopegl/renderdisplace",
         .vert_base        = source_displace_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -977,7 +977,7 @@ static int renderhistogram_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nodegl/renderhistogram",
+        .program_label    = "nopegl/renderhistogram",
         .vert_base        = source_histogram_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -1087,7 +1087,7 @@ static int renderwaveform_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nodegl/renderwaveform",
+        .program_label    = "nopegl/renderwaveform",
         .vert_base        = source_waveform_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
