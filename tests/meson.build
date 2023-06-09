@@ -17,26 +17,13 @@ foreach backend : backends
   # ngl-probe may display garbage on stdout: typically Mesa does this on
   # offscreen at initialization, this is why we have .split()[-1] to read the
   # last word in the output.
-  has_block              = run_command(cap_cmd + ['block'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_compute            = run_command(cap_cmd + ['compute'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_ds_resolve         = run_command(cap_cmd + ['depth_stencil_resolve'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
-  has_instanced_draw     = run_command(cap_cmd + ['instanced_draw'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
-  has_shader_texture_lod = run_command(cap_cmd + ['shader_texture_lod'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
-  has_texture_2d_array   = run_command(cap_cmd + ['texture_2d_array'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
-  has_texture_3d         = run_command(cap_cmd + ['texture_3d'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
-  has_texture_cube       = run_command(cap_cmd + ['texture_cube'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
-  has_uint_uniforms      = run_command(cap_cmd + ['uint_uniforms'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   max_color_attachments  = run_command(cap_cmd + ['max_color_attachments'], check: true).stdout().split()[-1].to_int()
   max_samples            = run_command(cap_cmd + ['max_samples'], check: true).stdout().split()[-1].to_int()
 
   message('Backend: ' + backend)
-  message('- Block: @0@'.format(has_block))
   message('- Compute: @0@'.format(has_compute))
-  message('- Instanced draw: @0@'.format(has_instanced_draw))
-  message('- Shader texture lod: @0@'.format(has_shader_texture_lod))
-  message('- Texture 3D: @0@'.format(has_texture_3d))
-  message('- Texture Cube: @0@'.format(has_texture_cube))
-  message('- Unsigned int uniforms: @0@'.format(has_uint_uniforms))
   message('- Max color attachments: @0@'.format(max_color_attachments))
   message('- Max samples: @0@'.format(max_samples))
 
@@ -135,6 +122,10 @@ foreach backend : backends
     'single_mat4',
     'single_quat_mat4',
     'single_quat_vec4',
+    'single_uint',
+    'single_uvec2',
+    'single_uvec3',
+    'single_uvec4',
     'single_vec2',
     'single_vec3',
     'single_vec4',
@@ -145,14 +136,6 @@ foreach backend : backends
     'array_vec3',
     'array_vec4',
   ]
-  if has_uint_uniforms
-    uniform_names += [
-      'single_uint',
-      'single_uvec2',
-      'single_uvec3',
-      'single_uvec4',
-    ]
-  endif
 
   block_names = uniform_names + [
     'animated_buffer_float',
@@ -176,27 +159,23 @@ foreach backend : backends
   endforeach
 
   tests_data += 'mat_iovars'
-  if has_uint_uniforms
-    tests_data += 'integer_iovars'
-  endif
+  tests_data += 'integer_iovars'
 
-  if has_block
-    tests_data += [
-      'streamed_vec4',
-      'streamed_vec4_time_anim',
-      'streamed_buffer_vec4',
-      'streamed_buffer_vec4_time_anim',
-      'vertex_and_fragment_blocks',
-    ]
+  tests_data += [
+    'streamed_vec4',
+    'streamed_vec4_time_anim',
+    'streamed_buffer_vec4',
+    'streamed_buffer_vec4_time_anim',
+    'vertex_and_fragment_blocks',
+  ]
+  foreach test_name : block_names
+    tests_data += test_name + '_std140'
+  endforeach
+  if has_compute
+    tests_data += 'vertex_and_fragment_blocks_std430'
     foreach test_name : block_names
-      tests_data += test_name + '_std140'
+      tests_data += test_name + '_std430'
     endforeach
-    if has_compute
-      tests_data += 'vertex_and_fragment_blocks_std430'
-      foreach test_name : block_names
-        tests_data += test_name + '_std430'
-      endforeach
-    endif
   endif
 
   tests_depth_stencil = [
@@ -235,17 +214,15 @@ foreach backend : backends
     tests_live += test_name + '_uniform'
   endforeach
   tests_live += 'shared_uniform'
-  if has_block
+  foreach test_name : live_names
+    tests_live += test_name + '_std140'
+  endforeach
+  tests_live += 'shared_uniform_std140'
+  if has_compute
     foreach test_name : live_names
-      tests_live += test_name + '_std140'
+      tests_live += test_name + '_std430'
     endforeach
-    tests_live += 'shared_uniform_std140'
-    if has_compute
-      foreach test_name : live_names
-        tests_live += test_name + '_std430'
-      endforeach
-      tests_live += 'shared_uniform_std430'
-    endif
+    tests_live += 'shared_uniform_std430'
   endif
 
   tests_media = [
@@ -304,7 +281,7 @@ foreach backend : backends
   endif
 
   tests_scope = []
-  if has_compute and has_block
+  if has_compute
     tests_scope += [
       'colorstats',
       'render_histogram_luma_only',
@@ -335,15 +312,10 @@ foreach backend : backends
     'geometry_normals_indices',
     'geometry_with_renderother',
     'morphing',
+    'cropboard',
+    'cropboard_indices',
+    'triangles_mat4_attribute',
   ]
-
-  if has_instanced_draw
-    tests_shape += [
-      'cropboard',
-      'cropboard_indices',
-      'triangles_mat4_attribute',
-    ]
-  endif
 
   if max_samples >= 4
     tests_shape += [
@@ -371,60 +343,47 @@ foreach backend : backends
     'data_animated',
     'data_unaligned_row',
     'displacement',
+    'mipmap',
     'scissor',
+    '2d_array',
+    '2d_array_mipmap',
+    '3d',
+    'cubemap',
+    'cubemap_mipmap',
   ]
 
-  if has_shader_texture_lod
-    tests_texture += 'mipmap'
-  endif
-
-  if has_texture_2d_array
-    tests_texture += '2d_array'
-    if has_shader_texture_lod
-      tests_texture += '2d_array_mipmap'
-    endif
-    if max_color_attachments >= 4
-      tests_texture += '2d_array_from_mrt'
-      if max_samples >= 4
-        # Resolving MSAA attachments to array of 2D textures does not work due to driver issues
-        # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
-        # tests_texture += '2d_array_from_mrt_msaa'
-      endif
+  if max_color_attachments >= 4
+    tests_texture += '2d_array_from_mrt'
+    if max_samples >= 4
+      # Resolving MSAA attachments to array of 2D textures does not work due to driver issues
+      # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
+      # tests_texture += '2d_array_from_mrt_msaa'
     endif
   endif
 
-  if has_texture_3d
-    tests_texture += '3d'
-    if max_color_attachments >= 4
-      tests_texture += '3d_from_mrt'
-      if max_samples >= 4
-        # Resolving MSAA attachments to 3D textures does not work due to driver issues
-        # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
-        # tests_texture += '3d_from_mrt_msaa'
-      endif
+  if max_color_attachments >= 4
+    tests_texture += '3d_from_mrt'
+    if max_samples >= 4
+      # Resolving MSAA attachments to 3D textures does not work due to driver issues
+      # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
+      # tests_texture += '3d_from_mrt_msaa'
     endif
   endif
 
-  if has_texture_cube
-    tests_texture += 'cubemap'
-    if has_shader_texture_lod
-      tests_texture += 'cubemap_mipmap'
+  if max_color_attachments >= 4
+    tests_texture += 'cubemap_from_mrt_2_pass'
+    if max_samples >= 4
+      # Resolving MSAA attachments to cube maps does not work due to driver issues
+      # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
+      # tests_texture += 'cubemap_from_mrt_2_pass_msaa'
     endif
-    if max_color_attachments >= 4
-      tests_texture += 'cubemap_from_mrt_2_pass'
-      if max_samples >= 4
-        # Resolving MSAA attachments to cube maps does not work due to driver issues
-        # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
-        # tests_texture += 'cubemap_from_mrt_2_pass_msaa'
-      endif
-    endif
-    if max_color_attachments >= 6
-      tests_texture += 'cubemap_from_mrt'
-      if max_samples >= 4
-        # Resolving MSAA attachments to cube maps does not work due to driver issues
-        # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
-        # tests_texture += 'cubemap_from_mrt_msaa'
-      endif
+  endif
+  if max_color_attachments >= 6
+    tests_texture += 'cubemap_from_mrt'
+    if max_samples >= 4
+      # Resolving MSAA attachments to cube maps does not work due to driver issues
+      # See: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22924
+      # tests_texture += 'cubemap_from_mrt_msaa'
     endif
   endif
 

@@ -406,10 +406,8 @@ static void *worker_thread(void *arg)
 static const char *get_cap_string_id(unsigned cap_id)
 {
     switch (cap_id) {
-    case NGL_CAP_BLOCK:                         return "block";
     case NGL_CAP_COMPUTE:                       return "compute";
     case NGL_CAP_DEPTH_STENCIL_RESOLVE:         return "depth_stencil_resolve";
-    case NGL_CAP_INSTANCED_DRAW:                return "instanced_draw";
     case NGL_CAP_MAX_COLOR_ATTACHMENTS:         return "max_color_attachments";
     case NGL_CAP_MAX_COMPUTE_GROUP_COUNT_X:     return "max_compute_group_count_x";
     case NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Y:     return "max_compute_group_count_y";
@@ -425,11 +423,6 @@ static const char *get_cap_string_id(unsigned cap_id)
     case NGL_CAP_MAX_TEXTURE_DIMENSION_2D:      return "max_texture_dimension_2d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_3D:      return "max_texture_dimension_3d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE:    return "max_texture_dimension_cube";
-    case NGL_CAP_SHADER_TEXTURE_LOD:            return "shader_texture_lod";
-    case NGL_CAP_TEXTURE_2D_ARRAY:              return "texture_2d_array";
-    case NGL_CAP_TEXTURE_3D:                    return "texture_3d";
-    case NGL_CAP_TEXTURE_CUBE:                  return "texture_cube";
-    case NGL_CAP_UINT_UNIFORMS:                 return "uint_uniforms";
     }
     ngli_assert(0);
 }
@@ -440,22 +433,13 @@ static const char *get_cap_string_id(unsigned cap_id)
 
 static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
 {
-    const int has_block          = 1;
     const int has_compute        = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_COMPUTE);
     const int has_ds_resolve     = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_DEPTH_STENCIL_RESOLVE);
-    const int has_instanced_draw = 1;
-    const int has_shader_texture_lod = 1;
-    const int has_texture_2d_array   = 1;
-    const int has_texture_3d     = 1;
-    const int has_texture_cube   = 1;
-    const int has_uint_uniforms  = 1;
 
     const struct gpu_limits *limits = &gpu_ctx->limits;
     const struct ngl_cap caps[] = {
-        CAP(NGL_CAP_BLOCK,                         has_block),
         CAP(NGL_CAP_COMPUTE,                       has_compute),
         CAP(NGL_CAP_DEPTH_STENCIL_RESOLVE,         has_ds_resolve),
-        CAP(NGL_CAP_INSTANCED_DRAW,                has_instanced_draw),
         CAP(NGL_CAP_MAX_COLOR_ATTACHMENTS,         limits->max_color_attachments),
         CAP(NGL_CAP_MAX_COMPUTE_GROUP_COUNT_X,     limits->max_compute_work_group_count[0]),
         CAP(NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Y,     limits->max_compute_work_group_count[1]),
@@ -471,11 +455,6 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_2D,      limits->max_texture_dimension_2d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_3D,      limits->max_texture_dimension_3d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE,    limits->max_texture_dimension_cube),
-        CAP(NGL_CAP_SHADER_TEXTURE_LOD,            has_shader_texture_lod),
-        CAP(NGL_CAP_TEXTURE_2D_ARRAY,              has_texture_2d_array),
-        CAP(NGL_CAP_TEXTURE_3D,                    has_texture_3d),
-        CAP(NGL_CAP_TEXTURE_CUBE,                  has_texture_cube),
-        CAP(NGL_CAP_UINT_UNIFORMS,                 has_uint_uniforms),
     };
 
     backend->nb_caps = NGLI_ARRAY_NB(caps);

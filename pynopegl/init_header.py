@@ -57,10 +57,8 @@ class Backend(IntEnum):
 
 
 class Cap(IntEnum):
-    BLOCK                          = _ngl.CAP_BLOCK
     COMPUTE                        = _ngl.CAP_COMPUTE
     DEPTH_STENCIL_RESOLVE          = _ngl.CAP_DEPTH_STENCIL_RESOLVE
-    INSTANCED_DRAW                 = _ngl.CAP_INSTANCED_DRAW
     MAX_COLOR_ATTACHMENTS          = _ngl.CAP_MAX_COLOR_ATTACHMENTS
     MAX_COMPUTE_GROUP_COUNT_X      = _ngl.CAP_MAX_COMPUTE_GROUP_COUNT_X
     MAX_COMPUTE_GROUP_COUNT_Y      = _ngl.CAP_MAX_COMPUTE_GROUP_COUNT_Y
@@ -76,11 +74,6 @@ class Cap(IntEnum):
     MAX_TEXTURE_DIMENSION_2D       = _ngl.CAP_MAX_TEXTURE_DIMENSION_2D
     MAX_TEXTURE_DIMENSION_3D       = _ngl.CAP_MAX_TEXTURE_DIMENSION_3D
     MAX_TEXTURE_DIMENSION_CUBE     = _ngl.CAP_MAX_TEXTURE_DIMENSION_CUBE
-    SHADER_TEXTURE_LOD             = _ngl.CAP_SHADER_TEXTURE_LOD
-    TEXTURE_2D_ARRAY               = _ngl.CAP_TEXTURE_2D_ARRAY
-    TEXTURE_3D                     = _ngl.CAP_TEXTURE_3D
-    TEXTURE_CUBE                   = _ngl.CAP_TEXTURE_CUBE
-    UINT_UNIFORMS                  = _ngl.CAP_UINT_UNIFORMS
 
 
 class Log(IntEnum):
