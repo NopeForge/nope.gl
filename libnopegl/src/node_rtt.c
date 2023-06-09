@@ -244,12 +244,6 @@ static int rtt_prefetch(struct ngl_node *node)
     const int nb_interruptions = s->renderpass_info.nb_interruptions;
     struct rtt_opts *o = node->opts;
 
-    if (!(gpu_ctx->features & NGLI_FEATURE_COLOR_RESOLVE) && o->samples > 0) {
-        LOG(WARNING, "context does not support resolving color attachments, "
-            "multisample anti-aliasing will be disabled");
-        o->samples = 0;
-    }
-
     if (!o->nb_color_textures) {
         LOG(ERROR, "at least one color texture must be specified");
         return NGL_ERROR_INVALID_ARG;

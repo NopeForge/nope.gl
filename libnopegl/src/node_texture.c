@@ -539,11 +539,6 @@ static int texture2d_array_init(struct ngl_node *node)
 
     s->params = o->params;
 
-    if (!(gpu_ctx->features & NGLI_FEATURE_TEXTURE_2D_ARRAY)) {
-        LOG(ERROR, "context does not support arrays of 2D textures");
-        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-    }
-
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
     const int max_layers = gpu_ctx->limits.max_texture_array_layers;
     if (s->params.width  > max_dimension ||
@@ -569,11 +564,6 @@ static int texture3d_init(struct ngl_node *node)
 
     s->params = o->params;
 
-    if (!(gpu_ctx->features & NGLI_FEATURE_TEXTURE_3D)) {
-        LOG(ERROR, "context does not support 3D textures");
-        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-    }
-
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_3d;
     if (s->params.width  > max_dimension ||
         s->params.height > max_dimension ||
@@ -597,11 +587,6 @@ static int texturecube_init(struct ngl_node *node)
     const struct texture_opts *o = node->opts;
 
     s->params = o->params;
-
-    if (!(gpu_ctx->features & NGLI_FEATURE_TEXTURE_CUBE_MAP)) {
-        LOG(ERROR, "context does not support cube map textures");
-        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-    }
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
     if (s->params.width  > max_dimension ||

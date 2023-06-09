@@ -416,19 +416,11 @@ static const struct {
     uint64_t feature_gl;
 } feature_map[] = {
     {NGLI_FEATURE_COMPUTE,                      NGLI_FEATURE_GL_COMPUTE_SHADER_ALL},
-    {NGLI_FEATURE_INSTANCED_DRAW,               0},
-    {NGLI_FEATURE_COLOR_RESOLVE,                0},
-    {NGLI_FEATURE_SHADER_TEXTURE_LOD,           0},
     {NGLI_FEATURE_SOFTWARE,                     NGLI_FEATURE_GL_SOFTWARE},
-    {NGLI_FEATURE_TEXTURE_3D,                   0},
-    {NGLI_FEATURE_TEXTURE_CUBE_MAP,             0},
-    {NGLI_FEATURE_UINT_UNIFORMS,                0},
-    {NGLI_FEATURE_UNIFORM_BUFFER,               0},
     {NGLI_FEATURE_STORAGE_BUFFER,               NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT},
     {NGLI_FEATURE_DEPTH_STENCIL_RESOLVE,        0},
     {NGLI_FEATURE_TEXTURE_FLOAT_RENDERABLE,     NGLI_FEATURE_GL_COLOR_BUFFER_FLOAT},
     {NGLI_FEATURE_TEXTURE_HALF_FLOAT_RENDERABLE,NGLI_FEATURE_GL_COLOR_BUFFER_HALF_FLOAT},
-    {NGLI_FEATURE_TEXTURE_2D_ARRAY,             0},
 };
 
 static void gpu_ctx_info_init(struct gpu_ctx *s)
