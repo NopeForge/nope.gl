@@ -37,32 +37,6 @@ static const struct glfeature {
     const size_t *funcs_offsets;
 } glfeatures[] = {
     {
-        .name           = "vertex_array_object",
-        .flag           = NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT,
-        .version        = 300,
-        .es_version     = 300,
-        .extensions     = (const char*[]){"GL_ARB_vertex_array_object", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(GenVertexArrays),
-                                           OFFSET(BindVertexArray),
-                                           OFFSET(DeleteVertexArrays),
-                                           -1}
-    }, {
-        .name           = "oes_vertex_array_object",
-        .flag           = NGLI_FEATURE_GL_OES_VERTEX_ARRAY_OBJECT,
-        .es_extensions  = (const char*[]){"GL_OES_vertex_array_object", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(GenVertexArraysOES),
-                                           OFFSET(BindVertexArrayOES),
-                                           OFFSET(DeleteVertexArraysOES),
-                                           -1}
-    }, {
-        .name           = "texture3d",
-        .flag           = NGLI_FEATURE_GL_TEXTURE_3D,
-        .version        = 200,
-        .es_version     = 300,
-        .funcs_offsets  = (const size_t[]){OFFSET(TexImage3D),
-                                           OFFSET(TexSubImage3D),
-                                           -1}
-    }, {
         .name           = "texture_storage",
         .flag           = NGLI_FEATURE_GL_TEXTURE_STORAGE,
         .version        = 420,
@@ -109,17 +83,6 @@ static const struct glfeature {
                                            OFFSET(TexStorage3D),
                                            -1}
     }, {
-        .name           = "framebuffer_object",
-        .flag           = NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT,
-        .version        = 300,
-        .es_version     = 300,
-        .extensions     = (const char*[]){"ARB_framebuffer_object", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(RenderbufferStorageMultisample),
-                                           OFFSET(BlitFramebuffer),
-                                           OFFSET(GetFramebufferAttachmentParameteriv),
-                                           OFFSET(FramebufferTexture3D),
-                                           -1}
-    }, {
         .name           = "internalformat_query",
         .flag           = NGLI_FEATURE_GL_INTERNALFORMAT_QUERY,
         .version        = 420,
@@ -127,12 +90,6 @@ static const struct glfeature {
         .extensions     = (const char*[]){"ARB_internalformat_query", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(GetInternalformativ),
                                            -1}
-    }, {
-        .name           = "packed_depth_stencil",
-        .flag           = NGLI_FEATURE_GL_PACKED_DEPTH_STENCIL,
-        .version        = 300,
-        .es_version     = 300,
-        .es_extensions  = (const char*[]){"GL_OES_packed_depth_stencil", NULL},
     }, {
         .name           = "timer_query",
         .flag           = NGLI_FEATURE_GL_TIMER_QUERY,
@@ -148,33 +105,6 @@ static const struct glfeature {
                                            OFFSET(DeleteQueriesEXT),
                                            OFFSET(QueryCounterEXT),
                                            OFFSET(GetQueryObjectui64vEXT),
-                                           -1}
-    }, {
-        .name           = "draw_instanced",
-        .flag           = NGLI_FEATURE_GL_DRAW_INSTANCED,
-        .version        = 310,
-        .es_version     = 300,
-        .funcs_offsets  = (const size_t[]){OFFSET(DrawElementsInstanced),
-                                           OFFSET(DrawArraysInstanced),
-                                           -1}
-
-    }, {
-        .name           = "instanced_array",
-        .flag           = NGLI_FEATURE_GL_INSTANCED_ARRAY,
-        .version        = 330,
-        .es_version     = 300,
-        .funcs_offsets  = (const size_t[]){OFFSET(VertexAttribDivisor),
-                                           -1}
-    }, {
-        .name           = "uniform_buffer_object",
-        .flag           = NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT,
-        .version        = 310,
-        .es_version     = 300,
-        .extensions     = (const char*[]){"GL_ARB_uniform_buffer_object", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(GetUniformBlockIndex),
-                                           OFFSET(UniformBlockBinding),
-                                           OFFSET(GetActiveUniformBlockName),
-                                           OFFSET(GetActiveUniformBlockiv),
                                            -1}
     }, {
         .name           = "invalidate_subdata",
@@ -193,18 +123,6 @@ static const struct glfeature {
         .funcs_offsets  = (const size_t[]){OFFSET(EGLImageTargetTexture2DOES),
                                            -1}
     }, {
-        .name           = "depth_texture",
-        .flag           = NGLI_FEATURE_GL_DEPTH_TEXTURE,
-        .version        = 300,
-        .es_version     = 300,
-        .es_extensions  = (const char*[]){"GL_OES_depth_texture", NULL}
-    }, {
-        .name           = "rgb8_rgba8",
-        .flag           = NGLI_FEATURE_GL_RGB8_RGBA8,
-        .version        = 300,
-        .es_version     = 300,
-        .es_extensions  = (const char*[]){"GL_OES_rgb8_rgba8", NULL}
-    }, {
         .name           = "oes_egl_image",
         .flag           = NGLI_FEATURE_GL_OES_EGL_IMAGE,
         .extensions     = (const char*[]){"GL_OES_EGL_image", NULL},
@@ -212,57 +130,9 @@ static const struct glfeature {
         .funcs_offsets  = (const size_t[]){OFFSET(EGLImageTargetTexture2DOES),
                                            -1}
     }, {
-        .name           = "sync",
-        .flag           = NGLI_FEATURE_GL_SYNC,
-        .version        = 320,
-        .es_version     = 300,
-        .extensions     = (const char*[]){"ARB_sync", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(FenceSync),
-                                           OFFSET(ClientWaitSync),
-                                           OFFSET(WaitSync),
-                                           -1}
-    }, {
         .name           = "yuv_target",
         .flag           = NGLI_FEATURE_GL_YUV_TARGET,
         .es_extensions  = (const char*[]){"GL_EXT_YUV_target", NULL}
-    }, {
-        .name           ="texture_npot",
-        .flag           = NGLI_FEATURE_GL_TEXTURE_NPOT,
-        .version        = 200,
-        .es_version     = 300,
-        .extensions     = (const char*[]){"GL_ARB_texture_non_power_of_two", NULL},
-        .es_extensions  = (const char*[]){"GL_OES_texture_npot", NULL},
-    }, {
-        .name           = "texture_cube_map",
-        .flag           = NGLI_FEATURE_GL_TEXTURE_CUBE_MAP,
-        .version        = 320,
-        .es_version     = 300,
-        .extensions     = (const char*[]){"GL_ARB_texture_cube_map",
-                                          "GL_ARB_seamless_cube_map",
-                                          NULL},
-    }, {
-        .name           = "draw_buffers",
-        .flag           = NGLI_FEATURE_GL_DRAW_BUFFERS,
-        .version        = 200,
-        .es_version     = 300,
-        .funcs_offsets  = (const size_t[]){OFFSET(DrawBuffers),
-                                           OFFSET(ReadBuffer),
-                                           -1}
-    }, {
-        .name           = "row_length",
-        .flag           = NGLI_FEATURE_GL_ROW_LENGTH,
-        .version        = 300,
-        .es_version     = 300,
-    }, {
-        .name           = "uint_uniforms",
-        .flag           = NGLI_FEATURE_GL_UINT_UNIFORMS,
-        .version        = 300,
-        .es_version     = 300,
-        .funcs_offsets  = (const size_t[]){OFFSET(Uniform1uiv),
-                                           OFFSET(Uniform2uiv),
-                                           OFFSET(Uniform3uiv),
-                                           OFFSET(Uniform4uiv),
-                                           -1}
     }, {
         .name           = "khr_debug",
         .flag           = NGLI_FEATURE_GL_KHR_DEBUG,
@@ -270,14 +140,6 @@ static const struct glfeature {
         .es_version     = 320,
         .funcs_offsets  = (const size_t[]){OFFSET(DebugMessageCallback),
                                         -1}
-    }, {
-        .name           = "clear_buffer",
-        .flag           = NGLI_FEATURE_GL_CLEAR_BUFFER,
-        .version        = 300,
-        .es_version     = 300,
-        .funcs_offsets  = (const size_t[]){OFFSET(ClearBufferfv),
-                                           OFFSET(ClearBufferfi),
-                                           -1}
     }, {
         .name           = "shader_image_size",
         .flag           = NGLI_FEATURE_GL_SHADER_IMAGE_SIZE,
@@ -289,12 +151,6 @@ static const struct glfeature {
         .flag           = NGLI_FEATURE_GL_SHADING_LANGUAGE_420PACK,
         .version        = 420,
         .extensions     = (const char*[]){"GL_ARB_shading_language_420pack", NULL},
-    }, {
-        .name           = "shader_texture_lod",
-        .flag           = NGLI_FEATURE_GL_SHADER_TEXTURE_LOD,
-        .version        = 300,
-        .es_version     = 300,
-        .es_extensions  = (const char*[]){"GL_EXT_shader_texture_lod", NULL},
     }, {
         .name           = "color_buffer_float",
         .flag           = NGLI_FEATURE_GL_COLOR_BUFFER_FLOAT,
@@ -308,14 +164,6 @@ static const struct glfeature {
         .es_version     = 320,
         .es_extensions  = (const char*[]){"EXT_color_buffer_half_float", NULL},
     }, {
-        .name           = "map_buffer_range",
-        .flag           = NGLI_FEATURE_GL_MAP_BUFFER_RANGE,
-        .version        = 300,
-        .es_version     = 300,
-        .funcs_offsets  = (const size_t[]){OFFSET(MapBufferRange),
-                                           OFFSET(UnmapBuffer),
-                                           -1}
-    }, {
         .name           = "buffer_storage",
         .flag           = NGLI_FEATURE_GL_BUFFER_STORAGE,
         .version        = 440,
@@ -323,17 +171,5 @@ static const struct glfeature {
         .extensions     = (const char*[]){"GL_ARB_buffer_storage", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(BufferStorage),
                                            -1}
-    }, {
-        .name           = "oes_standard_derivatives",
-        .flag           = NGLI_FEATURE_GL_OES_STANDARD_DERIVATIVES,
-        .es_version     = 300,
-        .es_extensions  = (const char*[]){"GL_OES_standard_derivatives", NULL},
-    }, {
-        .name           = "texture_array",
-        .flag           = NGLI_FEATURE_GL_TEXTURE_2D_ARRAY,
-        .version        = 300,
-        .es_version     = 300,
-        .funcs_offsets  = (const size_t[]){OFFSET(FramebufferTextureLayer),
-                                           -1}
-    }
+    },
 };

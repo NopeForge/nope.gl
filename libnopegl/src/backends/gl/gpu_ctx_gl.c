@@ -256,14 +256,7 @@ static int create_rendertarget(struct gpu_ctx *s,
 static int offscreen_rendertarget_init(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
     struct ngl_config *config = &s->config;
-
-    if (!(gl->features & NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT) && config->samples > 0) {
-        LOG(WARNING, "context does not support the framebuffer object feature, "
-            "multisample anti-aliasing will be disabled");
-        config->samples = 0;
-    }
 
     if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_COREVIDEO) {
 #if defined(TARGET_IPHONE)
@@ -423,19 +416,19 @@ static const struct {
     uint64_t feature_gl;
 } feature_map[] = {
     {NGLI_FEATURE_COMPUTE,                      NGLI_FEATURE_GL_COMPUTE_SHADER_ALL},
-    {NGLI_FEATURE_INSTANCED_DRAW,               NGLI_FEATURE_GL_DRAW_INSTANCED | NGLI_FEATURE_GL_INSTANCED_ARRAY},
-    {NGLI_FEATURE_COLOR_RESOLVE,                NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT},
-    {NGLI_FEATURE_SHADER_TEXTURE_LOD,           NGLI_FEATURE_GL_SHADER_TEXTURE_LOD},
+    {NGLI_FEATURE_INSTANCED_DRAW,               0},
+    {NGLI_FEATURE_COLOR_RESOLVE,                0},
+    {NGLI_FEATURE_SHADER_TEXTURE_LOD,           0},
     {NGLI_FEATURE_SOFTWARE,                     NGLI_FEATURE_GL_SOFTWARE},
-    {NGLI_FEATURE_TEXTURE_3D,                   NGLI_FEATURE_GL_TEXTURE_3D},
-    {NGLI_FEATURE_TEXTURE_CUBE_MAP,             NGLI_FEATURE_GL_TEXTURE_CUBE_MAP},
-    {NGLI_FEATURE_UINT_UNIFORMS,                NGLI_FEATURE_GL_UINT_UNIFORMS},
-    {NGLI_FEATURE_UNIFORM_BUFFER,               NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT},
+    {NGLI_FEATURE_TEXTURE_3D,                   0},
+    {NGLI_FEATURE_TEXTURE_CUBE_MAP,             0},
+    {NGLI_FEATURE_UINT_UNIFORMS,                0},
+    {NGLI_FEATURE_UNIFORM_BUFFER,               0},
     {NGLI_FEATURE_STORAGE_BUFFER,               NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT},
-    {NGLI_FEATURE_DEPTH_STENCIL_RESOLVE,        NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT},
+    {NGLI_FEATURE_DEPTH_STENCIL_RESOLVE,        0},
     {NGLI_FEATURE_TEXTURE_FLOAT_RENDERABLE,     NGLI_FEATURE_GL_COLOR_BUFFER_FLOAT},
     {NGLI_FEATURE_TEXTURE_HALF_FLOAT_RENDERABLE,NGLI_FEATURE_GL_COLOR_BUFFER_HALF_FLOAT},
-    {NGLI_FEATURE_TEXTURE_2D_ARRAY,             NGLI_FEATURE_GL_TEXTURE_2D_ARRAY},
+    {NGLI_FEATURE_TEXTURE_2D_ARRAY,             0},
 };
 
 static void gpu_ctx_info_init(struct gpu_ctx *s)
@@ -733,60 +726,51 @@ int ngli_gpu_ctx_gl_wrap_framebuffer(struct gpu_ctx *s, GLuint fbo)
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    /*
-     * NOTE: OpenGLES 2.0 cannot query the default framebuffer using
-     * glGetFramebufferAttachmentParameteriv() and thus would require a
-     * specific code path to perform the relevant sanity checks. For now, we
-     * simply disable those checks on OpenGLES 2.0 (through the
-     * NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT requirement).
-     */
-    if (gl->features & NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT) {
-        GLuint prev_fbo = 0;
-        ngli_glGetIntegerv(gl, GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&prev_fbo);
+    GLuint prev_fbo = 0;
+    ngli_glGetIntegerv(gl, GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&prev_fbo);
 
-        const GLenum target = GL_DRAW_FRAMEBUFFER;
-        ngli_glBindFramebuffer(gl, target, fbo);
+    const GLenum target = GL_DRAW_FRAMEBUFFER;
+    ngli_glBindFramebuffer(gl, target, fbo);
 
-        const int es = config->backend == NGL_BACKEND_OPENGLES;
-        const GLenum default_color_attachment = es ? GL_BACK : GL_FRONT_LEFT;
-        const GLenum color_attachment   = fbo ? GL_COLOR_ATTACHMENT0  : default_color_attachment;
-        const GLenum depth_attachment   = fbo ? GL_DEPTH_ATTACHMENT   : GL_DEPTH;
-        const GLenum stencil_attachment = fbo ? GL_STENCIL_ATTACHMENT : GL_STENCIL;
-        const struct {
-            const char *buffer_name;
-            const char *component_name;
-            GLenum attachment;
-            const GLenum property;
-        } components[] = {
-            {"color",   "red",     color_attachment,   GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE},
-            {"color",   "green",   color_attachment,   GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE},
-            {"color",   "blue",    color_attachment,   GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE},
-            {"color",   "alpha",   color_attachment,   GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE},
-            {"depth",   "depth",   depth_attachment,   GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE},
-            {"stencil", "stencil", stencil_attachment, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE},
-        };
-        for (size_t i = 0; i < NGLI_ARRAY_NB(components); i++) {
-            GLint type = 0;
-            ngli_glGetFramebufferAttachmentParameteriv(gl, target,
-                components[i].attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
-            if (!type) {
-                LOG(ERROR, "external framebuffer have no %s buffer attached to it", components[i].buffer_name);
-                ngli_glBindFramebuffer(gl, target, prev_fbo);
-                return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-            }
-
-            GLint size = 0;
-            ngli_glGetFramebufferAttachmentParameteriv(gl, target,
-                components[i].attachment, components[i].property, &size);
-            if (!size) {
-                LOG(ERROR, "external framebuffer have no %s component", components[i].component_name);
-                ngli_glBindFramebuffer(gl, target, prev_fbo);
-                return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-            }
+    const int es = config->backend == NGL_BACKEND_OPENGLES;
+    const GLenum default_color_attachment = es ? GL_BACK : GL_FRONT_LEFT;
+    const GLenum color_attachment   = fbo ? GL_COLOR_ATTACHMENT0  : default_color_attachment;
+    const GLenum depth_attachment   = fbo ? GL_DEPTH_ATTACHMENT   : GL_DEPTH;
+    const GLenum stencil_attachment = fbo ? GL_STENCIL_ATTACHMENT : GL_STENCIL;
+    const struct {
+        const char *buffer_name;
+        const char *component_name;
+        GLenum attachment;
+        const GLenum property;
+    } components[] = {
+        {"color",   "red",     color_attachment,   GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE},
+        {"color",   "green",   color_attachment,   GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE},
+        {"color",   "blue",    color_attachment,   GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE},
+        {"color",   "alpha",   color_attachment,   GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE},
+        {"depth",   "depth",   depth_attachment,   GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE},
+        {"stencil", "stencil", stencil_attachment, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE},
+    };
+    for (size_t i = 0; i < NGLI_ARRAY_NB(components); i++) {
+        GLint type = 0;
+        ngli_glGetFramebufferAttachmentParameteriv(gl, target,
+            components[i].attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+        if (!type) {
+            LOG(ERROR, "external framebuffer have no %s buffer attached to it", components[i].buffer_name);
+            ngli_glBindFramebuffer(gl, target, prev_fbo);
+            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
 
-        ngli_glBindFramebuffer(gl, target, prev_fbo);
+        GLint size = 0;
+        ngli_glGetFramebufferAttachmentParameteriv(gl, target,
+            components[i].attachment, components[i].property, &size);
+        if (!size) {
+            LOG(ERROR, "external framebuffer have no %s component", components[i].component_name);
+            ngli_glBindFramebuffer(gl, target, prev_fbo);
+            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+        }
     }
+
+    ngli_glBindFramebuffer(gl, target, prev_fbo);
 
     ngli_rendertarget_freep(&s_priv->default_rt);
     ngli_rendertarget_freep(&s_priv->default_rt_load);

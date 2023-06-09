@@ -344,23 +344,13 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
     GET(GL_MAX_TEXTURE_IMAGE_UNITS, &limits->max_texture_image_units);
     GET(GL_MAX_TEXTURE_SIZE, &limits->max_texture_dimension_1d);
     GET(GL_MAX_TEXTURE_SIZE, &limits->max_texture_dimension_2d);
-    if (glcontext->features & NGLI_FEATURE_GL_TEXTURE_3D)
-        GET(GL_MAX_3D_TEXTURE_SIZE, &limits->max_texture_dimension_3d);
-    if (glcontext->features & NGLI_FEATURE_GL_TEXTURE_CUBE_MAP)
-        GET(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limits->max_texture_dimension_cube);
-    if (glcontext->features & NGLI_FEATURE_GL_TEXTURE_2D_ARRAY)
-        GET(GL_MAX_ARRAY_TEXTURE_LAYERS, &limits->max_texture_array_layers);
-
-    limits->max_color_attachments = 1;
-    if (glcontext->features & NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT) {
-        GET(GL_MAX_SAMPLES, &limits->max_samples);
-        GET(GL_MAX_COLOR_ATTACHMENTS, &limits->max_color_attachments);
-    }
-
-    if (glcontext->features & NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT) {
-        GET(GL_MAX_UNIFORM_BLOCK_SIZE, &limits->max_uniform_block_size);
-        GET(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &limits->min_uniform_block_offset_alignment);
-    }
+    GET(GL_MAX_3D_TEXTURE_SIZE, &limits->max_texture_dimension_3d);
+    GET(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limits->max_texture_dimension_cube);
+    GET(GL_MAX_ARRAY_TEXTURE_LAYERS, &limits->max_texture_array_layers);
+    GET(GL_MAX_SAMPLES, &limits->max_samples);
+    GET(GL_MAX_COLOR_ATTACHMENTS, &limits->max_color_attachments);
+    GET(GL_MAX_UNIFORM_BLOCK_SIZE, &limits->max_uniform_block_size);
+    GET(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &limits->min_uniform_block_offset_alignment);
 
     if (glcontext->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT) {
         GET(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &limits->max_storage_block_size);
@@ -385,10 +375,7 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
         GET(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &limits->max_compute_shared_memory_size);
     }
 
-    limits->max_draw_buffers = 1;
-    if (glcontext->features & NGLI_FEATURE_GL_DRAW_BUFFERS) {
-        GET(GL_MAX_DRAW_BUFFERS, &limits->max_draw_buffers);
-    }
+    GET(GL_MAX_DRAW_BUFFERS, &limits->max_draw_buffers);
 
     return 0;
 }
@@ -503,8 +490,7 @@ struct glcontext *ngli_glcontext_new(const struct glcontext_params *params)
     if (ret < 0)
         goto fail;
 
-    if (glcontext->backend == NGL_BACKEND_OPENGL &&
-        (glcontext->features & NGLI_FEATURE_GL_TEXTURE_CUBE_MAP))
+    if (glcontext->backend == NGL_BACKEND_OPENGL)
         ngli_glEnable(glcontext, GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     if (!glcontext->external && !glcontext->offscreen) {
