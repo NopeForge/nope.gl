@@ -283,9 +283,6 @@ static int texture_prefetch(struct ngl_node *node)
     const struct texture_opts *o = node->opts;
     struct texture_params *params = &s->params;
 
-    if (params->type == NGLI_TEXTURE_TYPE_CUBE)
-        params->height = params->width;
-
     params->usage |= NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT | NGLI_TEXTURE_USAGE_SAMPLED_BIT;
 
     if (params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE)
@@ -587,6 +584,7 @@ static int texturecube_init(struct ngl_node *node)
     const struct texture_opts *o = node->opts;
 
     s->params = o->params;
+    s->params.height = s->params.width;
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
     if (s->params.width  > max_dimension ||
