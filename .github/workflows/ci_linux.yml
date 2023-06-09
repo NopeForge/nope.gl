@@ -18,8 +18,6 @@ jobs:
         include:
           - backend: "all"
             custom_env:
-          - backend: "opengles 2"
-            custom_env: MESA_GLES_VERSION_OVERRIDE=2.0
           - backend: "opengles 3.0"
             custom_env: MESA_GLES_VERSION_OVERRIDE=3.0
 
