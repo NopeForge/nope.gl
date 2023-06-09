@@ -250,7 +250,12 @@ static int rtt_prefetch(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (o->nb_color_textures > limits->max_color_attachments) {
+    size_t nb_color_attachments = 0;
+    for (size_t i = 0; i < o->nb_color_textures; i++) {
+        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
+        nb_color_attachments += info.layer_count;
+    }
+    if (nb_color_attachments > limits->max_color_attachments) {
         LOG(ERROR, "context does not support more than %d color attachments", limits->max_color_attachments);
         return NGL_ERROR_UNSUPPORTED;
     }
