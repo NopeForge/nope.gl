@@ -386,7 +386,7 @@ static int texture_prefetch(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    struct image_params image_params = {
+    const struct image_params image_params = {
         .width = params->width,
         .height = params->height,
         .depth = params->depth,
