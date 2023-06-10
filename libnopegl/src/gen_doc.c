@@ -210,7 +210,7 @@ static int check_node_params(const struct node_class *cls)
         }
 
         const uint32_t invalid_flags = NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_ALLOW_NODE;
-        if ((par->flags & invalid_flags) == invalid_flags) {
+        if (NGLI_HAS_ALL_FLAGS(par->flags, invalid_flags)) {
             fprintf(stderr, "parameter %s.%s can not be non-null and "
                     "allow a node at the same time\n", cls->name, par->key);
             return NGL_ERROR_BUG;
