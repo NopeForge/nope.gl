@@ -158,13 +158,6 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
         if (resprops_node) {
             const struct resourceprops_opts *resprops = resprops_node->opts;
             if (resprops->as_image) {
-                if (texture->cls->id != NGL_NODE_TEXTURE2D &&
-                    texture->cls->id != NGL_NODE_TEXTURE2DARRAY &&
-                    texture->cls->id != NGL_NODE_TEXTURE3D &&
-                    texture->cls->id != NGL_NODE_TEXTURECUBE) {
-                    LOG(ERROR, "\"%s\" can not be accessed as an image; only Texture{2D,2DArray,3D,Cube} are supported", name);
-                    return NGL_ERROR_UNSUPPORTED;
-                }
                 /* Disable direct rendering when using image load/store */
                 texture_priv->supported_image_layouts = 1 << NGLI_IMAGE_LAYOUT_DEFAULT;
                 texture_priv->params.usage |= NGLI_TEXTURE_USAGE_STORAGE_BIT;
