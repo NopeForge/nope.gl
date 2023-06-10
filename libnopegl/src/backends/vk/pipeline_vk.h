@@ -48,7 +48,6 @@ struct pipeline_vk {
 
 struct pipeline *ngli_pipeline_vk_create(struct gpu_ctx *gpu_ctx);
 VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params *params);
-int ngli_pipeline_vk_update_uniform(struct pipeline *s, int32_t index, const void *value);
 int ngli_pipeline_vk_update_texture(struct pipeline *s, int32_t index, const struct texture *texture);
 int ngli_pipeline_vk_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
 void ngli_pipeline_vk_draw(struct pipeline *s, int nb_vertices, int nb_instances);

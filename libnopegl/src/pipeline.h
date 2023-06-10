@@ -43,12 +43,6 @@ enum {
 
 NGLI_STATIC_ASSERT(texture_access, (NGLI_ACCESS_READ_BIT | NGLI_ACCESS_WRITE_BIT) == NGLI_ACCESS_READ_WRITE);
 
-struct pipeline_uniform_desc {
-    char name[MAX_ID_LEN];
-    int type;
-    size_t count;
-};
-
 struct pipeline_texture_desc {
     char name[MAX_ID_LEN];
     int type;
@@ -88,8 +82,6 @@ enum {
 struct pipeline_layout {
     const struct pipeline_texture_desc *texture_descs;
     size_t nb_texture_descs;
-    const struct pipeline_uniform_desc *uniform_descs;
-    size_t nb_uniform_descs;
     const struct pipeline_buffer_desc *buffer_descs;
     size_t nb_buffer_descs;
     const struct pipeline_attribute_desc *attribute_descs;
@@ -99,8 +91,6 @@ struct pipeline_layout {
 struct pipeline_resources {
     struct texture **textures;
     size_t nb_textures;
-    void **uniforms;
-    size_t nb_uniforms;
     struct buffer **buffers;
     size_t nb_buffers;
     struct buffer **attributes;
@@ -129,7 +119,6 @@ void ngli_pipeline_layout_reset(struct pipeline_layout *layout);
 struct pipeline *ngli_pipeline_create(struct gpu_ctx *gpu_ctx);
 int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params);
 int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resources *resources);
-int ngli_pipeline_update_uniform(struct pipeline *s, int32_t index, const void *value);
 int ngli_pipeline_update_texture(struct pipeline *s, int32_t index, const struct texture *texture);
 int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
 

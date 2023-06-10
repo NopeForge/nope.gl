@@ -37,11 +37,6 @@ int ngli_pipeline_layout_copy(struct pipeline_layout *dst, const struct pipeline
         return NGL_ERROR_MEMORY;
     dst->nb_texture_descs = src->nb_texture_descs;
 
-    dst->uniform_descs = ngli_memdup(src->uniform_descs, src->nb_uniform_descs * sizeof(*src->uniform_descs));
-    if (!dst->uniform_descs)
-        return NGL_ERROR_MEMORY;
-    dst->nb_uniform_descs = src->nb_uniform_descs;
-
     dst->buffer_descs = ngli_memdup(src->buffer_descs, src->nb_buffer_descs * sizeof(*src->buffer_descs));
     if (!dst->buffer_descs)
         return NGL_ERROR_MEMORY;
@@ -58,7 +53,6 @@ int ngli_pipeline_layout_copy(struct pipeline_layout *dst, const struct pipeline
 void ngli_pipeline_layout_reset(struct pipeline_layout *layout)
 {
     ngli_freep(&layout->texture_descs);
-    ngli_freep(&layout->uniform_descs);
     ngli_freep(&layout->buffer_descs);
     ngli_freep(&layout->attribute_descs);
     memset(layout, 0, sizeof(*layout));
@@ -91,22 +85,7 @@ int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resour
             return ret;
     }
 
-    ngli_assert(layout->nb_uniform_descs == resources->nb_uniforms);
-    for (size_t i = 0; i < resources->nb_uniforms; i++) {
-        int ret = ngli_pipeline_update_uniform(s, (int32_t)i, resources->uniforms[i]);
-        if (ret < 0)
-            return ret;
-    }
-
     return 0;
-}
-
-int ngli_pipeline_update_uniform(struct pipeline *s, int32_t index, const void *value)
-{
-    if (index == -1)
-        return NGL_ERROR_NOT_FOUND;
-
-    return s->gpu_ctx->cls->pipeline_update_uniform(s, index, value);
 }
 
 int ngli_pipeline_update_texture(struct pipeline *s, int32_t index, const struct texture *texture)

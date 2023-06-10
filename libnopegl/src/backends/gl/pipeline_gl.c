@@ -35,14 +35,6 @@
 #include "topology.h"
 #include "type.h"
 
-typedef void (*set_uniform_func)(struct glcontext *gl, GLint location, GLsizei count, const void *data);
-
-struct uniform_binding_gl {
-    GLuint location;
-    set_uniform_func set;
-    struct pipeline_uniform_desc desc;
-};
-
 struct texture_binding_gl {
     struct pipeline_texture_desc desc;
     const struct texture *texture;
@@ -59,123 +51,6 @@ struct buffer_binding_gl {
 struct attribute_binding_gl {
     struct pipeline_attribute_desc desc;
 };
-
-static void set_uniform_1iv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform1iv(gl, location, count, data);
-}
-
-static void set_uniform_2iv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform2iv(gl, location, count, data);
-}
-
-static void set_uniform_3iv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform3iv(gl, location, count, data);
-}
-
-static void set_uniform_4iv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform4iv(gl, location, count, data);
-}
-
-static void set_uniform_1uiv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform1uiv(gl, location, count, data);
-}
-
-static void set_uniform_2uiv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform2uiv(gl, location, count, data);
-}
-
-static void set_uniform_3uiv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform3uiv(gl, location, count, data);
-}
-
-static void set_uniform_4uiv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform4uiv(gl, location, count, data);
-}
-
-static void set_uniform_1fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform1fv(gl, location, count, data);
-}
-
-static void set_uniform_2fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform2fv(gl, location, count, data);
-}
-
-static void set_uniform_3fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform3fv(gl, location, count, data);
-}
-
-static void set_uniform_4fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniform4fv(gl, location, count, data);
-}
-
-static void set_uniform_mat3fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniformMatrix3fv(gl, location, count, GL_FALSE, data);
-}
-
-static void set_uniform_mat4fv(struct glcontext *gl, GLint location, GLsizei count, const void *data)
-{
-    ngli_glUniformMatrix4fv(gl, location, count, GL_FALSE, data);
-}
-
-static const set_uniform_func set_uniform_func_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_BOOL]   = set_uniform_1iv,
-    [NGLI_TYPE_I32]    = set_uniform_1iv,
-    [NGLI_TYPE_IVEC2]  = set_uniform_2iv,
-    [NGLI_TYPE_IVEC3]  = set_uniform_3iv,
-    [NGLI_TYPE_IVEC4]  = set_uniform_4iv,
-    [NGLI_TYPE_U32]    = set_uniform_1uiv,
-    [NGLI_TYPE_UVEC2]  = set_uniform_2uiv,
-    [NGLI_TYPE_UVEC3]  = set_uniform_3uiv,
-    [NGLI_TYPE_UVEC4]  = set_uniform_4uiv,
-    [NGLI_TYPE_F32]    = set_uniform_1fv,
-    [NGLI_TYPE_VEC2]   = set_uniform_2fv,
-    [NGLI_TYPE_VEC3]   = set_uniform_3fv,
-    [NGLI_TYPE_VEC4]   = set_uniform_4fv,
-    [NGLI_TYPE_MAT3]   = set_uniform_mat3fv,
-    [NGLI_TYPE_MAT4]   = set_uniform_mat4fv,
-};
-
-static int build_uniform_bindings(struct pipeline *s)
-{
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-    const struct program *program = s->program;
-
-    if (!program->uniforms)
-        return 0;
-
-    const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_uniform_descs; i++) {
-        const struct pipeline_uniform_desc *uniform_desc = &layout->uniform_descs[i];
-        const struct program_variable_info *info = ngli_hmap_get(program->uniforms, uniform_desc->name);
-        if (!info)
-            continue;
-
-        const set_uniform_func set_func = set_uniform_func_map[uniform_desc->type];
-        ngli_assert(set_func);
-        struct uniform_binding_gl binding = {
-            .location = info->location,
-            .set = set_func,
-            .desc = *uniform_desc,
-        };
-        if (!ngli_darray_push(&s_priv->uniform_bindings, &binding))
-            return NGL_ERROR_MEMORY;
-    }
-
-    return 0;
-}
 
 static int build_texture_bindings(struct pipeline *s)
 {
@@ -493,13 +368,11 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
     if (ret < 0)
         return ret;
 
-    ngli_darray_init(&s_priv->uniform_bindings, sizeof(struct uniform_binding_gl), 0);
     ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_gl), 0);
     ngli_darray_init(&s_priv->buffer_bindings, sizeof(struct buffer_binding_gl), 0);
     ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding_gl), 0);
 
-    if ((ret = build_uniform_bindings(s)) < 0 ||
-        (ret = build_texture_bindings(s)) < 0 ||
+    if ((ret = build_texture_bindings(s)) < 0 ||
         (ret = build_buffer_bindings(s)) < 0)
         return ret;
 
@@ -518,24 +391,6 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
     s_priv->insert_memory_barriers = s_priv->use_barriers
                                    ? insert_memory_barriers
                                    : insert_memory_barriers_noop;
-
-    return 0;
-}
-
-int ngli_pipeline_gl_update_uniform(struct pipeline *s, int32_t index, const void *data)
-{
-    struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-    struct uniform_binding_gl *uniform_binding = ngli_darray_get(&s_priv->uniform_bindings, index);
-
-    if (data) {
-        struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-        struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
-        struct glcontext *gl = gpu_ctx_gl->glcontext;
-        struct glstate *glstate = &gpu_ctx_gl->glstate;
-        struct program_gl *program_gl = (struct program_gl *)s->program;
-        ngli_glstate_use_program(gl, glstate, program_gl->id);
-        uniform_binding->set(gl, uniform_binding->location, (GLsizei)uniform_binding->desc.count, data);
-    }
 
     return 0;
 }
@@ -679,7 +534,6 @@ void ngli_pipeline_gl_freep(struct pipeline **sp)
 
     ngli_pipeline_layout_reset(&s->layout);
 
-    ngli_darray_reset(&s_priv->uniform_bindings);
     ngli_darray_reset(&s_priv->texture_bindings);
     ngli_darray_reset(&s_priv->buffer_bindings);
     ngli_darray_reset(&s_priv->attribute_bindings);
