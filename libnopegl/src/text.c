@@ -53,7 +53,6 @@ static int atlas_create(struct ngl_ctx *ctx)
         .format        = NGLI_FORMAT_R8_UNORM,
         .min_filter    = NGLI_FILTER_LINEAR,
         .mag_filter    = NGLI_FILTER_NEAREST,
-        .mipmap_filter = NGLI_MIPMAP_FILTER_LINEAR,
         .usage         = NGLI_TEXTURE_USAGE_TRANSFER_SRC_BIT
                        | NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT
                        | NGLI_TEXTURE_USAGE_SAMPLED_BIT,
