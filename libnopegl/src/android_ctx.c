@@ -101,7 +101,7 @@ static int has_native_imagereader_api_support(struct gpu_ctx *gpu_ctx)
         const struct glcontext *gl = gpu_ctx_gl->glcontext;
         const uint64_t features = NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE |
                                   NGLI_FEATURE_GL_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
-        return ((gl->features & features) == features);
+        return (NGLI_HAS_ALL_FLAGS(gl->features, features));
     }
 #endif
 #if defined(BACKEND_VK)
