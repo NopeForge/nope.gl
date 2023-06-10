@@ -231,6 +231,7 @@ lib_src = files(
   'src/scene.c',
   'src/serialize.c',
   'src/text.c',
+  'src/text_builtin.c',
   'src/texture.c',
   'src/transforms.c',
   'src/type.c',
