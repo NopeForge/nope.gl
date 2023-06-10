@@ -44,6 +44,7 @@
 #include "log.h"
 #include "memory.h"
 #include "nopegl.h"
+#include "utils.h"
 #include "vkcontext.h"
 #include "vkutils.h"
 
@@ -485,7 +486,7 @@ static VkResult select_physical_device(struct vkcontext *s, const struct ngl_con
         for (uint32_t j = 0; j < qfamily_count; j++) {
             const VkQueueFamilyProperties props = qfamily_props[j];
             const VkQueueFlags flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
-            if ((props.queueFlags & flags) == flags)
+            if (NGLI_HAS_ALL_FLAGS(props.queueFlags, flags))
                 queue_family_graphics_id = j;
             if (s->surface) {
                 VkBool32 support;
@@ -688,10 +689,10 @@ VkFormat ngli_vkcontext_find_supported_format(struct vkcontext *s, const VkForma
         VkFormatProperties properties;
         vkGetPhysicalDeviceFormatProperties(s->phy_device, formats[i], &properties);
         if (tiling == VK_IMAGE_TILING_LINEAR &&
-            (properties.linearTilingFeatures & features) == features)
+            NGLI_HAS_ALL_FLAGS(properties.linearTilingFeatures, features))
             return formats[i];
         if (tiling == VK_IMAGE_TILING_OPTIMAL &&
-            (properties.optimalTilingFeatures & features) == features)
+            NGLI_HAS_ALL_FLAGS(properties.optimalTilingFeatures, features))
             return formats[i];
         i++;
     }
@@ -701,7 +702,7 @@ VkFormat ngli_vkcontext_find_supported_format(struct vkcontext *s, const VkForma
 int ngli_vkcontext_find_memory_type(struct vkcontext *s, uint32_t type, VkMemoryPropertyFlags props)
 {
     for (uint32_t i = 0; i < s->phydev_mem_props.memoryTypeCount; i++)
-        if ((type & (1 << i)) && (s->phydev_mem_props.memoryTypes[i].propertyFlags & props) == props)
+        if ((type & (1 << i)) && NGLI_HAS_ALL_FLAGS(s->phydev_mem_props.memoryTypes[i].propertyFlags, props))
             return i;
     return NGL_ERROR_GRAPHICS_UNSUPPORTED;
 }
