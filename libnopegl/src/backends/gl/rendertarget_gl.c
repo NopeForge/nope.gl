@@ -258,7 +258,6 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
     }
 
     s_priv->clear = clear_buffers;
-
     s_priv->resolve = resolve_no_draw_buffers;
 
     ngli_assert(params->nb_colors <= limits->max_draw_buffers);
@@ -405,7 +404,6 @@ int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_
     }
 
     s_priv->clear = clear_buffers;
-
     s_priv->resolve = resolve_no_draw_buffers;
 
     const struct attachment *color = &params->colors[0];
