@@ -37,6 +37,25 @@ struct pipeline_compat {
     uint8_t *mapped_datas[NGLI_PROGRAM_SHADER_NB];
 };
 
+static int map_buffer(struct pipeline_compat *s, int stage)
+{
+    if (s->mapped_datas[stage])
+        return 0;
+
+    struct buffer *buffer = s->ubuffers[stage];
+    return ngli_buffer_map(buffer, buffer->size, 0, (void **)&s->mapped_datas[stage]);
+}
+
+static void unmap_buffers(struct pipeline_compat *s)
+{
+    for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
+        if (s->mapped_datas[i]) {
+            ngli_buffer_unmap(s->ubuffers[i]);
+            s->mapped_datas[i] = NULL;
+        }
+    }
+}
+
 struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx)
 {
     struct pipeline_compat *s = ngli_calloc(1, sizeof(*s));
@@ -81,9 +100,11 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
         if (ret < 0)
             return ret;
 
-        ret = ngli_buffer_map(buffer, buffer->size, 0, (void **)&s->mapped_datas[i]);
-        if (ret < 0)
-            return ret;
+        if (gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT) {
+            ret = ngli_buffer_map(buffer, buffer->size, 0, (void **)&s->mapped_datas[i]);
+            if (ret < 0)
+                return ret;
+        }
 
         const struct pipeline_params *pipeline_params = params->params;
         const int32_t index = get_pipeline_ubo_index(pipeline_params, s->compat_info->ubindings[i], (int)i);
@@ -136,6 +157,8 @@ int ngli_pipeline_compat_update_attribute(struct pipeline_compat *s, int32_t ind
 
 int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index, const void *value)
 {
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    
     if (!s->compat_info->use_ublocks)
         return ngli_pipeline_update_uniform(s->pipeline, index, value);
 
@@ -148,6 +171,11 @@ int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index
     const struct block_field *fields = ngli_darray_data(&block->fields);
     const struct block_field *field = &fields[field_index];
     if (value) {
+        if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT)) {
+            int ret = map_buffer(s, stage);
+            if (ret < 0)
+                return ret;
+        }
         uint8_t *dst = s->mapped_datas[stage] + field->offset;
         ngli_block_field_copy(field, dst, value);
     }
@@ -232,6 +260,10 @@ void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int n
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct pipeline *pipeline = s->pipeline;
+
+    if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
+       unmap_buffers(s);
+
     ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
     for (size_t i = 0; i < s->nb_vertex_buffers; i++)
         ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
@@ -242,6 +274,10 @@ void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct b
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct pipeline *pipeline = s->pipeline;
+
+    if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
+       unmap_buffers(s);
+
     ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
     for (size_t i = 0; i < s->nb_vertex_buffers; i++)
         ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
@@ -253,6 +289,10 @@ void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct pipeline *pipeline = s->pipeline;
+
+    if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
+       unmap_buffers(s);
+
     ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
     ngli_gpu_ctx_dispatch(gpu_ctx, nb_group_x, nb_group_y, nb_group_z);
 }
@@ -267,7 +307,8 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
     if (s->compat_info && s->compat_info->use_ublocks) {
         for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
             if (s->ubuffers[i]) {
-                ngli_buffer_unmap(s->ubuffers[i]);
+                if (s->mapped_datas[i])
+                    ngli_buffer_unmap(s->ubuffers[i]);
                 ngli_buffer_freep(&s->ubuffers[i]);
             }
         }
