@@ -325,6 +325,9 @@ static int update_character_geometries(struct ngl_node *node)
             ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 3, s->transforms);
 
             ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 4, s->atlas_coords);
+
+            if (s->text_ctx->cls->flags & NGLI_TEXT_FLAG_MUTABLE_ATLAS)
+                ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, s->text_ctx->texture);
         }
     }
 

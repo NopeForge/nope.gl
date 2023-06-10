@@ -171,4 +171,5 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
 const struct text_cls ngli_text_builtin = {
     .init            = text_builtin_init,
     .set_string      = text_builtin_set_string,
+    .flags           = 0,
 };
