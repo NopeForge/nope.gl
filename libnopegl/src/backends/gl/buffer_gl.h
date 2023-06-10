@@ -29,6 +29,7 @@
 struct buffer_gl {
     struct buffer parent;
     GLuint id;
+    GLbitfield map_flags;
     GLbitfield barriers;
 };
 

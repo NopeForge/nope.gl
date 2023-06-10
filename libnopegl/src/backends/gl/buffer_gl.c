@@ -58,6 +58,16 @@ static GLenum get_gl_usage(int usage)
     return GL_STATIC_DRAW;
 }
 
+static GLbitfield get_gl_map_flags(int usage)
+{
+    GLbitfield flags = 0;
+    if (usage & NGLI_BUFFER_USAGE_MAP_READ)
+        flags |= GL_MAP_READ_BIT;
+    if (usage & NGLI_BUFFER_USAGE_MAP_WRITE)
+        flags |= GL_MAP_WRITE_BIT;
+    return flags;
+}
+
 struct buffer *ngli_buffer_gl_create(struct gpu_ctx *gpu_ctx)
 {
     struct buffer_gl *s = ngli_calloc(1, sizeof(*s));
@@ -75,9 +85,16 @@ int ngli_buffer_gl_init(struct buffer *s, size_t size, int usage)
 
     s->size = size;
     s->usage = usage;
+    s_priv->map_flags = get_gl_map_flags(usage);
+
     ngli_glGenBuffers(gl, 1, &s_priv->id);
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s_priv->id);
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, size, NULL, get_gl_usage(usage));
+    if (gl->features & NGLI_FEATURE_GL_BUFFER_STORAGE) {
+        const GLbitfield storage_flags = GL_DYNAMIC_STORAGE_BIT;
+        ngli_glBufferStorage(gl, GL_ARRAY_BUFFER, size, NULL, storage_flags | s_priv->map_flags);
+    } else {
+        ngli_glBufferData(gl, GL_ARRAY_BUFFER, size, NULL, get_gl_usage(usage));
+    }
     s_priv->barriers = get_gl_barriers(usage);
     return 0;
 }
@@ -94,11 +111,24 @@ int ngli_buffer_gl_upload(struct buffer *s, const void *data, size_t size, size_
 
 int ngli_buffer_gl_map(struct buffer *s, size_t size, size_t offset, void **datap)
 {
-    return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
+    const struct buffer_gl *s_priv = (struct buffer_gl *)s;
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s_priv->id);
+    void *data = ngli_glMapBufferRange(gl, GL_ARRAY_BUFFER, offset, size, s_priv->map_flags);
+    if (!data)
+        return NGL_ERROR_GRAPHICS_GENERIC;
+    *datap = data;
+    return 0;
 }
 
 void ngli_buffer_gl_unmap(struct buffer *s)
 {
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
+    const struct buffer_gl *s_priv = (struct buffer_gl *)s;
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s_priv->id);
+    ngli_glUnmapBuffer(gl, GL_ARRAY_BUFFER);
 }
 
 void ngli_buffer_gl_freep(struct buffer **sp)
