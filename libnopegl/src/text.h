@@ -48,6 +48,16 @@ struct text_config {
     int32_t padding;
 };
 
+struct text;
+
+/* structure reserved for internal implementations */
+struct text_cls {
+    int (*init)(struct text *text);
+    int (*set_string)(struct text *text, const char *str);
+    void (*reset)(struct text *text);
+    size_t priv_size;
+};
+
 struct text {
     struct ngl_ctx *ctx;
     struct text_config config;
@@ -56,6 +66,9 @@ struct text {
     int32_t height;
     struct darray chars; // struct char_info
     struct texture *texture;
+
+    const struct text_cls *cls;
+    void *priv_data;
 };
 
 struct text *ngli_text_create(struct ngl_ctx *ctx);
