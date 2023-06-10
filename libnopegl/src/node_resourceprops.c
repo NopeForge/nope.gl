@@ -21,6 +21,8 @@
 
 #include <stddef.h>
 
+#include "gpu_ctx.h"
+#include "log.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "precision.h"
@@ -36,6 +38,20 @@ static const struct node_param resourceprops_params[] = {
                  .desc=NGLI_DOCSTRING("flag this resource as writable in the shader")},
     {NULL}
 };
+
+static int resourceprops_init(struct ngl_node *node)
+{
+    const struct ngl_ctx *ctx = node->ctx;
+    const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct resourceprops_opts *o = node->opts;
+
+    if (o->as_image && !(gpu_ctx->features & NGLI_FEATURE_IMAGE_LOAD_STORE)) {
+        LOG(ERROR, "context does not support image load store operations");
+        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+    }
+
+    return 0;
+}
 
 static const char * const precisions_map[] = {
     [NGLI_PRECISION_HIGH]   = "high",
@@ -66,6 +82,7 @@ static char *resourceprops_info_str(const struct ngl_node *node)
 const struct node_class ngli_resourceprops_class = {
     .id        = NGL_NODE_RESOURCEPROPS,
     .name      = "ResourceProps",
+    .init      = resourceprops_init,
     .info_str  = resourceprops_info_str,
     .opts_size = sizeof(struct resourceprops_opts),
     .params    = resourceprops_params,
