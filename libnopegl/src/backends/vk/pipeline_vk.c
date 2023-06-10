@@ -697,11 +697,6 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
     return create_pipeline(s);
 }
 
-int ngli_pipeline_vk_update_uniform(struct pipeline *s, int32_t index, const void *value)
-{
-    return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-}
-
 static int need_desc_set_layout_update(const struct texture_binding_vk *binding,
                                        const struct texture *texture)
 {

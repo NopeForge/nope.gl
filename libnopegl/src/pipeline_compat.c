@@ -139,11 +139,9 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     }
 
     s->compat_info = params->compat_info;
-    if (s->compat_info->use_ublocks) {
-        ret = init_blocks_buffers(s, params);
-        if (ret < 0)
-            return ret;
-    }
+    ret = init_blocks_buffers(s, params);
+    if (ret < 0)
+        return ret;
 
     return 0;
 }
@@ -159,9 +157,6 @@ int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     
-    if (!s->compat_info->use_ublocks)
-        return ngli_pipeline_update_uniform(s->pipeline, index, value);
-
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
@@ -304,7 +299,7 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
         return;
     ngli_pipeline_freep(&s->pipeline);
     ngli_freep(&s->vertex_buffers);
-    if (s->compat_info && s->compat_info->use_ublocks) {
+    if (s->compat_info) {
         for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
             if (s->ubuffers[i]) {
                 if (s->mapped_datas[i])

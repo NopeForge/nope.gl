@@ -168,7 +168,6 @@ struct pgcraft_texture_info {
  * maps single uniforms to dedicated uniform blocks.
  */
 struct pgcraft_compat_info {
-    int use_ublocks;
     struct block ublocks[NGLI_PROGRAM_SHADER_NB];
     int32_t ubindings[NGLI_PROGRAM_SHADER_NB];
 };

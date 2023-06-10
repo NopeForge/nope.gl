@@ -1595,7 +1595,6 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
 
     .pipeline_create                    = ngli_pipeline_vk_create,
     .pipeline_init                      = vk_pipeline_init,
-    .pipeline_update_uniform            = ngli_pipeline_vk_update_uniform,
     .pipeline_update_texture            = ngli_pipeline_vk_update_texture,
     .pipeline_update_buffer             = ngli_pipeline_vk_update_buffer,
     .pipeline_freep                     = ngli_pipeline_vk_freep,
