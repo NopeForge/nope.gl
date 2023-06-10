@@ -23,9 +23,8 @@
 #define RENDERTARGET_H
 
 #include "darray.h"
+#include "gpu_limits.h"
 #include "texture.h"
-
-#define NGLI_MAX_COLOR_ATTACHMENTS 8
 
 enum {
     NGLI_LOAD_OP_LOAD,

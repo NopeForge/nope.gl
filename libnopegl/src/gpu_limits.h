@@ -25,6 +25,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define NGLI_MAX_COLOR_ATTACHMENTS 8
+
 struct gpu_limits {
     uint32_t max_vertex_attributes;
     uint32_t max_texture_image_units;
