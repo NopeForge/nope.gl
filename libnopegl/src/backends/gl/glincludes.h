@@ -146,5 +146,6 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_IMAGE_2D                           0x904D
 # define GL_ACTIVE_RESOURCES                   0x92F5
 # define GL_MAX_IMAGE_UNITS                    0x8F38
+# define GL_DYNAMIC_STORAGE_BIT                0x0100
 
 #endif /* GLINCLUDES_H */
