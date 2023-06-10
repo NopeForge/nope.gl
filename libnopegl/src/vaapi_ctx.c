@@ -44,6 +44,7 @@
 #include "gpu_ctx.h"
 #include "log.h"
 #include "internal.h"
+#include "utils.h"
 #include "vaapi_ctx.h"
 
 static int check_extensions(const struct gpu_ctx *gpu_ctx)
@@ -57,7 +58,7 @@ static int check_extensions(const struct gpu_ctx *gpu_ctx)
         const uint64_t features = NGLI_FEATURE_GL_OES_EGL_IMAGE |
                                   NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR |
                                   NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT;
-        if ((gl->features & features) == features)
+        if (NGLI_HAS_ALL_FLAGS(gl->features, features))
             return 1;
     }
 #endif
