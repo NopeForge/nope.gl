@@ -77,12 +77,15 @@ struct text_config {
 
 struct text;
 
+#define NGLI_TEXT_FLAG_MUTABLE_ATLAS (1 << 0) // whether set_string() can change the atlas texture or not
+
 /* structure reserved for internal implementations */
 struct text_cls {
     int (*init)(struct text *text);
     int (*set_string)(struct text *text, const char *str, struct darray *chars_dst);
     void (*reset)(struct text *text);
     size_t priv_size;
+    uint32_t flags; // combination of NGLI_TEXT_FLAG_*
 };
 
 struct text {
