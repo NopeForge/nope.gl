@@ -39,6 +39,7 @@
 #include "program_gl.h"
 #include "rendertarget_gl.h"
 #include "texture_gl.h"
+#include "utils.h"
 #if DEBUG_GPU_CAPTURE
 #include "gpu_capture.h"
 #endif
@@ -434,7 +435,7 @@ static void gpu_ctx_info_init(struct gpu_ctx *s)
     for (size_t i = 0; i < NGLI_ARRAY_NB(feature_map); i++) {
         const uint64_t feature = feature_map[i].feature;
         const uint64_t feature_gl = feature_map[i].feature_gl;
-        if ((gl->features & feature_gl) == feature_gl)
+        if (NGLI_HAS_ALL_FLAGS(gl->features, feature_gl))
             s->features |= feature;
     }
     s->limits = gl->limits;
