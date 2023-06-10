@@ -273,7 +273,7 @@ static int update_character_geometries(struct ngl_node *node)
             corner[2] + width[2] * chr->x + height[2] * chr->y,
         };
 
-        /* deduce quad vertices from chr_{widht,height,corner} */
+        /* deduce quad vertices from chr_{width,height,corner} */
         const float chr_vertices[] = {
             C(0),               C(1),               C(2),
             C(0) + W(0),        C(1) + W(1),        C(2) + W(2),
