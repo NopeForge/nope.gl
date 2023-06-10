@@ -33,6 +33,7 @@
 
 #define NGLI_FEATURE_COMPUTE                           (1 << 0)
 #define NGLI_FEATURE_SOFTWARE                          (1 << 4)
+#define NGLI_FEATURE_IMAGE_LOAD_STORE                  (1 << 9)
 #define NGLI_FEATURE_STORAGE_BUFFER                    (1 << 10)
 #define NGLI_FEATURE_DEPTH_STENCIL_RESOLVE             (1 << 11)
 #define NGLI_FEATURE_TEXTURE_FLOAT_RENDERABLE          (1 << 12)
