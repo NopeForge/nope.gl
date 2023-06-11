@@ -85,7 +85,6 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
         return ret;
 
     s->texture = ngli_atlas_get_texture(s->ctx->font_atlas);
-    ngli_atlas_get_dimensions(s->ctx->font_atlas, s->atlas_dim);
 
     return 0;
 }
@@ -136,12 +135,21 @@ int ngli_text_set_string(struct text *s, const char *str)
             continue;
         }
 
+        const int32_t atlas_id = s->ctx->char_map[(uint8_t)str[i]];
+        int32_t atlas_coords[4];
+        ngli_atlas_get_bitmap_coords(s->ctx->font_atlas, atlas_id, atlas_coords);
+
         const struct char_info chr = {
-            .atlas_id = s->ctx->char_map[(uint8_t)str[i]],
             .x = chr_w * (float)px + padx,
             .y = chr_h * (float)(text_rows - py - 1) + pady,
             .w = chr_w,
             .h = chr_h,
+            .atlas_coords = {
+                (float)atlas_coords[0] / (float)s->texture->params.width,
+                (float)atlas_coords[1] / (float)s->texture->params.height,
+                (float)atlas_coords[2] / (float)s->texture->params.width,
+                (float)atlas_coords[3] / (float)s->texture->params.height,
+            },
         };
 
         if (!ngli_darray_push(&s->chars, &chr))

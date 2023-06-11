@@ -41,7 +41,7 @@ int ngli_atlas_add_bitmap(struct atlas *s, const struct bitmap *bitmap, int32_t 
 int ngli_atlas_finalize(struct atlas *s);
 
 struct texture *ngli_atlas_get_texture(const struct atlas *s);
-void ngli_atlas_get_dimensions(const struct atlas *s, int32_t *dim);
+void ngli_atlas_get_bitmap_coords(const struct atlas *s, int32_t bitmap_id, int32_t *dst);
 
 void ngli_atlas_freep(struct atlas **sp);
 
