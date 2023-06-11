@@ -169,10 +169,17 @@ struct texture *ngli_atlas_get_texture(const struct atlas *s)
     return s->texture;
 }
 
-void ngli_atlas_get_dimensions(const struct atlas *s, int32_t *dim)
+void ngli_atlas_get_bitmap_coords(const struct atlas *s, int32_t bitmap_id, int32_t *dst)
 {
-    dim[0] = s->nb_cols;
-    dim[1] = s->nb_rows;
+    const struct bitmap *bitmap = ngli_darray_get(&s->bitmaps, bitmap_id);
+    const int32_t col = bitmap_id % s->nb_cols;
+    const int32_t row = bitmap_id / s->nb_cols;
+    const int32_t x0 = col * s->max_bitmap_w;
+    const int32_t y0 = row * s->max_bitmap_h;
+    const int32_t x1 = x0 + bitmap->width;
+    const int32_t y1 = y0 + bitmap->height;
+    const int32_t coords[] = {x0, y0, x1, y1};
+    memcpy(dst, coords, sizeof(coords));
 }
 
 void ngli_atlas_freep(struct atlas **sp)
