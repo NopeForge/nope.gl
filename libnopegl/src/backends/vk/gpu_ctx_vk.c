@@ -879,7 +879,7 @@ static int vk_init(struct gpu_ctx *s)
     s->features = NGLI_FEATURE_COMPUTE |
                   NGLI_FEATURE_IMAGE_LOAD_STORE |
                   NGLI_FEATURE_STORAGE_BUFFER |
-                  NGLI_FEATURE_BUFFER_MAP;
+                  NGLI_FEATURE_BUFFER_MAP_PERSISTENT;
 
     struct vkcontext *vk = s_priv->vkcontext;
     const VkPhysicalDeviceLimits *limits = &vk->phy_device_props.limits;
