@@ -56,7 +56,6 @@ struct text {
     int32_t height;
     struct darray chars; // struct char_info
     struct texture *texture;
-    struct atlas *atlas;
 };
 
 struct text *ngli_text_create(struct ngl_ctx *ctx);
