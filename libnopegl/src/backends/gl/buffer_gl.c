@@ -86,6 +86,7 @@ int ngli_buffer_gl_init(struct buffer *s, size_t size, int usage)
     s->size = size;
     s->usage = usage;
     s_priv->map_flags = get_gl_map_flags(usage);
+    s_priv->barriers = get_gl_barriers(usage);
 
     ngli_glGenBuffers(gl, 1, &s_priv->id);
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s_priv->id);
@@ -95,7 +96,7 @@ int ngli_buffer_gl_init(struct buffer *s, size_t size, int usage)
     } else {
         ngli_glBufferData(gl, GL_ARRAY_BUFFER, size, NULL, get_gl_usage(usage));
     }
-    s_priv->barriers = get_gl_barriers(usage);
+
     return 0;
 }
 
