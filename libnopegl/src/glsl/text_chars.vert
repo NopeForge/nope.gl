@@ -36,7 +36,7 @@ void main()
      * These are the normalized top-left and bottom-right coordinates of the
      * character in the atlas.
      */
-    atlas_coords = vec4(atlas_pos, atlas_pos + 1) / vec4(atlas_dim, atlas_dim);
+    coords = vec4(atlas_pos, atlas_pos + 1) / vec4(atlas_dim, atlas_dim);
 
     vec4 position = transform * vec4(ref_uv, 1.0, 1.0);
     ngl_out_pos = projection_matrix * modelview_matrix * position;

@@ -176,8 +176,8 @@ static const struct node_param text_params[] = {
 };
 
 static const struct pgcraft_iovar vert_out_vars[] = {
-    {.name = "uv",           .type = NGLI_TYPE_VEC2},
-    {.name = "atlas_coords", .type = NGLI_TYPE_VEC4},
+    {.name = "uv",     .type = NGLI_TYPE_VEC2},
+    {.name = "coords", .type = NGLI_TYPE_VEC4},
 };
 
 #define BC(index) o->box_corner[index]
