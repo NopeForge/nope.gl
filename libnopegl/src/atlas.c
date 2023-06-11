@@ -185,6 +185,7 @@ void ngli_atlas_freep(struct atlas **sp)
         struct bitmap *bitmap = &bitmaps[i];
         ngli_freep(&bitmap->buffer);
     }
+    ngli_darray_reset(&s->bitmaps);
     ngli_texture_freep(&s->texture);
     ngli_freep(sp);
 }
