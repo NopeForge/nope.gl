@@ -65,6 +65,8 @@ cmds_optional = [
     "glGetQueryObjectui64vEXT",
     # EGL OES image
     "glEGLImageTargetTexture2DOES",
+    # Invalidate subdat
+    "glInvalidateFramebuffer",
 ]
 
 cmds = [
@@ -124,7 +126,6 @@ cmds = [
     "glGenFramebuffers",
     "glReadPixels",
     "glBlitFramebuffer",
-    "glInvalidateFramebuffer",
     "glGetFramebufferAttachmentParameteriv",
     "glFramebufferTexture3D",
     "glFramebufferTextureLayer",
