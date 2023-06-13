@@ -118,7 +118,7 @@ static const struct gldefinition {
     {"glGetUniformBlockIndex", offsetof(struct glfunctions, GetUniformBlockIndex), M},
     {"glGetUniformLocation", offsetof(struct glfunctions, GetUniformLocation), M},
     {"glGetUniformiv", offsetof(struct glfunctions, GetUniformiv), M},
-    {"glInvalidateFramebuffer", offsetof(struct glfunctions, InvalidateFramebuffer), M},
+    {"glInvalidateFramebuffer", offsetof(struct glfunctions, InvalidateFramebuffer), 0},
     {"glLinkProgram", offsetof(struct glfunctions, LinkProgram), M},
     {"glMapBufferRange", offsetof(struct glfunctions, MapBufferRange), M},
     {"glMemoryBarrier", offsetof(struct glfunctions, MemoryBarrier), 0},
