@@ -124,6 +124,9 @@ struct gpu_ctx {
 
     /* State */
     struct pipeline *pipeline;
+    const struct buffer **vertex_buffers;
+    const struct buffer *index_buffer;
+    int index_format;
 };
 
 struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config);
