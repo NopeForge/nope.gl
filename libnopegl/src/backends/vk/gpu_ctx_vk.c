@@ -1288,8 +1288,6 @@ static void vk_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
     const struct rendertarget_params *params = &rt->params;
     const struct rendertarget_vk *rt_vk = (struct rendertarget_vk *)rt;
 
-    ngli_assert(rt);
-
     if (!s_priv->cur_cmd) {
         VkResult res = ngli_cmd_vk_begin_transient(s, 0, &s_priv->cur_cmd);
         ngli_assert(res == VK_SUCCESS);
@@ -1326,20 +1324,16 @@ static void vk_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
         .pClearValues    = rt_vk->clear_values,
     };
     vkCmdBeginRenderPass(cmd_buf, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-
-    s_priv->current_rt = rt;
 }
 
 static void vk_end_render_pass(struct gpu_ctx *s)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
 
-    ngli_assert(s_priv->current_rt);
-
     VkCommandBuffer cmd_buf = s_priv->cur_cmd->cmd_buf;
     vkCmdEndRenderPass(cmd_buf);
 
-    const struct rendertarget *rt = s_priv->current_rt;
+    const struct rendertarget *rt = s->rendertarget;
     const struct rendertarget_params *params = &rt->params;
 
     for (size_t i = 0; i < params->nb_colors; i++) {
@@ -1364,8 +1358,6 @@ static void vk_end_render_pass(struct gpu_ctx *s)
         ngli_cmd_vk_execute_transient(&s_priv->cur_cmd);
         s_priv->cur_cmd_is_transient = 0;
     }
-
-    s_priv->current_rt = NULL;
 }
 
 static void vk_set_viewport(struct gpu_ctx *s, const int32_t *viewport)

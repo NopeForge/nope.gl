@@ -123,6 +123,7 @@ struct gpu_ctx {
 #endif
 
     /* State */
+    struct rendertarget *rendertarget;
     struct pipeline *pipeline;
     const struct buffer **vertex_buffers;
     const struct buffer *index_buffer;

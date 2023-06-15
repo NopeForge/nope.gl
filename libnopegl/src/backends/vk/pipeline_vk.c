@@ -844,6 +844,7 @@ static int update_descriptor_set(struct pipeline *s)
 
 static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
 {
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
@@ -865,7 +866,7 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
     vkCmdSetLineWidth(cmd_buf, 1.0f);
 
     VkRect2D scissor = {0};
-    const struct rendertarget *rt = gpu_ctx_vk->current_rt;
+    const struct rendertarget *rt = gpu_ctx->rendertarget;
     const struct pipeline_graphics *graphics = &s->graphics;
     if (graphics->state.scissor_test) {
         scissor.offset.x      = gpu_ctx_vk->scissor[0];
