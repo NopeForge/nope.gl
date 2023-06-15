@@ -181,7 +181,7 @@ static VkResult create_instance(struct vkcontext *s, int platform)
     const char *mandatory_extensions[] = {
         VK_KHR_SURFACE_EXTENSION_NAME,
         surface_extension_name,
-#ifdef VK_USE_PLATFORM_MACOS_MVK
+#if defined(VK_USE_PLATFORM_MACOS_MVK) || defined(VK_USE_PLATFORM_IOS_MVK)
         "VK_MVK_moltenvk",
         "VK_EXT_metal_surface",
 #endif
