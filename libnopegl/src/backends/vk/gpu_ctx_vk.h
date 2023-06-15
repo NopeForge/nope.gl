@@ -81,8 +81,6 @@ struct gpu_ctx_vk {
      * binding point of a pipeline.
      */
     struct texture *dummy_texture;
-
-    float clear_color[4];
 };
 
 #endif
