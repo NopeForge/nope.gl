@@ -17,6 +17,7 @@ jobs:
         sudo apt -y update
         sudo apt -y install libsdl2-dev python3-venv gcovr spirv-tools glslang-dev libvulkan-dev mesa-vulkan-drivers vulkan-validationlayers
         sudo apt -y install ffmpeg libavcodec-dev libavutil-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libpostproc-dev
+        sudo apt -y install libfreetype-dev libharfbuzz-dev libfribidi-dev
 
     - name: Run tests
       run: |
