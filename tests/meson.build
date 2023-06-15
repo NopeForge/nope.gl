@@ -21,6 +21,7 @@ foreach backend : backends
   has_ds_resolve         = run_command(cap_cmd + ['depth_stencil_resolve'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   max_color_attachments  = run_command(cap_cmd + ['max_color_attachments'], check: true).stdout().split()[-1].to_int()
   max_samples            = run_command(cap_cmd + ['max_samples'], check: true).stdout().split()[-1].to_int()
+  has_text_libraries     = run_command(cap_cmd + ['text_libraries'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
 
   message('Backend: ' + backend)
   message('- Compute: @0@'.format(has_compute))
@@ -337,6 +338,13 @@ foreach backend : backends
     'vertical_rl',
     'vertical_lr',
   ]
+  if has_text_libraries
+    tests_text += [
+      'arabic_shaping',
+      'bidi_arabic_english',
+      'vertical_japanese',
+    ]
+  endif
 
   tests_texture = [
     'clear_and_scissor',

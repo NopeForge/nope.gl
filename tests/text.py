@@ -19,11 +19,18 @@
 # under the License.
 #
 
-from pynopegl_utils.misc import scene
+from pathlib import Path
+
+from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS
 
 import pynopegl as ngl
+
+_FONT_DIR = Path(__file__).resolve().parent / "assets" / "fonts"
+_ARABIC_FONT = _FONT_DIR / "Cairo-SemiBold.ttf"
+_JAPANESE_FONT = _FONT_DIR / "TsukimiRounded-Regular.ttf"
+_LATIN_FONT = _FONT_DIR / "Quicksand-Medium.ttf"
 
 
 def _text(**params):
@@ -100,3 +107,38 @@ def text_vertical_rl(_):
 @scene()
 def text_vertical_lr(_):
     return _text(writing_mode="vertical-lr")
+
+
+@test_fingerprint(tolerance=1)
+@scene()
+def text_arabic_shaping(cfg: SceneCfg):
+    """Advanced shaping that typically relies on the positioning of the diacritics"""
+    return ngl.Text(
+        text="رَسْميّ",
+        font_files=_ARABIC_FONT.as_posix(),
+        aspect_ratio=cfg.aspect_ratio,
+    )
+
+
+@test_fingerprint(tolerance=1)
+@scene()
+def text_bidi_arabic_english(cfg: SceneCfg):
+    return ngl.Text(
+        text="هذا مزيج من English و نص عربي",
+        # The Latin font is placed first so the fallback is actually tested (the
+        # Arabic font contains Latin letters)
+        font_files=",".join(p.as_posix() for p in [_LATIN_FONT, _ARABIC_FONT]),
+        aspect_ratio=cfg.aspect_ratio,
+    )
+
+
+@test_fingerprint(tolerance=1)
+@scene()
+def text_vertical_japanese(cfg: SceneCfg):
+    return ngl.Text(
+        # "Only kana, because that's a small font" (this is not a haiku)
+        text="かなだけ、\nちいさいのフォント\nだから。",
+        writing_mode="vertical-rl",
+        font_files=_JAPANESE_FONT.as_posix(),
+        aspect_ratio=cfg.aspect_ratio,
+    )
