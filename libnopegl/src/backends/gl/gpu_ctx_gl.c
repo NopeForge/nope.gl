@@ -526,7 +526,7 @@ static int gl_init(struct gpu_ctx *s)
     ngli_glstate_reset(gl, &s_priv->glstate);
 
     const int32_t *viewport = config->viewport;
-    if (viewport[2] > 0 && viewport[3] > 0) {
+    if (ngli_viewport_is_valid(viewport)) {
         ngli_gpu_ctx_set_viewport(s, viewport);
     } else {
         const int default_viewport[] = {0, 0, config->width, config->height};
@@ -576,7 +576,7 @@ static int gl_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int
         rt_gl->id = rt_load_gl->id = ngli_glcontext_get_default_framebuffer(gl);
     }
 
-    if (viewport && viewport[2] > 0 && viewport[3] > 0) {
+    if (ngli_viewport_is_valid(viewport)) {
         ngli_gpu_ctx_set_viewport(s, viewport);
     } else {
         const int default_viewport[] = {0, 0, config->width, config->height};
