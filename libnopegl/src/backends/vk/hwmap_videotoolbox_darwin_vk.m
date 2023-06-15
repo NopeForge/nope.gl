@@ -24,13 +24,12 @@
 #include <string.h>
 #include <nopemd.h>
 
-#include <vulkan/vulkan.h>
-
 #include <CoreVideo/CoreVideo.h>
 #include <IOSurface/IOSurface.h>
 #include <Metal/Metal.h>
 
-#include <MoltenVK/vk_mvk_moltenvk.h>
+#include <MoltenVK/mvk_vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include "format.h"
 #include "format_vk.h"
@@ -140,8 +139,15 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             return NGL_ERROR_GRAPHICS_GENERIC;
         }
 
+        const VkImportMetalTextureInfoEXT mtl_texture_info = {
+            .sType = VK_STRUCTURE_TYPE_IMPORT_METAL_TEXTURE_INFO_EXT,
+            .plane = VK_IMAGE_ASPECT_PLANE_0_BIT,
+            .mtlTexture = CVMetalTextureGetTexture(texture_ref),
+        };
+
         const VkImageCreateInfo image_create_info = {
             .sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+            .pNext         = &mtl_texture_info,
             .imageType     = VK_IMAGE_TYPE_2D,
             .extent        = {width, height, 1},
             .mipLevels     = 1,
@@ -186,14 +192,6 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             return ngli_vk_res2ret(res);
         }
 
-        id<MTLTexture> mtl_texture = CVMetalTextureGetTexture(texture_ref);
-        res = vkSetMTLTextureMVK(plane_vk->image, mtl_texture);
-        if (res != VK_SUCCESS) {
-            LOG(ERROR, "could not set Metal texture: %s", ngli_vk_res2str(res));
-            CFRelease(texture_ref);
-            return ngli_vk_res2ret(res);
-        }
-
         CFRelease(texture_ref);
     }
 
@@ -229,7 +227,18 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
     if (ret < 0)
         return ret;
 
-    vkGetMTLDeviceMVK(gpu_ctx_vk->vkcontext->phy_device, &vt->device);
+    VkExportMetalDeviceInfoEXT mtl_device_info = {
+        .sType = VK_STRUCTURE_TYPE_EXPORT_METAL_DEVICE_INFO_EXT,
+    };
+
+    VkExportMetalObjectsInfoEXT mtl_objects_info = {
+        .sType = VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECTS_INFO_EXT,
+        .pNext = &mtl_device_info,
+    };
+
+    vkExportMetalObjectsEXT(gpu_ctx_vk->vkcontext->device, &mtl_objects_info);
+    vt->device = mtl_device_info.mtlDevice;
+
     CVReturn status = CVMetalTextureCacheCreate(NULL, NULL, vt->device, NULL, &vt->texture_cache);
     if (status != kCVReturnSuccess) {
         LOG(ERROR, "could not create Metal texture cache: %d", status);
