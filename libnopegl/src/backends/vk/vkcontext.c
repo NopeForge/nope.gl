@@ -28,10 +28,8 @@
 # define VK_USE_PLATFORM_ANDROID_KHR
 #elif defined(TARGET_WINDOWS)
 # define VK_USE_PLATFORM_WIN32_KHR
-#elif defined(TARGET_DARWIN)
-# define VK_USE_PLATFORM_MACOS_MVK
-#elif defined(TARGET_IPHONE)
-# define VK_USE_PLATFORM_IOS_MVK
+#elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
+# include <MoltenVK/mvk_vulkan.h>
 #endif
 
 #include <limits.h>
@@ -182,7 +180,6 @@ static VkResult create_instance(struct vkcontext *s, int platform)
         VK_KHR_SURFACE_EXTENSION_NAME,
         surface_extension_name,
 #if defined(VK_USE_PLATFORM_MACOS_MVK) || defined(VK_USE_PLATFORM_IOS_MVK)
-        "VK_MVK_moltenvk",
         "VK_EXT_metal_surface",
 #endif
     };
@@ -615,6 +612,9 @@ static VkResult create_device(struct vkcontext *s)
 
     static const char *mandatory_device_extensions[] = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+#if defined(VK_USE_PLATFORM_MACOS_MVK) || defined(VK_USE_PLATFORM_IOS_MVK)
+        VK_EXT_METAL_OBJECTS_EXTENSION_NAME,
+#endif
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(mandatory_device_extensions); i++) {
