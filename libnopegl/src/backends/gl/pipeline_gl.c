@@ -420,7 +420,7 @@ static void get_scissor(struct pipeline *s, int32_t *scissor)
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     const struct ngl_config *config = &gpu_ctx->config;
-    struct rendertarget *rendertarget = gpu_ctx_gl->current_rt;
+    struct rendertarget *rendertarget = gpu_ctx->rendertarget;
 
     memcpy(scissor, gpu_ctx_gl->scissor, sizeof(gpu_ctx_gl->scissor));
     if (config->offscreen) {

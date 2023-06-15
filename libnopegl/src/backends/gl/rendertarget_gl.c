@@ -230,6 +230,7 @@ struct rendertarget *ngli_rendertarget_gl_create(struct gpu_ctx *gpu_ctx)
 int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_params *params)
 {
     struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
+    struct gpu_ctx *gpu_ctx = (struct gpu_ctx *)s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct gpu_limits *limits = &gl->limits;
@@ -292,7 +293,7 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
     }
 
 done:;
-    struct rendertarget *rt = gpu_ctx_gl->current_rt;
+    struct rendertarget *rt = gpu_ctx->rendertarget;
     struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
     const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
@@ -336,7 +337,8 @@ void ngli_rendertarget_gl_begin_pass(struct rendertarget *s)
 void ngli_rendertarget_gl_end_pass(struct rendertarget *s)
 {
     const struct rendertarget_gl *s_priv = (const struct rendertarget_gl *)s;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct glstate *glstate = &gpu_ctx_gl->glstate;
 
@@ -351,7 +353,7 @@ void ngli_rendertarget_gl_end_pass(struct rendertarget *s)
 
         s_priv->resolve(s);
 
-        struct rendertarget *rt = gpu_ctx_gl->current_rt;
+        struct rendertarget *rt = gpu_ctx->rendertarget;
         struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
         const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
         ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);

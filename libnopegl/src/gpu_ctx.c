@@ -169,12 +169,17 @@ void ngli_gpu_ctx_transform_projection_matrix(struct gpu_ctx *s, float *dst)
 
 void ngli_gpu_ctx_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 {
+    ngli_assert(rt);
+    ngli_assert(!s->rendertarget);
+
+    s->rendertarget = rt;
     s->cls->begin_render_pass(s, rt);
 }
 
 void ngli_gpu_ctx_end_render_pass(struct gpu_ctx *s)
 {
     s->cls->end_render_pass(s);
+    s->rendertarget = NULL;
 }
 
 void ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(struct gpu_ctx *s, float *dst)

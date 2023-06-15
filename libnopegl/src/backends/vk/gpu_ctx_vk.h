@@ -82,8 +82,6 @@ struct gpu_ctx_vk {
      */
     struct texture *dummy_texture;
 
-    struct rendertarget *current_rt;
-
     int32_t viewport[4];
     int32_t scissor[4];
     float clear_color[4];
