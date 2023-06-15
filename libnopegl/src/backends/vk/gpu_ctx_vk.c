@@ -802,7 +802,7 @@ static int get_max_color_attachments(const VkPhysicalDeviceLimits *limits)
 
 static void set_viewport_and_scissor(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
 {
-    if (viewport && viewport[2] > 0 && viewport[3] > 0) {
+    if (ngli_viewport_is_valid(viewport)) {
         ngli_gpu_ctx_set_viewport(s, viewport);
     } else {
         const int default_viewport[] = {0, 0, width, height};

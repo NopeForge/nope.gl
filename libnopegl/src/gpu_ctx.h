@@ -31,6 +31,8 @@
 #include "rendertarget.h"
 #include "texture.h"
 
+int ngli_viewport_is_valid(const int32_t *viewport);
+
 #define NGLI_FEATURE_COMPUTE                           (1 << 0)
 #define NGLI_FEATURE_SOFTWARE                          (1 << 4)
 #define NGLI_FEATURE_IMAGE_LOAD_STORE                  (1 << 9)

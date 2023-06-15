@@ -27,6 +27,11 @@
 #include "internal.h"
 #include "rendertarget.h"
 
+int ngli_viewport_is_valid(const int32_t *viewport)
+{
+    return viewport[2] > 0 && viewport[3] > 0;
+}
+
 extern const struct gpu_ctx_class ngli_gpu_ctx_gl;
 extern const struct gpu_ctx_class ngli_gpu_ctx_gles;
 extern const struct gpu_ctx_class ngli_gpu_ctx_vk;
