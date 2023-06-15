@@ -424,6 +424,7 @@ static const char *get_cap_string_id(unsigned cap_id)
     case NGL_CAP_MAX_TEXTURE_DIMENSION_2D:      return "max_texture_dimension_2d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_3D:      return "max_texture_dimension_3d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE:    return "max_texture_dimension_cube";
+    case NGL_CAP_TEXT_LIBRARIES:                return "text_libraries";
     }
     ngli_assert(0);
 }
@@ -454,6 +455,7 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_2D,      limits->max_texture_dimension_2d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_3D,      limits->max_texture_dimension_3d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE,    limits->max_texture_dimension_cube),
+        CAP(NGL_CAP_TEXT_LIBRARIES,                HAVE_TEXT_LIBRARIES),
     };
 
     backend->nb_caps = NGLI_ARRAY_NB(caps);
