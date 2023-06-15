@@ -87,7 +87,16 @@ struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config)
 
 int ngli_gpu_ctx_init(struct gpu_ctx *s)
 {
-    return s->cls->init(s);
+    int ret = s->cls->init(s);
+    if (ret < 0)
+        return ret;
+
+    const struct gpu_limits *limits = &s->limits;
+    s->vertex_buffers = ngli_calloc(limits->max_vertex_attributes, sizeof(struct buffer *));
+    if (!s->vertex_buffers)
+        return NGL_ERROR_MEMORY;
+
+    return 0;
 }
 
 int ngli_gpu_ctx_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
@@ -138,6 +147,8 @@ void ngli_gpu_ctx_freep(struct gpu_ctx **sp)
         return;
 
     struct gpu_ctx *s = *sp;
+    ngli_freep(&s->vertex_buffers);
+
     const struct gpu_ctx_class *cls = s->cls;
     if (cls)
         cls->destroy(s);
@@ -240,10 +251,15 @@ void ngli_gpu_ctx_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_g
 
 void ngli_gpu_ctx_set_vertex_buffer(struct gpu_ctx *s, uint32_t index, const struct buffer *buffer)
 {
+    struct gpu_limits *limits = &s->limits;
+    ngli_assert(index < limits->max_vertex_attributes);
+    s->vertex_buffers[index] = buffer;
     s->cls->set_vertex_buffer(s, index, buffer);
 }
 
 void ngli_gpu_ctx_set_index_buffer(struct gpu_ctx *s, const struct buffer *buffer, int format)
 {
+    s->index_buffer = buffer;
+    s->index_format = format;
     s->cls->set_index_buffer(s, buffer, format);
 }

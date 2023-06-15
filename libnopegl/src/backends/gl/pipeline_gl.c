@@ -259,12 +259,12 @@ static GLenum get_gl_indices_type(int indices_format)
 
 static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
 {
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     const struct pipeline_gl *s_priv = (const struct pipeline_gl *)s;
+    struct gpu_ctx *gpu_ctx = (struct gpu_ctx *)s->gpu_ctx;
 
     ngli_glBindVertexArray(gl, s_priv->vao_id);
 
-    const struct buffer **vertex_buffers = gpu_ctx_gl->vertex_buffers;
+    const struct buffer **vertex_buffers = gpu_ctx->vertex_buffers;
     const struct attribute_binding_gl *bindings = ngli_darray_data(&s_priv->attribute_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->attribute_bindings); i++) {
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)vertex_buffers[i];
@@ -488,8 +488,8 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, int nb_indices, int nb_in
     set_textures(s, gl);
     bind_vertex_attribs(s, gl);
 
-    const struct buffer_gl *indices_gl = (const struct buffer_gl *)gpu_ctx_gl->index_buffer;
-    const GLenum gl_indices_type = get_gl_indices_type(gpu_ctx_gl->index_format);
+    const struct buffer_gl *indices_gl = (const struct buffer_gl *)gpu_ctx->index_buffer;
+    const GLenum gl_indices_type = get_gl_indices_type(gpu_ctx->index_format);
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_gl->id);
 
     s_priv->insert_memory_barriers(s);
