@@ -46,7 +46,6 @@ struct gpu_ctx_gl {
     struct glcontext *glcontext;
     struct glstate glstate;
     struct rendertarget *current_rt;
-    struct pipeline *current_pipeline;
     const struct buffer **vertex_buffers;
     const struct buffer *index_buffer;
     int index_format;

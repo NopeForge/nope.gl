@@ -121,6 +121,9 @@ struct gpu_ctx {
     struct gpu_capture_ctx *gpu_capture_ctx;
     int gpu_capture;
 #endif
+
+    /* State */
+    struct pipeline *pipeline;
 };
 
 struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config);

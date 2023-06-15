@@ -970,14 +970,11 @@ static int gl_get_preferred_depth_stencil_format(struct gpu_ctx *s)
 
 static void gl_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline)
 {
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    s_priv->current_pipeline = pipeline;
 }
 
 static void gl_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
 {
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct pipeline *pipeline = s_priv->current_pipeline;
+    struct pipeline *pipeline = s->pipeline;
 
     ngli_assert(pipeline);
     ngli_pipeline_gl_draw(pipeline, nb_vertices, nb_instances);
@@ -985,8 +982,7 @@ static void gl_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
 
 static void gl_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)
 {
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct pipeline *pipeline = s_priv->current_pipeline;
+    struct pipeline *pipeline = s->pipeline;
 
     ngli_assert(pipeline);
     ngli_pipeline_gl_draw_indexed(pipeline, nb_indices, nb_instances);
@@ -994,8 +990,7 @@ static void gl_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)
 
 static void gl_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct pipeline *pipeline = s_priv->current_pipeline;
+    struct pipeline *pipeline = s->pipeline;
 
     ngli_assert(pipeline);
     ngli_pipeline_gl_dispatch(pipeline, nb_group_x, nb_group_y, nb_group_z);
