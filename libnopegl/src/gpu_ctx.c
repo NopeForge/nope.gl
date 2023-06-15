@@ -199,22 +199,22 @@ const struct rendertarget_desc *ngli_gpu_ctx_get_default_rendertarget_desc(struc
 
 void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const int32_t *viewport)
 {
-    s->cls->set_viewport(s, viewport);
+    memcpy(&s->viewport, viewport, sizeof(s->viewport));
 }
 
 void ngli_gpu_ctx_get_viewport(struct gpu_ctx *s, int32_t *viewport)
 {
-    s->cls->get_viewport(s, viewport);
+    memcpy(viewport, &s->viewport, sizeof(s->viewport));
 }
 
 void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const int32_t *scissor)
 {
-    s->cls->set_scissor(s, scissor);
+    memcpy(&s->scissor, scissor, sizeof(s->scissor));
 }
 
 void ngli_gpu_ctx_get_scissor(struct gpu_ctx *s, int32_t *scissor)
 {
-    s->cls->get_scissor(s, scissor);
+    memcpy(scissor, &s->scissor, sizeof(s->scissor));
 }
 
 int ngli_gpu_ctx_get_preferred_depth_format(struct gpu_ctx *s)

@@ -148,30 +148,6 @@ static void reset_capture_cvpixelbuffer(struct gpu_ctx *s)
 }
 #endif
 
-static void gl_set_viewport(struct gpu_ctx *s, const int32_t *viewport)
-{
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    memcpy(&s_priv->viewport, viewport, sizeof(s_priv->viewport));
-}
-
-static void gl_get_viewport(struct gpu_ctx *s, int32_t *viewport)
-{
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    memcpy(viewport, &s_priv->viewport, sizeof(s_priv->viewport));
-}
-
-static void gl_set_scissor(struct gpu_ctx *s, const int32_t *scissor)
-{
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    memcpy(&s_priv->scissor, scissor, sizeof(s_priv->scissor));
-}
-
-static void gl_get_scissor(struct gpu_ctx *s, int32_t *scissor)
-{
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    memcpy(scissor, &s_priv->scissor, sizeof(s_priv->scissor));
-}
-
 static int create_texture(struct gpu_ctx *s, int format, int32_t samples, struct texture **texturep)
 {
     const struct ngl_config *config = &s->config;
@@ -551,14 +527,14 @@ static int gl_init(struct gpu_ctx *s)
 
     const int32_t *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0) {
-        gl_set_viewport(s, viewport);
+        ngli_gpu_ctx_set_viewport(s, viewport);
     } else {
         const int default_viewport[] = {0, 0, config->width, config->height};
-        gl_set_viewport(s, default_viewport);
+        ngli_gpu_ctx_set_viewport(s, default_viewport);
     }
 
     const GLint scissor[] = {0, 0, config->width, config->height};
-    gl_set_scissor(s, scissor);
+    ngli_gpu_ctx_set_scissor(s, scissor);
 
     return 0;
 }
@@ -601,14 +577,14 @@ static int gl_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int
     }
 
     if (viewport && viewport[2] > 0 && viewport[3] > 0) {
-        gl_set_viewport(s, viewport);
+        ngli_gpu_ctx_set_viewport(s, viewport);
     } else {
         const int default_viewport[] = {0, 0, config->width, config->height};
-        gl_set_viewport(s, default_viewport);
+        ngli_gpu_ctx_set_viewport(s, default_viewport);
     }
 
     const int32_t scissor[] = {0, 0, config->width, config->height};
-    gl_set_scissor(s, scissor);
+    ngli_gpu_ctx_set_scissor(s, scissor);
 
     return 0;
 }
@@ -1012,10 +988,6 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
     .begin_render_pass                  = gl_begin_render_pass,                  \
     .end_render_pass                    = gl_end_render_pass,                    \
                                                                                  \
-    .set_viewport                       = gl_set_viewport,                       \
-    .get_viewport                       = gl_get_viewport,                       \
-    .set_scissor                        = gl_set_scissor,                        \
-    .get_scissor                        = gl_get_scissor,                        \
     .get_preferred_depth_format         = gl_get_preferred_depth_format,         \
     .get_preferred_depth_stencil_format = gl_get_preferred_depth_stencil_format, \
                                                                                  \

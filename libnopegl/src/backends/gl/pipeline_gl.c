@@ -418,11 +418,10 @@ int ngli_pipeline_gl_update_buffer(struct pipeline *s, int32_t index, const stru
 static void get_scissor(struct pipeline *s, int32_t *scissor)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     const struct ngl_config *config = &gpu_ctx->config;
     struct rendertarget *rendertarget = gpu_ctx->rendertarget;
 
-    memcpy(scissor, gpu_ctx_gl->scissor, sizeof(gpu_ctx_gl->scissor));
+    memcpy(scissor, gpu_ctx->scissor, sizeof(gpu_ctx->scissor));
     if (config->offscreen) {
         scissor[1] = NGLI_MAX(rendertarget->height - scissor[1] - scissor[3], 0);
     }
@@ -439,7 +438,7 @@ static void set_graphics_state(struct pipeline *s)
     ngli_glstate_update(gl, glstate, &graphics->state);
     int32_t scissor[4];
     get_scissor(s, scissor);
-    ngli_glstate_update_viewport(gl, glstate, gpu_ctx_gl->viewport);
+    ngli_glstate_update_viewport(gl, glstate, gpu_ctx->viewport);
     ngli_glstate_update_scissor(gl, glstate, scissor);
 }
 
