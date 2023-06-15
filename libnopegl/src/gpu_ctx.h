@@ -65,11 +65,6 @@ struct gpu_ctx_class {
     void (*begin_render_pass)(struct gpu_ctx *s, struct rendertarget *rt);
     void (*end_render_pass)(struct gpu_ctx *s);
 
-    void (*set_viewport)(struct gpu_ctx *s, const int32_t *viewport);
-    void (*get_viewport)(struct gpu_ctx *s, int32_t *viewport);
-    void (*set_scissor)(struct gpu_ctx *s, const int32_t *scissor);
-    void (*get_scissor)(struct gpu_ctx *s, int32_t *scissor);
-
     int (*get_preferred_depth_format)(struct gpu_ctx *s);
     int (*get_preferred_depth_stencil_format)(struct gpu_ctx *s);
 
@@ -128,6 +123,8 @@ struct gpu_ctx {
     const struct buffer **vertex_buffers;
     const struct buffer *index_buffer;
     int index_format;
+    int32_t viewport[4];
+    int32_t scissor[4];
 };
 
 struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config);

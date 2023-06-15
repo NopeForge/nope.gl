@@ -855,10 +855,10 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
     vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, s_priv->pipeline);
 
     const VkViewport viewport = {
-        .x        = (float)gpu_ctx_vk->viewport[0],
-        .y        = (float)gpu_ctx_vk->viewport[1],
-        .width    = (float)gpu_ctx_vk->viewport[2],
-        .height   = (float)gpu_ctx_vk->viewport[3],
+        .x        = (float)gpu_ctx->viewport[0],
+        .y        = (float)gpu_ctx->viewport[1],
+        .width    = (float)gpu_ctx->viewport[2],
+        .height   = (float)gpu_ctx->viewport[3],
         .minDepth = 0.f,
         .maxDepth = 1.f,
     };
@@ -869,10 +869,10 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
     const struct rendertarget *rt = gpu_ctx->rendertarget;
     const struct pipeline_graphics *graphics = &s->graphics;
     if (graphics->state.scissor_test) {
-        scissor.offset.x      = gpu_ctx_vk->scissor[0];
-        scissor.offset.y      = NGLI_MAX(rt->height - gpu_ctx_vk->scissor[1] - gpu_ctx_vk->scissor[3], 0);
-        scissor.extent.width  = gpu_ctx_vk->scissor[2];
-        scissor.extent.height = gpu_ctx_vk->scissor[3];
+        scissor.offset.x      = gpu_ctx->scissor[0];
+        scissor.offset.y      = NGLI_MAX(rt->height - gpu_ctx->scissor[1] - gpu_ctx->scissor[3], 0);
+        scissor.extent.width  = gpu_ctx->scissor[2];
+        scissor.extent.height = gpu_ctx->scissor[3];
     } else {
         scissor.offset.x      = 0;
         scissor.offset.y      = 0;

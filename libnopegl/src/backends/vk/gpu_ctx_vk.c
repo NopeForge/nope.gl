@@ -1360,30 +1360,6 @@ static void vk_end_render_pass(struct gpu_ctx *s)
     }
 }
 
-static void vk_set_viewport(struct gpu_ctx *s, const int32_t *viewport)
-{
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
-    memcpy(s_priv->viewport, viewport, sizeof(s_priv->viewport));
-}
-
-static void vk_get_viewport(struct gpu_ctx *s, int32_t *viewport)
-{
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
-    memcpy(viewport, &s_priv->viewport, sizeof(s_priv->viewport));
-}
-
-static void vk_set_scissor(struct gpu_ctx *s, const int32_t *scissor)
-{
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
-    memcpy(&s_priv->scissor, scissor, sizeof(s_priv->scissor));
-}
-
-static void vk_get_scissor(struct gpu_ctx *s, int32_t *scissor)
-{
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
-    memcpy(scissor, &s_priv->scissor, sizeof(s_priv->scissor));
-}
-
 static int vk_get_preferred_depth_format(struct gpu_ctx *s)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
@@ -1553,11 +1529,6 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
 
     .begin_render_pass                  = vk_begin_render_pass,
     .end_render_pass                    = vk_end_render_pass,
-
-    .set_viewport                       = vk_set_viewport,
-    .get_viewport                       = vk_get_viewport,
-    .set_scissor                        = vk_set_scissor,
-    .get_scissor                        = vk_get_scissor,
 
     .get_preferred_depth_format         = vk_get_preferred_depth_format,
     .get_preferred_depth_stencil_format = vk_get_preferred_depth_stencil_format,
