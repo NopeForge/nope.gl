@@ -415,31 +415,22 @@ int ngli_pipeline_gl_update_buffer(struct pipeline *s, int32_t index, const stru
     return 0;
 }
 
-static void get_scissor(struct pipeline *s, int32_t *scissor)
-{
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    const struct ngl_config *config = &gpu_ctx->config;
-    struct rendertarget *rendertarget = gpu_ctx->rendertarget;
-
-    memcpy(scissor, gpu_ctx->scissor, sizeof(gpu_ctx->scissor));
-    if (config->offscreen) {
-        scissor[1] = NGLI_MAX(rendertarget->height - scissor[1] - scissor[3], 0);
-    }
-}
-
 static void set_graphics_state(struct pipeline *s)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct glstate *glstate = &gpu_ctx_gl->glstate;
+    const struct ngl_config *config = &gpu_ctx->config;
+    struct rendertarget *rendertarget = gpu_ctx->rendertarget;
     struct pipeline_graphics *graphics = &s->graphics;
 
     ngli_glstate_update(gl, glstate, &graphics->state);
-    int32_t scissor[4];
-    get_scissor(s, scissor);
-    ngli_glstate_update_viewport(gl, glstate, gpu_ctx->viewport);
-    ngli_glstate_update_scissor(gl, glstate, scissor);
+    ngli_glstate_update_viewport(gl, glstate, &gpu_ctx->viewport);
+    struct scissor scissor = gpu_ctx->scissor;
+    if (config->offscreen)
+        scissor.y = NGLI_MAX(rendertarget->height - scissor.y - scissor.height, 0);
+    ngli_glstate_update_scissor(gl, glstate, &scissor);
 }
 
 void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances)

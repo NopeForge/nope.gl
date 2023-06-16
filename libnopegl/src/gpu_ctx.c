@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,9 +28,9 @@
 #include "internal.h"
 #include "rendertarget.h"
 
-int ngli_viewport_is_valid(const int32_t *viewport)
+int ngli_viewport_is_valid(const struct viewport *viewport)
 {
-    return viewport[2] > 0 && viewport[3] > 0;
+    return viewport->width > 0 && viewport->height > 0;
 }
 
 extern const struct gpu_ctx_class ngli_gpu_ctx_gl;
@@ -202,24 +203,24 @@ const struct rendertarget_desc *ngli_gpu_ctx_get_default_rendertarget_desc(struc
     return s->cls->get_default_rendertarget_desc(s);
 }
 
-void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const int32_t *viewport)
+void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const struct viewport *viewport)
 {
-    memcpy(&s->viewport, viewport, sizeof(s->viewport));
+    s->viewport = *viewport;
 }
 
-void ngli_gpu_ctx_get_viewport(struct gpu_ctx *s, int32_t *viewport)
+struct viewport ngli_gpu_ctx_get_viewport(struct gpu_ctx *s)
 {
-    memcpy(viewport, &s->viewport, sizeof(s->viewport));
+    return s->viewport;
 }
 
-void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const int32_t *scissor)
+void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const struct scissor *scissor)
 {
-    memcpy(&s->scissor, scissor, sizeof(s->scissor));
+    s->scissor = *scissor;
 }
 
-void ngli_gpu_ctx_get_scissor(struct gpu_ctx *s, int32_t *scissor)
+struct scissor ngli_gpu_ctx_get_scissor(struct gpu_ctx *s)
 {
-    memcpy(scissor, &s->scissor, sizeof(s->scissor));
+    return s->scissor;
 }
 
 int ngli_gpu_ctx_get_preferred_depth_format(struct gpu_ctx *s)

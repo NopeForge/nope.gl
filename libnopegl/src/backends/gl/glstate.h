@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2017-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -26,6 +27,8 @@
 #include "glincludes.h"
 
 struct graphicstate;
+struct scissor;
+struct viewport;
 
 struct glstate {
     /* Graphics state */
@@ -78,10 +81,10 @@ void ngli_glstate_use_program(const struct glcontext *gl,
 
 void ngli_glstate_update_scissor(const struct glcontext *gl,
                                  struct glstate *glstate,
-                                 const int32_t *scissor);
+                                 const struct scissor *scissor);
 
 void ngli_glstate_update_viewport(const struct glcontext *gl,
                                   struct glstate *glstate,
-                                  const int32_t *viewport);
+                                  const struct viewport *viewport);
 
 #endif

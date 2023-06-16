@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2017-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -301,16 +302,17 @@ static void graphicconfig_draw(struct ngl_node *node)
     struct graphicconfig_priv *s = node->priv_data;
     const struct graphicconfig_opts *o = node->opts;
 
-    int prev_scissor[4];
+    struct scissor prev_scissor;
     if (s->use_scissor) {
-        ngli_gpu_ctx_get_scissor(gpu_ctx, prev_scissor);
-        ngli_gpu_ctx_set_scissor(gpu_ctx, o->scissor);
+        prev_scissor = ngli_gpu_ctx_get_scissor(gpu_ctx);
+        struct scissor scissor = {NGLI_ARG_VEC4(o->scissor)};
+        ngli_gpu_ctx_set_scissor(gpu_ctx, &scissor);
     }
 
     ngli_node_draw(o->child);
 
     if (s->use_scissor)
-        ngli_gpu_ctx_set_scissor(gpu_ctx, prev_scissor);
+        ngli_gpu_ctx_set_scissor(gpu_ctx, &prev_scissor);
 }
 
 const struct node_class ngli_graphicconfig_class = {

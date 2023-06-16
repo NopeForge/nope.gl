@@ -479,17 +479,15 @@ static void rtt_draw(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
     const struct rtt_opts *o = node->opts;
 
-    int32_t prev_vp[4] = {0};
-    ngli_gpu_ctx_get_viewport(gpu_ctx, prev_vp);
+    const struct viewport prev_vp = ngli_gpu_ctx_get_viewport(gpu_ctx);
 
-    const int32_t vp[4] = {0, 0, s->width, s->height};
-    ngli_gpu_ctx_set_viewport(gpu_ctx, vp);
+    const struct viewport vp = {0, 0, s->width, s->height};
+    ngli_gpu_ctx_set_viewport(gpu_ctx, &vp);
 
-    int prev_scissor[4] = {0};
-    ngli_gpu_ctx_get_scissor(gpu_ctx, prev_scissor);
+    struct scissor prev_scissor = ngli_gpu_ctx_get_scissor(gpu_ctx);
 
-    const int32_t scissor[4] = {0, 0, s->width, s->height};
-    ngli_gpu_ctx_set_scissor(gpu_ctx, scissor);
+    const struct scissor scissor = {0, 0, s->width, s->height};
+    ngli_gpu_ctx_set_scissor(gpu_ctx, &scissor);
 
     struct rendertarget *prev_rendertargets[2] = {
         ctx->available_rendertargets[0],
@@ -520,8 +518,8 @@ static void rtt_draw(struct ngl_node *node)
     ctx->available_rendertargets[0] = prev_rendertargets[0];
     ctx->available_rendertargets[1] = prev_rendertargets[1];
 
-    ngli_gpu_ctx_set_viewport(gpu_ctx, prev_vp);
-    ngli_gpu_ctx_set_scissor(gpu_ctx, prev_scissor);
+    ngli_gpu_ctx_set_viewport(gpu_ctx, &prev_vp);
+    ngli_gpu_ctx_set_scissor(gpu_ctx, &prev_scissor);
 
     for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
