@@ -160,6 +160,14 @@ uint32_t ngli_crc32(const char *s)
     return ~crc;
 }
 
+uint32_t ngli_crc32_mem(const uint8_t *buf, size_t size)
+{
+    uint32_t crc = ~0;
+    for (size_t i = 0; i < size; i++)
+        crc = (crc >> 8) ^ crc_table[(crc & 0xff) ^ buf[i]];
+    return ~crc;
+}
+
 void ngli_thread_set_name(const char *name)
 {
 #if defined(__APPLE__)
