@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 
 #include "drawutils.h"
+#include "utils.h"
 
 static int save_ppm(const char *filename, uint8_t *data, int32_t width, int32_t height)
 {
@@ -101,6 +102,10 @@ int main(int ac, char **av)
             s[0]++;
         }
     }
+
+    uint32_t crc = ngli_crc32_mem(c.buf, c.w * c.h * 4);
+    printf("CRC: 0x%08x\n", crc);
+    ngli_assert(crc == 0x2a07363c);
 
     int ret = save_ppm(av[1], c.buf, c.w, c.h) < 0 ? -1 : 0;
     free(c.buf);

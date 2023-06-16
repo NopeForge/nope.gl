@@ -870,7 +870,7 @@ test_progs = {
   },
   'Draw utils': {
     'exe': 'test_draw',
-    'src': files('src/test_draw.c', 'src/drawutils.c', 'src/memory.c'),
+    'src': files('src/test_draw.c', 'src/drawutils.c', 'src/bstr.c', 'src/log.c', 'src/utils.c', 'src/memory.c'),
     'args': ['ngl-test.ppm']
   },
   'Eval': {
