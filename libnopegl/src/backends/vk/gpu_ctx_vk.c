@@ -795,7 +795,7 @@ static int get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
     return NGLI_MIN(max_color_samples, NGLI_MIN(max_depth_samples, max_stencil_samples));
 }
 
-static int get_max_color_attachments(const VkPhysicalDeviceLimits *limits)
+static uint32_t get_max_color_attachments(const VkPhysicalDeviceLimits *limits)
 {
     return NGLI_MIN(limits->maxColorAttachments, NGLI_MAX_COLOR_ATTACHMENTS);
 }
