@@ -110,9 +110,6 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
     int32_t text_cols, text_rows;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
 
-    text->width  = NGLI_I32_TO_I26D6(text_cols * NGLI_FONT_W);
-    text->height = NGLI_I32_TO_I26D6(text_rows * NGLI_FONT_H);
-
     const int32_t chr_w = NGLI_FONT_W;
     const int32_t chr_h = NGLI_FONT_H;
 
