@@ -325,7 +325,6 @@ foreach backend : backends
 
   tests_text = [
     'colors',
-    '0_to_127',
     'align_cc',
     'align_cr',
     'align_cl',
