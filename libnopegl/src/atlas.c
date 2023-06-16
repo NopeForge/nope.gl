@@ -116,12 +116,15 @@ int ngli_atlas_finalize(struct atlas *s)
         return NGL_ERROR_INVALID_USAGE;
     }
 
+    const int32_t nb_bitmaps = (int32_t)ngli_darray_count(&s->bitmaps);
+    if (!nb_bitmaps)
+        return 0;
+
     /*
      * Define texture dimension (mostly squared).
      * TODO bitmaps are assumed to be square when balancing the number of rows
      * and cols, we're not taking into account max_bitmap_[wh] as we should
      */
-    const int32_t nb_bitmaps = (int32_t)ngli_darray_count(&s->bitmaps);
     s->nb_rows = (int32_t)lrintf(sqrtf((float)nb_bitmaps));
     s->nb_cols = (int32_t)ceilf((float)nb_bitmaps / (float)s->nb_rows);
     ngli_assert(s->nb_rows * s->nb_cols >= nb_bitmaps);
