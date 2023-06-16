@@ -70,12 +70,9 @@ end:
     return ret;
 }
 
-static uint32_t get_random_color(void)
+static uint32_t get_checkerboard(int x, int y)
 {
-    const uint8_t r = rand() & 0x7f;
-    const uint8_t g = rand() & 0x7f;
-    const uint8_t b = rand() & 0x7f;
-    return r << 24U | g << 16 | b << 8 | 0xff;
+    return ((x + y) & 1) ? 0x222222ff : 0x444444ff;
 }
 
 int main(int ac, char **av)
@@ -90,8 +87,6 @@ int main(int ac, char **av)
     if (!c.buf)
         return -1;
 
-    srand(0);
-
     char s[2] = {0};
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 16; x++) {
@@ -101,7 +96,7 @@ int main(int ac, char **av)
                 .w = NGLI_FONT_W,
                 .h = NGLI_FONT_H,
             };
-            ngli_drawutils_draw_rect(&c, &rect, get_random_color());
+            ngli_drawutils_draw_rect(&c, &rect, get_checkerboard(x, y));
             ngli_drawutils_print(&c, rect.x, rect.y, s, 0xffffffff);
             s[0]++;
         }
