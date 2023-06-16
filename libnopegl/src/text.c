@@ -138,13 +138,9 @@ int ngli_text_set_string(struct text *s, const char *str)
         goto end;
     }
 
-    /* Padding */
     const int32_t padding = NGLI_I32_TO_I26D6(s->config.padding);
-    s->width += 2 * padding;
-    s->height += 2 * padding;
-
-    s->width  = NGLI_I26D6_TO_I32_TRUNCATED(s->width);
-    s->height = NGLI_I26D6_TO_I32_TRUNCATED(s->height);
+    s->width  = NGLI_I26D6_TO_I32_TRUNCATED(stats.xmax - stats.xmin + 2 * padding);
+    s->height = NGLI_I26D6_TO_I32_TRUNCATED(stats.ymax - stats.ymin + 2 * padding);
 
     /* Honor layout */
     struct char_info_internal *chars_internal = ngli_darray_data(&chars_internal_array);
