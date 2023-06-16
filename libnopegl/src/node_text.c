@@ -327,7 +327,7 @@ static int update_character_geometries(struct ngl_node *node)
             ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 4, s->atlas_coords);
 
             if (s->text_ctx->cls->flags & NGLI_TEXT_FLAG_MUTABLE_ATLAS)
-                ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, s->text_ctx->texture);
+                ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, s->text_ctx->atlas_texture);
         }
     }
 
@@ -524,7 +524,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
             .name     = "tex",
             .type     = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
             .stage    = NGLI_PROGRAM_SHADER_FRAG,
-            .texture  = s->text_ctx->texture,
+            .texture  = s->text_ctx->atlas_texture,
         },
     };
 

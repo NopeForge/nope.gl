@@ -70,7 +70,7 @@ static int text_builtin_init(struct text *text)
     if (ret < 0)
         return ret;
 
-    text->texture = ngli_atlas_get_texture(text->ctx->font_atlas);
+    text->atlas_texture = ngli_atlas_get_texture(text->ctx->font_atlas);
 
     return 0;
 }
