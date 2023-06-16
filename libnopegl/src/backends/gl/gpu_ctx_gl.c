@@ -976,7 +976,6 @@ static void gl_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
 {
     struct pipeline *pipeline = s->pipeline;
 
-    ngli_assert(pipeline);
     ngli_pipeline_gl_draw(pipeline, nb_vertices, nb_instances);
 }
 
@@ -984,7 +983,6 @@ static void gl_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)
 {
     struct pipeline *pipeline = s->pipeline;
 
-    ngli_assert(pipeline);
     ngli_pipeline_gl_draw_indexed(pipeline, nb_indices, nb_instances);
 }
 
@@ -992,7 +990,6 @@ static void gl_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_grou
 {
     struct pipeline *pipeline = s->pipeline;
 
-    ngli_assert(pipeline);
     ngli_pipeline_gl_dispatch(pipeline, nb_group_x, nb_group_y, nb_group_z);
 }
 
