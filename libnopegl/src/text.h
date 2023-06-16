@@ -95,7 +95,7 @@ struct text {
     int32_t width;
     int32_t height;
     struct darray chars; // struct char_info
-    struct texture *texture;
+    struct texture *atlas_texture;
 
     const struct text_cls *cls;
     void *priv_data;

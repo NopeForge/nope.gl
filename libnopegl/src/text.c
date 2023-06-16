@@ -194,10 +194,10 @@ int ngli_text_set_string(struct text *s, const char *str)
             .w = NGLI_I26D6_TO_F32(chr_internal->w) / (float)s->width,
             .h = NGLI_I26D6_TO_F32(chr_internal->h) / (float)s->height,
             .atlas_coords = {
-                (float)chr_internal->atlas_coords[0] / (float)s->texture->params.width,
-                (float)chr_internal->atlas_coords[1] / (float)s->texture->params.height,
-                (float)chr_internal->atlas_coords[2] / (float)s->texture->params.width,
-                (float)chr_internal->atlas_coords[3] / (float)s->texture->params.height,
+                (float)chr_internal->atlas_coords[0] / (float)s->atlas_texture->params.width,
+                (float)chr_internal->atlas_coords[1] / (float)s->atlas_texture->params.height,
+                (float)chr_internal->atlas_coords[2] / (float)s->atlas_texture->params.width,
+                (float)chr_internal->atlas_coords[3] / (float)s->atlas_texture->params.height,
             },
         };
 
