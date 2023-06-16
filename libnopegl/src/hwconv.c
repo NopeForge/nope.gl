@@ -166,11 +166,10 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     struct rendertarget *rt = hwconv->rt;
     ngli_gpu_ctx_begin_render_pass(gpu_ctx, rt);
 
-    int32_t prev_vp[4] = {0};
-    ngli_gpu_ctx_get_viewport(gpu_ctx, prev_vp);
+    const struct viewport prev_vp = ngli_gpu_ctx_get_viewport(gpu_ctx);
 
-    const int32_t vp[4] = {0, 0, rt->width, rt->height};
-    ngli_gpu_ctx_set_viewport(gpu_ctx, vp);
+    const struct viewport vp = {0, 0, rt->params.width, rt->params.height};
+    ngli_gpu_ctx_set_viewport(gpu_ctx, &vp);
 
     struct pipeline_compat *pipeline = hwconv->pipeline_compat;
 
@@ -217,7 +216,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     ngli_pipeline_compat_draw(pipeline, 3, 1);
 
     ngli_gpu_ctx_end_render_pass(gpu_ctx);
-    ngli_gpu_ctx_set_viewport(gpu_ctx, prev_vp);
+    ngli_gpu_ctx_set_viewport(gpu_ctx, &prev_vp);
 
     return 0;
 }

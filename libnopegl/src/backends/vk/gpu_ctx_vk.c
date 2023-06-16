@@ -800,17 +800,17 @@ static int get_max_color_attachments(const VkPhysicalDeviceLimits *limits)
     return NGLI_MIN(limits->maxColorAttachments, NGLI_MAX_COLOR_ATTACHMENTS);
 }
 
-static void set_viewport_and_scissor(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
+static void set_viewport_and_scissor(struct gpu_ctx *s, int32_t width, int32_t height, const struct viewport *viewport)
 {
     if (ngli_viewport_is_valid(viewport)) {
         ngli_gpu_ctx_set_viewport(s, viewport);
     } else {
-        const int default_viewport[] = {0, 0, width, height};
-        ngli_gpu_ctx_set_viewport(s, default_viewport);
+        const struct viewport default_viewport = {0, 0, width, height};
+        ngli_gpu_ctx_set_viewport(s, &default_viewport);
     }
 
-    const int32_t scissor[] = {0, 0, width, height};
-    ngli_gpu_ctx_set_scissor(s, scissor);
+    const struct scissor scissor = {0, 0, width, height};
+    ngli_gpu_ctx_set_scissor(s, &scissor);
 }
 
 static int vk_init(struct gpu_ctx *s)
@@ -971,7 +971,8 @@ static int vk_init(struct gpu_ctx *s)
         s_priv->default_rt_desc.depth_stencil.resolve = 0;
     }
 
-    set_viewport_and_scissor(s, config->width, config->height, config->viewport);
+    const struct viewport viewport = {NGLI_ARG_VEC4(config->viewport)};
+    set_viewport_and_scissor(s, config->width, config->height, &viewport);
 
     return 0;
 }
@@ -989,7 +990,9 @@ static int vk_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int
     s_priv->recreate_swapchain = 1;
     s_priv->width = width;
     s_priv->height = height;
-    set_viewport_and_scissor(s, width, height, viewport);
+
+    const struct viewport vp = {NGLI_ARG_VEC4(viewport)};
+    set_viewport_and_scissor(s, width, height, &vp);
 
     return 0;
 }

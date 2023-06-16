@@ -1373,11 +1373,10 @@ void ngli_hud_draw(struct hud *s)
         widgets_draw(s);
     }
 
-    int32_t viewport[4];
-    ngli_gpu_ctx_get_viewport(gpu_ctx, viewport);
+    const struct viewport viewport = ngli_gpu_ctx_get_viewport(gpu_ctx);
     const int scale = s->scale > 0 ? s->scale : 1;
-    const float ratio_w = (float)(scale * s->canvas.w) / (float)viewport[2];
-    const float ratio_h = (float)(scale * s->canvas.h) / (float)viewport[3];
+    const float ratio_w = (float)(scale * s->canvas.w) / (float)viewport.width;
+    const float ratio_h = (float)(scale * s->canvas.h) / (float)viewport.height;
     const float x =-1.0f + 2 * ratio_w;
     const float y = 1.0f - 2 * ratio_h;
     const float coords[] = {

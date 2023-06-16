@@ -525,16 +525,16 @@ static int gl_init(struct gpu_ctx *s)
 
     ngli_glstate_reset(gl, &s_priv->glstate);
 
-    const int32_t *viewport = config->viewport;
-    if (ngli_viewport_is_valid(viewport)) {
-        ngli_gpu_ctx_set_viewport(s, viewport);
+    const struct viewport vp = {NGLI_ARG_VEC4(config->viewport)};
+    if (ngli_viewport_is_valid(&vp)) {
+        ngli_gpu_ctx_set_viewport(s, &vp);
     } else {
-        const int default_viewport[] = {0, 0, config->width, config->height};
-        ngli_gpu_ctx_set_viewport(s, default_viewport);
+        const struct viewport default_vp = {0, 0, config->width, config->height};
+        ngli_gpu_ctx_set_viewport(s, &default_vp);
     }
 
-    const GLint scissor[] = {0, 0, config->width, config->height};
-    ngli_gpu_ctx_set_scissor(s, scissor);
+    const struct scissor scissor = {0, 0, config->width, config->height};
+    ngli_gpu_ctx_set_scissor(s, &scissor);
 
     return 0;
 }
@@ -576,15 +576,16 @@ static int gl_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int
         rt_gl->id = rt_load_gl->id = ngli_glcontext_get_default_framebuffer(gl);
     }
 
-    if (ngli_viewport_is_valid(viewport)) {
-        ngli_gpu_ctx_set_viewport(s, viewport);
+    const struct viewport vp = {NGLI_ARG_VEC4(viewport)};
+    if (ngli_viewport_is_valid(&vp)) {
+        ngli_gpu_ctx_set_viewport(s, &vp);
     } else {
-        const int default_viewport[] = {0, 0, config->width, config->height};
-        ngli_gpu_ctx_set_viewport(s, default_viewport);
+        const struct viewport default_vp = {0, 0, width, height};
+        ngli_gpu_ctx_set_viewport(s, &default_vp);
     }
 
-    const int32_t scissor[] = {0, 0, config->width, config->height};
-    ngli_gpu_ctx_set_scissor(s, scissor);
+    const struct scissor scissor = {0, 0, width, height};
+    ngli_gpu_ctx_set_scissor(s, &scissor);
 
     return 0;
 }

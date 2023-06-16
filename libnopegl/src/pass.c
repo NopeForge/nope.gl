@@ -638,10 +638,9 @@ int ngli_pass_exec(struct pass *s)
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->projection_matrix_index, projection_matrix);
 
-    int32_t viewport[4] = {0};
-    ngli_gpu_ctx_get_viewport(ctx->gpu_ctx, viewport);
+    const struct viewport viewport = ngli_gpu_ctx_get_viewport(ctx->gpu_ctx);
 
-    const float resolution[2] = {(float)viewport[2], (float)viewport[3]};
+    const float resolution[2] = {(float)viewport.width, (float)viewport.height};
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->resolution_index, resolution);
 
     if (desc->normal_matrix_index >= 0) {

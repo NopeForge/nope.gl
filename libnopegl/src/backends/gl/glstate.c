@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2017-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -333,18 +334,18 @@ void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstat
     }
 }
 
-void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *glstate, const int32_t *scissor)
+void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *glstate, const struct scissor *scissor)
 {
     if (!memcmp(glstate->scissor, scissor, sizeof(glstate->scissor)))
         return;
     memcpy(glstate->scissor, scissor, sizeof(glstate->scissor));
-    ngli_glScissor(gl, scissor[0], scissor[1], scissor[2], scissor[3]);
+    ngli_glScissor(gl, scissor->x, scissor->y, scissor->width, scissor->height);
 }
 
-void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *glstate, const int32_t *viewport)
+void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *glstate, const struct viewport *viewport)
 {
     if (!memcmp(glstate->viewport, viewport, sizeof(glstate->viewport)))
         return;
     memcpy(glstate->viewport, viewport, sizeof(glstate->viewport));
-    ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
+    ngli_glViewport(gl, viewport->x, viewport->y, viewport->width, viewport->height);
 }
