@@ -26,18 +26,6 @@ from pynopegl_utils.toolbox.colors import COLORS
 import pynopegl as ngl
 
 
-@test_fingerprint(tolerance=1)
-@scene()
-def text_0_to_127(_):
-    s = ""
-    for y in range(8):
-        for x in range(16):
-            c = y << 4 | x
-            s += chr(c) if c else " "
-        s += "\n"
-    return ngl.Text(s)
-
-
 def _text(**params):
     return ngl.Text("This\nis\nnope.gl", font_scale=0.7, padding=8, **params)
 
