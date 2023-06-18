@@ -1330,6 +1330,7 @@ int ngli_hud_init(struct hud *s)
             .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state    = graphicstate,
             .rt_desc  = rnode->rendertarget_desc,
+            .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
         },
         .program      = ngli_pgcraft_get_program(s->crafter),
         .layout       = ngli_pgcraft_get_pipeline_layout(s->crafter),

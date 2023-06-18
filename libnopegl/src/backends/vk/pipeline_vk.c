@@ -169,26 +169,30 @@ static VkResult create_attribute_descs(struct pipeline *s)
     ngli_darray_init(&s_priv->vertex_attribute_descs, sizeof(VkVertexInputAttributeDescription), 0);
     ngli_darray_init(&s_priv->vertex_binding_descs,   sizeof(VkVertexInputBindingDescription), 0);
 
-    const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_attribute_descs; i++) {
-        const struct pipeline_attribute_desc *desc = &layout->attribute_descs[i];
+    const struct pipeline_graphics *graphics = &s->graphics;
+    const struct vertex_state *state = &graphics->vertex_state;
+    for (size_t i = 0; i < state->nb_buffers; i++) {
+        const struct vertex_buffer_layout *buffer = &state->buffers[i];
 
         const VkVertexInputBindingDescription binding_desc = {
             .binding   = (uint32_t)i,
-            .stride    = (uint32_t)desc->stride,
-            .inputRate = desc->rate ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX,
+            .stride    = (uint32_t)buffer->stride,
+            .inputRate = buffer->rate ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX,
         };
         if (!ngli_darray_push(&s_priv->vertex_binding_descs, &binding_desc))
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        const VkVertexInputAttributeDescription attr_desc = {
-            .binding  = (uint32_t)i,
-            .location = desc->location,
-            .format   = ngli_format_ngl_to_vk(desc->format),
-            .offset   = (uint32_t)desc->offset,
-        };
-        if (!ngli_darray_push(&s_priv->vertex_attribute_descs, &attr_desc))
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
+        for (size_t j = 0; j < buffer->nb_attributes; j++) {
+            const struct vertex_attribute *attribute = &buffer->attributes[j];
+            const VkVertexInputAttributeDescription attr_desc = {
+                .binding  = (uint32_t)i,
+                .location = attribute->location,
+                .format   = ngli_format_ngl_to_vk(attribute->format),
+                .offset   = (uint32_t)attribute->offset,
+            };
+            if (!ngli_darray_push(&s_priv->vertex_attribute_descs, &attr_desc))
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
+        }
     }
 
     return VK_SUCCESS;

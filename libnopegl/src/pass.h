@@ -68,7 +68,7 @@ struct pass {
     const struct buffer_layout *indices_layout;
     int nb_vertices;
     int nb_instances;
-
+    int topology;
     int pipeline_type;
     struct pipeline_graphics pipeline_graphics;
     struct darray crafter_attributes;
