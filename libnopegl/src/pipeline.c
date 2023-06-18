@@ -36,11 +36,21 @@ int ngli_pipeline_graphics_copy(struct pipeline_graphics *dst, const struct pipe
     dst->state    = src->state;
     dst->rt_desc  = src->rt_desc;
 
+    const struct vertex_buffer_layout *buffers = src->vertex_state.buffers;
+    const size_t nb_buffers = src->vertex_state.nb_buffers;
+    if (nb_buffers) {
+        dst->vertex_state.buffers = ngli_memdup(buffers, nb_buffers * sizeof(*buffers));
+        if (!dst->vertex_state.buffers)
+            return NGL_ERROR_MEMORY;
+    }
+    dst->vertex_state.nb_buffers = nb_buffers;
+
     return 0;
 }
 
 void ngli_pipeline_graphics_reset(struct pipeline_graphics *graphics)
 {
+    ngli_freep(&graphics->vertex_state.buffers);
     memset(graphics, 0, sizeof(*graphics));
 }
 
@@ -56,11 +66,6 @@ int ngli_pipeline_layout_copy(struct pipeline_layout *dst, const struct pipeline
         return NGL_ERROR_MEMORY;
     dst->nb_buffer_descs = src->nb_buffer_descs;
 
-    dst->attribute_descs = ngli_memdup(src->attribute_descs, src->nb_attribute_descs * sizeof(*src->attribute_descs));
-    if (!dst->attribute_descs)
-        return NGL_ERROR_MEMORY;
-    dst->nb_attribute_descs = src->nb_attribute_descs;
-
     return 0;
 }
 
@@ -68,7 +73,6 @@ void ngli_pipeline_layout_reset(struct pipeline_layout *layout)
 {
     ngli_freep(&layout->texture_descs);
     ngli_freep(&layout->buffer_descs);
-    ngli_freep(&layout->attribute_descs);
     memset(layout, 0, sizeof(*layout));
 }
 

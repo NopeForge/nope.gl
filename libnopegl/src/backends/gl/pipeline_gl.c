@@ -49,6 +49,7 @@ struct buffer_binding_gl {
 };
 
 struct attribute_binding_gl {
+    size_t binding;
     int location;
     int format;
     size_t stride;
@@ -217,24 +218,29 @@ static int build_attribute_bindings(struct pipeline *s)
     ngli_glGenVertexArrays(gl, 1, &s_priv->vao_id);
     ngli_glBindVertexArray(gl, s_priv->vao_id);
 
-    const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_attribute_descs; i++) {
-        const struct pipeline_attribute_desc *pipeline_attribute_desc = &layout->attribute_descs[i];
+    const struct pipeline_graphics *graphics = &s->graphics;
+    const struct vertex_state *state = &graphics->vertex_state;
+    for (size_t i = 0; i < state->nb_buffers; i++) {
+        const struct vertex_buffer_layout *buffer = &state->buffers[i];
+        for (size_t j = 0; j < buffer->nb_attributes; j++) {
+            const struct vertex_attribute *attribute = &buffer->attributes[j];
 
-        struct attribute_binding_gl binding = {
-            .location = pipeline_attribute_desc->location,
-            .format   = pipeline_attribute_desc->format,
-            .stride   = pipeline_attribute_desc->stride,
-            .offset   = pipeline_attribute_desc->offset,
-        };
-        if (!ngli_darray_push(&s_priv->attribute_bindings, &binding))
-            return NGL_ERROR_MEMORY;
+            struct attribute_binding_gl binding = {
+                .binding  = i,
+                .location = attribute->location,
+                .format   = attribute->format,
+                .stride   = buffer->stride,
+                .offset   = attribute->offset,
+            };
+            if (!ngli_darray_push(&s_priv->attribute_bindings, &binding))
+                return NGL_ERROR_MEMORY;
 
-        const GLuint location = pipeline_attribute_desc->location;
-        const GLuint rate = pipeline_attribute_desc->rate;
-        ngli_glEnableVertexAttribArray(gl, location);
-        if (rate > 0)
-            ngli_glVertexAttribDivisor(gl, location, rate);
+            const GLuint location = attribute->location;
+            const GLuint rate = buffer->rate;
+            ngli_glEnableVertexAttribArray(gl, location);
+            if (rate > 0)
+                ngli_glVertexAttribDivisor(gl, location, rate);
+        }
     }
 
     return 0;
@@ -274,11 +280,12 @@ static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
     const struct attribute_binding_gl *bindings = ngli_darray_data(&s_priv->attribute_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->attribute_bindings); i++) {
         const struct attribute_binding_gl *attribute_binding = &bindings[i];
+        const size_t binding = attribute_binding->binding;
         const GLuint location = attribute_binding->location;
         const GLuint size = ngli_format_get_nb_comp(attribute_binding->format);
         const GLsizei stride = (GLsizei)attribute_binding->stride;
         const void *offset = (void *)(uintptr_t)attribute_binding->offset;
-        const struct buffer_gl *buffer_gl = (const struct buffer_gl *)vertex_buffers[i];
+        const struct buffer_gl *buffer_gl = (const struct buffer_gl *)vertex_buffers[binding];
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
         ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, offset);
     }

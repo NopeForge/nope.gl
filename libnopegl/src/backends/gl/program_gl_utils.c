@@ -37,9 +37,10 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
 
     const char *name = NULL;
     int need_relink = 0;
-    const struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
-    for (size_t i = 0; i < layout.nb_attribute_descs; i++) {
-        const struct pipeline_attribute_desc *attribute_desc = &layout.attribute_descs[i];
+    const struct darray *descs_array = ngli_pgcraft_get_attribute_descs(crafter);
+    const struct pipeline_attribute_desc *descs = ngli_darray_data(descs_array);
+    for (size_t i = 0; i < ngli_darray_count(descs_array); i++) {
+        const struct pipeline_attribute_desc *attribute_desc = &descs[i];
         if (name && !strcmp(name, attribute_desc->name))
             continue;
         name = attribute_desc->name;
@@ -53,6 +54,7 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     if (need_relink)
         ngli_glLinkProgram(gl, s_priv->id);
 
+    const struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
     for (size_t i = 0; i < layout.nb_buffer_descs; i++) {
         const struct pipeline_buffer_desc *buffer_desc = &layout.buffer_descs[i];
         if (buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER)

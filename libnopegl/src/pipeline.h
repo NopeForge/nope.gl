@@ -68,10 +68,31 @@ struct pipeline_attribute_desc {
     size_t offset;
 };
 
+struct vertex_attribute {
+    int location;
+    int format;
+    size_t offset;
+};
+
+#define NGLI_MAX_ATTRIBUTES_PER_BUFFER 16
+
+struct vertex_buffer_layout {
+    struct vertex_attribute attributes[NGLI_MAX_ATTRIBUTES_PER_BUFFER];
+    size_t nb_attributes;
+    int rate;
+    size_t stride;
+};
+
+struct vertex_state {
+    struct vertex_buffer_layout *buffers;
+    size_t nb_buffers;
+};
+
 struct pipeline_graphics {
     int topology;
     struct graphicstate state;
     struct rendertarget_desc rt_desc;
+    struct vertex_state vertex_state;
 };
 
 enum {
@@ -84,8 +105,6 @@ struct pipeline_layout {
     size_t nb_texture_descs;
     const struct pipeline_buffer_desc *buffer_descs;
     size_t nb_buffer_descs;
-    const struct pipeline_attribute_desc *attribute_descs;
-    size_t nb_attribute_descs;
 };
 
 struct pipeline_resources {

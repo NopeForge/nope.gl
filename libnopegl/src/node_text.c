@@ -67,6 +67,11 @@ struct pipeline_desc_bg {
 
 struct pipeline_desc_fg {
     struct pipeline_desc_common common;
+    int32_t transform_index;
+    int32_t atlas_coords_index;
+    int32_t user_transform_index;
+    int32_t color_index;
+    int32_t opacity_index;
 };
 
 struct pipeline_desc {
@@ -340,22 +345,14 @@ static int update_text_content(struct ngl_node *node)
 
         struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
         for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
-            struct pipeline_desc_common *desc = &descs[i].fg.common;
+            struct pipeline_desc_fg *desc_fg = &descs[i].fg;
+            struct pipeline_desc_common *desc = &desc_fg->common;
 
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 0, s->transforms);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 1, s->transforms);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 2, s->transforms);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 3, s->transforms);
-
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 4, s->atlas_coords);
-
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 5, s->user_transforms);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 6, s->user_transforms);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 7, s->user_transforms);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 8, s->user_transforms);
-
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat,  9, s->colors);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 10, s->opacities);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->transform_index, s->transforms);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->atlas_coords_index, s->atlas_coords);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->user_transform_index, s->user_transforms);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->color_index, s->colors);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->opacity_index, s->opacities);
 
             if (s->text_ctx->cls->flags & NGLI_TEXT_FLAG_MUTABLE_ATLAS)
                 ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, s->text_ctx->atlas_texture);
@@ -486,6 +483,7 @@ static int init_subdesc(struct ngl_node *node,
             .topology     = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state        = *graphicstate,
             .rt_desc      = rnode->rendertarget_desc,
+            .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
         },
         .program = ngli_pgcraft_get_program(desc->crafter),
         .layout = ngli_pgcraft_get_pipeline_layout(desc->crafter),
@@ -654,12 +652,11 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     if (ret < 0)
         return ret;
 
-    const struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(desc->common.crafter);
-    ngli_assert(!strcmp("transform",       layout.attribute_descs[0].name));
-    ngli_assert(!strcmp("atlas_coords",    layout.attribute_descs[4].name));
-    ngli_assert(!strcmp("user_transform",  layout.attribute_descs[5].name));
-    ngli_assert(!strcmp("frag_color",      layout.attribute_descs[9].name));
-    ngli_assert(!strcmp("frag_opacity",    layout.attribute_descs[10].name));
+    desc->transform_index = ngli_pgcraft_get_vertex_buffer_index(desc->common.crafter, "transform");
+    desc->atlas_coords_index = ngli_pgcraft_get_vertex_buffer_index(desc->common.crafter, "atlas_coords");
+    desc->user_transform_index = ngli_pgcraft_get_vertex_buffer_index(desc->common.crafter, "user_transform");
+    desc->color_index = ngli_pgcraft_get_vertex_buffer_index(desc->common.crafter, "frag_color");
+    desc->opacity_index = ngli_pgcraft_get_vertex_buffer_index(desc->common.crafter, "frag_opacity");
 
     return 0;
 }

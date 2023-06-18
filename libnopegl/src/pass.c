@@ -385,13 +385,10 @@ static int register_resources(struct pass *s, const struct hmap *resources, int 
 static int pass_graphics_init(struct pass *s)
 {
     const struct pass_params *params = &s->params;
+    const struct geometry *geometry = params->geometry;
 
     s->pipeline_type = NGLI_PIPELINE_TYPE_GRAPHICS;
-
-    const struct geometry *geometry = params->geometry;
-    struct pipeline_graphics *graphics = &s->pipeline_graphics;
-
-    graphics->topology = geometry->topology;
+    s->topology = geometry->topology;
 
     if (geometry->indices_buffer) {
         s->indices = geometry->indices_buffer;
@@ -496,11 +493,8 @@ int ngli_pass_prepare(struct pass *s)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    struct pipeline_graphics pipeline_graphics = s->pipeline_graphics;
-    pipeline_graphics.state = rnode->graphicstate;
-    pipeline_graphics.rt_desc = rnode->rendertarget_desc;
-
-    int ret = ngli_blending_apply_preset(&pipeline_graphics.state, s->params.blending);
+    struct graphicstate state = rnode->graphicstate;
+    int ret = ngli_blending_apply_preset(&state, s->params.blending);
     if (ret < 0)
         return ret;
 
@@ -544,9 +538,14 @@ int ngli_pass_prepare(struct pass *s)
 
     const struct pipeline_params pipeline_params = {
         .type     = s->pipeline_type,
-        .graphics = pipeline_graphics,
-        .program  = ngli_pgcraft_get_program(desc->crafter),
-        .layout   = ngli_pgcraft_get_pipeline_layout(desc->crafter),
+        .graphics = {
+            .topology = s->topology,
+            .state = state,
+            .rt_desc = rnode->rendertarget_desc,
+            .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
+        },
+        .program = ngli_pgcraft_get_program(desc->crafter),
+        .layout  = ngli_pgcraft_get_pipeline_layout(desc->crafter),
     };
 
     const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
