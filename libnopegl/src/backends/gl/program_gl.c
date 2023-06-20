@@ -179,13 +179,13 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
     GLint nb_active_uniform_buffers;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
     for (GLint i = 0; i < nb_active_uniform_buffers; i++) {
-        char name[MAX_ID_LEN] = {0};
         struct program_variable_info *info = program_variable_info_create();
         if (!info) {
             ngli_hmap_freep(&bmap);
             return NULL;
         }
 
+        char name[MAX_ID_LEN] = {0};
         ngli_glGetActiveUniformBlockName(gl, pid, i, sizeof(name), NULL, name);
         const GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
         ngli_glGetActiveUniformBlockiv(gl, pid, block_index, GL_UNIFORM_BLOCK_BINDING, &info->binding);
