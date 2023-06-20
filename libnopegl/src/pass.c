@@ -192,6 +192,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
 
     struct block_info *block_info = block_node->priv_data;
     struct block *block = &block_info->block;
+    const size_t block_size = ngli_block_get_size(block, 0);
 
     /*
      * Select buffer type. We prefer UBO over SSBO, but in the following
@@ -201,12 +202,12 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     if (block->layout == NGLI_BLOCK_LAYOUT_STD430) {
         LOG(DEBUG, "block %s has a std430 layout, declaring it as SSBO", name);
         type = NGLI_TYPE_STORAGE_BUFFER;
-    } else if (block->size > limits->max_uniform_block_size) {
+    } else if (block_size > limits->max_uniform_block_size) {
         LOG(DEBUG, "block %s is larger than the max UBO size (%zu > %d), declaring it as SSBO",
-            name, block->size, limits->max_uniform_block_size);
-        if (block->size > limits->max_storage_block_size) {
+            name, block_size, limits->max_uniform_block_size);
+        if (block_size > limits->max_storage_block_size) {
             LOG(ERROR, "block %s is larger than the max SSBO size (%zd > %d)",
-                name, block->size, limits->max_storage_block_size);
+                name, block_size, limits->max_storage_block_size);
             return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
         }
         type = NGLI_TYPE_STORAGE_BUFFER;
