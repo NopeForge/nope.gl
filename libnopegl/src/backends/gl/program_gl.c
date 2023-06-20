@@ -191,8 +191,11 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         const GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
         ngli_glGetActiveUniformBlockiv(gl, pid, block_index, GL_UNIFORM_BLOCK_BINDING, &info->binding);
 
-        LOG(DEBUG, "ubo[%d/%d]: %s binding:%d",
-            i + 1, nb_active_uniform_buffers, name, info->binding);
+        GLint block_size = 0;
+        ngli_glGetActiveUniformBlockiv(gl, pid, block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
+
+        LOG(DEBUG, "ubo[%d/%d]: %s binding:%d size:%d",
+            i + 1, nb_active_uniform_buffers, name, info->binding, block_size);
 
         int ret = ngli_hmap_set(bmap, name, info);
         if (ret < 0) {
