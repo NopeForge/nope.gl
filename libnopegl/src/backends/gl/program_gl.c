@@ -187,12 +187,8 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         }
 
         ngli_glGetActiveUniformBlockName(gl, pid, i, sizeof(name), NULL, name);
-        if (gl->features & NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY) {
-            const GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
-            static const GLenum props[] = {GL_BUFFER_BINDING};
-            ngli_glGetProgramResourceiv(gl, pid, GL_UNIFORM_BLOCK, block_index,
-                                        (GLsizei)NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
-        }
+        const GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
+        ngli_glGetActiveUniformBlockiv(gl, pid, block_index, GL_UNIFORM_BLOCK_BINDING, &info->binding);
 
         LOG(DEBUG, "ubo[%d/%d]: %s binding:%d",
             i + 1, nb_active_uniform_buffers, name, info->binding);
