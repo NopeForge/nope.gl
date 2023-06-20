@@ -83,8 +83,8 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
 
     for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
-        const struct block *block = &s->compat_info->ublocks[i];
-        if (!block->size)
+        const size_t block_size = ngli_block_get_size(&s->compat_info->ublocks[i], 0);
+        if (!block_size)
             continue;
 
         struct buffer *buffer = ngli_buffer_create(gpu_ctx);
@@ -93,7 +93,7 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
         s->ubuffers[i] = buffer;
 
         int ret = ngli_buffer_init(buffer,
-                                   block->size,
+                                   block_size,
                                    NGLI_BUFFER_USAGE_DYNAMIC_BIT |
                                    NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
                                    NGLI_BUFFER_USAGE_MAP_WRITE);
