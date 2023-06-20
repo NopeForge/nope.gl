@@ -658,7 +658,8 @@ static int inject_ublock(struct pgcraft *s, struct bstr *b, int stage)
     struct pgcraft_compat_info *compat_info = &s->compat_info;
 
     struct block *block = &compat_info->ublocks[stage];
-    if (!block->size)
+    const size_t block_size = ngli_block_get_size(block, 0);
+    if (!block_size)
         return 0;
 
     struct pgcraft_block pgcraft_block = {
