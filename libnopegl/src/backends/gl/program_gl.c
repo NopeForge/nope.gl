@@ -187,6 +187,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
 
         char name[MAX_ID_LEN] = {0};
         ngli_glGetActiveUniformBlockName(gl, pid, i, sizeof(name), NULL, name);
+
         const GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
         ngli_glGetActiveUniformBlockiv(gl, pid, block_index, GL_UNIFORM_BLOCK_BINDING, &info->binding);
 
