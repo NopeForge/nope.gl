@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -159,7 +160,7 @@ static size_t fill_tail_field_info(const struct block *s, struct block_field *fi
 size_t ngli_block_get_size(const struct block *s, size_t variadic_field_count)
 {
     if (variadic_field_count == 0)
-        return s->size;
+        return NGLI_ALIGN(s->size, aligns_map[NGLI_TYPE_VEC4]);
 
     /*
      * If the last field is variadic, we create an identical artificial field
@@ -171,7 +172,8 @@ size_t ngli_block_get_size(const struct block *s, size_t variadic_field_count)
 
     struct block_field tmp = *last;
     tmp.count = variadic_field_count;
-    return fill_tail_field_info(s, &tmp);
+    size_t size = fill_tail_field_info(s, &tmp);
+    return NGLI_ALIGN(size, aligns_map[NGLI_TYPE_VEC4]);
 }
 
 int ngli_block_add_field(struct block *s, const char *name, int type, size_t count)
