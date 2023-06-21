@@ -59,9 +59,7 @@ static int atlas_create(struct ngl_ctx *ctx)
         ctx->char_map[chr] = bitmap_id;
     }
 
-    ngli_atlas_finalize(ctx->font_atlas);
-
-    return 0;
+    return ngli_atlas_finalize(ctx->font_atlas);
 }
 
 static int text_builtin_init(struct text *text)
