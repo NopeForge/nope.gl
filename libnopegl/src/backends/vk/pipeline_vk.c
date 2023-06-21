@@ -922,7 +922,8 @@ void ngli_pipeline_vk_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t
         return;
 
     struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
-    if (!cmd_vk) {
+    const int cmd_is_transient = cmd_vk ? 0 : 1;
+    if (cmd_is_transient) {
         VkResult res = ngli_cmd_vk_begin_transient(s->gpu_ctx, 0, &cmd_vk);
         if (res != VK_SUCCESS)
             return;
@@ -955,7 +956,7 @@ void ngli_pipeline_vk_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t
     const VkPipelineStageFlags dst_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
     vkCmdPipelineBarrier(cmd_buf, src_stage, dst_stage, 0, 1, &barrier, 0, NULL, 0, NULL);
 
-    if (!gpu_ctx_vk->cur_cmd) {
+    if (cmd_is_transient) {
         ngli_cmd_vk_execute_transient(&cmd_vk);
     }
 }
