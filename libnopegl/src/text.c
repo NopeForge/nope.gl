@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Clément Bœsch <u pkh.me>
  * Copyright 2023 Nope Project
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -21,8 +22,14 @@
 
 #include <string.h>
 
+#include "darray.h"
+#include "internal.h"
+#include "log.h"
+#include "math_utils.h"
 #include "memory.h"
 #include "text.h"
+#include "transforms.h"
+#include "utils.h"
 
 extern const struct text_cls ngli_text_builtin;
 extern const struct text_cls ngli_text_external;
@@ -118,6 +125,10 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
     ngli_darray_init(&s->chars, sizeof(struct char_info), 0);
     ngli_darray_init(&s->chars_internal, sizeof(struct char_info_internal), 0);
 
+    s->effects = ngli_calloc(cfg->nb_effect_nodes, sizeof(*s->effects));
+    if (!s->effects)
+        return NGL_ERROR_MEMORY;
+
     s->cls = cfg->font_files ? &ngli_text_external : &ngli_text_builtin;
     if (s->cls->priv_size) {
         s->priv_data = ngli_calloc(1, s->cls->priv_size);
@@ -125,6 +136,256 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
             return NGL_ERROR_MEMORY;
     }
     return s->cls->init(s);
+}
+
+/* Apply the new defaults to the user exposed data */
+static void reset_chars_data_to_defaults(struct text *s)
+{
+    memcpy(s->chars_data, s->chars_data_default, s->chars_copy_size);
+}
+
+static struct text_effects_pointers get_chr_data_pointers(float *base, size_t nb_chars)
+{
+    struct text_effects_pointers ptrs = {0};
+    ptrs.transform  = base;
+    ptrs.color      = ptrs.transform  + nb_chars * 4 * 4;
+    ptrs.opacity    = ptrs.color      + nb_chars * 3;
+    return ptrs;
+}
+
+struct default_data {
+    float transform[4 * 4];
+    float color[3];
+    float opacity;
+};
+
+/* Fill default buffers (1 row per character) with the default data. */
+static void fill_default_data_buffers(struct text *s, size_t nb_chars)
+{
+    /* Default data for each character */
+    const struct default_data default_data = {
+        .transform = NGLI_MAT4_IDENTITY,
+        .color     = {NGLI_ARG_VEC3(s->config.defaults.color)},
+        .opacity   = s->config.defaults.opacity,
+    };
+
+    const struct text_effects_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
+
+    // Loop is repeated to make memory accesses contiguous.
+    for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.transform + i * 4 * 4, default_data.transform, sizeof(default_data.transform));
+    for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.color     + i * 3,     default_data.color,     sizeof(default_data.color));
+    for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.opacity   + i,         &default_data.opacity,  sizeof(default_data.opacity));
+}
+
+void ngli_text_update_effects_defaults(struct text *s, const struct text_effects_defaults *defaults)
+{
+    s->config.defaults = *defaults;
+
+    const size_t nb_chars = ngli_darray_count(&s->chars);
+    if (nb_chars)
+        fill_default_data_buffers(s, nb_chars);
+}
+
+static int set_value_from_node(float *dst, struct ngl_node *node, double t)
+{
+    int ret = ngli_node_update(node, t);
+    if (ret < 0)
+        return ret;
+    const struct variable_info *v = node->priv_data;
+    memcpy(dst, v->data, v->data_size);
+    return 0;
+}
+
+static int set_f32_value(float *dst, struct ngl_node *node, float value, double t)
+{
+    if (node)
+        return set_value_from_node(dst, node, t);
+    if (value < 0.f)
+        return 0;
+    *dst = value;
+    return 0;
+}
+
+static int set_vec3_value(float *dst, struct ngl_node *node, const float *value, double t)
+{
+    if (node)
+        return set_value_from_node(dst, node, t);
+    if (value[0] < 0.f)
+        return 0;
+    memcpy(dst, value, 3 * sizeof(*dst));
+    return 0;
+}
+
+static int set_transform(float *dst, struct ngl_node *node, double t)
+{
+    if (!node)
+        return 0;
+    int ret = ngli_node_update(node, t);
+    if (ret < 0)
+        return ret;
+    ngli_transform_chain_compute(node, dst);
+    return 0;
+}
+
+static void segment_chars(const struct text *s, struct effect_segmentation *effect)
+{
+    size_t char_id = 0;
+    size_t position = 0;
+
+    const struct char_info_internal *chars = ngli_darray_data(&s->chars_internal);
+    for (size_t i = 0; i < ngli_darray_count(&s->chars_internal); i++) {
+        const struct char_info_internal *c = &chars[i];
+        if (c->tags & NGLI_TEXT_CHAR_TAG_GLYPH)
+            effect->positions[char_id++] = position;
+        position++; // account for all the hidden characters as if they existed
+    }
+    ngli_assert(char_id == ngli_darray_count(&s->chars));
+    effect->total_segments = position;
+}
+
+static void segment_chars_nospace(const struct text *s, struct effect_segmentation *effect)
+{
+    for (size_t i = 0; i < ngli_darray_count(&s->chars); i++)
+        effect->positions[i] = i;
+    effect->total_segments = ngli_darray_count(&s->chars);
+}
+
+static void segment_separator(const struct text *s, struct effect_segmentation *effect, uint32_t mask)
+{
+    int inside_target_element = 0;
+
+    size_t char_id = 0;
+    size_t position = 0;
+    const struct char_info_internal *chars = ngli_darray_data(&s->chars_internal);
+    for (size_t i = 0; i < ngli_darray_count(&s->chars_internal); i++) {
+        const struct char_info_internal *c = &chars[i];
+
+        if (c->tags & mask) {
+            if (inside_target_element) {
+                position++;
+                inside_target_element = 0;
+            }
+        } else if (!inside_target_element) {
+            effect->total_segments++;
+            inside_target_element = 1;
+        }
+
+        if (!(c->tags & NGLI_TEXT_CHAR_TAG_GLYPH))
+            continue;
+
+        effect->positions[char_id++] = position;
+    }
+    ngli_assert(char_id == ngli_darray_count(&s->chars));
+}
+
+static void segment_words(const struct text *s, struct effect_segmentation *effect)
+{
+    segment_separator(s, effect, NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR);
+}
+
+static void segment_lines(const struct text *s, struct effect_segmentation *effect)
+{
+    segment_separator(s, effect, NGLI_TEXT_CHAR_TAG_LINE_BREAK);
+}
+
+static void segment_text(const struct text *s, struct effect_segmentation *effect)
+{
+    for (size_t i = 0; i < ngli_darray_count(&s->chars); i++)
+        effect->positions[i] = 0;
+    effect->total_segments = 1;
+}
+
+/*
+ * SplitMix64, public domain code from Sebastiano Vigna (2015)
+ * See https://xoshiro.di.unimi.it/splitmix64.c
+ */
+static uint64_t prng64_next(uint64_t *state)
+{
+    uint64_t z = *state;
+    *state += 0x9e3779b97f4a7c15;
+    z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
+    z = (z ^ (z >> 27)) * 0x94d049bb133111eb;
+    return z ^ (z >> 31);
+}
+
+static void shuffle(uint64_t *rng_state, size_t *positions, size_t n)
+{
+    for (size_t i = 0; i < n - 1; i++) {
+        const size_t r = i + (size_t)prng64_next(rng_state) % (n - i);
+        NGLI_SWAP(size_t, positions[i], positions[r]);
+    }
+}
+
+static int build_effects_segmentation(struct text *s)
+{
+    for (size_t i = 0; i < s->config.nb_effect_nodes; i++) {
+        struct ngl_node *effect_node = s->config.effect_nodes[i];
+        struct texteffect_opts *effect_opts = effect_node->opts;
+        struct effect_segmentation *effect = &s->effects[i];
+
+        const size_t nb_chars = ngli_darray_count(&s->chars);
+        size_t *new_positions = ngli_realloc(effect->positions, nb_chars, sizeof(*new_positions));
+        if (!new_positions)
+            return NGL_ERROR_MEMORY;
+        effect->positions = new_positions;
+
+        switch (effect_opts->target) {
+        case NGLI_TEXT_EFFECT_CHAR:         segment_chars(s, effect);         break;
+        case NGLI_TEXT_EFFECT_CHAR_NOSPACE: segment_chars_nospace(s, effect); break;
+        case NGLI_TEXT_EFFECT_WORD:         segment_words(s, effect);         break;
+        case NGLI_TEXT_EFFECT_LINE:         segment_lines(s, effect);         break;
+        case NGLI_TEXT_EFFECT_TEXT:         segment_text(s, effect);          break;
+        default:
+            ngli_assert(0);
+        }
+
+        if (effect_opts->random) {
+            /* Build a shuffle map associating a position with another one */
+            size_t *shuffle_map = ngli_calloc(effect->total_segments, sizeof(*shuffle_map));
+            if (!shuffle_map)
+                return NGL_ERROR_MEMORY;
+            for (size_t j = 0; j < effect->total_segments; j++)
+                shuffle_map[j] = j;
+
+            // TODO hash a seed when random_seed is 0 so that each random is unique per effect
+            uint64_t rng_state = (uint64_t)effect_opts->random_seed;
+            shuffle(&rng_state, shuffle_map, effect->total_segments);
+
+            /* Apply the shuffle map */
+            for (size_t j = 0; j < nb_chars; j++)
+                effect->positions[j] = shuffle_map[effect->positions[j]];
+
+            ngli_freep(&shuffle_map);
+        }
+    }
+
+    return 0;
+}
+
+static void destroy_effects_data(struct text *s)
+{
+    /*
+     * text.effects is not destroyed since its size depends on the number of
+     * effects (which doesn't change). On the other hand, effects[i].positions
+     * depends on the number of characters, so we're freeing them here.
+     */
+    if (s->effects)
+        for (size_t i = 0; i < s->config.nb_effect_nodes; i++)
+            ngli_freep(&s->effects[i].positions);
+
+    ngli_freep(&s->chars_data_default);
+    s->chars_data = NULL; // allocation is shared with chars_data_default
+    s->chars_data_size = 0;
+
+    memset(&s->data_ptrs, 0, sizeof(s->data_ptrs)); // user may still be reading them
+}
+
+static size_t next_pow2(size_t x)
+{
+    size_t p = 1;
+    while (p < x)
+        p *= 2;
+    return p;
 }
 
 int ngli_text_set_string(struct text *s, const char *str)
@@ -145,6 +406,7 @@ int ngli_text_set_string(struct text *s, const char *str)
     if (stats.max_linelen <= 0) {
         s->width = 0;
         s->height = 0;
+        destroy_effects_data(s);
         goto end;
     }
 
@@ -209,9 +471,108 @@ int ngli_text_set_string(struct text *s, const char *str)
         }
     }
 
+    /*
+     * Reallocate characters data if the number of characters changed. We could
+     * use a "<" instead of "!=" but we don't want to keep large amount of
+     * memory allocated in case one live change event set a large string which
+     * is later trimed down. To reduce the number of reallocations when the
+     * lengths of the successive strings updates are in the same vicinity, we
+     * stitch the number of characters to the next power of two.
+     */
+    const size_t nb_chars = ngli_darray_count(&s->chars);
+    const size_t alloc_count = next_pow2(nb_chars);
+    const size_t needed_size = alloc_count * sizeof(struct default_data);
+    if (s->chars_data_size != needed_size) {
+        /*
+         * The x2 is because we duplicate the data for the defaults,
+         * which is the reference data we use to reset all the characters
+         * properties at every frame. The default data is positioned
+         * first for a more predictible read/write memory access in
+         * reset_chars_data_to_defaults()
+         */
+        float *new_chars_data_default = ngli_realloc(s->chars_data_default, 2, needed_size);
+        if (!new_chars_data_default)
+            return NGL_ERROR_MEMORY;
+        s->chars_data_default = new_chars_data_default;
+        s->chars_data_size = needed_size;
+        s->chars_data = (void *)((uint8_t *)s->chars_data_default + s->chars_data_size);
+    }
+
+    const size_t copy_size = nb_chars * sizeof(struct default_data);
+    if (copy_size != s->chars_copy_size) {
+        /* We don't need to copy the rounded size, only the actual number of characters */
+        s->chars_copy_size = copy_size;
+        s->data_ptrs = get_chr_data_pointers(s->chars_data, nb_chars);
+        fill_default_data_buffers(s, nb_chars);
+    }
+
+    reset_chars_data_to_defaults(s);
+
+    /* Assign each character to an effect */
+    ret = build_effects_segmentation(s);
+    if (ret < 0)
+        return ret;
+
 end:
     box_stats_reset(&stats);
     return ret;
+}
+
+int ngli_text_set_time(struct text *s, double t)
+{
+    if (!ngli_darray_count(&s->chars))
+        return 0;
+
+    reset_chars_data_to_defaults(s);
+
+    for (size_t i = 0; i < s->config.nb_effect_nodes; i++) {
+        struct ngl_node *effect_node = s->config.effect_nodes[i];
+        struct texteffect_opts *effect_opts = effect_node->opts;
+
+        if (t < effect_opts->start_time || t > effect_opts->end_time)
+            continue;
+
+        /* Remap scene time to effect time */
+        const double effect_t = NGLI_LINEAR_NORM(effect_opts->start_time, effect_opts->end_time, t);
+
+        /* Update the range-selector nodes using the effect time */
+        int ret;
+        float start_pos = 0.f, end_pos = 1.f, overlap = 0.f; // set a default to avoid uninitialized value in case of negative parameter value
+        if ((ret = set_f32_value(&start_pos, effect_opts->start_pos_node, effect_opts->start_pos, effect_t)) < 0 ||
+            (ret = set_f32_value(&end_pos,   effect_opts->end_pos_node,   effect_opts->end_pos,   effect_t)) < 0 ||
+            (ret = set_f32_value(&overlap,   effect_opts->overlap_node,   effect_opts->overlap,   effect_t)) < 0)
+            return ret;
+
+        const struct effect_segmentation *effect = &s->effects[i];
+
+        const size_t nb_elems = effect->total_segments;
+        const double duration  = 1.f / ((double)nb_elems - overlap * (double)(nb_elems - 1));
+        const double timescale = (1.f - overlap) * duration;
+
+        /* Apply effect on the selected range of characters */
+        for (size_t c = 0; c < ngli_darray_count(&s->chars); c++) {
+            const size_t pos = effect->positions[c];
+
+            /* Recenter the position in the middle of the character (similar to texture sampling) */
+            const float pos_f = ((float)pos + 0.5f) / (float)nb_elems;
+
+            /* Spacially filter out characters that do not land into the user specified range */
+            if (pos_f < start_pos || pos_f > end_pos)
+                continue;
+
+            /* Interpolate the time of the target, taking into account the overlap */
+            const double prev_t = timescale * (double)pos;
+            const double next_t = prev_t + duration;
+            const double target_t = NGLI_LINEAR_NORM(prev_t, next_t, effect_t);
+
+            if ((ret = set_transform( s->data_ptrs.transform  + c * 4 * 4, effect_opts->transform_chain,                       target_t)) < 0 ||
+                (ret = set_vec3_value(s->data_ptrs.color      + c * 3,     effect_opts->color_node,      effect_opts->color,   target_t)) < 0 ||
+                (ret = set_f32_value( s->data_ptrs.opacity    + c,         effect_opts->opacity_node,    effect_opts->opacity, target_t)) < 0)
+                return ret;
+        }
+    }
+
+    return 0;
 }
 
 void ngli_text_freep(struct text **sp)
@@ -220,6 +581,8 @@ void ngli_text_freep(struct text **sp)
     if (s->cls->reset)
         s->cls->reset(s);
     ngli_freep(&s->priv_data);
+    destroy_effects_data(s);
+    ngli_freep(&s->effects);
     ngli_darray_reset(&s->chars);
     ngli_darray_reset(&s->chars_internal);
     ngli_freep(sp);

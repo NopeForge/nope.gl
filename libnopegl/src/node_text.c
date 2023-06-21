@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Clément Bœsch <u pkh.me>
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -66,8 +67,6 @@ struct pipeline_desc_bg {
 
 struct pipeline_desc_fg {
     struct pipeline_desc_common common;
-    int32_t color_index;
-    int32_t opacity_index;
 };
 
 struct pipeline_desc {
@@ -87,6 +86,8 @@ struct text_opts {
     char *font_files;
     int32_t padding;
     float font_scale;
+    struct ngl_node **effect_nodes;
+    size_t nb_effect_nodes;
     int valign, halign;
     int writing_mode;
     int32_t aspect_ratio[2];
@@ -97,6 +98,9 @@ struct text_priv {
     struct text *text_ctx;
     struct buffer *transforms;
     struct buffer *atlas_coords;
+    struct buffer *user_transforms;
+    struct buffer *colors;
+    struct buffer *opacities;
     size_t nb_chars;
 
     /* background box */
@@ -156,9 +160,11 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("live control identifier")},
     {"fg_color",     NGLI_PARAM_TYPE_VEC3, OFFSET(fg_color), {.vec={1.0, 1.0, 1.0}},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                     .update_func=set_live_changed,
                      .desc=NGLI_DOCSTRING("foreground text color")},
     {"fg_opacity",   NGLI_PARAM_TYPE_F32, OFFSET(fg_opacity), {.f32=1.f},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                     .update_func=set_live_changed,
                      .desc=NGLI_DOCSTRING("foreground text opacity")},
     {"bg_color",     NGLI_PARAM_TYPE_VEC3, OFFSET(bg_color), {.vec={0.0, 0.0, 0.0}},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
@@ -178,6 +184,9 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("pixel padding around the text")},
     {"font_scale",   NGLI_PARAM_TYPE_F32, OFFSET(font_scale), {.f32=1.f},
                      .desc=NGLI_DOCSTRING("scaling of the font")},
+    {"effects",      NGLI_PARAM_TYPE_NODELIST, OFFSET(effect_nodes),
+                     .node_types=(const uint32_t[]){NGL_NODE_TEXTEFFECT, NGLI_NODE_NONE},
+                     .desc=NGLI_DOCSTRING("stack of effects")},
     {"valign",       NGLI_PARAM_TYPE_SELECT, OFFSET(valign), {.i32=NGLI_TEXT_VALIGN_CENTER},
                      .choices=&valign_choices,
                      .desc=NGLI_DOCSTRING("vertical alignment of the text in the box")},
@@ -197,6 +206,8 @@ static const struct node_param text_params[] = {
 static const struct pgcraft_iovar vert_out_vars[] = {
     {.name = "uv",     .type = NGLI_TYPE_VEC2},
     {.name = "coords", .type = NGLI_TYPE_VEC4},
+    {.name = "color",  .type = NGLI_TYPE_VEC3},
+    {.name = "opacity",.type = NGLI_TYPE_F32},
 };
 
 #define BC(index) o->box_corner[index]
@@ -207,6 +218,9 @@ static void destroy_characters_resources(struct text_priv *s)
 {
     ngli_buffer_freep(&s->transforms);
     ngli_buffer_freep(&s->atlas_coords);
+    ngli_buffer_freep(&s->user_transforms);
+    ngli_buffer_freep(&s->colors);
+    ngli_buffer_freep(&s->opacities);
     s->nb_chars = 0;
 }
 
@@ -307,6 +321,7 @@ static int update_text_content(struct ngl_node *node)
     if (text_nbchr > s->nb_chars) { // need re-alloc
         destroy_characters_resources(s);
 
+        /* The content of these buffers will remain constant until the next text content update */
         s->transforms = ngli_buffer_create(gpu_ctx);
         s->atlas_coords = ngli_buffer_create(gpu_ctx);
         if (!s->transforms || !s->atlas_coords) {
@@ -314,8 +329,20 @@ static int update_text_content(struct ngl_node *node)
             goto end;
         }
 
-        if ((ret = ngli_buffer_init(s->transforms, text_nbchr * 4 * 4 * sizeof(*transforms), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->atlas_coords, text_nbchr * 4 * sizeof(*atlas_coords), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
+        /* The content of these buffers will be updated later using the effects data (see apply_effects()) */
+        s->user_transforms = ngli_buffer_create(gpu_ctx);
+        s->colors          = ngli_buffer_create(gpu_ctx);
+        s->opacities       = ngli_buffer_create(gpu_ctx);
+        if (!s->user_transforms || !s->colors || !s->opacities) {
+            ret = NGL_ERROR_MEMORY;
+            goto end;
+        }
+
+        if ((ret = ngli_buffer_init(s->transforms,      text_nbchr * 4 * 4 * sizeof(*transforms),   DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_buffer_init(s->atlas_coords,    text_nbchr     * 4 * sizeof(*atlas_coords), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_buffer_init(s->user_transforms, text_nbchr * 4 * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_buffer_init(s->colors,          text_nbchr     * 3 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_buffer_init(s->opacities,       text_nbchr         * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
             goto end;
 
         struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
@@ -328,6 +355,14 @@ static int update_text_content(struct ngl_node *node)
             ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 3, s->transforms);
 
             ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 4, s->atlas_coords);
+
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 5, s->user_transforms);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 6, s->user_transforms);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 7, s->user_transforms);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 8, s->user_transforms);
+
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat,  9, s->colors);
+            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, 10, s->opacities);
 
             if (s->text_ctx->cls->flags & NGLI_TEXT_FLAG_MUTABLE_ATLAS)
                 ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, s->text_ctx->atlas_texture);
@@ -344,6 +379,25 @@ end:
     ngli_free(transforms);
     ngli_free(atlas_coords);
     return ret;
+}
+
+/* Update the GPU buffers using the updated effects data */
+static int apply_effects(struct text_priv *s)
+{
+    int ret;
+    struct text *text = s->text_ctx;
+
+    const size_t text_nbchr = ngli_darray_count(&text->chars);
+    if (!text_nbchr)
+        return 0;
+
+    const struct text_effects_pointers *ptrs = &text->data_ptrs;
+    if ((ret = ngli_buffer_upload(s->user_transforms, ptrs->transform,  text_nbchr * 4 * 4 * sizeof(*ptrs->transform),  0)) < 0 ||
+        (ret = ngli_buffer_upload(s->colors,          ptrs->color,      text_nbchr     * 3 * sizeof(*ptrs->color),      0)) < 0 ||
+        (ret = ngli_buffer_upload(s->opacities,       ptrs->opacity,    text_nbchr         * sizeof(*ptrs->opacity),    0)) < 0)
+        return ret;
+
+    return 0;
 }
 
 static int init_bounding_box_geometry(struct ngl_node *node)
@@ -387,6 +441,12 @@ static int text_init(struct ngl_node *node)
         .valign = o->valign,
         .halign = o->halign,
         .writing_mode = o->writing_mode,
+        .effect_nodes = o->effect_nodes,
+        .nb_effect_nodes = o->nb_effect_nodes,
+        .defaults = {
+            .color = {NGLI_ARG_VEC3(o->fg_color)},
+            .opacity = o->fg_opacity,
+        }
     };
 
     int ret = ngli_text_init(s->text_ctx, &config);
@@ -514,13 +574,10 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     struct ngl_ctx *ctx = node->ctx;
     struct rnode *rnode = ctx->rnode_pos;
     struct text_priv *s = node->priv_data;
-    const struct text_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
         {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
         {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = o->fg_color},
-        {.name = "opacity",           .type = NGLI_TYPE_F32,  .stage = NGLI_PROGRAM_SHADER_FRAG, .data = &o->fg_opacity},
     };
 
     const struct pgcraft_texture textures[] = {
@@ -546,6 +603,27 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
             .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->atlas_coords,
+            .rate     = 1,
+        }, {
+            .name     = "user_transform",
+            .type     = NGLI_TYPE_MAT4,
+            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .stride   = 4 * 4 * sizeof(float),
+            .buffer   = s->user_transforms,
+            .rate     = 1,
+        }, {
+            .name     = "frag_color",
+            .type     = NGLI_TYPE_VEC3,
+            .format   = NGLI_FORMAT_R32G32B32_SFLOAT,
+            .stride   = 3 * sizeof(float),
+            .buffer   = s->colors,
+            .rate     = 1,
+        }, {
+            .name     = "frag_opacity",
+            .type     = NGLI_TYPE_F32,
+            .format   = NGLI_FORMAT_R32_SFLOAT,
+            .stride   = sizeof(float),
+            .buffer   = s->opacities,
             .rate     = 1,
         },
     };
@@ -585,11 +663,12 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     if (ret < 0)
         return ret;
 
-    desc->color_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "color", NGLI_PROGRAM_SHADER_FRAG);
-    desc->opacity_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "opacity", NGLI_PROGRAM_SHADER_FRAG);
-
     ngli_assert(!strcmp("transform", pipeline_params.layout.attribute_descs[0].name));
     ngli_assert(!strcmp("atlas_coords", pipeline_params.layout.attribute_descs[4].name));
+
+    ngli_assert(!strcmp("user_transform",  pipeline_params.layout.attribute_descs[5].name));
+    ngli_assert(!strcmp("frag_color",      pipeline_params.layout.attribute_descs[9].name));
+    ngli_assert(!strcmp("frag_opacity",    pipeline_params.layout.attribute_descs[10].name));
 
     return 0;
 }
@@ -620,13 +699,29 @@ static int text_prepare(struct ngl_node *node)
 static int text_update(struct ngl_node *node, double t)
 {
     struct text_priv *s = node->priv_data;
+    const struct text_opts *o = node->opts;
 
     if (s->live_changed) {
+        const struct text_effects_defaults defaults = {
+            .color = {NGLI_ARG_VEC3(o->fg_color)},
+            .opacity = o->fg_opacity,
+        };
+        ngli_text_update_effects_defaults(s->text_ctx, &defaults);
+
         int ret = update_text_content(node);
         if (ret < 0)
             return ret;
         s->live_changed = 0;
     }
+
+    int ret = ngli_text_set_time(s->text_ctx, t);
+    if (ret < 0)
+        return ret;
+
+    ret = apply_effects(s);
+    if (ret < 0)
+        return ret;
+
     return 0;
 }
 
@@ -659,8 +754,6 @@ static void text_draw(struct ngl_node *node)
         struct pipeline_desc_fg *fg_desc = &desc->fg;
         ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->common.modelview_matrix_index, modelview_matrix);
         ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->common.projection_matrix_index, projection_matrix);
-        ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->color_index, o->fg_color);
-        ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->opacity_index, &o->fg_opacity);
         ngli_pipeline_compat_draw(fg_desc->common.pipeline_compat, 4, (int)s->nb_chars);
     }
 }

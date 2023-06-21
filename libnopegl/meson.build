@@ -204,6 +204,7 @@ lib_src = files(
   'src/node_streamed.c',
   'src/node_streamedbuffer.c',
   'src/node_text.c',
+  'src/node_texteffect.c',
   'src/node_texture.c',
   'src/node_textureview.c',
   'src/node_time.c',

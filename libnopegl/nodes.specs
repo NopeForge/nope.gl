@@ -2056,6 +2056,13 @@
       "desc": "scaling of the font"
     },
     {
+      "name": "effects",
+      "type": "node_list",
+      "node_types": ["TextEffect"],
+      "flags": [],
+      "desc": "stack of effects"
+    },
+    {
       "name": "valign",
       "type": "select",
       "default": "center",
@@ -2085,6 +2092,86 @@
       "default": [0,0],
       "flags": ["live"],
       "desc": "box aspect ratio"
+    }
+  ],
+  "TextEffect": [
+    {
+      "name": "start",
+      "type": "f64",
+      "default": 0.000000,
+      "flags": [],
+      "desc": "absolute start time of the effect"
+    },
+    {
+      "name": "end",
+      "type": "f64",
+      "default": 5.000000,
+      "flags": [],
+      "desc": "absolute end time of the effect"
+    },
+    {
+      "name": "target",
+      "type": "select",
+      "default": "text",
+      "choices": ["char", "char_nospace", "word", "line", "text"],
+      "flags": [],
+      "desc": "segmentation target of the effect"
+    },
+    {
+      "name": "random",
+      "type": "bool",
+      "default": 0,
+      "flags": [],
+      "desc": "randomize the order the effect are applied on the target"
+    },
+    {
+      "name": "random_seed",
+      "type": "u32",
+      "default": 0,
+      "flags": [],
+      "desc": "random seed for the `random` parameter"
+    },
+    {
+      "name": "start_pos",
+      "type": "f32",
+      "default": 0.000000,
+      "flags": ["live", "node"],
+      "desc": "normalized text position where the effect starts"
+    },
+    {
+      "name": "end_pos",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "normalized text position where the effect ends"
+    },
+    {
+      "name": "overlap",
+      "type": "f32",
+      "default": 0.000000,
+      "flags": ["live", "node"],
+      "desc": "overlap factor between target elements"
+    },
+    {
+      "name": "transform",
+      "type": "node",
+      "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Identity"],
+      "flags": [],
+      "desc": "transformation chain"
+    },
+    {
+      "name": "color",
+      "type": "vec3",
+      "default": [-1.000000,-1.000000,-1.000000],
+      "flags": ["live", "node"],
+      "desc": "characters fill color, use negative values for unchanged from previous text effects (default is `Text.fg_color`)"
+    },
+    {
+      "name": "opacity",
+      "type": "f32",
+      "default": -1.000000,
+      "flags": ["live", "node"],
+      "desc": "characters opacity, use negative value for unchanged from previous text effects (default is `Text.opacity`)"
     }
   ],
   "Texture2D": [

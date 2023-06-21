@@ -411,6 +411,37 @@ struct textureview_priv {
 };
 
 enum {
+    NGLI_TEXT_EFFECT_CHAR,
+    NGLI_TEXT_EFFECT_CHAR_NOSPACE,
+    NGLI_TEXT_EFFECT_WORD,
+    NGLI_TEXT_EFFECT_LINE,
+    NGLI_TEXT_EFFECT_TEXT,
+};
+
+struct texteffect_opts {
+    double start_time;
+    double end_time;
+    int target;
+    int random;
+    uint32_t random_seed;
+
+    /* if animated, expressed in effect time (0 to 1) */
+    struct ngl_node *start_pos_node;
+    float start_pos;
+    struct ngl_node *end_pos_node;
+    float end_pos;
+    struct ngl_node *overlap_node;
+    float overlap;
+
+    /* if animated, expressed in target time (0 to 1) */
+    struct ngl_node *transform_chain;
+    struct ngl_node *color_node;
+    float color[3];
+    struct ngl_node *opacity_node;
+    float opacity;
+};
+
+enum {
     NGLI_NODE_CATEGORY_NONE,
     NGLI_NODE_CATEGORY_VARIABLE,
     NGLI_NODE_CATEGORY_TEXTURE,
