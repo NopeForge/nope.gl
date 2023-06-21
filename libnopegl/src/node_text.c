@@ -540,8 +540,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
             .stride   = 4 * 4 * sizeof(float),
             .buffer   = s->transforms,
             .rate     = 1,
-        },
-        {
+        }, {
             .name     = "atlas_coords",
             .type     = NGLI_TYPE_VEC4,
             .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
