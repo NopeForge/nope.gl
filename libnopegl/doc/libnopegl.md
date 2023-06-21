@@ -896,6 +896,7 @@ Parameter | Flags | Type | Description | Default
 `font_files` |  | [`str`](#parameter-types) | paths to font files (use ',' or ';' to separate paths, require build with external text libraries) | 
 `padding` |  | [`i32`](#parameter-types) | pixel padding around the text | `3`
 `font_scale` |  | [`f32`](#parameter-types) | scaling of the font | `1`
+`effects` |  | [`node_list`](#parameter-types) ([TextEffect](#texteffect)) | stack of effects | 
 `valign` |  | [`valign`](#valign-choices) | vertical alignment of the text in the box | `center`
 `halign` |  | [`halign`](#halign-choices) | horizontal alignment of the text in the box | `center`
 `writing_mode` |  | [`writing_mode`](#writing_mode-choices) | direction flow per character and line | `horizontal-tb`
@@ -903,6 +904,26 @@ Parameter | Flags | Type | Description | Default
 
 
 **Source**: [src/node_text.c](/libnopegl/src/node_text.c)
+
+
+## TextEffect
+
+Parameter | Flags | Type | Description | Default
+--------- | ----- | ---- | ----------- | :-----:
+`start` |  | [`f64`](#parameter-types) | absolute start time of the effect | `0`
+`end` |  | [`f64`](#parameter-types) | absolute end time of the effect | `5`
+`target` |  | [`text_target`](#text_target-choices) | segmentation target of the effect | `text`
+`random` |  | [`bool`](#parameter-types) | randomize the order the effect are applied on the target | `0`
+`random_seed` |  | [`u32`](#parameter-types) | random seed for the `random` parameter | `0`
+`start_pos` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | normalized text position where the effect starts | `0`
+`end_pos` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | normalized text position where the effect ends | `1`
+`overlap` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | overlap factor between target elements | `0`
+`transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | transformation chain | 
+`color` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | characters fill color, use negative values for unchanged from previous text effects (default is `Text.fg_color`) | (`-1`,`-1`,`-1`)
+`opacity` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | characters opacity, use negative value for unchanged from previous text effects (default is `Text.opacity`) | `-1`
+
+
+**Source**: [src/node_texteffect.c](/libnopegl/src/node_texteffect.c)
 
 
 ## Texture2D
@@ -1953,6 +1974,16 @@ Constant | Description
 `horizontal-tb` | left-to-right flow then top-to-bottom per line
 `vertical-rl` | top-to-bottom flow then right-to-left per line
 `vertical-lr` | top-to-bottom flow then left-to-right per line
+
+## text_target choices
+
+Constant | Description
+-------- | -----------
+`char` | characters
+`char_nospace` | characters (skipping whitespaces)
+`word` | words
+`line` | lines
+`text` | whole text
 
 ## format choices
 

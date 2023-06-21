@@ -307,6 +307,7 @@ NGL_API void ngl_scene_freep(struct ngl_scene **sp);
 #define NGL_NODE_STREAMEDBUFFERVEC4     NGLI_FOURCC('S','B','f','4')
 #define NGL_NODE_STREAMEDBUFFERMAT4     NGLI_FOURCC('S','B','m','4')
 #define NGL_NODE_TEXT                   NGLI_FOURCC('T','e','x','t')
+#define NGL_NODE_TEXTEFFECT             NGLI_FOURCC('T','x','F','X')
 #define NGL_NODE_TEXTURE2D              NGLI_FOURCC('T','e','x','2')
 #define NGL_NODE_TEXTURE2DARRAY         NGLI_FOURCC('T','e','2','A')
 #define NGL_NODE_TEXTURE3D              NGLI_FOURCC('T','e','x','3')

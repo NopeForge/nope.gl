@@ -68,12 +68,21 @@ struct char_info {
     float atlas_coords[4];
 };
 
+/* User-requested defaults for all the characters */
+struct text_effects_defaults {
+    float color[3];
+    float opacity;
+};
+
 struct text_config {
     char *font_files;
     int32_t padding;
     enum text_valign valign;
     enum text_halign halign;
     enum writing_mode writing_mode;
+    struct ngl_node **effect_nodes;
+    size_t nb_effect_nodes;
+    struct text_effects_defaults defaults;
 };
 
 struct text;
@@ -89,14 +98,35 @@ struct text_cls {
     uint32_t flags; // combination of NGLI_TEXT_FLAG_*
 };
 
+/* Each field points to a contiguous data buffer (1 row per character) */
+struct text_effects_pointers {
+    float *transform; // mat4[]
+    float *color;     // vec3[]
+    float *opacity;   // f32[]
+};
+
+struct effect_segmentation {
+    size_t *positions;     // character index (in chars darray) to position in "target unit" (char, word, ...)
+    size_t total_segments; // total number of segment: all values in positions are between [0;total_segments-1]
+};
+
 struct text {
     struct ngl_ctx *ctx;
     struct text_config config;
 
+    /* public */
     int32_t width;
     int32_t height;
     struct darray chars; // struct char_info
     struct texture *atlas_texture;
+    struct text_effects_pointers data_ptrs; // set of effect data pointers (in chars_data)
+
+    /* effects specific */
+    struct effect_segmentation *effects;
+    float *chars_data_default; // default data buffer used to reset chars_data before every update
+    float *chars_data;         // data buffer exposed to the user (through data pointers)
+    size_t chars_data_size;    // size of chars_data_default and chars_data
+    size_t chars_copy_size;    // actual size needed for copy
 
     struct darray chars_internal; // struct char_info_internal
 
@@ -106,7 +136,14 @@ struct text {
 
 struct text *ngli_text_create(struct ngl_ctx *ctx);
 int ngli_text_init(struct text *s, const struct text_config *cfg);
+
+/* The specified new user defaults will be honored at the next ngli_text_set_{string,time}() call */
+void ngli_text_update_effects_defaults(struct text *s, const struct text_effects_defaults *defaults);
+
 int ngli_text_set_string(struct text *s, const char *str);
+
+int ngli_text_set_time(struct text *s, double t);
+
 void ngli_text_freep(struct text **sp);
 
 #endif

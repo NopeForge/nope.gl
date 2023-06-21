@@ -20,6 +20,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Support for cube maps image load/store
 - Support for array of 2D textures
 - External font rendering in the `Text` node
+- Text effects (color, opacity and transform), applicable per character/word/lines
 
 ### Changed
 - CSV export in the HUD now always prints floats in C locale instead of quoted
