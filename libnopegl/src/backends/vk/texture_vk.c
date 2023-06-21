@@ -583,7 +583,8 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
     memcpy(s_priv->staging_buffer_ptr, data, s_priv->staging_buffer->size);
 
     struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
-    if (!cmd_vk) {
+    const int cmd_is_transient = cmd_vk ? 0 : 1;
+    if (cmd_is_transient) {
         VkResult res = ngli_cmd_vk_begin_transient(s->gpu_ctx, 0, &cmd_vk);
         if (res != VK_SUCCESS)
             return res;
@@ -628,7 +629,7 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
 
         if (!ngli_darray_push(&copy_regions, &region)) {
             ngli_darray_reset(&copy_regions);
-            if (!gpu_ctx_vk->cur_cmd) {
+            if (cmd_is_transient) {
                 ngli_cmd_vk_freep(&cmd_vk);
             }
             return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -651,7 +652,7 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
                             s_priv->image_layout,
                             &subres_range);
 
-    if (!gpu_ctx_vk->cur_cmd) {
+    if (cmd_is_transient) {
         VkResult res = ngli_cmd_vk_execute_transient(&cmd_vk);
         if (res != VK_SUCCESS)
             return res;
@@ -673,7 +674,8 @@ VkResult ngli_texture_vk_generate_mipmap(struct texture *s)
     ngli_assert(params->usage & NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT);
 
     struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
-    if (!cmd_vk) {
+    const int cmd_is_transient = cmd_vk ? 0 : 1;
+    if (cmd_is_transient) {
         VkResult res = ngli_cmd_vk_begin_transient(s->gpu_ctx, 0, &cmd_vk);
         if (res != VK_SUCCESS)
             return res;
@@ -783,7 +785,7 @@ VkResult ngli_texture_vk_generate_mipmap(struct texture *s)
                          0, NULL,
                          1, &barrier);
 
-    if (!gpu_ctx_vk->cur_cmd) {
+    if (cmd_is_transient) {
         VkResult res = ngli_cmd_vk_execute_transient(&cmd_vk);
         if (res != VK_SUCCESS)
             return res;
