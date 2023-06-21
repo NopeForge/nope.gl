@@ -158,10 +158,10 @@ int ngli_atlas_finalize(struct atlas *s)
         return NGL_ERROR_MEMORY;
 
     blend_bitmaps(s, data, linesize);
-    ngli_texture_upload(s->texture, data, (int)linesize);
+    ret = ngli_texture_upload(s->texture, data, (int)linesize);
     ngli_freep(&data);
 
-    return 0;
+    return ret;
 }
 
 struct texture *ngli_atlas_get_texture(const struct atlas *s)
