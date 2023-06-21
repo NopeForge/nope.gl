@@ -556,11 +556,13 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
         const int32_t width = linesize ? linesize : s->params.width;
         const int32_t staging_buffer_size = width * s->params.height * s->params.depth * s_priv->bytes_per_pixel * s_priv->array_layers;
 
-        if (s_priv->staging_buffer_ptr) {
-            ngli_buffer_vk_unmap(s_priv->staging_buffer);
-            s_priv->staging_buffer_ptr = NULL;
+        if (s_priv->staging_buffer) {
+            if (s_priv->staging_buffer_ptr) {
+                ngli_buffer_vk_unmap(s_priv->staging_buffer);
+                s_priv->staging_buffer_ptr = NULL;
+            }
+            ngli_buffer_vk_freep(&s_priv->staging_buffer);
         }
-        ngli_buffer_vk_freep(&s_priv->staging_buffer);
 
         s_priv->staging_buffer = ngli_buffer_vk_create(s->gpu_ctx);
         if (!s_priv->staging_buffer)
