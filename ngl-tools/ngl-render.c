@@ -48,8 +48,10 @@ static struct ngl_scene *get_scene(const char *filename)
     if (!buf)
         return NULL;
     struct ngl_scene *scene = ngl_scene_create();
-    if (!scene)
+    if (!scene) {
+        free(buf);
         return NULL;
+    }
     int ret = ngl_scene_init_from_str(scene, buf);
     free(buf);
     if (ret < 0)
