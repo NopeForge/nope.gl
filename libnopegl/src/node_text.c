@@ -203,13 +203,6 @@ static const struct node_param text_params[] = {
     {NULL}
 };
 
-static const struct pgcraft_iovar vert_out_vars[] = {
-    {.name = "uv",     .type = NGLI_TYPE_VEC2},
-    {.name = "coords", .type = NGLI_TYPE_VEC4},
-    {.name = "color",  .type = NGLI_TYPE_VEC3},
-    {.name = "opacity",.type = NGLI_TYPE_F32},
-};
-
 #define BC(index) o->box_corner[index]
 #define BW(index) o->box_width[index]
 #define BH(index) o->box_height[index]
@@ -643,6 +636,13 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
             .state          = state,
             .rt_desc        = rnode->rendertarget_desc,
         }
+    };
+
+    static const struct pgcraft_iovar vert_out_vars[] = {
+        {.name = "uv",     .type = NGLI_TYPE_VEC2},
+        {.name = "coords", .type = NGLI_TYPE_VEC4},
+        {.name = "color",  .type = NGLI_TYPE_VEC3},
+        {.name = "opacity",.type = NGLI_TYPE_F32},
     };
 
     const struct pgcraft_params crafter_params = {
