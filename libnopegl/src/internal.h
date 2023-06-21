@@ -285,7 +285,7 @@ struct texture_priv {
 struct media_priv {
     struct nmd_ctx *player;
     struct nmd_frame *frame;
-    int nb_parents;
+    size_t nb_parents;
 
 #if defined(TARGET_ANDROID)
     struct android_surface *android_surface;
