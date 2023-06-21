@@ -210,7 +210,7 @@ static void destroy_characters_resources(struct text_priv *s)
     s->nb_chars = 0;
 }
 
-static int update_character_geometries(struct ngl_node *node)
+static int update_text_content(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -399,7 +399,7 @@ static int text_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ret = update_character_geometries(node);
+    ret = update_text_content(node);
     if (ret < 0)
         return ret;
 
@@ -622,7 +622,7 @@ static int text_update(struct ngl_node *node, double t)
     struct text_priv *s = node->priv_data;
 
     if (s->live_changed) {
-        int ret = update_character_geometries(node);
+        int ret = update_text_content(node);
         if (ret < 0)
             return ret;
         s->live_changed = 0;
