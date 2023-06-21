@@ -346,6 +346,13 @@ foreach backend : backends
     ]
   endif
 
+  tests_texteffect = [
+    'color',
+    'opacity',
+    'transform',
+    'chars_space_nospace',
+  ]
+
   tests_texture = [
     'clear_and_scissor',
     'data',
@@ -452,6 +459,7 @@ foreach backend : backends
     'scope':         {'tests': tests_scope},
     'shape':         {'tests': tests_shape},
     'text':          {'tests': tests_text},
+    'texteffect':    {'tests': tests_texteffect},
     'texture':       {'tests': tests_texture},
     'transform':     {'tests': tests_transform},
     'userlive':      {'tests': tests_userlive},
