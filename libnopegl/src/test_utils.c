@@ -25,6 +25,7 @@
 static void test_numbered_line(uint32_t crc, const char *s)
 {
     char *p = ngli_numbered_lines(s);
+    ngli_assert(p);
     ngli_assert(ngli_crc32(p) == crc);
     ngli_freep(&p);
 }
