@@ -98,6 +98,8 @@ struct text {
     struct darray chars; // struct char_info
     struct texture *atlas_texture;
 
+    struct darray chars_internal; // struct char_info_internal
+
     const struct text_cls *cls;
     void *priv_data;
 };
