@@ -116,6 +116,7 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
     s->config = *cfg;
 
     ngli_darray_init(&s->chars, sizeof(struct char_info), 0);
+    ngli_darray_init(&s->chars_internal, sizeof(struct char_info_internal), 0);
 
     s->cls = cfg->font_files ? &ngli_text_external : &ngli_text_builtin;
     if (s->cls->priv_size) {
@@ -129,17 +130,16 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
 int ngli_text_set_string(struct text *s, const char *str)
 {
     struct box_stats stats = {0};
-    struct darray chars_internal_array;
-    ngli_darray_init(&chars_internal_array, sizeof(struct char_info_internal), 0);
 
     ngli_darray_clear(&s->chars);
+    ngli_darray_clear(&s->chars_internal);
 
-    int ret = s->cls->set_string(s, str, &chars_internal_array);
+    int ret = s->cls->set_string(s, str, &s->chars_internal);
     if (ret < 0)
         goto end;
 
     /* Build bounding box statistics for the layout logic */
-    build_stats(&stats, &chars_internal_array, s->config.writing_mode);
+    build_stats(&stats, &s->chars_internal, s->config.writing_mode);
 
     /* Make sure it doesn't explode if the string is empty or only contains line breaks */
     if (stats.max_linelen <= 0) {
@@ -155,8 +155,8 @@ int ngli_text_set_string(struct text *s, const char *str)
     /* Honor layout */
     int32_t line = 0;
     const int32_t *linelens = ngli_darray_data(&stats.linelens);
-    struct char_info_internal *chars_internal = ngli_darray_data(&chars_internal_array);
-    for (size_t i = 0; i < ngli_darray_count(&chars_internal_array); i++) {
+    struct char_info_internal *chars_internal = ngli_darray_data(&s->chars_internal);
+    for (size_t i = 0; i < ngli_darray_count(&s->chars_internal); i++) {
         struct char_info_internal *chr = &chars_internal[i];
 
         if (chr->tags & NGLI_TEXT_CHAR_TAG_LINE_BREAK)
@@ -184,7 +184,7 @@ int ngli_text_set_string(struct text *s, const char *str)
     }
 
     /* Expose characters publicly */
-    for (size_t i = 0; i < ngli_darray_count(&chars_internal_array); i++) {
+    for (size_t i = 0; i < ngli_darray_count(&s->chars_internal); i++) {
         const struct char_info_internal *chr_internal = &chars_internal[i];
 
         if (!(chr_internal->tags & NGLI_TEXT_CHAR_TAG_GLYPH))
@@ -210,7 +210,6 @@ int ngli_text_set_string(struct text *s, const char *str)
     }
 
 end:
-    ngli_darray_reset(&chars_internal_array);
     box_stats_reset(&stats);
     return ret;
 }
@@ -222,5 +221,6 @@ void ngli_text_freep(struct text **sp)
         s->cls->reset(s);
     ngli_freep(&s->priv_data);
     ngli_darray_reset(&s->chars);
+    ngli_darray_reset(&s->chars_internal);
     ngli_freep(sp);
 }
