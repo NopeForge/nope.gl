@@ -273,12 +273,12 @@ static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
     const struct buffer **vertex_buffers = gpu_ctx->vertex_buffers;
     const struct attribute_binding_gl *bindings = ngli_darray_data(&s_priv->attribute_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->attribute_bindings); i++) {
-        const struct buffer_gl *buffer_gl = (const struct buffer_gl *)vertex_buffers[i];
         const struct attribute_binding_gl *attribute_binding = &bindings[i];
         const GLuint location = attribute_binding->location;
         const GLuint size = ngli_format_get_nb_comp(attribute_binding->format);
         const GLsizei stride = (GLsizei)attribute_binding->stride;
         const void *offset = (void *)(uintptr_t)attribute_binding->offset;
+        const struct buffer_gl *buffer_gl = (const struct buffer_gl *)vertex_buffers[i];
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
         ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, offset);
     }
