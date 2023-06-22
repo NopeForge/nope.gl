@@ -132,6 +132,8 @@ int ngli_text_set_string(struct text *s, const char *str)
     struct darray chars_internal_array;
     ngli_darray_init(&chars_internal_array, sizeof(struct char_info_internal), 0);
 
+    ngli_darray_clear(&s->chars);
+
     int ret = s->cls->set_string(s, str, &chars_internal_array);
     if (ret < 0)
         goto end;
@@ -182,7 +184,6 @@ int ngli_text_set_string(struct text *s, const char *str)
     }
 
     /* Expose characters publicly */
-    ngli_darray_clear(&s->chars);
     for (size_t i = 0; i < ngli_darray_count(&chars_internal_array); i++) {
         const struct char_info_internal *chr_internal = &chars_internal[i];
 
