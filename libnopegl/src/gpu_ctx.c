@@ -239,9 +239,20 @@ void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline)
     s->cls->set_pipeline(s, pipeline);
 }
 
+static void validate_vertex_buffers(struct gpu_ctx *s)
+{
+    const struct pipeline *pipeline = s->pipeline;
+    const struct pipeline_graphics *graphics = &pipeline->graphics;
+    const struct vertex_state *vertex_state = &graphics->vertex_state;
+    for (size_t i = 0; i < vertex_state->nb_buffers; i++) {
+        ngli_assert(s->vertex_buffers[i]);
+    }
+}
+
 void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
 {
     ngli_assert(s->pipeline);
+    validate_vertex_buffers(s);
 
     s->cls->draw(s, nb_vertices, nb_instances);
 }
@@ -249,6 +260,7 @@ void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
 void ngli_gpu_ctx_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)
 {
     ngli_assert(s->pipeline);
+    validate_vertex_buffers(s);
 
     s->cls->draw_indexed(s, nb_indices, nb_instances);
 }
