@@ -1293,10 +1293,10 @@ static void setup_glsl_info_gl(struct pgcraft *s)
      * bindings use distinct binding points.
      */
     for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_UBO)] = &s->bindings[0];
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_SSBO)] = &s->bindings[1];
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_TEXTURE)] = &s->bindings[2];
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_IMAGE)] = &s->bindings[3];
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_UBO)]     = &s->bindings[NGLI_BINDING_TYPE_UBO];
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_SSBO)]    = &s->bindings[NGLI_BINDING_TYPE_SSBO];
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_TEXTURE)] = &s->bindings[NGLI_BINDING_TYPE_TEXTURE];
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_IMAGE)]   = &s->bindings[NGLI_BINDING_TYPE_IMAGE];
     }
 }
 #endif
