@@ -30,6 +30,20 @@
 #include "type.h"
 #include "utils.h"
 
+int ngli_pipeline_graphics_copy(struct pipeline_graphics *dst, const struct pipeline_graphics *src)
+{
+    dst->topology = src->topology;
+    dst->state    = src->state;
+    dst->rt_desc  = src->rt_desc;
+
+    return 0;
+}
+
+void ngli_pipeline_graphics_reset(struct pipeline_graphics *graphics)
+{
+    memset(graphics, 0, sizeof(*graphics));
+}
+
 int ngli_pipeline_layout_copy(struct pipeline_layout *dst, const struct pipeline_layout *src)
 {
     dst->texture_descs = ngli_memdup(src->texture_descs, src->nb_texture_descs * sizeof(*src->texture_descs));

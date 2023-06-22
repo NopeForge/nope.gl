@@ -369,9 +369,14 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
     s->type     = params->type;
-    s->graphics = params->graphics;
+
+    int ret = ngli_pipeline_graphics_copy(&s->graphics, &params->graphics);
+    if (ret < 0)
+        return ret;
+
     s->program  = params->program;
-    int ret = ngli_pipeline_layout_copy(&s->layout, &params->layout);
+
+    ret = ngli_pipeline_layout_copy(&s->layout, &params->layout);
     if (ret < 0)
         return ret;
 
@@ -529,6 +534,7 @@ void ngli_pipeline_gl_freep(struct pipeline **sp)
     struct pipeline *s = *sp;
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
+    ngli_pipeline_graphics_reset(&s->graphics);
     ngli_pipeline_layout_reset(&s->layout);
 
     ngli_darray_reset(&s_priv->texture_bindings);
