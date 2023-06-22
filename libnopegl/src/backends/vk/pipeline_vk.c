@@ -675,9 +675,14 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
     s->type     = params->type;
-    s->graphics = params->graphics;
+
+    int ret = ngli_pipeline_graphics_copy(&s->graphics, &params->graphics);
+    if (ret < 0)
+        return VK_ERROR_OUT_OF_HOST_MEMORY;
+
     s->program  = params->program;
-    int ret = ngli_pipeline_layout_copy(&s->layout, &params->layout);
+
+    ret = ngli_pipeline_layout_copy(&s->layout, &params->layout);
     if (ret < 0)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
@@ -969,6 +974,7 @@ void ngli_pipeline_vk_freep(struct pipeline **sp)
     struct pipeline *s = *sp;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
+    ngli_pipeline_graphics_reset(&s->graphics);
     ngli_pipeline_layout_reset(&s->layout);
     destroy_pipeline(s);
 

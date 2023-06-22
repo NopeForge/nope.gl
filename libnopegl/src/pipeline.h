@@ -113,6 +113,9 @@ struct pipeline {
     struct pipeline_layout layout;
 };
 
+int ngli_pipeline_graphics_copy(struct pipeline_graphics *dst, const struct pipeline_graphics *src);
+void ngli_pipeline_graphics_reset(struct pipeline_graphics *graphics);
+
 int ngli_pipeline_layout_copy(struct pipeline_layout *dst, const struct pipeline_layout *src);
 void ngli_pipeline_layout_reset(struct pipeline_layout *layout);
 
