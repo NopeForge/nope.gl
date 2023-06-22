@@ -49,7 +49,10 @@ struct buffer_binding_gl {
 };
 
 struct attribute_binding_gl {
-    struct pipeline_attribute_desc desc;
+    int location;
+    int format;
+    size_t stride;
+    size_t offset;
 };
 
 static int build_texture_bindings(struct pipeline *s)
@@ -219,7 +222,10 @@ static int build_attribute_bindings(struct pipeline *s)
         const struct pipeline_attribute_desc *pipeline_attribute_desc = &layout->attribute_descs[i];
 
         struct attribute_binding_gl binding = {
-            .desc = *pipeline_attribute_desc,
+            .location = pipeline_attribute_desc->location,
+            .format   = pipeline_attribute_desc->format,
+            .stride   = pipeline_attribute_desc->stride,
+            .offset   = pipeline_attribute_desc->offset,
         };
         if (!ngli_darray_push(&s_priv->attribute_bindings, &binding))
             return NGL_ERROR_MEMORY;
@@ -269,11 +275,11 @@ static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
     for (size_t i = 0; i < ngli_darray_count(&s_priv->attribute_bindings); i++) {
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)vertex_buffers[i];
         const struct attribute_binding_gl *attribute_binding = &bindings[i];
-        const GLuint location = attribute_binding->desc.location;
-        const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
-        const GLsizei stride = (GLsizei)attribute_binding->desc.stride;
+        const GLuint location = attribute_binding->location;
+        const GLuint size = ngli_format_get_nb_comp(attribute_binding->format);
+        const GLsizei stride = (GLsizei)attribute_binding->stride;
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
-        ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute_binding->desc.offset));
+        ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute_binding->offset));
     }
 }
 
