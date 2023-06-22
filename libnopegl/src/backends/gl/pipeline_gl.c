@@ -278,8 +278,9 @@ static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
         const GLuint location = attribute_binding->location;
         const GLuint size = ngli_format_get_nb_comp(attribute_binding->format);
         const GLsizei stride = (GLsizei)attribute_binding->stride;
+        const void *offset = (void *)(uintptr_t)attribute_binding->offset;
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
-        ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute_binding->offset));
+        ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, offset);
     }
 }
 
