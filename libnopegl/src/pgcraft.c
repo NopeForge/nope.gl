@@ -35,6 +35,7 @@
 #include "pgcraft.h"
 #include "precision.h"
 #include "type.h"
+#include "utils.h"
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
 #include "backends/gl/gpu_ctx_gl.h"
@@ -1130,48 +1131,11 @@ static int craft_comp(struct pgcraft *s, const struct pgcraft_params *params)
     return samplers_preproc(s, params, b);
 }
 
-static int probe_pipeline_buffer(const struct hmap *info_map, void *arg)
-{
-    if (!info_map)
-        return 0;
-    struct pipeline_buffer_desc *elem_desc = arg;
-    /* Remove buffer from the filtered list if it has been stripped during
-     * shader compilation */
-    const struct program_variable_info *info = ngli_hmap_get(info_map, elem_desc->name);
-    if (!info)
-        return NGL_ERROR_NOT_FOUND;
-    return 0;
-}
+NGLI_STATIC_ASSERT(buffer_name_offset, offsetof(struct pipeline_buffer_desc, name) == 0);
+NGLI_STATIC_ASSERT(texture_name_offset, offsetof(struct pipeline_texture_desc, name) == 0);
+NGLI_STATIC_ASSERT(attribute_name_offset, offsetof(struct pipeline_attribute_desc, name) == 0);
 
-static int probe_pipeline_texture(const struct hmap *info_map, void *arg)
-{
-    if (!info_map)
-        return 0;
-    struct pipeline_texture_desc *elem_desc = arg;
-    /* Remove texture from the filtered list if it has been stripped during
-     * shader compilation */
-    const struct program_variable_info *info = ngli_hmap_get(info_map, elem_desc->name);
-    if (!info)
-        return NGL_ERROR_NOT_FOUND;
-    return 0;
-}
-
-static int probe_pipeline_attribute(const struct hmap *info_map, void *arg)
-{
-    if (!info_map)
-        return 0;
-    struct pipeline_attribute_desc *elem_desc = arg;
-    /* Remove attribute from the filtered list if it has been stripped during
-     * shader compilation */
-    const struct program_variable_info *info = ngli_hmap_get(info_map, elem_desc->name);
-    if (!info)
-        return NGL_ERROR_NOT_FOUND;
-    return 0;
-}
-
-typedef int (*probe_func_type)(const struct hmap *info_map, void *arg);
-
-static int filter_pipeline_elems(struct pgcraft *s, probe_func_type probe_func,
+static int filter_pipeline_elems(struct pgcraft *s,
                                  const struct hmap *info_map,
                                  struct darray *src_desc, struct darray *src_data,
                                  struct darray *dst_desc, struct darray *dst_data)
@@ -1181,8 +1145,12 @@ static int filter_pipeline_elems(struct pgcraft *s, probe_func_type probe_func,
     for (size_t i = 0; i < ngli_darray_count(src_desc); i++) {
         void *desc_elem = desc_elems + i * src_desc->element_size;
         void *data_elem = data_elems + i * src_data->element_size;
-        if (info_map && probe_func(info_map, desc_elem) < 0)
-            continue;
+        if (info_map) {
+            const char *name = desc_elem;
+            const struct program_variable_info *info = ngli_hmap_get(info_map, name);
+            if (!info)
+                continue;
+        }
         if (!ngli_darray_push(dst_desc, desc_elem))
             return NGL_ERROR_MEMORY;
         if (!ngli_darray_push(dst_data, data_elem))
@@ -1252,9 +1220,9 @@ static int probe_pipeline_elems(struct pgcraft *s)
 
     struct pgcraft_pipeline_info *info  = &s->pipeline_info;
     struct pgcraft_pipeline_info *finfo = &s->filtered_pipeline_info;
-    if ((ret = filter_pipeline_elems(s, probe_pipeline_buffer,    buffers_info,    &info->desc.buffers,    &info->data.buffers,    &finfo->desc.buffers,    &finfo->data.buffers))    < 0 ||
-        (ret = filter_pipeline_elems(s, probe_pipeline_texture,   uniforms_info,   &info->desc.textures,   &info->data.textures,   &finfo->desc.textures,   &finfo->data.textures))   < 0 ||
-        (ret = filter_pipeline_elems(s, probe_pipeline_attribute, attributes_info, &info->desc.attributes, &info->data.attributes, &finfo->desc.attributes, &finfo->data.attributes)) < 0)
+    if ((ret = filter_pipeline_elems(s, buffers_info,    &info->desc.buffers,    &info->data.buffers,    &finfo->desc.buffers,    &finfo->data.buffers))    < 0 ||
+        (ret = filter_pipeline_elems(s, uniforms_info,   &info->desc.textures,   &info->data.textures,   &finfo->desc.textures,   &finfo->data.textures))   < 0 ||
+        (ret = filter_pipeline_elems(s, attributes_info, &info->desc.attributes, &info->data.attributes, &finfo->desc.attributes, &finfo->data.attributes)) < 0)
         return ret;
 
     probe_texture_infos(s);
