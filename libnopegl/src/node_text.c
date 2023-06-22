@@ -461,11 +461,12 @@ static int text_init(struct ngl_node *node)
 
 static int init_subdesc(struct ngl_node *node,
                         struct pipeline_desc_common *desc,
-                        struct pipeline_params *pipeline_params,
+                        const struct graphicstate *graphicstate,
                         const struct pgcraft_params *crafter_params)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct rnode *rnode = ctx->rnode_pos;
 
     desc->crafter = ngli_pgcraft_create(ctx);
     if (!desc->crafter)
@@ -479,14 +480,22 @@ static int init_subdesc(struct ngl_node *node,
     if (!desc->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    pipeline_params->program = ngli_pgcraft_get_program(desc->crafter);
-    pipeline_params->layout = ngli_pgcraft_get_pipeline_layout(desc->crafter);
+    const struct pipeline_params pipeline_params = {
+        .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
+        .graphics      = {
+            .topology     = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+            .state        = *graphicstate,
+            .rt_desc      = rnode->rendertarget_desc,
+        },
+        .program = ngli_pgcraft_get_program(desc->crafter),
+        .layout = ngli_pgcraft_get_pipeline_layout(desc->crafter),
+    };
 
     const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
     const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(desc->crafter);
 
     const struct pipeline_compat_params params = {
-        .params = pipeline_params,
+        .params = &pipeline_params,
         .resources = &pipeline_resources,
         .compat_info = compat_info,
     };
@@ -533,15 +542,6 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
     state.blend_src_factor_a = NGLI_BLEND_FACTOR_ONE;
     state.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
-    struct pipeline_params pipeline_params = {
-        .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
-        .graphics      = {
-            .topology       = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-            .state          = state,
-            .rt_desc        = rnode->rendertarget_desc,
-        }
-    };
-
     const struct pgcraft_params crafter_params = {
         .program_label    = "nopegl/text-bg",
         .vert_base        = text_bg_vert,
@@ -552,7 +552,7 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
         .nb_attributes    = NGLI_ARRAY_NB(attributes),
     };
 
-    int ret = init_subdesc(node, &desc->common, &pipeline_params, &crafter_params);
+    int ret = init_subdesc(node, &desc->common, &state, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -629,15 +629,6 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     state.blend_src_factor_a = NGLI_BLEND_FACTOR_ONE;
     state.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
-    struct pipeline_params pipeline_params = {
-        .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
-        .graphics      = {
-            .topology       = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-            .state          = state,
-            .rt_desc        = rnode->rendertarget_desc,
-        }
-    };
-
     static const struct pgcraft_iovar vert_out_vars[] = {
         {.name = "uv",     .type = NGLI_TYPE_VEC2},
         {.name = "coords", .type = NGLI_TYPE_VEC4},
@@ -659,16 +650,16 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    int ret = init_subdesc(node, &desc->common, &pipeline_params, &crafter_params);
+    int ret = init_subdesc(node, &desc->common, &state, &crafter_params);
     if (ret < 0)
         return ret;
 
-    ngli_assert(!strcmp("transform", pipeline_params.layout.attribute_descs[0].name));
-    ngli_assert(!strcmp("atlas_coords", pipeline_params.layout.attribute_descs[4].name));
-
-    ngli_assert(!strcmp("user_transform",  pipeline_params.layout.attribute_descs[5].name));
-    ngli_assert(!strcmp("frag_color",      pipeline_params.layout.attribute_descs[9].name));
-    ngli_assert(!strcmp("frag_opacity",    pipeline_params.layout.attribute_descs[10].name));
+    const struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(desc->common.crafter);
+    ngli_assert(!strcmp("transform",       layout.attribute_descs[0].name));
+    ngli_assert(!strcmp("atlas_coords",    layout.attribute_descs[4].name));
+    ngli_assert(!strcmp("user_transform",  layout.attribute_descs[5].name));
+    ngli_assert(!strcmp("frag_color",      layout.attribute_descs[9].name));
+    ngli_assert(!strcmp("frag_opacity",    layout.attribute_descs[10].name));
 
     return 0;
 }
