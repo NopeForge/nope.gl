@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2021-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -37,17 +38,17 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
 
     const char *name = NULL;
     int need_relink = 0;
-    const struct darray *descs_array = ngli_pgcraft_get_attribute_descs(crafter);
-    const struct pipeline_attribute_desc *descs = ngli_darray_data(descs_array);
-    for (size_t i = 0; i < ngli_darray_count(descs_array); i++) {
-        const struct pipeline_attribute_desc *attribute_desc = &descs[i];
-        if (name && !strcmp(name, attribute_desc->name))
+    const struct darray *info_array = ngli_pgcraft_get_attribute_infos(crafter);
+    const struct pgcraft_attribute_info *infos = ngli_darray_data(info_array);
+    for (size_t i = 0; i < ngli_darray_count(info_array); i++) {
+        const struct pgcraft_attribute_info *attribute_info = &infos[i];
+        if (name && !strcmp(name, attribute_info->name))
             continue;
-        name = attribute_desc->name;
-        ngli_glBindAttribLocation(gl, s_priv->id, attribute_desc->location, attribute_desc->name);
-        struct program_variable_info *info = ngli_hmap_get(s->attributes, attribute_desc->name);
-        if (info && info->location != attribute_desc->location) {
-            info->location = attribute_desc->location;
+        name = attribute_info->name;
+        ngli_glBindAttribLocation(gl, s_priv->id, attribute_info->location, attribute_info->name);
+        struct program_variable_info *info = ngli_hmap_get(s->attributes, attribute_info->name);
+        if (info && info->location != attribute_info->location) {
+            info->location = attribute_info->location;
             need_relink = 1;
         }
     }

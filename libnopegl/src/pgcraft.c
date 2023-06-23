@@ -58,7 +58,7 @@ struct pgcraft_pipeline_info {
     struct {
         struct darray textures;   // texture_desc
         struct darray buffers;    // buffer_desc
-        struct darray attributes; // attribute_desc
+        struct darray attributes; // attribute_info
         struct darray vertex_buffers; // vertex_buffer_layout
     } desc;
     struct {
@@ -627,16 +627,16 @@ static int inject_attribute(struct pgcraft *s, struct bstr *b,
 
     const int attribute_offset = ngli_format_get_bytes_per_pixel(attribute->format);
     for (int i = 0; i < attribute_count; i++) {
-        struct pipeline_attribute_desc pl_attribute_desc = {
+        struct pgcraft_attribute_info info = {
             .location = base_location + i,
             .format   = attribute->format,
             .stride   = attribute->stride,
             .offset   = attribute->offset + i * attribute_offset,
             .rate     = attribute->rate,
         };
-        snprintf(pl_attribute_desc.name, sizeof(pl_attribute_desc.name), "%s", attribute->name);
+        snprintf(info.name, sizeof(info.name), "%s", attribute->name);
 
-        if (!ngli_darray_push(&s->pipeline_info.desc.attributes, &pl_attribute_desc))
+        if (!ngli_darray_push(&s->pipeline_info.desc.attributes, &info))
             return NGL_ERROR_MEMORY;
         if (!ngli_darray_push(&s->pipeline_info.data.attributes, &attribute->buffer))
             return NGL_ERROR_MEMORY;
@@ -1153,7 +1153,7 @@ static int craft_comp(struct pgcraft *s, const struct pgcraft_params *params)
 
 NGLI_STATIC_ASSERT(buffer_name_offset, offsetof(struct pipeline_buffer_desc, name) == 0);
 NGLI_STATIC_ASSERT(texture_name_offset, offsetof(struct pipeline_texture_desc, name) == 0);
-NGLI_STATIC_ASSERT(attribute_name_offset, offsetof(struct pipeline_attribute_desc, name) == 0);
+NGLI_STATIC_ASSERT(attribute_name_offset, offsetof(struct pgcraft_attribute_info, name) == 0);
 
 static int filter_pipeline_elems(struct pgcraft *s,
                                  const struct hmap *info_map,
@@ -1184,10 +1184,10 @@ static int filter_pipeline_elems(struct pgcraft *s,
 static int has_attribute(const struct pgcraft *s, int location)
 {
     const struct darray *info_array = &s->filtered_pipeline_info.desc.attributes;
-    const struct pipeline_attribute_desc *descs = ngli_darray_data(info_array);
+    const struct pgcraft_attribute_info *infos = ngli_darray_data(info_array);
     for (size_t i = 0; i < ngli_darray_count(info_array); i++) {
-        const struct pipeline_attribute_desc *desc = &descs[i];
-        if (desc->location == location)
+        const struct pgcraft_attribute_info *info = &infos[i];
+        if (info->location == location)
             return 1;
     }
     return 0;
@@ -1400,12 +1400,12 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
 
     ngli_darray_init(&s->pipeline_info.desc.textures,   sizeof(struct pipeline_texture_desc),   0);
     ngli_darray_init(&s->pipeline_info.desc.buffers,    sizeof(struct pipeline_buffer_desc),    0);
-    ngli_darray_init(&s->pipeline_info.desc.attributes, sizeof(struct pipeline_attribute_desc), 0);
+    ngli_darray_init(&s->pipeline_info.desc.attributes, sizeof(struct pgcraft_attribute_info),  0);
     ngli_darray_init(&s->pipeline_info.desc.vertex_buffers, sizeof(struct vertex_buffer_layout), 0);
 
     ngli_darray_init(&s->filtered_pipeline_info.desc.textures,   sizeof(struct pipeline_texture_desc),   0);
     ngli_darray_init(&s->filtered_pipeline_info.desc.buffers,    sizeof(struct pipeline_buffer_desc),    0);
-    ngli_darray_init(&s->filtered_pipeline_info.desc.attributes, sizeof(struct pipeline_attribute_desc), 0);
+    ngli_darray_init(&s->filtered_pipeline_info.desc.attributes, sizeof(struct pgcraft_attribute_info),  0);
     ngli_darray_init(&s->filtered_pipeline_info.desc.vertex_buffers, sizeof(struct vertex_buffer_layout), 0);
 
     ngli_darray_init(&s->pipeline_info.data.textures,   sizeof(struct texture *), 0);
@@ -1527,7 +1527,7 @@ struct program *ngli_pgcraft_get_program(const struct pgcraft *s)
     return s->program;
 }
 
-const struct darray *ngli_pgcraft_get_attribute_descs(const struct pgcraft *s)
+const struct darray *ngli_pgcraft_get_attribute_infos(const struct pgcraft *s)
 {
     return &s->filtered_pipeline_info.desc.attributes;
 }
@@ -1542,12 +1542,12 @@ struct vertex_state ngli_pgcraft_get_vertex_state(const struct pgcraft *s)
 
 static int get_attribute_location(const struct pgcraft *s, const char *name)
 {
-    const struct darray *array = &s->filtered_pipeline_info.desc.attributes;
-    const struct pipeline_attribute_desc *descs = ngli_darray_data(array);
-    for (size_t i = 0; i < ngli_darray_count(array); i++) {
-        const struct pipeline_attribute_desc *desc = &descs[i];
-        if (!strcmp(desc->name, name))
-            return desc->location;
+    const struct darray *info_array = &s->filtered_pipeline_info.desc.attributes;
+    const struct pgcraft_attribute_info *infos = ngli_darray_data(info_array);
+    for (size_t i = 0; i < ngli_darray_count(info_array); i++) {
+        const struct pgcraft_attribute_info *info = &infos[i];
+        if (!strcmp(info->name, name))
+            return info->location;
     }
     return -1;
 }
