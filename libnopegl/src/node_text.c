@@ -348,11 +348,11 @@ static int update_text_content(struct ngl_node *node)
             struct pipeline_desc_fg *desc_fg = &descs[i].fg;
             struct pipeline_desc_common *desc = &desc_fg->common;
 
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->transform_index, s->transforms);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->atlas_coords_index, s->atlas_coords);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->user_transform_index, s->user_transforms);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->color_index, s->colors);
-            ngli_pipeline_compat_update_attribute(desc->pipeline_compat, desc_fg->opacity_index, s->opacities);
+            ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->transform_index, s->transforms);
+            ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->atlas_coords_index, s->atlas_coords);
+            ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->user_transform_index, s->user_transforms);
+            ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->color_index, s->colors);
+            ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->opacity_index, s->opacities);
 
             if (s->text_ctx->cls->flags & NGLI_TEXT_FLAG_MUTABLE_ATLAS)
                 ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, s->text_ctx->atlas_texture);
