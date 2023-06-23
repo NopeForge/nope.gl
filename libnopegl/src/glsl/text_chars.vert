@@ -26,8 +26,7 @@ void main()
 {
     vec2 ref_uv = uvs[ngl_vertex_index];
 
-    /* y-flip UV for the texture sampling */
-    uv = vec2(ref_uv.x, 1.0 - ref_uv.y);
+    uv = ref_uv;
 
     /*
      * These are the normalized top-left and bottom-right coordinates of the

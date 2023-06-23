@@ -25,16 +25,17 @@
 #include <hb.h>
 #include <hb-ft.h>
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include FT_OUTLINE_H
 #include <fribidi.h>
 #endif
 
-#include "atlas.h"
 #include "darray.h"
+#include "distmap.h"
 #include "hmap.h"
 #include "log.h"
 #include "memory.h"
 #include "nopegl.h"
+#include "path.h"
 #include "text.h"
 #include "utils.h"
 
@@ -43,7 +44,7 @@ struct text_external {
     FT_Library ft_library;
     struct darray ft_faces; // FT_Face (hidden pointer)
     struct darray hb_fonts; // hb_font_t*
-    struct atlas *atlas;
+    struct distmap *distmap;
 };
 
 static int load_font(struct text *text, const char *font_file)
@@ -63,6 +64,11 @@ static int load_font(struct text *text, const char *font_file)
     if (ft_error) {
         LOG(ERROR, "unable to initialize FreeType with font %s", font_file);
         return NGL_ERROR_EXTERNAL;
+    }
+
+    if (!FT_IS_SCALABLE(ft_face)) {
+        LOG(ERROR, "only scalable faces are supported");
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     if (!ngli_darray_push(&s->ft_faces, &ft_face)) {
@@ -131,7 +137,7 @@ end:
 }
 
 struct glyph {
-    int32_t atlas_id; // index in the atlas texture
+    int32_t shape_id; // index in the distmap texture
     int32_t width, height; // in 26.6
     int32_t bearing_x, bearing_y; // in 26.6
 };
@@ -180,9 +186,76 @@ struct text_run {
     const hb_glyph_position_t *glyph_positions;
 };
 
+struct outline_ctx {
+    struct path *path;
+    FT_BBox cbox; // current glyph control box
+};
+
+struct vec3 { float x, y, z; };
+
+static struct vec3 vec3_from_ftvec2(const struct outline_ctx *s, const FT_Vector *v)
+{
+    const struct vec3 ret = {
+        .x = NGLI_I26D6_TO_F32(v->x - s->cbox.xMin),
+        .y = NGLI_I26D6_TO_F32(v->y - s->cbox.yMin),
+    };
+    return ret;
+}
+
+static int move_to_cb(const FT_Vector *ftvec_to, void *user)
+{
+    const struct outline_ctx *s = user;
+    const struct vec3 vec_to = vec3_from_ftvec2(s, ftvec_to);
+    const float to[3] = {vec_to.x, vec_to.y, vec_to.z};
+    return ngli_path_move_to(s->path, to);
+}
+
+static int line_to_cb(const FT_Vector *ftvec_to, void *user)
+{
+    const struct outline_ctx *s = user;
+    const struct vec3 vec_to = vec3_from_ftvec2(s, ftvec_to);
+    const float to[3] = {vec_to.x, vec_to.y, vec_to.z};
+    return ngli_path_line_to(s->path, to);
+}
+
+static int conic_to_cb(const FT_Vector *ftvec_ctl, const FT_Vector *ftvec_to, void *user)
+{
+    const struct outline_ctx  *s = user;
+    const struct vec3 vec_ctl = vec3_from_ftvec2(s, ftvec_ctl);
+    const struct vec3 vec_to  = vec3_from_ftvec2(s, ftvec_to);
+    const float ctl[3] = {vec_ctl.x, vec_ctl.y, vec_ctl.z};
+    const float to[3]  = {vec_to.x,  vec_to.y,  vec_to.z};
+    return ngli_path_bezier2_to(s->path, ctl, to);
+}
+
+static int cubic_to_cb(const FT_Vector *ftvec_ctl1, const FT_Vector *ftvec_ctl2,
+                       const FT_Vector *ftvec_to, void *user)
+{
+    const struct outline_ctx *s = user;
+    const struct vec3 vec_ctl1 = vec3_from_ftvec2(s, ftvec_ctl1);
+    const struct vec3 vec_ctl2 = vec3_from_ftvec2(s, ftvec_ctl2);
+    const struct vec3 vec_to   = vec3_from_ftvec2(s, ftvec_to);
+    const float ctl1[3] = {vec_ctl1.x, vec_ctl1.y, vec_ctl1.z};
+    const float ctl2[3] = {vec_ctl2.x, vec_ctl2.y, vec_ctl2.z};
+    const float to[3]   = {vec_to.x,   vec_to.y,   vec_to.z};
+    return ngli_path_bezier3_to(s->path, ctl1, ctl2, to);
+}
+
+static const FT_Outline_Funcs outline_funcs = {
+    .move_to  = move_to_cb,
+    .line_to  = line_to_cb,
+    .conic_to = conic_to_cb,
+    .cubic_to = cubic_to_cb,
+};
+
 static int build_glyph_index(struct text *text, struct hmap *glyph_index, const struct darray *runs_array)
 {
+    int ret = 0;
     struct text_external *s = text->priv_data;
+
+    struct path *path = ngli_path_create();
+    if (!path)
+        return NGL_ERROR_MEMORY;
 
     const struct text_run *runs = ngli_darray_data(runs_array);
     for (size_t i = 0; i < ngli_darray_count(runs_array); i++) {
@@ -210,7 +283,7 @@ static int build_glyph_index(struct text *text, struct hmap *glyph_index, const 
              * Harfbuzz seems to use NO_HINTING as well, so we may want to stay
              * aligned with it.
              */
-            FT_Error ft_error = FT_Load_Glyph(ft_face, glyph_id, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING);
+            FT_Error ft_error = FT_Load_Glyph(ft_face, glyph_id, FT_LOAD_DEFAULT | FT_LOAD_NO_BITMAP | FT_LOAD_NO_HINTING);
             if (ft_error) {
                 /*
                  * We do not use the "U+XXXX" notation in the format string
@@ -223,42 +296,57 @@ static int build_glyph_index(struct text *text, struct hmap *glyph_index, const 
             }
 
             const FT_GlyphSlot slot = ft_face->glyph;
-            ft_error = FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
-            if (ft_error) {
-                LOG(ERROR, "unable to render glyph id %u", glyph_id);
-                return NGL_ERROR_EXTERNAL;
-            }
 
-            /* Register rasterized bitmap into the texture atlas */
-            const struct bitmap bitmap = {
-                .buffer  = slot->bitmap.buffer,
-                .stride  = slot->bitmap.pitch,
-                .width   = slot->bitmap.width,
-                .height  = slot->bitmap.rows,
-            };
-            int32_t atlas_id;
-            int ret = ngli_atlas_add_bitmap(s->atlas, &bitmap, &atlas_id);
+            ngli_path_clear(path);
+
+            FT_BBox cbox;
+            FT_Outline_Get_CBox(&slot->outline, &cbox);
+
+            const struct outline_ctx ft_ctx = {.path=path,.cbox=cbox};
+            FT_Outline_Decompose(&slot->outline, &outline_funcs, (void *)&ft_ctx);
+
+            ret = ngli_path_finalize(path);
             if (ret < 0)
-                return ret;
+                goto end;
+
+            const int32_t shape_w_26d6 = (int32_t)(cbox.xMax - cbox.xMin);
+            const int32_t shape_h_26d6 = (int32_t)(cbox.yMax - cbox.yMin);
+            const int32_t shape_w = NGLI_I26D6_TO_I32_TRUNCATED(shape_w_26d6);
+            const int32_t shape_h = NGLI_I26D6_TO_I32_TRUNCATED(shape_h_26d6);
+
+            // An empty space glyph doesn't need to be rasterized
+            if (shape_w <= 0 || shape_h <= 0)
+                continue;
+
+            int32_t shape_id;
+            int ret = ngli_distmap_add_shape(s->distmap, shape_w, shape_h, path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id);
+            if (ret < 0)
+                goto end;
 
             /* Save the rasterized glyph in the index */
             struct glyph *glyph = create_glyph();
-            if (!glyph)
-                return NGL_ERROR_MEMORY;
-            glyph->atlas_id  = atlas_id;
-            glyph->width     = NGLI_I32_TO_I26D6(bitmap.width);
-            glyph->height    = NGLI_I32_TO_I26D6(bitmap.height);
-            glyph->bearing_x = NGLI_I32_TO_I26D6(slot->bitmap_left);
-            glyph->bearing_y = NGLI_I32_TO_I26D6(slot->bitmap_top - bitmap.height);
+            if (!glyph) {
+                ret = NGL_ERROR_MEMORY;
+                goto end;
+            }
+
+            glyph->shape_id  = shape_id;
+            glyph->width     = shape_w_26d6;
+            glyph->height    = shape_h_26d6;
+            glyph->bearing_x = (int32_t)ft_ctx.cbox.xMin;
+            glyph->bearing_y = (int32_t)ft_ctx.cbox.yMin;
+
             ret = ngli_hmap_set(glyph_index, glyph_uid, glyph);
             if (ret < 0) {
                 free_glyph(NULL, glyph);
-                return ret;
+                goto end;
             }
         }
     }
 
-    return 0;
+end:
+    ngli_path_freep(&path);
+    return ret;
 }
 
 static void reset_runs(struct darray *runs_array)
@@ -636,8 +724,8 @@ static int register_chars(struct text *text, const char *str, struct darray *cha
                 chr.y = y_cur + glyph->bearing_y + pos->y_offset;
                 chr.w = glyph->width;
                 chr.h = glyph->height;
-                ngli_atlas_get_bitmap_coords(s->atlas, glyph->atlas_id, chr.atlas_coords);
-                chr.scale[0] = chr.scale[1] = 1.f;
+                ngli_distmap_get_shape_coords(s->distmap, glyph->shape_id, chr.atlas_coords);
+                ngli_distmap_get_shape_scale(s->distmap, glyph->shape_id, chr.scale);
             }
 
             if (!ngli_darray_push(chars_dst, &chr))
@@ -659,19 +747,18 @@ static int text_external_set_string(struct text *text, const char *str, struct d
     ngli_darray_init(&runs_array, sizeof(struct text_run), 0);
 
     /* Re-entrance reset */
-    ngli_atlas_freep(&s->atlas);
+    ngli_distmap_freep(&s->distmap);
 
     int ret = build_text_runs(text, str, &runs_array);
     if (ret < 0)
         goto end;
 
-    s->atlas = ngli_atlas_create(text->ctx);
-    if (!s->atlas) {
+    s->distmap = ngli_distmap_create(text->ctx);
+    if (!s->distmap) {
         ret = NGL_ERROR_MEMORY;
         goto end;
     }
-
-    ret = ngli_atlas_init(s->atlas);
+    ret = ngli_distmap_init(s->distmap);
     if (ret < 0)
         goto end;
 
@@ -685,10 +772,10 @@ static int text_external_set_string(struct text *text, const char *str, struct d
     if (ret < 0)
         goto end;
 
-    ret = ngli_atlas_finalize(s->atlas);
+    ret = ngli_distmap_finalize(s->distmap);
     if (ret < 0)
         goto end;
-    text->atlas_texture = ngli_atlas_get_texture(s->atlas);
+    text->atlas_texture = ngli_distmap_get_texture(s->distmap);
 
     ret = register_chars(text, str, chars_dst, &runs_array, glyph_index);
     if (ret < 0)
@@ -716,7 +803,7 @@ static void text_external_reset(struct text *text)
 
     FT_Done_FreeType(s->ft_library);
 
-    ngli_atlas_freep(&s->atlas);
+    ngli_distmap_freep(&s->distmap);
 }
 
 const struct text_cls ngli_text_external = {

@@ -920,7 +920,7 @@ Parameter | Flags | Type | Description | Default
 `box_width` |  | [`vec3`](#parameter-types) | box width vector | (`2`,`0`,`0`)
 `box_height` |  | [`vec3`](#parameter-types) | box height vector | (`0`,`2`,`0`)
 `font_files` |  | [`str`](#parameter-types) | paths to font files (use ',' or ';' to separate paths, require build with external text libraries) | 
-`padding` |  | [`i32`](#parameter-types) | pixel padding around the text | `3`
+`padding` |  | [`i32`](#parameter-types) | padding around the text, in point units | `4`
 `font_scale` |  | [`f32`](#parameter-types) | scaling of the font | `1`
 `scale_mode` |  | [`scale_mode`](#scale_mode-choices) | scaling behaviour for the characters | `auto`
 `effects` |  | [`node_list`](#parameter-types) ([TextEffect](#texteffect)) | stack of effects | 

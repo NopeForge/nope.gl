@@ -151,6 +151,6 @@ def text_fixed(cfg: SceneCfg):
     return ngl.Text(
         "Fix",
         scale_mode="fixed",
-        font_scale=50,
+        font_scale=4.5,
         aspect_ratio=cfg.aspect_ratio,
     )

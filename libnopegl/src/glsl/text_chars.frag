@@ -20,6 +20,8 @@
  * under the License.
  */
 
+#include path.glsl
+
 void main()
 {
     /*
@@ -38,7 +40,10 @@ void main()
     vec2 half_texel = 0.5 / vec2(textureSize(tex, 0)) + 1e-8;
     vec2 clamp_uv = clamp(chr_uv, coords.xy + half_texel, coords.zw - half_texel);
 
-    float v = texture(tex, clamp_uv).r;
-    float opacity = color.a;
-    ngl_out_color = vec4(color.rgb, 1.0) * opacity * v;
+    /*
+     * The shape is always closed so we use the same distance for both the
+     * fill and the outline.
+     */
+    vec2 dist = vec2(texture(tex, clamp_uv).r);
+    ngl_out_color = get_path_color(dist, color, vec4(0.0), vec4(0.0), 0.0);
 }

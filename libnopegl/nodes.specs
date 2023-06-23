@@ -2132,9 +2132,9 @@
     {
       "name": "padding",
       "type": "i32",
-      "default": 3,
+      "default": 4,
       "flags": [],
-      "desc": "pixel padding around the text"
+      "desc": "padding around the text, in point units"
     },
     {
       "name": "font_scale",
