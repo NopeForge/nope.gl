@@ -148,6 +148,9 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
 
 int ngli_pipeline_compat_update_attribute(struct pipeline_compat *s, int32_t index, const struct buffer *buffer)
 {
+    if (index == -1)
+        return NGL_ERROR_NOT_FOUND;
+
     ngli_assert(index >= 0 && index < s->nb_vertex_buffers);
     s->vertex_buffers[index] = buffer;
     return 0;
