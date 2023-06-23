@@ -59,15 +59,6 @@ struct pipeline_buffer_desc {
     int stage;
 };
 
-struct pipeline_attribute_desc {
-    char name[MAX_ID_LEN];
-    int location;
-    int format;
-    int rate;
-    size_t stride;
-    size_t offset;
-};
-
 struct vertex_attribute {
     int location;
     int format;

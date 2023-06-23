@@ -172,6 +172,15 @@ struct pgcraft_compat_info {
     int32_t ubindings[NGLI_PROGRAM_SHADER_NB];
 };
 
+struct pgcraft_attribute_info {
+    char name[MAX_ID_LEN];
+    int location;
+    int format;
+    int rate;
+    size_t stride;
+    size_t offset;
+};
+
 struct pgcraft_params {
     const char *program_label;
     const char *vert_base;
@@ -202,7 +211,7 @@ int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params);
 int32_t ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);
 const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s);
 const struct pgcraft_compat_info *ngli_pgcraft_get_compat_info(const struct pgcraft *s);
-const struct darray *ngli_pgcraft_get_attribute_descs(const struct pgcraft *s);
+const struct darray *ngli_pgcraft_get_attribute_infos(const struct pgcraft *s);
 struct vertex_state ngli_pgcraft_get_vertex_state(const struct pgcraft *s);
 int32_t ngli_pgcraft_get_vertex_buffer_index(const struct pgcraft *s, const char *name);
 struct program *ngli_pgcraft_get_program(const struct pgcraft *s);
