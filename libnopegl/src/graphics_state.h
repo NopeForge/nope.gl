@@ -19,8 +19,8 @@
  * under the License.
  */
 
-#ifndef GRAPHICSTATE_H
-#define GRAPHICSTATE_H
+#ifndef GRAPHICS_STATE_H
+#define GRAPHICS_STATE_H
 
 #include "utils.h"
 
@@ -85,7 +85,7 @@ enum {
     NGLI_COLOR_COMPONENT_A_BIT = 1 << 3,
 };
 
-struct graphicstate {
+struct graphics_state {
     int blend;
     int blend_dst_factor;
     int blend_src_factor;
@@ -115,7 +115,7 @@ struct graphicstate {
 };
 
 /* Make sure to keep this in sync with the blending documentation */
-#define NGLI_GRAPHICSTATE_DEFAULTS (struct graphicstate) { \
+#define NGLI_GRAPHICS_STATE_DEFAULTS (struct graphics_state) { \
     .blend              = 0,                               \
     .blend_src_factor   = NGLI_BLEND_FACTOR_ONE,           \
     .blend_dst_factor   = NGLI_BLEND_FACTOR_ZERO,          \

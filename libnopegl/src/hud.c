@@ -50,7 +50,7 @@
 #include "pipeline_compat.h"
 #include "type.h"
 #include "topology.h"
-#include "graphicstate.h"
+#include "graphics_state.h"
 #include "hud.h"
 
 struct hud {
@@ -76,7 +76,7 @@ struct hud {
     struct texture *texture;
     struct buffer *coords;
     struct pipeline_compat *pipeline_compat;
-    struct graphicstate graphicstate;
+    struct graphics_state graphics_state;
 
     int32_t modelview_matrix_index;
     int32_t projection_matrix_index;
@@ -1291,12 +1291,12 @@ int ngli_hud_init(struct hud *s)
     };
 
     struct rnode *rnode = ctx->rnode_pos;
-    struct graphicstate graphicstate = rnode->graphicstate;
-    graphicstate.blend = 1;
-    graphicstate.blend_src_factor = NGLI_BLEND_FACTOR_SRC_ALPHA;
-    graphicstate.blend_dst_factor = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    graphicstate.blend_src_factor_a = NGLI_BLEND_FACTOR_ZERO;
-    graphicstate.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE;
+    struct graphics_state graphics_state = rnode->graphics_state;
+    graphics_state.blend = 1;
+    graphics_state.blend_src_factor = NGLI_BLEND_FACTOR_SRC_ALPHA;
+    graphics_state.blend_dst_factor = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    graphics_state.blend_src_factor_a = NGLI_BLEND_FACTOR_ZERO;
+    graphics_state.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE;
 
     const struct pgcraft_params crafter_params = {
         .program_label    = "nopegl/hud",
@@ -1328,7 +1328,7 @@ int ngli_hud_init(struct hud *s)
         .type         = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
             .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-            .state    = graphicstate,
+            .state    = graphics_state,
             .rt_desc  = rnode->rendertarget_desc,
             .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
         },

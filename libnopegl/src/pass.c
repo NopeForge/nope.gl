@@ -483,17 +483,17 @@ int ngli_pass_prepare(struct pass *s)
     struct rnode *rnode = ctx->rnode_pos;
 
     const int format = rnode->rendertarget_desc.depth_stencil.format;
-    if (rnode->graphicstate.depth_test && !ngli_format_has_depth(format)) {
+    if (rnode->graphics_state.depth_test && !ngli_format_has_depth(format)) {
         LOG(ERROR, "depth testing is not supported on rendertargets with no depth attachment");
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    if (rnode->graphicstate.stencil_test && !ngli_format_has_stencil(format)) {
+    if (rnode->graphics_state.stencil_test && !ngli_format_has_stencil(format)) {
         LOG(ERROR, "stencil operations are not supported on rendertargets with no stencil attachment");
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    struct graphicstate state = rnode->graphicstate;
+    struct graphics_state state = rnode->graphics_state;
     int ret = ngli_blending_apply_preset(&state, s->params.blending);
     if (ret < 0)
         return ret;

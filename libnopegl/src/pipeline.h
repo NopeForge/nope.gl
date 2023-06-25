@@ -26,7 +26,7 @@
 
 #include "buffer.h"
 #include "darray.h"
-#include "graphicstate.h"
+#include "graphics_state.h"
 #include "program.h"
 #include "rendertarget.h"
 #include "texture.h"
@@ -81,7 +81,7 @@ struct vertex_state {
 
 struct pipeline_graphics {
     int topology;
-    struct graphicstate state;
+    struct graphics_state state;
     struct rendertarget_desc rt_desc;
     struct vertex_state vertex_state;
 };

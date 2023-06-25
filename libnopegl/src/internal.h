@@ -42,7 +42,7 @@
 #include "atlas.h"
 #include "block.h"
 #include "drawutils.h"
-#include "graphicstate.h"
+#include "graphics_state.h"
 #include "hmap.h"
 #include "hud.h"
 #include "hwconv.h"

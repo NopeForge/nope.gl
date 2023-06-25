@@ -458,7 +458,7 @@ static int text_init(struct ngl_node *node)
 
 static int init_subdesc(struct ngl_node *node,
                         struct pipeline_desc_common *desc,
-                        const struct graphicstate *graphicstate,
+                        const struct graphics_state *graphics_state,
                         const struct pgcraft_params *crafter_params)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -481,7 +481,7 @@ static int init_subdesc(struct ngl_node *node,
         .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics      = {
             .topology     = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-            .state        = *graphicstate,
+            .state        = *graphics_state,
             .rt_desc      = rnode->rendertarget_desc,
             .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
         },
@@ -533,7 +533,7 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
     };
 
     /* This controls how the background blends onto the current framebuffer */
-    struct graphicstate state = rnode->graphicstate;
+    struct graphics_state state = rnode->graphics_state;
     state.blend = 1;
     state.blend_src_factor   = NGLI_BLEND_FACTOR_ONE;
     state.blend_dst_factor   = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -620,7 +620,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     };
 
     /* This controls how the characters blend onto the background */
-    struct graphicstate state = rnode->graphicstate;
+    struct graphics_state state = rnode->graphics_state;
     state.blend = 1;
     state.blend_src_factor   = NGLI_BLEND_FACTOR_ONE;
     state.blend_dst_factor   = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;

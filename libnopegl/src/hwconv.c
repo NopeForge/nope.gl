@@ -134,7 +134,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         .type         = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
             .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .state    = NGLI_GRAPHICSTATE_DEFAULTS,
+            .state    = NGLI_GRAPHICS_STATE_DEFAULTS,
             .rt_desc  = rt_desc,
             .vertex_state = ngli_pgcraft_get_vertex_state(hwconv->crafter),
         },

@@ -24,7 +24,7 @@
 #include <string.h>
 
 #include "gpu_ctx.h"
-#include "graphicstate.h"
+#include "graphics_state.h"
 #include "log.h"
 #include "nopegl.h"
 #include "internal.h"
@@ -63,7 +63,7 @@ struct graphicconfig_opts {
 };
 
 struct graphicconfig_priv {
-    struct graphicstate graphicstate;
+    struct graphics_state graphics_state;
     int use_scissor;
 };
 
@@ -253,10 +253,10 @@ static void honor_config(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rnode *rnode = ctx->rnode_pos;
     struct graphicconfig_priv *s = node->priv_data;
-    struct graphicstate *pending = &rnode->graphicstate;
+    struct graphics_state *pending = &rnode->graphics_state;
     const struct graphicconfig_opts *o = node->opts;
 
-    s->graphicstate = *pending;
+    s->graphics_state = *pending;
 
     COPY_PARAM(blend);
     COPY_PARAM(blend_dst_factor);
