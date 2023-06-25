@@ -143,7 +143,7 @@ To sample a `Texture2D` from within the shader, multiple options are available:
   various video decoding fall-back mechanisms.  On the other hand, it is the
   only way to benefit from video decoding accelerations (external samplers on
   Android, VAAPI on Linux, etc).
-- `ngl_tex2d(name, coords)`: this picking method should be used if and only if
+- `texture(name, coords)`: this picking method should be used if and only if
   the `data_src` is *not* a `Media`. While it may work sometimes with a
   `Media`, it definitely won't if the video gets accelerated. The only safe way
   to use this picking method with a `Media` is to have
@@ -157,9 +157,6 @@ To sample a `Texture2D` from within the shader, multiple options are available:
   `as_image=True` must be set to the program `properties`, using the name of
   the texture as key. Note that a texture can be accessed as a sampler from a
   program but as an image from another.
-
-Similarly, the `ngl_tex3d()` and `ngl_texcube()` exist respectively for
-`Texture3D` and `TextureCube` picking.
 
 Other variables related to textures are exposed to different stages of the shader:
 

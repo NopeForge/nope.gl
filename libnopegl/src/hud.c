@@ -1164,7 +1164,7 @@ static const char * const vertex_data =
 static const char * const fragment_data =
     "void main()"                                                           "\n"
     "{"                                                                     "\n"
-    "    ngl_out_color = ngl_tex2d(tex, tex_coord);"                        "\n"
+    "    ngl_out_color = texture(tex, tex_coord);"                          "\n"
     "}";
 
 static const struct pgcraft_iovar vert_out_vars[] = {

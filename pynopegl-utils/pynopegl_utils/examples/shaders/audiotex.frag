@@ -28,10 +28,10 @@ void main()
     vec2 sample_id_ch_2 = vec2(x,  1.5 / 22.);
     vec2  power_id_ch_1 = vec2(x, fft1 / 22.);
     vec2  power_id_ch_2 = vec2(x, fft2 / 22.);
-    float sample_ch_1 = ngl_tex2d(tex0, sample_id_ch_1).x;
-    float sample_ch_2 = ngl_tex2d(tex0, sample_id_ch_2).x;
-    float  power_ch_1 = ngl_tex2d(tex0,  power_id_ch_1).x;
-    float  power_ch_2 = ngl_tex2d(tex0,  power_id_ch_2).x;
+    float sample_ch_1 = texture(tex0, sample_id_ch_1).x;
+    float sample_ch_2 = texture(tex0, sample_id_ch_2).x;
+    float  power_ch_1 = texture(tex0,  power_id_ch_1).x;
+    float  power_ch_2 = texture(tex0,  power_id_ch_2).x;
     float wave1 = wave(sample_ch_1, y, 0.0);
     float wave2 = wave(sample_ch_2, y, 0.25);
     float freq1 = freq(power_ch_1, y, 0.5);
