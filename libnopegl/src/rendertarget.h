@@ -37,16 +37,16 @@ enum {
     NGLI_STORE_OP_DONT_CARE,
 };
 
-struct attachment_desc {
+struct rendertarget_layout_entry {
     int format;
     int resolve;
 };
 
-struct rendertarget_desc {
+struct rendertarget_layout {
     int32_t samples;
     size_t nb_colors;
-    struct attachment_desc colors[NGLI_MAX_COLOR_ATTACHMENTS];
-    struct attachment_desc depth_stencil;
+    struct rendertarget_layout_entry colors[NGLI_MAX_COLOR_ATTACHMENTS];
+    struct rendertarget_layout_entry depth_stencil;
 };
 
 struct attachment {

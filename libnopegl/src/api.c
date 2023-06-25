@@ -144,7 +144,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
     ngli_rnode_init(&s->rnode);
     s->rnode_pos = &s->rnode;
     s->rnode_pos->graphics_state = NGLI_GRAPHICS_STATE_DEFAULTS;
-    s->rnode_pos->rendertarget_desc = *ngli_gpu_ctx_get_default_rendertarget_desc(s->gpu_ctx);
+    s->rnode_pos->rendertarget_layout = *ngli_gpu_ctx_get_default_rendertarget_layout(s->gpu_ctx);
 
     if (scene) {
         if (!scene->root) {

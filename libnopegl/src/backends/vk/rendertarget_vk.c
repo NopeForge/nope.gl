@@ -55,7 +55,7 @@ static VkAttachmentStoreOp get_vk_store_op(int store_op)
     return store_op_map[store_op];
 }
 
-static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct rendertarget_desc *desc, const struct rendertarget_params *params, VkRenderPass *render_pass)
+static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct rendertarget_layout *layout, const struct rendertarget_params *params, VkRenderPass *render_pass)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -71,10 +71,10 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
 
     VkAttachmentReference depth_stencil_ref = {0};
     int nb_depth_stencil_refs = 0;
-    const VkSampleCountFlags samples = ngli_ngl_samples_to_vk(desc->samples);
+    const VkSampleCountFlags samples = ngli_ngl_samples_to_vk(layout->samples);
 
-    for (size_t i = 0; i < desc->nb_colors; i++) {
-        VkFormat format = ngli_format_ngl_to_vk(desc->colors[i].format);
+    for (size_t i = 0; i < layout->nb_colors; i++) {
+        VkFormat format = ngli_format_ngl_to_vk(layout->colors[i].format);
 
         VkFormatProperties properties;
         vkGetPhysicalDeviceFormatProperties(vk->phy_device, format, &properties);
@@ -106,7 +106,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
         nb_descs++;
         nb_color_refs++;
 
-        if (desc->colors[i].resolve) {
+        if (layout->colors[i].resolve) {
             descs[nb_descs] = (VkAttachmentDescription) {
                 .format         = format,
                 .samples        = VK_SAMPLE_COUNT_1_BIT,
@@ -128,8 +128,8 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
         }
     }
 
-    if (desc->depth_stencil.format != NGLI_FORMAT_UNDEFINED) {
-        VkFormat format = ngli_format_ngl_to_vk(desc->depth_stencil.format);
+    if (layout->depth_stencil.format != NGLI_FORMAT_UNDEFINED) {
+        VkFormat format = ngli_format_ngl_to_vk(layout->depth_stencil.format);
 
         VkFormatProperties properties;
         vkGetPhysicalDeviceFormatProperties(vk->phy_device, format, &properties);
@@ -162,7 +162,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
         nb_descs++;
         nb_depth_stencil_refs++;
 
-        if (desc->depth_stencil.resolve) {
+        if (layout->depth_stencil.resolve) {
             LOG(ERROR, "resolving depth/stencil attachment is not supported");
             return VK_ERROR_FEATURE_NOT_PRESENT;
         }
@@ -209,9 +209,9 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
     return vkCreateRenderPass(vk->device, &render_pass_create_info, NULL, render_pass);
 }
 
-VkResult ngli_vk_create_compatible_renderpass(struct gpu_ctx *s, const struct rendertarget_desc *desc, VkRenderPass *render_pass)
+VkResult ngli_vk_create_compatible_renderpass(struct gpu_ctx *s, const struct rendertarget_layout *layout, VkRenderPass *render_pass)
 {
-    return vk_create_compatible_renderpass(s, desc, NULL, render_pass);
+    return vk_create_compatible_renderpass(s, layout, NULL, render_pass);
 }
 
 static VkImageAspectFlags get_vk_image_aspect_flags(VkFormat format)
@@ -292,14 +292,14 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct renderta
     /* Set the rendertarget samples value from the attachments samples value
      * and ensure all the attachments have the same samples value */
     int32_t samples = -1;
-    struct rendertarget_desc desc = {0};
+    struct rendertarget_layout layout = {0};
     for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
         const struct texture *texture = attachment->attachment;
         const struct texture_params *texture_params = &texture->params;
-        desc.colors[desc.nb_colors].format = texture_params->format;
-        desc.colors[desc.nb_colors].resolve = attachment->resolve_target != NULL;
-        desc.nb_colors++;
+        layout.colors[layout.nb_colors].format = texture_params->format;
+        layout.colors[layout.nb_colors].resolve = attachment->resolve_target != NULL;
+        layout.nb_colors++;
         ngli_assert(samples == -1 || samples == texture_params->samples);
         samples = texture_params->samples;
     }
@@ -307,14 +307,14 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct renderta
     const struct texture *texture = attachment->attachment;
     if (texture) {
         const struct texture_params *texture_params = &texture->params;
-        desc.depth_stencil.format = texture_params->format;
-        desc.depth_stencil.resolve = attachment->resolve_target != NULL;
+        layout.depth_stencil.format = texture_params->format;
+        layout.depth_stencil.resolve = attachment->resolve_target != NULL;
         ngli_assert(samples == -1 || samples == texture_params->samples);
         samples = texture_params->samples;
     }
-    desc.samples = samples;
+    layout.samples = samples;
 
-    VkResult res = vk_create_compatible_renderpass(s->gpu_ctx, &desc, params, &s_priv->render_pass);
+    VkResult res = vk_create_compatible_renderpass(s->gpu_ctx, &layout, params, &s_priv->render_pass);
     if (res != VK_SUCCESS)
         return res;
 

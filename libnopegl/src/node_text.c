@@ -482,7 +482,7 @@ static int init_subdesc(struct ngl_node *node,
         .graphics      = {
             .topology     = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state        = *graphics_state,
-            .rt_desc      = rnode->rendertarget_desc,
+            .rt_layout    = rnode->rendertarget_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
         },
         .program = ngli_pgcraft_get_program(desc->crafter),

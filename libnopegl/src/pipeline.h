@@ -82,7 +82,7 @@ struct vertex_state {
 struct pipeline_graphics {
     int topology;
     struct graphics_state state;
-    struct rendertarget_desc rt_desc;
+    struct rendertarget_layout rt_layout;
     struct vertex_state vertex_state;
 };
 

@@ -34,7 +34,7 @@ int ngli_pipeline_graphics_copy(struct pipeline_graphics *dst, const struct pipe
 {
     dst->topology = src->topology;
     dst->state    = src->state;
-    dst->rt_desc  = src->rt_desc;
+    dst->rt_layout  = src->rt_layout;
 
     const struct vertex_buffer_layout *buffers = src->vertex_state.buffers;
     const size_t nb_buffers = src->vertex_state.nb_buffers;
