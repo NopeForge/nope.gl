@@ -223,7 +223,7 @@ static int rtt_prepare(struct ngl_node *node)
     }
 #endif
 
-    struct rendertarget_desc desc = {
+    struct rendertarget_layout layout = {
         .samples = o->samples,
     };
     for (size_t i = 0; i < o->nb_color_textures; i++) {
@@ -231,26 +231,26 @@ static int rtt_prepare(struct ngl_node *node)
         struct texture_params *params = &info.texture_priv->params;
         params->usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
         for (int32_t j = 0; j < info.layer_count; j++) {
-            desc.colors[desc.nb_colors].format = params->format;
-            desc.colors[desc.nb_colors].resolve = o->samples > 1;
-            desc.nb_colors++;
+            layout.colors[layout.nb_colors].format = params->format;
+            layout.colors[layout.nb_colors].resolve = o->samples > 1;
+            layout.nb_colors++;
         }
     }
     if (o->depth_texture) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
         struct texture_params *depth_texture_params = &info.texture_priv->params;
         depth_texture_params->usage |= NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-        desc.depth_stencil.format = depth_texture_params->format;
-        desc.depth_stencil.resolve = o->samples > 1;
+        layout.depth_stencil.format = depth_texture_params->format;
+        layout.depth_stencil.resolve = o->samples > 1;
     } else {
         int depth_format = NGLI_FORMAT_UNDEFINED;
         if (o->features & FEATURE_STENCIL)
             depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
         else if (o->features & FEATURE_DEPTH)
             depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
-        desc.depth_stencil.format = depth_format;
+        layout.depth_stencil.format = depth_format;
     }
-    rnode->rendertarget_desc = desc;
+    rnode->rendertarget_layout = layout;
 
     return ngli_node_prepare_children(node);
 }

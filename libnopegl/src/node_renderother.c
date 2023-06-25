@@ -708,7 +708,7 @@ static int finalize_pipeline(struct ngl_node *node,
         .graphics = {
             .topology = s->topology,
             .state    = state,
-            .rt_desc  = rnode->rendertarget_desc,
+            .rt_layout    = rnode->rendertarget_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
         },
         .program = ngli_pgcraft_get_program(desc->crafter),

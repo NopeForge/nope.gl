@@ -956,19 +956,19 @@ static int vk_init(struct gpu_ctx *s)
         return ngli_vk_res2ret(res);
 
     if (config->offscreen) {
-        s_priv->default_rt_desc.samples               = config->samples;
-        s_priv->default_rt_desc.nb_colors             = 1;
-        s_priv->default_rt_desc.colors[0].format      = NGLI_FORMAT_R8G8B8A8_UNORM;
-        s_priv->default_rt_desc.colors[0].resolve     = config->samples > 0 ? 1 : 0;
-        s_priv->default_rt_desc.depth_stencil.format  = vk->preferred_depth_stencil_format;
-        s_priv->default_rt_desc.depth_stencil.resolve = 0;
+        s_priv->default_rt_layout.samples               = config->samples;
+        s_priv->default_rt_layout.nb_colors             = 1;
+        s_priv->default_rt_layout.colors[0].format      = NGLI_FORMAT_R8G8B8A8_UNORM;
+        s_priv->default_rt_layout.colors[0].resolve     = config->samples > 0 ? 1 : 0;
+        s_priv->default_rt_layout.depth_stencil.format  = vk->preferred_depth_stencil_format;
+        s_priv->default_rt_layout.depth_stencil.resolve = 0;
     } else {
-        s_priv->default_rt_desc.samples               = config->samples;
-        s_priv->default_rt_desc.nb_colors             = 1;
-        s_priv->default_rt_desc.colors[0].format      = ngli_format_vk_to_ngl(s_priv->surface_format.format);
-        s_priv->default_rt_desc.colors[0].resolve     = config->samples > 0 ? 1 : 0;
-        s_priv->default_rt_desc.depth_stencil.format  = vk->preferred_depth_stencil_format;
-        s_priv->default_rt_desc.depth_stencil.resolve = 0;
+        s_priv->default_rt_layout.samples               = config->samples;
+        s_priv->default_rt_layout.nb_colors             = 1;
+        s_priv->default_rt_layout.colors[0].format      = ngli_format_vk_to_ngl(s_priv->surface_format.format);
+        s_priv->default_rt_layout.colors[0].resolve     = config->samples > 0 ? 1 : 0;
+        s_priv->default_rt_layout.depth_stencil.format  = vk->preferred_depth_stencil_format;
+        s_priv->default_rt_layout.depth_stencil.resolve = 0;
     }
 
     const struct viewport viewport = {NGLI_ARG_VEC4(config->viewport)};
@@ -1279,10 +1279,10 @@ static struct rendertarget *vk_get_default_rendertarget(struct gpu_ctx *s, int l
     }
 }
 
-static const struct rendertarget_desc *vk_get_default_rendertarget_desc(struct gpu_ctx *s)
+static const struct rendertarget_layout *vk_get_default_rendertarget_layout(struct gpu_ctx *s)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
-    return &s_priv->default_rt_desc;
+    return &s_priv->default_rt_layout;
 }
 
 static void vk_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
@@ -1528,7 +1528,7 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .get_rendertarget_uvcoord_matrix    = vk_get_rendertarget_uvcoord_matrix,
 
     .get_default_rendertarget           = vk_get_default_rendertarget,
-    .get_default_rendertarget_desc      = vk_get_default_rendertarget_desc,
+    .get_default_rendertarget_layout    = vk_get_default_rendertarget_layout,
 
     .begin_render_pass                  = vk_begin_render_pass,
     .end_render_pass                    = vk_end_render_pass,

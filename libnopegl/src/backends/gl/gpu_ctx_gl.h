@@ -45,7 +45,7 @@ struct gpu_ctx_gl {
     struct gpu_ctx parent;
     struct glcontext *glcontext;
     struct glstate glstate;
-    struct rendertarget_desc default_rt_desc;
+    struct rendertarget_layout default_rt_layout;
     /* Default rendertarget with load op set to clear */
     struct rendertarget *default_rt;
     /* Default rendertarget with load op set to load, useful for resuming the

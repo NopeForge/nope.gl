@@ -29,7 +29,7 @@
 struct rnode {
     size_t id;
     struct graphics_state graphics_state;
-    struct rendertarget_desc rendertarget_desc;
+    struct rendertarget_layout rendertarget_layout;
     struct darray children;
 };
 

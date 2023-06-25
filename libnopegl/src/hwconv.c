@@ -61,7 +61,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     struct texture *texture = dst_image->planes[0];
     const struct texture_params *texture_params = &texture->params;
 
-    const struct rendertarget_desc rt_desc = {
+    const struct rendertarget_layout rt_layout = {
         .nb_colors = 1,
         .colors[0].format = texture_params->format,
     };
@@ -135,7 +135,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         .graphics     = {
             .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
             .state    = NGLI_GRAPHICS_STATE_DEFAULTS,
-            .rt_desc  = rt_desc,
+            .rt_layout    = rt_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(hwconv->crafter),
         },
         .program      = ngli_pgcraft_get_program(hwconv->crafter),

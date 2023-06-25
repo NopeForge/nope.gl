@@ -72,7 +72,7 @@ struct gpu_ctx_vk {
 
     struct rendertarget *default_rt;
     struct rendertarget *default_rt_load;
-    struct rendertarget_desc default_rt_desc;
+    struct rendertarget_layout default_rt_layout;
 
     /*
      * The nope.gl pipeline API allows executing a pipeline with unbound

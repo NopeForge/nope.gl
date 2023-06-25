@@ -482,7 +482,7 @@ int ngli_pass_prepare(struct pass *s)
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rnode *rnode = ctx->rnode_pos;
 
-    const int format = rnode->rendertarget_desc.depth_stencil.format;
+    const int format = rnode->rendertarget_layout.depth_stencil.format;
     if (rnode->graphics_state.depth_test && !ngli_format_has_depth(format)) {
         LOG(ERROR, "depth testing is not supported on rendertargets with no depth attachment");
         return NGL_ERROR_INVALID_USAGE;
@@ -541,7 +541,7 @@ int ngli_pass_prepare(struct pass *s)
         .graphics = {
             .topology = s->topology,
             .state = state,
-            .rt_desc = rnode->rendertarget_desc,
+            .rt_layout = rnode->rendertarget_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
         },
         .program = ngli_pgcraft_get_program(desc->crafter),

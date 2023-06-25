@@ -198,9 +198,9 @@ struct rendertarget *ngli_gpu_ctx_get_default_rendertarget(struct gpu_ctx *s, in
     return s->cls->get_default_rendertarget(s, load_op);
 }
 
-const struct rendertarget_desc *ngli_gpu_ctx_get_default_rendertarget_desc(struct gpu_ctx *s)
+const struct rendertarget_layout *ngli_gpu_ctx_get_default_rendertarget_layout(struct gpu_ctx *s)
 {
-    return s->cls->get_default_rendertarget_desc(s);
+    return s->cls->get_default_rendertarget_layout(s);
 }
 
 void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const struct viewport *viewport)
