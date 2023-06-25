@@ -23,12 +23,12 @@
 #define RNODE_H
 
 #include "darray.h"
-#include "graphicstate.h"
+#include "graphics_state.h"
 #include "rendertarget.h"
 
 struct rnode {
     size_t id;
-    struct graphicstate graphicstate;
+    struct graphics_state graphics_state;
     struct rendertarget_desc rendertarget_desc;
     struct darray children;
 };

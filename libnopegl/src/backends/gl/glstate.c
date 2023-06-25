@@ -26,7 +26,7 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "glstate.h"
-#include "graphicstate.h"
+#include "graphics_state.h"
 #include "internal.h"
 
 static const GLenum gl_blend_factor_map[NGLI_BLEND_FACTOR_NB] = {
@@ -176,7 +176,7 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
     ngli_glBindVertexArray(gl, 0);
 }
 
-void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct graphicstate *state)
+void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct graphics_state *state)
 {
     /* Blend */
     const int blend = state->blend;

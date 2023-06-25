@@ -34,7 +34,7 @@
 
 #include "darray.h"
 #include "gpu_ctx.h"
-#include "graphicstate.h"
+#include "graphics_state.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
@@ -143,7 +143,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 
     ngli_rnode_init(&s->rnode);
     s->rnode_pos = &s->rnode;
-    s->rnode_pos->graphicstate = NGLI_GRAPHICSTATE_DEFAULTS;
+    s->rnode_pos->graphics_state = NGLI_GRAPHICS_STATE_DEFAULTS;
     s->rnode_pos->rendertarget_desc = *ngli_gpu_ctx_get_default_rendertarget_desc(s->gpu_ctx);
 
     if (scene) {

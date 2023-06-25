@@ -26,7 +26,7 @@
 #include "glcontext.h"
 #include "glincludes.h"
 
-struct graphicstate;
+struct graphics_state;
 struct scissor;
 struct viewport;
 
@@ -73,7 +73,7 @@ void ngli_glstate_reset(const struct glcontext *gl,
 
 void ngli_glstate_update(const struct glcontext *gl,
                          struct glstate *glstate,
-                         const struct graphicstate *state);
+                         const struct graphics_state *state);
 
 void ngli_glstate_use_program(const struct glcontext *gl,
                               struct glstate *glstate,

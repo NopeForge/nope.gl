@@ -686,7 +686,7 @@ static int finalize_pipeline(struct ngl_node *node,
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
     struct pipeline_desc *desc = &descs[rnode->id];
 
-    struct graphicstate state = rnode->graphicstate;
+    struct graphics_state state = rnode->graphics_state;
     int ret = ngli_blending_apply_preset(&state, o->blending);
     if (ret < 0)
         return ret;

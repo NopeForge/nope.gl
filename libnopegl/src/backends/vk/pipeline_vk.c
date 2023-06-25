@@ -203,7 +203,7 @@ static VkResult pipeline_graphics_init(struct pipeline *s)
     const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     const struct pipeline_graphics *graphics = &s->graphics;
-    const struct graphicstate *state = &graphics->state;
+    const struct graphics_state *state = &graphics->state;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
     const VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
