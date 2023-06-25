@@ -34,7 +34,7 @@ import pynopegl as ngl
 _RENDER_BUFFER_FRAG = """
 void main()
 {
-    float color = ngl_tex2d(tex0, var_tex0_coord).r;
+    float color = texture(tex0, var_tex0_coord).r;
     ngl_out_color = vec4(color, 0.0, 0.0, 1.0);
 }
 """
@@ -177,7 +177,7 @@ void main()
 _RENDER_CUBEMAP_FRAG = """
 void main()
 {
-    ngl_out_color = ngl_texcube(tex0, vec3(var_uvcoord.xy, 0.5));
+    ngl_out_color = texture(tex0, vec3(var_uvcoord.xy, 0.5));
 }
 """
 
@@ -256,7 +256,7 @@ def texture_cubemap(_):
 _RENDER_CUBEMAP_LOD_FRAG = """
 void main()
 {
-    ngl_out_color = ngl_texcubelod(tex0, vec3(var_uvcoord.xy, 0.5), 1.0);
+    ngl_out_color = textureLod(tex0, vec3(var_uvcoord.xy, 0.5), 1.0);
 }
 """
 
@@ -468,9 +468,9 @@ void main()
 _TEXTURE3D_FRAG = """
 void main()
 {
-    ngl_out_color  = ngl_tex3d(tex0, vec3(var_uvcoord, 0.0));
-    ngl_out_color += ngl_tex3d(tex0, vec3(var_uvcoord, 0.5));
-    ngl_out_color += ngl_tex3d(tex0, vec3(var_uvcoord, 1.0));
+    ngl_out_color  = texture(tex0, vec3(var_uvcoord, 0.0));
+    ngl_out_color += texture(tex0, vec3(var_uvcoord, 0.5));
+    ngl_out_color += texture(tex0, vec3(var_uvcoord, 1.0));
 }
 """
 
@@ -571,7 +571,7 @@ void main()
 _RENDER_TEXTURE_LOD_FRAG = """
 void main()
 {
-    ngl_out_color = ngl_tex2dlod(tex0, var_uvcoord, 0.5);
+    ngl_out_color = textureLod(tex0, var_uvcoord, 0.5);
 }
 """
 

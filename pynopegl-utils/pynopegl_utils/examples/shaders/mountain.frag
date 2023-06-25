@@ -7,7 +7,7 @@ float f(float t)
 float pick_rand1d(float pos, float off)
 {
     float value_point = fract(pos + off);
-    float value = ngl_tex2d(tex0, vec2(value_point, 0)).x;
+    float value = texture(tex0, vec2(value_point, 0)).x;
     return value;
 }
 

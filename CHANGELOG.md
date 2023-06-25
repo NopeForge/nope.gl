@@ -47,6 +47,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   `NGL_CAP_BLOCK`, `NGL_CAP_INSTANCED_DRAW`, `NGL_CAP_SHADER_TEXTURE_LOD`,
   `NGL_CAP_TEXTURE_2D_ARRAY`, `NGL_CAP_TEXTURE_3D`, `NGL_CAP_TEXTURE_CUBE`,
   `NGL_CAP_UINT_UNIFORMS`
+- GLSL `ngl_tex{2d,3d,cube,2dlod,3dlod,cubelod}()` declarations (users must now
+  use `texture()` and `textureLod()` directly). `ngl_texvideo()` is still there
+  and is still the prefered picking method
 
 ## [2023.1] [libnopegl 0.8.0] - 2023-04-07
 ### Changed
