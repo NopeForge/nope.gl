@@ -892,8 +892,8 @@ static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
 
         if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE)) {
             ngli_bstr_printf(dst, " %.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
-            ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(texture(%.*s_rect_0, (%.*s) * %.*s_dimensions).r, "
-                                                           "texture(%.*s_rect_1, (%.*s) * %.*s_dimensions / 2.0).rg, 1.0) : ",
+            ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(texture(%.*s_rect_0, (%.*s) * textureSize(%.*s_rect_0)).r, "
+                                                           "texture(%.*s_rect_1, (%.*s) * textureSize(%.*s_rect_1)).rg, 1.0) : ",
                              ARG_FMT(arg0),
                              ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0),
                              ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
@@ -901,7 +901,7 @@ static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
 
         if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_RECTANGLE)) {
             ngli_bstr_printf(dst, "%.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_RECTANGLE);
-            ngli_bstr_printf(dst, "texture(%.*s_rect_0, (%.*s) * %.*s_dimensions) : ",
+            ngli_bstr_printf(dst, "texture(%.*s_rect_0, (%.*s) * textureSize(%.*s_rect_0)) : ",
                              ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
         }
 
