@@ -66,7 +66,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
     VkAttachmentReference color_refs[NGLI_MAX_COLOR_ATTACHMENTS] = {0};
     size_t nb_color_refs = 0;
 
-    VkAttachmentReference resolve_refs[NGLI_MAX_COLOR_ATTACHMENTS + 1] = {0};
+    VkAttachmentReference resolve_refs[NGLI_MAX_COLOR_ATTACHMENTS] = {0};
     size_t nb_resolve_refs = 0;
 
     VkAttachmentReference depth_stencil_ref = {0};
