@@ -55,6 +55,15 @@ static VkAttachmentStoreOp get_vk_store_op(int store_op)
     return store_op_map[store_op];
 }
 
+static int has_resolve(const struct rendertarget_layout *layout)
+{
+    for (size_t i = 0; i < layout->nb_colors; i++) {
+        if (layout->colors[i].resolve)
+            return 1;
+    }
+    return 0;
+}
+
 static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct rendertarget_layout *layout, const struct rendertarget_params *params, VkRenderPass *render_pass)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s;
@@ -64,10 +73,8 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
     size_t nb_descs = 0;
 
     VkAttachmentReference color_refs[NGLI_MAX_COLOR_ATTACHMENTS] = {0};
-    size_t nb_color_refs = 0;
-
     VkAttachmentReference resolve_refs[NGLI_MAX_COLOR_ATTACHMENTS] = {0};
-    size_t nb_resolve_refs = 0;
+    const int has_resolve_ref = has_resolve(layout);
 
     VkAttachmentReference depth_stencil_ref = {0};
     const int has_ds_ref = layout->depth_stencil.format != NGLI_FORMAT_UNDEFINED;
@@ -99,13 +106,16 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
             .finalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
         };
 
-        color_refs[nb_color_refs] = (VkAttachmentReference) {
+        color_refs[i] = (VkAttachmentReference) {
             .attachment = (uint32_t)nb_descs,
             .layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
         };
 
+        resolve_refs[i] = (VkAttachmentReference) {
+            .attachment = VK_ATTACHMENT_UNUSED,
+        };
+
         nb_descs++;
-        nb_color_refs++;
 
         if (layout->colors[i].resolve) {
             descs[nb_descs] = (VkAttachmentDescription) {
@@ -119,13 +129,12 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
                 .finalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
             };
 
-            resolve_refs[nb_resolve_refs] = (VkAttachmentReference) {
+            resolve_refs[i] = (VkAttachmentReference) {
                 .attachment = (uint32_t)nb_descs,
                 .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
             };
 
             nb_descs++;
-            nb_resolve_refs++;
         }
     }
 
@@ -170,9 +179,9 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
 
     const VkSubpassDescription subpass_description = {
         .pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS,
-        .colorAttachmentCount    = (uint32_t)nb_color_refs,
+        .colorAttachmentCount    = (uint32_t)layout->nb_colors,
         .pColorAttachments       = color_refs,
-        .pResolveAttachments     = nb_resolve_refs ? resolve_refs : NULL,
+        .pResolveAttachments     = has_resolve_ref ? resolve_refs : NULL,
         .pDepthStencilAttachment = has_ds_ref ? &depth_stencil_ref : NULL,
     };
 
