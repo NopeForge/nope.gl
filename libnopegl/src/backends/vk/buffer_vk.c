@@ -111,9 +111,6 @@ VkResult ngli_buffer_vk_init(struct buffer *s, size_t size, int usage)
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct buffer_vk *s_priv = (struct buffer_vk *)s;
 
-    s->size = size;
-    s->usage = usage;
-
     VkMemoryPropertyFlags mem_props;
     if (usage & NGLI_BUFFER_USAGE_MAP_READ) {
         mem_props = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT  |

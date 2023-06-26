@@ -83,8 +83,6 @@ int ngli_buffer_gl_init(struct buffer *s, size_t size, int usage)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct buffer_gl *s_priv = (struct buffer_gl *)s;
 
-    s->size = size;
-    s->usage = usage;
     s_priv->map_flags = get_gl_map_flags(usage);
     s_priv->barriers = get_gl_barriers(usage);
 
