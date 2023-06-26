@@ -61,16 +61,16 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     VkAttachmentDescription descs[2 * (NGLI_MAX_COLOR_ATTACHMENTS + 1)] = {0};
-    int nb_descs = 0;
+    size_t nb_descs = 0;
 
     VkAttachmentReference color_refs[NGLI_MAX_COLOR_ATTACHMENTS] = {0};
-    int nb_color_refs = 0;
+    size_t nb_color_refs = 0;
 
     VkAttachmentReference resolve_refs[NGLI_MAX_COLOR_ATTACHMENTS + 1] = {0};
-    int nb_resolve_refs = 0;
+    size_t nb_resolve_refs = 0;
 
     VkAttachmentReference depth_stencil_ref = {0};
-    int nb_depth_stencil_refs = 0;
+    size_t nb_depth_stencil_refs = 0;
     const VkSampleCountFlags samples = ngli_ngl_samples_to_vk(layout->samples);
 
     for (size_t i = 0; i < layout->nb_colors; i++) {
@@ -99,7 +99,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
         };
 
         color_refs[nb_color_refs] = (VkAttachmentReference) {
-            .attachment = nb_descs,
+            .attachment = (uint32_t)nb_descs,
             .layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
         };
 
@@ -119,7 +119,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
             };
 
             resolve_refs[nb_resolve_refs] = (VkAttachmentReference) {
-                .attachment = nb_descs,
+                .attachment = (uint32_t)nb_descs,
                 .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
             };
 
@@ -155,7 +155,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
         };
 
         depth_stencil_ref = (VkAttachmentReference) {
-            .attachment = nb_descs,
+            .attachment = (uint32_t)nb_descs,
             .layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
         };
 
@@ -170,7 +170,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
 
     const VkSubpassDescription subpass_description = {
         .pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS,
-        .colorAttachmentCount    = nb_color_refs,
+        .colorAttachmentCount    = (uint32_t)nb_color_refs,
         .pColorAttachments       = color_refs,
         .pResolveAttachments     = nb_resolve_refs ? resolve_refs : NULL,
         .pDepthStencilAttachment = nb_depth_stencil_refs ? &depth_stencil_ref : NULL,
@@ -198,7 +198,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
 
     const VkRenderPassCreateInfo render_pass_create_info = {
         .sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-        .attachmentCount = nb_descs,
+        .attachmentCount = (uint32_t)nb_descs,
         .pAttachments    = descs,
         .subpassCount    = 1,
         .pSubpasses      = &subpass_description,
