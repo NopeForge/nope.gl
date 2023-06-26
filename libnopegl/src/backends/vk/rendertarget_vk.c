@@ -93,9 +93,18 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
             return VK_ERROR_FORMAT_NOT_SUPPORTED;
         }
 
+        color_refs[i] = (VkAttachmentReference) {
+            .attachment = (uint32_t)nb_descs,
+            .layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        };
+
+        resolve_refs[i] = (VkAttachmentReference) {
+            .attachment = VK_ATTACHMENT_UNUSED,
+        };
+
         const VkAttachmentLoadOp load_op   = params ? get_vk_load_op(params->colors[i].load_op)   : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         const VkAttachmentStoreOp store_op = params ? get_vk_store_op(params->colors[i].store_op) : VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        descs[nb_descs] = (VkAttachmentDescription) {
+        descs[nb_descs++] = (VkAttachmentDescription) {
             .format         = format,
             .samples        = samples,
             .loadOp         = load_op,
@@ -106,19 +115,13 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
             .finalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
         };
 
-        color_refs[i] = (VkAttachmentReference) {
-            .attachment = (uint32_t)nb_descs,
-            .layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-        };
-
-        resolve_refs[i] = (VkAttachmentReference) {
-            .attachment = VK_ATTACHMENT_UNUSED,
-        };
-
-        nb_descs++;
-
         if (layout->colors[i].resolve) {
-            descs[nb_descs] = (VkAttachmentDescription) {
+            resolve_refs[i] = (VkAttachmentReference) {
+                .attachment = (uint32_t)nb_descs,
+                .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            };
+
+            descs[nb_descs++] = (VkAttachmentDescription) {
                 .format         = format,
                 .samples        = VK_SAMPLE_COUNT_1_BIT,
                 .loadOp         = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -128,13 +131,6 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
                 .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
                 .finalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
             };
-
-            resolve_refs[i] = (VkAttachmentReference) {
-                .attachment = (uint32_t)nb_descs,
-                .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-            };
-
-            nb_descs++;
         }
     }
 
