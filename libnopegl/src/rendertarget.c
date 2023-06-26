@@ -30,6 +30,7 @@ struct rendertarget *ngli_rendertarget_create(struct gpu_ctx *gpu_ctx)
 int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_params *params)
 {
     const struct gpu_limits *limits = &s->gpu_ctx->limits;
+    const uint64_t features = s->gpu_ctx->features;
     
     s->params = *params;
     s->width = params->width;
@@ -37,6 +38,10 @@ int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_par
 
     ngli_assert(params->nb_colors <= NGLI_MAX_COLOR_ATTACHMENTS);
     ngli_assert(params->nb_colors <= limits->max_color_attachments);
+
+    if (params->depth_stencil.resolve_target) {
+        ngli_assert(features & NGLI_FEATURE_DEPTH_STENCIL_RESOLVE);
+    }
 
     /* Set the rendertarget samples value from the attachments samples value
      * and ensure all the attachments have the same samples value */
