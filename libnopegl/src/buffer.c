@@ -31,6 +31,9 @@ struct buffer *ngli_buffer_create(struct gpu_ctx *gpu_ctx)
 
 int ngli_buffer_init(struct buffer *s, size_t size, int usage)
 {
+    s->size = size;
+    s->usage = usage;
+
     return s->gpu_ctx->cls->buffer_init(s, size, usage);
 }
 
