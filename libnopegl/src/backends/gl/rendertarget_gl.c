@@ -235,10 +235,6 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct gpu_limits *limits = &gl->limits;
 
-    s->params = *params;
-    s->width = params->width;
-    s->height = params->height;
-
     s_priv->wrapped = 0;
 
     int ret;
