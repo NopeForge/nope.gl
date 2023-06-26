@@ -492,6 +492,8 @@ static int gl_init(struct gpu_ctx *s)
     }
 #endif
 
+    gpu_ctx_info_init(s);
+
 #if DEBUG_GPU_CAPTURE
     if (s->gpu_capture)
         ngli_gpu_capture_begin(s->gpu_capture_ctx);
@@ -513,8 +515,6 @@ static int gl_init(struct gpu_ctx *s)
     ret = timer_init(s);
     if (ret < 0)
         return ret;
-
-    gpu_ctx_info_init(s);
 
     s_priv->default_rt_layout.samples = gl->samples;
     s_priv->default_rt_layout.nb_colors = 1;
