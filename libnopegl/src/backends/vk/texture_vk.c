@@ -558,28 +558,28 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
 
         if (s_priv->staging_buffer) {
             if (s_priv->staging_buffer_ptr) {
-                ngli_buffer_vk_unmap(s_priv->staging_buffer);
+                ngli_buffer_unmap(s_priv->staging_buffer);
                 s_priv->staging_buffer_ptr = NULL;
             }
-            ngli_buffer_vk_freep(&s_priv->staging_buffer);
+            ngli_buffer_freep(&s_priv->staging_buffer);
         }
 
-        s_priv->staging_buffer = ngli_buffer_vk_create(s->gpu_ctx);
+        s_priv->staging_buffer = ngli_buffer_create(s->gpu_ctx);
         if (!s_priv->staging_buffer)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
         const int usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT |
                           NGLI_BUFFER_USAGE_TRANSFER_SRC_BIT |
                           NGLI_BUFFER_USAGE_MAP_WRITE;
-        VkResult res = ngli_buffer_vk_init(s_priv->staging_buffer, staging_buffer_size, usage);
-        if (res != VK_SUCCESS)
-            return res;
+        int ret = ngli_buffer_init(s_priv->staging_buffer, staging_buffer_size, usage);
+        if (ret < 0)
+            return VK_ERROR_UNKNOWN;
 
         s_priv->staging_buffer_row_length = linesize;
 
-        res = ngli_buffer_vk_map(s_priv->staging_buffer, staging_buffer_size, 0, &s_priv->staging_buffer_ptr);
-        if (res != VK_SUCCESS)
-            return res;
+        ret = ngli_buffer_map(s_priv->staging_buffer, staging_buffer_size, 0, &s_priv->staging_buffer_ptr);
+        if (ret < 0)
+            return VK_ERROR_UNKNOWN;
     }
 
     memcpy(s_priv->staging_buffer_ptr, data, s_priv->staging_buffer->size);
@@ -816,7 +816,7 @@ void ngli_texture_vk_freep(struct texture **sp)
     vkFreeMemory(vk->device, s_priv->image_memory, NULL);
 
     if (s_priv->staging_buffer_ptr)
-        ngli_buffer_vk_unmap(s_priv->staging_buffer);
+        ngli_buffer_unmap(s_priv->staging_buffer);
     ngli_buffer_freep(&s_priv->staging_buffer);
 
     ngli_freep(sp);
