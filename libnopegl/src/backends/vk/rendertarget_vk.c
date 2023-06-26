@@ -278,11 +278,6 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct renderta
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
-    if (params->depth_stencil.resolve_target) {
-        LOG(ERROR, "resolving depth/stencil attachment is not supported");
-        return VK_ERROR_FEATURE_NOT_PRESENT;
-    }
-
     VkResult res = vk_create_compatible_renderpass(s->gpu_ctx, &s->layout, params, &s_priv->render_pass);
     if (res != VK_SUCCESS)
         return res;
