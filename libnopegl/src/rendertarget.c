@@ -38,6 +38,30 @@ int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_par
     ngli_assert(params->nb_colors <= NGLI_MAX_COLOR_ATTACHMENTS);
     ngli_assert(params->nb_colors <= limits->max_color_attachments);
 
+    /* Set the rendertarget samples value from the attachments samples value
+     * and ensure all the attachments have the same samples value */
+    int32_t samples = -1;
+    for (size_t i = 0; i < params->nb_colors; i++) {
+        const struct attachment *attachment = &params->colors[i];
+        const struct texture *texture = attachment->attachment;
+        const struct texture_params *texture_params = &texture->params;
+        s->layout.colors[s->layout.nb_colors].format = texture_params->format;
+        s->layout.colors[s->layout.nb_colors].resolve = attachment->resolve_target != NULL;
+        s->layout.nb_colors++;
+        ngli_assert(samples == -1 || samples == texture_params->samples);
+        samples = texture_params->samples;
+    }
+    const struct attachment *attachment = &params->depth_stencil;
+    const struct texture *texture = attachment->attachment;
+    if (texture) {
+        const struct texture_params *texture_params = &texture->params;
+        s->layout.depth_stencil.format = texture_params->format;
+        s->layout.depth_stencil.resolve = attachment->resolve_target != NULL;
+        ngli_assert(samples == -1 || samples == texture_params->samples);
+        samples = texture_params->samples;
+    }
+    s->layout.samples = samples;
+
     return s->gpu_ctx->cls->rendertarget_init(s, params);
 }
 

@@ -72,6 +72,7 @@ struct rendertarget {
     struct rendertarget_params params;
     int32_t width;
     int32_t height;
+    struct rendertarget_layout layout;
 };
 
 struct rendertarget *ngli_rendertarget_create(struct gpu_ctx *gpu_ctx);
