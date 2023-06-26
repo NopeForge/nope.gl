@@ -283,32 +283,7 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct renderta
         return VK_ERROR_FEATURE_NOT_PRESENT;
     }
 
-    /* Set the rendertarget samples value from the attachments samples value
-     * and ensure all the attachments have the same samples value */
-    int32_t samples = -1;
-    struct rendertarget_layout layout = {0};
-    for (size_t i = 0; i < params->nb_colors; i++) {
-        const struct attachment *attachment = &params->colors[i];
-        const struct texture *texture = attachment->attachment;
-        const struct texture_params *texture_params = &texture->params;
-        layout.colors[layout.nb_colors].format = texture_params->format;
-        layout.colors[layout.nb_colors].resolve = attachment->resolve_target != NULL;
-        layout.nb_colors++;
-        ngli_assert(samples == -1 || samples == texture_params->samples);
-        samples = texture_params->samples;
-    }
-    const struct attachment *attachment = &params->depth_stencil;
-    const struct texture *texture = attachment->attachment;
-    if (texture) {
-        const struct texture_params *texture_params = &texture->params;
-        layout.depth_stencil.format = texture_params->format;
-        layout.depth_stencil.resolve = attachment->resolve_target != NULL;
-        ngli_assert(samples == -1 || samples == texture_params->samples);
-        samples = texture_params->samples;
-    }
-    layout.samples = samples;
-
-    VkResult res = vk_create_compatible_renderpass(s->gpu_ctx, &layout, params, &s_priv->render_pass);
+    VkResult res = vk_create_compatible_renderpass(s->gpu_ctx, &s->layout, params, &s_priv->render_pass);
     if (res != VK_SUCCESS)
         return res;
 
@@ -344,8 +319,8 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct renderta
         }
     }
 
-    attachment = &params->depth_stencil;
-    texture = attachment->attachment;
+    const struct attachment *attachment = &params->depth_stencil;
+    const struct texture *texture = attachment->attachment;
     if (texture) {
         VkImageView view;
         res = create_image_view(s, texture, attachment->attachment_layer, &view);
