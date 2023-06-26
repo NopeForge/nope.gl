@@ -29,6 +29,12 @@ struct rendertarget *ngli_rendertarget_create(struct gpu_ctx *gpu_ctx)
 
 int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_params *params)
 {
+    s->params = *params;
+    s->width = params->width;
+    s->height = params->height;
+
+    ngli_assert(params->nb_colors <= NGLI_MAX_COLOR_ATTACHMENTS);
+
     return s->gpu_ctx->cls->rendertarget_init(s, params);
 }
 
