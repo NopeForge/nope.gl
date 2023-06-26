@@ -70,7 +70,8 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
     size_t nb_resolve_refs = 0;
 
     VkAttachmentReference depth_stencil_ref = {0};
-    size_t nb_depth_stencil_refs = 0;
+    const int has_ds_ref = layout->depth_stencil.format != NGLI_FORMAT_UNDEFINED;
+
     const VkSampleCountFlags samples = ngli_ngl_samples_to_vk(layout->samples);
 
     for (size_t i = 0; i < layout->nb_colors; i++) {
@@ -128,7 +129,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
         }
     }
 
-    if (layout->depth_stencil.format != NGLI_FORMAT_UNDEFINED) {
+    if (has_ds_ref) {
         VkFormat format = ngli_format_ngl_to_vk(layout->depth_stencil.format);
 
         VkFormatProperties properties;
@@ -160,7 +161,6 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
         };
 
         nb_descs++;
-        nb_depth_stencil_refs++;
 
         if (layout->depth_stencil.resolve) {
             LOG(ERROR, "resolving depth/stencil attachment is not supported");
@@ -173,7 +173,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
         .colorAttachmentCount    = (uint32_t)nb_color_refs,
         .pColorAttachments       = color_refs,
         .pResolveAttachments     = nb_resolve_refs ? resolve_refs : NULL,
-        .pDepthStencilAttachment = nb_depth_stencil_refs ? &depth_stencil_ref : NULL,
+        .pDepthStencilAttachment = has_ds_ref ? &depth_stencil_ref : NULL,
     };
 
     const VkSubpassDependency dependencies[2] = {
