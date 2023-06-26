@@ -375,22 +375,11 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
-    s->type     = params->type;
-
-    int ret = ngli_pipeline_graphics_copy(&s->graphics, &params->graphics);
-    if (ret < 0)
-        return ret;
-
-    s->program  = params->program;
-
-    ret = ngli_pipeline_layout_copy(&s->layout, &params->layout);
-    if (ret < 0)
-        return ret;
-
     ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_gl), 0);
     ngli_darray_init(&s_priv->buffer_bindings, sizeof(struct buffer_binding_gl), 0);
     ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding_gl), 0);
 
+    int ret;
     if ((ret = build_texture_bindings(s)) < 0 ||
         (ret = build_buffer_bindings(s)) < 0)
         return ret;
@@ -540,9 +529,6 @@ void ngli_pipeline_gl_freep(struct pipeline **sp)
 
     struct pipeline *s = *sp;
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
-
-    ngli_pipeline_graphics_reset(&s->graphics);
-    ngli_pipeline_layout_reset(&s->layout);
 
     ngli_darray_reset(&s_priv->texture_bindings);
     ngli_darray_reset(&s_priv->buffer_bindings);
