@@ -678,18 +678,6 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    s->type     = params->type;
-
-    int ret = ngli_pipeline_graphics_copy(&s->graphics, &params->graphics);
-    if (ret < 0)
-        return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-    s->program  = params->program;
-
-    ret = ngli_pipeline_layout_copy(&s->layout, &params->layout);
-    if (ret < 0)
-        return VK_ERROR_OUT_OF_HOST_MEMORY;
-
     ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_vk), 0);
     ngli_darray_init(&s_priv->buffer_bindings,  sizeof(struct buffer_binding_vk), 0);
 
@@ -978,8 +966,6 @@ void ngli_pipeline_vk_freep(struct pipeline **sp)
     struct pipeline *s = *sp;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    ngli_pipeline_graphics_reset(&s->graphics);
-    ngli_pipeline_layout_reset(&s->layout);
     destroy_pipeline(s);
 
     struct texture_binding_vk *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);

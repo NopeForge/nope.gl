@@ -83,6 +83,18 @@ struct pipeline *ngli_pipeline_create(struct gpu_ctx *gpu_ctx)
 
 int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params)
 {
+    s->type     = params->type;
+
+    int ret = ngli_pipeline_graphics_copy(&s->graphics, &params->graphics);
+    if (ret < 0)
+        return ret;
+
+    s->program  = params->program;
+
+    ret = ngli_pipeline_layout_copy(&s->layout, &params->layout);
+    if (ret < 0)
+        return ret;
+
     return s->gpu_ctx->cls->pipeline_init(s, params);
 }
 
@@ -146,5 +158,10 @@ void ngli_pipeline_freep(struct pipeline **sp)
 {
     if (!*sp)
         return;
+
+    struct pipeline *s = *sp;
+    ngli_pipeline_graphics_reset(&s->graphics);
+    ngli_pipeline_layout_reset(&s->layout);
+
     (*sp)->gpu_ctx->cls->pipeline_freep(sp);
 }
