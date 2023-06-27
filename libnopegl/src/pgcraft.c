@@ -56,8 +56,8 @@ enum {
 
 struct pgcraft_pipeline_info {
     struct {
-        struct darray textures;   // texture_desc
-        struct darray buffers;    // buffer_desc
+        struct darray textures;   // resource_desc
+        struct darray buffers;    // resource_desc
         struct darray attributes; // attribute_info
         struct darray vertex_buffers; // vertex_buffer_layout
     } desc;
@@ -445,7 +445,7 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
             int binding_type = NGLI_BINDING_TYPE_TEXTURE;
             if (is_image(field->type))
                 binding_type = NGLI_BINDING_TYPE_IMAGE;
-            struct pipeline_texture_desc pl_texture_desc = {
+            struct pipeline_resource_desc pl_texture_desc = {
                 .type     = field->type,
                 .binding  = request_next_binding(s, stage, binding_type),
                 .access   = info->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
@@ -536,7 +536,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     const struct block *block = named_block->block;
     const int binding_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER
                            ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
-    struct pipeline_buffer_desc pl_buffer_desc = {
+    struct pipeline_resource_desc pl_buffer_desc = {
         .type    = named_block->type,
         .binding = request_next_binding(s, named_block->stage, binding_type),
         .access  = named_block->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
@@ -1151,8 +1151,8 @@ static int craft_comp(struct pgcraft *s, const struct pgcraft_params *params)
     return samplers_preproc(s, params, b);
 }
 
-NGLI_STATIC_ASSERT(buffer_name_offset, offsetof(struct pipeline_buffer_desc, name) == 0);
-NGLI_STATIC_ASSERT(texture_name_offset, offsetof(struct pipeline_texture_desc, name) == 0);
+NGLI_STATIC_ASSERT(buffer_name_offset, offsetof(struct pipeline_resource_desc, name) == 0);
+NGLI_STATIC_ASSERT(texture_name_offset, offsetof(struct pipeline_resource_desc, name) == 0);
 NGLI_STATIC_ASSERT(attribute_name_offset, offsetof(struct pgcraft_attribute_info, name) == 0);
 
 static int filter_pipeline_elems(struct pgcraft *s,
@@ -1239,9 +1239,9 @@ static int32_t get_ublock_index(const struct pgcraft *s, const char *name, int s
 
 static int32_t get_texture_index(const struct pgcraft *s, const char *name)
 {
-    const struct pipeline_texture_desc *pipeline_texture_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
+    const struct pipeline_resource_desc *pipeline_texture_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
     for (int32_t i = 0; i < (int32_t)ngli_darray_count(&s->filtered_pipeline_info.desc.textures); i++) {
-        const struct pipeline_texture_desc *pipeline_texture_desc = &pipeline_texture_descs[i];
+        const struct pipeline_resource_desc *pipeline_texture_desc = &pipeline_texture_descs[i];
         if (!strcmp(pipeline_texture_desc->name, name))
             return i;
     }
@@ -1398,13 +1398,13 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
         compat_info->ubindings[i] = -1;
     }
 
-    ngli_darray_init(&s->pipeline_info.desc.textures,   sizeof(struct pipeline_texture_desc),   0);
-    ngli_darray_init(&s->pipeline_info.desc.buffers,    sizeof(struct pipeline_buffer_desc),    0);
+    ngli_darray_init(&s->pipeline_info.desc.textures,   sizeof(struct pipeline_resource_desc),  0);
+    ngli_darray_init(&s->pipeline_info.desc.buffers,    sizeof(struct pipeline_resource_desc),  0);
     ngli_darray_init(&s->pipeline_info.desc.attributes, sizeof(struct pgcraft_attribute_info),  0);
     ngli_darray_init(&s->pipeline_info.desc.vertex_buffers, sizeof(struct vertex_buffer_layout), 0);
 
-    ngli_darray_init(&s->filtered_pipeline_info.desc.textures,   sizeof(struct pipeline_texture_desc),   0);
-    ngli_darray_init(&s->filtered_pipeline_info.desc.buffers,    sizeof(struct pipeline_buffer_desc),    0);
+    ngli_darray_init(&s->filtered_pipeline_info.desc.textures,   sizeof(struct pipeline_resource_desc),  0);
+    ngli_darray_init(&s->filtered_pipeline_info.desc.buffers,    sizeof(struct pipeline_resource_desc),  0);
     ngli_darray_init(&s->filtered_pipeline_info.desc.attributes, sizeof(struct pgcraft_attribute_info),  0);
     ngli_darray_init(&s->filtered_pipeline_info.desc.vertex_buffers, sizeof(struct vertex_buffer_layout), 0);
 

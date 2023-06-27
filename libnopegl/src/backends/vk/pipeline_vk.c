@@ -50,7 +50,7 @@
 #include "ycbcr_sampler_vk.h"
 
 struct buffer_binding_vk {
-    struct pipeline_buffer_desc desc;
+    struct pipeline_resource_desc desc;
     const struct buffer *buffer;
     uint32_t update_desc_flags;
     size_t offset;
@@ -58,7 +58,7 @@ struct buffer_binding_vk {
 };
 
 struct texture_binding_vk {
-    struct pipeline_texture_desc desc;
+    struct pipeline_resource_desc desc;
     uint32_t desc_binding_index;
     const struct texture *texture;
     uint32_t update_desc_flags;
@@ -425,7 +425,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s)
 
     const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_buffer_descs; i++) {
-        const struct pipeline_buffer_desc *desc = &layout->buffer_descs[i];
+        const struct pipeline_resource_desc *desc = &layout->buffer_descs[i];
 
         const VkDescriptorType type = get_vk_descriptor_type(desc->type);
         const VkDescriptorSetLayoutBinding binding = {
@@ -448,7 +448,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s)
     }
 
     for (size_t i = 0; i < layout->nb_texture_descs; i++) {
-        const struct pipeline_texture_desc *desc = &layout->texture_descs[i];
+        const struct pipeline_resource_desc *desc = &layout->texture_descs[i];
 
         const VkDescriptorType type = get_vk_descriptor_type(desc->type);
         const VkDescriptorSetLayoutBinding binding = {
@@ -794,7 +794,7 @@ static int update_descriptor_set(struct pipeline *s)
                 .imageView   = texture_vk->image_view,
                 .sampler     = texture_vk->sampler,
             };
-            const struct pipeline_texture_desc *desc = &binding->desc;
+            const struct pipeline_resource_desc *desc = &binding->desc;
             const VkWriteDescriptorSet write_descriptor_set = {
                 .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
                 .dstSet           = s_priv->desc_sets[gpu_ctx_vk->cur_frame_index],
@@ -813,7 +813,7 @@ static int update_descriptor_set(struct pipeline *s)
     for (size_t i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
         struct buffer_binding_vk *binding = &buffer_bindings[i];
         if (binding->update_desc_flags & update_desc_flags) {
-            const struct pipeline_buffer_desc *desc = &binding->desc;
+            const struct pipeline_resource_desc *desc = &binding->desc;
             const struct buffer_vk *buffer_vk = (struct buffer_vk *)(binding->buffer);
             const VkDescriptorBufferInfo descriptor_buffer_info = {
                 .buffer = buffer_vk->buffer,

@@ -36,13 +36,13 @@
 #include "type.h"
 
 struct texture_binding_gl {
-    struct pipeline_texture_desc desc;
+    struct pipeline_resource_desc desc;
     const struct texture *texture;
 };
 
 struct buffer_binding_gl {
     GLenum type;
-    struct pipeline_buffer_desc desc;
+    struct pipeline_resource_desc desc;
     const struct buffer *buffer;
     size_t offset;
     size_t size;
@@ -67,7 +67,7 @@ static int build_texture_bindings(struct pipeline *s)
     size_t nb_images = 0;
     const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_texture_descs; i++) {
-        const struct pipeline_texture_desc *texture_desc = &layout->texture_descs[i];
+        const struct pipeline_resource_desc *texture_desc = &layout->texture_descs[i];
 
         if (texture_desc->type == NGLI_TYPE_IMAGE_2D ||
             texture_desc->type == NGLI_TYPE_IMAGE_2D_ARRAY ||
@@ -164,7 +164,7 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
         const struct buffer_binding_gl *buffer_binding = &bindings[i];
         const struct buffer *buffer = buffer_binding->buffer;
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
-        const struct pipeline_buffer_desc *buffer_desc = &buffer_binding->desc;
+        const struct pipeline_resource_desc *buffer_desc = &buffer_binding->desc;
         const size_t offset = buffer_binding->offset;
         const size_t size = buffer_binding->size ? buffer_binding->size : buffer->size;
         ngli_glBindBufferRange(gl, buffer_binding->type, buffer_desc->binding, buffer_gl->id, offset, size);
@@ -189,7 +189,7 @@ static int build_buffer_bindings(struct pipeline *s)
 
     const struct pipeline_layout *layout = &s->layout;
     for (size_t i = 0; i < layout->nb_buffer_descs; i++) {
-        const struct pipeline_buffer_desc *pipeline_buffer_desc = &layout->buffer_descs[i];
+        const struct pipeline_resource_desc *pipeline_buffer_desc = &layout->buffer_descs[i];
         const int type = pipeline_buffer_desc->type;
 
         if (type == NGLI_TYPE_STORAGE_BUFFER)
@@ -323,7 +323,7 @@ static GLbitfield get_memory_barriers(const struct pipeline *s)
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)binding->buffer;
         if (!buffer_gl)
             continue;
-        const struct pipeline_buffer_desc *desc = &binding->desc;
+        const struct pipeline_resource_desc *desc = &binding->desc;
         if (desc->access & NGLI_ACCESS_WRITE_BIT)
             barriers |= buffer_gl->barriers;
     }
@@ -334,7 +334,7 @@ static GLbitfield get_memory_barriers(const struct pipeline *s)
         const struct texture_gl *texture_gl = (const struct texture_gl *)binding->texture;
         if (!texture_gl)
             continue;
-        const struct pipeline_texture_desc *desc = &binding->desc;
+        const struct pipeline_resource_desc *desc = &binding->desc;
         if (desc->access & NGLI_ACCESS_WRITE_BIT)
             barriers |= texture_gl->barriers;
         if (gl->workaround_radeonsi_sync)
