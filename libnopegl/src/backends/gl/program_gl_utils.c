@@ -57,7 +57,7 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
 
     const struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
     for (size_t i = 0; i < layout.nb_buffer_descs; i++) {
-        const struct pipeline_buffer_desc *buffer_desc = &layout.buffer_descs[i];
+        const struct pipeline_resource_desc *buffer_desc = &layout.buffer_descs[i];
         if (buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER)
             continue;
         const GLuint block_index = ngli_glGetUniformBlockIndex(gl, s_priv->id, buffer_desc->name);
@@ -70,7 +70,7 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     struct glstate *glstate = &gpu_ctx_gl->glstate;
     ngli_glstate_use_program(gl, glstate, s_priv->id);
     for (size_t i = 0; i < layout.nb_texture_descs; i++) {
-        const struct pipeline_texture_desc *texture_desc = &layout.texture_descs[i];
+        const struct pipeline_resource_desc *texture_desc = &layout.texture_descs[i];
         const GLint location = ngli_glGetUniformLocation(gl, s_priv->id, texture_desc->name);
         ngli_glUniform1i(gl, location, texture_desc->binding);
         struct program_variable_info *info = ngli_hmap_get(s->uniforms, texture_desc->name);

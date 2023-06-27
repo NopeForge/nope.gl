@@ -43,15 +43,7 @@ enum {
 
 NGLI_STATIC_ASSERT(texture_access, (NGLI_ACCESS_READ_BIT | NGLI_ACCESS_WRITE_BIT) == NGLI_ACCESS_READ_WRITE);
 
-struct pipeline_texture_desc {
-    char name[MAX_ID_LEN];
-    int type;
-    int binding;
-    int access;
-    int stage;
-};
-
-struct pipeline_buffer_desc {
+struct pipeline_resource_desc {
     char name[MAX_ID_LEN];
     int type;
     int binding;
@@ -92,9 +84,9 @@ enum {
 };
 
 struct pipeline_layout {
-    const struct pipeline_texture_desc *texture_descs;
+    const struct pipeline_resource_desc *texture_descs;
     size_t nb_texture_descs;
-    const struct pipeline_buffer_desc *buffer_descs;
+    const struct pipeline_resource_desc *buffer_descs;
     size_t nb_buffer_descs;
 };
 
