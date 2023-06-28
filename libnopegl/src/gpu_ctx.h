@@ -95,7 +95,7 @@ struct gpu_ctx_class {
     void (*buffer_freep)(struct buffer **sp);
 
     struct pipeline *(*pipeline_create)(struct gpu_ctx *ctx);
-    int (*pipeline_init)(struct pipeline *s, const struct pipeline_params *params);
+    int (*pipeline_init)(struct pipeline *s);
     int (*pipeline_update_texture)(struct pipeline *s, int32_t index, const struct texture *texture);
     int (*pipeline_update_buffer)(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
     void (*pipeline_freep)(struct pipeline **sp);

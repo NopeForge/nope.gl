@@ -1505,9 +1505,9 @@ static int vk_rendertarget_init(struct rendertarget *s, const struct rendertarge
     return ngli_vk_res2ret(res);
 }
 
-static int vk_pipeline_init(struct pipeline *s, const struct pipeline_params *params)
+static int vk_pipeline_init(struct pipeline *s)
 {
-    VkResult res = ngli_pipeline_vk_init(s, params);
+    VkResult res = ngli_pipeline_vk_init(s);
     if (res != VK_SUCCESS)
         LOG(ERROR, "unable to initialize pipeline: %s", ngli_vk_res2str(res));
     return ngli_vk_res2ret(res);

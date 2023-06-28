@@ -42,7 +42,7 @@ struct pipeline_gl {
 };
 
 struct pipeline *ngli_pipeline_gl_create(struct gpu_ctx *gpu_ctx);
-int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *params);
+int ngli_pipeline_gl_init(struct pipeline *s);
 int ngli_pipeline_gl_update_texture(struct pipeline *s, int32_t index, const struct texture *texture);
 int ngli_pipeline_gl_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
 void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances);
