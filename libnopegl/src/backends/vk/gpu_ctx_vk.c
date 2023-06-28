@@ -1497,9 +1497,9 @@ static int vk_texture_generate_mipmap(struct texture *s)
     return ngli_vk_res2ret(res);
 }
 
-static int vk_rendertarget_init(struct rendertarget *s, const struct rendertarget_params *params)
+static int vk_rendertarget_init(struct rendertarget *s)
 {
-    VkResult res = ngli_rendertarget_vk_init(s, params);
+    VkResult res = ngli_rendertarget_vk_init(s);
     if (res != VK_SUCCESS)
         LOG(ERROR, "unable to initialize render target: %s", ngli_vk_res2str(res));
     return ngli_vk_res2ret(res);

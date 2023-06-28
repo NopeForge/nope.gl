@@ -277,18 +277,18 @@ struct rendertarget *ngli_rendertarget_vk_create(struct gpu_ctx *gpu_ctx)
     return (struct rendertarget *)s;
 }
 
-VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct rendertarget_params *params)
+VkResult ngli_rendertarget_vk_init(struct rendertarget *s)
 {
     struct rendertarget_vk *s_priv = (struct rendertarget_vk *)s;
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
-    VkResult res = vk_create_compatible_renderpass(s->gpu_ctx, &s->layout, params, &s_priv->render_pass);
+    VkResult res = vk_create_compatible_renderpass(s->gpu_ctx, &s->layout, &s->params, &s_priv->render_pass);
     if (res != VK_SUCCESS)
         return res;
 
-    for (size_t i = 0; i < params->nb_colors; i++) {
-        const struct attachment *attachment = &params->colors[i];
+    for (size_t i = 0; i < s->params.nb_colors; i++) {
+        const struct attachment *attachment = &s->params.colors[i];
 
         VkImageView view;
         res = create_image_view(s, attachment->attachment, attachment->attachment_layer, &view);
@@ -319,7 +319,7 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct renderta
         }
     }
 
-    const struct attachment *attachment = &params->depth_stencil;
+    const struct attachment *attachment = &s->params.depth_stencil;
     const struct texture *texture = attachment->attachment;
     if (texture) {
         VkImageView view;
