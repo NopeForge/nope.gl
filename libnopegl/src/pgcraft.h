@@ -170,6 +170,7 @@ struct pgcraft_texture_info {
 struct pgcraft_compat_info {
     struct block ublocks[NGLI_PROGRAM_SHADER_NB];
     int32_t ubindings[NGLI_PROGRAM_SHADER_NB];
+    int32_t uindices[NGLI_PROGRAM_SHADER_NB];
 };
 
 struct pgcraft_attribute_info {
