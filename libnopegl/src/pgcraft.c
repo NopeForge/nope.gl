@@ -1271,6 +1271,32 @@ static void probe_texture_infos(struct pgcraft *s)
     }
 }
 
+static void probe_ublocks(struct pgcraft *s)
+{
+    const struct darray *array = &s->filtered_pipeline_info.desc.buffers;
+
+    struct pgcraft_compat_info *info = &s->compat_info;
+    for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
+        const struct block *block = &info->ublocks[i];
+        const int32_t binding = info->ubindings[i];
+
+        const size_t block_size = ngli_block_get_size(block, 0);
+        if (!block_size)
+            continue;
+
+        const struct pipeline_resource_desc *buffer_descs = ngli_darray_data(array);
+        for (size_t j = 0; j < ngli_darray_count(array); j++) {
+            const struct pipeline_resource_desc *desc = &buffer_descs[j];
+            if (desc->type    == NGLI_TYPE_UNIFORM_BUFFER &&
+                desc->binding == binding &&
+                desc->stage   == i) {
+                info->uindices[i] = (int32_t)j;
+                break;
+            }
+        }
+    }
+}
+
 /*
  * Fill location/binding of pipeline params if they are not set by probing the
  * shader. Also fill the filtered array with available entries.
@@ -1295,6 +1321,8 @@ static int probe_pipeline_elems(struct pgcraft *s)
         return ret;
 
     probe_texture_infos(s);
+    probe_ublocks(s);
+
     return 0;
 }
 
@@ -1396,6 +1424,7 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
     for (size_t i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
         ngli_block_init(&compat_info->ublocks[i], NGLI_BLOCK_LAYOUT_STD140);
         compat_info->ubindings[i] = -1;
+        compat_info->uindices[i] = -1;
     }
 
     ngli_darray_init(&s->pipeline_info.desc.textures,   sizeof(struct pipeline_resource_desc),  0);
