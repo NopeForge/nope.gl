@@ -674,14 +674,14 @@ struct pipeline *ngli_pipeline_vk_create(struct gpu_ctx *gpu_ctx)
     return (struct pipeline *)s;
 }
 
-VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params *params)
+VkResult ngli_pipeline_vk_init(struct pipeline *s)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
     ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_vk), 0);
     ngli_darray_init(&s_priv->buffer_bindings,  sizeof(struct buffer_binding_vk), 0);
 
-    if (params->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
+    if (s->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
         VkResult res = create_attribute_descs(s);
         if (res != VK_SUCCESS)
             return res;

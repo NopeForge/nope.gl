@@ -95,7 +95,7 @@ int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params)
     if (ret < 0)
         return ret;
 
-    return s->gpu_ctx->cls->pipeline_init(s, params);
+    return s->gpu_ctx->cls->pipeline_init(s);
 }
 
 int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resources *resources)

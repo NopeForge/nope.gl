@@ -371,7 +371,7 @@ struct pipeline *ngli_pipeline_gl_create(struct gpu_ctx *gpu_ctx)
     return (struct pipeline *)s;
 }
 
-int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *params)
+int ngli_pipeline_gl_init(struct pipeline *s)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
@@ -384,11 +384,11 @@ int ngli_pipeline_gl_init(struct pipeline *s, const struct pipeline_params *para
         (ret = build_buffer_bindings(s)) < 0)
         return ret;
 
-    if (params->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
+    if (s->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
         ret = pipeline_graphics_init(s);
         if (ret < 0)
             return ret;
-    } else if (params->type == NGLI_PIPELINE_TYPE_COMPUTE) {
+    } else if (s->type == NGLI_PIPELINE_TYPE_COMPUTE) {
         ret = pipeline_compute_init(s);
         if (ret < 0)
             return ret;
