@@ -232,7 +232,7 @@ static int update_text_content(struct ngl_node *node)
     const char *str = o->live.val.s;
     struct text *text = s->text_ctx;
 
-    int ret = ngli_text_set_string(s->text_ctx, str);
+    int ret = ngli_text_set_string(text, str);
     if (ret < 0)
         return ret;
 
@@ -354,8 +354,8 @@ static int update_text_content(struct ngl_node *node)
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->color_index, s->colors);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->opacity_index, s->opacities);
 
-            if (s->text_ctx->cls->flags & NGLI_TEXT_FLAG_MUTABLE_ATLAS)
-                ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, s->text_ctx->atlas_texture);
+            if (text->cls->flags & NGLI_TEXT_FLAG_MUTABLE_ATLAS)
+                ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, text->atlas_texture);
         }
     }
 
