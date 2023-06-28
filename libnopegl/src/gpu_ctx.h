@@ -105,7 +105,7 @@ struct gpu_ctx_class {
     void (*program_freep)(struct program **sp);
 
     struct rendertarget *(*rendertarget_create)(struct gpu_ctx *ctx);
-    int (*rendertarget_init)(struct rendertarget *s, const struct rendertarget_params *params);
+    int (*rendertarget_init)(struct rendertarget *s);
     void (*rendertarget_freep)(struct rendertarget **sp);
 
     struct texture *(*texture_create)(struct gpu_ctx *ctx);

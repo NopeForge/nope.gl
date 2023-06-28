@@ -40,7 +40,7 @@ struct rendertarget_vk {
 };
 
 struct rendertarget *ngli_rendertarget_vk_create(struct gpu_ctx *gpu_ctx);
-VkResult ngli_rendertarget_vk_init(struct rendertarget *s, const struct rendertarget_params *params);
+VkResult ngli_rendertarget_vk_init(struct rendertarget *s);
 void ngli_rendertarget_vk_freep(struct rendertarget **sp);
 
 VkResult ngli_vk_create_compatible_renderpass(struct gpu_ctx *s, const struct rendertarget_layout *layout, VkRenderPass *render_pass);

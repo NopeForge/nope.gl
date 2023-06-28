@@ -227,7 +227,7 @@ struct rendertarget *ngli_rendertarget_gl_create(struct gpu_ctx *gpu_ctx)
     return (struct rendertarget *)s;
 }
 
-int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_params *params)
+int ngli_rendertarget_gl_init(struct rendertarget *s)
 {
     struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
     struct gpu_ctx *gpu_ctx = (struct gpu_ctx *)s->gpu_ctx;
@@ -257,16 +257,16 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
     s_priv->clear = clear_buffers;
     s_priv->resolve = resolve_no_draw_buffers;
 
-    ngli_assert(params->nb_colors <= limits->max_draw_buffers);
-    if (params->nb_colors > 1) {
-        for (size_t i = 0; i < params->nb_colors; i++)
+    ngli_assert(s->params.nb_colors <= limits->max_draw_buffers);
+    if (s->params.nb_colors > 1) {
+        for (size_t i = 0; i < s->params.nb_colors; i++)
             s_priv->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
-        ngli_glDrawBuffers(gl, (GLsizei)params->nb_colors, s_priv->draw_buffers);
+        ngli_glDrawBuffers(gl, (GLsizei)s->params.nb_colors, s_priv->draw_buffers);
         s_priv->resolve = resolve_draw_buffers;
     }
 
-    for (size_t i = 0; i < params->nb_colors; i++) {
-        const struct attachment *color = &params->colors[i];
+    for (size_t i = 0; i < s->params.nb_colors; i++) {
+        const struct attachment *color = &s->params.colors[i];
         if (color->load_op == NGLI_LOAD_OP_DONT_CARE ||
             color->load_op == NGLI_LOAD_OP_CLEAR) {
             s_priv->clear_flags |= GL_COLOR_BUFFER_BIT;
@@ -276,7 +276,7 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
         }
     }
 
-    const struct attachment *depth_stencil = &params->depth_stencil;
+    const struct attachment *depth_stencil = &s->params.depth_stencil;
     if (depth_stencil->attachment) {
         if (depth_stencil->load_op == NGLI_LOAD_OP_DONT_CARE ||
             depth_stencil->load_op == NGLI_LOAD_OP_CLEAR) {

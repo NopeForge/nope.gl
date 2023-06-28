@@ -67,7 +67,7 @@ int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_par
     }
     s->layout.samples = samples;
 
-    return s->gpu_ctx->cls->rendertarget_init(s, params);
+    return s->gpu_ctx->cls->rendertarget_init(s);
 }
 
 void ngli_rendertarget_freep(struct rendertarget **sp)
