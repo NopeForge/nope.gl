@@ -105,27 +105,27 @@ struct buffer *ngli_buffer_vk_create(struct gpu_ctx *gpu_ctx)
     return (struct buffer *)s;
 }
 
-VkResult ngli_buffer_vk_init(struct buffer *s, size_t size, int usage)
+VkResult ngli_buffer_vk_init(struct buffer *s)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct buffer_vk *s_priv = (struct buffer_vk *)s;
 
     VkMemoryPropertyFlags mem_props;
-    if (usage & NGLI_BUFFER_USAGE_MAP_READ) {
+    if (s->usage & NGLI_BUFFER_USAGE_MAP_READ) {
         mem_props = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT  |
                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
                     VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-    } else if (usage & NGLI_BUFFER_USAGE_MAP_WRITE ||
-               usage & NGLI_BUFFER_USAGE_DYNAMIC_BIT) {
+    } else if (s->usage & NGLI_BUFFER_USAGE_MAP_WRITE ||
+               s->usage & NGLI_BUFFER_USAGE_DYNAMIC_BIT) {
         mem_props = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     } else {
         mem_props = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     }
 
-    const VkBufferUsageFlags flags = get_vk_buffer_usage_flags(usage);
-    return create_vk_buffer(vk, size, flags, mem_props, &s_priv->buffer, &s_priv->memory);
+    const VkBufferUsageFlags flags = get_vk_buffer_usage_flags(s->usage);
+    return create_vk_buffer(vk, s->size, flags, mem_props, &s_priv->buffer, &s_priv->memory);
 }
 
 VkResult ngli_buffer_vk_upload(struct buffer *s, const void *data, size_t size, size_t offset)

@@ -88,7 +88,7 @@ struct gpu_ctx_class {
     void (*dispatch)(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 
     struct buffer *(*buffer_create)(struct gpu_ctx *ctx);
-    int (*buffer_init)(struct buffer *s, size_t size, int usage);
+    int (*buffer_init)(struct buffer *s);
     int (*buffer_upload)(struct buffer *s, const void *data, size_t size, size_t offset);
     int (*buffer_map)(struct buffer *s, size_t size, size_t offset, void **datap);
     void (*buffer_unmap)(struct buffer *s);

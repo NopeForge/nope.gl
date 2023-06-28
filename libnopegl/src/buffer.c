@@ -34,7 +34,7 @@ int ngli_buffer_init(struct buffer *s, size_t size, int usage)
     s->size = size;
     s->usage = usage;
 
-    return s->gpu_ctx->cls->buffer_init(s, size, usage);
+    return s->gpu_ctx->cls->buffer_init(s);
 }
 
 int ngli_buffer_upload(struct buffer *s, const void *data, size_t size, size_t offset)

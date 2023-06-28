@@ -1444,9 +1444,9 @@ static void vk_set_index_buffer(struct gpu_ctx *s, const struct buffer *buffer, 
     vkCmdBindIndexBuffer(cmd_buf, index_buffer->buffer, 0, indices_type);
 }
 
-static int vk_buffer_init(struct buffer *s, size_t size, int usage)
+static int vk_buffer_init(struct buffer *s)
 {
-    VkResult res = ngli_buffer_vk_init(s, size, usage);
+    VkResult res = ngli_buffer_vk_init(s);
     if (res != VK_SUCCESS)
         LOG(ERROR, "unable to initialize buffer: %s", ngli_vk_res2str(res));
     return ngli_vk_res2ret(res);

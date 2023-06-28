@@ -77,22 +77,22 @@ struct buffer *ngli_buffer_gl_create(struct gpu_ctx *gpu_ctx)
     return (struct buffer *)s;
 }
 
-int ngli_buffer_gl_init(struct buffer *s, size_t size, int usage)
+int ngli_buffer_gl_init(struct buffer *s)
 {
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct buffer_gl *s_priv = (struct buffer_gl *)s;
 
-    s_priv->map_flags = get_gl_map_flags(usage);
-    s_priv->barriers = get_gl_barriers(usage);
+    s_priv->map_flags = get_gl_map_flags(s->usage);
+    s_priv->barriers = get_gl_barriers(s->usage);
 
     ngli_glGenBuffers(gl, 1, &s_priv->id);
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s_priv->id);
     if (gl->features & NGLI_FEATURE_GL_BUFFER_STORAGE) {
         const GLbitfield storage_flags = GL_DYNAMIC_STORAGE_BIT;
-        ngli_glBufferStorage(gl, GL_ARRAY_BUFFER, size, NULL, storage_flags | s_priv->map_flags);
+        ngli_glBufferStorage(gl, GL_ARRAY_BUFFER, s->size, NULL, storage_flags | s_priv->map_flags);
     } else {
-        ngli_glBufferData(gl, GL_ARRAY_BUFFER, size, NULL, get_gl_usage(usage));
+        ngli_glBufferData(gl, GL_ARRAY_BUFFER, s->size, NULL, get_gl_usage(s->usage));
     }
 
     return 0;
