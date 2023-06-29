@@ -63,9 +63,10 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
         const struct pipeline_resource_desc *buffer_desc = &layout.buffer_descs[i];
         if (buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER)
             continue;
-        const GLuint block_index = ngli_glGetUniformBlockIndex(gl, s_priv->id, buffer_desc->name);
+        const char *buffer_name = ngli_pgcraft_get_symbol_name(crafter, buffer_desc->id);
+        const GLuint block_index = ngli_glGetUniformBlockIndex(gl, s_priv->id, buffer_name);
         ngli_glUniformBlockBinding(gl, s_priv->id, block_index, buffer_desc->binding);
-        struct program_variable_info *info = ngli_hmap_get(s->buffer_blocks, buffer_desc->name);
+        struct program_variable_info *info = ngli_hmap_get(s->buffer_blocks, buffer_name);
         if (info)
             info->binding = buffer_desc->binding;
     }
@@ -74,9 +75,10 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     ngli_glstate_use_program(gl, glstate, s_priv->id);
     for (size_t i = 0; i < layout.nb_texture_descs; i++) {
         const struct pipeline_resource_desc *texture_desc = &layout.texture_descs[i];
-        const GLint location = ngli_glGetUniformLocation(gl, s_priv->id, texture_desc->name);
+        const char *texture_name = ngli_pgcraft_get_symbol_name(crafter, texture_desc->id);
+        const GLint location = ngli_glGetUniformLocation(gl, s_priv->id, texture_name);
         ngli_glUniform1i(gl, location, texture_desc->binding);
-        struct program_variable_info *info = ngli_hmap_get(s->uniforms, texture_desc->name);
+        struct program_variable_info *info = ngli_hmap_get(s->uniforms, texture_name);
         if (info)
             info->binding = texture_desc->binding;
     }

@@ -445,13 +445,17 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
             int binding_type = NGLI_BINDING_TYPE_TEXTURE;
             if (is_image(field->type))
                 binding_type = NGLI_BINDING_TYPE_IMAGE;
-            struct pipeline_resource_desc pl_texture_desc = {
+
+            if (!ngli_darray_push(&s->symbols, field->name))
+                return NGL_ERROR_MEMORY;
+
+            const struct pipeline_resource_desc pl_texture_desc = {
+                .id       = ngli_darray_count(&s->symbols) - 1,
                 .type     = field->type,
                 .binding  = request_next_binding(s, stage, binding_type),
                 .access   = info->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
                 .stage    = stage,
             };
-            snprintf(pl_texture_desc.name, sizeof(pl_texture_desc.name), "%s", field->name);
 
             const char *prefix = "";
             if (is_image(field->type)) {
@@ -536,17 +540,24 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     const struct block *block = named_block->block;
     const int binding_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER
                            ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
-    struct pipeline_resource_desc pl_buffer_desc = {
+
+    char name[MAX_ID_LEN];
+    int len = snprintf(name, sizeof(name), "%s_block", named_block->name);
+    if (len >= sizeof(name)) {
+        LOG(ERROR, "block name \"%s\" is too long", named_block->name);
+        return NGL_ERROR_MEMORY;
+    }
+
+    if (!ngli_darray_push(&s->symbols, name))
+        return NGL_ERROR_MEMORY;
+
+    const struct pipeline_resource_desc pl_buffer_desc = {
+        .id      = ngli_darray_count(&s->symbols) - 1,
         .type    = named_block->type,
         .binding = request_next_binding(s, named_block->stage, binding_type),
         .access  = named_block->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
         .stage   = named_block->stage,
     };
-    int len = snprintf(pl_buffer_desc.name, sizeof(pl_buffer_desc.name), "%s_block", named_block->name);
-    if (len >= sizeof(pl_buffer_desc.name)) {
-        LOG(ERROR, "block name \"%s\" is too long", named_block->name);
-        return NGL_ERROR_MEMORY;
-    }
 
     const char *layout = glsl_layout_str_map[block->layout];
     if (s->has_explicit_bindings) {
@@ -1141,8 +1152,7 @@ static int craft_comp(struct pgcraft *s, const struct pgcraft_params *params)
     return samplers_preproc(s, params, b);
 }
 
-NGLI_STATIC_ASSERT(buffer_name_offset, offsetof(struct pipeline_resource_desc, name) == 0);
-NGLI_STATIC_ASSERT(texture_name_offset, offsetof(struct pipeline_resource_desc, name) == 0);
+NGLI_STATIC_ASSERT(resource_name_offset, offsetof(struct pipeline_resource_desc, id) == 0);
 
 static int filter_pipeline_elems(struct pgcraft *s,
                                  const struct hmap *info_map,
@@ -1155,7 +1165,8 @@ static int filter_pipeline_elems(struct pgcraft *s,
         void *desc_elem = desc_elems + i * src_desc->element_size;
         void *data_elem = data_elems + i * src_data->element_size;
         if (info_map) {
-            const char *name = desc_elem;
+            const size_t id = *(size_t *)desc_elem;
+            const char *name = ngli_pgcraft_get_symbol_name(s, id);
             const struct program_variable_info *info = ngli_hmap_get(info_map, name);
             if (!info)
                 continue;
@@ -1220,7 +1231,8 @@ static int32_t get_texture_index(const struct pgcraft *s, const char *name)
     const struct pipeline_resource_desc *pipeline_texture_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
     for (int32_t i = 0; i < (int32_t)ngli_darray_count(&s->filtered_pipeline_info.desc.textures); i++) {
         const struct pipeline_resource_desc *pipeline_texture_desc = &pipeline_texture_descs[i];
-        if (!strcmp(pipeline_texture_desc->name, name))
+        const char *texture_name = ngli_pgcraft_get_symbol_name(s, pipeline_texture_desc->id);
+        if (!strcmp(texture_name, name))
             return i;
     }
     return -1;
