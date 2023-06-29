@@ -148,7 +148,7 @@ static void reset_capture_cvpixelbuffer(struct gpu_ctx *s)
 }
 #endif
 
-static int create_texture(struct gpu_ctx *s, int format, int32_t samples, struct texture **texturep)
+static int create_texture(struct gpu_ctx *s, int format, int32_t samples, int usage, struct texture **texturep)
 {
     const struct ngl_config *config = &s->config;
 
@@ -162,7 +162,7 @@ static int create_texture(struct gpu_ctx *s, int format, int32_t samples, struct
         .width   = config->width,
         .height  = config->height,
         .samples = samples,
-        .usage   = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
+        .usage   = usage,
     };
 
     int ret = ngli_texture_init(texture, &params);
@@ -230,6 +230,9 @@ static int create_rendertarget(struct gpu_ctx *s,
     return 0;
 }
 
+#define COLOR_USAGE NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT
+#define DEPTH_USAGE NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+
 static int offscreen_rendertarget_init(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
@@ -244,7 +247,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
             if (ret < 0)
                 return ret;
         } else {
-            int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, &s_priv->color);
+            int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->color);
             if (ret < 0)
                 return ret;
         }
@@ -253,7 +256,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         return NGL_ERROR_UNSUPPORTED;
 #endif
     } else if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_CPU) {
-        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, &s_priv->color);
+        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->color);
         if (ret < 0)
             return ret;
     } else {
@@ -262,12 +265,12 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
     }
 
     if (config->samples) {
-        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, config->samples, &s_priv->ms_color);
+        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, config->samples, COLOR_USAGE, &s_priv->ms_color);
         if (ret < 0)
             return ret;
     }
 
-    int ret = create_texture(s, NGLI_FORMAT_D24_UNORM_S8_UINT, config->samples, &s_priv->depth_stencil);
+    int ret = create_texture(s, NGLI_FORMAT_D24_UNORM_S8_UINT, config->samples, DEPTH_USAGE, &s_priv->depth_stencil);
     if (ret < 0)
         return ret;
 
@@ -607,7 +610,7 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
         if (ret < 0)
             return ret;
     } else {
-        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, &s_priv->color);
+        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->color);
         if (ret < 0)
             return ret;
     }
