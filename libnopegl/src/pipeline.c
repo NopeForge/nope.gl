@@ -137,15 +137,15 @@ int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct 
         if (desc->type == NGLI_TYPE_UNIFORM_BUFFER) {
             ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
             if (buffer->size > limits->max_uniform_block_size) {
-                LOG(ERROR, "buffer %s size (%zu) exceeds max uniform block size (%d)",
-                    desc->name, buffer->size, limits->max_uniform_block_size);
+                LOG(ERROR, "buffer (binding=%d) size (%zu) exceeds max uniform block size (%d)",
+                    desc->binding, buffer->size, limits->max_uniform_block_size);
                 return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
             }
         } else if (desc->type == NGLI_TYPE_STORAGE_BUFFER) {
             ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
             if (buffer->size > limits->max_storage_block_size) {
-                LOG(ERROR, "buffer %s size (%zu) exceeds max storage block size (%d)",
-                    desc->name, buffer->size, limits->max_storage_block_size);
+                LOG(ERROR, "buffer (binding=%d) size (%zu) exceeds max storage block size (%d)",
+                    desc->binding, buffer->size, limits->max_storage_block_size);
                 return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
             }
         }
