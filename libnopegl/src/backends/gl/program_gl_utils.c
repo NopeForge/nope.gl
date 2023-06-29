@@ -38,18 +38,21 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
 
     const char *name = NULL;
     int need_relink = 0;
-    const struct darray *info_array = ngli_pgcraft_get_attribute_infos(crafter);
-    const struct pgcraft_attribute_info *infos = ngli_darray_data(info_array);
-    for (size_t i = 0; i < ngli_darray_count(info_array); i++) {
-        const struct pgcraft_attribute_info *attribute_info = &infos[i];
-        if (name && !strcmp(name, attribute_info->name))
-            continue;
-        name = attribute_info->name;
-        ngli_glBindAttribLocation(gl, s_priv->id, attribute_info->location, attribute_info->name);
-        struct program_variable_info *info = ngli_hmap_get(s->attributes, attribute_info->name);
-        if (info && info->location != attribute_info->location) {
-            info->location = attribute_info->location;
-            need_relink = 1;
+    const struct vertex_state vertex_state = ngli_pgcraft_get_vertex_state(crafter);
+    for (size_t i = 0; i < vertex_state.nb_buffers; i++) {
+        const struct vertex_buffer_layout *layout = &vertex_state.buffers[i];
+        for (size_t j = 0; j < layout->nb_attributes; j++) {
+            const struct vertex_attribute *attribute = &layout->attributes[j];
+            const char *attribute_name = ngli_pgcraft_get_symbol_name(crafter, attribute->id);
+            if (name && !strcmp(name, attribute_name))
+                continue;
+            name = attribute_name;
+            ngli_glBindAttribLocation(gl, s_priv->id, attribute->location, attribute_name);
+            struct program_variable_info *info = ngli_hmap_get(s->attributes, attribute_name);
+            if (info && info->location != attribute->location) {
+                info->location = attribute->location;
+                need_relink = 1;
+            }
         }
     }
     if (need_relink)

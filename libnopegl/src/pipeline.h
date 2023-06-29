@@ -52,6 +52,7 @@ struct pipeline_resource_desc {
 };
 
 struct vertex_attribute {
+    size_t id;
     int location;
     int format;
     size_t offset;
