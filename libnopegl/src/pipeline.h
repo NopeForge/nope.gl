@@ -44,7 +44,7 @@ enum {
 NGLI_STATIC_ASSERT(texture_access, (NGLI_ACCESS_READ_BIT | NGLI_ACCESS_WRITE_BIT) == NGLI_ACCESS_READ_WRITE);
 
 struct pipeline_resource_desc {
-    char name[MAX_ID_LEN];
+    size_t id;
     int type;
     int binding;
     int access;
