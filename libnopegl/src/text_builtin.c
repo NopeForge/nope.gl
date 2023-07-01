@@ -98,7 +98,7 @@ static uint32_t get_char_tags(char c)
     if (c == ' ')
         return NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR;
     if (c == '\n')
-        return NGLI_TEXT_CHAR_TAG_LINE_BREAK | NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR;
+        return NGLI_TEXT_CHAR_TAG_LINE_BREAK;
     return NGLI_TEXT_CHAR_TAG_GLYPH;
 }
 

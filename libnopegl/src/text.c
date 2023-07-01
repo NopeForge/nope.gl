@@ -280,7 +280,7 @@ static void segment_separator(const struct text *s, struct effect_segmentation *
 
 static void segment_words(const struct text *s, struct effect_segmentation *effect)
 {
-    segment_separator(s, effect, NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR);
+    segment_separator(s, effect, NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR | NGLI_TEXT_CHAR_TAG_LINE_BREAK);
 }
 
 static void segment_lines(const struct text *s, struct effect_segmentation *effect)
