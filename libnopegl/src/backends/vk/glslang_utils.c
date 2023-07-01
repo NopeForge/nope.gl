@@ -19,6 +19,9 @@
  * under the License.
  */
 
+#include "config.h"
+
+#include <string.h>
 #include <glslang/build_info.h>
 #include <glslang/Include/glslang_c_interface.h>
 
@@ -118,7 +121,37 @@ int ngli_glslang_compile(int stage, const char *src, void **datap, size_t *sizep
         return NGL_ERROR_EXTERNAL;
     }
 
+/*
+ * We need this macro because until 11.11.0 the macros were completely broken
+ * See https://github.com/KhronosGroup/glslang/commit/6fdf03e4d1a6c2e9e0d8c69b122ff433cfe82225
+ */
+#define FIXED_GLSLANG_VERSION_GREATER_OR_EQUAL_TO(major, minor, patch) \
+    ((GLSLANG_VERSION_MAJOR) > (major) || ((major) == GLSLANG_VERSION_MAJOR && \
+    ((GLSLANG_VERSION_MINOR) > (minor) || ((minor) == GLSLANG_VERSION_MINOR && \
+     (GLSLANG_VERSION_PATCH >= (patch))))))
+
+#if FIXED_GLSLANG_VERSION_GREATER_OR_EQUAL_TO(11, 11, 0)
+    static const bool dbg = DEBUG_VK || DEBUG_GPU_CAPTURE;
+
+    // See https://github.com/KhronosGroup/glslang/issues/3252
+    if (dbg)
+        glslang_program_add_source_text(program, glslc_input.stage, glslc_input.code, strlen(glslc_input.code));
+
+    glslang_spv_options_t options = {
+        .generate_debug_info = dbg,
+        .strip_debug_info = !dbg,
+        .disable_optimizer = dbg,
+        .optimize_size = false,
+        .disassemble = false,
+        .validate = true,
+        .emit_nonsemantic_shader_debug_info = dbg,
+        .emit_nonsemantic_shader_debug_source = dbg,
+    };
+    glslang_program_SPIRV_generate_with_options(program, glslc_input.stage, &options);
+#else
     glslang_program_SPIRV_generate(program, glslc_input.stage);
+#endif
+
     const char *messages = glslang_program_SPIRV_get_messages(program);
     if (messages)
         LOG(WARNING, "%s", messages);
