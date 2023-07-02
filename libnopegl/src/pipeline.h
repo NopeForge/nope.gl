@@ -43,6 +43,10 @@ enum {
 
 NGLI_STATIC_ASSERT(texture_access, (NGLI_ACCESS_READ_BIT | NGLI_ACCESS_WRITE_BIT) == NGLI_ACCESS_READ_WRITE);
 
+#define NGLI_MAX_UNIFORM_BUFFERS_DYNAMIC 8
+#define NGLI_MAX_STORAGE_BUFFERS_DYNAMIC 4
+#define NGLI_MAX_DYNAMIC_OFFSETS (NGLI_MAX_UNIFORM_BUFFERS_DYNAMIC + NGLI_MAX_STORAGE_BUFFERS_DYNAMIC)
+
 struct pipeline_resource_desc {
     size_t id;
     int type;
@@ -114,6 +118,8 @@ struct pipeline {
     struct pipeline_graphics graphics;
     const struct program *program;
     struct pipeline_layout layout;
+    uint32_t dynamic_offsets[NGLI_MAX_DYNAMIC_OFFSETS];
+    size_t nb_dynamic_offsets;
 };
 
 int ngli_pipeline_graphics_copy(struct pipeline_graphics *dst, const struct pipeline_graphics *src);
@@ -127,6 +133,7 @@ int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params)
 int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resources *resources);
 int ngli_pipeline_update_texture(struct pipeline *s, int32_t index, const struct texture *texture);
 int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
+int ngli_pipeline_update_dynamic_offsets(struct pipeline *s, const uint32_t *offsets, size_t nb_offsets);
 
 void ngli_pipeline_freep(struct pipeline **sp);
 

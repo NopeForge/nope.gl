@@ -95,6 +95,19 @@ int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params)
     if (ret < 0)
         return ret;
 
+    size_t nb_uniform_buffers_dynamic = 0;
+    size_t nb_storage_buffers_dynamic = 0;
+    for (size_t i = 0; i < s->layout.nb_buffer_descs; i++) {
+        const struct pipeline_resource_desc *desc = &s->layout.buffer_descs[i];
+        if (desc->type == NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC)
+            nb_uniform_buffers_dynamic++;
+        else if (desc->type == NGLI_TYPE_STORAGE_BUFFER_DYNAMIC)
+            nb_storage_buffers_dynamic++;
+    }
+    ngli_assert(nb_uniform_buffers_dynamic <= NGLI_MAX_UNIFORM_BUFFERS_DYNAMIC);
+    ngli_assert(nb_storage_buffers_dynamic <= NGLI_MAX_STORAGE_BUFFERS_DYNAMIC);
+    s->nb_dynamic_offsets = nb_uniform_buffers_dynamic + nb_storage_buffers_dynamic;
+
     return s->gpu_ctx->cls->pipeline_init(s);
 }
 
@@ -134,14 +147,16 @@ int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct 
     if (buffer) {
         const struct pipeline_resource_desc *desc = &s->layout.buffer_descs[index];
         const struct gpu_limits *limits = &s->gpu_ctx->limits;
-        if (desc->type == NGLI_TYPE_UNIFORM_BUFFER) {
+        if (desc->type == NGLI_TYPE_UNIFORM_BUFFER ||
+            desc->type == NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC) {
             ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
             if (buffer->size > limits->max_uniform_block_size) {
                 LOG(ERROR, "buffer (binding=%d) size (%zu) exceeds max uniform block size (%d)",
                     desc->binding, buffer->size, limits->max_uniform_block_size);
                 return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
             }
-        } else if (desc->type == NGLI_TYPE_STORAGE_BUFFER) {
+        } else if (desc->type == NGLI_TYPE_STORAGE_BUFFER ||
+                   desc->type == NGLI_TYPE_STORAGE_BUFFER_DYNAMIC) {
             ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
             if (buffer->size > limits->max_storage_block_size) {
                 LOG(ERROR, "buffer (binding=%d) size (%zu) exceeds max storage block size (%d)",
@@ -152,6 +167,13 @@ int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct 
     }
 
     return s->gpu_ctx->cls->pipeline_update_buffer(s, index, buffer, offset, size);
+}
+
+int ngli_pipeline_update_dynamic_offsets(struct pipeline *s, const uint32_t *offsets, size_t nb_offsets)
+{
+    ngli_assert(nb_offsets == s->nb_dynamic_offsets);
+    memcpy(s->dynamic_offsets, offsets, nb_offsets * sizeof(*s->dynamic_offsets));
+    return 0;
 }
 
 void ngli_pipeline_freep(struct pipeline **sp)

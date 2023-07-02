@@ -171,6 +171,11 @@ int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index
     return ngli_pipeline_update_texture(s->pipeline, index, texture);
 }
 
+int ngli_pipeline_compat_update_dynamic_offsets(struct pipeline_compat *s, const uint32_t *offsets, size_t nb_offsets)
+{
+    return ngli_pipeline_update_dynamic_offsets(s->pipeline, offsets, nb_offsets);
+}
+
 void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const struct pgcraft_texture_info *info)
 {
     const struct pgcraft_texture_info_field *fields = info->fields;
