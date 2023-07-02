@@ -51,7 +51,9 @@ static const char * const type_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_IMAGE_3D]                    = "image3D",
     [NGLI_TYPE_IMAGE_CUBE]                  = "imageCube",
     [NGLI_TYPE_UNIFORM_BUFFER]              = "uniform",
+    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC]      = "uniform",
     [NGLI_TYPE_STORAGE_BUFFER]              = "buffer",
+    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC]      = "buffer",
 };
 
 const char *ngli_type_get_name(int type)

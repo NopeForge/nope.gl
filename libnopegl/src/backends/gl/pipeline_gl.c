@@ -159,13 +159,18 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
+    size_t current_dynamic_offset = 0;
     const struct buffer_binding_gl *bindings = ngli_darray_data(&s_priv->buffer_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
         const struct buffer_binding_gl *buffer_binding = &bindings[i];
         const struct buffer *buffer = buffer_binding->buffer;
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
         const struct pipeline_resource_desc *buffer_desc = &buffer_binding->desc;
-        const size_t offset = buffer_binding->offset;
+        size_t offset = buffer_binding->offset;
+        if (buffer_desc->type == NGLI_TYPE_STORAGE_BUFFER_DYNAMIC ||
+            buffer_desc->type == NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC) {
+            offset += s->dynamic_offsets[current_dynamic_offset++];
+        }
         const size_t size = buffer_binding->size ? buffer_binding->size : buffer->size;
         ngli_glBindBufferRange(gl, buffer_binding->type, buffer_desc->binding, buffer_gl->id, offset, size);
     }
@@ -173,7 +178,9 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
 
 static const GLenum gl_target_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_UNIFORM_BUFFER] = GL_UNIFORM_BUFFER,
+    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC] = GL_UNIFORM_BUFFER,
     [NGLI_TYPE_STORAGE_BUFFER] = GL_SHADER_STORAGE_BUFFER,
+    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC] = GL_SHADER_STORAGE_BUFFER,
 };
 
 static GLenum get_gl_target(int type)
@@ -192,7 +199,8 @@ static int build_buffer_bindings(struct pipeline *s)
         const struct pipeline_resource_desc *pipeline_buffer_desc = &layout->buffer_descs[i];
         const int type = pipeline_buffer_desc->type;
 
-        if (type == NGLI_TYPE_STORAGE_BUFFER)
+        if (type == NGLI_TYPE_STORAGE_BUFFER ||
+            type == NGLI_TYPE_STORAGE_BUFFER_DYNAMIC)
             ngli_assert(gl->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT);
 
         if (pipeline_buffer_desc->access & NGLI_ACCESS_WRITE_BIT)

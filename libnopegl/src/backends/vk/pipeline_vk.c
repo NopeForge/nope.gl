@@ -384,7 +384,9 @@ static VkShaderStageFlags get_vk_stage_flags(int stage)
 
 static const VkDescriptorType descriptor_type_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_UNIFORM_BUFFER] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
     [NGLI_TYPE_STORAGE_BUFFER] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
     [NGLI_TYPE_SAMPLER_2D]     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
     [NGLI_TYPE_SAMPLER_2D_ARRAY] = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
     [NGLI_TYPE_SAMPLER_3D]     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -412,7 +414,9 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s)
 
     VkDescriptorPoolSize desc_pool_size_map[NGLI_TYPE_NB] = {
         [NGLI_TYPE_UNIFORM_BUFFER] = {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER},
+        [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC] = {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC},
         [NGLI_TYPE_STORAGE_BUFFER] = {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER},
+        [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC] = {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC},
         [NGLI_TYPE_SAMPLER_2D]     = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
         [NGLI_TYPE_SAMPLER_2D_ARRAY] = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
         [NGLI_TYPE_SAMPLER_3D]     = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
@@ -879,8 +883,9 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
     vkCmdSetScissor(cmd_buf, 0, 1, &scissor);
 
     if (s_priv->desc_sets)
-        vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, s_priv->pipeline_layout,
-                                0, 1, &s_priv->desc_sets[gpu_ctx_vk->cur_frame_index], 0, NULL);
+        vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, s_priv->pipeline_layout, 0,
+                                1, &s_priv->desc_sets[gpu_ctx_vk->cur_frame_index],
+                                (uint32_t)s->nb_dynamic_offsets, s->dynamic_offsets);
 
     return 0;
 }
