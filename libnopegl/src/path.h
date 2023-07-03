@@ -41,6 +41,7 @@ struct path_segment {
 
 struct path *ngli_path_create(void);
 
+/* Manual path construction primitive functions */
 int ngli_path_move_to(struct path *s, const float *to);
 int ngli_path_line_to(struct path *s, const float *to);
 int ngli_path_bezier2_to(struct path *s, const float *ctl, const float *to);
@@ -49,10 +50,19 @@ int ngli_path_bezier3_to(struct path *s, const float *ctl0, const float *ctl1, c
 /* Finalize construction: must be called at the end of the construction */
 int ngli_path_finalize(struct path *s);
 
+/*
+ * Initialize a path. It is only required if one wants to evaluate the path at a
+ * given point (calling ngli_path_evaluate()).
+ */
 int ngli_path_init(struct path *s, int32_t precision);
 
+/* Evaluate an initialized path */
 void ngli_path_evaluate(struct path *s, float *dst, float distance);
 
+/*
+ * Read back every segment. Require the path to be initialized or at least
+ * finalized.
+ */
 const struct darray *ngli_path_get_segments(const struct path *s);
 
 /*
