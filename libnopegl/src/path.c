@@ -197,6 +197,105 @@ int ngli_path_close(struct path *s)
     return 0;
 }
 
+static const char *strip_separators(const char *s)
+{
+    while (*s && strchr(" ,\t\r\n", *s)) /* comma + whitespaces */
+        s++;
+    return s;
+}
+
+static const char *load_coords(float *dst, const char *s, size_t n)
+{
+    for (size_t i = 0; i < n; i++) {
+        s = strip_separators(s);
+        dst[i] = strtof(s, (char **)&s);
+    }
+    return s;
+}
+
+static const char *cmd_get_coords(float *dst, const char *s, char lcmd)
+{
+    switch (lcmd) {
+        case 'm':
+        case 'l': return load_coords(dst, s, 2); // x,y
+        case 'v':
+        case 'h': return load_coords(dst, s, 1); // x or y
+        case 'q': return load_coords(dst, s, 2 * 2); // x0,y0 x1,y1
+        case 'c': return load_coords(dst, s, 3 * 2); // x0,y0 x1,y1 x2,y2
+    }
+    return NULL;
+}
+
+int ngli_path_add_svg_path(struct path *s, const char *str)
+{
+    char cmd = 0;
+
+    for (;;) {
+        int ret = 0;
+
+        str = strip_separators(str);
+        if (!*str)
+            break;
+
+        if (strchr("mMvVhHlLqQcCzZ", *str)) {
+            cmd = *str++;
+        } else if (strchr("sStTaA", *str)) {
+            // TODO
+            LOG(ERROR, "SVG path command '%c' is currently unsupported", *str);
+            return NGL_ERROR_UNSUPPORTED;
+        } else if (!cmd) {
+            return NGL_ERROR_INVALID_DATA;
+        }
+
+        const char lcmd = cmd | 0x20; // lower case
+        if (lcmd == 'z') { // closing current (sub-)path
+            ret = ngli_path_close(s);
+            if (ret < 0)
+                return ret;
+            continue;
+        }
+
+        const int relative = cmd == lcmd;
+        const float off_x = relative ? s->cursor[0] : 0.f;
+        const float off_y = relative ? s->cursor[1] : 0.f;
+
+        float coords[3 * 2]; // maximum number of coordinates (bezier cubic)
+        const char *p = cmd_get_coords(coords, str, lcmd);
+        if (!p || p == str) // bail out in case of error or if the pointer didn't advance
+            return NGL_ERROR_INVALID_DATA;
+        str = p;
+
+        if (lcmd == 'm') { // move
+            const float to[] = {coords[0] + off_x, coords[1] + off_y, 0.f};
+            ret = ngli_path_move_to(s, to);
+        } else if (lcmd == 'l') { // line
+            const float to[] = {coords[0] + off_x, coords[1] + off_y, 0.f};
+            ret = ngli_path_line_to(s, to);
+        } else if (lcmd == 'v') { // vertical line
+            const float to[] = {off_x, coords[0] + off_y, 0.f};
+            ret = ngli_path_line_to(s, to);
+        } else if (lcmd == 'h') { // horizontal line
+            const float to[] = {coords[0] + off_x, off_y, 0.f};
+            ret = ngli_path_line_to(s, to);
+        } else if (lcmd == 'q') { // quadratic bezier
+            const float ctl[] = {coords[0] + off_x, coords[1] + off_y, 0.f};
+            const float to[]  = {coords[2] + off_x, coords[3] + off_y, 0.f};
+            ret = ngli_path_bezier2_to(s, ctl, to);
+        } else if (lcmd == 'c') { // cubic bezier
+            const float ctl1[] = {coords[0] + off_x, coords[1] + off_y, 0.f};
+            const float ctl2[] = {coords[2] + off_x, coords[3] + off_y, 0.f};
+            const float to[]   = {coords[4] + off_x, coords[5] + off_y, 0.f};
+            ret = ngli_path_bezier3_to(s, ctl1, ctl2, to);
+        } else {
+            ngli_assert(0);
+        }
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
+}
+
 /*
  * Interpolate a 3D point using the polynomials
  */

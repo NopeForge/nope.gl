@@ -53,6 +53,9 @@ int ngli_path_bezier2_to(struct path *s, const float *ctl, const float *to);
 int ngli_path_bezier3_to(struct path *s, const float *ctl0, const float *ctl1, const float *to);
 int ngli_path_close(struct path *s);
 
+/* Path construction from SVG path specifications */
+int ngli_path_add_svg_path(struct path *s, const char *str);
+
 /* Finalize construction: must be called at the end of the construction */
 int ngli_path_finalize(struct path *s);
 
