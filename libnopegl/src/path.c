@@ -91,14 +91,14 @@ static int add_segment_and_move(struct path *s, const struct path_segment *segme
     if (!ngli_darray_push(&s->segments, segment))
         return NGL_ERROR_MEMORY;
     memcpy(s->cursor, to, sizeof(s->cursor));
-    s->segment_flags &= ~SEGMENT_FLAG_NEW_ORIGIN;
+    s->segment_flags &= ~NGLI_PATH_SEGMENT_FLAG_NEW_ORIGIN;
     return 0;
 }
 
 int ngli_path_move_to(struct path *s, const float *to)
 {
     memcpy(s->cursor, to, sizeof(s->cursor));
-    s->segment_flags |= SEGMENT_FLAG_NEW_ORIGIN;
+    s->segment_flags |= NGLI_PATH_SEGMENT_FLAG_NEW_ORIGIN;
     return 0;
 }
 
@@ -108,7 +108,7 @@ int ngli_path_line_to(struct path *s, const float *to)
         .poly_x = {0.f, 0.f, to[0] - s->cursor[0], s->cursor[0]},
         .poly_y = {0.f, 0.f, to[1] - s->cursor[1], s->cursor[1]},
         .poly_z = {0.f, 0.f, to[2] - s->cursor[2], s->cursor[2]},
-        .flags  = s->segment_flags | SEGMENT_FLAG_LINE,
+        .flags  = s->segment_flags | NGLI_PATH_SEGMENT_FLAG_LINE,
     };
     return add_segment_and_move(s, &segment, to);
 }
@@ -194,7 +194,7 @@ int ngli_path_init(struct path *s, int32_t precision)
          * Compared to curves, straight lines do not need to be divided into
          * small chunks because their length can be calculated exactly.
          */
-        const int32_t precision = (segment->flags & SEGMENT_FLAG_LINE) ? 1 : s->precision;
+        const int32_t precision = (segment->flags & NGLI_PATH_SEGMENT_FLAG_LINE) ? 1 : s->precision;
 
         /*
          * We're not using 1/(P-1) but 1/P for the scale because each segment is
@@ -224,7 +224,7 @@ int ngli_path_init(struct path *s, int32_t precision)
          * the last point coordinate (t=1) of the current segment because there
          * won't be an overlap with the next segment (if any).
          */
-        if (i == nb_segments - 1 || (segments[i + 1].flags & SEGMENT_FLAG_NEW_ORIGIN)) {
+        if (i == nb_segments - 1 || (segments[i + 1].flags & NGLI_PATH_SEGMENT_FLAG_NEW_ORIGIN)) {
             struct path_step step = {.segment_id=(int)i, .flags = STEP_FLAG_DISCONTINUITY};
             poly_eval(step.position, segment, 1.f);
             if (!ngli_darray_push(&s->steps, &step))
