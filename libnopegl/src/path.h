@@ -48,6 +48,7 @@ int ngli_path_move_to(struct path *s, const float *to);
 int ngli_path_line_to(struct path *s, const float *to);
 int ngli_path_bezier2_to(struct path *s, const float *ctl, const float *to);
 int ngli_path_bezier3_to(struct path *s, const float *ctl0, const float *ctl1, const float *to);
+int ngli_path_close(struct path *s);
 
 /* Finalize construction: must be called at the end of the construction */
 int ngli_path_finalize(struct path *s);
