@@ -1256,6 +1256,8 @@
       "desc": "end point of the curve, new cursor position"
     }
   ],
+  "PathKeyClose": [
+  ],
   "PathKeyLine": [
     {
       "name": "to",

@@ -261,6 +261,7 @@ NGL_API void ngl_scene_freep(struct ngl_scene **sp);
 #define NGL_NODE_PATH                   NGLI_FOURCC('P','a','t','h')
 #define NGL_NODE_PATHKEYBEZIER2         NGLI_FOURCC('P','h','K','2')
 #define NGL_NODE_PATHKEYBEZIER3         NGLI_FOURCC('P','h','K','3')
+#define NGL_NODE_PATHKEYCLOSE           NGLI_FOURCC('P','h','C','l')
 #define NGL_NODE_PATHKEYLINE            NGLI_FOURCC('P','h','K','1')
 #define NGL_NODE_PATHKEYMOVE            NGLI_FOURCC('P','h','K','0')
 #define NGL_NODE_PROGRAM                NGLI_FOURCC('P','r','g','m')

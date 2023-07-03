@@ -613,6 +613,11 @@ Parameter | Flags | Type | Description | Default
 **Source**: [src/node_pathkey.c](/libnopegl/src/node_pathkey.c)
 
 
+## PathKeyClose
+
+**Source**: [src/node_pathkey.c](/libnopegl/src/node_pathkey.c)
+
+
 ## PathKeyLine
 
 Parameter | Flags | Type | Description | Default
