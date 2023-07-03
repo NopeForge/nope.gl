@@ -27,8 +27,8 @@
 
 struct path;
 
-#define SEGMENT_FLAG_NEW_ORIGIN (1 << 0) /* the current segment does not overlap with the previous one */
-#define SEGMENT_FLAG_LINE       (1 << 1) /* the current segment is a simple line (not a curve) */
+#define NGLI_PATH_SEGMENT_FLAG_NEW_ORIGIN (1 << 0) /* the current segment does not overlap with the previous one */
+#define NGLI_PATH_SEGMENT_FLAG_LINE       (1 << 1) /* the current segment is a simple line (not a curve) */
 
 struct path_segment {
     float poly_x[4];
