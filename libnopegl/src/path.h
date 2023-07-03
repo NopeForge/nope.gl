@@ -52,6 +52,12 @@ void ngli_path_evaluate(struct path *s, float *dst, float distance);
 
 const struct darray *ngli_path_get_segments(const struct path *s);
 
+/*
+ * Clear the segments. It is possible to re-use the same path to construct
+ * another one, but it will require a new initialization.
+ */
+void ngli_path_clear(struct path *s);
+
 void ngli_path_freep(struct path **sp);
 
 #endif
