@@ -28,18 +28,6 @@
 #include "memory.h"
 #include "path.h"
 
-#define SEGMENT_FLAG_NEW_ORIGIN (1 << 0) /* the current segment does not overlap with the previous one */
-#define SEGMENT_FLAG_LINE       (1 << 1) /* the current segment is a simple line (not a curve) */
-
-struct path_segment {
-    float poly_x[4];
-    float poly_y[4];
-    float poly_z[4];
-    int step_start;
-    float time_scale;
-    uint32_t flags;
-};
-
 #define STEP_FLAG_DISCONTINUITY (1 << 0) /* a discontinuity happens after this step */
 
 struct path_step {
@@ -387,6 +375,11 @@ void ngli_path_evaluate(struct path *s, float *dst, float distance)
     const float d1 = distances[step1];
     const float t = remap(t0, t1, d0, d1, distance);
     poly_eval(dst, segment, t);
+}
+
+const struct darray *ngli_path_get_segments(const struct path *s)
+{
+    return &s->segments;
 }
 
 void ngli_path_freep(struct path **sp)

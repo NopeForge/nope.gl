@@ -27,6 +27,18 @@
 
 struct path;
 
+#define SEGMENT_FLAG_NEW_ORIGIN (1 << 0) /* the current segment does not overlap with the previous one */
+#define SEGMENT_FLAG_LINE       (1 << 1) /* the current segment is a simple line (not a curve) */
+
+struct path_segment {
+    float poly_x[4];
+    float poly_y[4];
+    float poly_z[4];
+    int step_start;
+    float time_scale;
+    uint32_t flags;
+};
+
 struct path *ngli_path_create(void);
 
 int ngli_path_move_to(struct path *s, const float *to);
@@ -37,6 +49,9 @@ int ngli_path_bezier3_to(struct path *s, const float *ctl0, const float *ctl1, c
 int ngli_path_init(struct path *s, int32_t precision);
 
 void ngli_path_evaluate(struct path *s, float *dst, float distance);
+
+const struct darray *ngli_path_get_segments(const struct path *s);
+
 void ngli_path_freep(struct path **sp);
 
 #endif
