@@ -79,6 +79,8 @@ static char *pathkey_info_str(const struct ngl_node *node)
         const struct pathkey_bezier3_opts *o = node->opts;
         ngli_bstr_printf(b, "bezier3 ctl1:%g,%g,%g ctl2:%g,%g,%g to:%g,%g,%g",
                          NGLI_ARG_VEC3(o->control1), NGLI_ARG_VEC3(o->control2), NGLI_ARG_VEC3(o->to));
+    } else if (node->cls->id == NGL_NODE_PATHKEYCLOSE) {
+        ngli_bstr_print(b, "close sub-path");
     } else {
         ngli_assert(0);
     }
@@ -120,5 +122,12 @@ const struct node_class ngli_pathkeybezier3_class = {
     .info_str  = pathkey_info_str,
     .opts_size = sizeof(struct pathkey_bezier3_opts),
     .params    = pathkey_bezier3_params,
+    .file      = __FILE__,
+};
+
+const struct node_class ngli_pathkeyclose_class = {
+    .id        = NGL_NODE_PATHKEYCLOSE,
+    .name      = "PathKeyClose",
+    .info_str  = pathkey_info_str,
     .file      = __FILE__,
 };

@@ -21,6 +21,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Support for array of 2D textures
 - External font rendering in the `Text` node
 - Text effects (color, opacity and transform), applicable per character/word/lines
+- `PathKeyClose` node to close the current sub-path
 
 ### Changed
 - CSV export in the HUD now always prints floats in C locale instead of quoted

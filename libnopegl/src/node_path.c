@@ -81,6 +81,8 @@ static int path_init(struct ngl_node *node)
         } else if (kf->cls->id == NGL_NODE_PATHKEYBEZIER3) {
             const struct pathkey_bezier3_opts *bezier3 = kf->opts;
             ret = ngli_path_bezier3_to(s->path, bezier3->control1, bezier3->control2, bezier3->to);
+        } else if (kf->cls->id == NGL_NODE_PATHKEYCLOSE) {
+            ret = ngli_path_close(s->path);
         } else {
             ngli_assert(0);
         }

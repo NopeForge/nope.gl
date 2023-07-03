@@ -118,6 +118,7 @@
     action(NGL_NODE_PATH,                   ngli_path_class)                    \
     action(NGL_NODE_PATHKEYBEZIER2,         ngli_pathkeybezier2_class)          \
     action(NGL_NODE_PATHKEYBEZIER3,         ngli_pathkeybezier3_class)          \
+    action(NGL_NODE_PATHKEYCLOSE,           ngli_pathkeyclose_class)            \
     action(NGL_NODE_PATHKEYLINE,            ngli_pathkeyline_class)             \
     action(NGL_NODE_PATHKEYMOVE,            ngli_pathkeymove_class)             \
     action(NGL_NODE_PROGRAM,                ngli_program_class)                 \
