@@ -382,12 +382,24 @@ const struct darray *ngli_path_get_segments(const struct path *s)
     return &s->segments;
 }
 
+void ngli_path_clear(struct path *s)
+{
+    s->precision = 0;
+    s->current_arc = 0;
+    ngli_freep(&s->arc_to_segment);
+    ngli_darray_clear(&s->segments);
+    ngli_darray_clear(&s->steps);
+    ngli_darray_clear(&s->steps_dist);
+    memset(s->cursor, 0, sizeof(*s->cursor));
+    s->segment_flags = 0;
+}
+
 void ngli_path_freep(struct path **sp)
 {
     struct path *s = *sp;
     if (!s)
         return;
-    ngli_freep(&s->arc_to_segment);
+    ngli_path_clear(s);
     ngli_darray_reset(&s->segments);
     ngli_darray_reset(&s->steps);
     ngli_darray_reset(&s->steps_dist);
