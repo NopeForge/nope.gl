@@ -59,6 +59,7 @@ NGLI_STATIC_ASSERT(path_1st_field, offsetof(struct path_priv, path) == 0);
 
 static int path_init(struct ngl_node *node)
 {
+    int ret;
     struct path_priv *s = node->priv_data;
     const struct path_opts *o = node->opts;
 
@@ -68,7 +69,6 @@ static int path_init(struct ngl_node *node)
 
     for (size_t i = 0; i < o->nb_keyframes; i++) {
         const struct ngl_node *kf = o->keyframes[i];
-        int ret;
         if (kf->cls->id == NGL_NODE_PATHKEYMOVE) {
             const struct pathkey_move_opts *move = kf->opts;
             ret = ngli_path_move_to(s->path, move->to);
@@ -87,6 +87,10 @@ static int path_init(struct ngl_node *node)
         if (ret < 0)
             return ret;
     }
+
+    ret = ngli_path_finalize(s->path);
+    if (ret < 0)
+        return ret;
 
     return ngli_path_init(s->path, o->precision);
 }

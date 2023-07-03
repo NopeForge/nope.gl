@@ -113,6 +113,10 @@ static int smoothpath_init(struct ngl_node *node)
             return ret;
     }
 
+    ret = ngli_path_finalize(s->path);
+    if (ret < 0)
+        return ret;
+
     return ngli_path_init(s->path, o->precision);
 }
 

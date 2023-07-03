@@ -144,6 +144,11 @@ static void poly_eval(float *dst, const struct path_segment *segment, float t)
     dst[2] = NGLI_POLY3(z[0], z[1], z[2], z[3], t);
 }
 
+int ngli_path_finalize(struct path *s)
+{
+    return 0;
+}
+
 /*
  * Lexicon:
  *

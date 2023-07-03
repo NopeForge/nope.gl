@@ -112,6 +112,10 @@ static int test_bezier3_vec3(void)
         (ret = ngli_path_bezier3_to(path, controls[0], controls[1], points[1])) < 0)
         goto end;
 
+    ret = ngli_path_finalize(path);
+    if (ret < 0)
+        goto end;
+
     ret = ngli_path_init(path, 3);
     if (ret < 0)
         goto end;
@@ -175,6 +179,10 @@ static int test_poly_bezier3(void)
         (ret = ngli_path_bezier3_to(path, controls[2], controls[3], points[2])) < 0 ||
         (ret = ngli_path_bezier3_to(path, controls[4], controls[5], points[3])) < 0 ||
         (ret = ngli_path_bezier3_to(path, controls[6], controls[7], points[4])) < 0)
+        goto end;
+
+    ret = ngli_path_finalize(path);
+    if (ret < 0)
         goto end;
 
     ret = ngli_path_init(path, 64);
@@ -251,6 +259,10 @@ static int test_composition(void)
         (ret = ngli_path_move_to(path, points[8])) < 0 ||
         (ret = ngli_path_bezier3_to(path, controls[4], controls[5], points[9])) < 0 ||
         (ret = ngli_path_bezier2_to(path, controls[6], points[10])) < 0)
+        goto end;
+
+    ret = ngli_path_finalize(path);
+    if (ret < 0)
         goto end;
 
     ret = ngli_path_init(path, 64);
