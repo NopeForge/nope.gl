@@ -158,6 +158,18 @@ int ngli_path_bezier3_to(struct path *s, const float *ctl0, const float *ctl1, c
     return add_segment_and_move(s, &segment, to);
 }
 
+int ngli_path_close(struct path *s)
+{
+    int ret = ngli_path_line_to(s, s->origin);
+    if (ret < 0)
+        return ret;
+
+    struct path_segment *last = ngli_darray_tail(&s->segments);
+    ngli_assert(last);
+    last->flags |= NGLI_PATH_SEGMENT_FLAG_CLOSING;
+    return 0;
+}
+
 /*
  * Interpolate a 3D point using the polynomials
  */
