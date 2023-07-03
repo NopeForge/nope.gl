@@ -36,8 +36,15 @@ struct path_step {
     uint32_t flags;
 };
 
+enum path_state {
+    PATH_STATE_DEFAULT,
+    PATH_STATE_FINALIZED,
+    PATH_STATE_INITIALIZED,
+};
+
 struct path {
     int32_t precision;
+    enum path_state state;
     int current_arc;            /* cached arc index */
     int *arc_to_segment;        /* map arc indexes to segment indexes */
     struct darray segments;     /* array of struct path_segment */
@@ -52,6 +59,7 @@ struct path *ngli_path_create(void)
     struct path *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
+    s->state = PATH_STATE_DEFAULT;
     ngli_darray_init(&s->steps, sizeof(struct path_step), 0);
     ngli_darray_init(&s->steps_dist, sizeof(float), 0);
     ngli_darray_init(&s->segments, sizeof(struct path_segment), 0);
@@ -88,6 +96,7 @@ static void poly_from_bezier3(float *dst, float p0, float p1, float p2, float p3
 
 static int add_segment_and_move(struct path *s, const struct path_segment *segment, const float *to)
 {
+    ngli_assert(s->state == PATH_STATE_DEFAULT);
     if (!ngli_darray_push(&s->segments, segment))
         return NGL_ERROR_MEMORY;
     memcpy(s->cursor, to, sizeof(s->cursor));
@@ -146,6 +155,8 @@ static void poly_eval(float *dst, const struct path_segment *segment, float t)
 
 int ngli_path_finalize(struct path *s)
 {
+    ngli_assert(s->state == PATH_STATE_DEFAULT);
+    s->state = PATH_STATE_FINALIZED;
     return 0;
 }
 
@@ -174,6 +185,8 @@ int ngli_path_finalize(struct path *s)
  */
 int ngli_path_init(struct path *s, int32_t precision)
 {
+    ngli_assert(s->state == PATH_STATE_FINALIZED);
+
     if (precision < 1) {
         LOG(ERROR, "precision must be 1 or superior");
         return NGL_ERROR_INVALID_ARG;
@@ -289,6 +302,7 @@ int ngli_path_init(struct path *s, int32_t precision)
     /* We don't need to store all the intermediate positions anymore */
     ngli_darray_reset(&s->steps);
 
+    s->state = PATH_STATE_INITIALIZED;
     return 0;
 }
 
@@ -384,11 +398,13 @@ void ngli_path_evaluate(struct path *s, float *dst, float distance)
 
 const struct darray *ngli_path_get_segments(const struct path *s)
 {
+    ngli_assert(s->state == PATH_STATE_INITIALIZED || s->state == PATH_STATE_FINALIZED);
     return &s->segments;
 }
 
 void ngli_path_clear(struct path *s)
 {
+    s->state = PATH_STATE_DEFAULT;
     s->precision = 0;
     s->current_arc = 0;
     ngli_freep(&s->arc_to_segment);
