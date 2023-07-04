@@ -142,3 +142,15 @@ def text_vertical_japanese(cfg: SceneCfg):
         font_files=_JAPANESE_FONT.as_posix(),
         aspect_ratio=cfg.aspect_ratio,
     )
+
+
+@test_fingerprint(width=640, height=480, tolerance=1)
+@scene()
+def text_fixed(cfg: SceneCfg):
+    cfg.aspect_ratio = (4, 3)
+    return ngl.Text(
+        "Fix",
+        scale_mode="fixed",
+        font_scale=50,
+        aspect_ratio=cfg.aspect_ratio,
+    )

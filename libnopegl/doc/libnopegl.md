@@ -901,6 +901,7 @@ Parameter | Flags | Type | Description | Default
 `font_files` |  | [`str`](#parameter-types) | paths to font files (use ',' or ';' to separate paths, require build with external text libraries) | 
 `padding` |  | [`i32`](#parameter-types) | pixel padding around the text | `3`
 `font_scale` |  | [`f32`](#parameter-types) | scaling of the font | `1`
+`scale_mode` |  | [`scale_mode`](#scale_mode-choices) | scaling behaviour for the characters | `auto`
 `effects` |  | [`node_list`](#parameter-types) ([TextEffect](#texteffect)) | stack of effects | 
 `valign` |  | [`valign`](#valign-choices) | vertical alignment of the text in the box | `center`
 `halign` |  | [`halign`](#halign-choices) | horizontal alignment of the text in the box | `center`
@@ -1955,6 +1956,13 @@ Constant | Description
 -------- | -----------
 `depth` | add depth buffer
 `stencil` | add stencil buffer
+
+## scale_mode choices
+
+Constant | Description
+-------- | -----------
+`auto` | automatic size by fitting the specified bounding box
+`fixed` | fixed character size (bounding box ignored for scaling)
 
 ## valign choices
 
