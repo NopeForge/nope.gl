@@ -353,9 +353,17 @@ static int update_text_content(struct ngl_node *node)
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->user_transform_index, s->user_transforms);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->color_index, s->colors);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->opacity_index, s->opacities);
+        }
+    }
 
-            if (text->cls->flags & NGLI_TEXT_FLAG_MUTABLE_ATLAS)
-                ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, text->atlas_texture);
+    if (text->cls->flags & NGLI_TEXT_FLAG_MUTABLE_ATLAS) {
+        struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
+        for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
+            struct pipeline_desc_fg *desc_fg = &descs[i].fg;
+            struct pipeline_desc_common *desc = &desc_fg->common;
+            int ret = ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, text->atlas_texture);
+            if (ret < 0)
+                goto end;
         }
     }
 
