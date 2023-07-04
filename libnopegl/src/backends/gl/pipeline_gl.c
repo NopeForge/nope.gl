@@ -171,7 +171,7 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
             buffer_desc->type == NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC) {
             offset += s->dynamic_offsets[current_dynamic_offset++];
         }
-        const size_t size = buffer_binding->size ? buffer_binding->size : buffer->size;
+        const size_t size = buffer_binding->size;
         ngli_glBindBufferRange(gl, buffer_binding->type, buffer_desc->binding, buffer_gl->id, offset, size);
     }
 }
