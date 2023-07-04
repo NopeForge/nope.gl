@@ -340,6 +340,7 @@ foreach backend : backends
     'align_tl',
     'vertical_rl',
     'vertical_lr',
+    'fixed',
   ]
   if has_text_libraries
     tests_text += [

@@ -90,6 +90,7 @@ struct text_opts {
     char *font_files;
     int32_t padding;
     float font_scale;
+    int scale_mode;
     struct ngl_node **effect_nodes;
     size_t nb_effect_nodes;
     int valign, halign;
@@ -111,6 +112,7 @@ struct text_priv {
 
     struct darray pipeline_descs;
     int live_changed;
+    struct viewport viewport;
 };
 
 static const struct param_choices valign_choices = {
@@ -142,6 +144,18 @@ static const struct param_choices writing_mode_choices = {
                           .desc=NGLI_DOCSTRING("top-to-bottom flow then right-to-left per line")},
         {"vertical-lr",   NGLI_TEXT_WRITING_MODE_VERTICAL_LR,
                           .desc=NGLI_DOCSTRING("top-to-bottom flow then left-to-right per line")},
+        {NULL}
+    }
+};
+
+#define SCALE_MODE_AUTO  0
+#define SCALE_MODE_FIXED 1
+
+static const struct param_choices scale_mode_choices = {
+    .name = "scale_mode",
+    .consts = {
+        {"auto",  SCALE_MODE_AUTO,  .desc=NGLI_DOCSTRING("automatic size by fitting the specified bounding box")},
+        {"fixed", SCALE_MODE_FIXED, .desc=NGLI_DOCSTRING("fixed character size (bounding box ignored for scaling)")},
         {NULL}
     }
 };
@@ -187,6 +201,9 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("pixel padding around the text")},
     {"font_scale",   NGLI_PARAM_TYPE_F32, OFFSET(font_scale), {.f32=1.f},
                      .desc=NGLI_DOCSTRING("scaling of the font")},
+    {"scale_mode",   NGLI_PARAM_TYPE_SELECT, OFFSET(scale_mode), {.i32=SCALE_MODE_AUTO},
+                     .choices=&scale_mode_choices,
+                     .desc=NGLI_DOCSTRING("scaling behaviour for the characters")},
     {"effects",      NGLI_PARAM_TYPE_NODELIST, OFFSET(effect_nodes),
                      .node_types=(const uint32_t[]){NGL_NODE_TEXTEFFECT, NGLI_NODE_NONE},
                      .desc=NGLI_DOCSTRING("stack of effects")},
@@ -262,8 +279,18 @@ static int refresh_geometry(struct ngl_node *node)
     /* Apply aspect ratio and font scaling */
     float width[3];
     float height[3];
-    ngli_vec3_scale(width, o->box_width, ratio_w * o->font_scale);
-    ngli_vec3_scale(height, o->box_height, ratio_h * o->font_scale);
+    if (o->scale_mode == SCALE_MODE_FIXED) {
+        const float tw = (float)text->width / (float)s->viewport.width;
+        const float th = (float)text->height / (float)s->viewport.height;
+        const float rw = tw / box_width_len;
+        const float rh = th / box_height_len;
+
+        ngli_vec3_scale(width, o->box_width, rw * o->font_scale);
+        ngli_vec3_scale(height, o->box_height, rh * o->font_scale);
+    } else {
+        ngli_vec3_scale(width, o->box_width, ratio_w * o->font_scale);
+        ngli_vec3_scale(height, o->box_height, ratio_h * o->font_scale);
+    }
 
     /* Adjust text position according to alignment settings */
     const float align_padw[3] = NGLI_VEC3_SUB(o->box_width, width);
@@ -429,6 +456,8 @@ static int text_init(struct ngl_node *node)
 {
     struct text_priv *s = node->priv_data;
     const struct text_opts *o = node->opts;
+
+    s->viewport = ngli_gpu_ctx_get_viewport(node->ctx->gpu_ctx);
 
     s->text_ctx = ngli_text_create(node->ctx);
     if (!s->text_ctx)
@@ -700,6 +729,14 @@ static int text_update(struct ngl_node *node, double t)
         if (ret < 0)
             return ret;
         s->live_changed = 0;
+    }
+
+    const struct viewport viewport = ngli_gpu_ctx_get_viewport(node->ctx->gpu_ctx);
+    if (memcmp(&s->viewport, &viewport, sizeof(viewport))) {
+        memcpy(&s->viewport, &viewport, sizeof(viewport));
+        int ret = refresh_geometry(node);
+        if (ret < 0)
+            return ret;
     }
 
     int ret = ngli_text_set_time(s->text_ctx, t);

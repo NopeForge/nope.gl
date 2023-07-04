@@ -2058,6 +2058,14 @@
       "desc": "scaling of the font"
     },
     {
+      "name": "scale_mode",
+      "type": "select",
+      "default": "auto",
+      "choices": ["auto", "fixed"],
+      "flags": [],
+      "desc": "scaling behaviour for the characters"
+    },
+    {
       "name": "effects",
       "type": "node_list",
       "node_types": ["TextEffect"],
