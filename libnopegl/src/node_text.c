@@ -219,19 +219,15 @@ static void destroy_characters_resources(struct text_priv *s)
     s->nb_chars = 0;
 }
 
-static int update_text_content(struct ngl_node *node)
+static int refresh_geometry(struct ngl_node *node)
 {
+    int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct text_priv *s = node->priv_data;
     struct text_opts *o = node->opts;
 
-    const char *str = o->live.val.s;
     struct text *text = s->text_ctx;
-
-    int ret = ngli_text_set_string(text, str);
-    if (ret < 0)
-        return ret;
 
     const size_t text_nbchr = ngli_darray_count(&text->chars);
     if (!text_nbchr) {
@@ -371,6 +367,18 @@ end:
     ngli_free(transforms);
     ngli_free(atlas_coords);
     return ret;
+}
+
+static int update_text_content(struct ngl_node *node)
+{
+    struct text_priv *s = node->priv_data;
+    const struct text_opts *o = node->opts;
+
+    int ret = ngli_text_set_string(s->text_ctx, o->live.val.s);
+    if (ret < 0)
+        return ret;
+
+    return refresh_geometry(node);
 }
 
 /* Update the GPU buffers using the updated effects data */
