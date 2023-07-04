@@ -28,6 +28,7 @@ import pprint
 import random
 import tempfile
 from collections import namedtuple
+from pathlib import Path
 
 from pynopegl_utils.misc import get_backend
 from pynopegl_utils.toolbox.grid import autogrid_simple
@@ -232,7 +233,7 @@ def api_hud_csv(width=16, height=16):
     assert time_column == ["0.000000", "0.150000", "0.300000", "0.450000", "1.000000"], time_column
 
 
-def api_text_live_change(width=320, height=240):
+def _api_text_live_change(width=320, height=240, font_files=None):
     import zlib
 
     ctx = ngl.Context()
@@ -248,7 +249,7 @@ def api_text_live_change(width=320, height=240):
     text_strings = ["foo", "", "foobar", "world", "hello\nworld", "\n\n", "last"]
 
     # Exercise the diamond-form/prepare mechanism
-    text_node = ngl.Text()
+    text_node = ngl.Text(font_files=font_files)
     root = autogrid_simple([text_node] * 4)
     scene = ngl.Scene.from_params(root)
     assert ctx.set_scene(scene) == 0
@@ -261,6 +262,15 @@ def api_text_live_change(width=320, height=240):
         crc = zlib.crc32(capture_buffer)
         assert crc != last_crc
         last_crc = crc
+
+
+def api_text_live_change():
+    return _api_text_live_change()
+
+
+def api_text_live_change_with_font():
+    font_files = Path(__file__).resolve().parent / "assets" / "fonts" / "Quicksand-Medium.ttf"
+    return _api_text_live_change(font_files=font_files.as_posix())
 
 
 def _ret_to_fourcc(ret):

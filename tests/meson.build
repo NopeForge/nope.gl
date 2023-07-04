@@ -66,6 +66,9 @@ foreach backend : backends
     'dot',
     'probing',
   ]
+  if has_text_libraries
+    tests_api += 'text_live_change_with_font'
+  endif
 
   tests_blending = [
     'all_diamond',
