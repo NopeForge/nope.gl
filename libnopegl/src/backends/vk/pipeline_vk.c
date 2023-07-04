@@ -822,7 +822,7 @@ static int update_descriptor_set(struct pipeline *s)
             const VkDescriptorBufferInfo descriptor_buffer_info = {
                 .buffer = buffer_vk->buffer,
                 .offset = binding->offset,
-                .range  = binding->size ? binding->size : binding->buffer->size,
+                .range  = binding->size,
             };
             const VkWriteDescriptorSet write_descriptor_set = {
                 .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,

@@ -145,6 +145,8 @@ int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct 
         return NGL_ERROR_NOT_FOUND;
 
     if (buffer) {
+        if (!size)
+            size = buffer->size;
         const struct pipeline_resource_desc *desc = &s->layout.buffer_descs[index];
         const struct gpu_limits *limits = &s->gpu_ctx->limits;
         if (desc->type == NGLI_TYPE_UNIFORM_BUFFER ||
