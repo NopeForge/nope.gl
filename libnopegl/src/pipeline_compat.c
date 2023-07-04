@@ -239,7 +239,7 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
     ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &layout);
 }
 
-int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer, int offset, int size)
+int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size)
 {
     return ngli_pipeline_update_buffer(s->pipeline, index, buffer, offset, size);
 }
