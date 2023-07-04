@@ -25,6 +25,10 @@
 #include "text.h"
 #include "utils.h"
 
+struct text_builtin {
+    int32_t chr_w, chr_h;
+};
+
 static int atlas_create(struct ngl_ctx *ctx)
 {
     if (ctx->font_atlas)
@@ -64,6 +68,11 @@ static int atlas_create(struct ngl_ctx *ctx)
 
 static int text_builtin_init(struct text *text)
 {
+    struct text_builtin *s = text->priv_data;
+
+    s->chr_w = NGLI_FONT_W;
+    s->chr_h = NGLI_FONT_H;
+
     int ret = atlas_create(text->ctx);
     if (ret < 0)
         return ret;
@@ -104,12 +113,11 @@ static uint32_t get_char_tags(char c)
 
 static int text_builtin_set_string(struct text *text, const char *str, struct darray *chars_dst)
 {
+    struct text_builtin *s = text->priv_data;
+
     size_t text_nbchr;
     int32_t text_cols, text_rows;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
-
-    const int32_t chr_w = NGLI_FONT_W;
-    const int32_t chr_h = NGLI_FONT_H;
 
     int32_t col = 0, row = 0;
 
@@ -144,10 +152,10 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
         ngli_atlas_get_bitmap_coords(text->ctx->font_atlas, atlas_id, atlas_coords);
 
         const struct char_info_internal chr = {
-            .x = NGLI_I32_TO_I26D6(chr_w * col),
-            .y = NGLI_I32_TO_I26D6(chr_h * (text_rows - row - 1)),
-            .w = NGLI_I32_TO_I26D6(chr_w),
-            .h = NGLI_I32_TO_I26D6(chr_h),
+            .x = NGLI_I32_TO_I26D6(s->chr_w * col),
+            .y = NGLI_I32_TO_I26D6(s->chr_h * (text_rows - row - 1)),
+            .w = NGLI_I32_TO_I26D6(s->chr_w),
+            .h = NGLI_I32_TO_I26D6(s->chr_h),
             .atlas_coords = {NGLI_ARG_VEC4(atlas_coords)},
             .tags = NGLI_TEXT_CHAR_TAG_GLYPH,
         };
@@ -169,5 +177,6 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
 const struct text_cls ngli_text_builtin = {
     .init            = text_builtin_init,
     .set_string      = text_builtin_set_string,
+    .priv_size       = sizeof(struct text_builtin),
     .flags           = 0,
 };
