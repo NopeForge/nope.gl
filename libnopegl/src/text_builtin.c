@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include "atlas.h"
 #include "drawutils.h"
 #include "internal.h"
 #include "memory.h"
@@ -27,18 +28,19 @@
 
 struct text_builtin {
     int32_t chr_w, chr_h;
+    int32_t char_map[256];
+    struct atlas *atlas;
 };
 
-static int atlas_create(struct ngl_ctx *ctx)
+static int atlas_create(struct text *text)
 {
-    if (ctx->font_atlas)
-        return 0;
+    struct text_builtin *s = text->priv_data;
 
-    ctx->font_atlas = ngli_atlas_create(ctx);
-    if (!ctx->font_atlas)
+    s->atlas = ngli_atlas_create(text->ctx);
+    if (!s->atlas)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_atlas_init(ctx->font_atlas);
+    int ret = ngli_atlas_init(s->atlas);
     if (ret < 0)
         return 0;
 
@@ -55,15 +57,15 @@ static int atlas_create(struct ngl_ctx *ctx)
 
         /* Register the glyph in the atlas */
         int32_t bitmap_id;
-        ret = ngli_atlas_add_bitmap(ctx->font_atlas, &bitmap, &bitmap_id);
+        ret = ngli_atlas_add_bitmap(s->atlas, &bitmap, &bitmap_id);
         if (ret < 0)
             return ret;
 
         /* Map the character codepoint to its bitmap ID in the atlas */
-        ctx->char_map[chr] = bitmap_id;
+        s->char_map[chr] = bitmap_id;
     }
 
-    return ngli_atlas_finalize(ctx->font_atlas);
+    return ngli_atlas_finalize(s->atlas);
 }
 
 static int text_builtin_init(struct text *text)
@@ -73,11 +75,11 @@ static int text_builtin_init(struct text *text)
     s->chr_w = NGLI_FONT_W;
     s->chr_h = NGLI_FONT_H;
 
-    int ret = atlas_create(text->ctx);
+    int ret = atlas_create(text);
     if (ret < 0)
         return ret;
 
-    text->atlas_texture = ngli_atlas_get_texture(text->ctx->font_atlas);
+    text->atlas_texture = ngli_atlas_get_texture(s->atlas);
 
     return 0;
 }
@@ -147,9 +149,9 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
             continue;
         }
 
-        const int32_t atlas_id = text->ctx->char_map[(uint8_t)str[i]];
+        const int32_t atlas_id = s->char_map[(uint8_t)str[i]];
         int32_t atlas_coords[4];
-        ngli_atlas_get_bitmap_coords(text->ctx->font_atlas, atlas_id, atlas_coords);
+        ngli_atlas_get_bitmap_coords(s->atlas, atlas_id, atlas_coords);
 
         const struct char_info_internal chr = {
             .x = NGLI_I32_TO_I26D6(s->chr_w * col),
@@ -174,9 +176,16 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
     return 0;
 }
 
+static void text_builtin_reset(struct text *text)
+{
+    struct text_builtin *s = text->priv_data;
+    ngli_atlas_freep(&s->atlas);
+}
+
 const struct text_cls ngli_text_builtin = {
     .init            = text_builtin_init,
     .set_string      = text_builtin_set_string,
+    .reset           = text_builtin_reset,
     .priv_size       = sizeof(struct text_builtin),
     .flags           = 0,
 };

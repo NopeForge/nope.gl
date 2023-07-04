@@ -39,7 +39,6 @@
 #endif
 
 #include "animation.h"
-#include "atlas.h"
 #include "block.h"
 #include "drawutils.h"
 #include "graphics_state.h"
@@ -101,9 +100,6 @@ struct ngl_ctx {
      * (root).
      */
     struct darray activitycheck_nodes;
-
-    struct atlas *font_atlas;
-    int32_t char_map[256];
 
     struct pgcache pgcache;
 #if defined(HAVE_VAAPI)
