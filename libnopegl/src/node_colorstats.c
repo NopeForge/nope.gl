@@ -419,8 +419,10 @@ static void colorstats_uninit(struct ngl_node *node)
 {
     struct colorstats_priv *s = node->priv_data;
 
+    ngli_pgcraft_freep(&s->crafter_init);
     ngli_pgcraft_freep(&s->crafter_waveform);
     ngli_pgcraft_freep(&s->crafter_sumscale);
+    ngli_pipeline_compat_freep(&s->pipeline_compat_init);
     ngli_pipeline_compat_freep(&s->pipeline_compat_waveform);
     ngli_pipeline_compat_freep(&s->pipeline_compat_sumscale);
     ngli_buffer_freep(&s->blk.buffer);
