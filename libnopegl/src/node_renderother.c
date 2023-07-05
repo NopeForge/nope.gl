@@ -78,6 +78,12 @@ struct uniform_map {
     const void *data;
 };
 
+struct resource_map {
+    int32_t index;
+    const struct block_info *info;
+    size_t buffer_rev;
+};
+
 struct pipeline_desc {
     struct pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
@@ -85,6 +91,7 @@ struct pipeline_desc {
     int32_t projection_matrix_index;
     int32_t aspect_index;
     struct darray uniforms_map; // struct uniform_map
+    struct darray blocks_map; // struct resource_map
     struct darray uniforms; // struct pgcraft_uniform
 };
 
@@ -635,6 +642,7 @@ static int init_desc(struct ngl_node *node, struct render_common *s,
 
     ngli_darray_init(&desc->uniforms, sizeof(struct pgcraft_uniform), 0);
     ngli_darray_init(&desc->uniforms_map, sizeof(struct uniform_map), 0);
+    ngli_darray_init(&desc->blocks_map, sizeof(struct resource_map), 0);
 
     /* register source uniforms */
     for (size_t i = 0; i < nb_uniforms; i++)
@@ -1143,6 +1151,15 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
         }
     }
 
+    struct resource_map *resource_map = ngli_darray_data(&desc->blocks_map);
+    for (size_t i = 0; i < ngli_darray_count(&desc->blocks_map); i++) {
+        const struct block_info *info = resource_map[i].info;
+        if (resource_map[i].buffer_rev != info->buffer_rev) {
+            ngli_pipeline_compat_update_buffer(pl_compat, resource_map[i].index, info->buffer, 0, 0);
+            resource_map[i].buffer_rev = info->buffer_rev;
+        }
+    }
+
     if (!ctx->render_pass_started) {
         struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
         ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
@@ -1161,6 +1178,7 @@ static void renderother_uninit(struct ngl_node *node, struct render_common *s)
         ngli_pgcraft_freep(&desc->crafter);
         ngli_darray_reset(&desc->uniforms);
         ngli_darray_reset(&desc->uniforms_map);
+        ngli_darray_reset(&desc->blocks_map);
     }
     ngli_freep(&s->combined_fragment);
     ngli_filterschain_freep(&s->filterschain);

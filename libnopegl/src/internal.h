@@ -243,6 +243,7 @@ struct block_info {
     int usage;
 
     struct buffer *buffer;
+    size_t buffer_rev;
 };
 
 void ngli_node_block_extend_usage(struct ngl_node *node, int usage);
