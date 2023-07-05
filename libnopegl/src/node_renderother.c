@@ -979,11 +979,10 @@ static int renderhistogram_prepare(struct ngl_node *node)
         .type     = NGLI_TYPE_STORAGE_BUFFER,
         .stage    = NGLI_PROGRAM_SHADER_FRAG,
         .block    = &block_info->block,
-        .buffer   = block_info->buffer,
     };
 
-    const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
-    const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
+    struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
+    struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
         .program_label    = "nopegl/renderhistogram",
@@ -1002,7 +1001,16 @@ static int renderhistogram_prepare(struct ngl_node *node)
     ngli_node_block_extend_usage(o->stats, NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
     const struct render_common_opts *co = &o->common;
-    return finalize_pipeline(node, c, co, &crafter_params);
+    ret = finalize_pipeline(node, c, co, &crafter_params);
+    if (ret < 0)
+        return ret;
+
+    const int32_t index = ngli_pgcraft_get_block_index(desc->crafter, "stats", NGLI_PROGRAM_SHADER_FRAG);
+    const struct resource_map map = {.index = index, .info = block_info, .buffer_rev = SIZE_MAX};
+    if (!ngli_darray_push(&desc->blocks_map, &map))
+        return NGL_ERROR_MEMORY;
+
+    return 0;
 }
 
 static int rendertexture_prepare(struct ngl_node *node)
@@ -1089,11 +1097,10 @@ static int renderwaveform_prepare(struct ngl_node *node)
         .type     = NGLI_TYPE_STORAGE_BUFFER,
         .stage    = NGLI_PROGRAM_SHADER_FRAG,
         .block    = &block_info->block,
-        .buffer   = block_info->buffer,
     };
 
-    const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
-    const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
+    struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
+    struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
         .program_label    = "nopegl/renderwaveform",
@@ -1112,7 +1119,16 @@ static int renderwaveform_prepare(struct ngl_node *node)
     ngli_node_block_extend_usage(o->stats, NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
     const struct render_common_opts *co = &o->common;
-    return finalize_pipeline(node, c, co, &crafter_params);
+    ret = finalize_pipeline(node, c, co, &crafter_params);
+    if (ret < 0)
+        return ret;
+
+    const int32_t index = ngli_pgcraft_get_block_index(desc->crafter, "stats", NGLI_PROGRAM_SHADER_FRAG);
+    const struct resource_map map = {.index = index, .info = block_info, .buffer_rev = SIZE_MAX};
+    if (!ngli_darray_push(&desc->blocks_map, &map))
+        return NGL_ERROR_MEMORY;
+
+    return 0;
 }
 
 static void renderother_draw(struct ngl_node *node, struct render_common *s, const struct render_common_opts *o)
