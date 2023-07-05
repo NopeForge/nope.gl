@@ -1130,9 +1130,9 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
         ngli_pipeline_compat_update_uniform(pl_compat, desc->aspect_index, &aspect);
     }
 
-    const struct uniform_map *map = ngli_darray_data(&desc->uniforms_map);
+    const struct uniform_map *uniform_map = ngli_darray_data(&desc->uniforms_map);
     for (size_t i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
-        ngli_pipeline_compat_update_uniform(pl_compat, map[i].index, map[i].data);
+        ngli_pipeline_compat_update_uniform(pl_compat, uniform_map[i].index, uniform_map[i].data);
 
     if (node->cls->id == NGL_NODE_RENDERTEXTURE || node->cls->id == NGL_NODE_RENDERDISPLACE) {
         const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
