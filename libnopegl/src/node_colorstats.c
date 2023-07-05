@@ -281,21 +281,6 @@ static int init_block(struct colorstats_priv *s, struct gpu_ctx *gpu_ctx)
     /* Colorstats needs to write into the block so we bind it as SSBO */
     s->blk.usage = NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 
-    s->blk.buffer = ngli_buffer_create(gpu_ctx);
-    if (!s->blk.buffer)
-        return NGL_ERROR_MEMORY;
-
-    /*
-     * The size of the buffer depends on the texture size, which will only be
-     * known in the update callback for textures fed by a Media node. We use a
-     * variadic buffer size because don't want to wait for the texture update to
-     * compile the shaders and prepare the pipelines.
-     *
-     * The init and prepare callbacks are still too early for this buffer
-     * allocation, but we still need to set its usage for the pipeline bindings.
-     */
-    s->blk.buffer->usage |= NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-
     return 0;
 }
 
@@ -348,6 +333,12 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
     /* Each workgroup of the waveform compute works on 1 column of pixels */
     s->waveform_wg_count = length;
 
+    struct ngl_ctx *ctx = node->ctx;
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    s->blk.buffer = ngli_buffer_create(gpu_ctx);
+    if (!s->blk.buffer)
+        return NGL_ERROR_MEMORY;
+
     /*
      * Compute the size of the buffer depending on the resolution of the image
      * and allocate the variadic buffer accordingly.
@@ -362,6 +353,9 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
         (ret = ngli_pipeline_compat_update_buffer(s->pipeline_compat_sumscale, s->block_sumscale_index, s->blk.buffer, 0, 0)) < 0 ||
         (ret = ngli_pipeline_compat_update_buffer(s->pipeline_compat_waveform, s->block_waveform_index, s->blk.buffer, 0, 0)) < 0)
         return ret;
+
+    /* Signal buffer change */
+    s->blk.buffer_rev++;
 
     return 0;
 }
@@ -381,7 +375,7 @@ static int colorstats_update(struct ngl_node *node, double t)
      */
     const struct texture_priv *texture_priv = o->texture_node->priv_data;
     const int32_t source_w = texture_priv->image.params.width;
-    if (s->blk.buffer->size == 0)
+    if (!s->blk.buffer)
         return alloc_block_buffer(node, source_w);
 
     /* Stream size change event */
