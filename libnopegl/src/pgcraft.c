@@ -1527,6 +1527,18 @@ int32_t ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name
     return get_ublock_index(s, name, stage);
 }
 
+int32_t ngli_pgcraft_get_block_index(const struct pgcraft *s, const char *name, int stage)
+{
+    const struct darray *array = &s->filtered_pipeline_info.desc.buffers;
+    const struct pipeline_resource_desc *descs = ngli_darray_data(array);
+    for (int32_t i = 0; i < (int32_t)ngli_darray_count(array); i++) {
+        const struct pipeline_resource_desc *desc = &descs[i];
+        const char *desc_name = ngli_pgcraft_get_symbol_name(s, desc->id);
+        if (!strcmp(desc_name, name) && desc->stage == stage)
+            return i;
+    }
+    return -1;
+}
 const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s)
 {
     return &s->texture_infos;
