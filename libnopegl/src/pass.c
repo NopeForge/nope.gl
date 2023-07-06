@@ -59,6 +59,11 @@ struct resource_map {
     size_t buffer_rev;
 };
 
+struct texture_map {
+    const struct pgcraft_texture_info *info;
+    size_t image_rev;
+};
+
 struct pipeline_desc {
     struct pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
@@ -68,6 +73,7 @@ struct pipeline_desc {
     int32_t resolution_index;
     struct darray uniforms_map;
     struct darray blocks_map;
+    struct darray textures_map;
 };
 
 static int register_uniform(struct pass *s, const char *name, struct ngl_node *uniform, int stage)
@@ -622,6 +628,15 @@ int ngli_pass_prepare(struct pass *s)
     desc->normal_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_normal_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->resolution_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_resolution", NGLI_PROGRAM_SHADER_FRAG);
 
+    ngli_darray_init(&desc->textures_map, sizeof(struct texture_map), 0);
+    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
+    const struct pgcraft_texture_info *infos = ngli_darray_data(texture_infos_array);
+    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+        const struct texture_map map = {.info = &infos[i], .image_rev = SIZE_MAX};
+        if (!ngli_darray_push(&desc->textures_map, &map))
+            return NGL_ERROR_MEMORY;
+    }
+
     return 0;
 }
 
@@ -663,6 +678,7 @@ void ngli_pass_uninit(struct pass *s)
         ngli_pgcraft_freep(&desc->crafter);
         ngli_darray_reset(&desc->uniforms_map);
         ngli_darray_reset(&desc->blocks_map);
+        ngli_darray_reset(&desc->textures_map);
     }
     ngli_darray_reset(&s->pipeline_descs);
 
@@ -709,10 +725,14 @@ int ngli_pass_exec(struct pass *s)
     for (size_t i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
         ngli_pipeline_compat_update_uniform(pipeline_compat, uniform_map[i].index, uniform_map[i].data);
 
-    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
-    const struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
-    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++)
-        ngli_pipeline_compat_update_texture_info(pipeline_compat, &texture_infos[i]);
+    struct texture_map *texture_map = ngli_darray_data(&desc->textures_map);
+    for (size_t i = 0; i < ngli_darray_count(&desc->textures_map); i++) {
+        const struct pgcraft_texture_info *info = texture_map[i].info;
+        if (texture_map[i].image_rev != info->image->rev) {
+            ngli_pipeline_compat_update_texture_info(pipeline_compat, info);
+            texture_map[i].image_rev = info->image->rev;
+        }
+    }
 
     struct resource_map *resource_map = ngli_darray_data(&desc->blocks_map);
     for (size_t i = 0; i < ngli_darray_count(&desc->blocks_map); i++) {
