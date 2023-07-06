@@ -78,6 +78,7 @@ struct colorstats_priv {
         struct pipeline_compat *pipeline_compat;
         uint32_t wg_count;
         int32_t block_index;
+        const struct pgcraft_texture_info *texture_info;
     } waveform;
 
     /* Summary-scale compute */
@@ -179,6 +180,9 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
     int ret = setup_compute(s, s->waveform.crafter, s->waveform.pipeline_compat, &crafter_params);
     if (ret < 0)
         return ret;
+
+    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(s->waveform.crafter);
+    s->waveform.texture_info = ngli_darray_get(texture_infos_array, 0);
 
     s->waveform.block_index = ngli_pgcraft_get_block_index(s->waveform.crafter, block->name, block->stage);
 
@@ -412,9 +416,7 @@ static void colorstats_draw(struct ngl_node *node)
     ngli_pipeline_compat_dispatch(s->init.pipeline_compat, s->init.wg_count, 1, 1);
 
     /* Waveform */
-    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(s->waveform.crafter);
-    const struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
-    ngli_pipeline_compat_update_texture_info(s->waveform.pipeline_compat, info);
+    ngli_pipeline_compat_update_texture_info(s->waveform.pipeline_compat, s->waveform.texture_info);
     ngli_pipeline_compat_dispatch(s->waveform.pipeline_compat, s->waveform.wg_count, 1, 1);
 
     /* Summary-scale */
