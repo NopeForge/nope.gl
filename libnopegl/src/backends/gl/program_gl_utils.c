@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "gpu_ctx_gl.h"
+#include "log.h"
 #include "pipeline.h"
 #include "program_gl.h"
 #include "program_gl_utils.h"
@@ -64,9 +65,15 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
         if (buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER)
             continue;
         const char *buffer_name = ngli_pgcraft_get_symbol_name(crafter, buffer_desc->id);
-        const GLuint block_index = ngli_glGetUniformBlockIndex(gl, s_priv->id, buffer_name);
+        char block_name[MAX_ID_LEN];
+        int len = snprintf(block_name, sizeof(block_name), "%s_block", buffer_name);
+        if (len >= sizeof(block_name)) {
+            LOG(ERROR, "block name \"%s\" is too long", buffer_name);
+            return NGL_ERROR_MEMORY;
+        }
+        const GLuint block_index = ngli_glGetUniformBlockIndex(gl, s_priv->id, block_name);
         ngli_glUniformBlockBinding(gl, s_priv->id, block_index, buffer_desc->binding);
-        struct program_variable_info *info = ngli_hmap_get(s->buffer_blocks, buffer_name);
+        struct program_variable_info *info = ngli_hmap_get(s->buffer_blocks, block_name);
         if (info)
             info->binding = buffer_desc->binding;
     }
