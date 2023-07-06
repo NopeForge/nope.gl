@@ -541,14 +541,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     const int binding_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER
                            ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
 
-    char name[MAX_ID_LEN];
-    int len = snprintf(name, sizeof(name), "%s_block", named_block->name);
-    if (len >= sizeof(name)) {
-        LOG(ERROR, "block name \"%s\" is too long", named_block->name);
-        return NGL_ERROR_MEMORY;
-    }
-
-    if (!ngli_darray_push(&s->symbols, name))
+    if (!ngli_darray_push(&s->symbols, named_block->name))
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_resource_desc pl_buffer_desc = {
@@ -1155,6 +1148,7 @@ static int craft_comp(struct pgcraft *s, const struct pgcraft_params *params)
 NGLI_STATIC_ASSERT(resource_name_offset, offsetof(struct pipeline_resource_desc, id) == 0);
 
 static int filter_pipeline_elems(struct pgcraft *s,
+                                 const char *suffix,
                                  const struct hmap *info_map,
                                  struct darray *src_desc, struct darray *src_data,
                                  struct darray *dst_desc, struct darray *dst_data)
@@ -1167,7 +1161,13 @@ static int filter_pipeline_elems(struct pgcraft *s,
         if (info_map) {
             const size_t id = *(size_t *)desc_elem;
             const char *name = ngli_pgcraft_get_symbol_name(s, id);
-            const struct program_variable_info *info = ngli_hmap_get(info_map, name);
+            char resource_name[MAX_ID_LEN];
+            int len = snprintf(resource_name, sizeof(resource_name), "%s%s", name, suffix);
+            if (len >= sizeof(resource_name)) {
+                LOG(ERROR, "block name \"%s\" is too long", name);
+                return NGL_ERROR_MEMORY;
+            }
+            const struct program_variable_info *info = ngli_hmap_get(info_map, resource_name);
             if (!info)
                 continue;
         }
@@ -1300,8 +1300,8 @@ static int probe_pipeline_elems(struct pgcraft *s)
 
     struct pgcraft_pipeline_info *info  = &s->pipeline_info;
     struct pgcraft_pipeline_info *finfo = &s->filtered_pipeline_info;
-    if ((ret = filter_pipeline_elems(s, buffers_info,    &info->desc.buffers,    &info->data.buffers,    &finfo->desc.buffers,    &finfo->data.buffers))    < 0 ||
-        (ret = filter_pipeline_elems(s, uniforms_info,   &info->desc.textures,   &info->data.textures,   &finfo->desc.textures,   &finfo->data.textures))   < 0)
+    if ((ret = filter_pipeline_elems(s, "_block", buffers_info,    &info->desc.buffers,    &info->data.buffers,    &finfo->desc.buffers,    &finfo->data.buffers))    < 0 ||
+        (ret = filter_pipeline_elems(s, "",       uniforms_info,   &info->desc.textures,   &info->data.textures,   &finfo->desc.textures,   &finfo->data.textures))   < 0)
         return ret;
 
     ret = filter_pipeline_vertex_buffers(s);
