@@ -412,6 +412,10 @@ static int handle_media_frame(struct ngl_node *node)
     ngli_image_reset(&s->image);
 
     int ret = ngli_hwmap_map_frame(&s->hwmap, frame, &s->image);
+
+    /* Signal image change on new frame */
+    s->image.rev = s->image_rev++;
+
     if (ret < 0) {
         LOG(ERROR, "could not map media frame");
         return ret;
