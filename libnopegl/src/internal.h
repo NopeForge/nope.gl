@@ -280,6 +280,7 @@ struct texture_priv {
     uint32_t supported_image_layouts;
     struct texture *texture;
     struct image image;
+    size_t image_rev;
     struct hwmap hwmap;
 };
 

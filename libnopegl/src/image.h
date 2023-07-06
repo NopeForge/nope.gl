@@ -71,6 +71,7 @@ struct image {
     /* mutable fields after initialization */
     NGLI_ALIGNED_MAT(coordinates_matrix);
     float ts;
+    size_t rev;
 };
 
 void ngli_image_init(struct image *s, const struct image_params *params, struct texture **planes);
