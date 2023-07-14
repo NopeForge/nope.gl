@@ -33,6 +33,9 @@ struct path;
 
 struct path_segment {
     int32_t degree;
+    float bezier_x[4];
+    float bezier_y[4];
+    float bezier_z[4];
     float poly_x[4];
     float poly_y[4];
     float poly_z[4];
