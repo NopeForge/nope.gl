@@ -139,46 +139,37 @@ int ngli_path_move_to(struct path *s, const float *to)
 
 int ngli_path_line_to(struct path *s, const float *to)
 {
-    struct path_segment segment = {
+    const struct path_segment segment = {
         .degree = 1,
         .bezier_x = {s->cursor[0], to[0]},
         .bezier_y = {s->cursor[1], to[1]},
         .bezier_z = {s->cursor[2], to[2]},
         .flags  = s->segment_flags,
     };
-    poly_from_line(segment.poly_x, s->cursor[0], to[0]);
-    poly_from_line(segment.poly_y, s->cursor[1], to[1]);
-    poly_from_line(segment.poly_z, s->cursor[2], to[2]);
     return add_segment_and_move(s, &segment, to);
 }
 
 int ngli_path_bezier2_to(struct path *s, const float *ctl, const float *to)
 {
-    struct path_segment segment = {
+    const struct path_segment segment = {
         .degree = 2,
         .bezier_x = {s->cursor[0], ctl[0], to[0]},
         .bezier_y = {s->cursor[1], ctl[1], to[1]},
         .bezier_z = {s->cursor[2], ctl[2], to[2]},
         .flags = s->segment_flags,
     };
-    poly_from_bezier2(segment.poly_x, s->cursor[0], ctl[0], to[0]);
-    poly_from_bezier2(segment.poly_y, s->cursor[1], ctl[1], to[1]);
-    poly_from_bezier2(segment.poly_z, s->cursor[2], ctl[2], to[2]);
     return add_segment_and_move(s, &segment, to);
 }
 
 int ngli_path_bezier3_to(struct path *s, const float *ctl0, const float *ctl1, const float *to)
 {
-    struct path_segment segment = {
+    const struct path_segment segment = {
         .degree = 3,
         .bezier_x = {s->cursor[0], ctl0[0], ctl1[0], to[0]},
         .bezier_y = {s->cursor[1], ctl0[1], ctl1[1], to[1]},
         .bezier_z = {s->cursor[2], ctl0[2], ctl1[2], to[2]},
         .flags = s->segment_flags,
     };
-    poly_from_bezier3(segment.poly_x, s->cursor[0], ctl0[0], ctl1[0], to[0]);
-    poly_from_bezier3(segment.poly_y, s->cursor[1], ctl0[1], ctl1[1], to[1]);
-    poly_from_bezier3(segment.poly_z, s->cursor[2], ctl0[2], ctl1[2], to[2]);
     return add_segment_and_move(s, &segment, to);
 }
 
@@ -254,12 +245,40 @@ int ngli_path_init(struct path *s, int32_t precision)
         return NGL_ERROR_INVALID_ARG;
     }
 
+    /* Compute polynomial forms from bézier points */
+    struct path_segment *segments = ngli_darray_data(&s->segments);
+    for (size_t i = 0; i < nb_segments; i++) {
+        struct path_segment *segment = &segments[i];
+
+        const float *x = segment->bezier_x;
+        const float *y = segment->bezier_y;
+        const float *z = segment->bezier_z;
+        switch (segment->degree) {
+        case 1:
+            poly_from_line(segment->poly_x, x[0], x[1]);
+            poly_from_line(segment->poly_y, y[0], y[1]);
+            poly_from_line(segment->poly_z, z[0], z[1]);
+            break;
+        case 2:
+            poly_from_bezier2(segment->poly_x, x[0], x[1], x[2]);
+            poly_from_bezier2(segment->poly_y, y[0], y[1], y[2]);
+            poly_from_bezier2(segment->poly_z, z[0], z[1], z[2]);
+            break;
+        case 3:
+            poly_from_bezier3(segment->poly_x, x[0], x[1], x[2], x[3]);
+            poly_from_bezier3(segment->poly_y, y[0], y[1], y[2], y[3]);
+            poly_from_bezier3(segment->poly_z, z[0], z[1], z[2], z[3]);
+            break;
+        default:
+            ngli_assert(0);
+        }
+    }
+
     /*
      * Build a temporary lookup table of data points ("steps") that will be
      * used for estimating the length (growing distances more specifically) of
      * the curve.
      */
-    struct path_segment *segments = ngli_darray_data(&s->segments);
     for (size_t i = 0; i < nb_segments; i++) {
         struct path_segment *segment = &segments[i];
 
