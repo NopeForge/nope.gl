@@ -167,7 +167,6 @@ lib_src = files(
   'src/hwmap_common.c',
   'src/image.c',
   'src/log.c',
-  'src/math_utils.c',
   'src/memory.c',
   'src/node_animatedbuffer.c',
   'src/node_animated.c',
@@ -240,14 +239,17 @@ lib_src = files(
   'src/utils.c',
 )
 
+math_utils_src = files('src/math_utils.c')
 if host_machine.cpu_family() == 'aarch64'
-  lib_src += files('src/asm_aarch64.S')
+  math_utils_src += files('src/asm_aarch64.S')
 endif
 have_x86_intr = host_machine.cpu_family().startswith('x86') and cc.has_header('immintrin.h')
 if have_x86_intr
-  lib_src += files('src/simd_x86.c')
+  math_utils_src += files('src/simd_x86.c')
   conf_data.set10('HAVE_X86_INTR', true)
 endif
+
+lib_src += math_utils_src
 
 hosts_cfg = {
   'linux': {
@@ -864,18 +866,10 @@ run_target(
 # Tests
 #
 
-test_asm_src = files('src/test_asm.c', 'src/math_utils.c')
-if host_machine.cpu_family() == 'aarch64'
-  test_asm_src += files('src/asm_aarch64.S')
-endif
-if have_x86_intr
-  test_asm_src += files('src/simd_x86.c')
-endif
-
 test_progs = {
   'Assembly': {
     'exe': 'test_asm',
-    'src': test_asm_src,
+    'src': files('src/test_asm.c') + math_utils_src,
   },
   'Color convertion': {
     'exe': 'test_colorconv',
@@ -904,7 +898,7 @@ test_progs = {
   },
   'Path': {
     'exe': 'test_path',
-    'src': files('src/test_path.c', 'src/darray.c', 'src/path.c', 'src/log.c', 'src/memory.c', 'src/math_utils.c'),
+    'src': files('src/test_path.c', 'src/darray.c', 'src/path.c', 'src/log.c', 'src/memory.c') + math_utils_src,
   },
   'Utils': {
     'exe': 'test_utils',
