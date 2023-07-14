@@ -132,17 +132,18 @@ int ngli_path_move_to(struct path *s, const float *to)
 int ngli_path_line_to(struct path *s, const float *to)
 {
     const struct path_segment segment = {
+        .degree = 1,
         .poly_x = {0.f, 0.f, to[0] - s->cursor[0], s->cursor[0]},
         .poly_y = {0.f, 0.f, to[1] - s->cursor[1], s->cursor[1]},
         .poly_z = {0.f, 0.f, to[2] - s->cursor[2], s->cursor[2]},
-        .flags  = s->segment_flags | NGLI_PATH_SEGMENT_FLAG_LINE,
+        .flags  = s->segment_flags,
     };
     return add_segment_and_move(s, &segment, to);
 }
 
 int ngli_path_bezier2_to(struct path *s, const float *ctl, const float *to)
 {
-    struct path_segment segment = {.flags = s->segment_flags};
+    struct path_segment segment = {.degree = 2, .flags = s->segment_flags};
     poly_from_bezier2(segment.poly_x, s->cursor[0], ctl[0], to[0]);
     poly_from_bezier2(segment.poly_y, s->cursor[1], ctl[1], to[1]);
     poly_from_bezier2(segment.poly_z, s->cursor[2], ctl[2], to[2]);
@@ -151,7 +152,7 @@ int ngli_path_bezier2_to(struct path *s, const float *ctl, const float *to)
 
 int ngli_path_bezier3_to(struct path *s, const float *ctl0, const float *ctl1, const float *to)
 {
-    struct path_segment segment = {.flags = s->segment_flags};
+    struct path_segment segment = {.degree = 3, .flags = s->segment_flags};
     poly_from_bezier3(segment.poly_x, s->cursor[0], ctl0[0], ctl1[0], to[0]);
     poly_from_bezier3(segment.poly_y, s->cursor[1], ctl0[1], ctl1[1], to[1]);
     poly_from_bezier3(segment.poly_z, s->cursor[2], ctl0[2], ctl1[2], to[2]);
@@ -243,7 +244,7 @@ int ngli_path_init(struct path *s, int32_t precision)
          * Compared to curves, straight lines do not need to be divided into
          * small chunks because their length can be calculated exactly.
          */
-        const int32_t precision = (segment->flags & NGLI_PATH_SEGMENT_FLAG_LINE) ? 1 : s->precision;
+        const int32_t precision = segment->degree == 1 ? 1 : s->precision;
 
         /*
          * We're not using 1/(P-1) but 1/P for the scale because each segment is
