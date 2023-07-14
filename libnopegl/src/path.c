@@ -67,6 +67,14 @@ struct path *ngli_path_create(void)
     return s;
 }
 
+static void poly_from_line(float *dst, float p0, float p1)
+{
+    dst[0 /* a */] = 0.f;
+    dst[1 /* b */] = 0.f;
+    dst[2 /* c */] = -p0 + p1;
+    dst[3 /* d */] =  p0;
+}
+
 /*
  * Convert from original bézier quadratic form:
  *   B₂(t) = (1-t)² p0 + 2(1-t)t p1 + t² p2
@@ -131,16 +139,16 @@ int ngli_path_move_to(struct path *s, const float *to)
 
 int ngli_path_line_to(struct path *s, const float *to)
 {
-    const struct path_segment segment = {
+    struct path_segment segment = {
         .degree = 1,
         .bezier_x = {s->cursor[0], to[0]},
         .bezier_y = {s->cursor[1], to[1]},
         .bezier_z = {s->cursor[2], to[2]},
-        .poly_x = {0.f, 0.f, to[0] - s->cursor[0], s->cursor[0]},
-        .poly_y = {0.f, 0.f, to[1] - s->cursor[1], s->cursor[1]},
-        .poly_z = {0.f, 0.f, to[2] - s->cursor[2], s->cursor[2]},
         .flags  = s->segment_flags,
     };
+    poly_from_line(segment.poly_x, s->cursor[0], to[0]);
+    poly_from_line(segment.poly_y, s->cursor[1], to[1]);
+    poly_from_line(segment.poly_z, s->cursor[2], to[2]);
     return add_segment_and_move(s, &segment, to);
 }
 
