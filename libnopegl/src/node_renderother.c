@@ -84,6 +84,11 @@ struct resource_map {
     size_t buffer_rev;
 };
 
+struct texture_map {
+    const struct pgcraft_texture_info *info;
+    size_t image_rev;
+};
+
 struct pipeline_desc {
     struct pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
@@ -92,6 +97,7 @@ struct pipeline_desc {
     int32_t aspect_index;
     struct darray uniforms_map; // struct uniform_map
     struct darray blocks_map; // struct resource_map
+    struct darray textures_map; // struct texture_map
     struct darray uniforms; // struct pgcraft_uniform
 };
 
@@ -841,8 +847,8 @@ static int renderdisplace_prepare(struct ngl_node *node)
         {.name = "displacement_coord", .type = NGLI_TYPE_VEC2},
     };
 
-    const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
-    const struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
+    struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
+    struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
         .program_label    = "nopegl/renderdisplace",
@@ -859,7 +865,20 @@ static int renderdisplace_prepare(struct ngl_node *node)
     };
 
     const struct render_common_opts *co = &o->common;
-    return finalize_pipeline(node, c, co, &crafter_params);
+    ret = finalize_pipeline(node, c, co, &crafter_params);
+    if (ret < 0)
+        return ret;
+
+    ngli_darray_init(&desc->textures_map, sizeof(struct texture_map), 0);
+    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
+    const struct pgcraft_texture_info *infos = ngli_darray_data(texture_infos_array);
+    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+        const struct texture_map map = {.info = &infos[i], .image_rev = SIZE_MAX};
+        if (!ngli_darray_push(&desc->textures_map, &map))
+            return NGL_ERROR_MEMORY;
+    }
+
+    return 0;
 }
 
 static int rendergradient_prepare(struct ngl_node *node)
@@ -1051,8 +1070,8 @@ static int rendertexture_prepare(struct ngl_node *node)
         {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
     };
 
-    const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
-    const struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
+    struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
+    struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
         .program_label    = "nopegl/rendertexture",
@@ -1069,7 +1088,20 @@ static int rendertexture_prepare(struct ngl_node *node)
     };
 
     const struct render_common_opts *co = &o->common;
-    return finalize_pipeline(node, c, co, &crafter_params);
+    ret = finalize_pipeline(node, c, co, &crafter_params);
+    if (ret < 0)
+        return ret;
+
+    ngli_darray_init(&desc->textures_map, sizeof(struct texture_map), 0);
+    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
+    const struct pgcraft_texture_info *infos = ngli_darray_data(texture_infos_array);
+    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+        const struct texture_map map = {.info = &infos[i], .image_rev = SIZE_MAX};
+        if (!ngli_darray_push(&desc->textures_map, &map))
+            return NGL_ERROR_MEMORY;
+    }
+
+    return 0;
 }
 
 static int renderwaveform_prepare(struct ngl_node *node)
@@ -1159,11 +1191,13 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
         ngli_pipeline_compat_update_uniform(pl_compat, uniform_map[i].index, uniform_map[i].data);
 
     if (node->cls->id == NGL_NODE_RENDERTEXTURE || node->cls->id == NGL_NODE_RENDERDISPLACE) {
-        const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
-        const struct pgcraft_texture_info *texture_info = ngli_darray_data(texture_infos_array);
-        for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
-            const struct pgcraft_texture_info *info = &texture_info[i];
-            ngli_pipeline_compat_update_texture_info(pl_compat, info);
+        struct texture_map *texture_map = ngli_darray_data(&desc->textures_map);
+        for (size_t i = 0; i < ngli_darray_count(&desc->textures_map); i++) {
+            const struct pgcraft_texture_info *info = texture_map[i].info;
+            if (texture_map[i].image_rev != info->image->rev) {
+                ngli_pipeline_compat_update_texture_info(pl_compat, info);
+                texture_map[i].image_rev = info->image->rev;
+            }
         }
     }
 
@@ -1195,6 +1229,7 @@ static void renderother_uninit(struct ngl_node *node, struct render_common *s)
         ngli_darray_reset(&desc->uniforms);
         ngli_darray_reset(&desc->uniforms_map);
         ngli_darray_reset(&desc->blocks_map);
+        ngli_darray_reset(&desc->textures_map);
     }
     ngli_freep(&s->combined_fragment);
     ngli_filterschain_freep(&s->filterschain);
