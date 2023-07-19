@@ -153,21 +153,16 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
                                   const struct ngl_node *texture_node)
 {
     struct texture_priv *texture_priv = texture_node->priv_data;
-    const struct texture_opts *texture_opts = texture_node->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "source",
+            .type        = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
             .stage       = NGLI_PROGRAM_SHADER_COMP,
             .image       = &texture_priv->image,
             .format      = texture_priv->params.format,
             .clamp_video = 0, /* clamping is done manually in the shader */
         },
     };
-
-    if (texture_opts->data_src && texture_opts->data_src->cls->id == NGL_NODE_MEDIA)
-        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
-    else
-        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
 
     const struct pgcraft_params crafter_params = {
         .comp_base      = colorstats_waveform_comp,
