@@ -551,6 +551,17 @@ int ngli_pass_prepare(struct pass *s)
     if (ret < 0)
         return ret;
 
+    struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
+    if (!desc)
+        return NGL_ERROR_MEMORY;
+    ctx->rnode_pos->id = ngli_darray_count(&s->pipeline_descs) - 1;
+
+    memset(desc, 0, sizeof(*desc));
+
+    desc->crafter = ngli_pgcraft_create(ctx);
+    if (!desc->crafter)
+        return NGL_ERROR_MEMORY;
+
     const struct pgcraft_params crafter_params = {
         .program_label     = s->params.program_label,
         .vert_base         = s->params.vert_base,
@@ -569,17 +580,6 @@ int ngli_pass_prepare(struct pass *s)
         .nb_frag_output    = s->params.nb_frag_output,
         .workgroup_size    = {NGLI_ARG_VEC3(s->params.workgroup_size)},
     };
-
-    struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
-    if (!desc)
-        return NGL_ERROR_MEMORY;
-    ctx->rnode_pos->id = ngli_darray_count(&s->pipeline_descs) - 1;
-
-    memset(desc, 0, sizeof(*desc));
-
-    desc->crafter = ngli_pgcraft_create(ctx);
-    if (!desc->crafter)
-        return NGL_ERROR_MEMORY;
 
     ret = ngli_pgcraft_craft(desc->crafter, &crafter_params);
     if (ret < 0)
