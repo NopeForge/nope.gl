@@ -577,8 +577,6 @@ int ngli_pass_prepare(struct pass *s)
 
     memset(desc, 0, sizeof(*desc));
 
-    ngli_darray_init(&desc->blocks_map, sizeof(struct resource_map), 0);
-
     desc->crafter = ngli_pgcraft_create(ctx);
     if (!desc->crafter)
         return NGL_ERROR_MEMORY;
