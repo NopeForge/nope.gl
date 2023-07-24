@@ -391,6 +391,7 @@ static int texture_prefetch(struct ngl_node *node)
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
     };
     ngli_image_init(&s->image, &image_params, &s->texture);
+    s->image.rev = s->image_rev++;
 
     return 0;
 }
@@ -479,6 +480,7 @@ static void texture_release(struct ngl_node *node)
     ngli_hwmap_uninit(&s->hwmap);
     ngli_texture_freep(&s->texture);
     ngli_image_reset(&s->image);
+    s->image.rev = s->image_rev++;
 }
 
 static int get_preferred_format(struct gpu_ctx *gpu_ctx, int format)
