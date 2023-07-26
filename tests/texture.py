@@ -82,6 +82,14 @@ def texture_data_unaligned_row(cfg: SceneCfg, h=32):
     return _render_buffer(cfg, 1, h)
 
 
+@test_fingerprint(keyframes=(0, 1, 0))
+@scene(w=scene.Range(range=[1, 128]), h=scene.Range(range=[1, 128]))
+def texture_data_seek_timeranges(cfg: SceneCfg, w=4, h=5):
+    cfg.aspect_ratio = (1, 1)
+    cfg.duration = 1
+    return ngl.TimeRangeFilter(_render_buffer(cfg, w, h), end=1)
+
+
 @test_fingerprint(keyframes=5)
 @scene()
 def texture_displacement(cfg: SceneCfg):
