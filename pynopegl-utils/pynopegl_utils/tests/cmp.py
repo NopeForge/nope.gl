@@ -74,7 +74,7 @@ class CompareSceneBase(CompareBase):
         scene_func: Callable[..., dict],
         width: int = 1280,
         height: int = 800,
-        keyframes: int = 1,
+        keyframes: int | Sequence[float] = 1,  # either a number of keyframes or a sequence of absolute times
         keyframes_callback=None,
         clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0),
         exercise_serialization: bool = True,
@@ -123,7 +123,13 @@ class CompareSceneBase(CompareBase):
             )
         )
         assert ret == 0
-        timescale = duration / float(self._keyframes)
+
+        if isinstance(self._keyframes, int):
+            timescale = duration / self._keyframes
+            keyframes = [t_id * timescale for t_id in range(self._keyframes)]
+        else:
+            keyframes = self._keyframes
+        assert all(t <= duration for t in keyframes)
 
         if self._exercise_dot:
             assert scene.dot()
@@ -133,10 +139,10 @@ class CompareSceneBase(CompareBase):
 
         assert ctx.set_scene(scene) == 0
 
-        for t_id in range(self._keyframes):
+        for t_id, t in enumerate(keyframes):
             if self._keyframes_callback:
                 self._keyframes_callback(t_id)
-            ctx.draw(t_id * timescale)
+            ctx.draw(t)
 
             yield (width, height, capture_buffer)
 
