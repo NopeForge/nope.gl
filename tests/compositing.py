@@ -109,7 +109,7 @@ def _get_compositing_scene(cfg: SceneCfg, op, show_label=False):
 
 
 def _get_compositing_func(op):
-    @test_fingerprint(nb_keyframes=10, tolerance=1)
+    @test_fingerprint(keyframes=10, tolerance=1)
     @scene()
     def scene_func(cfg: SceneCfg):
         return _get_compositing_scene(cfg, op)

@@ -27,7 +27,7 @@ import pynopegl as ngl
 
 
 def _get_anim_color_scene_func(c0, c1, space):
-    @test_cuepoints(points={"c": (0, 0)}, nb_keyframes=10, tolerance=1)
+    @test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=1)
     @scene()
     def scene_func(cfg: SceneCfg):
         cfg.duration = 5
@@ -44,7 +44,7 @@ def _get_anim_color_scene_func(c0, c1, space):
 
 
 def _get_static_color_scene_func(c, space):
-    @test_cuepoints(points={"c": (0, 0)}, nb_keyframes=1, tolerance=1)
+    @test_cuepoints(points={"c": (0, 0)}, keyframes=1, tolerance=1)
     @scene()
     def scene_func(_):
         return ngl.RenderColor(color=ngl.UniformColor(c, space=space))
@@ -61,7 +61,7 @@ color_static_hsl = _get_static_color_scene_func((0.6, 0.9, 0.4), "hsl")
 color_static_hsv = _get_static_color_scene_func((0.3, 0.7, 0.6), "hsv")
 
 
-@test_cuepoints(points={"c": (0, 0)}, nb_keyframes=10, tolerance=0)
+@test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=0)
 @scene()
 def color_negative_values_srgb(cfg: SceneCfg):
     cfg.duration = 5

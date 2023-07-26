@@ -50,7 +50,7 @@ def transform_matrix(cfg: SceneCfg):
     return ngl.Transform(shape, matrix=mat)
 
 
-@test_fingerprint(nb_keyframes=8, tolerance=1)
+@test_fingerprint(keyframes=8, tolerance=1)
 @scene()
 def transform_animated_camera(cfg: SceneCfg):
     cfg.duration = 5.0
@@ -97,7 +97,7 @@ def transform_animated_camera(cfg: SceneCfg):
     return camera
 
 
-@test_fingerprint(nb_keyframes=12, tolerance=1)
+@test_fingerprint(keyframes=12, tolerance=1)
 @scene()
 def transform_eye_camera(cfg: SceneCfg):
     cfg.duration = 3.0
@@ -197,7 +197,7 @@ def transform_skew(cfg: SceneCfg, angles=(0.0, -70, 14), axis=(1, 0, 0)):
     return ngl.Skew(shape, angles=angles, axis=axis)
 
 
-@test_fingerprint(nb_keyframes=8)
+@test_fingerprint(keyframes=8)
 @scene(
     angles=scene.Vector(n=3, minv=(-360, -360, -360), maxv=(360, 360, 360)),
     axis=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
@@ -249,7 +249,7 @@ def transform_rotate_quat_anchor(cfg: SceneCfg, quat=(0, 0, -0.474, 0.880), anch
     return ngl.RotateQuat(shape, quat, anchor=anchor)
 
 
-@test_fingerprint(nb_keyframes=8)
+@test_fingerprint(keyframes=8)
 @scene(
     quat0=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
     quat1=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
@@ -265,7 +265,7 @@ def transform_rotate_quat_animated(cfg: SceneCfg, quat0=(0, 0, -0.474, 0.880), q
     return ngl.RotateQuat(shape, quat=ngl.AnimatedQuat(anim))
 
 
-@test_fingerprint(nb_keyframes=15)
+@test_fingerprint(keyframes=15)
 @scene()
 def transform_path(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -300,7 +300,7 @@ def transform_path(cfg: SceneCfg):
     return ngl.Translate(shape, vector=ngl.AnimatedPath(anim_kf, path))
 
 
-@test_fingerprint(nb_keyframes=15, tolerance=2)
+@test_fingerprint(keyframes=15, tolerance=2)
 @scene()
 def transform_smoothpath(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)

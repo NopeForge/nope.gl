@@ -74,7 +74,7 @@ class CompareSceneBase(CompareBase):
         scene_func: Callable[..., dict],
         width: int = 1280,
         height: int = 800,
-        nb_keyframes: int = 1,
+        keyframes: int = 1,
         keyframes_callback=None,
         clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0),
         exercise_serialization: bool = True,
@@ -84,7 +84,7 @@ class CompareSceneBase(CompareBase):
     ):
         self._width = width
         self._height = height
-        self._nb_keyframes = nb_keyframes
+        self._keyframes = keyframes
         self._keyframes_callback = keyframes_callback
         self._clear_color = clear_color
         self._scene_func = scene_func
@@ -123,7 +123,7 @@ class CompareSceneBase(CompareBase):
             )
         )
         assert ret == 0
-        timescale = duration / float(self._nb_keyframes)
+        timescale = duration / float(self._keyframes)
 
         if self._exercise_dot:
             assert scene.dot()
@@ -133,7 +133,7 @@ class CompareSceneBase(CompareBase):
 
         assert ctx.set_scene(scene) == 0
 
-        for t_id in range(self._nb_keyframes):
+        for t_id in range(self._keyframes):
             if self._keyframes_callback:
                 self._keyframes_callback(t_id)
             ctx.draw(t_id * timescale)

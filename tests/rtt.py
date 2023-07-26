@@ -161,7 +161,7 @@ def _get_rtt_scene(
 
 
 def _get_rtt_function(**kwargs):
-    @test_fingerprint(width=512, height=512, nb_keyframes=10)
+    @test_fingerprint(width=512, height=512, keyframes=10)
     @scene()
     def rtt_function(cfg: SceneCfg):
         return _get_rtt_scene(cfg, **kwargs)
@@ -241,7 +241,7 @@ def rtt_load_attachment_nested_msaa(_):
     return _rtt_load_attachment_nested(4)
 
 
-@test_fingerprint(width=512, height=512, nb_keyframes=10, tolerance=3)
+@test_fingerprint(width=512, height=512, keyframes=10, tolerance=3)
 @scene()
 def rtt_clear_attachment_with_timeranges(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)

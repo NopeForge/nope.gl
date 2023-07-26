@@ -57,7 +57,7 @@ void main()
 """
 
 
-@test_fingerprint(nb_keyframes=10, tolerance=1)
+@test_fingerprint(keyframes=10, tolerance=1)
 @scene()
 def compute_particles(cfg: SceneCfg):
     cfg.duration = 10
@@ -300,13 +300,13 @@ def _compute_animation(cfg: SceneCfg, animate_pre_render=True):
     return ngl.Group(children=children)
 
 
-@test_fingerprint(nb_keyframes=5, tolerance=1)
+@test_fingerprint(keyframes=5, tolerance=1)
 @scene()
 def compute_animation(cfg: SceneCfg):
     return _compute_animation(cfg)
 
 
-@test_fingerprint(nb_keyframes=5, tolerance=1)
+@test_fingerprint(keyframes=5, tolerance=1)
 @scene()
 def compute_animation_post_render(cfg: SceneCfg):
     return _compute_animation(cfg, False)

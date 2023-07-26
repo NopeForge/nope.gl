@@ -126,12 +126,12 @@ def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_coun
 
 
 def _get_data_function(spec, category, field_type, layout):
-    nb_keyframes = 5 if "animated" in category else 1
+    keyframes = 5 if "animated" in category else 1
     fields = match_fields(spec, category, field_type)
 
     @test_cuepoints(
         points=get_data_debug_positions(fields),
-        nb_keyframes=nb_keyframes,
+        keyframes=keyframes,
         tolerance=1,
         debug_positions=False,
     )
@@ -177,8 +177,8 @@ def _get_data_streamed_buffer_cuepoints(size):
     return {f"{x}{y}": (c(x), c(y)) for y in range(size) for x in range(size)}
 
 
-def _get_data_streamed_buffer_vec4_scene(cfg: SceneCfg, size, nb_keyframes, scale, single, show_dbg_points):
-    cfg.duration = nb_keyframes * scale
+def _get_data_streamed_buffer_vec4_scene(cfg: SceneCfg, size, keyframes, scale, single, show_dbg_points):
+    cfg.duration = keyframes * scale
     cfg.aspect_ratio = (1, 1)
     data_size = size * size
     assert not single or size == 2
@@ -187,21 +187,21 @@ def _get_data_streamed_buffer_vec4_scene(cfg: SceneCfg, size, nb_keyframes, scal
     if scale != 1:
         kfs = [
             ngl.AnimKeyFrameFloat(0, 0),
-            ngl.AnimKeyFrameFloat(cfg.duration, nb_keyframes),
+            ngl.AnimKeyFrameFloat(cfg.duration, keyframes),
         ]
         time_anim = ngl.AnimatedTime(kfs)
 
     pts_data = array.array("q")
     assert pts_data.itemsize == 8
 
-    for i in range(nb_keyframes):
+    for i in range(keyframes):
         offset = 10000 if i == 0 else 0
         pts_data.extend([i * 1000000 + offset])
 
     vec4_data = array.array("f")
-    for i in range(nb_keyframes):
+    for i in range(keyframes):
         for j in range(data_size):
-            v = i / float(nb_keyframes) + j / float(data_size * nb_keyframes)
+            v = i / float(keyframes) + j / float(data_size * keyframes)
             if single:
                 vec4_data.extend([v])
             else:
@@ -236,12 +236,12 @@ def _get_data_streamed_buffer_vec4_scene(cfg: SceneCfg, size, nb_keyframes, scal
 
 def _get_data_streamed_buffer_function(scale, single):
     size = 2 if single else 4
-    nb_keyframes = 4
+    keyframes = 4
 
-    @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(size), nb_keyframes=nb_keyframes, tolerance=1)
+    @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(size), keyframes=keyframes, tolerance=1)
     @scene(show_dbg_points=scene.Bool())
     def scene_func(cfg: SceneCfg, show_dbg_points=False):
-        return _get_data_streamed_buffer_vec4_scene(cfg, size, nb_keyframes, scale, single, show_dbg_points)
+        return _get_data_streamed_buffer_vec4_scene(cfg, size, keyframes, scale, single, show_dbg_points)
 
     return scene_func
 
@@ -315,7 +315,7 @@ def data_mat_iovars(cfg: SceneCfg):
     return render
 
 
-@test_fingerprint(nb_keyframes=10, tolerance=1)
+@test_fingerprint(keyframes=10, tolerance=1)
 @scene()
 def data_noise_time(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -346,7 +346,7 @@ def data_noise_time(cfg: SceneCfg):
     return render
 
 
-@test_fingerprint(nb_keyframes=30, tolerance=1)
+@test_fingerprint(keyframes=30, tolerance=1)
 @scene()
 def data_noise_wiggle(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -377,7 +377,7 @@ def data_noise_wiggle(cfg: SceneCfg):
     return render
 
 
-@test_cuepoints(points={"c": (0, 0)}, nb_keyframes=10, tolerance=1)
+@test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=1)
 @scene()
 def data_eval(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -471,13 +471,13 @@ def _data_vertex_and_fragment_blocks(cfg: SceneCfg, layout):
     return render
 
 
-@test_cuepoints(points={"c": (0, 0)}, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points={"c": (0, 0)}, keyframes=1, tolerance=1)
 @scene()
 def data_vertex_and_fragment_blocks(cfg: SceneCfg):
     return _data_vertex_and_fragment_blocks(cfg, "std140")
 
 
-@test_cuepoints(points={"c": (0, 0)}, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points={"c": (0, 0)}, keyframes=1, tolerance=1)
 @scene()
 def data_vertex_and_fragment_blocks_std430(cfg: SceneCfg):
     return _data_vertex_and_fragment_blocks(cfg, "std430")

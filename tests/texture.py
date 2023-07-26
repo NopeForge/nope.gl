@@ -82,7 +82,7 @@ def texture_data_unaligned_row(cfg: SceneCfg, h=32):
     return _render_buffer(cfg, 1, h)
 
 
-@test_fingerprint(nb_keyframes=5)
+@test_fingerprint(keyframes=5)
 @scene()
 def texture_displacement(cfg: SceneCfg):
     m0 = cfg.medias[0]
