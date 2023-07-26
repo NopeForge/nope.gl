@@ -38,43 +38,43 @@ def _base_scene(*filters):
     )
 
 
-@test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @scene()
 def filter_alpha(_):
     return _base_scene(ngl.FilterAlpha(0.4321))
 
 
-@test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @scene()
 def filter_contrast(_):
     return _base_scene(ngl.FilterContrast(1.2, pivot=0.3))
 
 
-@test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @scene()
 def filter_exposure(_):
     return _base_scene(ngl.FilterExposure(0.7))
 
 
-@test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @scene()
 def filter_inversealpha(_):
     return _base_scene(ngl.FilterInverseAlpha())
 
 
-@test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @scene()
 def filter_opacity(_):
     return _base_scene(ngl.FilterOpacity(0.4321))
 
 
-@test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @scene()
 def filter_saturation(_):
     return _base_scene(ngl.FilterSaturation(1.5))
 
 
-@test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @scene()
 def filter_composition_colors(_):
     return ngl.RenderGradient4(
@@ -87,7 +87,7 @@ def filter_composition_colors(_):
     )
 
 
-@test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @scene()
 def filter_composition_alpha(_):
     return ngl.RenderGradient(
@@ -106,7 +106,7 @@ def filter_composition_alpha(_):
     )
 
 
-@test_cuepoints(points=_CUEPOINTS, width=320, height=240, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points=_CUEPOINTS, width=320, height=240, keyframes=1, tolerance=1)
 @scene(linear=scene.Bool())
 def filter_gamma_correct(_, linear=True):
     """This test operates a gamma correct blending (the blending happens in linear space)"""

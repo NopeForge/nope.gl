@@ -25,7 +25,7 @@ from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 import pynopegl as ngl
 
 
-@test_fingerprint(nb_keyframes=10, tolerance=1)
+@test_fingerprint(keyframes=10, tolerance=1)
 @scene()
 def texteffect_color(cfg: SceneCfg):
     cfg.duration = 3
@@ -59,7 +59,7 @@ def texteffect_color(cfg: SceneCfg):
     return ngl.Text(text=text, effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
-@test_fingerprint(nb_keyframes=10, tolerance=1)
+@test_fingerprint(keyframes=10, tolerance=1)
 @scene()
 def texteffect_opacity(cfg: SceneCfg):
     cfg.duration = 3
@@ -82,7 +82,7 @@ def texteffect_opacity(cfg: SceneCfg):
     return ngl.Text("Ghost\nin the\nText", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
-@test_fingerprint(nb_keyframes=10, tolerance=1)
+@test_fingerprint(keyframes=10, tolerance=1)
 @scene()
 def texteffect_transform(cfg: SceneCfg):
     cfg.duration = 3
@@ -107,7 +107,7 @@ def texteffect_transform(cfg: SceneCfg):
     return ngl.Text("Drop me down", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
-@test_fingerprint(nb_keyframes=10, tolerance=1)
+@test_fingerprint(keyframes=10, tolerance=1)
 @scene()
 def texteffect_chars_space_nospace(cfg: SceneCfg):
     cfg.duration = 5

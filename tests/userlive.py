@@ -41,7 +41,7 @@ def _get_userlive_switch_func():
         switch1.set_enabled(t_id % 3 == 0)
         switch2.set_enabled(t_id % 4 == 0)
 
-    @test_fingerprint(nb_keyframes=10, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
+    @test_fingerprint(keyframes=10, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
     @scene(s0=scene.Bool(), s1=scene.Bool(), s2=scene.Bool())
     def scene_func(cfg: SceneCfg, s0_enabled=True, s1_enabled=True, s2_enabled=True):
         cfg.aspect_ratio = (1, 1)
@@ -88,7 +88,7 @@ def _get_userlive_select_func():
         # (branch ID overflow). We remain on the each state for 2 frames.
         select.set_branch((t_id // 2) % 4)
 
-    @test_fingerprint(nb_keyframes=8, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
+    @test_fingerprint(keyframes=8, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
     @scene(branch=scene.Range([0, 3]))
     def scene_func(cfg: SceneCfg, branch=0):
         cfg.aspect_ratio = (1, 1)

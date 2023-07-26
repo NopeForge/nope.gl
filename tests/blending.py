@@ -219,7 +219,7 @@ def blending_all_diamond(cfg: SceneCfg, show_dbg_points=True, show_labels=True):
     return _debug_overlay(cfg, scene, _BLENDINGS, show_dbg_points, show_labels)
 
 
-@test_cuepoints(points=_get_dbg_positions(_NB_BLENDINGS), nb_keyframes=_NB_BLENDINGS + 1, **_TEST_SETTINGS)
+@test_cuepoints(points=_get_dbg_positions(_NB_BLENDINGS), keyframes=_NB_BLENDINGS + 1, **_TEST_SETTINGS)
 @scene(show_dbg_points=scene.Bool(), show_labels=scene.Bool())
 def blending_all_timed_diamond(cfg: SceneCfg, show_dbg_points=True, show_labels=True):
     scenes = _get_blending_scenes(cfg)

@@ -32,7 +32,7 @@ def _get_colorstats(media):
     return ngl.ColorStats(texture=ngl.Texture2D(data_src=ngl.Media(media.filename)))
 
 
-@test_fingerprint(nb_keyframes=5, tolerance=3)
+@test_fingerprint(keyframes=5, tolerance=3)
 @scene()
 def scope_colorstats(cfg):
     vert = textwrap.dedent(
@@ -86,7 +86,7 @@ def scope_colorstats(cfg):
 
 
 def _get_histogram_func(mode):
-    @test_fingerprint(nb_keyframes=5, tolerance=5)
+    @test_fingerprint(keyframes=5, tolerance=5)
     @scene()
     def scene_func(cfg):
         media = cfg.medias[0]
@@ -103,7 +103,7 @@ scope_render_histogram_parade = _get_histogram_func("parade")
 
 
 def _get_waveform_func(mode):
-    @test_fingerprint(nb_keyframes=5, tolerance=3)
+    @test_fingerprint(keyframes=5, tolerance=3)
     @scene()
     def scene_func(cfg):
         media = cfg.medias[0]
@@ -119,7 +119,7 @@ scope_render_waveform_mixed = _get_waveform_func("mixed")
 scope_render_waveform_parade = _get_waveform_func("parade")
 
 
-@test_fingerprint(nb_keyframes=5, tolerance=3)
+@test_fingerprint(keyframes=5, tolerance=3)
 @scene()
 def scope_rtt(cfg):
     """This test makes sure the texture is analyzed after the RTT has written into it"""

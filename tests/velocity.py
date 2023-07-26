@@ -29,7 +29,7 @@ from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 import pynopegl as ngl
 
 
-@test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)
+@test_fingerprint(width=320, height=320, keyframes=20, tolerance=1)
 @scene()
 def velocity_triangle_rotate(cfg: SceneCfg):
     cfg.duration = 5.0
@@ -62,7 +62,7 @@ def velocity_triangle_rotate(cfg: SceneCfg):
     return ngl.Group(children=(circle, triangle))
 
 
-@test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)
+@test_fingerprint(width=320, height=320, keyframes=20, tolerance=1)
 @scene()
 def velocity_circle_distort_2d(cfg: SceneCfg):
     cfg.duration = 4.0
@@ -99,7 +99,7 @@ def velocity_circle_distort_2d(cfg: SceneCfg):
     return shape
 
 
-@test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)
+@test_fingerprint(width=320, height=320, keyframes=20, tolerance=1)
 @scene()
 def velocity_circle_distort_3d(cfg: SceneCfg):
     cfg.duration = 4.0

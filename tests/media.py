@@ -63,7 +63,7 @@ def _get_time_scene(cfg: SceneCfg):
     return rf
 
 
-@test_fingerprint(width=320, height=240, nb_keyframes=3, tolerance=1)
+@test_fingerprint(width=320, height=240, keyframes=3, tolerance=1)
 @scene()
 def media_flat_remap(cfg: SceneCfg):
     m0 = cfg.medias[0]
@@ -79,13 +79,13 @@ def media_flat_remap(cfg: SceneCfg):
     return ngl.RenderTexture(t)
 
 
-@test_cuepoints(points={"X": (0, -0.625)}, nb_keyframes=15, clear_color=list(COLORS.violet) + [1], tolerance=1)
+@test_cuepoints(points={"X": (0, -0.625)}, keyframes=15, clear_color=list(COLORS.violet) + [1], tolerance=1)
 @scene()
 def media_phases_display(cfg: SceneCfg):
     return _get_time_scene(cfg)
 
 
-@test_resources(nb_keyframes=15)
+@test_resources(keyframes=15)
 @scene()
 def media_phases_resources(cfg: SceneCfg):
     return _get_time_scene(cfg)
@@ -93,7 +93,7 @@ def media_phases_resources(cfg: SceneCfg):
 
 # Note: the following test only makes sure the clamping code shader compiles,
 # not check for an actual overflow
-@test_cuepoints(points={"X": (0, -0.625)}, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points={"X": (0, -0.625)}, keyframes=1, tolerance=1)
 @scene()
 def media_clamp(cfg: SceneCfg):
     m0 = cfg.medias[0]
@@ -105,7 +105,7 @@ def media_clamp(cfg: SceneCfg):
     return ngl.RenderTexture(texture)
 
 
-@test_cuepoints(points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, nb_keyframes=5, tolerance=1)
+@test_cuepoints(points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, keyframes=5, tolerance=1)
 @scene()
 def media_exposed_time(cfg: SceneCfg):
     m0 = cfg.medias[0]
@@ -141,7 +141,7 @@ def media_exposed_time(cfg: SceneCfg):
     return render
 
 
-@test_fingerprint(width=1024, height=1024, nb_keyframes=30, tolerance=2)
+@test_fingerprint(width=1024, height=1024, keyframes=30, tolerance=2)
 @scene(overlap_time=scene.Range(range=[0, 10], unit_base=10), dim=scene.Range(range=[1, 10]))
 def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
     cfg.duration = 10
@@ -174,7 +174,7 @@ def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
     return ngl.Group(children=queued_medias)
 
 
-@test_fingerprint(width=320, height=240, nb_keyframes=20, tolerance=1)
+@test_fingerprint(width=320, height=240, keyframes=20, tolerance=1)
 @scene()
 def media_timeranges_rtt(cfg: SceneCfg):
     m0 = cfg.medias[0]

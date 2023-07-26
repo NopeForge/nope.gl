@@ -230,7 +230,7 @@ def _get_morphing_coordinates(rng, n, x_off, y_off):
     return coords
 
 
-@test_fingerprint(nb_keyframes=8, tolerance=1)
+@test_fingerprint(keyframes=8, tolerance=1)
 @scene(n=scene.Range(range=[2, 50]))
 def shape_morphing(cfg: SceneCfg, n=6):
     cfg.duration = 5.0
@@ -255,7 +255,7 @@ def shape_morphing(cfg: SceneCfg, n=6):
 
 
 def _get_cropboard_function(set_indices=False):
-    @test_fingerprint(nb_keyframes=10, tolerance=1)
+    @test_fingerprint(keyframes=10, tolerance=1)
     @scene(dim_clr=scene.Range(range=[1, 50]), dim_cut=scene.Range(range=[1, 50]))
     def cropboard(cfg: SceneCfg, dim_clr=3, dim_cut=9):
         cfg.duration = 5.0 + 1.0
