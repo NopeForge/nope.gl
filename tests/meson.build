@@ -360,6 +360,7 @@ foreach backend : backends
     'clear_and_scissor',
     'data',
     'data_animated',
+    'data_seek_timeranges',
     'data_unaligned_row',
     'displacement',
     'mipmap',
