@@ -327,6 +327,43 @@ static void poly_eval(float *dst, const struct path_segment *segment, float t)
     dst[2] = NGLI_POLY3(z[0], z[1], z[2], z[3], t);
 }
 
+void ngli_path_transform(struct path *s, const float *matrix)
+{
+    /*
+     * We could be more strict here and only accept the default state, but it's
+     * actually fine to do the transformation after the finalization as well because
+     * the polynomials are not yet derived from the bezier points.
+     */
+    ngli_assert(s->state != PATH_STATE_INITIALIZED);
+
+    struct path_segment *segments = ngli_darray_data(&s->segments);
+    for (size_t i = 0; i < ngli_darray_count(&s->segments); i++) {
+        struct path_segment *segment = &segments[i];
+
+        const float *x = segment->bezier_x;
+        const float *y = segment->bezier_y;
+        const float *z = segment->bezier_z;
+
+        NGLI_ALIGNED_VEC(p0) = {x[0], y[0], z[0], 1.f};
+        NGLI_ALIGNED_VEC(p1) = {x[1], y[1], z[1], 1.f};
+        NGLI_ALIGNED_VEC(p2) = {x[2], y[2], z[2], 1.f};
+        NGLI_ALIGNED_VEC(p3) = {x[3], y[3], z[3], 1.f};
+
+        ngli_mat4_mul_vec4(p0, matrix, p0);
+        ngli_mat4_mul_vec4(p1, matrix, p1);
+        ngli_mat4_mul_vec4(p2, matrix, p2);
+        ngli_mat4_mul_vec4(p3, matrix, p3);
+
+        const float xt[4] = {p0[0], p1[0], p2[0], p3[0]};
+        const float yt[4] = {p0[1], p1[1], p2[1], p3[1]};
+        const float zt[4] = {p0[2], p1[2], p2[2], p3[2]};
+
+        memcpy(segment->bezier_x, xt, sizeof(xt));
+        memcpy(segment->bezier_y, yt, sizeof(yt));
+        memcpy(segment->bezier_z, zt, sizeof(zt));
+    }
+}
+
 int ngli_path_finalize(struct path *s)
 {
     ngli_assert(s->state == PATH_STATE_DEFAULT);
