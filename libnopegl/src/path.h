@@ -28,8 +28,8 @@
 struct path;
 
 #define NGLI_PATH_SEGMENT_FLAG_NEW_ORIGIN (1 << 0) /* the current segment does not overlap with the previous one */
-#define NGLI_PATH_SEGMENT_FLAG_CLOSING    (1 << 2) /* the current segment is closing the sub-path */
-#define NGLI_PATH_SEGMENT_FLAG_OPEN_END   (1 << 3) /* the current segment is ending a sub-path openly */
+#define NGLI_PATH_SEGMENT_FLAG_CLOSING    (1 << 1) /* the current segment is closing the sub-path */
+#define NGLI_PATH_SEGMENT_FLAG_OPEN_END   (1 << 2) /* the current segment is ending a sub-path openly */
 
 struct path_segment {
     int32_t degree;
