@@ -284,10 +284,8 @@ int ngli_android_surface_attach_to_gl_context(struct android_surface *surface, i
         return 0;
 
     JNIEnv *env = ngli_jni_get_env();
-    if (!env) {
-        ngli_free(surface);
+    if (!env)
         return NGL_ERROR_EXTERNAL;
-    }
 
     if (surface->tex_id != tex_id)
         ngli_android_surface_detach_from_gl_context(surface);
@@ -312,10 +310,8 @@ int ngli_android_surface_detach_from_gl_context(struct android_surface *surface)
         return 0;
 
     JNIEnv *env = ngli_jni_get_env();
-    if (!env) {
-        ngli_free(surface);
+    if (!env)
         return NGL_ERROR_EXTERNAL;
-    }
 
     (*env)->CallVoidMethod(env,
                            surface->surface_texture,
@@ -336,10 +332,8 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
         return 0;
 
     JNIEnv *env = ngli_jni_get_env();
-    if (!env) {
-        ngli_free(surface);
+    if (!env)
         return NGL_ERROR_EXTERNAL;
-    }
 
     pthread_mutex_lock(&surface->lock);
     surface->on_frame_available = 0;
