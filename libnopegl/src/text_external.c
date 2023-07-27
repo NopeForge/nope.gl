@@ -181,7 +181,7 @@ struct text_run {
     const hb_glyph_position_t *glyph_positions;
 };
 
-static int build_glyph_index(struct text *text, struct hmap *glyph_index, struct darray *runs_array)
+static int build_glyph_index(struct text *text, struct hmap *glyph_index, const struct darray *runs_array)
 {
     struct text_external *s = text->priv_data;
 
