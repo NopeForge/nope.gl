@@ -161,8 +161,7 @@ static void vaapi_release_frame_resources(struct hwmap *hwmap)
         vaapi->surface_acquired = 0;
     }
 
-    nmd_release_frame(vaapi->frame);
-    vaapi->frame = NULL;
+    nmd_frame_releasep(&vaapi->frame);
 }
 
 static void vaapi_uninit(struct hwmap *hwmap)

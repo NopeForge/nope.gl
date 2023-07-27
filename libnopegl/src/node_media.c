@@ -27,7 +27,6 @@
 #include "config.h"
 
 #if defined(TARGET_ANDROID)
-#include <libavcodec/mediacodec.h>
 #include "android_imagereader.h"
 #endif
 
@@ -312,7 +311,7 @@ static int media_update(struct ngl_node *node, double t)
         TRACE("remapped time f(%g)=%g", t, media_time);
     }
 
-    nmd_release_frame(s->frame);
+    nmd_frame_releasep(&s->frame);
 
     TRACE("get frame from %s at t=%g", node->label, media_time);
     struct nmd_frame *frame = nmd_get_frame(s->player, media_time);
@@ -341,15 +340,14 @@ static int media_update(struct ngl_node *node, double t)
 static void media_release(struct ngl_node *node)
 {
     struct media_priv *s = node->priv_data;
-    nmd_release_frame(s->frame);
-    s->frame = NULL;
+    nmd_frame_releasep(&s->frame);
     nmd_stop(s->player);
 }
 
 static void media_uninit(struct ngl_node *node)
 {
     struct media_priv *s = node->priv_data;
-    nmd_free(&s->player);
+    nmd_freep(&s->player);
 
 #if defined(TARGET_ANDROID)
     struct ngl_ctx *ctx = node->ctx;

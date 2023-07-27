@@ -257,7 +257,6 @@ hosts_cfg = {
     'frameworks': ['CoreVideo', 'CoreFoundation', 'AppKit', 'IOSurface'],
   },
   'android': {
-    'deps': ['libavcodec'],
     'libs': ['android'],
     'src': files(
       'src/jni_utils.c',
@@ -277,7 +276,7 @@ hosts_cfg = {
 
 lib_deps = [
   cc.find_library('m', required: false),
-  dependency('libnopemd', version: '>= 10.0.0'),
+  dependency('libnopemd', version: '>= 11.0.0'),
   dependency('threads'),
 ]
 

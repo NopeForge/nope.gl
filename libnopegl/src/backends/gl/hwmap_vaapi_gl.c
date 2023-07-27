@@ -164,8 +164,7 @@ static void vaapi_uninit(struct hwmap *hwmap)
         vaapi->surface_acquired = 0;
     }
 
-    nmd_release_frame(vaapi->frame);
-    vaapi->frame = NULL;
+    nmd_frame_releasep(&vaapi->frame);
 }
 
 static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
@@ -177,8 +176,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
-    nmd_release_frame(vaapi->frame);
-    vaapi->frame = frame;
+    nmd_frame_releasep(&vaapi->frame);
 
     if (vaapi->surface_acquired) {
         for (size_t i = 0; i < 2; i++) {

@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <nopemd.h>
-#include <libavcodec/mediacodec.h>
 #include <android/hardware_buffer.h>
 #include <android/hardware_buffer_jni.h>
 
@@ -142,7 +141,8 @@ static int mc_map_frame_surfacetexture(struct hwmap *hwmap, struct nmd_frame *fr
 {
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
-    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->datap[0];
+
+    ngli_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
 
     NGLI_ALIGNED_MAT(flip_matrix) = {
         1.0f, 0.0f, 0.0f, 0.0f,
@@ -152,10 +152,9 @@ static int mc_map_frame_surfacetexture(struct hwmap *hwmap, struct nmd_frame *fr
     };
 
     float *matrix = hwmap->mapped_image.coordinates_matrix;
-    ngli_android_surface_render_buffer(params->android_surface, buffer, matrix);
+    ngli_android_surface_render_frame(params->android_surface, &frame, matrix);
     ngli_mat4_mul(matrix, matrix, flip_matrix);
 
-    ngli_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
 
     return 0;
 }
@@ -170,8 +169,7 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct nmd_frame *frame
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
-    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->datap[0];
-    int ret = av_mediacodec_release_buffer(buffer, 1);
+    int ret = nmd_mc_frame_render_and_releasep(&frame);
     if (ret < 0)
         return ret;
 
@@ -268,6 +266,7 @@ const struct hwmap_class ngli_hwmap_mc_gl_class = {
         NGLI_IMAGE_LAYOUT_MEDIACODEC,
         NGLI_IMAGE_LAYOUT_NONE
     },
+    .flags     = HWMAP_FLAG_FRAME_OWNER,
     .priv_size = sizeof(struct hwmap_mc),
     .init      = mc_init,
     .map_frame = mc_map_frame,

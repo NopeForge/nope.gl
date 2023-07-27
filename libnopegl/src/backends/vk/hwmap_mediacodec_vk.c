@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <nopemd.h>
-#include <libavcodec/mediacodec.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_android.h>
 #include <android/hardware_buffer.h>
@@ -125,8 +124,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
-    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->datap[0];
-    int ret = av_mediacodec_release_buffer(buffer, 1);
+    int ret = nmd_mc_frame_render_and_releasep(&frame);
     if (ret < 0)
         return ret;
 
@@ -388,6 +386,7 @@ const struct hwmap_class ngli_hwmap_mc_vk_class = {
         NGLI_IMAGE_LAYOUT_DEFAULT,
         NGLI_IMAGE_LAYOUT_NONE
     },
+    .flags     = HWMAP_FLAG_FRAME_OWNER,
     .priv_size = sizeof(struct hwmap_mc),
     .init      = mc_init,
     .map_frame = mc_map_frame,

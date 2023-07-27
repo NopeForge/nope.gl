@@ -19,7 +19,7 @@ jobs:
         arch: [x86_64, arm, aarch64]
         ffmpeg_version: [5.0.1]
         glslang_version: [11.9.0]
-        nopemd_version: [10.0.0]
+        nopemd_version: [11.0.0]
 
     steps:
     - uses: actions/checkout@v2
