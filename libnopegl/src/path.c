@@ -296,6 +296,24 @@ int ngli_path_add_svg_path(struct path *s, const char *str)
     return 0;
 }
 
+int ngli_path_add_path(struct path *s, const struct path *path)
+{
+    ngli_assert(s->state == PATH_STATE_DEFAULT);
+
+    const struct path_segment *segments = ngli_darray_data(&path->segments);
+    for (size_t i = 0; i < ngli_darray_count(&path->segments); i++) {
+        const struct path_segment *segment = &segments[i];
+        if (!ngli_darray_push(&s->segments, segment))
+            return NGL_ERROR_MEMORY;
+    }
+
+    memcpy(s->origin, path->origin, sizeof(s->origin));
+    memcpy(s->cursor, path->cursor, sizeof(s->cursor));
+    s->segment_flags = path->segment_flags;
+
+    return 0;
+}
+
 /*
  * Interpolate a 3D point using the polynomials
  */

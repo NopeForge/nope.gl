@@ -56,6 +56,9 @@ int ngli_path_close(struct path *s);
 /* Path construction from SVG path specifications */
 int ngli_path_add_svg_path(struct path *s, const char *str);
 
+/* Path construction from another path */
+int ngli_path_add_path(struct path *s, const struct path *add);
+
 /* Finalize construction: must be called at the end of the construction */
 int ngli_path_finalize(struct path *s);
 
