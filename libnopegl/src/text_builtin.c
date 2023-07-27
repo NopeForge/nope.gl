@@ -111,7 +111,7 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
     const int32_t chr_w = NGLI_FONT_W;
     const int32_t chr_h = NGLI_FONT_H;
 
-    int32_t px = 0, py = 0;
+    int32_t col = 0, row = 0;
 
     for (size_t i = 0; str[i]; i++) {
         const enum char_tag tags = get_char_tags(str[i]);
@@ -121,16 +121,16 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
                 return NGL_ERROR_MEMORY;
             if (tags & NGLI_TEXT_CHAR_TAG_LINE_BREAK) {
                 switch (text->config.writing_mode) {
-                case NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB: py++; px = 0; break;
-                case NGLI_TEXT_WRITING_MODE_VERTICAL_RL:   px--; py = 0; break;
-                case NGLI_TEXT_WRITING_MODE_VERTICAL_LR:   px++; py = 0; break;
+                case NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB: row++; col = 0; break;
+                case NGLI_TEXT_WRITING_MODE_VERTICAL_RL:   col--; row = 0; break;
+                case NGLI_TEXT_WRITING_MODE_VERTICAL_LR:   col++; row = 0; break;
                 default: ngli_assert(0);
                 }
             } else if (tags & NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR) {
                 switch (text->config.writing_mode) {
-                case NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB: px++; break;
+                case NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB: col++; break;
                 case NGLI_TEXT_WRITING_MODE_VERTICAL_RL:
-                case NGLI_TEXT_WRITING_MODE_VERTICAL_LR:   py++; break;
+                case NGLI_TEXT_WRITING_MODE_VERTICAL_LR:   row++; break;
                 default: ngli_assert(0);
                 }
             } else {
@@ -144,8 +144,8 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
         ngli_atlas_get_bitmap_coords(text->ctx->font_atlas, atlas_id, atlas_coords);
 
         const struct char_info_internal chr = {
-            .x = NGLI_I32_TO_I26D6(chr_w * px),
-            .y = NGLI_I32_TO_I26D6(chr_h * (text_rows - py - 1)),
+            .x = NGLI_I32_TO_I26D6(chr_w * col),
+            .y = NGLI_I32_TO_I26D6(chr_h * (text_rows - row - 1)),
             .w = NGLI_I32_TO_I26D6(chr_w),
             .h = NGLI_I32_TO_I26D6(chr_h),
             .atlas_coords = {NGLI_ARG_VEC4(atlas_coords)},
@@ -156,9 +156,9 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
             return NGL_ERROR_MEMORY;
 
         switch (text->config.writing_mode) {
-        case NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB: px++; break;
+        case NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB: col++; break;
         case NGLI_TEXT_WRITING_MODE_VERTICAL_RL:
-        case NGLI_TEXT_WRITING_MODE_VERTICAL_LR:   py++; break;
+        case NGLI_TEXT_WRITING_MODE_VERTICAL_LR:   row++; break;
         default: ngli_assert(0);
         }
     }
