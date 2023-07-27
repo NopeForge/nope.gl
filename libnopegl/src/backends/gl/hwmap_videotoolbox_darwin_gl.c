@@ -125,7 +125,7 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
     ngli_assert(vt->format == cvformat);
 
-    nmd_release_frame(vt->frame);
+    nmd_frame_releasep(&vt->frame);
     vt->frame = frame;
 
     IOSurfaceRef surface = CVPixelBufferGetIOSurface(cvpixbuf);
@@ -262,7 +262,7 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
 
     ngli_glDeleteTextures(gl, 2, vt->gl_planes);
 
-    nmd_release_frame(vt->frame);
+    nmd_frame_releasep(&vt->frame);
     vt->frame = NULL;
 }
 

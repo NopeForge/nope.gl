@@ -21,7 +21,6 @@
 
 #include <jni.h>
 #include <time.h>
-#include <libavcodec/mediacodec.h>
 
 #include "android_utils.h"
 #include "jni_utils.h"
@@ -324,7 +323,7 @@ fail:
     return ret;
 }
 
-int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaCodecBuffer *buffer, float *matrix)
+int ngli_android_surface_render_frame(struct android_surface *surface, struct nmd_frame **framep, float *matrix)
 {
     int ret = 0;
 
@@ -332,13 +331,15 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
         return 0;
 
     JNIEnv *env = ngli_jni_get_env();
-    if (!env)
+    if (!env) {
+        nmd_mc_frame_render_and_releasep(framep);
         return NGL_ERROR_EXTERNAL;
+    }
 
     pthread_mutex_lock(&surface->lock);
     surface->on_frame_available = 0;
 
-    if (av_mediacodec_release_buffer(buffer, 1) < 0) {
+    if (nmd_mc_frame_render_and_releasep(framep) < 0) {
         pthread_mutex_unlock(&surface->lock);
         ret = NGL_ERROR_EXTERNAL;
         goto fail;

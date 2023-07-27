@@ -99,7 +99,7 @@ static int probe(const char *filename, struct nmd_info *media_info)
     if (ret < 0)
         return ret;
 
-    nmd_free(&ctx);
+    nmd_freep(&ctx);
 
     return 0;
 }

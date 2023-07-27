@@ -22,7 +22,7 @@
 #ifndef ANDROID_SURFACE_H
 #define ANDROID_SURFACE_H
 
-#include <libavcodec/mediacodec.h>
+#include <nopemd.h>
 
 struct android_surface;
 struct android_surface *ngli_android_surface_new(int tex_id, void *handler);
@@ -30,7 +30,7 @@ void ngli_android_surface_free(struct android_surface **surface);
 void *ngli_android_surface_get_surface(struct android_surface *surface);
 int ngli_android_surface_attach_to_gl_context(struct android_surface *surface, int tex_id);
 int ngli_android_surface_detach_from_gl_context(struct android_surface *surface);
-int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaCodecBuffer *buffer, float *matrix);
+int ngli_android_surface_render_frame(struct android_surface *surface, struct nmd_frame **framep, float *matrix);
 void ngli_android_surface_signal_frame(struct android_surface *surface);
 
 #endif /* ANDROID_SURFACE_H */

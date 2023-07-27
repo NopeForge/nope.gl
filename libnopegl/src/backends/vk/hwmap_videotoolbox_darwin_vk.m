@@ -112,7 +112,7 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
     const struct hwmap_params *params = &hwmap->params;
 
-    nmd_release_frame(vt->frame);
+    nmd_frame_releasep(&vt->frame);
     vt->frame = frame;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
@@ -272,8 +272,7 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
     for (size_t i = 0; i < 2; i++)
         ngli_texture_freep(&vt->planes[i]);
 
-    nmd_release_frame(vt->frame);
-    vt->frame = NULL;
+    nmd_frame_releasep(&vt->frame);
 }
 
 const struct hwmap_class ngli_hwmap_vt_darwin_vk_class = {

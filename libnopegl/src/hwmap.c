@@ -222,13 +222,13 @@ int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct im
 
         hwmap->hwmap_priv_data = ngli_calloc(1, hwmap_class->priv_size);
         if (!hwmap->hwmap_priv_data) {
-            nmd_release_frame(frame);
+            nmd_frame_releasep(&frame);
             return NGL_ERROR_MEMORY;
         }
 
         int ret = hwmap_class->init(hwmap, frame);
         if (ret < 0) {
-            nmd_release_frame(frame);
+            nmd_frame_releasep(&frame);
             return ret;
         }
         hwmap->pix_fmt = frame->pix_fmt;
@@ -264,7 +264,7 @@ end:
     image->ts = (float)frame->ts;
 
     if (!(hwmap->hwmap_class->flags &  HWMAP_FLAG_FRAME_OWNER))
-        nmd_release_frame(frame);
+        nmd_frame_releasep(&frame);
     return ret;
 }
 
