@@ -53,6 +53,13 @@ struct block {
     size_t size;
 };
 
+struct block_field_data {
+    const void *data;
+    size_t count;
+};
+
+void ngli_block_fields_copy(const struct block *s, const struct block_field_data *src_array, uint8_t *dst);
+
 #define NGLI_BLOCK_VARIADIC_COUNT -1
 
 void ngli_block_init(struct block *s, enum block_layout layout);
