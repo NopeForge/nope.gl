@@ -171,7 +171,7 @@ int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap
     memset(hwmap, 0, sizeof(*hwmap));
     hwmap->ctx = ctx;
     hwmap->params = *params;
-    hwmap->pix_fmt = -1; /* TODO: replace by NMD_PIXFMT_NONE */
+    hwmap->pix_fmt = NMD_PIXFMT_NONE;
 
     const struct ngl_config *config = &ctx->config;
     hwmap->hwmap_classes = get_backend_hwmap_classes(config->backend);
@@ -192,7 +192,7 @@ static void hwmap_reset(struct hwmap *hwmap)
     }
     hwmap->hwmap_class = NULL;
     ngli_freep(&hwmap->hwmap_priv_data);
-    hwmap->pix_fmt = -1; /* TODO: replace by NMD_PIXFMT_NONE */
+    hwmap->pix_fmt = NMD_PIXFMT_NONE;
     hwmap->width = 0;
     hwmap->height = 0;
 }
