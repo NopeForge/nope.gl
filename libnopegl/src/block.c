@@ -205,8 +205,8 @@ void ngli_block_field_copy(const struct block_field *fi, uint8_t * restrict dst,
     if (fi->type == NGLI_TYPE_MAT3) {
         const size_t dst_vec_stride = fi->stride / 3;
         const size_t src_vec_stride = sizes_map[NGLI_TYPE_VEC3];
-        const size_t count = 3 * NGLI_MAX(fi->count, 1);
-        for (size_t i = 0; i < count; i++) {
+        const size_t n = 3 * NGLI_MAX(fi->count, 1);
+        for (size_t i = 0; i < n; i++) {
             memcpy(dstp, srcp, src_vec_stride);
             dstp += dst_vec_stride;
             srcp += src_vec_stride;
@@ -215,8 +215,8 @@ void ngli_block_field_copy(const struct block_field *fi, uint8_t * restrict dst,
     }
 
     const size_t src_stride = sizes_map[fi->type];
-    const size_t count = NGLI_MAX(fi->count, 1);
-    for (size_t i = 0; i < count; i++) {
+    const size_t n = NGLI_MAX(fi->count, 1);
+    for (size_t i = 0; i < n; i++) {
         memcpy(dstp, srcp, src_stride);
         dstp += fi->stride;
         srcp += src_stride;
