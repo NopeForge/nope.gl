@@ -139,6 +139,9 @@ int ngli_path_move_to(struct path *s, const float *to)
 
 int ngli_path_line_to(struct path *s, const float *to)
 {
+    if (!memcmp(s->cursor, to, sizeof(s->cursor)))
+        return 0;
+
     const struct path_segment segment = {
         .degree = 1,
         .bezier_x = {s->cursor[0], to[0]},
@@ -151,6 +154,10 @@ int ngli_path_line_to(struct path *s, const float *to)
 
 int ngli_path_bezier2_to(struct path *s, const float *ctl, const float *to)
 {
+    if (!memcmp(s->cursor, ctl, sizeof(s->cursor)) &&
+        !memcmp(s->cursor, to, sizeof(s->cursor)))
+        return 0;
+
     const struct path_segment segment = {
         .degree = 2,
         .bezier_x = {s->cursor[0], ctl[0], to[0]},
@@ -163,6 +170,11 @@ int ngli_path_bezier2_to(struct path *s, const float *ctl, const float *to)
 
 int ngli_path_bezier3_to(struct path *s, const float *ctl0, const float *ctl1, const float *to)
 {
+    if (!memcmp(s->cursor, ctl0, sizeof(s->cursor)) &&
+        !memcmp(s->cursor, ctl1, sizeof(s->cursor)) &&
+        !memcmp(s->cursor, to, sizeof(s->cursor)))
+        return 0;
+
     const struct path_segment segment = {
         .degree = 3,
         .bezier_x = {s->cursor[0], ctl0[0], ctl1[0], to[0]},
