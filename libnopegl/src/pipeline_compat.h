@@ -38,6 +38,7 @@ struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx);
 int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_compat_params *params);
 int ngli_pipeline_compat_update_vertex_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer);
 int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index, const void *value);
+int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t index, const void *value, size_t count);
 int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture);
 void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const struct pgcraft_texture_info *info);
 int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);

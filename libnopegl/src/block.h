@@ -45,6 +45,7 @@ struct block_field {
 };
 
 void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uint8_t *src);
+void ngli_block_field_copy_count(const struct block_field *fi, uint8_t *dst, const uint8_t *src, size_t count);
 
 struct block {
     enum block_layout layout;
