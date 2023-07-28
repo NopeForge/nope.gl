@@ -50,6 +50,7 @@ struct path {
     struct darray segments;     /* array of struct path_segment */
     struct darray steps;        /* array of struct path_step */
     struct darray steps_dist;   /* array of floats */
+    float origin[3];            /* temporary origin for the current sub-path */
     float cursor[3];            /* temporary cursor used during path construction */
     uint32_t segment_flags;     /* temporary segment flags used during path construction */
 };
@@ -104,8 +105,25 @@ static int add_segment_and_move(struct path *s, const struct path_segment *segme
     return 0;
 }
 
+static void set_segment_closing_flag(struct path *s)
+{
+    struct path_segment *last = ngli_darray_tail(&s->segments);
+
+    /*
+     * The flag check prevents the case where 2 successive moves would set the
+     * closing flag.
+     */
+    if (!last || (last->flags & (NGLI_PATH_SEGMENT_FLAG_CLOSING | NGLI_PATH_SEGMENT_FLAG_OPEN_END)))
+        return;
+
+    const int origin_is_dst = !memcmp(s->origin, s->cursor, sizeof(s->cursor));
+    last->flags |= origin_is_dst ? NGLI_PATH_SEGMENT_FLAG_CLOSING : NGLI_PATH_SEGMENT_FLAG_OPEN_END;
+}
+
 int ngli_path_move_to(struct path *s, const float *to)
 {
+    set_segment_closing_flag(s);
+    memcpy(s->origin, to, sizeof(s->origin));
     memcpy(s->cursor, to, sizeof(s->cursor));
     s->segment_flags |= NGLI_PATH_SEGMENT_FLAG_NEW_ORIGIN;
     return 0;
@@ -156,6 +174,7 @@ static void poly_eval(float *dst, const struct path_segment *segment, float t)
 int ngli_path_finalize(struct path *s)
 {
     ngli_assert(s->state == PATH_STATE_DEFAULT);
+    set_segment_closing_flag(s);
     s->state = PATH_STATE_FINALIZED;
     return 0;
 }
@@ -411,6 +430,7 @@ void ngli_path_clear(struct path *s)
     ngli_darray_clear(&s->segments);
     ngli_darray_clear(&s->steps);
     ngli_darray_clear(&s->steps_dist);
+    memset(s->origin, 0, sizeof(*s->origin));
     memset(s->cursor, 0, sizeof(*s->cursor));
     s->segment_flags = 0;
 }
