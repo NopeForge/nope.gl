@@ -141,7 +141,7 @@ int ngli_pipeline_compat_update_vertex_buffer(struct pipeline_compat *s, int32_t
     return 0;
 }
 
-int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index, const void *value)
+int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t index, const void *value, size_t count)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     
@@ -160,10 +160,15 @@ int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index
                 return ret;
         }
         uint8_t *dst = s->mapped_datas[stage] + field->offset;
-        ngli_block_field_copy(field, dst, value);
+        ngli_block_field_copy_count(field, dst, value, count);
     }
 
     return 0;
+}
+
+int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index, const void *value)
+{
+    return ngli_pipeline_compat_update_uniform_count(s, index, value, 0);
 }
 
 int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture)
