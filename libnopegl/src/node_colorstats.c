@@ -260,7 +260,7 @@ static int init_computes(struct ngl_node *node)
 static int init_block(struct colorstats_priv *s, struct gpu_ctx *gpu_ctx)
 {
     struct block *block = &s->blk.block;
-    ngli_block_init(block, NGLI_BLOCK_LAYOUT_STD430);
+    ngli_block_init(gpu_ctx, block, NGLI_BLOCK_LAYOUT_STD430);
 
     /* Set block fields */
     static const struct {

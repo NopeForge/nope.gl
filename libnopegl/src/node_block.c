@@ -282,7 +282,7 @@ static int block_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ngli_block_init(&info->block, o->layout);
+    ngli_block_init(gpu_ctx, &info->block, o->layout);
 
     info->usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
 
