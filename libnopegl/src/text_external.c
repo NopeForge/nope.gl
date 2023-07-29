@@ -73,11 +73,10 @@ static int load_font(struct text *text, const char *font_file)
     const int32_t pt_size = 54;
     const FT_F26Dot6 chr_w = NGLI_I32_TO_I26D6(pt_size); // nominal width in 26.6
     const FT_F26Dot6 chr_h = NGLI_I32_TO_I26D6(pt_size); // nominal height in 26.6
-    const FT_UInt h_res = 96; // horizontal resolution in dpi
-    const FT_UInt v_res = 96; // vertical resolution in dpi
-    ft_error = FT_Set_Char_Size(ft_face, chr_w, chr_h, h_res, v_res);
+    const FT_UInt res = 96; // resolution in dpi
+    ft_error = FT_Set_Char_Size(ft_face, chr_w, chr_h, res, res);
     if (ft_error) {
-        LOG(ERROR, "unable to set char size to %d points in %ux%u DPI", pt_size, h_res, v_res);
+        LOG(ERROR, "unable to set char size to %d points in %u DPI", pt_size, res);
         return NGL_ERROR_EXTERNAL;
     }
 
