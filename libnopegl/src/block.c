@@ -31,9 +31,9 @@
 
 void ngli_block_init(struct gpu_ctx *gpu_ctx, struct block *s, enum block_layout layout)
 {
-    ngli_darray_init(&s->fields, sizeof(struct block_field), 0);
     s->gpu_ctx = gpu_ctx;
     s->layout = layout;
+    ngli_darray_init(&s->fields, sizeof(struct block_field), 0);
 }
 
 static const size_t strides_map[NGLI_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
