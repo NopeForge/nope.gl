@@ -24,13 +24,15 @@
 #include <string.h>
 
 #include "block.h"
+#include "gpu_ctx.h"
 #include "nopegl.h"
 #include "type.h"
 #include "utils.h"
 
-void ngli_block_init(struct block *s, enum block_layout layout)
+void ngli_block_init(struct gpu_ctx *gpu_ctx, struct block *s, enum block_layout layout)
 {
     ngli_darray_init(&s->fields, sizeof(struct block_field), 0);
+    s->gpu_ctx = gpu_ctx;
     s->layout = layout;
 }
 
@@ -174,6 +176,14 @@ size_t ngli_block_get_size(const struct block *s, size_t variadic_field_count)
     tmp.count = variadic_field_count;
     size_t size = fill_tail_field_info(s, &tmp);
     return NGLI_ALIGN(size, aligns_map[NGLI_TYPE_VEC4]);
+}
+
+size_t ngli_block_get_aligned_size(const struct block *s, size_t variadic_field_count)
+{
+    const struct gpu_limits *limits = &s->gpu_ctx->limits;
+    const size_t alignment = NGLI_MAX(limits->min_uniform_block_offset_alignment,
+                                      limits->min_storage_block_offset_alignment);
+    return NGLI_ALIGN(ngli_block_get_size(s, variadic_field_count), alignment);
 }
 
 int ngli_block_add_field(struct block *s, const char *name, int type, size_t count)

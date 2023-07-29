@@ -28,6 +28,8 @@
 #include "darray.h"
 #include "program.h" // MAX_ID_LEN
 
+struct gpu_ctx;
+
 enum block_layout {
     NGLI_BLOCK_LAYOUT_UNKNOWN,
     NGLI_BLOCK_LAYOUT_STD140,
@@ -48,6 +50,7 @@ void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uin
 void ngli_block_field_copy_count(const struct block_field *fi, uint8_t *dst, const uint8_t *src, size_t count);
 
 struct block {
+    struct gpu_ctx *gpu_ctx;
     enum block_layout layout;
     struct darray fields; // block_field
     size_t size;
@@ -62,8 +65,17 @@ void ngli_block_fields_copy(const struct block *s, const struct block_field_data
 
 #define NGLI_BLOCK_VARIADIC_COUNT -1
 
-void ngli_block_init(struct block *s, enum block_layout layout);
+void ngli_block_init(struct gpu_ctx *gpu_ctx, struct block *s, enum block_layout layout);
 size_t ngli_block_get_size(const struct block *s, size_t variadic_count);
+
+/*
+ * Get the block size aligned to the minimum offset alignment required by the
+ * GPU. This function is useful when one wants to pack multiple blocks into the
+ * same buffer as it ensures that the next block offset into the buffer will
+ * honor the GPU offset alignment constraints.
+ */
+size_t ngli_block_get_aligned_size(const struct block *s, size_t variadic_count);
+
 int ngli_block_add_field(struct block *s, const char *name, int type, size_t count);
 void ngli_block_reset(struct block *s);
 

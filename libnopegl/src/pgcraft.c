@@ -1400,7 +1400,7 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
 
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     for (size_t i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
-        ngli_block_init(&compat_info->ublocks[i], NGLI_BLOCK_LAYOUT_STD140);
+        ngli_block_init(ctx->gpu_ctx, &compat_info->ublocks[i], NGLI_BLOCK_LAYOUT_STD140);
         compat_info->ubindings[i] = -1;
         compat_info->uindices[i] = -1;
     }
