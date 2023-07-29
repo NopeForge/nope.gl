@@ -86,6 +86,22 @@ static int load_font(struct text *text, const char *font_file)
         return NGL_ERROR_EXTERNAL;
     }
 
+    LOG(DEBUG, "loaded font family %s", ft_face->family_name);
+    if (ft_face->style_name)
+        LOG(DEBUG, "* style: %s", ft_face->style_name);
+    LOG(DEBUG, "* num glyphs: %ld", ft_face->num_glyphs);
+    LOG(DEBUG, "* bbox xmin:%ld xmax:%ld ymin:%ld ymax:%ld",
+        ft_face->bbox.xMin, ft_face->bbox.xMax,
+        ft_face->bbox.yMin, ft_face->bbox.yMax);
+    LOG(DEBUG, "* units_per_EM: %d ", ft_face->units_per_EM);
+    LOG(DEBUG, "* ascender:  %d ", ft_face->ascender);
+    LOG(DEBUG, "* descender: %d ", ft_face->descender);
+    LOG(DEBUG, "* height: %d ", ft_face->height);
+    LOG(DEBUG, "* max_advance_[width:%d height:%d]",
+        ft_face->max_advance_width, ft_face->max_advance_height);
+    LOG(DEBUG, "* underline_[position:%d thickness:%d]",
+        ft_face->underline_position, ft_face->underline_thickness);
+
     hb_font = hb_ft_font_create(ft_face, NULL);
     if (!hb_font)
         return NGL_ERROR_MEMORY;
