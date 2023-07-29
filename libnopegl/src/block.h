@@ -77,6 +77,8 @@ size_t ngli_block_get_size(const struct block *s, size_t variadic_count);
 size_t ngli_block_get_aligned_size(const struct block *s, size_t variadic_count);
 
 int ngli_block_add_field(struct block *s, const char *name, int type, size_t count);
+int ngli_block_add_fields(struct block *s, const struct block_field *fields, size_t count);
+
 void ngli_block_reset(struct block *s);
 
 #endif

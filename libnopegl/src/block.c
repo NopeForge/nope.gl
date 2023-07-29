@@ -207,6 +207,23 @@ int ngli_block_add_field(struct block *s, const char *name, int type, size_t cou
     return 0;
 }
 
+int ngli_block_add_fields(struct block *s, const struct block_field *fields, size_t count)
+{
+    for (size_t i = 0; i < count; i++) {
+        const struct block_field *field = &fields[i];
+
+        /* These fields are filled internally */
+        ngli_assert(field->offset == 0);
+        ngli_assert(field->size == 0);
+        ngli_assert(field->stride == 0);
+
+        int ret = ngli_block_add_field(s, field->name, field->type, field->count);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
+
 void ngli_block_field_copy_count(const struct block_field *fi, uint8_t * restrict dst, const uint8_t * restrict src, size_t count)
 {
     uint8_t *dstp = dst;
