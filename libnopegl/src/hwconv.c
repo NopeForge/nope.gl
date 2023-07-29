@@ -178,42 +178,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     const struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
     ngli_assert(ngli_darray_count(texture_infos_array) == 1);
 
-    const struct pgcraft_texture_info_field *fields = info->fields;
-
-    if (image->params.layout) {
-        const float dimensions[] = {(float)image->params.width, (float)image->params.height, (float)image->params.depth};
-        ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
-    }
-
-    int ret = -1;
-    switch (image->params.layout) {
-    case NGLI_IMAGE_LAYOUT_DEFAULT:
-        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_0].index, image->planes[0]);
-        break;
-    case NGLI_IMAGE_LAYOUT_NV12:
-        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_0].index, image->planes[0]);
-        ret &= ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_1].index, image->planes[1]);
-        break;
-    case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
-        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_RECT_0].index, image->planes[0]);
-        ret &= ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_RECT_1].index, image->planes[1]);
-        break;
-    case NGLI_IMAGE_LAYOUT_MEDIACODEC:
-        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_OES].index, image->planes[0]);
-        break;
-    case NGLI_IMAGE_LAYOUT_YUV:
-        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_0].index, image->planes[0]);
-        ret &= ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_1].index, image->planes[1]);
-        ret &= ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_2].index, image->planes[2]);
-        break;
-    default:
-        ngli_assert(0);
-    }
-    ngli_assert(ret == 0);
-    ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &image->params.layout);
-    ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
-    ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
-
+    ngli_pipeline_compat_update_texture_info(pipeline, info);
     ngli_pipeline_compat_draw(pipeline, 3, 1);
 
     ngli_gpu_ctx_end_render_pass(gpu_ctx);
