@@ -208,8 +208,8 @@ static int text_builtin_init(struct text *text)
 {
     struct text_builtin *s = text->priv_data;
 
-    const int32_t pt_size = 54;
-    const int32_t res = 96;
+    const int32_t pt_size = text->config.pt_size;
+    const int32_t res = text->config.dpi;
     s->chr_w = pt_size * res / 72 * view_w / view_h;
     s->chr_h = pt_size * res / 72;
 

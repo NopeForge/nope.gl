@@ -89,6 +89,8 @@ struct text_opts {
     float box_height[3];
     char *font_files;
     int32_t padding;
+    int32_t pt_size;
+    int32_t dpi;
     float font_scale;
     int scale_mode;
     struct ngl_node **effect_nodes;
@@ -199,6 +201,10 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("paths to font files (use ',' or ';' to separate paths, require build with external text libraries)")},
     {"padding",      NGLI_PARAM_TYPE_I32, OFFSET(padding), {.i32=4},
                      .desc=NGLI_DOCSTRING("padding around the text, in point units")},
+    {"pt_size",      NGLI_PARAM_TYPE_I32, OFFSET(pt_size), {.i32=54},
+                     .desc=NGLI_DOCSTRING("characters size in point (nominal size, 1pt = 1/72 inch)")},
+    {"dpi",          NGLI_PARAM_TYPE_I32, OFFSET(dpi), {.i32=96},
+                     .desc=NGLI_DOCSTRING("resolution (dot per inch)")},
     {"font_scale",   NGLI_PARAM_TYPE_F32, OFFSET(font_scale), {.f32=1.f},
                      .desc=NGLI_DOCSTRING("scaling of the font")},
     {"scale_mode",   NGLI_PARAM_TYPE_SELECT, OFFSET(scale_mode), {.i32=SCALE_MODE_AUTO},
@@ -465,6 +471,8 @@ static int text_init(struct ngl_node *node)
 
     const struct text_config config = {
         .font_files = o->font_files,
+        .pt_size = o->pt_size,
+        .dpi = o->dpi,
         .padding = o->padding,
         .valign = o->valign,
         .halign = o->halign,

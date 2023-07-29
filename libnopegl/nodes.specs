@@ -2137,6 +2137,20 @@
       "desc": "padding around the text, in point units"
     },
     {
+      "name": "pt_size",
+      "type": "i32",
+      "default": 54,
+      "flags": [],
+      "desc": "characters size in point (nominal size, 1pt = 1/72 inch)"
+    },
+    {
+      "name": "dpi",
+      "type": "i32",
+      "default": 96,
+      "flags": [],
+      "desc": "resolution (dot per inch)"
+    },
+    {
       "name": "font_scale",
       "type": "f32",
       "default": 1.000000,

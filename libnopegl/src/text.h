@@ -76,6 +76,8 @@ struct text_effects_defaults {
 
 struct text_config {
     char *font_files;
+    int32_t pt_size;
+    int32_t dpi;
     int32_t padding;
     enum text_valign valign;
     enum text_halign halign;
