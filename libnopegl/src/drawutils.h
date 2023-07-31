@@ -43,6 +43,5 @@ struct rect {
 
 void ngli_drawutils_draw_rect(struct canvas *canvas, const struct rect *rect, uint32_t color);
 void ngli_drawutils_print(struct canvas *canvas, int x, int y, const char *str, uint32_t color);
-void ngli_drawutils_get_glyph(uint8_t *dst, uint8_t chr);
 
 #endif
