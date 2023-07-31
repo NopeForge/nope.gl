@@ -128,11 +128,3 @@ void ngli_drawutils_print(struct canvas *canvas, int x, int y, const char *str, 
         px++;
     }
 }
-
-void ngli_drawutils_get_glyph(uint8_t *dst, uint8_t chr)
-{
-    const uint8_t *c = chr < FONT_OFFSET || chr > 127 ? font8[0] : font8[chr - FONT_OFFSET];
-    for (int32_t char_y = 0; char_y < NGLI_FONT_H; char_y++)
-        for (int32_t char_x = 0; char_x < NGLI_FONT_W; char_x++)
-            *dst++ = (c[char_y] & (1 << char_x)) ? 0xff : 0x00;
-}
