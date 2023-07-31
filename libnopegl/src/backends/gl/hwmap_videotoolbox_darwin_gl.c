@@ -263,7 +263,6 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
     ngli_glDeleteTextures(gl, 2, vt->gl_planes);
 
     nmd_frame_releasep(&vt->frame);
-    vt->frame = NULL;
 }
 
 const struct hwmap_class ngli_hwmap_vt_darwin_gl_class = {
