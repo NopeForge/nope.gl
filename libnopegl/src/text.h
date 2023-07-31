@@ -22,7 +22,6 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "atlas.h"
 #include "darray.h"
 #include "nopegl.h"
 #include "texture.h"
