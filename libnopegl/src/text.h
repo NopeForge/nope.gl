@@ -64,8 +64,8 @@ struct char_info_internal {
 
 /* Exposed by the text API */
 struct char_info {
-    float x, y, w, h;
-    float atlas_coords[4];
+    float x, y, w, h;       // geometry position
+    float atlas_coords[4];  // texture position
 };
 
 /* User-requested defaults for all the characters */
