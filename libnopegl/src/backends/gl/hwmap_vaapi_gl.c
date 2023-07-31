@@ -177,6 +177,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
     nmd_frame_releasep(&vaapi->frame);
+    vaapi->frame = frame;
 
     if (vaapi->surface_acquired) {
         for (size_t i = 0; i < 2; i++) {
