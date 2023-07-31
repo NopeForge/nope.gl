@@ -59,6 +59,7 @@ enum char_tag {
 struct char_info_internal {
     int32_t x, y, w, h; // pixels canvas coordinates encoded in 26.6 fixed point
     int32_t atlas_coords[4]; // pixel atlas coordinates
+    float scale[2]; // geometry scaling factors
     uint32_t tags; // combination of NGLI_TEXT_CHAR_TAG_*
 };
 

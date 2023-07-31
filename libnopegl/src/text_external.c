@@ -637,6 +637,7 @@ static int register_chars(struct text *text, const char *str, struct darray *cha
                 chr.w = glyph->width;
                 chr.h = glyph->height;
                 ngli_atlas_get_bitmap_coords(s->atlas, glyph->atlas_id, chr.atlas_coords);
+                chr.scale[0] = chr.scale[1] = 1.f;
             }
 
             if (!ngli_darray_push(chars_dst, &chr))

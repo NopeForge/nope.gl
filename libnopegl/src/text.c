@@ -448,11 +448,22 @@ int ngli_text_set_string(struct text *s, const char *str)
         if (!(chr_internal->tags & NGLI_TEXT_CHAR_TAG_GLYPH))
             continue;
 
+        /* Honor requested geometry scaling (anchor is at the center of the quad) */
+        const float x = NGLI_I26D6_TO_F32(chr_internal->x);
+        const float y = NGLI_I26D6_TO_F32(chr_internal->y);
+        const float w = NGLI_I26D6_TO_F32(chr_internal->w);
+        const float h = NGLI_I26D6_TO_F32(chr_internal->h);
+        const float nw = w * chr_internal->scale[0];
+        const float nh = h * chr_internal->scale[1];
+        const float offx = (w - nw) / 2.f;
+        const float offy = (h - nh) / 2.f;
+        const float xywh[] = {x + offx, y + offy, nw, nh};
+
         const struct char_info chr = {
-            .x = NGLI_I26D6_TO_F32(chr_internal->x) / (float)s->width,
-            .y = NGLI_I26D6_TO_F32(chr_internal->y) / (float)s->height,
-            .w = NGLI_I26D6_TO_F32(chr_internal->w) / (float)s->width,
-            .h = NGLI_I26D6_TO_F32(chr_internal->h) / (float)s->height,
+            .x = xywh[0] / (float)s->width,
+            .y = xywh[1] / (float)s->height,
+            .w = xywh[2] / (float)s->width,
+            .h = xywh[3] / (float)s->height,
             .atlas_coords = {
                 (float)chr_internal->atlas_coords[0] / (float)s->atlas_texture->params.width,
                 (float)chr_internal->atlas_coords[1] / (float)s->atlas_texture->params.height,
