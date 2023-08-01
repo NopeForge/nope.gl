@@ -583,7 +583,7 @@ List of `Noise*` nodes:
 
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
-`keyframes` |  [`nonull`](#Parameter-flags) | [`node_list`](#parameter-types) ([PathKeyMove](#pathkeymove), [PathKeyLine](#pathkeyline), [PathKeyBezier2](#pathkeybezier2), [PathKeyBezier3](#pathkeybezier3)) | anchor points the path go through | 
+`keyframes` |  [`nonull`](#Parameter-flags) | [`node_list`](#parameter-types) ([PathKeyMove](#pathkeymove), [PathKeyLine](#pathkeyline), [PathKeyBezier2](#pathkeybezier2), [PathKeyBezier3](#pathkeybezier3), [PathKeyClose](#pathkeyclose)) | anchor points the path go through | 
 `precision` |  | [`i32`](#parameter-types) | number of divisions per curve segment | `64`
 
 

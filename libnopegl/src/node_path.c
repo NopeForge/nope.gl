@@ -45,6 +45,7 @@ static const struct node_param path_params[] = {
                       NGL_NODE_PATHKEYLINE,
                       NGL_NODE_PATHKEYBEZIER2,
                       NGL_NODE_PATHKEYBEZIER3,
+                      NGL_NODE_PATHKEYCLOSE,
                       NGLI_NODE_NONE
                   },
                   .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
