@@ -58,3 +58,10 @@ jobs:
     - name: Run tests ${{matrix.backend}}
       run: |
         ${{matrix.custom_env}} make tests
+
+    - name: Upload Logs
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux logs ${{matrix.backend}}
+        path: builddir/tests/meson-logs/testlog.txt
