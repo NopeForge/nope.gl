@@ -138,18 +138,13 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
     return 0;
 }
 
-static void vaapi_uninit(struct hwmap *hwmap)
+static void vaapi_release_frame_resources(struct hwmap *hwmap)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
-
-    for (size_t i = 0; i < 2; i++)
-        ngli_texture_freep(&vaapi->planes[i]);
-
-    ngli_glDeleteTextures(gl, 2, vaapi->gl_planes);
 
     if (vaapi->surface_acquired) {
         for (size_t i = 0; i < 2; i++) {
@@ -167,6 +162,22 @@ static void vaapi_uninit(struct hwmap *hwmap)
     nmd_frame_releasep(&vaapi->frame);
 }
 
+static void vaapi_uninit(struct hwmap *hwmap)
+{
+    struct ngl_ctx *ctx = hwmap->ctx;
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
+    struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
+
+    for (size_t i = 0; i < 2; i++)
+        ngli_texture_freep(&vaapi->planes[i]);
+
+    ngli_glDeleteTextures(gl, 2, vaapi->gl_planes);
+
+    vaapi_release_frame_resources(hwmap);
+}
+
 static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
@@ -176,21 +187,8 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
-    nmd_frame_releasep(&vaapi->frame);
+    vaapi_release_frame_resources(hwmap);
     vaapi->frame = frame;
-
-    if (vaapi->surface_acquired) {
-        for (size_t i = 0; i < 2; i++) {
-            if (vaapi->egl_images[i]) {
-                ngli_eglDestroyImageKHR(gl, vaapi->egl_images[i]);
-                vaapi->egl_images[i] = NULL;
-            }
-        }
-        for (uint32_t i = 0; i < vaapi->surface_descriptor.num_objects; i++) {
-            close(vaapi->surface_descriptor.objects[i].fd);
-        }
-        vaapi->surface_acquired = 0;
-    }
 
     VASurfaceID surface_id = (VASurfaceID)(intptr_t)frame->datap[0];
     VAStatus status = vaExportSurfaceHandle(vaapi_ctx->va_display,
