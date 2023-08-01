@@ -138,3 +138,55 @@ def texteffect_chars_space_nospace(cfg: SceneCfg):
             ),
         ]
     )
+
+
+@test_fingerprint(keyframes=10, tolerance=1)
+@scene()
+def texteffect_blur(cfg: SceneCfg):
+    cfg.duration = 5
+    animkf = [
+        ngl.AnimKeyFrameFloat(0, 0),
+        ngl.AnimKeyFrameFloat(1 / 2, 0.1),
+        ngl.AnimKeyFrameFloat(1, 0),
+    ]
+    effects = [ngl.TextEffect(start=0, end=cfg.duration, blur=ngl.AnimatedFloat(animkf))]
+    return ngl.Text("B", effects=effects, aspect_ratio=cfg.aspect_ratio)
+
+
+@test_fingerprint(keyframes=10, tolerance=1)
+@scene()
+def texteffect_blur_outline(cfg: SceneCfg):
+    cfg.duration = 5
+    animkf = [
+        ngl.AnimKeyFrameFloat(0, 0),
+        ngl.AnimKeyFrameFloat(1 / 2, 0.1),
+        ngl.AnimKeyFrameFloat(1, 0),
+    ]
+    effects = [ngl.TextEffect(start=0, end=cfg.duration, blur=ngl.AnimatedFloat(animkf), outline=0.01)]
+    return ngl.Text("b", effects=effects, aspect_ratio=cfg.aspect_ratio)
+
+
+@test_fingerprint(keyframes=10, tolerance=1)
+@scene()
+def texteffect_glow(cfg: SceneCfg):
+    cfg.duration = 5
+    animkf = [
+        ngl.AnimKeyFrameFloat(0, 0),
+        ngl.AnimKeyFrameFloat(1 / 2, 0.2),
+        ngl.AnimKeyFrameFloat(1, 0),
+    ]
+    effects = [ngl.TextEffect(start=0, end=cfg.duration, glow=ngl.AnimatedFloat(animkf), glow_color=(1, 0, 0))]
+    return ngl.Text("G", effects=effects, aspect_ratio=cfg.aspect_ratio)
+
+
+@test_fingerprint(keyframes=10, tolerance=2)
+@scene()
+def texteffect_glow_outline(cfg: SceneCfg):
+    cfg.duration = 5
+    animkf = [
+        ngl.AnimKeyFrameFloat(0, 0),
+        ngl.AnimKeyFrameFloat(1 / 2, 0.2),
+        ngl.AnimKeyFrameFloat(1, 0),
+    ]
+    effects = [ngl.TextEffect(start=0, end=cfg.duration, glow=ngl.AnimatedFloat(animkf), outline=0.01)]
+    return ngl.Text("g", effects=effects, aspect_ratio=cfg.aspect_ratio)
