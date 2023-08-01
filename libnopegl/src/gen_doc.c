@@ -179,6 +179,8 @@ static int pointer_based_parameter(const struct node_param *par)
 static int node_has_children(const struct node_class *cls)
 {
     const struct node_param *par = cls->params;
+    if (!par)
+        return 0;
     while (par->key) {
         if (node_based_parameter(par))
             return 1;
