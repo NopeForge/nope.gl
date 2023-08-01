@@ -267,15 +267,6 @@ static int refresh_geometry(struct ngl_node *node)
     const float box_ratio = (float)ar[0] * box_width_len / ((float)ar[1] * box_height_len);
     const float text_ratio = (float)text->width / (float)text->height;
 
-    float ratio_w, ratio_h;
-    if (text_ratio < box_ratio) {
-        ratio_w = text_ratio / box_ratio;
-        ratio_h = 1.0;
-    } else {
-        ratio_w = 1.0;
-        ratio_h = box_ratio / text_ratio;
-    }
-
     /* Apply aspect ratio and font scaling */
     float width[3];
     float height[3];
@@ -288,6 +279,15 @@ static int refresh_geometry(struct ngl_node *node)
         ngli_vec3_scale(width, o->box_width, rw * o->font_scale);
         ngli_vec3_scale(height, o->box_height, rh * o->font_scale);
     } else {
+        float ratio_w, ratio_h;
+        if (text_ratio < box_ratio) {
+            ratio_w = text_ratio / box_ratio;
+            ratio_h = 1.0;
+        } else {
+            ratio_w = 1.0;
+            ratio_h = box_ratio / text_ratio;
+        }
+
         ngli_vec3_scale(width, o->box_width, ratio_w * o->font_scale);
         ngli_vec3_scale(height, o->box_height, ratio_h * o->font_scale);
     }
