@@ -239,6 +239,23 @@ foreach backend : backends
     'timeranges_rtt',
   ]
 
+  tests_path = [
+    'shape_0',
+    'shape_1',
+    'shape_2',
+    'shape_3',
+    'shape_4',
+    'shape_5',
+    'shape_6',
+    'shape_7',
+    'shape_8',
+    'parabola',
+    'flip_t',
+    'pie_slice',
+    'overlap_add',
+    'overlap_xor',
+  ]
+
   tests_py_bindings = [
     'allow_node',
     'dict',
@@ -458,6 +475,7 @@ foreach backend : backends
     'filter':        {'tests': tests_filter},
     'live':          {'tests': tests_live},
     'media':         {'tests': tests_media},
+    'path':          {'tests': tests_path},
     'py_bindings':   {'tests': tests_py_bindings, 'has_refs': false},
     'velocity':      {'tests': tests_velocity},
     'rtt':           {'tests': tests_rtt},
