@@ -686,6 +686,7 @@ foreach shader_file, header_file : shaders
     capture: true,
     input: files('src/glsl' / shader_file),
     output: header_file,
+    env: {'PYTHONIOENCODING': 'UTF-8'}
   )
 endforeach
 lib_src += shaders_h

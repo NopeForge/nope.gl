@@ -8,7 +8,7 @@ _include_re = re.compile(r"\s*#include\s+(?P<filename>.*)$")
 
 def _get_c_lines(fname):
     c_lines = []
-    with open(fname) as f:
+    with open(fname, encoding="utf-8") as f:
         for line in f:
             line = line.rstrip()
 
