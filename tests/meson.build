@@ -372,6 +372,10 @@ foreach backend : backends
     'opacity',
     'transform',
     'chars_space_nospace',
+    'blur',
+    'blur_outline',
+    'glow',
+    'glow_outline',
   ]
 
   tests_texture = [
