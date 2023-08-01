@@ -1205,7 +1205,7 @@
     {
       "name": "keyframes",
       "type": "node_list",
-      "node_types": ["PathKeyMove", "PathKeyLine", "PathKeyBezier2", "PathKeyBezier3"],
+      "node_types": ["PathKeyMove", "PathKeyLine", "PathKeyBezier2", "PathKeyBezier3", "PathKeyClose"],
       "flags": ["nonull"],
       "desc": "anchor points the path go through"
     },
