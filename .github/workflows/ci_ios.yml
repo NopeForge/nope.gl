@@ -21,7 +21,7 @@ jobs:
         nopemd_version: [11.0.0]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install dependencies
       run: |
