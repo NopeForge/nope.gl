@@ -198,14 +198,14 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
                                             VA_EXPORT_SURFACE_SEPARATE_LAYERS,
                                             &vaapi->surface_descriptor);
     if (status != VA_STATUS_SUCCESS) {
-        LOG(ERROR, "failed to export vaapi surface handle: 0x%x", status);
+        LOG(ERROR, "failed to export vaapi surface handle: %s", vaErrorStr(status));
         return NGL_ERROR_EXTERNAL;
     }
     vaapi->surface_acquired = 1;
 
     status = vaSyncSurface(vaapi_ctx->va_display, surface_id);
     if (status != VA_STATUS_SUCCESS)
-        LOG(WARNING, "failed to sync surface");
+        LOG(WARNING, "failed to sync surface: %s", vaErrorStr(status));
 
     if (vaapi->surface_descriptor.fourcc != VA_FOURCC_NV12 &&
         vaapi->surface_descriptor.fourcc != VA_FOURCC_P010 &&
