@@ -62,7 +62,8 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     const struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
     for (size_t i = 0; i < layout.nb_buffer_descs; i++) {
         const struct pipeline_resource_desc *buffer_desc = &layout.buffer_descs[i];
-        if (buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER)
+        if (buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER &&
+            buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC)
             continue;
         const char *buffer_name = ngli_pgcraft_get_symbol_name(crafter, buffer_desc->id);
         char block_name[MAX_ID_LEN];
