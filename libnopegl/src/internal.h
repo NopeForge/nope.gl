@@ -76,6 +76,13 @@ struct api_impl {
     int (*gl_wrap_framebuffer)(struct ngl_ctx *s, uint32_t framebuffer);
 };
 
+void ngli_free_text_builtin_atlas(void *user_arg, void *data);
+
+struct text_builtin_atlas {
+    struct distmap *distmap;
+    int32_t char_map[256];
+};
+
 struct ngl_ctx {
     /* Controller-only fields */
     int configured;
@@ -100,6 +107,8 @@ struct ngl_ctx {
      * (root).
      */
     struct darray activitycheck_nodes;
+
+    struct hmap *text_builtin_atlasses; // struct text_builtin_atlas
 
     struct pgcache pgcache;
 #if defined(HAVE_VAAPI)
