@@ -20,6 +20,7 @@
  */
 
 #include "distmap.h"
+#include "hmap.h"
 #include "internal.h"
 #include "memory.h"
 #include "path.h"
@@ -28,8 +29,7 @@
 
 struct text_builtin {
     int32_t chr_w, chr_h;
-    int32_t char_map[256];
-    struct distmap *distmap;
+    const struct text_builtin_atlas *atlas;
 };
 
 #define FIRST_CHAR '!'
@@ -139,19 +139,19 @@ static const char *outlines[] = {
     /* ~ */ "M1 4 q0 .5 .5 .5 .5 0 .5 -.5 h1 q0 1 1 1 h1 q1 0 1 -1 0 -.5 -.5 -.5 -.5 0 -.5 .5 h-1 q0 -1 -1 -1 h-1 q-1 0 -1 1",
 };
 
-static int atlas_create(struct text *text)
+static int atlas_create(struct text *text, struct text_builtin_atlas *atlas)
 {
     int ret = 0;
     struct text_builtin *s = text->priv_data;
     struct path *path = NULL;
 
-    s->distmap = ngli_distmap_create(text->ctx);
-    if (!s->distmap) {
+    atlas->distmap = ngli_distmap_create(text->ctx);
+    if (!atlas->distmap) {
         ret = NGL_ERROR_MEMORY;
         goto end;
     }
 
-    ret = ngli_distmap_init(s->distmap);
+    ret = ngli_distmap_init(atlas->distmap);
     if (ret < 0)
         goto end;
 
@@ -187,15 +187,15 @@ static int atlas_create(struct text *text)
 
         /* Register the glyph in the distmap atlas */
         int32_t shape_id;
-        int ret = ngli_distmap_add_shape(s->distmap, s->chr_w, s->chr_h, path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id);
+        int ret = ngli_distmap_add_shape(atlas->distmap, s->chr_w, s->chr_h, path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id);
         if (ret < 0)
             goto end;
 
         /* Map the character codepoint to its shape ID in the atlas */
-        s->char_map[FIRST_CHAR + i] = shape_id;
+        atlas->char_map[FIRST_CHAR + i] = shape_id;
     }
 
-    ret = ngli_distmap_finalize(s->distmap);
+    ret = ngli_distmap_finalize(atlas->distmap);
     if (ret < 0)
         goto end;
 
@@ -210,14 +210,34 @@ static int text_builtin_init(struct text *text)
 
     const int32_t pt_size = text->config.pt_size;
     const int32_t res = text->config.dpi;
-    s->chr_w = pt_size * res / 72 * view_w / view_h;
-    s->chr_h = pt_size * res / 72;
+    const int32_t size = pt_size * res / 72;
+    s->chr_w = size * view_w / view_h;
+    s->chr_h = size;
 
-    int ret = atlas_create(text);
-    if (ret < 0)
-        return ret;
+    char atlas_uid[32];
+    snprintf(atlas_uid, sizeof(atlas_uid), "%d", size);
+    struct text_builtin_atlas *atlas = ngli_hmap_get(text->ctx->text_builtin_atlasses, atlas_uid);
+    if (!atlas) {
+        atlas = ngli_calloc(1, sizeof(*atlas));
+        if (!atlas)
+            return NGL_ERROR_MEMORY;
 
-    text->atlas_texture = ngli_distmap_get_texture(s->distmap);
+        int ret = atlas_create(text, atlas);
+        if (ret < 0) {
+            ngli_free_text_builtin_atlas(NULL, atlas);
+            return ret;
+        }
+
+        ret = ngli_hmap_set(text->ctx->text_builtin_atlasses, atlas_uid, atlas);
+        if (ret < 0) {
+            ngli_free_text_builtin_atlas(NULL, atlas);
+            return ret;
+        }
+    }
+
+    s->atlas = atlas;
+
+    text->atlas_texture = ngli_distmap_get_texture(atlas->distmap);
 
     return 0;
 }
@@ -287,12 +307,12 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
             continue;
         }
 
-        const int32_t atlas_id = s->char_map[(uint8_t)str[i]];
+        const int32_t atlas_id = s->atlas->char_map[(uint8_t)str[i]];
         int32_t atlas_coords[4];
-        ngli_distmap_get_shape_coords(s->distmap, atlas_id, atlas_coords);
+        ngli_distmap_get_shape_coords(s->atlas->distmap, atlas_id, atlas_coords);
 
         float scale[2];
-        ngli_distmap_get_shape_scale(s->distmap, atlas_id, scale);
+        ngli_distmap_get_shape_scale(s->atlas->distmap, atlas_id, scale);
 
         const struct char_info_internal chr = {
             .x = NGLI_I32_TO_I26D6(s->chr_w * col),
@@ -318,16 +338,9 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
     return 0;
 }
 
-static void text_builtin_reset(struct text *text)
-{
-    struct text_builtin *s = text->priv_data;
-    ngli_distmap_freep(&s->distmap);
-}
-
 const struct text_cls ngli_text_builtin = {
     .init            = text_builtin_init,
     .set_string      = text_builtin_set_string,
-    .reset           = text_builtin_reset,
     .priv_size       = sizeof(struct text_builtin),
     .flags           = 0,
 };
