@@ -38,6 +38,7 @@ and API can change at any time.
 
 ### ⚙️ Discussions and explanations
 
+- [Project history][usr-expl-history]
 - [nope.gl standalone build environment][usr-expl-ngl-env]
 - [Shaders][usr-expl-shaders]
 - [Media (video) time remapping][usr-expl-time-remap]
@@ -82,6 +83,7 @@ and API can change at any time.
 [usr-tuto-start]:            /doc/usr/tuto/start.md
 [usr-howto-install]:         /doc/usr/howto/installation.md
 [usr-howto-c-api]:           /doc/usr/howto/c-api.md
+[usr-expl-history]:          /doc/usr/expl/history.md
 [usr-expl-ngl-env]:          /doc/usr/expl/ngl-env.md
 [usr-expl-shaders]:          /doc/usr/expl/shaders.md
 [usr-expl-time-remap]:       /doc/usr/expl/media-time-remapping.md
