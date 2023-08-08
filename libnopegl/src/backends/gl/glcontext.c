@@ -341,6 +341,12 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
     struct gpu_limits *limits = &glcontext->limits;
 
     GET(GL_MAX_VERTEX_ATTRIBS, &limits->max_vertex_attributes);
+    /*
+     * macOS and iOS OpenGL drivers pass gl_VertexID and gl_InstanceID as
+     * standard attributes and forget to count them in GL_MAX_VERTEX_ATTRIBS.
+     */
+    if (glcontext->platform == NGL_PLATFORM_MACOS || glcontext->platform == NGL_PLATFORM_IOS)
+        limits->max_vertex_attributes -= 2;
     GET(GL_MAX_TEXTURE_IMAGE_UNITS, &limits->max_texture_image_units);
     GET(GL_MAX_TEXTURE_SIZE, &limits->max_texture_dimension_1d);
     GET(GL_MAX_TEXTURE_SIZE, &limits->max_texture_dimension_2d);
