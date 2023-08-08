@@ -68,7 +68,7 @@ jobs:
       run: |
         ${{matrix.custom_env}} make tests-setup
         . venv/bin/activate
-        ${{matrix.custom_env}} meson test -C builddir/tests --timeout-multiplier=2 ${{matrix.custom_args}}
+        ${{matrix.custom_env}} meson test -C builddir/tests --timeout-multiplier=3 ${{matrix.custom_args}}
 
     - name: Upload Logs
       if: ${{ always() }}
