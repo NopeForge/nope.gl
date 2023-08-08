@@ -149,12 +149,18 @@ static struct text_effects_pointers get_chr_data_pointers(float *base, size_t nb
     struct text_effects_pointers ptrs = {0};
     ptrs.transform  = base;
     ptrs.color      = ptrs.transform  + nb_chars * 4 * 4;
+    ptrs.outline    = ptrs.color      + nb_chars * 4;
+    ptrs.glow       = ptrs.outline    + nb_chars * 4;
+    ptrs.blur       = ptrs.glow       + nb_chars * 4;
     return ptrs;
 }
 
 struct default_data {
     float transform[4 * 4];
     float color[4];
+    float outline[4];
+    float glow[4];
+    float blur;
 };
 
 /* Fill default buffers (1 row per character) with the default data. */
@@ -164,6 +170,9 @@ static void fill_default_data_buffers(struct text *s, size_t nb_chars)
     const struct default_data default_data = {
         .transform = NGLI_MAT4_IDENTITY,
         .color     = {NGLI_ARG_VEC3(s->config.defaults.color), s->config.defaults.opacity},
+        .outline   = {1.f, .7f, 0.f, 0.f},
+        .glow      = {1.f, 1.f, 1.f, 0.f},
+        .blur      = 0.f,
     };
 
     const struct text_effects_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
@@ -171,6 +180,9 @@ static void fill_default_data_buffers(struct text *s, size_t nb_chars)
     // Loop is repeated to make memory accesses contiguous.
     for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.transform + i * 4 * 4, default_data.transform, sizeof(default_data.transform));
     for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.color     + i * 4,     default_data.color,     sizeof(default_data.color));
+    for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.outline   + i * 4,     default_data.outline,   sizeof(default_data.outline));
+    for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.glow      + i * 4,     default_data.glow,      sizeof(default_data.glow));
+    for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.blur      + i,         &default_data.blur,     sizeof(default_data.blur));
 }
 
 void ngli_text_update_effects_defaults(struct text *s, const struct text_effects_defaults *defaults)
@@ -574,7 +586,12 @@ int ngli_text_set_time(struct text *s, double t)
 
             if ((ret = set_transform( s->data_ptrs.transform  + c * 4 * 4, effect_opts->transform_chain,                       target_t)) < 0 ||
                 (ret = set_vec3_value(s->data_ptrs.color      + c * 4,     effect_opts->color_node,      effect_opts->color,   target_t)) < 0 ||
-                (ret = set_f32_value( s->data_ptrs.color      + c * 4 + 3, effect_opts->opacity_node,    effect_opts->opacity, target_t)) < 0)
+                (ret = set_f32_value( s->data_ptrs.color      + c * 4 + 3, effect_opts->opacity_node,    effect_opts->opacity, target_t)) < 0 ||
+                (ret = set_vec3_value(s->data_ptrs.outline    + c * 4,     effect_opts->outline_color_node, effect_opts->outline_color, target_t)) < 0 ||
+                (ret = set_f32_value( s->data_ptrs.outline    + c * 4 + 3, effect_opts->outline_node,       effect_opts->outline,       target_t)) < 0 ||
+                (ret = set_vec3_value(s->data_ptrs.glow       + c * 4,     effect_opts->glow_color_node,    effect_opts->glow_color,    target_t)) < 0 ||
+                (ret = set_f32_value( s->data_ptrs.glow       + c * 4 + 3, effect_opts->glow_node,          effect_opts->glow,          target_t)) < 0 ||
+                (ret = set_f32_value( s->data_ptrs.blur       + c,         effect_opts->blur_node,          effect_opts->blur,          target_t)) < 0)
                 return ret;
         }
     }

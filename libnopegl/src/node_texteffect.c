@@ -70,6 +70,26 @@ static const struct node_param texteffect_params[] = {
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                      .desc=NGLI_DOCSTRING("characters opacity, use negative value for unchanged from previous text effects "
                                           "(default is `Text.opacity`)")},
+    {"outline",      NGLI_PARAM_TYPE_F32, OFFSET(outline_node), {.f32=-1.f},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
+                     .desc=NGLI_DOCSTRING("characters outline width, use negative value for unchanged from previous text effects "
+                                          "(default is 0)")},
+    {"outline_color", NGLI_PARAM_TYPE_VEC3, OFFSET(outline_color_node), {.vec={-1.f, -1.f, -1.f}},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
+                     .desc=NGLI_DOCSTRING("characters outline color, use negative value for unchanged from previous text effects "
+                                          "(default is yellow, (1, 1, 0))")},
+    {"glow",         NGLI_PARAM_TYPE_F32, OFFSET(glow_node), {.f32=-1.f},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
+                     .desc=NGLI_DOCSTRING("characters glow width, use negative value for unchanged from previous text effects "
+                                          "(default is 0)")},
+    {"glow_color",   NGLI_PARAM_TYPE_VEC3, OFFSET(glow_color_node), {.vec={-1.f, -1.f, -1.f}},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
+                     .desc=NGLI_DOCSTRING("characters glow color, use negative value for unchanged from previous text effects "
+                                          "(default is white, (1, 1, 1))")},
+    {"blur",         NGLI_PARAM_TYPE_F32, OFFSET(blur_node), {.f32=-1.f},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
+                     .desc=NGLI_DOCSTRING("characters blur, use negative value for unchanged from previous text effects "
+                                          "(default is 0)")},
     {NULL}
 };
 

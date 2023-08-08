@@ -21,7 +21,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Support for array of 2D textures
 - External font rendering in the `Text` node
 - Fixed scaling in the `Text` node
-- Text effects (color, opacity and transform), applicable per character/word/lines
+- Text effects (color, opacity, transform, glow, outline, blur), applicable per
+  character/word/lines
 - `PathKeyClose` node to close the current sub-path
 - `RenderPath` node to render paths visually
 

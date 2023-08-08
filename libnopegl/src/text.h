@@ -104,6 +104,9 @@ struct text_cls {
 struct text_effects_pointers {
     float *transform; // mat4[]
     float *color;     // vec4[] (last component is opacity)
+    float *outline;   // vec4[] (vec3 color, f32 outline width)
+    float *glow;      // vec4[] (vec3 color, f32 glow amount)
+    float *blur;      // f32[]
 };
 
 struct effect_segmentation {

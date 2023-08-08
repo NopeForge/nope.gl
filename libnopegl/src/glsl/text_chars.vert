@@ -38,4 +38,7 @@ void main()
     ngl_out_pos = projection_matrix * modelview_matrix * position;
 
     color   = frag_color;
+    outline = frag_outline;
+    glow    = frag_glow;
+    blur    = frag_blur;
 }
