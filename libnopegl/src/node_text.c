@@ -71,7 +71,6 @@ struct pipeline_desc_fg {
     int32_t atlas_coords_index;
     int32_t user_transform_index;
     int32_t color_index;
-    int32_t opacity_index;
 };
 
 struct pipeline_desc {
@@ -105,7 +104,6 @@ struct text_priv {
     struct buffer *atlas_coords;
     struct buffer *user_transforms;
     struct buffer *colors;
-    struct buffer *opacities;
     size_t nb_chars;
 
     /* background box */
@@ -218,7 +216,6 @@ static void destroy_characters_resources(struct text_priv *s)
     ngli_buffer_freep(&s->atlas_coords);
     ngli_buffer_freep(&s->user_transforms);
     ngli_buffer_freep(&s->colors);
-    ngli_buffer_freep(&s->opacities);
     s->nb_chars = 0;
 }
 
@@ -330,8 +327,7 @@ static int update_text_content(struct ngl_node *node)
         /* The content of these buffers will be updated later using the effects data (see apply_effects()) */
         s->user_transforms = ngli_buffer_create(gpu_ctx);
         s->colors          = ngli_buffer_create(gpu_ctx);
-        s->opacities       = ngli_buffer_create(gpu_ctx);
-        if (!s->user_transforms || !s->colors || !s->opacities) {
+        if (!s->user_transforms || !s->colors) {
             ret = NGL_ERROR_MEMORY;
             goto end;
         }
@@ -339,8 +335,7 @@ static int update_text_content(struct ngl_node *node)
         if ((ret = ngli_buffer_init(s->transforms,      text_nbchr * 4 * 4 * sizeof(*transforms),   DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->atlas_coords,    text_nbchr     * 4 * sizeof(*atlas_coords), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->user_transforms, text_nbchr * 4 * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->colors,          text_nbchr     * 3 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->opacities,       text_nbchr         * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
+            (ret = ngli_buffer_init(s->colors,          text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
             goto end;
 
         struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
@@ -352,7 +347,6 @@ static int update_text_content(struct ngl_node *node)
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->atlas_coords_index, s->atlas_coords);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->user_transform_index, s->user_transforms);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->color_index, s->colors);
-            ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->opacity_index, s->opacities);
         }
     }
 
@@ -391,8 +385,7 @@ static int apply_effects(struct text_priv *s)
 
     const struct text_effects_pointers *ptrs = &text->data_ptrs;
     if ((ret = ngli_buffer_upload(s->user_transforms, ptrs->transform,  text_nbchr * 4 * 4 * sizeof(*ptrs->transform),  0)) < 0 ||
-        (ret = ngli_buffer_upload(s->colors,          ptrs->color,      text_nbchr     * 3 * sizeof(*ptrs->color),      0)) < 0 ||
-        (ret = ngli_buffer_upload(s->opacities,       ptrs->opacity,    text_nbchr         * sizeof(*ptrs->opacity),    0)) < 0)
+        (ret = ngli_buffer_upload(s->colors,          ptrs->color,      text_nbchr     * 4 * sizeof(*ptrs->color),      0)) < 0)
         return ret;
 
     return 0;
@@ -612,17 +605,10 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
             .rate     = 1,
         }, {
             .name     = "frag_color",
-            .type     = NGLI_TYPE_VEC3,
-            .format   = NGLI_FORMAT_R32G32B32_SFLOAT,
-            .stride   = 3 * sizeof(float),
+            .type     = NGLI_TYPE_VEC4,
+            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .stride   = 4 * sizeof(float),
             .buffer   = s->colors,
-            .rate     = 1,
-        }, {
-            .name     = "frag_opacity",
-            .type     = NGLI_TYPE_F32,
-            .format   = NGLI_FORMAT_R32_SFLOAT,
-            .stride   = sizeof(float),
-            .buffer   = s->opacities,
             .rate     = 1,
         },
     };
@@ -638,8 +624,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     static const struct pgcraft_iovar vert_out_vars[] = {
         {.name = "uv",     .type = NGLI_TYPE_VEC2},
         {.name = "coords", .type = NGLI_TYPE_VEC4},
-        {.name = "color",  .type = NGLI_TYPE_VEC3},
-        {.name = "opacity",.type = NGLI_TYPE_F32},
+        {.name = "color",  .type = NGLI_TYPE_VEC4},
     };
 
     const struct pgcraft_params crafter_params = {
@@ -664,7 +649,6 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     desc->atlas_coords_index = ngli_pgcraft_get_vertex_buffer_index(desc->common.crafter, "atlas_coords");
     desc->user_transform_index = ngli_pgcraft_get_vertex_buffer_index(desc->common.crafter, "user_transform");
     desc->color_index = ngli_pgcraft_get_vertex_buffer_index(desc->common.crafter, "frag_color");
-    desc->opacity_index = ngli_pgcraft_get_vertex_buffer_index(desc->common.crafter, "frag_opacity");
 
     return 0;
 }
