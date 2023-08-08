@@ -19,8 +19,10 @@ jobs:
         include:
           - backend: "all"
             custom_env:
+            custom_args:
           - backend: "opengles 3.0"
             custom_env: MESA_GLES_VERSION_OVERRIDE=3.0
+            custom_args: --suite opengles
 
     steps:
     - uses: actions/checkout@v3
@@ -58,7 +60,9 @@ jobs:
 
     - name: Run tests ${{matrix.backend}}
       run: |
-        ${{matrix.custom_env}} make tests
+        ${{matrix.custom_env}} make tests-setup
+        . venv/bin/activate
+        ${{matrix.custom_env}} meson test -C builddir/tests --timeout-multiplier=2 ${{matrix.custom_args}}
 
     - name: Upload Logs
       if: ${{ always() }}
