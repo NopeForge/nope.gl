@@ -17,12 +17,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - backend: "all"
+          - backend: "opengl"
             custom_env:
-            custom_args:
+            custom_args: --suite opengl
+          - backend: "opengles"
+            custom_env:
+            custom_args: --suite opengles
           - backend: "opengles 3.0"
             custom_env: MESA_GLES_VERSION_OVERRIDE=3.0
             custom_args: --suite opengles
+          - backend: "vulkan"
+            custom_env:
+            custom_args: --suite vulkan
 
     steps:
     - uses: actions/checkout@v3
