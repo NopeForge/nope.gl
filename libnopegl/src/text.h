@@ -101,8 +101,7 @@ struct text_cls {
 /* Each field points to a contiguous data buffer (1 row per character) */
 struct text_effects_pointers {
     float *transform; // mat4[]
-    float *color;     // vec3[]
-    float *opacity;   // f32[]
+    float *color;     // vec4[] (last component is opacity)
 };
 
 struct effect_segmentation {

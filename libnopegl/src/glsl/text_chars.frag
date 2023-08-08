@@ -39,5 +39,6 @@ void main()
     vec2 clamp_uv = clamp(chr_uv, coords.xy + half_texel, coords.zw - half_texel);
 
     float v = texture(tex, clamp_uv).r;
-    ngl_out_color = vec4(color, 1.0) * opacity * v;
+    float opacity = color.a;
+    ngl_out_color = vec4(color.rgb, 1.0) * opacity * v;
 }
