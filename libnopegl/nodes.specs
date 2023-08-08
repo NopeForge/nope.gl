@@ -2282,6 +2282,41 @@
       "default": -1.000000,
       "flags": ["live", "node"],
       "desc": "characters opacity, use negative value for unchanged from previous text effects (default is `Text.opacity`)"
+    },
+    {
+      "name": "outline",
+      "type": "f32",
+      "default": -1.000000,
+      "flags": ["live", "node"],
+      "desc": "characters outline width, use negative value for unchanged from previous text effects (default is 0)"
+    },
+    {
+      "name": "outline_color",
+      "type": "vec3",
+      "default": [-1.000000,-1.000000,-1.000000],
+      "flags": ["live", "node"],
+      "desc": "characters outline color, use negative value for unchanged from previous text effects (default is yellow, (1, 1, 0))"
+    },
+    {
+      "name": "glow",
+      "type": "f32",
+      "default": -1.000000,
+      "flags": ["live", "node"],
+      "desc": "characters glow width, use negative value for unchanged from previous text effects (default is 0)"
+    },
+    {
+      "name": "glow_color",
+      "type": "vec3",
+      "default": [-1.000000,-1.000000,-1.000000],
+      "flags": ["live", "node"],
+      "desc": "characters glow color, use negative value for unchanged from previous text effects (default is white, (1, 1, 1))"
+    },
+    {
+      "name": "blur",
+      "type": "f32",
+      "default": -1.000000,
+      "flags": ["live", "node"],
+      "desc": "characters blur, use negative value for unchanged from previous text effects (default is 0)"
     }
   ],
   "Texture2D": [

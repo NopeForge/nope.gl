@@ -950,6 +950,11 @@ Parameter | Flags | Type | Description | Default
 `transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | transformation chain | 
 `color` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | characters fill color, use negative values for unchanged from previous text effects (default is `Text.fg_color`) | (`-1`,`-1`,`-1`)
 `opacity` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | characters opacity, use negative value for unchanged from previous text effects (default is `Text.opacity`) | `-1`
+`outline` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | characters outline width, use negative value for unchanged from previous text effects (default is 0) | `-1`
+`outline_color` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | characters outline color, use negative value for unchanged from previous text effects (default is yellow, (1, 1, 0)) | (`-1`,`-1`,`-1`)
+`glow` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | characters glow width, use negative value for unchanged from previous text effects (default is 0) | `-1`
+`glow_color` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | characters glow color, use negative value for unchanged from previous text effects (default is white, (1, 1, 1)) | (`-1`,`-1`,`-1`)
+`blur` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | characters blur, use negative value for unchanged from previous text effects (default is 0) | `-1`
 
 
 **Source**: [src/node_texteffect.c](/libnopegl/src/node_texteffect.c)

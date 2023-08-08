@@ -437,6 +437,16 @@ struct texteffect_opts {
     float color[3];
     struct ngl_node *opacity_node;
     float opacity;
+    struct ngl_node *outline_node;
+    float outline;
+    struct ngl_node *outline_color_node;
+    float outline_color[3];
+    struct ngl_node *glow_node;
+    float glow;
+    struct ngl_node *glow_color_node;
+    float glow_color[3];
+    struct ngl_node *blur_node;
+    float blur;
 };
 
 enum {
