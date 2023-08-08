@@ -22,7 +22,9 @@ jobs:
     - name: Run tests
       run: |
         ./configure.py --buildtype debug --coverage --debug-opts gl vk scene
-        make tests
+        make tests-setup
+        . venv/bin/activate
+        meson test -C builddir/tests --timeout-multiplier=3
     - name: Get coverage
       run: |
         make coverage-xml
