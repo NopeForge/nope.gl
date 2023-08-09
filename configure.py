@@ -697,12 +697,6 @@ class _Config:
     def __init__(self, args):
         self.args = args
         self.prefix = op.abspath(args.venv_path)
-
-        # On MinGW we need the path translated from C:\ to /c/, because when
-        # part of the PATH, the ':' separator will break
-        if _SYSTEM == "MinGW":
-            self.prefix = run(["cygpath", "-u", self.prefix], capture_output=True, text=True).stdout.strip()
-
         self.bin_name = "Scripts" if _SYSTEM == "Windows" else "bin"
         self.bin_path = op.join(self.prefix, self.bin_name)
         self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
