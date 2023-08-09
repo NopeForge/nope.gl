@@ -73,7 +73,7 @@ static inline int pthread_create(pthread_t *thread, const pthread_attr_t *attr, 
      * conditions.
      * See: https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createthread#remarks
      */
-    thread->handle    = (HANDLE)_beginthreadex(NULL, stack_size, pthread_compat_worker, thread, 0, NULL);
+    thread->handle    = (HANDLE)_beginthreadex(NULL, (unsigned)stack_size, pthread_compat_worker, thread, 0, NULL);
     if (!thread->handle)
         return EAGAIN;
     return 0;
