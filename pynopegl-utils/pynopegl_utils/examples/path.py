@@ -76,7 +76,12 @@ def simple_bezier(cfg: SceneCfg, easing="linear"):
     )
     path = ngl.Path(keyframes)
 
-    return _path_scene(cfg, path, points, controls, easing=easing)
+    return ngl.Group(
+        children=(
+            ngl.RenderPath(path),
+            _path_scene(cfg, path, points, controls, easing=easing),
+        )
+    )
 
 
 @scene(tension=scene.Range(range=[0.01, 2], unit_base=100))
@@ -106,7 +111,12 @@ def catmull(cfg: SceneCfg, tension=0.5):
         tension=tension,
     )
 
-    return _path_scene(cfg, path, points, controls, easing="exp_in_out")
+    return ngl.Group(
+        children=(
+            ngl.RenderPath(path, glow_color=(1, 0, 1), glow=0.01),
+            _path_scene(cfg, path, points, controls, easing="exp_in_out"),
+        )
+    )
 
 
 @scene()
@@ -142,7 +152,12 @@ def complex_bezier(cfg: SceneCfg):
     ]
     path = ngl.Path(keyframes)
 
-    return _path_scene(cfg, path, points, controls)
+    return ngl.Group(
+        children=(
+            ngl.RenderPath(path, color=(0.2, 0.7, 0.9), outline=0.005),
+            _path_scene(cfg, path, points, controls),
+        )
+    )
 
 
 @scene()
@@ -189,7 +204,12 @@ def composition(cfg: SceneCfg):
     ]
     path = ngl.Path(keyframes)
 
-    return _path_scene(cfg, path, points, controls)
+    return ngl.Group(
+        children=(
+            ngl.RenderPath(path),
+            _path_scene(cfg, path, points, controls),
+        )
+    )
 
 
 @scene()
@@ -215,7 +235,12 @@ def lines(cfg: SceneCfg):
     ]
     path = ngl.Path(keyframes)
 
-    return _path_scene(cfg, path, points)
+    return ngl.Group(
+        children=(
+            ngl.RenderPath(path),
+            _path_scene(cfg, path, points),
+        )
+    )
 
 
 @scene()
@@ -244,7 +269,12 @@ def quadratic_arcs(cfg: SceneCfg):
     ]
     path = ngl.Path(keyframes, precision=64)
 
-    return _path_scene(cfg, path, points, controls)
+    return ngl.Group(
+        children=(
+            ngl.RenderPath(path),
+            _path_scene(cfg, path, points, controls),
+        )
+    )
 
 
 @scene()
@@ -290,7 +320,12 @@ def character_otf(cfg: SceneCfg):
     ]
 
     path = ngl.Path(keyframes)
-    return ngl.Scale(_path_scene(cfg, path), factors=(2, 2, 0), anchor=(1, 1, 0))
+    return ngl.Group(
+        children=(
+            ngl.RenderPath(path, viewbox=(0, 0, 1, 1)),
+            ngl.Scale(_path_scene(cfg, path), factors=(2, 2, 0), anchor=(1, 1, 0)),
+        )
+    )
 
 
 @scene()
@@ -336,4 +371,9 @@ def character_ttf(cfg: SceneCfg):
     ]
 
     path = ngl.Path(keyframes)
-    return ngl.Scale(_path_scene(cfg, path), factors=(2, 2, 0), anchor=(1, 1, 0))
+    return ngl.Group(
+        children=(
+            ngl.RenderPath(path, viewbox=(0, 0, 1, 1)),
+            ngl.Scale(_path_scene(cfg, path), factors=(2, 2, 0), anchor=(1, 1, 0)),
+        )
+    )
