@@ -59,5 +59,16 @@ jobs:
       - name: Python import and dylib runtime test
         run: |
           .\venv\Scripts\ngli-activate.ps1
+
+          "Shared libraries required by the nopegl library:"
+          bash -l -c "ldd venv/Scripts/nopegl-0.dll"
+
+          "Shared libraries required by ngl-python:"
+          bash -l -c "ldd venv/Scripts/ngl-python.exe"
+
           ngl-python.exe -h
+
+          "Shared libraries required by the Cython binding:"
+          bash -l -c "ldd pynopegl/_pynopegl.*.pyd"
+
           python.exe -c "import pynopegl, pynopegl_utils"
