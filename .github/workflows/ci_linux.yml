@@ -55,19 +55,19 @@ jobs:
 
     - name: Python import and dylib runtime test
       run: |
-        . venv/bin/activate
+        . venv/bin/ngli-activate
         python -c "import pynopegl, pynopegl_utils"
         ngl-python -h
 
     - name: Native lib memory check
       run: |
-        . venv/bin/activate
+        . venv/bin/ngli-activate
         meson test -C builddir/libnopegl --wrap 'valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1'
 
     - name: Run tests ${{matrix.backend}}
       run: |
         ${{matrix.custom_env}} make tests-setup
-        . venv/bin/activate
+        . venv/bin/ngli-activate
         ${{matrix.custom_env}} meson test -C builddir/tests --timeout-multiplier=3 ${{matrix.custom_args}}
 
     - name: Upload Logs

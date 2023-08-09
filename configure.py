@@ -491,10 +491,10 @@ def _nopegl_updateglwrappers(cfg):
 def _all(cfg):
     echo = ["", "Build completed.", "", "You can now enter the venv with:"]
     if _SYSTEM == "Windows":
-        echo.append(op.join(cfg.bin_path, "Activate.ps1"))
+        echo.append(op.join(cfg.bin_path, "ngli-activate.ps1"))
         return [f"@echo.{e}" for e in echo]
     else:
-        echo.append(" " * 4 + ". " + op.join(cfg.bin_path, "activate"))
+        echo.append(" " * 4 + ". " + op.join(cfg.bin_path, "ngli-activate"))
         return [f'@echo "    {e}"' for e in echo]
 
 
@@ -727,6 +727,45 @@ class _Config:
         return env
 
 
+def _build_env_scripts(cfg):
+    if _SYSTEM == "Windows":
+        activate_path = os.path.join(cfg.bin_path, "Activate.ps1")
+        ngl_activate_ps1 = textwrap.dedent(
+            f"""\
+            function global:ngli_deactivate() {{
+                deactivate
+                if (Test-Path -Path Env:NGL_DLL_DIRS) {{
+                    Remove-Item -Path Env:NGL_DLL_DIRS
+                }}
+                Remove-Item -Path function:ngli_deactivate
+            }}
+
+            . {activate_path}
+            $Env:NGL_DLL_DIRS="{cfg.bin_path}"
+            """
+        )
+        with open(op.join(cfg.bin_path, "ngli-activate.ps1"), "w") as fp:
+            fp.write(ngl_activate_ps1)
+
+        return
+
+    activate_path = os.path.join(cfg.bin_path, "activate")
+    ngl_activate = textwrap.dedent(
+        f"""\
+        ngli_deactivate() {{
+            deactivate
+            unset NGL_DLL_DIRS
+            unset -f ngli_deactivate
+        }}
+
+        . {activate_path}
+        export NGL_DLL_DIRS="{cfg.bin_path}"
+        """
+    )
+    with open(op.join(cfg.bin_path, "ngli-activate"), "w") as fp:
+        fp.write(ngl_activate)
+
+
 def _run():
     default_build_backend = "ninja" if _SYSTEM != "Windows" else "vs"
     parser = argparse.ArgumentParser(
@@ -770,6 +809,8 @@ def _run():
     makefile = _get_makefile(cfg, blocks)
     with open(dst_makefile, "w") as f:
         f.write(makefile)
+
+    _build_env_scripts(cfg)
 
 
 if __name__ == "__main__":

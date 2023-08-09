@@ -58,6 +58,6 @@ jobs:
 
       - name: Python import and dylib runtime test
         run: |
-          .\venv\Scripts\Activate.ps1
+          .\venv\Scripts\ngli-activate.ps1
           python.exe -c "import pynopegl, pynopegl_utils"
           ngl-python.exe -h

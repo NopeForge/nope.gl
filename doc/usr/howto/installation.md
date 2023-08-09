@@ -16,7 +16,7 @@ building and running the complete `nope.gl` stack.
   - **Glslang**
   - **MoltenVK** (macOS, optional)
 - Build with `./configure.py && make`
-- Enter the virtual environment with `. venv/bin/activate`
+- Enter the virtual environment with `. venv/bin/ngli-activate`
 
 ## Quick user installation on Windows (MinGW64 toolchain)
 
@@ -29,7 +29,7 @@ building and running the complete `nope.gl` stack.
     pacman -S --needed mingw-w64-x86_64-ca-certificates
     ```
 - From MinGW64, build with `./configure.py && make`
-- Enter the virtual environment with `. venv/bin/activate`
+- Enter the virtual environment with `. venv/bin/ngli-activate`
 
 ## Quick user installation on Windows (MSVC toolchain)
 
