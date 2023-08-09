@@ -423,10 +423,7 @@ def _pynopegl_deps_install(cfg):
 @_block("pynopegl-install", [_pynopegl_deps_install])
 def _pynopegl_install(cfg):
     ret = ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join(".", "pynopegl"))]
-    if _SYSTEM == "Windows":
-        dlls = op.join(cfg.prefix, "Scripts", "*.dll")
-        ret += [f"xcopy /Y {dlls} pynopegl\\."]
-    else:
+    if _SYSTEM != "Windows":
         rpath = op.join(cfg.prefix, "lib")
         ldflags = f"-Wl,-rpath,{rpath}"
         ret[0] = f"LDFLAGS={ldflags} {ret[0]}"
