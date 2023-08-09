@@ -23,7 +23,7 @@ jobs:
       run: |
         ./configure.py --buildtype debug --coverage --debug-opts gl vk scene
         make tests-setup
-        . venv/bin/activate
+        . venv/bin/ngli-activate
         meson test -C builddir/tests --timeout-multiplier=3
     - name: Get coverage
       run: |

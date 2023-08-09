@@ -20,7 +20,7 @@ standard output by meson.
 ## Debugging
 
 To run specific tests, you will need to activate the environment (usually
-through `. venv/bin/activate`) and execute `meson test -C builddir/tests
+through `. venv/bin/ngli-activate`) and execute `meson test -C builddir/tests
 YOUR_TEST_NAME`. You can also limit the tests to a specific test suite using
 the `--suite` option. For example: `meson test -v -C builddir/tests translate
 --suite opengles`.
