@@ -104,6 +104,7 @@ if host_system == 'windows'
     add_project_arguments(msvc_args, language: 'c')
   else
     conf_data.set10('TARGET_MINGW_W64', true)
+    add_project_arguments(['-D__USE_MINGW_ANSI_STDIO=1'], language: 'c')
   endif
 endif
 

@@ -31,7 +31,11 @@
 #include "nopegl.h"
 
 #ifdef __GNUC__
-# define ngli_printf_format(fmtpos, attrpos) __attribute__((__format__(__printf__, fmtpos, attrpos)))
+# ifdef TARGET_MINGW_W64
+#  define ngli_printf_format(fmtpos, attrpos) __attribute__((__format__(__MINGW_PRINTF_FORMAT, fmtpos, attrpos)))
+# else
+#  define ngli_printf_format(fmtpos, attrpos) __attribute__((__format__(__printf__, fmtpos, attrpos)))
+# endif
 #else
 # define ngli_printf_format(fmtpos, attrpos)
 #endif
