@@ -38,5 +38,5 @@ jobs:
       - name: Python import and dylib runtime test
         run: |
           . venv/bin/ngli-activate
-          python -c 'import pynopegl, pynopegl_utils'
           ngl-python -h
+          python -c 'import pynopegl, pynopegl_utils'
