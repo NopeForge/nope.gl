@@ -66,7 +66,7 @@
 #define NGLI_ALIGN(v, a) (((v) + (a) - 1) & ~((a) - 1))
 #define NGLI_ALIGN_VAL 16
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(TARGET_MINGW_W64)
 #define NGLI_ATTR_ALIGNED __declspec(align(NGLI_ALIGN_VAL))
 #else
 #define NGLI_ATTR_ALIGNED __attribute__ ((aligned (NGLI_ALIGN_VAL)))
