@@ -236,13 +236,8 @@ static const char *get_glsl_type(int type)
 static int request_next_binding(struct pgcraft *s, int type)
 {
     int *next_bind = s->next_bindings[type];
-    if (!next_bind) {
-        /*
-         * Non-explicit bindings is still allowed for OpenGL context not
-         * supporting explicit locations/bindings.
-         */
-        return -1;
-    }
+    ngli_assert(next_bind);
+
     return (*next_bind)++;
 }
 
