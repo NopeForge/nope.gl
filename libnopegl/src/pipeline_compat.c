@@ -107,11 +107,17 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     if (!s->pipeline)
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_params *pipeline_params = params->params;
+    const struct pipeline_params pipeline_params = {
+        .type     = params->type,
+        .graphics = params->graphics,
+        .program  = params->program,
+        .layout   = params->layout,
+    };
+
     const struct pipeline_resources *pipeline_resources = params->resources;
 
     int ret;
-    if ((ret = ngli_pipeline_init(s->pipeline, pipeline_params)) < 0 ||
+    if ((ret = ngli_pipeline_init(s->pipeline, &pipeline_params)) < 0 ||
         (ret = ngli_pipeline_set_resources(s->pipeline, pipeline_resources)) < 0)
         return ret;
 

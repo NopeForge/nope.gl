@@ -640,7 +640,10 @@ int ngli_distmap_finalize(struct distmap *s)
     if (!s->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_params pipeline_params = {
+    const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(s->crafter);
+    const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(s->crafter);
+
+    const struct pipeline_compat_params params = {
         .type = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics = {
             .topology     = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
@@ -648,16 +651,9 @@ int ngli_distmap_finalize(struct distmap *s)
             .rt_layout    = s->rt->layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
         },
-        .program = ngli_pgcraft_get_program(s->crafter),
-        .layout  = ngli_pgcraft_get_pipeline_layout(s->crafter),
-    };
-
-    const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(s->crafter);
-    const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(s->crafter);
-
-    const struct pipeline_compat_params params = {
-        .params = &pipeline_params,
-        .resources = &pipeline_resources,
+        .program     = ngli_pgcraft_get_program(s->crafter),
+        .layout      = ngli_pgcraft_get_pipeline_layout(s->crafter),
+        .resources   = &pipeline_resources,
         .compat_info = compat_info,
     };
 

@@ -589,24 +589,20 @@ int ngli_pass_prepare(struct pass *s)
     if (!desc->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_params pipeline_params = {
-        .type     = s->pipeline_type,
-        .graphics = {
-            .topology = s->topology,
-            .state = state,
-            .rt_layout = rnode->rendertarget_layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
-        },
-        .program = ngli_pgcraft_get_program(desc->crafter),
-        .layout  = ngli_pgcraft_get_pipeline_layout(desc->crafter),
-    };
-
     const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
     const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(desc->crafter);
 
     const struct pipeline_compat_params params = {
-        .params = &pipeline_params,
-        .resources = &pipeline_resources,
+        .type = s->pipeline_type,
+        .graphics = {
+            .topology     = s->topology,
+            .state        = state,
+            .rt_layout    = rnode->rendertarget_layout,
+            .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
+        },
+        .program     = ngli_pgcraft_get_program(desc->crafter),
+        .layout      = ngli_pgcraft_get_pipeline_layout(desc->crafter),
+        .resources   = &pipeline_resources,
         .compat_info = compat_info,
     };
     ret = ngli_pipeline_compat_init(desc->pipeline_compat, &params);
