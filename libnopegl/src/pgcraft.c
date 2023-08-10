@@ -206,6 +206,24 @@ static const int type_flags_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC]      = 0,
 };
 
+static const int type_binding_map[NGLI_TYPE_NB] = {
+    [NGLI_TYPE_SAMPLER_2D]                  = NGLI_BINDING_TYPE_TEXTURE,
+    [NGLI_TYPE_SAMPLER_2D_ARRAY]            = NGLI_BINDING_TYPE_TEXTURE,
+    [NGLI_TYPE_SAMPLER_2D_RECT]             = NGLI_BINDING_TYPE_TEXTURE,
+    [NGLI_TYPE_SAMPLER_3D]                  = NGLI_BINDING_TYPE_TEXTURE,
+    [NGLI_TYPE_SAMPLER_CUBE]                = NGLI_BINDING_TYPE_TEXTURE,
+    [NGLI_TYPE_SAMPLER_EXTERNAL_OES]        = NGLI_BINDING_TYPE_TEXTURE,
+    [NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = NGLI_BINDING_TYPE_TEXTURE,
+    [NGLI_TYPE_IMAGE_2D]                    = NGLI_BINDING_TYPE_IMAGE,
+    [NGLI_TYPE_IMAGE_2D_ARRAY]              = NGLI_BINDING_TYPE_IMAGE,
+    [NGLI_TYPE_IMAGE_3D]                    = NGLI_BINDING_TYPE_IMAGE,
+    [NGLI_TYPE_IMAGE_CUBE]                  = NGLI_BINDING_TYPE_IMAGE,
+    [NGLI_TYPE_UNIFORM_BUFFER]              = NGLI_BINDING_TYPE_UBO,
+    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC]      = NGLI_BINDING_TYPE_UBO,
+    [NGLI_TYPE_STORAGE_BUFFER]              = NGLI_BINDING_TYPE_SSBO,
+    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC]      = NGLI_BINDING_TYPE_SSBO,
+};
+
 static int is_sampler(int type)
 {
     return type_flags_map[type] & TYPE_FLAG_IS_SAMPLER;
@@ -235,7 +253,10 @@ static const char *get_glsl_type(int type)
 
 static int request_next_binding(struct pgcraft *s, int type)
 {
-    int *next_bind = s->next_bindings[type];
+    ngli_assert(type >= 0 && type < NGLI_TYPE_NB);
+    const int binding_type = type_binding_map[type];
+
+    int *next_bind = s->next_bindings[binding_type];
     ngli_assert(next_bind);
 
     return (*next_bind)++;
@@ -436,17 +457,13 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
         struct bstr *b = s->shaders[stage];
 
         if (is_sampler(field->type) || is_image(field->type)) {
-            int binding_type = NGLI_BINDING_TYPE_TEXTURE;
-            if (is_image(field->type))
-                binding_type = NGLI_BINDING_TYPE_IMAGE;
-
             if (!ngli_darray_push(&s->symbols, field->name))
                 return NGL_ERROR_MEMORY;
 
             const struct pipeline_resource_desc pl_texture_desc = {
                 .id       = ngli_darray_count(&s->symbols) - 1,
                 .type     = field->type,
-                .binding  = request_next_binding(s, binding_type),
+                .binding  = request_next_binding(s, field->type),
                 .access   = info->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
                 .stage    = stage,
             };
@@ -531,16 +548,13 @@ static const char *glsl_layout_str_map[NGLI_BLOCK_NB_LAYOUTS] = {
 static int inject_block(struct pgcraft *s, struct bstr *b,
                         const struct pgcraft_block *named_block)
 {
-    const int binding_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER
-                           ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
-
     if (!ngli_darray_push(&s->symbols, named_block->name))
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_resource_desc pl_buffer_desc = {
         .id      = ngli_darray_count(&s->symbols) - 1,
         .type    = named_block->type,
-        .binding = request_next_binding(s, binding_type),
+        .binding = request_next_binding(s, named_block->type),
         .access  = named_block->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
         .stage   = named_block->stage,
     };
