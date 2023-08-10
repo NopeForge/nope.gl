@@ -51,9 +51,6 @@ enum {
     NGLI_BINDING_TYPE_NB
 };
 
-#define NB_BINDINGS (NGLI_PROGRAM_SHADER_NB * NGLI_BINDING_TYPE_NB)
-#define BIND_ID(stage, type) ((stage) * NGLI_BINDING_TYPE_NB + (type))
-
 struct pgcraft_pipeline_info {
     struct {
         struct darray textures;   // resource_desc
@@ -84,8 +81,8 @@ struct pgcraft {
 
     struct program *program;
 
-    int bindings[NB_BINDINGS];
-    int *next_bindings[NB_BINDINGS];
+    int bindings[NGLI_BINDING_TYPE_NB];
+    int *next_bindings[NGLI_BINDING_TYPE_NB];
     int next_vertex_binding;
     int next_in_locations[NGLI_PROGRAM_SHADER_NB];
     int next_out_locations[NGLI_PROGRAM_SHADER_NB];
@@ -236,9 +233,9 @@ static const char *get_glsl_type(int type)
     return ret;
 }
 
-static int request_next_binding(struct pgcraft *s, int stage, int type)
+static int request_next_binding(struct pgcraft *s, int type)
 {
-    int *next_bind = s->next_bindings[BIND_ID(stage, type)];
+    int *next_bind = s->next_bindings[type];
     if (!next_bind) {
         /*
          * Non-explicit bindings is still allowed for OpenGL context not
@@ -454,7 +451,7 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
             const struct pipeline_resource_desc pl_texture_desc = {
                 .id       = ngli_darray_count(&s->symbols) - 1,
                 .type     = field->type,
-                .binding  = request_next_binding(s, stage, binding_type),
+                .binding  = request_next_binding(s, binding_type),
                 .access   = info->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
                 .stage    = stage,
             };
@@ -548,7 +545,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     const struct pipeline_resource_desc pl_buffer_desc = {
         .id      = ngli_darray_count(&s->symbols) - 1,
         .type    = named_block->type,
-        .binding = request_next_binding(s, named_block->stage, binding_type),
+        .binding = request_next_binding(s, binding_type),
         .access  = named_block->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
         .stage   = named_block->stage,
     };
@@ -1337,12 +1334,10 @@ static void setup_glsl_info_gl(struct pgcraft *s)
      * Bindings are shared across all stages. UBO, SSBO, texture and image
      * bindings use distinct binding points.
      */
-    for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_UBO)]     = &s->bindings[NGLI_BINDING_TYPE_UBO];
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_SSBO)]    = &s->bindings[NGLI_BINDING_TYPE_SSBO];
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_TEXTURE)] = &s->bindings[NGLI_BINDING_TYPE_TEXTURE];
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_IMAGE)]   = &s->bindings[NGLI_BINDING_TYPE_IMAGE];
-    }
+    s->next_bindings[NGLI_BINDING_TYPE_UBO]     = &s->bindings[NGLI_BINDING_TYPE_UBO];
+    s->next_bindings[NGLI_BINDING_TYPE_SSBO]    = &s->bindings[NGLI_BINDING_TYPE_SSBO];
+    s->next_bindings[NGLI_BINDING_TYPE_TEXTURE] = &s->bindings[NGLI_BINDING_TYPE_TEXTURE];
+    s->next_bindings[NGLI_BINDING_TYPE_IMAGE]   = &s->bindings[NGLI_BINDING_TYPE_IMAGE];
 }
 #endif
 
@@ -1359,7 +1354,7 @@ static void setup_glsl_info_vk(struct pgcraft *s)
     s->has_precision_qualifiers     = 0;
 
     /* Bindings are shared across stages and types */
-    for (size_t i = 0; i < NB_BINDINGS; i++)
+    for (size_t i = 0; i < NGLI_BINDING_TYPE_NB; i++)
         s->next_bindings[i] = &s->bindings[0];
 }
 #endif
