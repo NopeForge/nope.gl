@@ -27,7 +27,10 @@
 #include "pipeline.h"
 
 struct pipeline_compat_params {
-    const struct pipeline_params *params;
+    int type; // NGLI_PIPELINE_TYPE_*
+    const struct pipeline_graphics graphics;
+    const struct program *program;
+    struct pipeline_layout layout;
     const struct pipeline_resources *resources;
     const struct pgcraft_compat_info *compat_info;
 };
