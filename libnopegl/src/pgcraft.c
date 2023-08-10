@@ -539,7 +539,6 @@ static const char *glsl_layout_str_map[NGLI_BLOCK_NB_LAYOUTS] = {
 static int inject_block(struct pgcraft *s, struct bstr *b,
                         const struct pgcraft_block *named_block)
 {
-    const struct block *block = named_block->block;
     const int binding_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER
                            ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
 
@@ -554,6 +553,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
         .stage   = named_block->stage,
     };
 
+    const struct block *block = named_block->block;
     const char *layout = glsl_layout_str_map[block->layout];
     if (s->has_explicit_bindings) {
         ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, pl_buffer_desc.binding);
