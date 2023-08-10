@@ -204,7 +204,9 @@ static const int type_flags_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_IMAGE_3D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
     [NGLI_TYPE_IMAGE_CUBE]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
     [NGLI_TYPE_UNIFORM_BUFFER]              = 0,
+    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC]      = 0,
     [NGLI_TYPE_STORAGE_BUFFER]              = 0,
+    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC]      = 0,
 };
 
 static int is_sampler(int type)
