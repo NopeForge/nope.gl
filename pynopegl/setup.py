@@ -406,7 +406,8 @@ class CommandUtils:
         specs_file = op.join(_LIB_CFG.data_root_dir, "nopegl", "nodes.specs")
         with open(specs_file) as f:
             specs = json.load(f)
-        content = CommandUtils._gen_definitions_pyx(specs)
+        content = f'__version__ = "{_LIB_CFG.version}"\n\n'
+        content += CommandUtils._gen_definitions_pyx(specs)
         with open("nodes_def.pyx", "w") as output:
             output.write(content)
         with open("init_header.py") as header:

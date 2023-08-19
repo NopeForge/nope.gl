@@ -37,6 +37,7 @@ if platform.system() == "Windows":
 import _pynopegl as _ngl
 from _pynopegl import _Node
 
+__version__ = _ngl.__version__
 
 # fmt: off
 class Platform(IntEnum):
