@@ -181,7 +181,7 @@ def _get_compute_histogram_cuepoints():
 
 
 @test_cuepoints(points=_get_compute_histogram_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
+@scene(controls=dict(show_dbg_points=scene.Bool()))
 def compute_histogram(cfg: SceneCfg, show_dbg_points=False):
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)
@@ -328,7 +328,7 @@ void main()
 
 
 @test_cuepoints(points=_get_compute_histogram_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
+@scene(controls=dict(show_dbg_points=scene.Bool()))
 def compute_image_load_store(cfg: SceneCfg, show_dbg_points=False):
     size = _N
     texture_data = ngl.BufferFloat(data=array.array("f", [x / (size**2) for x in range(size**2)]))
@@ -440,13 +440,13 @@ def _get_compute_image_layered_load_store_scene(cfg: SceneCfg, texture_cls, show
 
 
 @test_cuepoints(points=_get_image_layered_load_store_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
+@scene(controls=dict(show_dbg_points=scene.Bool()))
 def compute_image_3d_load_store(cfg: SceneCfg, show_dbg_points=False):
     return _get_compute_image_layered_load_store_scene(cfg, ngl.Texture3D, show_dbg_points)
 
 
 @test_cuepoints(points=_get_image_layered_load_store_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
+@scene(controls=dict(show_dbg_points=scene.Bool()))
 def compute_image_2d_array_load_store(cfg: SceneCfg, show_dbg_points=False):
     return _get_compute_image_layered_load_store_scene(cfg, ngl.Texture2DArray, show_dbg_points)
 

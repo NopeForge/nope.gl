@@ -185,7 +185,7 @@ def _get_easing_nodes(cfg: SceneCfg, color_program):
         yield easing_node
 
 
-@scene(easing_id=scene.List(choices=["*"] + _easing_names))
+@scene(controls=dict(easing_id=scene.List(choices=["*"] + _easing_names)))
 def easings(cfg: SceneCfg, easing_id="*"):
     """Display all the easings (primitive for animation / motion design) at once"""
     cfg.duration = 2.0

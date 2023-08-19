@@ -53,14 +53,14 @@ def _render_buffer(cfg: SceneCfg, w, h):
 
 
 @test_fingerprint()
-@scene(w=scene.Range(range=[1, 128]), h=scene.Range(range=[1, 128]))
+@scene(controls=dict(w=scene.Range(range=[1, 128]), h=scene.Range(range=[1, 128])))
 def texture_data(cfg: SceneCfg, w=4, h=5):
     cfg.aspect_ratio = (1, 1)
     return _render_buffer(cfg, w, h)
 
 
 @test_fingerprint()
-@scene(dim=scene.Range(range=[1, 100]))
+@scene(controls=dict(dim=scene.Range(range=[1, 100])))
 def texture_data_animated(cfg: SceneCfg, dim=8):
     cfg.duration = 3.0
     nb_kf = int(cfg.duration)
@@ -75,7 +75,7 @@ def texture_data_animated(cfg: SceneCfg, dim=8):
 
 
 @test_fingerprint()
-@scene(h=scene.Range(range=[1, 32]))
+@scene(controls=dict(h=scene.Range(range=[1, 32])))
 def texture_data_unaligned_row(cfg: SceneCfg, h=32):
     """Tests upload of buffers with rows that are not 4-byte aligned"""
     cfg.aspect_ratio = (1, 1)
@@ -83,7 +83,7 @@ def texture_data_unaligned_row(cfg: SceneCfg, h=32):
 
 
 @test_fingerprint(keyframes=(0, 1, 0))
-@scene(w=scene.Range(range=[1, 128]), h=scene.Range(range=[1, 128]))
+@scene(controls=dict(w=scene.Range(range=[1, 128]), h=scene.Range(range=[1, 128])))
 def texture_data_seek_timeranges(cfg: SceneCfg, w=4, h=5):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 1
@@ -453,13 +453,13 @@ def _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, samples=0):
 
 
 @test_cuepoints(points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
+@scene(controls=dict(show_dbg_points=scene.Bool()))
 def texture_2d_array_from_mrt(cfg: SceneCfg, show_dbg_points=False):
     return _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points)
 
 
 @test_cuepoints(points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
+@scene(controls=dict(show_dbg_points=scene.Bool()))
 def texture_2d_array_from_mrt_msaa(cfg: SceneCfg, show_dbg_points=False):
     return _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, 4)
 
@@ -556,13 +556,13 @@ def _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, samples=0):
 
 
 @test_cuepoints(points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
+@scene(controls=dict(show_dbg_points=scene.Bool()))
 def texture_3d_from_mrt(cfg: SceneCfg, show_dbg_points=False):
     return _get_texture_3d_from_mrt_scene(cfg, show_dbg_points)
 
 
 @test_cuepoints(points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
+@scene(controls=dict(show_dbg_points=scene.Bool()))
 def texture_3d_from_mrt_msaa(cfg: SceneCfg, show_dbg_points=False):
     return _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, 4)
 
@@ -595,7 +595,7 @@ def _get_texture_mipmap_cuepoints():
 
 
 @test_cuepoints(points=_get_texture_mipmap_cuepoints(), tolerance=1)
-@scene(show_dbg_points=scene.Bool())
+@scene(controls=dict(show_dbg_points=scene.Bool()))
 def texture_mipmap(cfg: SceneCfg, show_dbg_points=False):
     cfg.aspect_ratio = (1, 1)
     cuepoints = _get_texture_mipmap_cuepoints()

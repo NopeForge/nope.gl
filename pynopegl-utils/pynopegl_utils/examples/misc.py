@@ -11,7 +11,7 @@ from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 import pynopegl as ngl
 
 
-@scene(xsplit=scene.Range(range=[0, 1], unit_base=100), trilinear=scene.Bool())
+@scene(controls=dict(xsplit=scene.Range(range=[0, 1], unit_base=100), trilinear=scene.Bool()))
 def lut3d(cfg: SceneCfg, xsplit=0.3, trilinear=True):
     """Lookup Table 3D using a Texture3D"""
     level = 6
@@ -44,7 +44,7 @@ def lut3d(cfg: SceneCfg, xsplit=0.3, trilinear=True):
     return compare(cfg, scene_tex, scene_lut, xsplit)
 
 
-@scene(bgcolor1=scene.Color(), bgcolor2=scene.Color(), bilinear_filtering=scene.Bool())
+@scene(controls=dict(bgcolor1=scene.Color(), bgcolor2=scene.Color(), bilinear_filtering=scene.Bool()))
 def buffer_dove(cfg: SceneCfg, bgcolor1=(0.6, 0, 0), bgcolor2=(0.8, 0.8, 0), bilinear_filtering=True):
     """Blending of a Render using a Buffer as data source"""
     cfg.duration = 3.0
@@ -76,7 +76,7 @@ def buffer_dove(cfg: SceneCfg, bgcolor1=(0.6, 0, 0), bgcolor2=(0.8, 0.8, 0), bil
     return ngl.Group(children=(render_bg, render))
 
 
-@scene(size=scene.Range(range=[0, 2], unit_base=1000))
+@scene(controls=dict(size=scene.Range(range=[0, 2], unit_base=1000)))
 def triangle(cfg: SceneCfg, size=4 / 3):
     """Rotating triangle with edge coloring specified in a vertex attribute"""
     cfg.duration = 3.0
@@ -102,7 +102,7 @@ def triangle(cfg: SceneCfg, size=4 / 3):
     return node
 
 
-@scene(n=scene.Range(range=[2, 10]))
+@scene(controls=dict(n=scene.Range(range=[2, 10])))
 def fibo(cfg: SceneCfg, n=8):
     """Fibonacci with a recursive tree (nodes inherit transforms)"""
     cfg.duration = 5.0
@@ -145,7 +145,7 @@ def fibo(cfg: SceneCfg, n=8):
     return root
 
 
-@scene(dim=scene.Range(range=[1, 50]))
+@scene(controls=dict(dim=scene.Range(range=[1, 50])))
 def cropboard(cfg: SceneCfg, dim=15):
     """Divided media using instancing draw and UV coords offsetting from a buffer"""
     m0 = cfg.medias[0]
@@ -192,7 +192,7 @@ def cropboard(cfg: SceneCfg, dim=15):
     return render
 
 
-@scene(freq_precision=scene.Range(range=[1, 10]), overlay=scene.Range(unit_base=100))
+@scene(controls=dict(freq_precision=scene.Range(range=[1, 10]), overlay=scene.Range(unit_base=100)))
 def audiotex(cfg: SceneCfg, freq_precision=7, overlay=0.6):
     """FFT/Waves audio texture of the audio stream blended on top of the video stream"""
     media = cfg.medias[0]
@@ -216,7 +216,7 @@ def audiotex(cfg: SceneCfg, freq_precision=7, overlay=0.6):
     return render
 
 
-@scene(particles=scene.Range(range=[1, 1023]))
+@scene(controls=dict(particles=scene.Range(range=[1, 1023])))
 def particles(cfg: SceneCfg, particles=32):
     """Particules demo using compute shaders and instancing"""
 
@@ -389,7 +389,7 @@ def _get_cube_side(texture, program, corner, width, height, color):
     return render
 
 
-@scene(display_depth_buffer=scene.Bool())
+@scene(controls=dict(display_depth_buffer=scene.Bool()))
 def cube(cfg: SceneCfg, display_depth_buffer=False):
     """
     Cube with a common media Texture but a different color tainting on each side.
@@ -486,10 +486,12 @@ def quaternion(cfg: SceneCfg):
 
 
 @scene(
-    ndim=scene.Range(range=[1, 8]),
-    nb_layers=scene.Range(range=[1, 10]),
-    ref_color=scene.Color(),
-    nb_mountains=scene.Range(range=[3, 15]),
+    controls=dict(
+        ndim=scene.Range(range=[1, 8]),
+        nb_layers=scene.Range(range=[1, 10]),
+        ref_color=scene.Color(),
+        nb_mountains=scene.Range(range=[3, 15]),
+    )
 )
 def mountain(cfg: SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb_mountains=6):
     """Mountain generated with a stack of noise shaders using Textures as random source"""
@@ -550,7 +552,7 @@ def mountain(cfg: SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb
     return group
 
 
-@scene(demo_str=scene.Text(), time_unit=scene.Range(range=[0.01, 0.3], unit_base=100))
+@scene(controls=dict(demo_str=scene.Text(), time_unit=scene.Range(range=[0.01, 0.3], unit_base=100)))
 def text(cfg: SceneCfg, demo_str="Hello World!\n\nThis is a multi-line\ntext demonstration.", time_unit=0.05):
     """Demonstrate the text node features (colors, scale, alignment, fitting, ...)"""
 
@@ -612,9 +614,11 @@ def smptebars_glitch(cfg: SceneCfg):
 
 
 @scene(
-    mode=scene.List(("ramp", "radial")),
-    c0=scene.Color(),
-    c1=scene.Color(),
+    controls=dict(
+        mode=scene.List(("ramp", "radial")),
+        c0=scene.Color(),
+        c1=scene.Color(),
+    )
 )
 def gradient_eval(cfg: SceneCfg, mode="ramp", c0=(1, 0.5, 0.5), c1=(0.5, 1, 0.5)):
     """Animate a gradient and objects using CPU evaluation"""
@@ -655,10 +659,12 @@ _SCENE_CHOICES = (
 
 
 @scene(
-    scene0=scene.List(choices=_SCENE_CHOICES),
-    scene1=scene.List(choices=_SCENE_CHOICES),
-    scene2=scene.List(choices=_SCENE_CHOICES),
-    scene3=scene.List(choices=_SCENE_CHOICES),
+    controls=dict(
+        scene0=scene.List(choices=_SCENE_CHOICES),
+        scene1=scene.List(choices=_SCENE_CHOICES),
+        scene2=scene.List(choices=_SCENE_CHOICES),
+        scene3=scene.List(choices=_SCENE_CHOICES),
+    )
 )
 def scopes(cfg, scene0="media", scene1="waveform/parade", scene2="waveform/mixed", scene3="histogram/parade"):
     m = cfg.medias[0]

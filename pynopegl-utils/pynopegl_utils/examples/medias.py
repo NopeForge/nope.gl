@@ -3,7 +3,14 @@ from pynopegl_utils.misc import SceneCfg, scene
 import pynopegl as ngl
 
 
-@scene(uv_corner=scene.Vector(n=2), uv_width=scene.Vector(n=2), uv_height=scene.Vector(n=2), progress_bar=scene.Bool())
+@scene(
+    controls=dict(
+        uv_corner=scene.Vector(n=2),
+        uv_width=scene.Vector(n=2),
+        uv_height=scene.Vector(n=2),
+        progress_bar=scene.Bool(),
+    )
+)
 def centered_media(cfg: SceneCfg, uv_corner=(0, 0), uv_width=(1, 0), uv_height=(0, 1), progress_bar=True):
     """A simple centered media with an optional progress bar in the shader"""
     m0 = cfg.medias[0]
@@ -27,7 +34,7 @@ def centered_media(cfg: SceneCfg, uv_corner=(0, 0), uv_width=(1, 0), uv_height=(
     return render
 
 
-@scene(speed=scene.Range(range=[0.01, 2], unit_base=1000))
+@scene(controls=dict(speed=scene.Range(range=[0.01, 2], unit_base=1000)))
 def playback_speed(cfg: SceneCfg, speed=1.0):
     """Adjust media playback speed using animation keyframes"""
     m0 = cfg.medias[0]

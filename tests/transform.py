@@ -113,7 +113,7 @@ def transform_eye_camera(cfg: SceneCfg):
 
 
 @test_fingerprint()
-@scene(vector=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
+@scene(controls=dict(vector=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1))))
 def transform_translate(cfg: SceneCfg, vector=(0.2, 0.7, -0.4)):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape()
@@ -137,7 +137,7 @@ def transform_translate_animated(cfg: SceneCfg):
 
 
 @test_fingerprint()
-@scene(factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
+@scene(controls=dict(factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1))))
 def transform_scale(cfg: SceneCfg, factors=(0.7, 1.4, 0)):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape()
@@ -146,8 +146,10 @@ def transform_scale(cfg: SceneCfg, factors=(0.7, 1.4, 0)):
 
 @test_fingerprint()
 @scene(
-    factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
-    anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    controls=dict(
+        factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+        anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    )
 )
 def transform_scale_anchor(cfg: SceneCfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0.5, 0.7)):
     cfg.aspect_ratio = (1, 1)
@@ -156,7 +158,7 @@ def transform_scale_anchor(cfg: SceneCfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0
 
 
 @test_fingerprint()
-@scene(factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
+@scene(controls=dict(factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1))))
 def transform_scale_animated(cfg: SceneCfg, factors=(0.7, 1.4, 0)):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 2.0
@@ -171,8 +173,10 @@ def transform_scale_animated(cfg: SceneCfg, factors=(0.7, 1.4, 0)):
 
 @test_fingerprint()
 @scene(
-    factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
-    anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    controls=dict(
+        factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+        anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    )
 )
 def transform_scale_anchor_animated(cfg: SceneCfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0.5, 0.7)):
     cfg.aspect_ratio = (1, 1)
@@ -188,8 +192,10 @@ def transform_scale_anchor_animated(cfg: SceneCfg, factors=(0.7, 1.4, 0), anchor
 
 @test_fingerprint()
 @scene(
-    angles=scene.Vector(n=3, minv=(-360, -360, -360), maxv=(360, 360, 360)),
-    axis=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    controls=dict(
+        angles=scene.Vector(n=3, minv=(-360, -360, -360), maxv=(360, 360, 360)),
+        axis=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    )
 )
 def transform_skew(cfg: SceneCfg, angles=(0.0, -70, 14), axis=(1, 0, 0)):
     cfg.aspect_ratio = (1, 1)
@@ -199,8 +205,10 @@ def transform_skew(cfg: SceneCfg, angles=(0.0, -70, 14), axis=(1, 0, 0)):
 
 @test_fingerprint(keyframes=8)
 @scene(
-    angles=scene.Vector(n=3, minv=(-360, -360, -360), maxv=(360, 360, 360)),
-    axis=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    controls=dict(
+        angles=scene.Vector(n=3, minv=(-360, -360, -360), maxv=(360, 360, 360)),
+        axis=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    )
 )
 def transform_skew_animated(cfg: SceneCfg, angles=(0, -60, 14), axis=(1, 0, 0), anchor=(0, 0.05, -0.5)):
     cfg.aspect_ratio = (1, 1)
@@ -215,7 +223,7 @@ def transform_skew_animated(cfg: SceneCfg, angles=(0, -60, 14), axis=(1, 0, 0), 
 
 
 @test_fingerprint()
-@scene(angle=scene.Range(range=[0, 360], unit_base=10))
+@scene(controls=dict(angle=scene.Range(range=[0, 360], unit_base=10)))
 def transform_rotate(cfg: SceneCfg, angle=123.4):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape()
@@ -223,7 +231,12 @@ def transform_rotate(cfg: SceneCfg, angle=123.4):
 
 
 @test_fingerprint()
-@scene(angle=scene.Range(range=[0, 360], unit_base=10), anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
+@scene(
+    controls=dict(
+        angle=scene.Range(range=[0, 360], unit_base=10),
+        anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    )
+)
 def transform_rotate_anchor(cfg: SceneCfg, angle=123.4, anchor=(0.15, 0.35, 0.7)):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape()
@@ -231,7 +244,7 @@ def transform_rotate_anchor(cfg: SceneCfg, angle=123.4, anchor=(0.15, 0.35, 0.7)
 
 
 @test_fingerprint()
-@scene(quat=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)))
+@scene(controls=dict(quat=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1))))
 def transform_rotate_quat(cfg: SceneCfg, quat=(0, 0, -0.474, 0.880)):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape()
@@ -240,8 +253,10 @@ def transform_rotate_quat(cfg: SceneCfg, quat=(0, 0, -0.474, 0.880)):
 
 @test_fingerprint()
 @scene(
-    quat=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
-    anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    controls=dict(
+        quat=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
+        anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    )
 )
 def transform_rotate_quat_anchor(cfg: SceneCfg, quat=(0, 0, -0.474, 0.880), anchor=(0.15, 0.35, 0.7)):
     cfg.aspect_ratio = (1, 1)
@@ -251,8 +266,10 @@ def transform_rotate_quat_anchor(cfg: SceneCfg, quat=(0, 0, -0.474, 0.880), anch
 
 @test_fingerprint(keyframes=8)
 @scene(
-    quat0=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
-    quat1=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
+    controls=dict(
+        quat0=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
+        quat1=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
+    )
 )
 def transform_rotate_quat_animated(cfg: SceneCfg, quat0=(0, 0, -0.474, 0.880), quat1=(0, 0, 0, 0)):
     cfg.aspect_ratio = (1, 1)

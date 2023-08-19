@@ -142,7 +142,7 @@ def media_exposed_time(cfg: SceneCfg):
 
 
 @test_fingerprint(width=1024, height=1024, keyframes=30, tolerance=2)
-@scene(overlap_time=scene.Range(range=[0, 10], unit_base=10), dim=scene.Range(range=[1, 10]))
+@scene(controls=dict(overlap_time=scene.Range(range=[0, 10], unit_base=10), dim=scene.Range(range=[1, 10])))
 def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)

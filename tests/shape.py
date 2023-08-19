@@ -66,7 +66,7 @@ def _render_shape(geometry, color):
 
 
 @test_fingerprint()
-@scene(sz=scene.Range(range=[0.1, 2], unit_base=100), color=scene.Color())
+@scene(controls=dict(sz=scene.Range(range=[0.1, 2], unit_base=100), color=scene.Color()))
 def shape_triangle(cfg: SceneCfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
@@ -75,7 +75,7 @@ def shape_triangle(cfg: SceneCfg, sz=1, color=COLORS.orange):
 
 
 @test_fingerprint(samples=4)
-@scene(sz=scene.Range(range=[0.1, 2], unit_base=100), color=scene.Color())
+@scene(controls=dict(sz=scene.Range(range=[0.1, 2], unit_base=100), color=scene.Color()))
 def shape_triangle_msaa(cfg: SceneCfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
@@ -85,10 +85,12 @@ def shape_triangle_msaa(cfg: SceneCfg, sz=1, color=COLORS.orange):
 
 @test_fingerprint()
 @scene(
-    corner=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
-    width=scene.Vector(n=3, minv=(0, 0, 0), maxv=(2, 2, 2)),
-    height=scene.Vector(n=3, minv=(0, 0, 0), maxv=(2, 2, 2)),
-    color=scene.Color(),
+    controls=dict(
+        corner=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+        width=scene.Vector(n=3, minv=(0, 0, 0), maxv=(2, 2, 2)),
+        height=scene.Vector(n=3, minv=(0, 0, 0), maxv=(2, 2, 2)),
+        color=scene.Color(),
+    )
 )
 def shape_quad(cfg: SceneCfg, corner=(-0.5, -0.8, 0), width=(0.9, 0.2, 0), height=(0.1, 1.3, 0), color=COLORS.sgreen):
     cfg.aspect_ratio = (1, 1)
@@ -97,7 +99,7 @@ def shape_quad(cfg: SceneCfg, corner=(-0.5, -0.8, 0), width=(0.9, 0.2, 0), heigh
 
 
 @test_fingerprint()
-@scene(radius=scene.Range(range=[0.1, 2], unit_base=100), color=scene.Color())
+@scene(controls=dict(radius=scene.Range(range=[0.1, 2], unit_base=100), color=scene.Color()))
 def shape_circle(cfg: SceneCfg, radius=0.5, color=COLORS.azure):
     cfg.aspect_ratio = (1, 1)
     geometry = ngl.Circle(radius, npoints=64)
@@ -231,7 +233,7 @@ def _get_morphing_coordinates(rng, n, x_off, y_off):
 
 
 @test_fingerprint(keyframes=8, tolerance=1)
-@scene(n=scene.Range(range=[2, 50]))
+@scene(controls=dict(n=scene.Range(range=[2, 50])))
 def shape_morphing(cfg: SceneCfg, n=6):
     cfg.duration = 5.0
     vertices_tl = _get_morphing_coordinates(cfg.rng, n, -1, 0)
@@ -256,7 +258,7 @@ def shape_morphing(cfg: SceneCfg, n=6):
 
 def _get_cropboard_function(set_indices=False):
     @test_fingerprint(keyframes=10, tolerance=1)
-    @scene(dim_clr=scene.Range(range=[1, 50]), dim_cut=scene.Range(range=[1, 50]))
+    @scene(controls=dict(dim_clr=scene.Range(range=[1, 50]), dim_cut=scene.Range(range=[1, 50])))
     def cropboard(cfg: SceneCfg, dim_clr=3, dim_cut=9):
         cfg.duration = 5.0 + 1.0
 

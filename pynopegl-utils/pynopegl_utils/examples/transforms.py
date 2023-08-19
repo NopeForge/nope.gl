@@ -4,7 +4,7 @@ from pynopegl_utils.toolbox.colors import get_random_color_buffer
 import pynopegl as ngl
 
 
-@scene(color=scene.Color(), rotate=scene.Bool(), scale=scene.Bool(), translate=scene.Bool())
+@scene(controls=dict(color=scene.Color(), rotate=scene.Bool(), scale=scene.Bool(), translate=scene.Bool()))
 def animated_square(cfg: SceneCfg, color=(1, 0.66, 0), rotate=True, scale=True, translate=True):
     """Animated Translate/Scale/Rotate on a square"""
     cfg.duration = 5.0
@@ -69,7 +69,7 @@ def animated_uniform(cfg: SceneCfg):
     return ts
 
 
-@scene(rotate=scene.Bool())
+@scene(controls=dict(rotate=scene.Bool()))
 def animated_camera(cfg: SceneCfg, rotate=True):
     """Animated camera around a scene"""
     g = ngl.Group()
@@ -117,7 +117,7 @@ def animated_camera(cfg: SceneCfg, rotate=True):
     return camera
 
 
-@scene(dim=scene.Range(range=[1, 100]))
+@scene(controls=dict(dim=scene.Range(range=[1, 100])))
 def animated_buffer(cfg: SceneCfg, dim=50):
     """Transform a random buffer content using animations"""
     cfg.duration = 5.0
