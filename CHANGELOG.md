@@ -25,6 +25,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   character/word/lines
 - `PathKeyClose` node to close the current sub-path
 - `RenderPath` node to render paths visually
+- Optional `compat_specs` in the `@scene` decorator to add a version requirement
+  constraint
 
 ### Changed
 - CSV export in the HUD now always prints floats in C locale instead of quoted
