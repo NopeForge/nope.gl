@@ -360,7 +360,7 @@ def _get_scene(cfg: SceneCfg, seed=0, enable_computes=True):
     return ngl.Group(children=(bg, camera))
 
 
-@scene(seed=scene.Range(range=[0, 1000]), enable_computes=scene.Bool())
+@scene(controls=dict(seed=scene.Range(range=[0, 1000]), enable_computes=scene.Bool()))
 def benchmark_test(cfg: SceneCfg, seed=82, enable_computes=True):
     """Function to be used for manual testing"""
     return _get_scene(cfg, seed, enable_computes)

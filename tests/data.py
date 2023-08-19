@@ -135,7 +135,7 @@ def _get_data_function(spec, category, field_type, layout):
         tolerance=1,
         debug_positions=False,
     )
-    @scene(seed=scene.Range(range=[0, 100]), debug_positions=scene.Bool(), color_tint=scene.Bool())
+    @scene(controls=dict(seed=scene.Range(range=[0, 100]), debug_positions=scene.Bool(), color_tint=scene.Bool()))
     def scene_func(cfg: SceneCfg, seed=0, debug_positions=True, color_tint=False):
         cfg.duration = ANIM_DURATION
         return get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint)
@@ -239,7 +239,7 @@ def _get_data_streamed_buffer_function(scale, single):
     keyframes = 4
 
     @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(size), keyframes=keyframes, tolerance=1)
-    @scene(show_dbg_points=scene.Bool())
+    @scene(controls=dict(show_dbg_points=scene.Bool()))
     def scene_func(cfg: SceneCfg, show_dbg_points=False):
         return _get_data_streamed_buffer_vec4_scene(cfg, size, keyframes, scale, single, show_dbg_points)
 

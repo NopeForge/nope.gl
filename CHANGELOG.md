@@ -44,6 +44,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - The `Text.valign` and `Text.halign` parameters now also align the text per line
 - `Text` rendering has been completely reworked to support more advanced effects
   and smooth rendering at high resolution
+- The `@scene` decorator now relies on an explicity `controls` dictionary
+  instead of `**kwargs`
 
 ### Removed
 - `ResourceProps.variadic` bool flag as it was never a functional interface

@@ -3,7 +3,13 @@ from pynopegl_utils.misc import SceneCfg, scene
 import pynopegl as ngl
 
 
-@scene(fast=scene.Bool(), segment_time=scene.Range(range=[0.1, 10], unit_base=10), constrained_timeranges=scene.Bool())
+@scene(
+    controls=dict(
+        fast=scene.Bool(),
+        segment_time=scene.Range(range=[0.1, 10], unit_base=10),
+        constrained_timeranges=scene.Bool(),
+    )
+)
 def parallel_playback(cfg: SceneCfg, fast=True, segment_time=2.0, constrained_timeranges=False):
     """
     Parallel media playback, flipping between the two sources.
@@ -51,7 +57,7 @@ def parallel_playback(cfg: SceneCfg, fast=True, segment_time=2.0, constrained_ti
     return g
 
 
-@scene(transition_start=scene.Range(range=[0, 30]), transition_duration=scene.Range(range=[0, 30]))
+@scene(controls=dict(transition_start=scene.Range(range=[0, 30]), transition_duration=scene.Range(range=[0, 30])))
 def simple_transition(cfg: SceneCfg, transition_start=2, transition_duration=4):
     """Fading transition between two medias"""
 

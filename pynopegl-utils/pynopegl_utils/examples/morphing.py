@@ -6,7 +6,7 @@ from pynopegl_utils.misc import SceneCfg, scene
 import pynopegl as ngl
 
 
-@scene(square_color=scene.Color(), circle_color=scene.Color())
+@scene(controls=dict(square_color=scene.Color(), circle_color=scene.Color()))
 def square2circle(cfg: SceneCfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0, 1.0, 1.0)):
     """Morphing of a square (composed of many vertices) into a circle"""
     cfg.duration = 5
@@ -75,7 +75,7 @@ def square2circle(cfg: SceneCfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0
     return render
 
 
-@scene(npoints=scene.Range(range=[3, 100]))
+@scene(controls=dict(npoints=scene.Range(range=[3, 100])))
 def urchin(cfg: SceneCfg, npoints=25):
     """Urchin with animated vertices"""
     cfg.duration = 5

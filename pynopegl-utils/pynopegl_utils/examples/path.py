@@ -56,7 +56,7 @@ def _path_scene(cfg: SceneCfg, path, points=None, controls=None, easing="linear"
     return ngl.Group(children=objects)
 
 
-@scene(easing=scene.List(choices=["linear", "back_in_out"]))
+@scene(controls=dict(easing=scene.List(choices=["linear", "back_in_out"])))
 def simple_bezier(cfg: SceneCfg, easing="linear"):
     cfg.duration = 2
     # fmt: off
@@ -84,7 +84,7 @@ def simple_bezier(cfg: SceneCfg, easing="linear"):
     )
 
 
-@scene(tension=scene.Range(range=[0.01, 2], unit_base=100))
+@scene(controls=dict(tension=scene.Range(range=[0.01, 2], unit_base=100)))
 def catmull(cfg: SceneCfg, tension=0.5):
     cfg.duration = 3
     # fmt: off

@@ -107,7 +107,7 @@ def filter_composition_alpha(_):
 
 
 @test_cuepoints(points=_CUEPOINTS, width=320, height=240, keyframes=1, tolerance=1)
-@scene(linear=scene.Bool())
+@scene(controls=dict(linear=scene.Bool()))
 def filter_gamma_correct(_, linear=True):
     """This test operates a gamma correct blending (the blending happens in linear space)"""
 

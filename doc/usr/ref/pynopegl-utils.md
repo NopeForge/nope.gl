@@ -33,9 +33,9 @@ Every scene must return a valid `pynopegl` node object.
 
 ## Controller widgets
 
-Widgets are specified as named object arguments to the `@misc.scene` decorator.
-The `@misc.scene()` arguments must match the name of the corresponding argument
-in the scene construction function.
+Widgets are specified using the `controls` argument in the `@misc.scene`
+decorator. The keys of the `controls` dictionary must match the name of the
+corresponding argument in the scene construction function.
 
 **Note**: it is not mandatory to create a widget definition for every optional
 scene function argument.
@@ -43,7 +43,7 @@ scene function argument.
 **Example**:
 
 ```python
-@scene(foo=scene.Bool(), bar=scene.Color())
+@scene(controls=dict(foo=scene.Bool(), bar=scene.Color()))
 def example(cfg, foo=True, bar=(1.0, 0.2, 0.5)):
     ...
 ```
@@ -66,7 +66,7 @@ The associated argument value is expected to be a scalar value.
 **Example**:
 
 ```python
-@scene(n=scene.Range(range=[0, 5], unit_base=100))
+@scene(controls=dict(n=scene.Range(range=[0, 5], unit_base=100)))
 def range_example(cfg, n=2.5):
     ...
 ```
@@ -90,7 +90,7 @@ The associated argument is expected to be a `tuple` of `n` floats.
 **Example**:
 
 ```python
-@scene(vec=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)))
+@scene(controls=dict(vec=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1))))
 def vector_example(cfg, vec=(0.4, -0.75, -0.2, 1.0))
     ...
 ```
@@ -106,7 +106,7 @@ The associated argument value is expected to be a 3-value `tuple` or `list`.
 **Example**:
 
 ```python
-@scene(bgcolor=scene.Color())
+@scene(controls=dict(bgcolor=scene.Color()))
 def color_example(cfg, bgcolor=(0.3, 0.4, 0.5)):
     ...
 ```
@@ -122,7 +122,7 @@ The associated argument is expected to be a `bool`.
 **Example**:
 
 ```python
-@scene(bilinear=scene.Bool())
+@scene(controls=dict(bilinear=scene.Bool()))
 def bool_example(cfg, bilinear=True):
     ...
 ```
@@ -145,7 +145,7 @@ Option      | Description
 **Example**:
 
 ```python
-@scene(input=scene.File(filter='Text files (*.txt)'))
+@scene(controls=dict(input=scene.File(filter='Text files (*.txt)')))
 def file_example(cfg, input=None):
     ...
 ```
@@ -167,7 +167,7 @@ Option      | Description
 **Example**:
 
 ```python
-@scene(easing=scene.List(choices=('linear', 'exp_in', 'sinus_in')))
+@scene(controls=dict(easing=scene.List(choices=('linear', 'exp_in', 'sinus_in'))))
 def anim(cfg, easing='exp_in'):
     ...
 ```
@@ -183,7 +183,7 @@ The associated argument is expected to be a `str`.
 **Example**:
 
 ```python
-@scene(intro=scene.Text())
+@scene(controls=dict(intro=scene.Text()))
 def demo(cfg, intro='Hello World!'):
     ...
 ```

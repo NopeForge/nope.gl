@@ -32,12 +32,12 @@ from collections import namedtuple
 from dataclasses import asdict, dataclass, field
 from fractions import Fraction
 from functools import partialmethod, wraps
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pynopegl as ngl
 
 
-def scene(**controls):
+def scene(controls: Optional[Dict[str, Any]] = None):
     def real_decorator(scene_func: Callable[..., ngl.Node]) -> Callable[..., Dict]:
         @wraps(scene_func)
         def func_wrapper(idict=None, **extra_args):
@@ -58,7 +58,7 @@ def scene(**controls):
         # Construct widgets specs
         widgets_specs = []
         func_specs = inspect.getfullargspec(scene_func)
-        if func_specs.defaults:
+        if controls is not None and func_specs.defaults:
             nb_optionnals = len(func_specs.defaults)
             for i, key in enumerate(func_specs.args[-nb_optionnals:]):
                 # Set controller defaults according to the function prototype

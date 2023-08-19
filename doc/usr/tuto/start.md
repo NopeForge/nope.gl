@@ -189,7 +189,7 @@ in the UI. For that, we can adjust the `@scene()` decorator and the
 `test_demo()` prototype like the following:
 
 ```python
-@scene(color=scene.Color())
+@scene(controls=dict(color=scene.Color()))
 def test_demo(cfg, color=(1,0,0)):
     ...
     ucolor = ngl.UniformVec3(value=color)
@@ -258,7 +258,7 @@ How about making our video *swing from left to right and back again*?
 Let's first reduce the time of the demo to make things a bit more interesting:
 
 ```python
-@scene(color=scene.Color())
+@scene(controls=dict(color=scene.Color()))
 def test_demo(cfg, color=(1,0,0)):
     cfg.duration = 3.
     ...
@@ -304,7 +304,7 @@ void main()
 '''
 
 
-@scene(color=scene.Color())
+@scene(controls=dict(color=scene.Color()))
 def test_demo(cfg, color=(1,0,0)):
     cfg.duration = 3.
 
