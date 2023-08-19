@@ -34,13 +34,22 @@ from fractions import Fraction
 from functools import partialmethod, wraps
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+from packaging.specifiers import SpecifierSet
+from packaging.version import Version
+
 import pynopegl as ngl
 
 
-def scene(controls: Optional[Dict[str, Any]] = None):
+def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str] = None):
     def real_decorator(scene_func: Callable[..., ngl.Node]) -> Callable[..., Dict]:
         @wraps(scene_func)
         def func_wrapper(idict=None, **extra_args):
+            version = Version(ngl.__version__)
+            if compat_specs and version not in SpecifierSet(compat_specs):
+                raise Exception(
+                    f"{scene_func.__name__} needs libnopegl{compat_specs} but libnopegl is currently at version {version}"
+                )
+
             if idict is None:
                 idict = {}
             elif isinstance(idict, SceneCfg):
