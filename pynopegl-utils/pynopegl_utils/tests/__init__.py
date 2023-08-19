@@ -116,7 +116,7 @@ def run():
 
     if len(sys.argv) not in (3, 4):
         sys.stderr.write(
-            "Usage: [TESTS_OPTIONS={} REFGEN={}] {} <script_path> <func_name> [<ref_filepath>]".format(
+            "Usage: [TESTS_OPTIONS={} REFGEN={}] {} <script_path> <func_name> [<ref_filepath>]\n".format(
                 "|".join(allowed_tests_opts), "|".join(allowed_gen_opt), op.basename(sys.argv[0])
             )
         )
