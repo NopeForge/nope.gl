@@ -160,7 +160,6 @@ class SceneCfg:
     system: str = platform.system()
     files: List[str] = field(default_factory=list)
     medias: List[MediaInfo] = field(default_factory=_get_default_medias)
-    autofill_medias: bool = True
     clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
     shaders_module: str = "pynopegl_utils.examples.shaders"
 
