@@ -133,7 +133,10 @@ def run():
     assert not any(k.startswith(("PySide", "Qt")) for k in globals().keys())
 
     if ref_filepath is None:
-        sys.exit(func())
+        ret = func()
+        if ret:
+            print(ret)
+        sys.exit(0)
 
     tester = func.tester
     test_func = _refgen_map[refgen_opt]
