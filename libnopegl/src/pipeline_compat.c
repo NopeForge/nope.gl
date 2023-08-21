@@ -215,17 +215,21 @@ int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index
     return ngli_pipeline_compat_update_uniform_count(s, index, value, 0);
 }
 
-int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture)
+static int update_texture(struct pipeline_compat *s, int32_t index, const struct texture_binding *binding)
 {
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
     ngli_assert(index >= 0 && index < s->nb_textures);
-    s->textures[index] = (struct texture_binding) {
-        .texture = texture
-    };
+    s->textures[index] = *binding;
 
-    return ngli_pipeline_update_texture(s->pipeline, index, texture);
+    return ngli_pipeline_update_texture(s->pipeline, index, binding->texture);
+}
+
+int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture)
+{
+    const struct texture_binding binding = {.texture = texture};
+    return update_texture(s, index, &binding);
 }
 
 int ngli_pipeline_compat_update_dynamic_offsets(struct pipeline_compat *s, const uint32_t *offsets, size_t nb_offsets)
