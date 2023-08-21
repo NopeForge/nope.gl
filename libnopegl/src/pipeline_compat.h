@@ -28,7 +28,7 @@
 
 struct pipeline_compat_params {
     int type; // NGLI_PIPELINE_TYPE_*
-    const struct pipeline_graphics graphics;
+    struct pipeline_graphics graphics;
     const struct program *program;
     struct pipeline_layout layout;
     const struct pipeline_resources *resources;
