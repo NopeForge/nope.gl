@@ -62,7 +62,7 @@ graph
 ```
 
 [meson]: https://mesonbuild.com/
-[nope_media]: https://github.com/nope-project/nope.media
+[nope_media]: https://github.com/NopeFoundry/nope.media
 [graphviz]: http://www.graphviz.org/
 [python]: https://www.python.org/
 [cython]: http://cython.org/

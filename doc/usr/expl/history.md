@@ -32,7 +32,7 @@ entirely redesigned to support more modern graphics backends.
 
 Around the end of 2022 and beginning of 2023, Matthieu and Clément left the
 GoPro company and decided to maintain the project under a new name: the **Nope
-Project**. `sxplayer` and `node.gl` were respectively renamed to `nope.media`
+Foundry**. `sxplayer` and `node.gl` were respectively renamed to `nope.media`
 and `nope.gl`. The direction of the project then took a new turn, focusing on
 providing a free and open-source framework for motion design, 2D composition
 and visual effects.
