@@ -26,6 +26,7 @@
 
 #include "buffer.h"
 #include "darray.h"
+#include "gpu_limits.h"
 #include "graphics_state.h"
 #include "program.h"
 #include "rendertarget.h"
@@ -42,10 +43,6 @@ enum {
 };
 
 NGLI_STATIC_ASSERT(texture_access, (NGLI_ACCESS_READ_BIT | NGLI_ACCESS_WRITE_BIT) == NGLI_ACCESS_READ_WRITE);
-
-#define NGLI_MAX_UNIFORM_BUFFERS_DYNAMIC 8
-#define NGLI_MAX_STORAGE_BUFFERS_DYNAMIC 4
-#define NGLI_MAX_DYNAMIC_OFFSETS (NGLI_MAX_UNIFORM_BUFFERS_DYNAMIC + NGLI_MAX_STORAGE_BUFFERS_DYNAMIC)
 
 struct pipeline_resource_desc {
     size_t id;
