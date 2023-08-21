@@ -89,8 +89,8 @@ struct gpu_ctx_class {
 
     struct buffer *(*buffer_create)(struct gpu_ctx *ctx);
     int (*buffer_init)(struct buffer *s);
-    int (*buffer_upload)(struct buffer *s, const void *data, size_t size, size_t offset);
-    int (*buffer_map)(struct buffer *s, size_t size, size_t offset, void **datap);
+    int (*buffer_upload)(struct buffer *s, const void *data, size_t offset, size_t size);
+    int (*buffer_map)(struct buffer *s, size_t offset, size_t size, void **datap);
     void (*buffer_unmap)(struct buffer *s);
     void (*buffer_freep)(struct buffer **sp);
 

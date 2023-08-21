@@ -408,8 +408,8 @@ static int refresh_geometry(struct ngl_node *node)
         }
     }
 
-    if ((ret = ngli_buffer_upload(s->transforms, transforms, text_nbchr * 4 * 4 * sizeof(*transforms), 0)) < 0 ||
-        (ret = ngli_buffer_upload(s->atlas_coords, atlas_coords, text_nbchr * 4 * sizeof(*atlas_coords), 0)) < 0)
+    if ((ret = ngli_buffer_upload(s->transforms, transforms, 0, text_nbchr * 4 * 4 * sizeof(*transforms))) < 0 ||
+        (ret = ngli_buffer_upload(s->atlas_coords, atlas_coords, 0, text_nbchr * 4 * sizeof(*atlas_coords))) < 0)
         goto end;
 
     s->nb_chars = text_nbchr;
@@ -443,11 +443,11 @@ static int apply_effects(struct text_priv *s)
         return 0;
 
     const struct text_effects_pointers *ptrs = &text->data_ptrs;
-    if ((ret = ngli_buffer_upload(s->user_transforms, ptrs->transform,  text_nbchr * 4 * 4 * sizeof(*ptrs->transform),  0)) < 0 ||
-        (ret = ngli_buffer_upload(s->colors,          ptrs->color,      text_nbchr     * 4 * sizeof(*ptrs->color),      0)) < 0 ||
-        (ret = ngli_buffer_upload(s->outlines,        ptrs->outline,    text_nbchr     * 4 * sizeof(*ptrs->outline),    0)) < 0 ||
-        (ret = ngli_buffer_upload(s->glows,           ptrs->glow,       text_nbchr     * 4 * sizeof(*ptrs->glow),       0)) < 0 ||
-        (ret = ngli_buffer_upload(s->blurs,           ptrs->blur,       text_nbchr         * sizeof(*ptrs->blur),       0)) < 0)
+    if ((ret = ngli_buffer_upload(s->user_transforms, ptrs->transform,  0, text_nbchr * 4 * 4 * sizeof(*ptrs->transform))) < 0 ||
+        (ret = ngli_buffer_upload(s->colors,          ptrs->color,      0, text_nbchr     * 4 * sizeof(*ptrs->color)))     < 0 ||
+        (ret = ngli_buffer_upload(s->outlines,        ptrs->outline,    0, text_nbchr     * 4 * sizeof(*ptrs->outline)))   < 0 ||
+        (ret = ngli_buffer_upload(s->glows,           ptrs->glow,       0, text_nbchr     * 4 * sizeof(*ptrs->glow)))      < 0 ||
+        (ret = ngli_buffer_upload(s->blurs,           ptrs->blur,       0, text_nbchr         * sizeof(*ptrs->blur)))      < 0)
         return ret;
 
     return 0;
@@ -473,7 +473,7 @@ static int init_bounding_box_geometry(struct ngl_node *node)
 
     int ret;
     if ((ret = ngli_buffer_init(s->bg_vertices, sizeof(vertices), VERTEX_USAGE_FLAGS)) < 0 ||
-        (ret = ngli_buffer_upload(s->bg_vertices, vertices, sizeof(vertices), 0)) < 0)
+        (ret = ngli_buffer_upload(s->bg_vertices, vertices, 0, sizeof(vertices))) < 0)
         return ret;
 
     return 0;

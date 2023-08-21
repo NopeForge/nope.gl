@@ -577,7 +577,7 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
 
         s_priv->staging_buffer_row_length = linesize;
 
-        ret = ngli_buffer_map(s_priv->staging_buffer, staging_buffer_size, 0, &s_priv->staging_buffer_ptr);
+        ret = ngli_buffer_map(s_priv->staging_buffer, 0, staging_buffer_size, &s_priv->staging_buffer_ptr);
         if (ret < 0)
             return VK_ERROR_UNKNOWN;
     }

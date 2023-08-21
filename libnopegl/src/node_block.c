@@ -368,7 +368,7 @@ static int block_update(struct ngl_node *node, double t)
     s->force_update = 0;
 
     if (has_changed) {
-        ret = ngli_buffer_upload(info->buffer, info->data, info->data_size, 0);
+        ret = ngli_buffer_upload(info->buffer, info->data, 0, info->data_size);
         if (ret < 0)
             return ret;
     }

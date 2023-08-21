@@ -87,7 +87,7 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
     if (!(info->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return 0;
 
-    return ngli_buffer_upload(info->buffer, info->data, info->data_size, 0);
+    return ngli_buffer_upload(info->buffer, info->data, 0, info->data_size);
 }
 
 static int animatedbuffer_init(struct ngl_node *node)
