@@ -251,29 +251,29 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
         ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
     }
 
-    const struct texture *textures[NGLI_INFO_FIELD_NB] = {0};
+    struct texture_binding bindings[NGLI_INFO_FIELD_NB] = {0};
     switch (image->params.layout) {
     case NGLI_IMAGE_LAYOUT_DEFAULT:
-        textures[NGLI_INFO_FIELD_SAMPLER_0] = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
         break;
     case NGLI_IMAGE_LAYOUT_NV12:
-        textures[NGLI_INFO_FIELD_SAMPLER_0] = image->planes[0];
-        textures[NGLI_INFO_FIELD_SAMPLER_1] = image->planes[1];
+        bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_1].texture = image->planes[1];
         break;
     case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
-        textures[NGLI_INFO_FIELD_SAMPLER_RECT_0] = image->planes[0];
-        textures[NGLI_INFO_FIELD_SAMPLER_RECT_1] = image->planes[1];
+        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_1].texture = image->planes[1];
         break;
     case NGLI_IMAGE_LAYOUT_MEDIACODEC:
-        textures[NGLI_INFO_FIELD_SAMPLER_OES] = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_OES].texture = image->planes[0];
         break;
     case NGLI_IMAGE_LAYOUT_YUV:
-        textures[NGLI_INFO_FIELD_SAMPLER_0] = image->planes[0];
-        textures[NGLI_INFO_FIELD_SAMPLER_1] = image->planes[1];
-        textures[NGLI_INFO_FIELD_SAMPLER_2] = image->planes[2];
+        bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_1].texture = image->planes[1];
+        bindings[NGLI_INFO_FIELD_SAMPLER_2].texture = image->planes[2];
         break;
     case NGLI_IMAGE_LAYOUT_RECTANGLE:
-        textures[NGLI_INFO_FIELD_SAMPLER_RECT_0] = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
         break;
     default:
         break;
@@ -292,8 +292,8 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
     for (size_t i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
         const int sampler = samplers[i];
         const int32_t index = fields[sampler].index;
-        const struct texture *texture = textures[sampler];
-        ret &= ngli_pipeline_compat_update_texture(s, index, texture);
+        const struct texture_binding *binding = &bindings[sampler];
+        ret &= update_texture(s, index, binding);
     };
 
     const int layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->params.layout;
