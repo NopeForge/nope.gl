@@ -23,6 +23,7 @@
 #ifndef PIPELINE_COMPAT_H
 #define PIPELINE_COMPAT_H
 
+#include "bindgroup.h"
 #include "pgcraft.h"
 #include "pipeline.h"
 
@@ -36,10 +37,10 @@ struct pipeline_compat_resources {
 };
 
 struct pipeline_compat_layout {
-    const struct pipeline_resource_desc *texture_descs;
-    size_t nb_texture_descs;
-    const struct pipeline_resource_desc *buffer_descs;
-    size_t nb_buffer_descs;
+    const struct bindgroup_layout_entry *textures;
+    size_t nb_textures;
+    const struct bindgroup_layout_entry *buffers;
+    size_t nb_buffers;
 };
 
 struct pipeline_compat_params {

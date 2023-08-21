@@ -495,14 +495,14 @@ static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
 
     struct pipeline_compat_layout layout = ngli_pgcraft_get_pipeline_layout(desc->crafter);
 
-    for (size_t i = 0; i < layout.nb_buffer_descs; i++) {
-        const struct pipeline_resource_desc *resource = &layout.buffer_descs[i];
+    for (size_t i = 0; i < layout.nb_buffers; i++) {
+        const struct bindgroup_layout_entry *entry = &layout.buffers[i];
         const struct hmap *resources = NULL;
-        if (resource->stage == NGLI_PROGRAM_SHADER_VERT)
+        if (entry->stage == NGLI_PROGRAM_SHADER_VERT)
             resources = s->params.vert_resources;
-        else if (resource->stage == NGLI_PROGRAM_SHADER_FRAG)
+        else if (entry->stage == NGLI_PROGRAM_SHADER_FRAG)
             resources = s->params.frag_resources;
-        else if (resource->stage == NGLI_PROGRAM_SHADER_COMP)
+        else if (entry->stage == NGLI_PROGRAM_SHADER_COMP)
             resources = s->params.compute_resources;
         else
             ngli_assert(0);
@@ -510,8 +510,8 @@ static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
         if (!resources)
             continue;
 
-        const char *name = ngli_pgcraft_get_symbol_name(desc->crafter, resource->id);
-        const int32_t index = ngli_pgcraft_get_block_index(desc->crafter, name, resource->stage);
+        const char *name = ngli_pgcraft_get_symbol_name(desc->crafter, entry->id);
+        const int32_t index = ngli_pgcraft_get_block_index(desc->crafter, name, entry->stage);
 
         const struct ngl_node *node = ngli_hmap_get(resources, name);
         if (!node)

@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,6 +20,9 @@
  * under the License.
  */
 
+#include <string.h>
+
+#include "bindgroup.h"
 #include "darray.h"
 #include "gpu_ctx.h"
 #include "gpu_limits.h"
@@ -26,16 +30,9 @@
 #include "nopegl.h"
 #include "pipeline_compat.h"
 #include "type.h"
+#include "utils.h"
 
-struct texture_binding {
-    const struct texture *texture;
-};
-
-struct buffer_binding {
-    const struct buffer *buffer;
-    size_t offset;
-    size_t size;
-};
+#define MAX_BINDGROUPS 16
 
 struct pipeline_compat {
     struct gpu_ctx *gpu_ctx;
@@ -43,12 +40,22 @@ struct pipeline_compat {
     struct pipeline_graphics graphics;
     const struct program *program;
     struct pipeline *pipeline;
+    struct bindgroup_layout_params bindgroup_layout_params;
+    struct bindgroup_layout *bindgroup_layout;
+    struct bindgroup **bindgroups;
+    size_t nb_bindgroups;
+    struct bindgroup *cur_bindgroup;
+    size_t next_bindgroup;
     const struct buffer **vertex_buffers;
     size_t nb_vertex_buffers;
     struct texture_binding *textures;
     size_t nb_textures;
     struct buffer_binding *buffers;
     size_t nb_buffers;
+    uint32_t dynamic_offsets[NGLI_MAX_DYNAMIC_OFFSETS];
+    size_t nb_dynamic_offsets;
+    int updated;
+    int need_pipeline_recreation;
     const struct pgcraft_compat_info *compat_info;
     struct buffer *ubuffers[NGLI_PROGRAM_SHADER_NB];
     uint8_t *mapped_datas[NGLI_PROGRAM_SHADER_NB];
@@ -110,16 +117,80 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
                 return ret;
         }
 
-        ngli_pipeline_update_buffer(s->pipeline, s->compat_info->uindices[i], buffer, 0, buffer->size);
+        ngli_pipeline_compat_update_buffer(s, s->compat_info->uindices[i], buffer, 0, buffer->size);
     }
 
     return 0;
 }
 
-int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_compat_params *params)
+static int create_pipeline(struct pipeline_compat *s)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
 
+    s->bindgroup_layout = ngli_bindgroup_layout_create(gpu_ctx);
+    if (!s->bindgroup_layout)
+        return NGL_ERROR_MEMORY;
+
+    int ret = ngli_bindgroup_layout_init(s->bindgroup_layout, &s->bindgroup_layout_params);
+    if (ret < 0)
+        return ret;
+
+    s->pipeline = ngli_pipeline_create(gpu_ctx);
+    if (!s->pipeline)
+        return NGL_ERROR_MEMORY;
+
+    const struct pipeline_params pipeline_params = {
+        .type     = s->type,
+        .graphics = s->graphics,
+        .program  = s->program,
+        .layout   = {
+            .bindgroup_layout = s->bindgroup_layout,
+        }
+    };
+
+    ret = ngli_pipeline_init(s->pipeline, &pipeline_params);
+    if (ret < 0)
+        return ret;
+
+    s->bindgroups = ngli_calloc(MAX_BINDGROUPS, sizeof(*s->bindgroups));
+    if (!s->bindgroups)
+        return NGL_ERROR_MEMORY;
+    s->nb_bindgroups = MAX_BINDGROUPS;
+
+    for (size_t i = 0; i < s->nb_bindgroups; i++) {
+        s->bindgroups[i] = ngli_bindgroup_create(gpu_ctx);
+        if (!s->bindgroups[i])
+            return NGL_ERROR_MEMORY;
+
+        struct bindgroup_params params = {
+            .layout      = s->bindgroup_layout,
+            .textures    = s->textures,
+            .nb_textures = s->nb_textures,
+            .buffers     = s->buffers,
+            .nb_buffers  = s->nb_buffers,
+        };
+
+        int ret = ngli_bindgroup_init(s->bindgroups[i], &params);
+        if (ret < 0)
+            ngli_assert(0);
+    }
+    s->cur_bindgroup = s->bindgroups[0];
+    s->next_bindgroup = 0;
+
+    return 0;
+}
+
+static void reset_pipeline(struct pipeline_compat *s)
+{
+    ngli_pipeline_freep(&s->pipeline);
+    for (size_t i = 0; i < MAX_BINDGROUPS; i++)
+        ngli_bindgroup_freep(&s->bindgroups[i]);
+    ngli_freep(&s->bindgroups);
+    ngli_bindgroup_layout_freep(&s->bindgroup_layout);
+}
+
+int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_compat_params *params)
+{
     s->type = params->type;
 
     int ret = ngli_pipeline_graphics_copy(&s->graphics, &params->graphics);
@@ -128,34 +199,10 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
 
     s->program = params->program;
 
-    s->pipeline = ngli_pipeline_create(gpu_ctx);
-    if (!s->pipeline)
-        return NGL_ERROR_MEMORY;
-
-    const struct pipeline_params pipeline_params = {
-        .type     = params->type,
-        .graphics = params->graphics,
-        .program  = params->program,
-        .layout   = {
-            .texture_descs    = params->layout.texture_descs,
-            .nb_texture_descs = params->layout.nb_texture_descs,
-            .buffer_descs     = params->layout.buffer_descs,
-            .nb_buffer_descs  = params->layout.nb_buffer_descs,
-        },
-    };
+    NGLI_ARRAY_MEMDUP(s->bindgroup_layout_params, params->layout, textures);
+    NGLI_ARRAY_MEMDUP(s->bindgroup_layout_params, params->layout, buffers);
 
     const struct pipeline_compat_resources *resources = params->resources;
-    const struct pipeline_resources pipeline_resources = {
-        .textures    = resources->textures,
-        .nb_textures = resources->nb_textures,
-        .buffers     = resources->buffers,
-        .nb_buffers  = resources->nb_buffers,
-    };
-
-    if ((ret = ngli_pipeline_init(s->pipeline, &pipeline_params)) < 0 ||
-        (ret = ngli_pipeline_set_resources(s->pipeline, &pipeline_resources)) < 0)
-        return ret;
-
     const size_t nb_vertex_buffers = resources->nb_vertex_buffers;
     if (nb_vertex_buffers) {
         s->vertex_buffers = ngli_calloc(nb_vertex_buffers, sizeof(*s->vertex_buffers));
@@ -190,6 +237,10 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
 
     s->compat_info = params->compat_info;
     ret = init_blocks_buffers(s, params);
+    if (ret < 0)
+        return ret;
+
+    ret = create_pipeline(s);
     if (ret < 0)
         return ret;
 
@@ -242,9 +293,17 @@ static int update_texture(struct pipeline_compat *s, int32_t index, const struct
         return NGL_ERROR_NOT_FOUND;
 
     ngli_assert(index >= 0 && index < s->nb_textures);
-    s->textures[index] = *binding;
 
-    return ngli_pipeline_update_texture(s->pipeline, index, binding->texture);
+    if (s->textures[index].immutable_sampler != binding->immutable_sampler) {
+        struct bindgroup_layout_entry *entry = &s->bindgroup_layout_params.textures[index];
+        entry->immutable_sampler = binding->immutable_sampler;
+        s->need_pipeline_recreation = 1;
+    }
+
+    s->textures[index] = *binding;
+    s->updated = 1;
+
+    return 0;
 }
 
 int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture)
@@ -255,7 +314,10 @@ int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index
 
 int ngli_pipeline_compat_update_dynamic_offsets(struct pipeline_compat *s, const uint32_t *offsets, size_t nb_offsets)
 {
-    return ngli_pipeline_update_dynamic_offsets(s->pipeline, offsets, nb_offsets);
+    ngli_assert(s->bindgroup_layout->nb_dynamic_offsets == nb_offsets);
+    memcpy(s->dynamic_offsets, offsets, nb_offsets * sizeof(*s->dynamic_offsets));
+    s->nb_dynamic_offsets = nb_offsets;
+    return 0;
 }
 
 void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const struct pgcraft_texture_info *info)
@@ -276,25 +338,35 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
     switch (image->params.layout) {
     case NGLI_IMAGE_LAYOUT_DEFAULT:
         bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
         break;
     case NGLI_IMAGE_LAYOUT_NV12:
         bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
         bindings[NGLI_INFO_FIELD_SAMPLER_1].texture = image->planes[1];
+        bindings[NGLI_INFO_FIELD_SAMPLER_1].immutable_sampler = image->samplers[1];
         break;
     case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
         bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].immutable_sampler = image->samplers[0];
         bindings[NGLI_INFO_FIELD_SAMPLER_RECT_1].texture = image->planes[1];
+        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_1].immutable_sampler = image->samplers[1];
         break;
     case NGLI_IMAGE_LAYOUT_MEDIACODEC:
         bindings[NGLI_INFO_FIELD_SAMPLER_OES].texture = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_OES].immutable_sampler = image->samplers[0];
         break;
     case NGLI_IMAGE_LAYOUT_YUV:
         bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
         bindings[NGLI_INFO_FIELD_SAMPLER_1].texture = image->planes[1];
+        bindings[NGLI_INFO_FIELD_SAMPLER_1].immutable_sampler = image->samplers[1];
         bindings[NGLI_INFO_FIELD_SAMPLER_2].texture = image->planes[2];
+        bindings[NGLI_INFO_FIELD_SAMPLER_2].immutable_sampler = image->samplers[2];
         break;
     case NGLI_IMAGE_LAYOUT_RECTANGLE:
         bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
+        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].immutable_sampler = image->samplers[0];
         break;
     default:
         break;
@@ -332,8 +404,41 @@ int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index,
         .offset = offset,
         .size   = size ? size : buffer->size,
     };
+    s->updated = 1;
+    return 0;
+}
 
-    return ngli_pipeline_update_buffer(s->pipeline, index, buffer, offset, size);
+static int prepare_bindgroup(struct pipeline_compat *s)
+{
+    if (!s->updated)
+        return 0;
+
+    s->updated = 0;
+
+    if (s->need_pipeline_recreation) {
+        s->need_pipeline_recreation = 0;
+        reset_pipeline(s);
+        int ret = create_pipeline(s);
+        if (ret < 0)
+            return ret;
+    }
+
+    s->cur_bindgroup = s->bindgroups[s->next_bindgroup++];
+    s->next_bindgroup %= s->nb_bindgroups;
+
+    for (size_t i = 0; i < s->nb_textures; i++) {
+        int ret = ngli_bindgroup_update_texture(s->cur_bindgroup, (int32_t)i, &s->textures[i]);
+        if (ret < 0)
+            return ret;
+    }
+
+    for (size_t i = 0; i < s->nb_buffers; i++) {
+        int ret = ngli_bindgroup_update_buffer(s->cur_bindgroup, (int32_t)i, &s->buffers[i]);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
 }
 
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances)
@@ -343,9 +448,14 @@ void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int n
     if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
        unmap_buffers(s);
 
+    int ret = prepare_bindgroup(s);
+    if (ret < 0)
+        return;
+
     ngli_gpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
     for (size_t i = 0; i < s->nb_vertex_buffers; i++)
         ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
+    ngli_gpu_ctx_set_bindgroup(gpu_ctx, s->cur_bindgroup, s->dynamic_offsets, s->nb_dynamic_offsets);
     ngli_gpu_ctx_draw(gpu_ctx, nb_vertices, nb_instances);
 }
 
@@ -356,10 +466,15 @@ void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct b
     if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
        unmap_buffers(s);
 
+    int ret = prepare_bindgroup(s);
+    if (ret < 0)
+        return;
+
     ngli_gpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
     for (size_t i = 0; i < s->nb_vertex_buffers; i++)
         ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
     ngli_gpu_ctx_set_index_buffer(gpu_ctx, indices, indices_format);
+    ngli_gpu_ctx_set_bindgroup(gpu_ctx, s->cur_bindgroup, s->dynamic_offsets, s->nb_dynamic_offsets);
     ngli_gpu_ctx_draw_indexed(gpu_ctx, nb_indices, nb_instances);
 }
 
@@ -370,7 +485,12 @@ void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_
     if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
        unmap_buffers(s);
 
+    int ret = prepare_bindgroup(s);
+    if (ret < 0)
+        return;
+
     ngli_gpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
+    ngli_gpu_ctx_set_bindgroup(gpu_ctx, s->cur_bindgroup, s->dynamic_offsets, s->nb_dynamic_offsets);
     ngli_gpu_ctx_dispatch(gpu_ctx, nb_group_x, nb_group_y, nb_group_z);
 }
 
@@ -379,8 +499,13 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
     struct pipeline_compat *s = *sp;
     if (!s)
         return;
-    ngli_pipeline_freep(&s->pipeline);
+
+    reset_pipeline(s);
+
     ngli_pipeline_graphics_reset(&s->graphics);
+
+    ngli_freep(&s->bindgroup_layout_params.textures);
+    ngli_freep(&s->bindgroup_layout_params.buffers);
 
     ngli_freep(&s->vertex_buffers);
     ngli_freep(&s->textures);

@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 
+#include "bindgroup.h"
 #include "buffer.h"
 #include "darray.h"
 #include "gpu_limits.h"
@@ -33,24 +34,6 @@
 #include "texture.h"
 
 struct gpu_ctx;
-
-enum {
-    NGLI_ACCESS_UNDEFINED,
-    NGLI_ACCESS_READ_BIT,
-    NGLI_ACCESS_WRITE_BIT,
-    NGLI_ACCESS_READ_WRITE,
-    NGLI_ACCESS_NB
-};
-
-NGLI_STATIC_ASSERT(texture_access, (NGLI_ACCESS_READ_BIT | NGLI_ACCESS_WRITE_BIT) == NGLI_ACCESS_READ_WRITE);
-
-struct pipeline_resource_desc {
-    size_t id;
-    int type;
-    int binding;
-    int access;
-    int stage;
-};
 
 struct vertex_attribute {
     size_t id;
@@ -86,26 +69,14 @@ enum {
 };
 
 struct pipeline_layout {
-    const struct pipeline_resource_desc *texture_descs;
-    size_t nb_texture_descs;
-    const struct pipeline_resource_desc *buffer_descs;
-    size_t nb_buffer_descs;
-};
-
-struct pipeline_resources {
-    struct texture **textures;
-    size_t nb_textures;
-    struct buffer **buffers;
-    size_t nb_buffers;
-    struct buffer **attributes;
-    size_t nb_attributes;
+    const struct bindgroup_layout *bindgroup_layout;
 };
 
 struct pipeline_params {
     int type;
     const struct pipeline_graphics graphics;
     const struct program *program;
-    struct pipeline_layout layout;
+    const struct pipeline_layout layout;
 };
 
 struct pipeline {
@@ -115,23 +86,13 @@ struct pipeline {
     struct pipeline_graphics graphics;
     const struct program *program;
     struct pipeline_layout layout;
-    uint32_t dynamic_offsets[NGLI_MAX_DYNAMIC_OFFSETS];
-    size_t nb_dynamic_offsets;
 };
 
 int ngli_pipeline_graphics_copy(struct pipeline_graphics *dst, const struct pipeline_graphics *src);
 void ngli_pipeline_graphics_reset(struct pipeline_graphics *graphics);
 
-int ngli_pipeline_layout_copy(struct pipeline_layout *dst, const struct pipeline_layout *src);
-void ngli_pipeline_layout_reset(struct pipeline_layout *layout);
-
 struct pipeline *ngli_pipeline_create(struct gpu_ctx *gpu_ctx);
 int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params);
-int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resources *resources);
-int ngli_pipeline_update_texture(struct pipeline *s, int32_t index, const struct texture *texture);
-int ngli_pipeline_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
-int ngli_pipeline_update_dynamic_offsets(struct pipeline *s, const uint32_t *offsets, size_t nb_offsets);
-
 void ngli_pipeline_freep(struct pipeline **sp);
 
 #endif

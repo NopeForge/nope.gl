@@ -239,6 +239,17 @@ void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline)
     s->cls->set_pipeline(s, pipeline);
 }
 
+void ngli_gpu_ctx_set_bindgroup(struct gpu_ctx *s, struct bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
+{
+    s->bindgroup = bindgroup;
+
+    ngli_assert(bindgroup->layout->nb_dynamic_offsets == nb_offsets);
+    memcpy(s->dynamic_offsets, offsets, nb_offsets * sizeof(*s->dynamic_offsets));
+    s->nb_dynamic_offsets = nb_offsets;
+
+    s->cls->set_bindgroup(s, bindgroup, offsets, nb_offsets);
+}
+
 static void validate_vertex_buffers(struct gpu_ctx *s)
 {
     const struct pipeline *pipeline = s->pipeline;
@@ -253,6 +264,10 @@ void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
 {
     ngli_assert(s->pipeline);
     validate_vertex_buffers(s);
+    ngli_assert(s->bindgroup);
+    const struct bindgroup_layout *p_layout = s->pipeline->layout.bindgroup_layout;
+    const struct bindgroup_layout *b_layout = s->bindgroup->layout;
+    ngli_assert(ngli_bindgroup_layout_is_compatible(p_layout, b_layout));
 
     s->cls->draw(s, nb_vertices, nb_instances);
 }
@@ -261,6 +276,10 @@ void ngli_gpu_ctx_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instanc
 {
     ngli_assert(s->pipeline);
     validate_vertex_buffers(s);
+    ngli_assert(s->bindgroup);
+    const struct bindgroup_layout *p_layout = s->pipeline->layout.bindgroup_layout;
+    const struct bindgroup_layout *b_layout = s->bindgroup->layout;
+    ngli_assert(ngli_bindgroup_layout_is_compatible(p_layout, b_layout));
 
     s->cls->draw_indexed(s, nb_indices, nb_instances);
 }
@@ -268,6 +287,10 @@ void ngli_gpu_ctx_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instanc
 void ngli_gpu_ctx_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
     ngli_assert(s->pipeline);
+    ngli_assert(s->bindgroup);
+    const struct bindgroup_layout *p_layout = s->pipeline->layout.bindgroup_layout;
+    const struct bindgroup_layout *b_layout = s->bindgroup->layout;
+    ngli_assert(ngli_bindgroup_layout_is_compatible(p_layout, b_layout));
 
     s->cls->dispatch(s, nb_group_x, nb_group_y, nb_group_z);
 }

@@ -100,6 +100,7 @@ static void mc_release_frame_resources(struct hwmap *hwmap)
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     hwmap->mapped_image.planes[0] = NULL;
+    hwmap->mapped_image.samplers[0] = NULL;
     ngli_texture_freep(&mc->texture);
 
     vkDestroyImageView(vk->device, mc->image_view, NULL);
@@ -367,6 +368,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     ngli_texture_vk_transition_to_default_layout(mc->texture);
 
     hwmap->mapped_image.planes[0] = mc->texture;
+    hwmap->mapped_image.samplers[0] = mc->ycbcr_sampler;
 
     return 0;
 }

@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 
+#include "bindgroup.h"
 #include "buffer.h"
 #include "gpu_limits.h"
 #include "nopegl.h"
@@ -83,6 +84,7 @@ struct gpu_ctx_class {
     void (*set_index_buffer)(struct gpu_ctx *s, const struct buffer *buffer, int format);
 
     void (*set_pipeline)(struct gpu_ctx *s, struct pipeline *pipeline);
+    void (*set_bindgroup)(struct gpu_ctx *s, struct bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);
     void (*draw)(struct gpu_ctx *s, int nb_vertices, int nb_instances);
     void (*draw_indexed)(struct gpu_ctx *s, int nb_indices, int nb_instances);
     void (*dispatch)(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
@@ -93,6 +95,16 @@ struct gpu_ctx_class {
     int (*buffer_map)(struct buffer *s, size_t offset, size_t size, void **datap);
     void (*buffer_unmap)(struct buffer *s);
     void (*buffer_freep)(struct buffer **sp);
+
+    struct bindgroup_layout *(*bindgroup_layout_create)(struct gpu_ctx *gpu_ctx);
+    int (*bindgroup_layout_init)(struct bindgroup_layout *s);
+    void (*bindgroup_layout_freep)(struct bindgroup_layout **sp);
+
+    struct bindgroup *(*bindgroup_create)(struct gpu_ctx *gpu_ctx);
+    int (*bindgroup_init)(struct bindgroup *s, const struct bindgroup_params *params);
+    int (*bindgroup_update_texture)(struct bindgroup *s, int32_t index, const struct texture_binding *binding);
+    int (*bindgroup_update_buffer)(struct bindgroup *s, int32_t index, const struct buffer_binding *binding);
+    void (*bindgroup_freep)(struct bindgroup **sp);
 
     struct pipeline *(*pipeline_create)(struct gpu_ctx *ctx);
     int (*pipeline_init)(struct pipeline *s);
@@ -119,10 +131,12 @@ struct gpu_ctx {
     struct ngl_config config;
     const char *backend_str;
     const struct gpu_ctx_class *cls;
+
     int version;
     int language_version;
     uint64_t features;
     struct gpu_limits limits;
+
 #if DEBUG_GPU_CAPTURE
     struct gpu_capture_ctx *gpu_capture_ctx;
     int gpu_capture;
@@ -131,6 +145,9 @@ struct gpu_ctx {
     /* State */
     struct rendertarget *rendertarget;
     struct pipeline *pipeline;
+    struct bindgroup *bindgroup;
+    uint32_t dynamic_offsets[NGLI_MAX_DYNAMIC_OFFSETS];
+    size_t nb_dynamic_offsets;
     const struct buffer **vertex_buffers;
     const struct buffer *index_buffer;
     int index_format;
@@ -169,6 +186,7 @@ int ngli_gpu_ctx_get_preferred_depth_format(struct gpu_ctx *s);
 int ngli_gpu_ctx_get_preferred_depth_stencil_format(struct gpu_ctx *s);
 
 void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline);
+void ngli_gpu_ctx_set_bindgroup(struct gpu_ctx *s, struct bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);
 void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances);
 void ngli_gpu_ctx_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances);
 void ngli_gpu_ctx_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);

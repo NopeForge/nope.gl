@@ -33,6 +33,7 @@
 #include "math_utils.h"
 #include "memory.h"
 
+#include "bindgroup_vk.h"
 #include "buffer_vk.h"
 #include "format_vk.h"
 #include "gpu_ctx_vk.h"
@@ -1383,6 +1384,10 @@ static int vk_get_preferred_depth_stencil_format(struct gpu_ctx *s)
     return vk->preferred_depth_stencil_format;
 }
 
+static void vk_set_bindgroup(struct gpu_ctx *s, struct bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
+{
+}
+
 static void vk_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline)
 {
 }
@@ -1473,6 +1478,8 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .get_preferred_depth_format         = vk_get_preferred_depth_format,
     .get_preferred_depth_stencil_format = vk_get_preferred_depth_stencil_format,
 
+    .set_bindgroup                      = vk_set_bindgroup,
+
     .set_pipeline                       = vk_set_pipeline,
     .draw                               = vk_draw,
     .draw_indexed                       = vk_draw_indexed,
@@ -1488,10 +1495,18 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .buffer_unmap                       = ngli_buffer_vk_unmap,
     .buffer_freep                       = ngli_buffer_vk_freep,
 
+    .bindgroup_layout_create            = ngli_bindgroup_layout_vk_create,
+    .bindgroup_layout_init              = ngli_bindgroup_layout_vk_init,
+    .bindgroup_layout_freep             = ngli_bindgroup_layout_vk_freep,
+
+    .bindgroup_create                   = ngli_bindgroup_vk_create,
+    .bindgroup_init                     = ngli_bindgroup_vk_init,
+    .bindgroup_update_texture           = ngli_bindgroup_vk_update_texture,
+    .bindgroup_update_buffer            = ngli_bindgroup_vk_update_buffer,
+    .bindgroup_freep                    = ngli_bindgroup_vk_freep,
+
     .pipeline_create                    = ngli_pipeline_vk_create,
     .pipeline_init                      = ngli_pipeline_vk_init,
-    .pipeline_update_texture            = ngli_pipeline_vk_update_texture,
-    .pipeline_update_buffer             = ngli_pipeline_vk_update_buffer,
     .pipeline_freep                     = ngli_pipeline_vk_freep,
 
     .program_create                     = ngli_program_vk_create,

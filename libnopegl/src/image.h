@@ -66,6 +66,7 @@ struct image_params {
 struct image {
     struct image_params params;
     struct texture *planes[4];
+    void *samplers[4];
     size_t nb_planes;
     NGLI_ALIGNED_MAT(color_matrix);
     /* mutable fields after initialization */
