@@ -37,8 +37,8 @@ struct gpu_ctx;
 
 struct buffer *ngli_buffer_gl_create(struct gpu_ctx *gpu_ctx);
 int ngli_buffer_gl_init(struct buffer *s);
-int ngli_buffer_gl_upload(struct buffer *s, const void *data, size_t size, size_t offset);
-int ngli_buffer_gl_map(struct buffer *s, size_t size, size_t offset, void **datap);
+int ngli_buffer_gl_upload(struct buffer *s, const void *data, size_t offset, size_t size);
+int ngli_buffer_gl_map(struct buffer *s, size_t offset, size_t size, void **datap);
 void ngli_buffer_gl_unmap(struct buffer *s);
 void ngli_buffer_gl_freep(struct buffer **sp);
 

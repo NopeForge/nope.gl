@@ -307,7 +307,7 @@ static int buffer_prepare(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_upload(info->buffer, info->data, info->data_size, 0);
+    ret = ngli_buffer_upload(info->buffer, info->data, 0, info->data_size);
     if (ret < 0)
         return ret;
 

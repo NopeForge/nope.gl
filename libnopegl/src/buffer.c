@@ -37,14 +37,14 @@ int ngli_buffer_init(struct buffer *s, size_t size, int usage)
     return s->gpu_ctx->cls->buffer_init(s);
 }
 
-int ngli_buffer_upload(struct buffer *s, const void *data, size_t size, size_t offset)
+int ngli_buffer_upload(struct buffer *s, const void *data, size_t offset, size_t size)
 {
-    return s->gpu_ctx->cls->buffer_upload(s, data, size, offset);
+    return s->gpu_ctx->cls->buffer_upload(s, data, offset, size);
 }
 
-int ngli_buffer_map(struct buffer *s, size_t size, size_t offset, void **datap)
+int ngli_buffer_map(struct buffer *s, size_t offset, size_t size, void **datap)
 {
-    return s->gpu_ctx->cls->buffer_map(s, size, offset, datap);
+    return s->gpu_ctx->cls->buffer_map(s, offset, size, datap);
 }
 
 void ngli_buffer_unmap(struct buffer *s)

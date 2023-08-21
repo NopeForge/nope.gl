@@ -98,7 +98,7 @@ int ngli_buffer_gl_init(struct buffer *s)
     return 0;
 }
 
-int ngli_buffer_gl_upload(struct buffer *s, const void *data, size_t size, size_t offset)
+int ngli_buffer_gl_upload(struct buffer *s, const void *data, size_t offset, size_t size)
 {
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
@@ -108,7 +108,7 @@ int ngli_buffer_gl_upload(struct buffer *s, const void *data, size_t size, size_
     return 0;
 }
 
-int ngli_buffer_gl_map(struct buffer *s, size_t size, size_t offset, void **datap)
+int ngli_buffer_gl_map(struct buffer *s, size_t offset, size_t size, void **datap)
 {
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;

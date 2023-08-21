@@ -520,8 +520,8 @@ static int init(struct ngl_node *node,
         int ret;
         if ((ret = ngli_buffer_init(s->vertices, sizeof(default_vertices), VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->uvcoords, sizeof(default_uvcoords), VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_upload(s->vertices, default_vertices, sizeof(default_vertices), 0)) < 0 ||
-            (ret = ngli_buffer_upload(s->uvcoords, default_uvcoords, sizeof(default_uvcoords), 0)) < 0)
+            (ret = ngli_buffer_upload(s->vertices, default_vertices, 0, sizeof(default_vertices))) < 0 ||
+            (ret = ngli_buffer_upload(s->uvcoords, default_uvcoords, 0, sizeof(default_uvcoords))) < 0)
             return ret;
 
         s->position_attr.stride = 3 * sizeof(float);

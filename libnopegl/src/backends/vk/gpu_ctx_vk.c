@@ -269,7 +269,7 @@ static VkResult create_render_resources(struct gpu_ctx *s)
         if (ret < 0)
             return VK_ERROR_UNKNOWN;
 
-        ret = ngli_buffer_map(s_priv->capture_buffer, s_priv->capture_buffer_size, 0, &s_priv->mapped_data);
+        ret = ngli_buffer_map(s_priv->capture_buffer, 0, s_priv->capture_buffer_size, &s_priv->mapped_data);
         if (ret < 0)
             return VK_ERROR_UNKNOWN;
     }
@@ -1454,17 +1454,17 @@ static int vk_buffer_init(struct buffer *s)
     return ngli_vk_res2ret(res);
 }
 
-static int vk_buffer_upload(struct buffer *s, const void *data, size_t size, size_t offset)
+static int vk_buffer_upload(struct buffer *s, const void *data, size_t offset, size_t size)
 {
-    VkResult res = ngli_buffer_vk_upload(s, data, size, offset);
+    VkResult res = ngli_buffer_vk_upload(s, data, offset, size);
     if (res != VK_SUCCESS)
         LOG(ERROR, "unable to upload buffer: %s", ngli_vk_res2str(res));
     return ngli_vk_res2ret(res);
 }
 
-static int vk_buffer_map(struct buffer *s, size_t size, size_t offset, void **data)
+static int vk_buffer_map(struct buffer *s, size_t offset, size_t size, void **data)
 {
-    VkResult res = ngli_buffer_vk_map(s, size, offset, data);
+    VkResult res = ngli_buffer_vk_map(s, offset, size, data);
     if (res != VK_SUCCESS)
         LOG(ERROR, "unable to map buffer: %s", ngli_vk_res2str(res));
     return ngli_vk_res2ret(res);

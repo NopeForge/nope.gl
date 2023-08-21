@@ -47,8 +47,8 @@ struct buffer {
 
 struct buffer *ngli_buffer_create(struct gpu_ctx *gpu_ctx);
 int ngli_buffer_init(struct buffer *s, size_t size, int usage);
-int ngli_buffer_upload(struct buffer *s, const void *data, size_t size, size_t offset);
-int ngli_buffer_map(struct buffer *s, size_t size, size_t offset, void **datap);
+int ngli_buffer_upload(struct buffer *s, const void *data, size_t offset, size_t size);
+int ngli_buffer_map(struct buffer *s, size_t offset, size_t size, void **datap);
 void ngli_buffer_unmap(struct buffer *s);
 void ngli_buffer_freep(struct buffer **sp);
 

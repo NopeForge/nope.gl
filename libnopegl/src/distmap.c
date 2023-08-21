@@ -377,11 +377,11 @@ static int map_and_load_buffers_data(struct distmap *s)
     uint8_t *vert_data = NULL;
     uint8_t *frag_data = NULL;
 
-    int ret = ngli_buffer_map(s->frag_buffer, s->frag_buffer->size, 0, (void **)&frag_data);
+    int ret = ngli_buffer_map(s->frag_buffer, 0, s->frag_buffer->size, (void **)&frag_data);
     if (ret < 0)
         goto end;
 
-    ret = ngli_buffer_map(s->vert_buffer, s->vert_buffer->size, 0, (void **)&vert_data);
+    ret = ngli_buffer_map(s->vert_buffer, 0, s->vert_buffer->size, (void **)&vert_data);
     if (ret < 0)
         goto end;
 

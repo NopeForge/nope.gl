@@ -55,7 +55,7 @@ static int gen_buffer(struct geometry *s,
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_upload(buffer, data, size, layout->offset);
+    ret = ngli_buffer_upload(buffer, data, layout->offset, size);
     if (ret < 0)
         return ret;
 
