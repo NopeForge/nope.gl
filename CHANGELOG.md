@@ -27,6 +27,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `RenderPath` node to render paths visually
 - Optional `compat_specs` in the `@scene` decorator to add a version requirement
   constraint
+- `ngl-viewer` tool to select, customize and export scenes with a simple and
+  intuitive interface
 
 ### Changed
 - CSV export in the HUD now always prints floats in C locale instead of quoted
