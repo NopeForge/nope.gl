@@ -26,6 +26,7 @@
 #include <limits.h>
 
 #include "darray.h"
+#include "bindgroup_vk.h"
 #include "format.h"
 #include "gpu_ctx_vk.h"
 #include "hmap.h"
@@ -37,34 +38,14 @@
 #include "internal.h"
 #include "pipeline_vk.h"
 #include "rendertarget.h"
-#include "texture_vk.h"
 #include "topology.h"
 #include "type.h"
 #include "utils.h"
 #include "vkcontext.h"
 #include "vkutils.h"
 #include "format_vk.h"
-#include "buffer_vk.h"
 #include "program_vk.h"
 #include "rendertarget_vk.h"
-#include "ycbcr_sampler_vk.h"
-
-struct buffer_binding_vk {
-    struct pipeline_resource_desc desc;
-    const struct buffer *buffer;
-    uint32_t update_desc_flags;
-    size_t offset;
-    size_t size;
-};
-
-struct texture_binding_vk {
-    struct pipeline_resource_desc desc;
-    uint32_t desc_binding_index;
-    const struct texture *texture;
-    uint32_t update_desc_flags;
-    int use_ycbcr_sampler;
-    struct ycbcr_sampler_vk *ycbcr_sampler;
-};
 
 static const VkPrimitiveTopology vk_primitive_topology_map[NGLI_PRIMITIVE_TOPOLOGY_NB] = {
     [NGLI_PRIMITIVE_TOPOLOGY_POINT_LIST]     = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
@@ -375,198 +356,18 @@ static VkResult pipeline_compute_init(struct pipeline *s)
     return vkCreateComputePipelines(vk->device, VK_NULL_HANDLE, 1, &pipeline_create_info, NULL, &s_priv->pipeline);
 }
 
-static const VkShaderStageFlags stage_flag_map[NGLI_PROGRAM_SHADER_NB] = {
-    [NGLI_PROGRAM_SHADER_VERT] = VK_SHADER_STAGE_VERTEX_BIT,
-    [NGLI_PROGRAM_SHADER_FRAG] = VK_SHADER_STAGE_FRAGMENT_BIT,
-    [NGLI_PROGRAM_SHADER_COMP] = VK_SHADER_STAGE_COMPUTE_BIT,
-};
-
-static VkShaderStageFlags get_vk_stage_flags(int stage)
-{
-    return stage_flag_map[stage];
-}
-
-static const VkDescriptorType descriptor_type_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_UNIFORM_BUFFER]         = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-    [NGLI_TYPE_STORAGE_BUFFER]         = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
-    [NGLI_TYPE_SAMPLER_2D]             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-    [NGLI_TYPE_SAMPLER_2D_ARRAY]       = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-    [NGLI_TYPE_SAMPLER_3D]             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-    [NGLI_TYPE_SAMPLER_CUBE]           = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-    [NGLI_TYPE_IMAGE_2D]               = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-    [NGLI_TYPE_IMAGE_2D_ARRAY]         = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-    [NGLI_TYPE_IMAGE_3D]               = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-    [NGLI_TYPE_IMAGE_CUBE]             = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-};
-
-static VkDescriptorType get_vk_descriptor_type(int type)
-{
-    const VkDescriptorType descriptor_type = descriptor_type_map[type];
-    ngli_assert(descriptor_type);
-    return descriptor_type;
-}
-
-static VkResult create_desc_set_layout_bindings(struct pipeline *s)
-{
-    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    ngli_darray_init(&s_priv->desc_set_layout_bindings, sizeof(VkDescriptorSetLayoutBinding), 0);
-
-    VkDescriptorPoolSize desc_pool_size_map[NGLI_TYPE_NB] = {
-        [NGLI_TYPE_UNIFORM_BUFFER]         = {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER},
-        [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC] = {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC},
-        [NGLI_TYPE_STORAGE_BUFFER]         = {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER},
-        [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC] = {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC},
-        [NGLI_TYPE_SAMPLER_2D]             = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
-        [NGLI_TYPE_SAMPLER_2D_ARRAY]       = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
-        [NGLI_TYPE_SAMPLER_3D]             = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
-        [NGLI_TYPE_SAMPLER_CUBE]           = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
-        [NGLI_TYPE_IMAGE_2D]               = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
-        [NGLI_TYPE_IMAGE_2D_ARRAY]         = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
-        [NGLI_TYPE_IMAGE_3D]               = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
-        [NGLI_TYPE_IMAGE_CUBE]             = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
-    };
-
-    const struct pipeline_layout *layout = &s->layout;
-    for (size_t i = 0; i < layout->nb_buffer_descs; i++) {
-        const struct pipeline_resource_desc *desc = &layout->buffer_descs[i];
-
-        const VkDescriptorType type = get_vk_descriptor_type(desc->type);
-        const VkDescriptorSetLayoutBinding binding = {
-            .binding         = desc->binding,
-            .descriptorType  = type,
-            .descriptorCount = 1,
-            .stageFlags      = get_vk_stage_flags(desc->stage),
-        };
-        if (!ngli_darray_push(&s_priv->desc_set_layout_bindings, &binding))
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-        const struct buffer_binding_vk buffer_binding = {
-            .desc = *desc,
-        };
-        if (!ngli_darray_push(&s_priv->buffer_bindings, &buffer_binding))
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-        ngli_assert(desc_pool_size_map[desc->type].type);
-        desc_pool_size_map[desc->type].descriptorCount += gpu_ctx_vk->nb_in_flight_frames;
-    }
-
-    for (size_t i = 0; i < layout->nb_texture_descs; i++) {
-        const struct pipeline_resource_desc *desc = &layout->texture_descs[i];
-
-        const VkDescriptorType type = get_vk_descriptor_type(desc->type);
-        const VkDescriptorSetLayoutBinding binding = {
-            .binding         = desc->binding,
-            .descriptorType  = type,
-            .descriptorCount = 1,
-            .stageFlags      = get_vk_stage_flags(desc->stage),
-        };
-        if (!ngli_darray_push(&s_priv->desc_set_layout_bindings, &binding))
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-        const struct texture_binding_vk texture_binding = {
-            .desc = *desc,
-            .desc_binding_index = (uint32_t)ngli_darray_count(&s_priv->desc_set_layout_bindings) - 1,
-        };
-        if (!ngli_darray_push(&s_priv->texture_bindings, &texture_binding))
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-        ngli_assert(desc_pool_size_map[desc->type].type);
-        desc_pool_size_map[desc->type].descriptorCount += gpu_ctx_vk->nb_in_flight_frames;
-    }
-
-    uint32_t nb_desc_pool_sizes = 0;
-    VkDescriptorPoolSize desc_pool_sizes[NGLI_TYPE_NB];
-    for (size_t i = 0; i < NGLI_ARRAY_NB(desc_pool_size_map); i++) {
-        if (desc_pool_size_map[i].descriptorCount)
-            desc_pool_sizes[nb_desc_pool_sizes++] = desc_pool_size_map[i];
-    }
-    if (!nb_desc_pool_sizes)
-        return VK_SUCCESS;
-
-    const VkDescriptorPoolCreateInfo descriptor_pool_create_info = {
-        .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-        .poolSizeCount = nb_desc_pool_sizes,
-        .pPoolSizes    = desc_pool_sizes,
-        .maxSets       = gpu_ctx_vk->nb_in_flight_frames,
-    };
-
-    VkResult res = vkCreateDescriptorPool(vk->device, &descriptor_pool_create_info, NULL, &s_priv->desc_pool);
-    if (res != VK_SUCCESS)
-        return res;
-
-    return VK_SUCCESS;
-}
-
-static VkResult create_desc_layout(struct pipeline *s)
-{
-    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    const VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info = {
-        .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .bindingCount = (uint32_t)ngli_darray_count(&s_priv->desc_set_layout_bindings),
-        .pBindings    = ngli_darray_data(&s_priv->desc_set_layout_bindings),
-    };
-
-    VkResult res = vkCreateDescriptorSetLayout(vk->device, &descriptor_set_layout_create_info, NULL, &s_priv->desc_set_layout);
-    if (res != VK_SUCCESS)
-        return res;
-
-    return VK_SUCCESS;
-}
-
-static VkResult create_desc_sets(struct pipeline *s)
-{
-    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    VkDescriptorSetLayout *desc_set_layouts = ngli_calloc(gpu_ctx_vk->nb_in_flight_frames, sizeof(*desc_set_layouts));
-    if (!desc_set_layouts)
-        return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-    for (uint32_t i = 0; i < gpu_ctx_vk->nb_in_flight_frames; i++)
-        desc_set_layouts[i] = s_priv->desc_set_layout;
-
-    const VkDescriptorSetAllocateInfo descriptor_set_allocate_info = {
-        .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-        .descriptorPool     = s_priv->desc_pool,
-        .descriptorSetCount = gpu_ctx_vk->nb_in_flight_frames,
-        .pSetLayouts        = desc_set_layouts
-    };
-
-    s_priv->desc_sets = ngli_calloc(gpu_ctx_vk->nb_in_flight_frames, sizeof(*s_priv->desc_sets));
-    if (!s_priv->desc_sets) {
-        ngli_free(desc_set_layouts);
-        return VK_ERROR_OUT_OF_HOST_MEMORY;
-    }
-
-    VkResult res = vkAllocateDescriptorSets(vk->device, &descriptor_set_allocate_info, s_priv->desc_sets);
-    if (res != VK_SUCCESS) {
-        ngli_free(desc_set_layouts);
-        return res;
-    }
-
-    ngli_free(desc_set_layouts);
-    return VK_SUCCESS;
-}
-
 static VkResult create_pipeline_layout(struct pipeline *s)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
+    struct bindgroup_layout_vk *layout = (struct bindgroup_layout_vk *)s->layout.bindgroup_layout;
+
     const VkPipelineLayoutCreateInfo pipeline_layout_create_info = {
         .sType          = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-        .setLayoutCount = s_priv->desc_set_layout ? 1 : 0,
-        .pSetLayouts    = &s_priv->desc_set_layout,
+        .setLayoutCount = layout->desc_set_layout  ? 1 : 0,
+        .pSetLayouts    = &layout->desc_set_layout,
     };
 
     return vkCreatePipelineLayout(vk->device, &pipeline_layout_create_info, NULL, &s_priv->pipeline_layout);
@@ -574,15 +375,7 @@ static VkResult create_pipeline_layout(struct pipeline *s)
 
 static VkResult create_pipeline(struct pipeline *s)
 {
-    VkResult res = create_desc_layout(s);
-    if (res != VK_SUCCESS)
-        return res;
-
-    res = create_desc_sets(s);
-    if (res != VK_SUCCESS)
-        return res;
-
-    res = create_pipeline_layout(s);
+    VkResult res = create_pipeline_layout(s);
     if (res != VK_SUCCESS)
         return res;
 
@@ -593,83 +386,6 @@ static VkResult create_pipeline(struct pipeline *s)
     } else {
         ngli_assert(0);
     }
-    return VK_SUCCESS;
-}
-
-static void destroy_pipeline_keep_pool(struct pipeline *s)
-{
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    vkDestroyPipeline(vk->device, s_priv->pipeline, NULL);
-    s_priv->pipeline = VK_NULL_HANDLE;
-
-    vkDestroyPipelineLayout(vk->device, s_priv->pipeline_layout, NULL);
-    s_priv->pipeline_layout = VK_NULL_HANDLE;
-
-    vkDestroyDescriptorSetLayout(vk->device, s_priv->desc_set_layout, NULL);
-    s_priv->desc_set_layout = VK_NULL_HANDLE;
-}
-
-static void destroy_pipeline(struct pipeline *s)
-{
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    destroy_pipeline_keep_pool(s);
-
-    vkDestroyDescriptorPool(vk->device, s_priv->desc_pool, NULL);
-    s_priv->desc_pool = VK_NULL_HANDLE;
-    ngli_freep(&s_priv->desc_sets);
-}
-
-static void request_desc_sets_update(struct pipeline *s)
-{
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    struct texture_binding_vk *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
-        struct texture_binding_vk *binding = &texture_bindings[i];
-        binding->update_desc_flags = ~0;
-    }
-
-    struct buffer_binding_vk *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
-        struct buffer_binding_vk *binding = &buffer_bindings[i];
-        binding->update_desc_flags = ~0;
-    }
-}
-
-static VkResult recreate_pipeline(struct pipeline *s)
-{
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-
-    /*
-     * Destroy the current pipeline but keep the descriptor pool to avoid
-     * re-allocating the descriptor sets.
-     */
-    destroy_pipeline_keep_pool(s);
-
-    VkResult res = vkResetDescriptorPool(vk->device, s_priv->desc_pool, 0);
-    if (res != VK_SUCCESS)
-        return res;
-    ngli_freep(&s_priv->desc_sets);
-
-    res = create_pipeline(s);
-    if (res != VK_SUCCESS)
-        return res;
-
-    /*
-     * The descriptor sets have been reset during pipeline re-creation, thus,
-     * we need to ensure they are properly updated before the next pipeline
-     * execution.
-     */
-    request_desc_sets_update(s);
-
     return VK_SUCCESS;
 }
 
@@ -684,20 +400,11 @@ struct pipeline *ngli_pipeline_vk_create(struct gpu_ctx *gpu_ctx)
 
 static VkResult pipeline_vk_init(struct pipeline *s)
 {
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_vk), 0);
-    ngli_darray_init(&s_priv->buffer_bindings,  sizeof(struct buffer_binding_vk), 0);
-
     if (s->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
         VkResult res = create_attribute_descs(s);
         if (res != VK_SUCCESS)
             return res;
     }
-
-    VkResult res = create_desc_set_layout_bindings(s);
-    if (res != VK_SUCCESS)
-        return res;
 
     return create_pipeline(s);
 }
@@ -710,164 +417,20 @@ int ngli_pipeline_vk_init(struct pipeline *s)
     return ngli_vk_res2ret(res);
 }
 
-static int need_desc_set_layout_update(const struct texture_binding_vk *binding,
-                                       const struct texture *texture)
-{
-    const struct texture_vk *texture_vk = (const struct texture_vk *)texture;
-
-    if (binding->use_ycbcr_sampler != texture_vk->use_ycbcr_sampler)
-        return 1;
-
-    if (binding->use_ycbcr_sampler) {
-        /*
-         * The specification mandates that, for a given combined image sampler
-         * descriptor set, the sampler and image view with YCbCr conversion
-         * enabled must have been created with an identical
-         * VkSamplerYcbcrConversionInfo object (ie: with the same
-         * VkSamplerYcbcrConversion object).
-         */
-        return binding->ycbcr_sampler != texture_vk->ycbcr_sampler;
-    }
-
-    return 0;
-}
-
-int ngli_pipeline_vk_update_texture(struct pipeline *s, int32_t index, const struct texture *texture)
-{
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    struct texture_binding_vk *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
-    ngli_assert(texture_binding);
-
-    texture_binding->texture = texture ? texture : gpu_ctx_vk->dummy_texture;
-    texture_binding->update_desc_flags = ~0;
-
-    if (texture) {
-        struct texture_vk *texture_vk = (struct texture_vk *)texture;
-        if (need_desc_set_layout_update(texture_binding, texture)) {
-            VkDescriptorSetLayoutBinding *desc_bindings = ngli_darray_data(&s_priv->desc_set_layout_bindings);
-            VkDescriptorSetLayoutBinding *desc_binding = &desc_bindings[texture_binding->desc_binding_index];
-            texture_binding->use_ycbcr_sampler = texture_vk->use_ycbcr_sampler;
-            ngli_ycbcr_sampler_vk_unrefp(&texture_binding->ycbcr_sampler);
-            if (texture_vk->use_ycbcr_sampler) {
-                /*
-                 * YCbCr conversion enabled samplers must be set at pipeline
-                 * creation (through the pImmutableSamplers field). Moreover,
-                 * the YCbCr conversion and sampler objects must be kept alive
-                 * as long as they are used by the pipeline. For that matter,
-                 * we hold a reference on the ycbcr_sampler_vk structure
-                 * (containing the conversion and sampler objects) as long as
-                 * necessary.
-                 */
-                texture_binding->ycbcr_sampler = ngli_ycbcr_sampler_vk_ref(texture_vk->ycbcr_sampler);
-                desc_binding->pImmutableSamplers = &texture_vk->ycbcr_sampler->sampler;
-            } else {
-                desc_binding->pImmutableSamplers = VK_NULL_HANDLE;
-            }
-
-            VkResult res = recreate_pipeline(s);
-            if (res != VK_SUCCESS) {
-                LOG(ERROR, "could not recreate pipeline");
-                return ngli_vk_res2ret(res);
-            }
-        }
-    }
-
-    return 0;
-}
-
-int ngli_pipeline_vk_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size)
-{
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    struct buffer_binding_vk *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
-    ngli_assert(buffer_binding);
-
-    buffer_binding->buffer = buffer;
-    buffer_binding->offset = offset;
-    buffer_binding->size = size;
-    buffer_binding->update_desc_flags = ~0;
-
-    return 0;
-}
-
-static int update_descriptor_set(struct pipeline *s)
-{
-    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    const uint32_t update_desc_flags = (1 << gpu_ctx_vk->cur_frame_index);
-    const uint32_t update_desc_mask = ~update_desc_flags;
-
-    struct texture_binding_vk *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
-        struct texture_binding_vk *binding = &texture_bindings[i];
-        if (binding->update_desc_flags & update_desc_flags) {
-            const struct texture_vk *texture_vk = (struct texture_vk *)binding->texture;
-            const VkDescriptorImageInfo image_info = {
-                .imageLayout = texture_vk->default_image_layout,
-                .imageView   = texture_vk->image_view,
-                .sampler     = texture_vk->sampler,
-            };
-            const struct pipeline_resource_desc *desc = &binding->desc;
-            const VkWriteDescriptorSet write_descriptor_set = {
-                .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet           = s_priv->desc_sets[gpu_ctx_vk->cur_frame_index],
-                .dstBinding       = desc->binding,
-                .dstArrayElement  = 0,
-                .descriptorType   = get_vk_descriptor_type(desc->type),
-                .descriptorCount  = 1,
-                .pImageInfo       = &image_info,
-            };
-            vkUpdateDescriptorSets(vk->device, 1, &write_descriptor_set, 0, NULL);
-            binding->update_desc_flags &= update_desc_mask;
-        }
-    }
-
-    struct buffer_binding_vk *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
-        struct buffer_binding_vk *binding = &buffer_bindings[i];
-        if (binding->update_desc_flags & update_desc_flags) {
-            const struct pipeline_resource_desc *desc = &binding->desc;
-            const struct buffer_vk *buffer_vk = (struct buffer_vk *)(binding->buffer);
-            const VkDescriptorBufferInfo descriptor_buffer_info = {
-                .buffer = buffer_vk->buffer,
-                .offset = binding->offset,
-                .range  = binding->size,
-            };
-            const VkWriteDescriptorSet write_descriptor_set = {
-                .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet           = s_priv->desc_sets[gpu_ctx_vk->cur_frame_index],
-                .dstBinding       = desc->binding,
-                .dstArrayElement  = 0,
-                .descriptorType   = get_vk_descriptor_type(desc->type),
-                .descriptorCount  = 1,
-                .pBufferInfo      = &descriptor_buffer_info,
-                .pImageInfo       = NULL,
-                .pTexelBufferView = NULL,
-            };
-            vkUpdateDescriptorSets(vk->device, 1, &write_descriptor_set, 0, NULL);
-            binding->update_desc_flags &= update_desc_mask;
-        }
-    }
-
-    return 0;
-}
-
 static int prepare_and_bind_descriptor_set(struct pipeline *s, VkCommandBuffer cmd_buf)
 {
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
 
-    int ret = update_descriptor_set(s);
-    if (ret < 0)
-        return ret;
+    ngli_bindgroup_vk_update_descriptor_set(gpu_ctx->bindgroup);
 
-    if (s_priv->desc_sets)
-        vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
-                                1, &s_priv->desc_sets[gpu_ctx_vk->cur_frame_index],
-                                (uint32_t)s->nb_dynamic_offsets, s->dynamic_offsets);
+    if (gpu_ctx->bindgroup) {
+        struct bindgroup_vk *bindgroup_vk = (struct bindgroup_vk *)gpu_ctx->bindgroup;
+        if (bindgroup_vk->desc_set)
+            vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
+                                    1, &bindgroup_vk->desc_set,
+                                    (uint32_t)gpu_ctx->nb_dynamic_offsets, gpu_ctx->dynamic_offsets);
+    }
 
     return 0;
 }
@@ -993,19 +556,13 @@ void ngli_pipeline_vk_freep(struct pipeline **sp)
     struct pipeline *s = *sp;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    destroy_pipeline(s);
-
-    struct texture_binding_vk *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
-        struct texture_binding_vk *binding = &texture_bindings[i];
-        ngli_ycbcr_sampler_vk_unrefp(&binding->ycbcr_sampler);
-    }
-    ngli_darray_reset(&s_priv->texture_bindings);
-    ngli_darray_reset(&s_priv->buffer_bindings);
-
     ngli_darray_reset(&s_priv->vertex_attribute_descs);
     ngli_darray_reset(&s_priv->vertex_binding_descs);
-    ngli_darray_reset(&s_priv->desc_set_layout_bindings);
+
+    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+    vkDestroyPipeline(vk->device, s_priv->pipeline, NULL);
+    vkDestroyPipelineLayout(vk->device, s_priv->pipeline_layout, NULL);
 
     ngli_freep(sp);
 }

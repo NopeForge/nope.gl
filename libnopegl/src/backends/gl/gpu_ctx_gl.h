@@ -28,6 +28,7 @@
 #include <CoreVideo/CoreVideo.h>
 #endif
 
+#include "bindgroup.h"
 #include "nopegl.h"
 #include "glstate.h"
 #include "graphics_state.h"

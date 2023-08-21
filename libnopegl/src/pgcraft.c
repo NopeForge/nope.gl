@@ -53,8 +53,8 @@ enum {
 
 struct pgcraft_pipeline_info {
     struct {
-        struct darray textures;   // resource_desc
-        struct darray buffers;    // resource_desc
+        struct darray textures;   // bindgroup_layout_entry
+        struct darray buffers;    // bindgroup_layout_entry
         struct darray vertex_buffers; // vertex_buffer_layout
     } desc;
     struct {
@@ -460,7 +460,7 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
             if (!ngli_darray_push(&s->symbols, field->name))
                 return NGL_ERROR_MEMORY;
 
-            const struct pipeline_resource_desc pl_texture_desc = {
+            const struct bindgroup_layout_entry layout_entry = {
                 .id       = ngli_darray_count(&s->symbols) - 1,
                 .type     = field->type,
                 .binding  = request_next_binding(s, field->type),
@@ -484,7 +484,7 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
                 ngli_bstr_printf(b, "layout(%s", format);
 
                 if (s->has_explicit_bindings)
-                    ngli_bstr_printf(b, ", binding=%d", pl_texture_desc.binding);
+                    ngli_bstr_printf(b, ", binding=%d", layout_entry.binding);
 
                 /*
                  * Restrict memory qualifier according to the OpenGLES 3.2 spec
@@ -502,15 +502,16 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
                 }
                 ngli_bstr_printf(b, ") %s ", info->writable ? writable_qualifier : "readonly");
             } else if (s->has_explicit_bindings) {
-                ngli_bstr_printf(b, "layout(binding=%d) ", pl_texture_desc.binding);
+                ngli_bstr_printf(b, "layout(binding=%d) ", layout_entry.binding);
             }
 
             const char *type = get_glsl_type(field->type);
             const char *precision = get_precision_qualifier(s, field->type, info->precision, "lowp");
             ngli_bstr_printf(b, "uniform %s %s%s %s;\n", precision, prefix, type, field->name);
 
-            if (!ngli_darray_push(&s->pipeline_info.desc.textures, &pl_texture_desc))
+            if (!ngli_darray_push(&s->pipeline_info.desc.textures, &layout_entry))
                 return NGL_ERROR_MEMORY;
+
             if (!ngli_darray_push(&s->pipeline_info.data.textures, &info->texture))
                 return NGL_ERROR_MEMORY;
         } else {
@@ -551,7 +552,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     if (!ngli_darray_push(&s->symbols, named_block->name))
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_resource_desc pl_buffer_desc = {
+    const struct bindgroup_layout_entry layout_entry = {
         .id      = ngli_darray_count(&s->symbols) - 1,
         .type    = named_block->type,
         .binding = request_next_binding(s, named_block->type),
@@ -562,7 +563,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     const struct block *block = named_block->block;
     const char *layout = glsl_layout_str_map[block->layout];
     if (s->has_explicit_bindings) {
-        ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, pl_buffer_desc.binding);
+        ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, layout_entry.binding);
     } else {
         ngli_bstr_printf(b, "layout(%s)", layout);
     }
@@ -586,11 +587,12 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     const char *instance_name = named_block->instance_name ? named_block->instance_name : named_block->name;
     ngli_bstr_printf(b, "} %s;\n", instance_name);
 
-    if (!ngli_darray_push(&s->pipeline_info.desc.buffers, &pl_buffer_desc))
+    if (!ngli_darray_push(&s->pipeline_info.desc.buffers, &layout_entry))
         return NGL_ERROR_MEMORY;
+
     if (!ngli_darray_push(&s->pipeline_info.data.buffers, &named_block->buffer))
         return NGL_ERROR_MEMORY;
-    return pl_buffer_desc.binding;
+    return layout_entry.binding;
 }
 
 static int inject_blocks(struct pgcraft *s, struct bstr *b,
@@ -1143,7 +1145,7 @@ static int craft_comp(struct pgcraft *s, const struct pgcraft_params *params)
     return samplers_preproc(s, params, b);
 }
 
-NGLI_STATIC_ASSERT(resource_name_offset, offsetof(struct pipeline_resource_desc, id) == 0);
+NGLI_STATIC_ASSERT(resource_name_offset, offsetof(struct bindgroup_layout_entry, id) == 0);
 
 static int filter_pipeline_elems(struct pgcraft *s,
                                  const char *suffix,
@@ -1226,9 +1228,9 @@ static int32_t get_ublock_index(const struct pgcraft *s, const char *name, int s
 
 static int32_t get_texture_index(const struct pgcraft *s, const char *name)
 {
-    const struct pipeline_resource_desc *pipeline_texture_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
+    const struct bindgroup_layout_entry *pipeline_texture_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
     for (int32_t i = 0; i < (int32_t)ngli_darray_count(&s->filtered_pipeline_info.desc.textures); i++) {
-        const struct pipeline_resource_desc *pipeline_texture_desc = &pipeline_texture_descs[i];
+        const struct bindgroup_layout_entry *pipeline_texture_desc = &pipeline_texture_descs[i];
         const char *texture_name = ngli_pgcraft_get_symbol_name(s, pipeline_texture_desc->id);
         if (!strcmp(texture_name, name))
             return i;
@@ -1272,9 +1274,9 @@ static void probe_ublocks(struct pgcraft *s)
         if (!block_size)
             continue;
 
-        const struct pipeline_resource_desc *buffer_descs = ngli_darray_data(array);
+        const struct bindgroup_layout_entry *buffer_descs = ngli_darray_data(array);
         for (size_t j = 0; j < ngli_darray_count(array); j++) {
-            const struct pipeline_resource_desc *desc = &buffer_descs[j];
+            const struct bindgroup_layout_entry *desc = &buffer_descs[j];
             if (desc->type    == NGLI_TYPE_UNIFORM_BUFFER &&
                 desc->binding == binding &&
                 desc->stage   == i) {
@@ -1413,12 +1415,12 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
 
     ngli_darray_init(&s->symbols, sizeof(char[MAX_ID_LEN]), 0);
 
-    ngli_darray_init(&s->pipeline_info.desc.textures,   sizeof(struct pipeline_resource_desc),  0);
-    ngli_darray_init(&s->pipeline_info.desc.buffers,    sizeof(struct pipeline_resource_desc),  0);
+    ngli_darray_init(&s->pipeline_info.desc.textures,   sizeof(struct bindgroup_layout_entry),  0);
+    ngli_darray_init(&s->pipeline_info.desc.buffers,    sizeof(struct bindgroup_layout_entry),  0);
     ngli_darray_init(&s->pipeline_info.desc.vertex_buffers, sizeof(struct vertex_buffer_layout), 0);
 
-    ngli_darray_init(&s->filtered_pipeline_info.desc.textures,   sizeof(struct pipeline_resource_desc),  0);
-    ngli_darray_init(&s->filtered_pipeline_info.desc.buffers,    sizeof(struct pipeline_resource_desc),  0);
+    ngli_darray_init(&s->filtered_pipeline_info.desc.textures,   sizeof(struct bindgroup_layout_entry),  0);
+    ngli_darray_init(&s->filtered_pipeline_info.desc.buffers,    sizeof(struct bindgroup_layout_entry),  0);
     ngli_darray_init(&s->filtered_pipeline_info.desc.vertex_buffers, sizeof(struct vertex_buffer_layout), 0);
 
     ngli_darray_init(&s->pipeline_info.data.textures,   sizeof(struct texture *), 0);
@@ -1526,11 +1528,11 @@ int32_t ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name
 int32_t ngli_pgcraft_get_block_index(const struct pgcraft *s, const char *name, int stage)
 {
     const struct darray *array = &s->filtered_pipeline_info.desc.buffers;
-    const struct pipeline_resource_desc *descs = ngli_darray_data(array);
+    const struct bindgroup_layout_entry *entries = ngli_darray_data(array);
     for (int32_t i = 0; i < (int32_t)ngli_darray_count(array); i++) {
-        const struct pipeline_resource_desc *desc = &descs[i];
-        const char *desc_name = ngli_pgcraft_get_symbol_name(s, desc->id);
-        if (!strcmp(desc_name, name) && desc->stage == stage)
+        const struct bindgroup_layout_entry *entry = &entries[i];
+        const char *desc_name = ngli_pgcraft_get_symbol_name(s, entry->id);
+        if (!strcmp(desc_name, name) && entry->stage == stage)
             return i;
     }
     return -1;
@@ -1582,10 +1584,10 @@ const char *ngli_pgcraft_get_symbol_name(const struct pgcraft *s, size_t id)
 struct pipeline_compat_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s)
 {
     const struct pipeline_compat_layout layout = {
-        .texture_descs      = ngli_darray_data(&s->filtered_pipeline_info.desc.textures),
-        .nb_texture_descs   = ngli_darray_count(&s->filtered_pipeline_info.desc.textures),
-        .buffer_descs       = ngli_darray_data(&s->filtered_pipeline_info.desc.buffers),
-        .nb_buffer_descs    = ngli_darray_count(&s->filtered_pipeline_info.desc.buffers),
+        .textures      = ngli_darray_data(&s->filtered_pipeline_info.desc.textures),
+        .nb_textures   = ngli_darray_count(&s->filtered_pipeline_info.desc.textures),
+        .buffers       = ngli_darray_data(&s->filtered_pipeline_info.desc.buffers),
+        .nb_buffers    = ngli_darray_count(&s->filtered_pipeline_info.desc.buffers),
     };
     return layout;
 }

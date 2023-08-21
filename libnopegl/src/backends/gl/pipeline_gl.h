@@ -32,19 +32,13 @@ struct glcontext;
 struct pipeline_gl {
     struct pipeline parent;
 
-    struct darray texture_bindings;   // texture_binding_gl
-    struct darray buffer_bindings;    // buffer_binding_gl
     struct darray attribute_bindings; // attribute_binding_gl
 
     GLuint vao_id;
-    int use_barriers;
-    void (*insert_memory_barriers)(struct pipeline *s);
 };
 
 struct pipeline *ngli_pipeline_gl_create(struct gpu_ctx *gpu_ctx);
 int ngli_pipeline_gl_init(struct pipeline *s);
-int ngli_pipeline_gl_update_texture(struct pipeline *s, int32_t index, const struct texture *texture);
-int ngli_pipeline_gl_update_buffer(struct pipeline *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
 void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances);
 void ngli_pipeline_gl_draw_indexed(struct pipeline *s, int nb_indices, int nb_instances);
 void ngli_pipeline_gl_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
