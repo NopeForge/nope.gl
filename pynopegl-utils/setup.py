@@ -30,6 +30,7 @@ setup(
         "console_scripts": [
             "ngl-control = pynopegl_utils.controller:run",
             "ngl-test = pynopegl_utils.tests:run",
+            "ngl-viewer = pynopegl_utils.viewer:run",
             "ngl-diff = pynopegl_utils.diff:run",
         ],
     },
