@@ -27,11 +27,25 @@
 #include "pipeline_compat.h"
 #include "type.h"
 
+struct texture_binding {
+    const struct texture *texture;
+};
+
+struct buffer_binding {
+    const struct buffer *buffer;
+    size_t offset;
+    size_t size;
+};
+
 struct pipeline_compat {
     struct gpu_ctx *gpu_ctx;
     struct pipeline *pipeline;
     const struct buffer **vertex_buffers;
     size_t nb_vertex_buffers;
+    struct texture_binding *textures;
+    size_t nb_textures;
+    struct buffer_binding *buffers;
+    size_t nb_buffers;
     const struct pgcraft_compat_info *compat_info;
     struct buffer *ubuffers[NGLI_PROGRAM_SHADER_NB];
     uint8_t *mapped_datas[NGLI_PROGRAM_SHADER_NB];
@@ -129,6 +143,30 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
         s->nb_vertex_buffers = nb_attributes;
     }
 
+    const size_t nb_buffers = pipeline_resources->nb_buffers;
+    if (nb_buffers) {
+        s->buffers = ngli_calloc(nb_buffers, sizeof(*s->buffers));
+        for (size_t i = 0; i < nb_buffers; i++) {
+            const struct buffer *buffer = pipeline_resources->buffers[i];
+            s->buffers[i] = (struct buffer_binding) {
+                .buffer = buffer,
+                .offset = 0,
+                .size   = buffer ? buffer->size : 0,
+            };
+        }
+        s->nb_buffers = nb_buffers;
+    }
+
+    const size_t nb_textures = pipeline_resources->nb_textures;
+    if (nb_textures) {
+        s->textures = ngli_calloc(nb_textures, sizeof(*s->textures));
+        for (size_t i = 0; i < nb_textures; i++)
+            s->textures[i] = (struct texture_binding) {
+                .texture = pipeline_resources->textures[i],
+            };
+        s->nb_textures = nb_textures;
+    }
+
     s->compat_info = params->compat_info;
     ret = init_blocks_buffers(s, params);
     if (ret < 0)
@@ -179,6 +217,14 @@ int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index
 
 int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture)
 {
+    if (index == -1)
+        return NGL_ERROR_NOT_FOUND;
+
+    ngli_assert(index >= 0 && index < s->nb_textures);
+    s->textures[index] = (struct texture_binding) {
+        .texture = texture
+    };
+
     return ngli_pipeline_update_texture(s->pipeline, index, texture);
 }
 
@@ -252,6 +298,16 @@ void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const s
 
 int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size)
 {
+    if (index == -1)
+        return NGL_ERROR_NOT_FOUND;
+
+    ngli_assert(index >= 0 && index < s->nb_buffers);
+    s->buffers[index] = (struct buffer_binding) {
+        .buffer = buffer,
+        .offset = offset,
+        .size   = size ? size : buffer->size,
+    };
+
     return ngli_pipeline_update_buffer(s->pipeline, index, buffer, offset, size);
 }
 
@@ -303,6 +359,9 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
         return;
     ngli_pipeline_freep(&s->pipeline);
     ngli_freep(&s->vertex_buffers);
+    ngli_freep(&s->textures);
+    ngli_freep(&s->buffers);
+
     if (s->compat_info) {
         for (size_t i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
             if (s->ubuffers[i]) {
