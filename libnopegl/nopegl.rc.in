@@ -13,7 +13,7 @@ VS_VERSION_INFO VERSIONINFO
     BEGIN
       BLOCK "040904B0"
       BEGIN
-        VALUE "CompanyName", "Nope Project"
+        VALUE "CompanyName", "Nope Foundry"
         VALUE "FileDescription", "nope.gl"
         VALUE "FileVersion", "@NOPEGL_VERSION@"
         VALUE "InternalName", "nopegl-@NOPEGL_MAJOR_VERSION@.dll"
@@ -22,7 +22,7 @@ VS_VERSION_INFO VERSIONINFO
         VALUE "ProductName", "nope.gl"
         VALUE "ProductVersion", "@NOPEGL_VERSION@"
         VALUE "Licence", "Apache-2.0 license"
-        VALUE "Info", "https://github.com/nope-project/nope.gl"
+        VALUE "Info", "https://github.com/NopeFoundry/nope.gl"
       END
     END
     BLOCK "VarFileInfo"
