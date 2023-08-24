@@ -855,10 +855,26 @@ static int update_descriptor_set(struct pipeline *s)
     return 0;
 }
 
+static int prepare_and_bind_descriptor_set(struct pipeline *s, VkCommandBuffer cmd_buf)
+{
+    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
+    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+
+    int ret = update_descriptor_set(s);
+    if (ret < 0)
+        return ret;
+
+    if (s_priv->desc_sets)
+        vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
+                                1, &s_priv->desc_sets[gpu_ctx_vk->cur_frame_index],
+                                (uint32_t)s->nb_dynamic_offsets, s->dynamic_offsets);
+
+    return 0;
+}
+
 static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
     vkCmdBindPipeline(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline);
@@ -890,11 +906,6 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
     }
     vkCmdSetScissor(cmd_buf, 0, 1, &scissor);
 
-    if (s_priv->desc_sets)
-        vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
-                                1, &s_priv->desc_sets[gpu_ctx_vk->cur_frame_index],
-                                (uint32_t)s->nb_dynamic_offsets, s->dynamic_offsets);
-
     return 0;
 }
 
@@ -903,7 +914,7 @@ void ngli_pipeline_vk_draw(struct pipeline *s, int nb_vertices, int nb_instances
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
 
-    int ret = update_descriptor_set(s);
+    int ret = prepare_and_bind_descriptor_set(s, cmd_buf);
     if (ret < 0)
         return;
 
@@ -919,7 +930,7 @@ void ngli_pipeline_vk_draw_indexed(struct pipeline *s, int nb_indices, int nb_in
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
 
-    int ret = update_descriptor_set(s);
+    int ret = prepare_and_bind_descriptor_set(s, cmd_buf);
     if (ret < 0)
         return;
 
@@ -935,10 +946,6 @@ void ngli_pipeline_vk_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    int ret = update_descriptor_set(s);
-    if (ret < 0)
-        return;
-
     struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
     const int cmd_is_transient = cmd_vk ? 0 : 1;
     if (cmd_is_transient) {
@@ -948,12 +955,11 @@ void ngli_pipeline_vk_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t
     }
     VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
 
+    int ret = prepare_and_bind_descriptor_set(s, cmd_buf);
+    if (ret < 0)
+        return;
+
     vkCmdBindPipeline(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline);
-
-    if (s_priv->desc_sets)
-        vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout,
-                                0, 1, &s_priv->desc_sets[gpu_ctx_vk->cur_frame_index], 0, NULL);
-
     vkCmdDispatch(cmd_buf, nb_group_x, nb_group_y, nb_group_z);
 
     const VkMemoryBarrier barrier = {
