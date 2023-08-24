@@ -872,7 +872,7 @@ static int prepare_and_bind_descriptor_set(struct pipeline *s, VkCommandBuffer c
     return 0;
 }
 
-static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
+static int prepare_and_bind_graphics_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
@@ -918,7 +918,7 @@ void ngli_pipeline_vk_draw(struct pipeline *s, int nb_vertices, int nb_instances
     if (ret < 0)
         return;
 
-    ret = prepare_pipeline(s, cmd_buf);
+    ret = prepare_and_bind_graphics_pipeline(s, cmd_buf);
     if (ret < 0)
         return;
 
@@ -934,7 +934,7 @@ void ngli_pipeline_vk_draw_indexed(struct pipeline *s, int nb_indices, int nb_in
     if (ret < 0)
         return;
 
-    ret = prepare_pipeline(s, cmd_buf);
+    ret = prepare_and_bind_graphics_pipeline(s, cmd_buf);
     if (ret < 0)
         return;
 
