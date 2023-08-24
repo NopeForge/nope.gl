@@ -206,6 +206,8 @@ static VkResult pipeline_graphics_init(struct pipeline *s)
     const struct graphics_state *state = &graphics->state;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
+    s_priv->pipeline_bind_point = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
     const VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
         .sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
         .vertexBindingDescriptionCount   = (uint32_t)ngli_darray_count(&s_priv->vertex_binding_descs),
@@ -353,6 +355,8 @@ static VkResult pipeline_compute_init(struct pipeline *s)
     const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
+
+    s_priv->pipeline_bind_point = VK_PIPELINE_BIND_POINT_COMPUTE;
 
     const struct program_vk *program_vk = (struct program_vk *)s->program;
     const VkPipelineShaderStageCreateInfo shader_stage_create_info = {
@@ -857,7 +861,7 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, s_priv->pipeline);
+    vkCmdBindPipeline(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline);
 
     const VkViewport viewport = {
         .x        = (float)gpu_ctx->viewport.x,
@@ -887,7 +891,7 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
     vkCmdSetScissor(cmd_buf, 0, 1, &scissor);
 
     if (s_priv->desc_sets)
-        vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, s_priv->pipeline_layout, 0,
+        vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
                                 1, &s_priv->desc_sets[gpu_ctx_vk->cur_frame_index],
                                 (uint32_t)s->nb_dynamic_offsets, s->dynamic_offsets);
 
@@ -944,10 +948,10 @@ void ngli_pipeline_vk_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t
     }
     VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
 
-    vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_COMPUTE, s_priv->pipeline);
+    vkCmdBindPipeline(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline);
 
     if (s_priv->desc_sets)
-        vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_COMPUTE, s_priv->pipeline_layout,
+        vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout,
                                 0, 1, &s_priv->desc_sets[gpu_ctx_vk->cur_frame_index], 0, NULL);
 
     vkCmdDispatch(cmd_buf, nb_group_x, nb_group_y, nb_group_z);

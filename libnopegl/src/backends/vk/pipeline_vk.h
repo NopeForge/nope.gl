@@ -43,6 +43,7 @@ struct pipeline_vk {
     VkDescriptorSetLayout desc_set_layout;
     VkDescriptorSet *desc_sets;
     VkPipelineLayout pipeline_layout;
+    VkPipelineBindPoint pipeline_bind_point;
     VkPipeline pipeline;
 };
 
