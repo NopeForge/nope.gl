@@ -435,6 +435,14 @@ static void reset_tmp_data(struct distmap *s)
     ngli_darray_reset(&s->bezier_y);
     ngli_darray_reset(&s->bezier_counts);
     ngli_darray_reset(&s->beziergroup_counts);
+
+    ngli_pipeline_compat_freep(&s->pipeline_compat);
+    ngli_block_reset(&s->vert_block);
+    ngli_buffer_freep(&s->vert_buffer);
+    ngli_block_reset(&s->frag_block);
+    ngli_buffer_freep(&s->frag_buffer);
+    ngli_pgcraft_freep(&s->crafter);
+    ngli_rendertarget_freep(&s->rt);
 }
 
 static struct bezier3 scaled_bezier(struct bezier3 bezier, float scale)
@@ -718,16 +726,6 @@ void ngli_distmap_freep(struct distmap **dp)
     if (!s)
         return;
     reset_tmp_data(s);
-
-    // FIXME: should be in reset_tmp_data() but the pipeline can still be used
-    // due to the internal delayed logic in Vulkan
-    ngli_pipeline_compat_freep(&s->pipeline_compat);
-    ngli_block_reset(&s->vert_block);
-    ngli_buffer_freep(&s->vert_buffer);
-    ngli_block_reset(&s->frag_block);
-    ngli_buffer_freep(&s->frag_buffer);
-    ngli_pgcraft_freep(&s->crafter);
-    ngli_rendertarget_freep(&s->rt);
 
     ngli_darray_reset(&s->shapes);
     ngli_texture_freep(&s->texture);
