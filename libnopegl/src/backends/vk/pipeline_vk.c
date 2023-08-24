@@ -857,10 +857,6 @@ static int prepare_pipeline(struct pipeline *s, VkCommandBuffer cmd_buf)
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    int ret = update_descriptor_set(s);
-    if (ret < 0)
-        return ret;
-
     vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, s_priv->pipeline);
 
     const VkViewport viewport = {
@@ -903,7 +899,11 @@ void ngli_pipeline_vk_draw(struct pipeline *s, int nb_vertices, int nb_instances
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
 
-    int ret = prepare_pipeline(s, cmd_buf);
+    int ret = update_descriptor_set(s);
+    if (ret < 0)
+        return;
+
+    ret = prepare_pipeline(s, cmd_buf);
     if (ret < 0)
         return;
 
@@ -915,7 +915,11 @@ void ngli_pipeline_vk_draw_indexed(struct pipeline *s, int nb_indices, int nb_in
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
 
-    int ret = prepare_pipeline(s, cmd_buf);
+    int ret = update_descriptor_set(s);
+    if (ret < 0)
+        return;
+
+    ret = prepare_pipeline(s, cmd_buf);
     if (ret < 0)
         return;
 
