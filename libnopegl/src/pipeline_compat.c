@@ -329,12 +329,11 @@ int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index,
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct pipeline *pipeline = s->pipeline;
 
     if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
        unmap_buffers(s);
 
-    ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
+    ngli_gpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
     for (size_t i = 0; i < s->nb_vertex_buffers; i++)
         ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
     ngli_gpu_ctx_draw(gpu_ctx, nb_vertices, nb_instances);
@@ -343,12 +342,11 @@ void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int n
 void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct pipeline *pipeline = s->pipeline;
 
     if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
        unmap_buffers(s);
 
-    ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
+    ngli_gpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
     for (size_t i = 0; i < s->nb_vertex_buffers; i++)
         ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
     ngli_gpu_ctx_set_index_buffer(gpu_ctx, indices, indices_format);
@@ -358,12 +356,11 @@ void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct b
 void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct pipeline *pipeline = s->pipeline;
 
     if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
        unmap_buffers(s);
 
-    ngli_gpu_ctx_set_pipeline(gpu_ctx, pipeline);
+    ngli_gpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
     ngli_gpu_ctx_dispatch(gpu_ctx, nb_group_x, nb_group_y, nb_group_z);
 }
 
