@@ -133,26 +133,32 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
         },
     };
 
-    const struct pipeline_resources *pipeline_resources = params->resources;
+    const struct pipeline_compat_resources *resources = params->resources;
+    const struct pipeline_resources pipeline_resources = {
+        .textures    = resources->textures,
+        .nb_textures = resources->nb_textures,
+        .buffers     = resources->buffers,
+        .nb_buffers  = resources->nb_buffers,
+    };
 
     int ret;
     if ((ret = ngli_pipeline_init(s->pipeline, &pipeline_params)) < 0 ||
-        (ret = ngli_pipeline_set_resources(s->pipeline, pipeline_resources)) < 0)
+        (ret = ngli_pipeline_set_resources(s->pipeline, &pipeline_resources)) < 0)
         return ret;
 
-    const size_t nb_attributes = pipeline_resources->nb_attributes;
+    const size_t nb_attributes = resources->nb_attributes;
     if (nb_attributes) {
         s->vertex_buffers = ngli_calloc(nb_attributes, sizeof(*s->vertex_buffers));
         for (size_t i = 0; i < nb_attributes; i++)
-            s->vertex_buffers[i] = pipeline_resources->attributes[i];
+            s->vertex_buffers[i] = resources->attributes[i];
         s->nb_vertex_buffers = nb_attributes;
     }
 
-    const size_t nb_buffers = pipeline_resources->nb_buffers;
+    const size_t nb_buffers = resources->nb_buffers;
     if (nb_buffers) {
         s->buffers = ngli_calloc(nb_buffers, sizeof(*s->buffers));
         for (size_t i = 0; i < nb_buffers; i++) {
-            const struct buffer *buffer = pipeline_resources->buffers[i];
+            const struct buffer *buffer = resources->buffers[i];
             s->buffers[i] = (struct buffer_binding) {
                 .buffer = buffer,
                 .offset = 0,
@@ -162,12 +168,12 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
         s->nb_buffers = nb_buffers;
     }
 
-    const size_t nb_textures = pipeline_resources->nb_textures;
+    const size_t nb_textures = resources->nb_textures;
     if (nb_textures) {
         s->textures = ngli_calloc(nb_textures, sizeof(*s->textures));
         for (size_t i = 0; i < nb_textures; i++)
             s->textures[i] = (struct texture_binding) {
-                .texture = pipeline_resources->textures[i],
+                .texture = resources->textures[i],
             };
         s->nb_textures = nb_textures;
     }

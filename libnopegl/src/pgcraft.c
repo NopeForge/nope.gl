@@ -1590,9 +1590,9 @@ struct pipeline_compat_layout ngli_pgcraft_get_pipeline_layout(const struct pgcr
     return layout;
 }
 
-struct pipeline_resources ngli_pgcraft_get_pipeline_resources(const struct pgcraft *s)
+struct pipeline_compat_resources ngli_pgcraft_get_pipeline_resources(const struct pgcraft *s)
 {
-    const struct pipeline_resources resources = {
+    const struct pipeline_compat_resources resources = {
         .textures      = ngli_darray_data(&s->filtered_pipeline_info.data.textures),
         .nb_textures   = ngli_darray_count(&s->filtered_pipeline_info.data.textures),
         .attributes    = ngli_darray_data(&s->filtered_pipeline_info.data.vertex_buffers),
