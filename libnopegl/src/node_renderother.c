@@ -717,7 +717,7 @@ static int finalize_pipeline(struct ngl_node *node,
     if (!desc->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
+    const struct pipeline_compat_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
     const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(desc->crafter);
 
     const struct pipeline_compat_params params = {

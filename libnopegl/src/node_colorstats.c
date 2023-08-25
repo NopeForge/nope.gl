@@ -101,7 +101,7 @@ static int setup_compute(struct colorstats_priv *s, struct pgcraft *crafter,
     if (ret < 0)
         return ret;
 
-    const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(crafter);
+    const struct pipeline_compat_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(crafter);
     const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(crafter);
 
     const struct pipeline_compat_params params = {

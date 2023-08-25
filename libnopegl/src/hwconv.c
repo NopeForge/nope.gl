@@ -130,7 +130,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     if (!hwconv->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(hwconv->crafter);
+    const struct pipeline_compat_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(hwconv->crafter);
     const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(hwconv->crafter);
 
     const struct pipeline_compat_params params = {

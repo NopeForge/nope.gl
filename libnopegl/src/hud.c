@@ -1325,7 +1325,7 @@ int ngli_hud_init(struct hud *s)
     if (!s->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(s->crafter);
+    const struct pipeline_compat_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(s->crafter);
     const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(s->crafter);
 
     const struct pipeline_compat_params params = {
