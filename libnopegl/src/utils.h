@@ -60,6 +60,18 @@
 #define NGLI_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define NGLI_CLAMP(x, min, max) NGLI_MAX(NGLI_MIN(x, max), min)
 
+#define NGLI_ARRAY_MEMDUP(dst, src, name) do {                          \
+    const size_t nb = (src).nb_##name;                                  \
+    if (nb > 0) {                                                       \
+        (dst).name = ngli_memdup((src).name, nb * sizeof(*(dst).name)); \
+        if (!(dst).name)                                                \
+            return NGL_ERROR_MEMORY;                                    \
+    } else {                                                            \
+        (dst).name = NULL;                                              \
+    }                                                                   \
+    (dst).nb_##name = nb;                                               \
+} while (0)                                                             \
+
 #define NGLI_ARRAY_NB(x) (sizeof(x)/sizeof(*(x)))
 #define NGLI_SWAP(type, a, b) do { type tmp_swap = b; b = a; a = tmp_swap; } while (0)
 
