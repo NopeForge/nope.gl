@@ -31,8 +31,8 @@ struct pipeline_compat_resources {
     size_t nb_textures;
     struct buffer **buffers;
     size_t nb_buffers;
-    struct buffer **attributes;
-    size_t nb_attributes;
+    struct buffer **vertex_buffers;
+    size_t nb_vertex_buffers;
 };
 
 struct pipeline_compat_layout {
