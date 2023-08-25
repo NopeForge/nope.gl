@@ -1579,9 +1579,9 @@ const char *ngli_pgcraft_get_symbol_name(const struct pgcraft *s, size_t id)
     return ngli_darray_get(&s->symbols, id);
 }
 
-struct pipeline_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s)
+struct pipeline_compat_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s)
 {
-    const struct pipeline_layout layout = {
+    const struct pipeline_compat_layout layout = {
         .texture_descs      = ngli_darray_data(&s->filtered_pipeline_info.desc.textures),
         .nb_texture_descs   = ngli_darray_count(&s->filtered_pipeline_info.desc.textures),
         .buffer_descs       = ngli_darray_data(&s->filtered_pipeline_info.desc.buffers),
