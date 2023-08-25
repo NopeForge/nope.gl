@@ -1595,8 +1595,8 @@ struct pipeline_compat_resources ngli_pgcraft_get_pipeline_resources(const struc
     const struct pipeline_compat_resources resources = {
         .textures      = ngli_darray_data(&s->filtered_pipeline_info.data.textures),
         .nb_textures   = ngli_darray_count(&s->filtered_pipeline_info.data.textures),
-        .attributes    = ngli_darray_data(&s->filtered_pipeline_info.data.vertex_buffers),
-        .nb_attributes = ngli_darray_count(&s->filtered_pipeline_info.data.vertex_buffers),
+        .vertex_buffers    = ngli_darray_data(&s->filtered_pipeline_info.data.vertex_buffers),
+        .nb_vertex_buffers = ngli_darray_count(&s->filtered_pipeline_info.data.vertex_buffers),
         .buffers       = ngli_darray_data(&s->filtered_pipeline_info.data.buffers),
         .nb_buffers    = ngli_darray_count(&s->filtered_pipeline_info.data.buffers),
     };
