@@ -125,7 +125,12 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
         .type     = params->type,
         .graphics = params->graphics,
         .program  = params->program,
-        .layout   = params->layout,
+        .layout   = {
+            .texture_descs    = params->layout.texture_descs,
+            .nb_texture_descs = params->layout.nb_texture_descs,
+            .buffer_descs     = params->layout.buffer_descs,
+            .nb_buffer_descs  = params->layout.nb_buffer_descs,
+        },
     };
 
     const struct pipeline_resources *pipeline_resources = params->resources;

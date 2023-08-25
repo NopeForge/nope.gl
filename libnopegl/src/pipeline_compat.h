@@ -26,11 +26,18 @@
 #include "pgcraft.h"
 #include "pipeline.h"
 
+struct pipeline_compat_layout {
+    const struct pipeline_resource_desc *texture_descs;
+    size_t nb_texture_descs;
+    const struct pipeline_resource_desc *buffer_descs;
+    size_t nb_buffer_descs;
+};
+
 struct pipeline_compat_params {
     int type; // NGLI_PIPELINE_TYPE_*
     struct pipeline_graphics graphics;
     const struct program *program;
-    struct pipeline_layout layout;
+    struct pipeline_compat_layout layout;
     const struct pipeline_resources *resources;
     const struct pgcraft_compat_info *compat_info;
 };

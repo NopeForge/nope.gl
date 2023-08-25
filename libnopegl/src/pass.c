@@ -493,7 +493,7 @@ static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
 {
     ngli_darray_init(&desc->blocks_map, sizeof(struct resource_map), 0);
 
-    struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(desc->crafter);
+    struct pipeline_compat_layout layout = ngli_pgcraft_get_pipeline_layout(desc->crafter);
 
     for (size_t i = 0; i < layout.nb_buffer_descs; i++) {
         const struct pipeline_resource_desc *resource = &layout.buffer_descs[i];

@@ -208,7 +208,7 @@ const char *ngli_pgcraft_get_symbol_name(const struct pgcraft *s, size_t id);
 struct vertex_state ngli_pgcraft_get_vertex_state(const struct pgcraft *s);
 int32_t ngli_pgcraft_get_vertex_buffer_index(const struct pgcraft *s, const char *name);
 struct program *ngli_pgcraft_get_program(const struct pgcraft *s);
-struct pipeline_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s);
+struct pipeline_compat_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s);
 struct pipeline_resources ngli_pgcraft_get_pipeline_resources(const struct pgcraft *s);
 void ngli_pgcraft_freep(struct pgcraft **sp);
 

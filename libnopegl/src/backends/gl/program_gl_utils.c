@@ -24,7 +24,7 @@
 
 #include "gpu_ctx_gl.h"
 #include "log.h"
-#include "pipeline.h"
+#include "pipeline_compat.h"
 #include "program_gl.h"
 #include "program_gl_utils.h"
 #include "type.h"
@@ -59,7 +59,7 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     if (need_relink)
         ngli_glLinkProgram(gl, s_priv->id);
 
-    const struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
+    const struct pipeline_compat_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
     for (size_t i = 0; i < layout.nb_buffer_descs; i++) {
         const struct pipeline_resource_desc *buffer_desc = &layout.buffer_descs[i];
         if (buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER &&
