@@ -39,6 +39,9 @@ struct buffer_binding {
 
 struct pipeline_compat {
     struct gpu_ctx *gpu_ctx;
+    int type; // any of NGLI_PIPELINE_TYPE_*
+    struct pipeline_graphics graphics;
+    const struct program *program;
     struct pipeline *pipeline;
     const struct buffer **vertex_buffers;
     size_t nb_vertex_buffers;
@@ -117,6 +120,14 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
 
+    s->type = params->type;
+
+    int ret = ngli_pipeline_graphics_copy(&s->graphics, &params->graphics);
+    if (ret < 0)
+        return ret;
+
+    s->program = params->program;
+
     s->pipeline = ngli_pipeline_create(gpu_ctx);
     if (!s->pipeline)
         return NGL_ERROR_MEMORY;
@@ -141,7 +152,6 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
         .nb_buffers  = resources->nb_buffers,
     };
 
-    int ret;
     if ((ret = ngli_pipeline_init(s->pipeline, &pipeline_params)) < 0 ||
         (ret = ngli_pipeline_set_resources(s->pipeline, &pipeline_resources)) < 0)
         return ret;
@@ -370,6 +380,8 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
     if (!s)
         return;
     ngli_pipeline_freep(&s->pipeline);
+    ngli_pipeline_graphics_reset(&s->graphics);
+
     ngli_freep(&s->vertex_buffers);
     ngli_freep(&s->textures);
     ngli_freep(&s->buffers);
