@@ -65,8 +65,7 @@ def query_scene(pkg, **idict):
     if module_is_script:
         module = load_script(pkg)
     else:
-        import_name = f"{pkg}.{module_name}"
-        module = importlib.import_module(import_name)
+        module = importlib.import_module(module_name)
     func = getattr(module, scene_name)
 
     # Call user constructing function
@@ -89,12 +88,17 @@ def query_list(pkg):
         scripts.append((module.__name__, module))
     else:
         module = importlib.import_module(pkg)
-        for submod in pkgutil.iter_modules(module.__path__):
-            _, module_name, ispkg = submod
-            if ispkg:
-                continue
-            script = importlib.import_module("." + module_name, pkg)
-            scripts.append((module_name, script))
+        module_is_package = hasattr(module, "__path__")
+        if module_is_package:
+            for submod in pkgutil.iter_modules(module.__path__):
+                _, module_name, ispkg = submod
+                if ispkg:
+                    continue
+                script = importlib.import_module("." + module_name, pkg)
+                import_name = f"{pkg}.{module_name}"
+                scripts.append((import_name, script))
+        else:
+            scripts.append((module.__name__, module))
 
     # Find all the scenes
     scenes = []
