@@ -211,7 +211,7 @@ class Toolbar(QtWidgets.QWidget):
                     return func_item.data()
             return None
 
-        module_items = self._scn_mdl.findItems(module_name)
+        module_items = self._scn_mdl.findItems(module_name.rsplit(".", 1)[-1])
         if module_items:
             self._current_scene_data = get_func_info(module_items[0], scene_name)
             self._load_current_scene()
@@ -232,7 +232,7 @@ class Toolbar(QtWidgets.QWidget):
     def _reload_scene_view(self, scenes):
         self._scn_mdl.clear()
         for module_name, sub_scenes in scenes:
-            qitem_script = QtGui.QStandardItem(module_name)
+            qitem_script = QtGui.QStandardItem(module_name.rsplit(".", 1)[-1])
             for scene_name, scene_doc, widgets_specs in sub_scenes:
                 scene_data = (module_name, scene_name, widgets_specs)
 
