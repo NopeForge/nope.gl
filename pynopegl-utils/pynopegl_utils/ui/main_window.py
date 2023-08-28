@@ -136,7 +136,8 @@ class MainWindow(QtWidgets.QSplitter):
 
     def _get_scene(self, **cfg_overrides):
         cfg = self._scene_toolbar.get_cfg()
-        if cfg["scene"] is None:
+        scene_func, extra_args = self._scene_toolbar.get_scene_info()
+        if scene_func is None:
             return None
         medias = self._medias_view.get_medias()
         if medias:
@@ -148,7 +149,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         self._scripts_mgr.inc_query_count()
         self._scripts_mgr.pause()
-        ret = query_scene(self._module_pkgname, **cfg)
+        ret = query_scene(self._module_pkgname, scene_func, extra_args, **cfg)
         self._scripts_mgr.update_filelist(ret["filelist"])
         self._scripts_mgr.update_modulelist(ret["modulelist"])
         self._scripts_mgr.resume()

@@ -193,14 +193,17 @@ class Toolbar(QtWidgets.QWidget):
     def get_cfg(self):
         choices = Config.CHOICES
         return {
-            "scene": self._current_scene_data[2] if self._current_scene_data else None,
             "aspect_ratio": choices["aspect_ratio"][self._ar_cbbox.currentIndex()],
             "framerate": choices["framerate"][self._fr_cbbox.currentIndex()],
             "samples": choices["samples"][self._samples_cbbox.currentIndex()],
-            "extra_args": self._scene_extra_args,
             "clear_color": self._clear_color,
             "backend": choices["backend"][self._backend_cbbox.currentIndex()],
         }
+
+    def get_scene_info(self):
+        scene_func = self._current_scene_data[2] if self._current_scene_data else None
+        extra_args = self._scene_extra_args
+        return scene_func, extra_args
 
     def load_scene_from_name(self, module_name, scene_name):
         def get_func_info(module_item, func_name):
