@@ -24,7 +24,7 @@ import os
 import os.path as op
 from typing import Any, Callable, Generator, Sequence, Tuple
 
-from pynopegl_utils.misc import get_backend, get_nopegl_tempdir
+from pynopegl_utils.misc import SceneCfg, get_backend, get_nopegl_tempdir
 
 import pynopegl as ngl
 
@@ -96,13 +96,13 @@ class CompareSceneBase(CompareBase):
         self._hud_export_filename = None
 
     def render_frames(self) -> Generator[Tuple[int, int, bytearray], None, None]:
-        idict = {}
+        cfg = SceneCfg()
 
         backend = os.environ.get("BACKEND")
         if backend:
-            idict["backend"] = backend
+            cfg.backend = backend
 
-        ret = self._scene_func(idict=idict, **self._scene_kwargs)
+        ret = self._scene_func(cfg, **self._scene_kwargs)
         width, height = self._width, self._height
         scene = ret["scene"]
         duration = scene.duration

@@ -24,7 +24,7 @@ import os.path as op
 import subprocess
 
 from pynopegl_utils.com import query_scene
-from pynopegl_utils.misc import get_backend, get_nopegl_tempdir, get_viewport
+from pynopegl_utils.misc import SceneCfg, get_backend, get_nopegl_tempdir, get_viewport
 from PySide6 import QtCore, QtGui
 
 import pynopegl as ngl
@@ -148,11 +148,8 @@ def test_export():
     def _get_scene(**cfg_overrides):
         from pynopegl_utils.examples.misc import triangle
 
-        cfg = {
-            "duration": 5,
-        }
-        cfg.update(cfg_overrides)
-        ret = query_scene("pynopegl_utils.examples", triangle, **cfg)
+        cfg = SceneCfg(duration=5, **cfg_overrides)
+        ret = query_scene("pynopegl_utils.examples", triangle, cfg)
         if "error" in ret:
             print(ret["error"])
             return None
