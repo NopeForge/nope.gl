@@ -135,7 +135,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.clear_scripts()
         self._scene_err(err_str)
 
-    def _get_scene(self, **cfg_overrides):
+    def _get_scene(self, backend=None, system=None):
         cfg = self._scene_toolbar.get_cfg()
         scene_func, extra_args = self._scene_toolbar.get_scene_info()
         if scene_func is None:
@@ -146,9 +146,14 @@ class MainWindow(QtWidgets.QSplitter):
             # specified some
             cfg["medias"] = medias
         cfg["files"] = []
-        cfg.update(cfg_overrides)
 
         cfg = SceneCfg(**cfg)
+
+        # Config overrides
+        if backend is not None:
+            cfg.backend = backend
+        if system is not None:
+            cfg.system = system
 
         self._scripts_mgr.inc_query_count()
         self._scripts_mgr.pause()
