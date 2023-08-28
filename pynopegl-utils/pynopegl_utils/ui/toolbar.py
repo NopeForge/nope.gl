@@ -233,7 +233,9 @@ class Toolbar(QtWidgets.QWidget):
         self._scn_mdl.clear()
         for module_name, sub_scenes in scenes:
             qitem_script = QtGui.QStandardItem(module_name.rsplit(".", 1)[-1])
-            for scene_name, scene_doc, widgets_specs in sub_scenes:
+            for scene_name, func in sub_scenes:
+                scene_doc = func.__doc__
+                widgets_specs = func.widgets_specs
                 scene_data = (module_name, scene_name, widgets_specs)
 
                 # update cached widget specs if module and scene match
