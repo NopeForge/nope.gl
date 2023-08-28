@@ -223,10 +223,10 @@ class Scene(_ngl.Scene):
     def from_string(cls, s: str):
         return super().from_string(s)
 
-    def serialize(self) -> str:
+    def serialize(self) -> bytes:
         return super().serialize()
 
-    def dot(self) -> str:
+    def dot(self) -> bytes:
         return super().dot()
 
 
