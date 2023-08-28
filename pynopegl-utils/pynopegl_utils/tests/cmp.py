@@ -96,7 +96,7 @@ class CompareSceneBase(CompareBase):
         self._hud_export_filename = None
 
     def render_frames(self) -> Generator[Tuple[int, int, bytearray], None, None]:
-        cfg = SceneCfg()
+        cfg = SceneCfg(samples=self._samples, clear_color=self._clear_color)
 
         backend = os.environ.get("BACKEND")
         if backend:
@@ -115,8 +115,8 @@ class CompareSceneBase(CompareBase):
                 width=width,
                 height=height,
                 backend=get_backend(backend) if backend else ngl.Backend.AUTO,
-                samples=self._samples,
-                clear_color=self._clear_color,
+                samples=cfg.samples,
+                clear_color=cfg.clear_color,
                 capture_buffer=capture_buffer,
                 hud=self._hud,
                 hud_export_filename=self._hud_export_filename,
