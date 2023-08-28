@@ -54,12 +54,12 @@ class _HooksCaller:
             uint_color |= comp_val << (24 - i * 8)
         return uint_color
 
-    def scene_change(self, session_id, local_scene, cfg):
+    def scene_change(self, session_id, local_scene, scene_info):
         return self._module.scene_change(
             session_id,
             local_scene,
-            self._uint_clear_color(cfg["clear_color"]),
-            cfg["samples"],
+            self._uint_clear_color(scene_info["clear_color"]),
+            scene_info["samples"],
         )
 
     @staticmethod
@@ -107,9 +107,9 @@ class HooksCaller:
         caller, session_id = self._get_caller_session_id(session_id)
         return caller.get_session_info(session_id)
 
-    def scene_change(self, session_id, local_scene, cfg):
+    def scene_change(self, session_id, local_scene, scene_info):
         caller, session_id = self._get_caller_session_id(session_id)
-        return caller.scene_change(session_id, local_scene, cfg)
+        return caller.scene_change(session_id, local_scene, scene_info)
 
     def sync_file(self, session_id, localfile):
         caller, session_id = self._get_caller_session_id(session_id)
@@ -198,8 +198,8 @@ class _SceneChangeWorker(QtCore.QObject):
         system = session["system"]
 
         self.buildingScene.emit(session_id, backend, system)
-        cfg = self._get_scene_func(backend=backend, system=system)
-        if not cfg:
+        scene_info = self._get_scene_func(backend=backend, system=system)
+        if not scene_info:
             self.error.emit(session_id, "Error getting scene")
             return
 
@@ -208,8 +208,8 @@ class _SceneChangeWorker(QtCore.QObject):
             # need to sync. Similarly, the remote assets directory might be
             # different from the one in local, so we need to fix up the scene
             # appropriately.
-            serialized_scene = cfg["scene"].serialize().decode("ascii")
-            filelist = [m.filename for m in cfg["medias"]] + cfg["files"]
+            serialized_scene = scene_info["scene"].serialize().decode("ascii")
+            filelist = [m.filename for m in scene_info["medias"]] + scene_info["files"]
             for i, localfile in enumerate(filelist, 1):
                 self.uploadingFile.emit(session_id, i, len(filelist), localfile)
                 try:
@@ -231,7 +231,7 @@ class _SceneChangeWorker(QtCore.QObject):
                     fp.write(serialized_scene)
                 self.sendingScene.emit(session_id, scene_id)
                 try:
-                    self._hooks_caller.scene_change(session_id, fname, cfg)
+                    self._hooks_caller.scene_change(session_id, fname, scene_info)
                 except Exception as e:
                     self.error.emit(session_id, "Error while sending scene: %s" % str(e))
                     return

@@ -174,8 +174,8 @@ class MainWindow(QtWidgets.QSplitter):
         self._hooks_ctl.process(module_name, scene_name)
 
     @QtCore.Slot(dict)
-    def _scene_loaded(self, cfg):
-        self._scene_toolbar.set_cfg(cfg)
+    def _scene_loaded(self, scene_info):
+        self._scene_toolbar.set_scene_info(scene_info)
 
     def _emit_geometry(self):
         geometry = (self.x(), self.y(), self.width(), self.height())
