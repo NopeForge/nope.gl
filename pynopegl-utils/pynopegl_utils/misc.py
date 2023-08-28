@@ -56,13 +56,15 @@ def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str]
                 idict = idict.as_dict()
             scene_cfg = SceneCfg(**idict)
             root = scene_func(scene_cfg, **extra_args)
-            odict = scene_cfg.as_dict()
-            duration = odict.pop("duration")
-            framerate = odict.pop("framerate")
-            aspect_ratio = odict.pop("aspect_ratio")
-            scene = ngl.Scene.from_params(root, duration, framerate, aspect_ratio)
-            odict["scene"] = scene
-            return odict
+            scene = ngl.Scene.from_params(root, scene_cfg.duration, scene_cfg.framerate, scene_cfg.aspect_ratio)
+            return dict(
+                scene=scene,
+                backend=scene_cfg.backend,
+                samples=scene_cfg.samples,
+                clear_color=scene_cfg.clear_color,
+                files=scene_cfg.files,
+                medias=scene_cfg.medias,
+            )
 
         # Construct widgets specs
         widgets_specs = []
