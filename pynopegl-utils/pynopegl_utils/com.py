@@ -24,35 +24,45 @@ import inspect
 import os.path as op
 import pkgutil
 import traceback
+from dataclasses import dataclass, field
+from typing import Any, Callable, Optional, Set
 
 from pynopegl_utils.misc import SceneCfg
 from pynopegl_utils.module import load_script
 from pynopegl_utils.resourcetracker import ResourceTracker
 
 
-def _wrap_query(func):
-    def wrapped_func(pkg, *args, **kwargs):
+@dataclass
+class QueryInfo:
+    filelist: Set[str] = field(default_factory=set)
+    modulelist: Set[str] = field(default_factory=set)
+    error: Optional[str] = None
+    ret: Any = None
+
+
+def _wrap_query(func) -> Callable[..., QueryInfo]:
+    def wrapped_func(pkg, *args, **kwargs) -> QueryInfo:
         module_is_script = pkg.endswith(".py")
 
         # Start tracking the imported modules and opened files
         rtracker = ResourceTracker()
         rtracker.start_hooking()
 
-        odict = {}
+        query_info = QueryInfo()
 
         try:
-            odict["ret"] = func(pkg, *args, **kwargs)
+            query_info.ret = func(pkg, *args, **kwargs)
         except Exception:
-            odict["error"] = traceback.format_exc()
+            query_info.error = traceback.format_exc()
 
         # End of file and modules tracking
         rtracker.end_hooking()
-        odict["filelist"] = rtracker.filelist
-        odict["modulelist"] = rtracker.modulelist
+        query_info.filelist = rtracker.filelist
+        query_info.modulelist = rtracker.modulelist
         if module_is_script:
-            odict["filelist"].update([pkg])
+            query_info.filelist.update([pkg])
 
-        return odict
+        return query_info
 
     return wrapped_func
 

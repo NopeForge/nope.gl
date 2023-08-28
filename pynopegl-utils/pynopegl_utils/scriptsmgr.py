@@ -91,22 +91,22 @@ class ScriptsManager(QtCore.QObject):
         for name in self._modules:
             del sys.modules[name]
         self._modules = set()
-        odict = query_list(self._module_pkgname)
-        if "error" in odict:
-            self.update_filelist(odict["filelist"])
-            self.update_modulelist(odict["modulelist"])
+        query_info = query_list(self._module_pkgname)
+        if query_info.error is not None:
+            self.update_filelist(query_info.filelist)
+            self.update_modulelist(query_info.modulelist)
             self.resume()
             self._set_reloaded()
-            self.error.emit(odict["error"])
+            self.error.emit(query_info.error)
             return
         self.error.emit(None)
 
-        self.set_filelist(odict["filelist"])
-        self.set_modulelist(odict["modulelist"])
+        self.set_filelist(query_info.filelist)
+        self.set_modulelist(query_info.modulelist)
         self.resume()
         self._set_reloaded()
 
-        scripts = odict["ret"]
+        scripts = query_info.ret
         self.scriptsChanged.emit(scripts)
 
     def _on_any_event(self, event):
