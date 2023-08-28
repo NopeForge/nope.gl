@@ -22,9 +22,10 @@
 import os
 import os.path as op
 import subprocess
+from typing import Callable, Optional
 
 from pynopegl_utils.com import query_scene
-from pynopegl_utils.misc import SceneCfg, get_backend, get_nopegl_tempdir, get_viewport
+from pynopegl_utils.misc import SceneCfg, SceneInfo, get_backend, get_nopegl_tempdir, get_viewport
 from PySide6 import QtCore, QtGui
 
 import pynopegl as ngl
@@ -35,7 +36,15 @@ class Exporter(QtCore.QThread):
     failed = QtCore.Signal(str)
     export_finished = QtCore.Signal()
 
-    def __init__(self, get_scene_func, filename, w, h, extra_enc_args=None, time=None):
+    def __init__(
+        self,
+        get_scene_func: Callable[..., Optional[SceneInfo]],
+        filename,
+        w,
+        h,
+        extra_enc_args=None,
+        time=None,
+    ):
         super().__init__()
         self._get_scene_func = get_scene_func
         self._filename = filename
@@ -77,10 +86,10 @@ class Exporter(QtCore.QThread):
             self.failed.emit("You didn't select any scene to export.")
             return False
 
-        scene = scene_info["scene"]
+        scene = scene_info.scene
         fps = scene.framerate
         duration = scene.duration
-        samples = scene_info["samples"]
+        samples = scene_info.samples
 
         cmd = [
             # fmt: off
@@ -106,13 +115,13 @@ class Exporter(QtCore.QThread):
         ctx.configure(
             ngl.Config(
                 platform=ngl.Platform.AUTO,
-                backend=get_backend(scene_info["backend"]),
+                backend=get_backend(scene_info.backend),
                 offscreen=True,
                 width=width,
                 height=height,
                 viewport=get_viewport(width, height, scene.aspect_ratio),
                 samples=samples,
-                clear_color=scene_info["clear_color"],
+                clear_color=scene_info.clear_color,
                 capture_buffer=capture_buffer,
             )
         )

@@ -41,7 +41,7 @@ import pynopegl as ngl
 
 
 def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str] = None):
-    def real_decorator(scene_func: Callable[..., ngl.Node]) -> Callable[..., Dict]:
+    def real_decorator(scene_func: Callable[..., ngl.Node]) -> Callable[..., SceneInfo]:
         @wraps(scene_func)
         def func_wrapper(scene_cfg: Optional[SceneCfg] = None, **extra_args):
             version = Version(ngl.__version__)
@@ -54,7 +54,7 @@ def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str]
                 scene_cfg = SceneCfg()
             root = scene_func(scene_cfg, **extra_args)
             scene = ngl.Scene.from_params(root, scene_cfg.duration, scene_cfg.framerate, scene_cfg.aspect_ratio)
-            return dict(
+            return SceneInfo(
                 scene=scene,
                 backend=scene_cfg.backend,
                 samples=scene_cfg.samples,
@@ -136,6 +136,16 @@ class MediaInfo:
             time_base=time_base,
             avg_frame_rate=avg_frame_rate,
         )
+
+
+@dataclass
+class SceneInfo:
+    scene: ngl.Scene
+    backend: str
+    samples: int
+    clear_color: Tuple[float, float, float, float]
+    files: List[str]
+    medias: List[MediaInfo]
 
 
 def get_nopegl_tempdir() -> str:

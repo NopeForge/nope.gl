@@ -20,13 +20,15 @@
 #
 
 from fractions import Fraction
+from typing import Callable, Optional
 
 from pynopegl_utils.export import Exporter
+from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtWidgets
 
 
 class ExportView(QtWidgets.QWidget):
-    def __init__(self, get_scene_func, config):
+    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]], config):
         super().__init__()
 
         self._get_scene_func = get_scene_func
@@ -85,7 +87,7 @@ class ExportView(QtWidgets.QWidget):
         if not scene_info:
             return
 
-        scene = scene_info["scene"]
+        scene = scene_info.scene
         self._framerate = scene.framerate
         self._aspect_ratio = scene.aspect_ratio
 

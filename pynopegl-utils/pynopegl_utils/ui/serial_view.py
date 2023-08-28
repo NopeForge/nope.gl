@@ -19,11 +19,14 @@
 # under the License.
 #
 
+from typing import Callable, Optional
+
+from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class SerialView(QtWidgets.QWidget):
-    def __init__(self, get_scene_func):
+    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]]):
         super().__init__()
 
         self._get_scene_func = get_scene_func
@@ -57,4 +60,4 @@ class SerialView(QtWidgets.QWidget):
         scene_info = self._get_scene_func()
         if not scene_info:
             return
-        self._text.setPlainText(scene_info["scene"].serialize().decode("ascii"))
+        self._text.setPlainText(scene_info.scene.serialize().decode("ascii"))
