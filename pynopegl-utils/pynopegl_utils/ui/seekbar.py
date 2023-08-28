@@ -22,6 +22,7 @@
 import math
 from fractions import Fraction
 
+from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtGui, QtWidgets
 
 
@@ -106,8 +107,8 @@ class Seekbar(QtWidgets.QWidget):
         self._time_lbl.setFixedSize(hint)
 
     @QtCore.Slot(dict)
-    def set_scene_metadata(self, scene_info):
-        scene = scene_info["scene"]
+    def set_scene_metadata(self, scene_info: SceneInfo):
+        scene = scene_info.scene
         self._scene_duration = scene.duration
         self._framerate = Fraction(*scene.framerate)
         self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)

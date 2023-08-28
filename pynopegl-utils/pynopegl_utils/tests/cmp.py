@@ -22,9 +22,9 @@
 import difflib
 import os
 import os.path as op
-from typing import Any, Callable, Generator, Sequence, Tuple
+from typing import Any, Callable, Generator, Optional, Sequence, Tuple
 
-from pynopegl_utils.misc import SceneCfg, get_backend, get_nopegl_tempdir
+from pynopegl_utils.misc import SceneCfg, SceneInfo, get_backend, get_nopegl_tempdir
 
 import pynopegl as ngl
 
@@ -71,7 +71,7 @@ class CompareBase:
 class CompareSceneBase(CompareBase):
     def __init__(
         self,
-        scene_func: Callable[..., dict],
+        scene_func: Callable[..., SceneInfo],
         width: int = 1280,
         height: int = 800,
         keyframes: int | Sequence[float] = 1,  # either a number of keyframes or a sequence of absolute times
@@ -102,9 +102,9 @@ class CompareSceneBase(CompareBase):
         if backend:
             cfg.backend = backend
 
-        ret = self._scene_func(cfg, **self._scene_kwargs)
+        scene_info = self._scene_func(cfg, **self._scene_kwargs)
         width, height = self._width, self._height
-        scene = ret["scene"]
+        scene = scene_info.scene
         duration = scene.duration
 
         capture_buffer = bytearray(width * height * 4)

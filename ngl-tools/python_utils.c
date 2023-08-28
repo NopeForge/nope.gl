@@ -30,7 +30,7 @@ struct ngl_scene *python_get_scene(const char *modname, const char *func_name)
     PyObject *pyscene = NULL;
     PyObject *com = NULL, *load_script = NULL, *path = NULL;
     PyObject *mod = NULL;
-    PyObject *ret_pydict = NULL;
+    PyObject *scene_info = NULL;
     PyObject *scene_func = NULL, *pyroot = NULL, *cptr = NULL;
     PyObject *pyaspect = NULL, *pyduration = NULL;
 
@@ -53,8 +53,8 @@ struct ngl_scene *python_get_scene(const char *modname, const char *func_name)
     }
 
     if (!(scene_func = PyObject_GetAttrString(mod, func_name))         ||
-        !(ret_pydict = PyObject_CallFunctionObjArgs(scene_func, NULL)) ||
-        !(pyscene    = PyDict_GetItemString(ret_pydict, "scene"))      ||
+        !(scene_info = PyObject_CallFunctionObjArgs(scene_func, NULL)) ||
+        !(pyscene    = PyObject_GetAttrString(scene_info, "scene"))    ||
         !(pyroot     = PyObject_GetAttrString(pyscene, "root"))        ||
         !(pyduration = PyObject_GetAttrString(pyscene, "duration"))    ||
         !(pyaspect   = PyObject_GetAttrString(pyscene, "aspect_ratio"))||
@@ -95,7 +95,8 @@ end:
     Py_XDECREF(path);
     Py_XDECREF(mod);
     Py_XDECREF(scene_func);
-    Py_XDECREF(ret_pydict);
+    Py_XDECREF(scene_info);
+    Py_XDECREF(pyscene);
     Py_XDECREF(pyroot);
     Py_XDECREF(pyduration);
     Py_XDECREF(pyaspect);

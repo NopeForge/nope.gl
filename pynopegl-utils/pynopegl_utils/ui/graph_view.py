@@ -21,8 +21,10 @@
 
 import os.path as op
 import subprocess
+from typing import Callable, Optional
 
 from pynopegl_utils import misc
+from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtGui, QtSvgWidgets, QtWidgets
 
 import pynopegl as ngl
@@ -69,7 +71,7 @@ class _Clock:
 
 
 class GraphView(QtWidgets.QWidget):
-    def __init__(self, get_scene_func, config):
+    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]], config):
         super().__init__()
 
         self._get_scene_func = get_scene_func
@@ -146,9 +148,9 @@ class GraphView(QtWidgets.QWidget):
 
         self._seekbar.set_scene_metadata(scene_info)
 
-        scene = scene_info["scene"]
+        scene = scene_info.scene
         if self._seek_chkbox.isChecked():
-            self._init_ctx(scene_info["backend"])
+            self._init_ctx(scene_info.backend)
             self._framerate = scene.framerate
             self._duration = scene.duration
             self._ctx.set_scene(scene)

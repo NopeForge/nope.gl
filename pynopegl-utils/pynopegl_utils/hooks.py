@@ -24,7 +24,9 @@ import os
 import os.path as op
 import tempfile
 import time
+from typing import Callable, Optional
 
+from pynopegl_utils.misc import SceneInfo
 from pynopegl_utils.module import load_script
 from PySide6 import QtCore
 
@@ -54,12 +56,12 @@ class _HooksCaller:
             uint_color |= comp_val << (24 - i * 8)
         return uint_color
 
-    def scene_change(self, session_id, local_scene, scene_info):
+    def scene_change(self, session_id, local_scene, scene_info: SceneInfo):
         return self._module.scene_change(
             session_id,
             local_scene,
-            self._uint_clear_color(scene_info["clear_color"]),
-            scene_info["samples"],
+            self._uint_clear_color(scene_info.clear_color),
+            scene_info.samples,
         )
 
     @staticmethod
@@ -107,7 +109,7 @@ class HooksCaller:
         caller, session_id = self._get_caller_session_id(session_id)
         return caller.get_session_info(session_id)
 
-    def scene_change(self, session_id, local_scene, scene_info):
+    def scene_change(self, session_id, local_scene, scene_info: SceneInfo):
         caller, session_id = self._get_caller_session_id(session_id)
         return caller.scene_change(session_id, local_scene, scene_info)
 
@@ -159,7 +161,7 @@ class _SceneChangeWorker(QtCore.QObject):
     success = QtCore.Signal(str, str, float)
     error = QtCore.Signal(str, str)
 
-    def __init__(self, get_scene_func, hooks_caller):
+    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]], hooks_caller):
         super().__init__()
         self._get_scene_func = get_scene_func
         self._hooks_caller = hooks_caller
@@ -208,8 +210,8 @@ class _SceneChangeWorker(QtCore.QObject):
             # need to sync. Similarly, the remote assets directory might be
             # different from the one in local, so we need to fix up the scene
             # appropriately.
-            serialized_scene = scene_info["scene"].serialize().decode("ascii")
-            filelist = [m.filename for m in scene_info["medias"]] + scene_info["files"]
+            serialized_scene = scene_info.scene.serialize().decode("ascii")
+            filelist = [m.filename for m in scene_info.medias] + scene_info.files
             for i, localfile in enumerate(filelist, 1):
                 self.uploadingFile.emit(session_id, i, len(filelist), localfile)
                 try:
@@ -245,7 +247,7 @@ class HooksController(QtCore.QObject):
     session_removed = QtCore.Signal(str)
     session_info_changed = QtCore.Signal(object)
 
-    def __init__(self, get_scene_func, hooks_caller):
+    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]], hooks_caller):
         super().__init__()
         self._get_scene_func = get_scene_func
         self._hooks_caller = hooks_caller
