@@ -26,16 +26,18 @@ import pynopegl as ngl
 
 
 @scene(
-    txt=scene.Text(),
-    fg_color=scene.Color(),
-    bg_color=scene.Color(),
-    box_corner=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
-    box_width=scene.Vector(n=3, minv=(-10, -10, -10), maxv=(10, 10, 10)),
-    box_height=scene.Vector(n=3, minv=(-10, -10, -10), maxv=(10, 10, 10)),
-    padding=scene.Range(range=[0, 100]),
-    font_scale=scene.Range(range=[0, 15], unit_base=100),
-    valign=scene.List(choices=("top", "center", "bottom")),
-    halign=scene.List(choices=("left", "center", "right")),
+    controls=dict(
+        txt=scene.Text(),
+        fg_color=scene.Color(),
+        bg_color=scene.Color(),
+        box_corner=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+        box_width=scene.Vector(n=3, minv=(-10, -10, -10), maxv=(10, 10, 10)),
+        box_height=scene.Vector(n=3, minv=(-10, -10, -10), maxv=(10, 10, 10)),
+        padding=scene.Range(range=[0, 100]),
+        font_scale=scene.Range(range=[0, 15], unit_base=100),
+        valign=scene.List(choices=("top", "center", "bottom")),
+        halign=scene.List(choices=("left", "center", "right")),
+    )
 )
 def text(
     cfg: SceneCfg,
