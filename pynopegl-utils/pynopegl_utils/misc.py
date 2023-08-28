@@ -43,18 +43,15 @@ import pynopegl as ngl
 def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str] = None):
     def real_decorator(scene_func: Callable[..., ngl.Node]) -> Callable[..., Dict]:
         @wraps(scene_func)
-        def func_wrapper(idict=None, **extra_args):
+        def func_wrapper(scene_cfg: Optional[SceneCfg] = None, **extra_args):
             version = Version(ngl.__version__)
             if compat_specs and version not in SpecifierSet(compat_specs):
                 raise Exception(
                     f"{scene_func.__name__} needs libnopegl{compat_specs} but libnopegl is currently at version {version}"
                 )
 
-            if idict is None:
-                idict = {}
-            elif isinstance(idict, SceneCfg):
-                idict = idict.as_dict()
-            scene_cfg = SceneCfg(**idict)
+            if scene_cfg is None:
+                scene_cfg = SceneCfg()
             root = scene_func(scene_cfg, **extra_args)
             scene = ngl.Scene.from_params(root, scene_cfg.duration, scene_cfg.framerate, scene_cfg.aspect_ratio)
             return dict(

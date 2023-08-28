@@ -24,6 +24,7 @@ import sys
 from pynopegl_utils.com import query_scene
 from pynopegl_utils.config import Config
 from pynopegl_utils.hooks import HooksCaller, HooksController
+from pynopegl_utils.misc import SceneCfg
 from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.ui.export_view import ExportView
 from pynopegl_utils.ui.graph_view import GraphView
@@ -147,9 +148,11 @@ class MainWindow(QtWidgets.QSplitter):
         cfg["files"] = []
         cfg.update(cfg_overrides)
 
+        cfg = SceneCfg(**cfg)
+
         self._scripts_mgr.inc_query_count()
         self._scripts_mgr.pause()
-        ret = query_scene(self._module_pkgname, scene_func, extra_args, **cfg)
+        ret = query_scene(self._module_pkgname, scene_func, cfg, extra_args)
         self._scripts_mgr.update_filelist(ret["filelist"])
         self._scripts_mgr.update_modulelist(ret["modulelist"])
         self._scripts_mgr.resume()

@@ -25,6 +25,7 @@ import os.path as op
 import pkgutil
 import traceback
 
+from pynopegl_utils.misc import SceneCfg
 from pynopegl_utils.module import load_script
 from pynopegl_utils.resourcetracker import ResourceTracker
 
@@ -57,11 +58,11 @@ def _wrap_query(func):
 
 
 @_wrap_query
-def query_scene(pkg, func, extra_args=None, **idict):
+def query_scene(pkg, func, cfg: SceneCfg, extra_args=None):
     # Call user constructing function
     if extra_args is None:
         extra_args = {}
-    odict = func(idict, **extra_args)
+    odict = func(cfg, **extra_args)
     odict["scene"].root.set_label(func.__name__)
     return odict
 
