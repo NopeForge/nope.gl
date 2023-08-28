@@ -106,7 +106,7 @@ class ScriptsManager(QtCore.QObject):
         self.resume()
         self._set_reloaded()
 
-        scripts = odict["scenes"]
+        scripts = odict["ret"]
         self.scriptsChanged.emit(scripts)
 
     def _on_any_event(self, event):
