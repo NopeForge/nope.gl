@@ -153,7 +153,7 @@ def test_export():
         if "error" in ret:
             print(ret["error"])
             return None
-        return ret
+        return ret["ret"]
 
     def print_progress(progress):
         sys.stdout.write("\r%d%%" % progress)

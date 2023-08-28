@@ -41,7 +41,7 @@ def _wrap_query(func):
         odict = {}
 
         try:
-            odict = func(pkg, *args, **kwargs)
+            odict["ret"] = func(pkg, *args, **kwargs)
         except Exception:
             odict["error"] = traceback.format_exc()
 
@@ -105,4 +105,4 @@ def query_list(pkg):
         if sub_scenes:
             scenes.append((module_name, sub_scenes))
 
-    return dict(scenes=scenes)
+    return scenes

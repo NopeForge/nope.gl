@@ -164,10 +164,11 @@ class MainWindow(QtWidgets.QSplitter):
             self.error.emit(ret["error"])
             return None
 
+        scene = ret["ret"]
         self.error.emit(None)
-        self.sceneLoaded.emit(ret)
+        self.sceneLoaded.emit(scene)
 
-        return ret
+        return scene
 
     @QtCore.Slot(str, str)
     def _scene_changed(self, module_name, scene_name):
