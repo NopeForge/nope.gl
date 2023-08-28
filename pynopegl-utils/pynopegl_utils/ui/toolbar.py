@@ -193,7 +193,7 @@ class Toolbar(QtWidgets.QWidget):
     def get_cfg(self):
         choices = Config.CHOICES
         return {
-            "scene": self._current_scene_data[:2] if self._current_scene_data else None,
+            "scene": self._current_scene_data[2] if self._current_scene_data else None,
             "aspect_ratio": choices["aspect_ratio"][self._ar_cbbox.currentIndex()],
             "framerate": choices["framerate"][self._fr_cbbox.currentIndex()],
             "samples": choices["samples"][self._samples_cbbox.currentIndex()],
@@ -219,10 +219,10 @@ class Toolbar(QtWidgets.QWidget):
     def _load_current_scene(self, load_widgets=True):
         if not self._current_scene_data:
             return
-        module_name, scene_name, widgets_specs = self._current_scene_data
+        module_name, scene_name, func = self._current_scene_data
         if load_widgets:
             self._scene_extra_args = {}
-            scene_opts_widget = self._get_opts_widget_from_specs(widgets_specs)
+            scene_opts_widget = self._get_opts_widget_from_specs(func.widgets_specs)
             self._replace_scene_opts_widget(scene_opts_widget)
         self.sceneChanged.emit(module_name, scene_name)
 
@@ -235,8 +235,7 @@ class Toolbar(QtWidgets.QWidget):
             qitem_script = QtGui.QStandardItem(module_name.rsplit(".", 1)[-1])
             for scene_name, func in sub_scenes:
                 scene_doc = func.__doc__
-                widgets_specs = func.widgets_specs
-                scene_data = (module_name, scene_name, widgets_specs)
+                scene_data = (module_name, scene_name, func)
 
                 # update cached widget specs if module and scene match
                 if self._current_scene_data:
