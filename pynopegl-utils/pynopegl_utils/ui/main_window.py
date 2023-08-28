@@ -145,7 +145,6 @@ class MainWindow(QtWidgets.QSplitter):
             # Replace the default medias with user medias only if the user has
             # specified some
             cfg.medias = medias
-        cfg.files = []
 
         # Config overrides
         if backend is not None:
