@@ -23,6 +23,7 @@ from fractions import Fraction
 
 from pynopegl_utils.config import Config
 from pynopegl_utils.control_widgets import control_to_widget
+from pynopegl_utils.misc import SceneCfg
 from PySide6 import QtCore, QtGui, QtWidgets
 
 import pynopegl as ngl
@@ -190,15 +191,15 @@ class Toolbar(QtWidgets.QWidget):
         groupbox.setLayout(vbox)
         return groupbox
 
-    def get_cfg(self):
+    def get_cfg(self) -> SceneCfg:
         choices = Config.CHOICES
-        return {
-            "aspect_ratio": choices["aspect_ratio"][self._ar_cbbox.currentIndex()],
-            "framerate": choices["framerate"][self._fr_cbbox.currentIndex()],
-            "samples": choices["samples"][self._samples_cbbox.currentIndex()],
-            "clear_color": self._clear_color,
-            "backend": choices["backend"][self._backend_cbbox.currentIndex()],
-        }
+        return SceneCfg(
+            aspect_ratio=choices["aspect_ratio"][self._ar_cbbox.currentIndex()],
+            framerate=choices["framerate"][self._fr_cbbox.currentIndex()],
+            samples=choices["samples"][self._samples_cbbox.currentIndex()],
+            clear_color=self._clear_color,
+            backend=choices["backend"][self._backend_cbbox.currentIndex()],
+        )
 
     def get_scene_info(self):
         scene_func = self._current_scene_data[2] if self._current_scene_data else None
