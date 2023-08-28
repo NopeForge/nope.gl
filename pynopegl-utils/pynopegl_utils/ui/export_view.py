@@ -81,11 +81,11 @@ class ExportView(QtWidgets.QWidget):
         self._exporter = None
 
     def enter(self):
-        cfg = self._get_scene_func()
-        if not cfg:
+        scene_info = self._get_scene_func()
+        if not scene_info:
             return
 
-        scene = cfg["scene"]
+        scene = scene_info["scene"]
         self._framerate = scene.framerate
         self._aspect_ratio = scene.aspect_ratio
 

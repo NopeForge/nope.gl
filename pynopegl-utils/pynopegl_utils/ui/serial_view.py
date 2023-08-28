@@ -54,7 +54,7 @@ class SerialView(QtWidgets.QWidget):
             f.write(data)
 
     def enter(self):
-        cfg = self._get_scene_func()
-        if not cfg:
+        scene_info = self._get_scene_func()
+        if not scene_info:
             return
-        self._text.setPlainText(cfg["scene"].serialize().decode("ascii"))
+        self._text.setPlainText(scene_info["scene"].serialize().decode("ascii"))

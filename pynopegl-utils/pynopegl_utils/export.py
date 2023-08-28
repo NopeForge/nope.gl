@@ -72,15 +72,15 @@ class Exporter(QtCore.QThread):
     def _export(self, filename, width, height, extra_enc_args=None):
         fd_r, fd_w = os.pipe()
 
-        cfg = self._get_scene_func()
-        if not cfg:
+        scene_info = self._get_scene_func()
+        if not scene_info:
             self.failed.emit("You didn't select any scene to export.")
             return False
 
-        scene = cfg["scene"]
+        scene = scene_info["scene"]
         fps = scene.framerate
         duration = scene.duration
-        samples = cfg["samples"]
+        samples = scene_info["samples"]
 
         cmd = [
             # fmt: off
@@ -106,13 +106,13 @@ class Exporter(QtCore.QThread):
         ctx.configure(
             ngl.Config(
                 platform=ngl.Platform.AUTO,
-                backend=get_backend(cfg["backend"]),
+                backend=get_backend(scene_info["backend"]),
                 offscreen=True,
                 width=width,
                 height=height,
                 viewport=get_viewport(width, height, scene.aspect_ratio),
                 samples=samples,
-                clear_color=cfg["clear_color"],
+                clear_color=scene_info["clear_color"],
                 capture_buffer=capture_buffer,
             )
         )

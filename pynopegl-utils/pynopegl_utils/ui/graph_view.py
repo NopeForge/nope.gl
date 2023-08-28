@@ -140,15 +140,15 @@ class GraphView(QtWidgets.QWidget):
         painter.end()
 
     def enter(self):
-        cfg = self._get_scene_func()
-        if not cfg:
+        scene_info = self._get_scene_func()
+        if not scene_info:
             return
 
-        self._seekbar.set_scene_metadata(cfg)
+        self._seekbar.set_scene_metadata(scene_info)
 
-        scene = cfg["scene"]
+        scene = scene_info["scene"]
         if self._seek_chkbox.isChecked():
-            self._init_ctx(cfg["backend"])
+            self._init_ctx(scene_info["backend"])
             self._framerate = scene.framerate
             self._duration = scene.duration
             self._ctx.set_scene(scene)
