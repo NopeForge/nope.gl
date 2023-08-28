@@ -57,11 +57,10 @@ def _wrap_query(func):
 
 
 @_wrap_query
-def query_scene(pkg, **idict):
-    func = idict.pop("scene")
-
+def query_scene(pkg, func, extra_args=None, **idict):
     # Call user constructing function
-    extra_args = idict.pop("extra_args", {})
+    if extra_args is None:
+        extra_args = {}
     odict = func(idict, **extra_args)
     odict["scene"].root.set_label(func.__name__)
     return odict

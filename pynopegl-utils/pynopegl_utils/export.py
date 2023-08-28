@@ -149,11 +149,10 @@ def test_export():
         from pynopegl_utils.examples.misc import triangle
 
         cfg = {
-            "scene": triangle,
             "duration": 5,
         }
         cfg.update(cfg_overrides)
-        ret = query_scene("pynopegl_utils.examples", **cfg)
+        ret = query_scene("pynopegl_utils.examples", triangle, **cfg)
         if "error" in ret:
             print(ret["error"])
             return None
