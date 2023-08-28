@@ -58,20 +58,12 @@ def _wrap_query(func):
 
 @_wrap_query
 def query_scene(pkg, **idict):
-    module_is_script = pkg.endswith(".py")
-
-    # Get module.func
-    module_name, scene_name = idict.pop("scene")
-    if module_is_script:
-        module = load_script(pkg)
-    else:
-        module = importlib.import_module(module_name)
-    func = getattr(module, scene_name)
+    func = idict.pop("scene")
 
     # Call user constructing function
     extra_args = idict.pop("extra_args", {})
     odict = func(idict, **extra_args)
-    odict["scene"].root.set_label(scene_name)
+    odict["scene"].root.set_label(func.__name__)
     return odict
 
 
