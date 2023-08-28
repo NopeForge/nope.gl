@@ -149,11 +149,11 @@ def test_export():
         from pynopegl_utils.examples.misc import triangle
 
         cfg = SceneCfg(duration=5, **cfg_overrides)
-        ret = query_scene("pynopegl_utils.examples", triangle, cfg)
-        if "error" in ret:
-            print(ret["error"])
+        query_info = query_scene("pynopegl_utils.examples", triangle, cfg)
+        if query_info.error is not None:
+            print(query_info.error)
             return None
-        return ret["ret"]
+        return query_info.ret
 
     def print_progress(progress):
         sys.stdout.write("\r%d%%" % progress)

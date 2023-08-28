@@ -154,17 +154,17 @@ class MainWindow(QtWidgets.QSplitter):
 
         self._scripts_mgr.inc_query_count()
         self._scripts_mgr.pause()
-        ret = query_scene(self._module_pkgname, scene_func, cfg, extra_args)
-        self._scripts_mgr.update_filelist(ret["filelist"])
-        self._scripts_mgr.update_modulelist(ret["modulelist"])
+        query_info = query_scene(self._module_pkgname, scene_func, cfg, extra_args)
+        self._scripts_mgr.update_filelist(query_info.filelist)
+        self._scripts_mgr.update_modulelist(query_info.modulelist)
         self._scripts_mgr.resume()
         self._scripts_mgr.dec_query_count()
 
-        if "error" in ret:
-            self.error.emit(ret["error"])
+        if query_info.error is not None:
+            self.error.emit(query_info.error)
             return None
 
-        scene = ret["ret"]
+        scene = query_info.ret
         self.error.emit(None)
         self.sceneLoaded.emit(scene)
 
