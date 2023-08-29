@@ -23,23 +23,15 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <limits.h>
 
 #include "darray.h"
 #include "bindgroup_vk.h"
-#include "format.h"
 #include "gpu_ctx_vk.h"
-#include "hmap.h"
-#include "image.h"
 #include "log.h"
-#include "math_utils.h"
 #include "memory.h"
 #include "nopegl.h"
-#include "internal.h"
 #include "pipeline_vk.h"
-#include "rendertarget.h"
 #include "topology.h"
-#include "type.h"
 #include "utils.h"
 #include "vkcontext.h"
 #include "vkutils.h"
