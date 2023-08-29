@@ -325,7 +325,7 @@ struct texture *ngli_texture_vk_create(struct gpu_ctx *gpu_ctx)
     return (struct texture *)s;
 }
 
-VkResult ngli_texture_vk_init(struct texture *s, const struct texture_params *params)
+static VkResult texture_vk_init(struct texture *s, const struct texture_params *params)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -448,6 +448,14 @@ VkResult ngli_texture_vk_init(struct texture *s, const struct texture_params *pa
     return create_sampler(s);
 }
 
+int ngli_texture_vk_init(struct texture *s, const struct texture_params *params)
+{
+    VkResult res = texture_vk_init(s, params);
+    if (res != VK_SUCCESS)
+        LOG(ERROR, "unable to initialize texture: %s", ngli_vk_res2str(res));
+    return ngli_vk_res2ret(res);
+}
+
 VkResult ngli_texture_vk_wrap(struct texture *s, const struct texture_vk_wrap_params *wrap_params)
 {
     struct texture_vk *s_priv = (struct texture_vk *)s;
@@ -539,7 +547,7 @@ void ngli_texture_vk_copy_to_buffer(struct texture *s, struct buffer *buffer)
                            buffer_vk->buffer, 1, &region);
 }
 
-VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int linesize)
+static VkResult texture_vk_upload(struct texture *s, const uint8_t *data, int linesize)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     const struct texture_params *params = &s->params;
@@ -666,7 +674,15 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
     return VK_SUCCESS;
 }
 
-VkResult ngli_texture_vk_generate_mipmap(struct texture *s)
+int ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int linesize)
+{
+    VkResult res = texture_vk_upload(s, data, linesize);
+    if (res != VK_SUCCESS)
+        LOG(ERROR, "unable to upload texture: %s", ngli_vk_res2str(res));
+    return ngli_vk_res2ret(res);
+}
+
+static VkResult texture_vk_generate_mipmap(struct texture *s)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     const struct texture_params *params = &s->params;
@@ -794,6 +810,14 @@ VkResult ngli_texture_vk_generate_mipmap(struct texture *s)
     }
 
     return VK_SUCCESS;
+}
+
+int ngli_texture_vk_generate_mipmap(struct texture *s)
+{
+    VkResult res = texture_vk_generate_mipmap(s);
+    if (res != VK_SUCCESS)
+        LOG(ERROR, "unable to generate texture mipmap: %s", ngli_vk_res2str(res));
+    return ngli_vk_res2ret(res);
 }
 
 void ngli_texture_vk_freep(struct texture **sp)

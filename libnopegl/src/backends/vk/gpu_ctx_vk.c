@@ -1446,75 +1446,6 @@ static void vk_set_index_buffer(struct gpu_ctx *s, const struct buffer *buffer, 
     vkCmdBindIndexBuffer(cmd_buf, index_buffer->buffer, 0, indices_type);
 }
 
-static int vk_buffer_init(struct buffer *s)
-{
-    VkResult res = ngli_buffer_vk_init(s);
-    if (res != VK_SUCCESS)
-        LOG(ERROR, "unable to initialize buffer: %s", ngli_vk_res2str(res));
-    return ngli_vk_res2ret(res);
-}
-
-static int vk_buffer_upload(struct buffer *s, const void *data, size_t offset, size_t size)
-{
-    VkResult res = ngli_buffer_vk_upload(s, data, offset, size);
-    if (res != VK_SUCCESS)
-        LOG(ERROR, "unable to upload buffer: %s", ngli_vk_res2str(res));
-    return ngli_vk_res2ret(res);
-}
-
-static int vk_buffer_map(struct buffer *s, size_t offset, size_t size, void **data)
-{
-    VkResult res = ngli_buffer_vk_map(s, offset, size, data);
-    if (res != VK_SUCCESS)
-        LOG(ERROR, "unable to map buffer: %s", ngli_vk_res2str(res));
-    return ngli_vk_res2ret(res);
-}
-
-static void vk_buffer_unmap(struct buffer *s)
-{
-    ngli_buffer_vk_unmap(s);
-}
-
-static int vk_texture_init(struct texture *s, const struct texture_params *params)
-{
-    VkResult res = ngli_texture_vk_init(s, params);
-    if (res != VK_SUCCESS)
-        LOG(ERROR, "unable to initialize texture: %s", ngli_vk_res2str(res));
-    return ngli_vk_res2ret(res);
-}
-
-static int vk_texture_upload(struct texture *s, const uint8_t *data, int linesize)
-{
-    VkResult res = ngli_texture_vk_upload(s, data, linesize);
-    if (res != VK_SUCCESS)
-        LOG(ERROR, "unable to upload texture: %s", ngli_vk_res2str(res));
-    return ngli_vk_res2ret(res);
-}
-
-static int vk_texture_generate_mipmap(struct texture *s)
-{
-    VkResult res = ngli_texture_vk_generate_mipmap(s);
-    if (res != VK_SUCCESS)
-        LOG(ERROR, "unable to generate texture mipmap: %s", ngli_vk_res2str(res));
-    return ngli_vk_res2ret(res);
-}
-
-static int vk_rendertarget_init(struct rendertarget *s)
-{
-    VkResult res = ngli_rendertarget_vk_init(s);
-    if (res != VK_SUCCESS)
-        LOG(ERROR, "unable to initialize render target: %s", ngli_vk_res2str(res));
-    return ngli_vk_res2ret(res);
-}
-
-static int vk_pipeline_init(struct pipeline *s)
-{
-    VkResult res = ngli_pipeline_vk_init(s);
-    if (res != VK_SUCCESS)
-        LOG(ERROR, "unable to initialize pipeline: %s", ngli_vk_res2str(res));
-    return ngli_vk_res2ret(res);
-}
-
 const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .name                               = "Vulkan",
     .create                             = vk_create,
@@ -1551,14 +1482,14 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .set_index_buffer                   = vk_set_index_buffer,
 
     .buffer_create                      = ngli_buffer_vk_create,
-    .buffer_init                        = vk_buffer_init,
-    .buffer_upload                      = vk_buffer_upload,
-    .buffer_map                         = vk_buffer_map,
-    .buffer_unmap                       = vk_buffer_unmap,
+    .buffer_init                        = ngli_buffer_vk_init,
+    .buffer_upload                      = ngli_buffer_vk_upload,
+    .buffer_map                         = ngli_buffer_vk_map,
+    .buffer_unmap                       = ngli_buffer_vk_unmap,
     .buffer_freep                       = ngli_buffer_vk_freep,
 
     .pipeline_create                    = ngli_pipeline_vk_create,
-    .pipeline_init                      = vk_pipeline_init,
+    .pipeline_init                      = ngli_pipeline_vk_init,
     .pipeline_update_texture            = ngli_pipeline_vk_update_texture,
     .pipeline_update_buffer             = ngli_pipeline_vk_update_buffer,
     .pipeline_freep                     = ngli_pipeline_vk_freep,
@@ -1568,12 +1499,12 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .program_freep                      = ngli_program_vk_freep,
 
     .rendertarget_create                = ngli_rendertarget_vk_create,
-    .rendertarget_init                  = vk_rendertarget_init,
+    .rendertarget_init                  = ngli_rendertarget_vk_init,
     .rendertarget_freep                 = ngli_rendertarget_vk_freep,
 
     .texture_create                     = ngli_texture_vk_create,
-    .texture_init                       = vk_texture_init,
-    .texture_upload                     = vk_texture_upload,
-    .texture_generate_mipmap            = vk_texture_generate_mipmap,
+    .texture_init                       = ngli_texture_vk_init,
+    .texture_upload                     = ngli_texture_vk_upload,
+    .texture_generate_mipmap            = ngli_texture_vk_generate_mipmap,
     .texture_freep                      = ngli_texture_vk_freep,
 };

@@ -277,7 +277,7 @@ struct rendertarget *ngli_rendertarget_vk_create(struct gpu_ctx *gpu_ctx)
     return (struct rendertarget *)s;
 }
 
-VkResult ngli_rendertarget_vk_init(struct rendertarget *s)
+static VkResult rendertarget_vk_init(struct rendertarget *s)
 {
     struct rendertarget_vk *s_priv = (struct rendertarget_vk *)s;
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
@@ -358,6 +358,14 @@ VkResult ngli_rendertarget_vk_init(struct rendertarget *s)
     };
 
     return vkCreateFramebuffer(vk->device, &framebuffer_create_info, NULL, &s_priv->framebuffer);
+}
+
+int ngli_rendertarget_vk_init(struct rendertarget *s)
+{
+    VkResult res = rendertarget_vk_init(s);
+    if (res != VK_SUCCESS)
+        LOG(ERROR, "unable to initialize render target: %s", ngli_vk_res2str(res));
+    return ngli_vk_res2ret(res);
 }
 
 void ngli_rendertarget_vk_freep(struct rendertarget **sp)

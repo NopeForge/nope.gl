@@ -61,10 +61,10 @@ struct texture_vk {
 };
 
 struct texture *ngli_texture_vk_create(struct gpu_ctx *gpu_ctx);
-VkResult ngli_texture_vk_init(struct texture *s, const struct texture_params *params);
+int ngli_texture_vk_init(struct texture *s, const struct texture_params *params);
 VkResult ngli_texture_vk_wrap(struct texture *s, const struct texture_vk_wrap_params *wrap_params);
-VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int linesize);
-VkResult ngli_texture_vk_generate_mipmap(struct texture *s);
+int ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int linesize);
+int ngli_texture_vk_generate_mipmap(struct texture *s);
 void ngli_texture_vk_transition_layout(struct texture *s, VkImageLayout layout);
 void ngli_texture_vk_transition_to_default_layout(struct texture *s);
 void ngli_texture_vk_copy_to_buffer(struct texture *s, struct buffer *buffer);
