@@ -40,16 +40,16 @@ class Exporter(QtCore.QThread):
         self,
         get_scene_func: Callable[..., Optional[SceneInfo]],
         filename,
-        w,
-        h,
+        width,
+        height,
         extra_enc_args=None,
         time=None,
     ):
         super().__init__()
         self._get_scene_func = get_scene_func
         self._filename = filename
-        self._width = w
-        self._height = h
+        self._width = width
+        self._height = height
         self._extra_enc_args = extra_enc_args if extra_enc_args is not None else []
         self._time = time
         self._cancelled = False
