@@ -38,7 +38,7 @@ class Exporter(QtCore.QThread):
 
     def __init__(
         self,
-        get_scene_func: Callable[..., Optional[SceneInfo]],
+        get_scene_info: Callable[..., Optional[SceneInfo]],
         filename,
         width,
         height,
@@ -46,7 +46,7 @@ class Exporter(QtCore.QThread):
         time=None,
     ):
         super().__init__()
-        self._get_scene_func = get_scene_func
+        self._get_scene_info = get_scene_info
         self._filename = filename
         self._width = width
         self._height = height
@@ -81,7 +81,7 @@ class Exporter(QtCore.QThread):
     def _export(self, filename, width, height, extra_enc_args=None):
         fd_r, fd_w = os.pipe()
 
-        scene_info = self._get_scene_func()
+        scene_info = self._get_scene_info()
         if not scene_info:
             self.failed.emit("You didn't select any scene to export.")
             return False

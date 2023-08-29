@@ -161,9 +161,9 @@ class _SceneChangeWorker(QtCore.QObject):
     success = QtCore.Signal(str, str, float)
     error = QtCore.Signal(str, str)
 
-    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]], hooks_caller):
+    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]], hooks_caller):
         super().__init__()
-        self._get_scene_func = get_scene_func
+        self._get_scene_info = get_scene_info
         self._hooks_caller = hooks_caller
         self._lock = QtCore.QMutex()
         self._scene_change = None
@@ -200,7 +200,7 @@ class _SceneChangeWorker(QtCore.QObject):
         system = session["system"]
 
         self.buildingScene.emit(session_id, backend, system)
-        scene_info = self._get_scene_func(backend=backend, system=system)
+        scene_info = self._get_scene_info(backend=backend, system=system)
         if not scene_info:
             self.error.emit(session_id, "Error getting scene")
             return
@@ -247,9 +247,9 @@ class HooksController(QtCore.QObject):
     session_removed = QtCore.Signal(str)
     session_info_changed = QtCore.Signal(object)
 
-    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]], hooks_caller):
+    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]], hooks_caller):
         super().__init__()
-        self._get_scene_func = get_scene_func
+        self._get_scene_info = get_scene_info
         self._hooks_caller = hooks_caller
         self._threads = {}
         self._session_info_workers = {}
@@ -283,7 +283,7 @@ class HooksController(QtCore.QObject):
                 worker.moveToThread(thread)
                 self._session_info_workers[session_id] = worker
 
-                worker = _SceneChangeWorker(self._get_scene_func, self._hooks_caller)
+                worker = _SceneChangeWorker(self._get_scene_info, self._hooks_caller)
                 worker.uploadingFile.connect(self._hooks_uploading)
                 worker.buildingScene.connect(self._hooks_building_scene)
                 worker.sendingScene.connect(self._hooks_sending_scene)
