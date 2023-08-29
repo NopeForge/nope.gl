@@ -130,21 +130,21 @@ VkResult ngli_buffer_vk_init(struct buffer *s)
 
 VkResult ngli_buffer_vk_upload(struct buffer *s, const void *data, size_t offset, size_t size)
 {
+    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+    struct buffer_vk *s_priv = (struct buffer_vk *)s;
+
     if (s->usage & NGLI_BUFFER_USAGE_MAP_READ ||
         s->usage & NGLI_BUFFER_USAGE_MAP_WRITE ||
         s->usage & NGLI_BUFFER_USAGE_DYNAMIC_BIT) {
         void *mapped_data;
-        VkResult res = ngli_buffer_vk_map(s, offset, size, &mapped_data);
+        VkResult res = vkMapMemory(vk->device, s_priv->memory, offset, size, 0, &mapped_data);
         if (res != VK_SUCCESS)
             return res;
         memcpy(mapped_data, data, size);
-        ngli_buffer_vk_unmap(s);
+        vkUnmapMemory(vk->device, s_priv->memory);
         return VK_SUCCESS;
     }
-
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct buffer_vk *s_priv = (struct buffer_vk *)s;
 
     const VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     const VkMemoryPropertyFlags mem_props = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
