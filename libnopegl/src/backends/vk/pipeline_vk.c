@@ -24,20 +24,20 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "darray.h"
 #include "bindgroup_vk.h"
+#include "darray.h"
+#include "format_vk.h"
 #include "gpu_ctx_vk.h"
 #include "log.h"
 #include "memory.h"
 #include "nopegl.h"
 #include "pipeline_vk.h"
+#include "program_vk.h"
+#include "rendertarget_vk.h"
 #include "topology.h"
 #include "utils.h"
 #include "vkcontext.h"
 #include "vkutils.h"
-#include "format_vk.h"
-#include "program_vk.h"
-#include "rendertarget_vk.h"
 
 static const VkPrimitiveTopology vk_primitive_topology_map[NGLI_PRIMITIVE_TOPOLOGY_NB] = {
     [NGLI_PRIMITIVE_TOPOLOGY_POINT_LIST]     = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
