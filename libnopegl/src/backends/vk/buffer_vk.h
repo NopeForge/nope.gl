@@ -35,9 +35,9 @@ struct buffer_vk {
 };
 
 struct buffer *ngli_buffer_vk_create(struct gpu_ctx *gpu_ctx);
-VkResult ngli_buffer_vk_init(struct buffer *s);
-VkResult ngli_buffer_vk_upload(struct buffer *s, const void *data, size_t offset, size_t size);
-VkResult ngli_buffer_vk_map(struct buffer *s, size_t offset, size_t size, void **data);
+int ngli_buffer_vk_init(struct buffer *s);
+int ngli_buffer_vk_upload(struct buffer *s, const void *data, size_t offset, size_t size);
+int ngli_buffer_vk_map(struct buffer *s, size_t offset, size_t size, void **data);
 void ngli_buffer_vk_unmap(struct buffer *s);
 void ngli_buffer_vk_freep(struct buffer **sp);
 

@@ -25,8 +25,10 @@
 #include "buffer_vk.h"
 #include "gpu_ctx_vk.h"
 #include "internal.h"
+#include "log.h"
 #include "memory.h"
 #include "vkcontext.h"
+#include "vkutils.h"
 
 static VkResult create_vk_buffer(struct vkcontext *vk,
                                  VkDeviceSize size,
@@ -105,7 +107,7 @@ struct buffer *ngli_buffer_vk_create(struct gpu_ctx *gpu_ctx)
     return (struct buffer *)s;
 }
 
-VkResult ngli_buffer_vk_init(struct buffer *s)
+static VkResult buffer_vk_init(struct buffer *s)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -128,7 +130,15 @@ VkResult ngli_buffer_vk_init(struct buffer *s)
     return create_vk_buffer(vk, s->size, flags, mem_props, &s_priv->buffer, &s_priv->memory);
 }
 
-VkResult ngli_buffer_vk_upload(struct buffer *s, const void *data, size_t offset, size_t size)
+int ngli_buffer_vk_init(struct buffer *s)
+{
+    VkResult res = buffer_vk_init(s);
+    if (res != VK_SUCCESS)
+        LOG(ERROR, "unable to initialize buffer: %s", ngli_vk_res2str(res));
+    return ngli_vk_res2ret(res);
+}
+
+static VkResult buffer_vk_upload(struct buffer *s, const void *data, size_t offset, size_t size)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -185,13 +195,29 @@ VkResult ngli_buffer_vk_upload(struct buffer *s, const void *data, size_t offset
     return VK_SUCCESS;
 }
 
-VkResult ngli_buffer_vk_map(struct buffer *s, size_t offset, size_t size, void **data)
+int ngli_buffer_vk_upload(struct buffer *s, const void *data, size_t offset, size_t size)
+{
+    VkResult res = buffer_vk_upload(s, data, offset, size);
+    if (res != VK_SUCCESS)
+        LOG(ERROR, "unable to upload buffer: %s", ngli_vk_res2str(res));
+    return ngli_vk_res2ret(res);
+}
+
+static VkResult buffer_vk_map(struct buffer *s, size_t offset, size_t size, void **data)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct buffer_vk *s_priv = (struct buffer_vk *)s;
 
     return vkMapMemory(vk->device, s_priv->memory, offset, size, 0, data);
+}
+
+int ngli_buffer_vk_map(struct buffer *s, size_t offset, size_t size, void **data)
+{
+    VkResult res = buffer_vk_map(s, offset, size, data);
+    if (res != VK_SUCCESS)
+        LOG(ERROR, "unable to map buffer: %s", ngli_vk_res2str(res));
+    return ngli_vk_res2ret(res);
 }
 
 void ngli_buffer_vk_unmap(struct buffer *s)

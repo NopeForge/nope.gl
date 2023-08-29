@@ -678,7 +678,7 @@ struct pipeline *ngli_pipeline_vk_create(struct gpu_ctx *gpu_ctx)
     return (struct pipeline *)s;
 }
 
-VkResult ngli_pipeline_vk_init(struct pipeline *s)
+static VkResult pipeline_vk_init(struct pipeline *s)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
@@ -696,6 +696,14 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s)
         return res;
 
     return create_pipeline(s);
+}
+
+int ngli_pipeline_vk_init(struct pipeline *s)
+{
+    VkResult res = pipeline_vk_init(s);
+    if (res != VK_SUCCESS)
+        LOG(ERROR, "unable to initialize pipeline: %s", ngli_vk_res2str(res));
+    return ngli_vk_res2ret(res);
 }
 
 static int need_desc_set_layout_update(const struct texture_binding_vk *binding,
