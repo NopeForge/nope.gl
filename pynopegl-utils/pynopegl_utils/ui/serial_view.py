@@ -26,10 +26,10 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class SerialView(QtWidgets.QWidget):
-    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]]):
+    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]]):
         super().__init__()
 
-        self._get_scene_func = get_scene_func
+        self._get_scene_info = get_scene_info
 
         self._save_btn = QtWidgets.QPushButton("Save to file")
         self._graph_lbl = QtWidgets.QLabel()
@@ -57,7 +57,7 @@ class SerialView(QtWidgets.QWidget):
             f.write(data)
 
     def enter(self):
-        scene_info = self._get_scene_func()
+        scene_info = self._get_scene_info()
         if not scene_info:
             return
         self._text.setPlainText(scene_info.scene.serialize().decode("ascii"))

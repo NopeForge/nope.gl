@@ -28,10 +28,10 @@ from PySide6 import QtCore, QtWidgets
 
 
 class ExportView(QtWidgets.QWidget):
-    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]], config):
+    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]], config):
         super().__init__()
 
-        self._get_scene_func = get_scene_func
+        self._get_scene_info = get_scene_info
         self._framerate = config.get("framerate")
         self._aspect_ratio = config.get("aspect_ratio")
 
@@ -83,7 +83,7 @@ class ExportView(QtWidgets.QWidget):
         self._exporter = None
 
     def enter(self):
-        scene_info = self._get_scene_func()
+        scene_info = self._get_scene_info()
         if not scene_info:
             return
 
@@ -149,7 +149,7 @@ class ExportView(QtWidgets.QWidget):
         self._pgd.setWindowModality(QtCore.Qt.WindowModal)
         self._pgd.setMinimumDuration(100)
 
-        self._exporter = Exporter(self._get_scene_func, ofile, width, height, extra_enc_args)
+        self._exporter = Exporter(self._get_scene_info, ofile, width, height, extra_enc_args)
 
         self._pgd.canceled.connect(self._cancel)
         self._exporter.progressed.connect(self._progress)

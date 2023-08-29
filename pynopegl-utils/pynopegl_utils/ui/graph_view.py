@@ -71,10 +71,10 @@ class _Clock:
 
 
 class GraphView(QtWidgets.QWidget):
-    def __init__(self, get_scene_func: Callable[..., Optional[SceneInfo]], config):
+    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]], config):
         super().__init__()
 
-        self._get_scene_func = get_scene_func
+        self._get_scene_info = get_scene_info
         self._framerate = config.get("framerate")
         self._duration = 0.0
         self._samples = config.get("samples")
@@ -142,7 +142,7 @@ class GraphView(QtWidgets.QWidget):
         painter.end()
 
     def enter(self):
-        scene_info = self._get_scene_func()
+        scene_info = self._get_scene_info()
         if not scene_info:
             return
 
