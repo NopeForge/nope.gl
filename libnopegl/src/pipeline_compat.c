@@ -137,7 +137,7 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
 
     const size_t nb_attributes = pipeline_resources->nb_attributes;
     if (nb_attributes) {
-        s->vertex_buffers = ngli_calloc(nb_attributes, sizeof(struct buffer *));
+        s->vertex_buffers = ngli_calloc(nb_attributes, sizeof(*s->vertex_buffers));
         for (size_t i = 0; i < nb_attributes; i++)
             s->vertex_buffers[i] = pipeline_resources->attributes[i];
         s->nb_vertex_buffers = nb_attributes;
