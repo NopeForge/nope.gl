@@ -129,7 +129,13 @@ def animated_buffer(cfg: SceneCfg, dim=50):
     for i, buf in enumerate(buffers + [buffers[0]]):
         random_animkf.append(ngl.AnimKeyFrameBuffer(i * time_scale, buf))
     random_buffer = ngl.AnimatedBufferVec4(keyframes=random_animkf)
-    random_tex = ngl.Texture2D(data_src=random_buffer, width=dim, height=dim)
+    random_tex = ngl.Texture2D(
+        data_src=random_buffer,
+        width=dim,
+        height=dim,
+        min_filter="nearest",
+        mag_filter="nearest",
+    )
     return ngl.RenderTexture(random_tex)
 
 

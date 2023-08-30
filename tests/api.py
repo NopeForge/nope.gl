@@ -420,7 +420,7 @@ def _create_trf(scene, start, end, prefetch_time=None):
 
 
 def _create_trf_scene(start, end, keep_active=False):
-    texture = ngl.Texture2D(width=64, height=64)
+    texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     # A subgraph using a RTT will produce a clear crash if its draw is called without a prefetch
     rtt = ngl.RenderToTexture(ngl.Identity(), clear_color=(1.0, 0.0, 0.0, 1.0), color_textures=(texture,))
     render = ngl.RenderTexture(texture=texture)

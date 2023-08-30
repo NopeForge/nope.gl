@@ -2345,7 +2345,7 @@
     {
       "name": "min_filter",
       "type": "select",
-      "default": "nearest",
+      "default": "linear",
       "choices": ["nearest", "linear"],
       "flags": [],
       "desc": "texture minifying function"
@@ -2353,7 +2353,7 @@
     {
       "name": "mag_filter",
       "type": "select",
-      "default": "nearest",
+      "default": "linear",
       "choices": ["nearest", "linear"],
       "flags": [],
       "desc": "texture magnification function"
@@ -2437,7 +2437,7 @@
     {
       "name": "min_filter",
       "type": "select",
-      "default": "nearest",
+      "default": "linear",
       "choices": ["nearest", "linear"],
       "flags": [],
       "desc": "texture minifying function"
@@ -2445,7 +2445,7 @@
     {
       "name": "mag_filter",
       "type": "select",
-      "default": "nearest",
+      "default": "linear",
       "choices": ["nearest", "linear"],
       "flags": [],
       "desc": "texture magnification function"
@@ -2523,7 +2523,7 @@
     {
       "name": "min_filter",
       "type": "select",
-      "default": "nearest",
+      "default": "linear",
       "choices": ["nearest", "linear"],
       "flags": [],
       "desc": "texture minifying function"
@@ -2531,7 +2531,7 @@
     {
       "name": "mag_filter",
       "type": "select",
-      "default": "nearest",
+      "default": "linear",
       "choices": ["nearest", "linear"],
       "flags": [],
       "desc": "texture magnification function"
@@ -2595,7 +2595,7 @@
     {
       "name": "min_filter",
       "type": "select",
-      "default": "nearest",
+      "default": "linear",
       "choices": ["nearest", "linear"],
       "flags": [],
       "desc": "texture minifying function"
@@ -2603,7 +2603,7 @@
     {
       "name": "mag_filter",
       "type": "select",
-      "default": "nearest",
+      "default": "linear",
       "choices": ["nearest", "linear"],
       "flags": [],
       "desc": "texture magnification function"

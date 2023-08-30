@@ -44,7 +44,7 @@ def _render_buffer(cfg: SceneCfg, w, h):
     n = w * h
     data = array.array("B", [i * 255 // n for i in range(n)])
     buf = ngl.BufferUByte(data=data)
-    texture = ngl.Texture2D(width=w, height=h, data_src=buf)
+    texture = ngl.Texture2D(width=w, height=h, data_src=buf, min_filter="nearest", mag_filter="nearest")
     program = ngl.Program(vertex=cfg.get_vert("texture"), fragment=_RENDER_BUFFER_FRAG)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
     render = ngl.Render(ngl.Quad(), program)
@@ -70,7 +70,13 @@ def texture_data_animated(cfg: SceneCfg, dim=8):
     for i, buf in enumerate(buffers + [buffers[0]]):
         random_animkf.append(ngl.AnimKeyFrameBuffer(i * time_scale, buf))
     random_buffer = ngl.AnimatedBufferVec4(keyframes=random_animkf)
-    random_tex = ngl.Texture2D(data_src=random_buffer, width=dim, height=dim)
+    random_tex = ngl.Texture2D(
+        data_src=random_buffer,
+        width=dim,
+        height=dim,
+        min_filter="nearest",
+        mag_filter="nearest",
+    )
     return ngl.RenderTexture(random_tex)
 
 
@@ -97,7 +103,7 @@ def texture_displacement(cfg: SceneCfg):
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
     m = ngl.Media(m0.filename)
-    source_tex = ngl.Texture2D(data_src=m)
+    source_tex = ngl.Texture2D(data_src=m, min_filter="nearest", mag_filter="nearest")
 
     # Generate a displacement texture
     vert = dedent(
@@ -124,7 +130,7 @@ def texture_displacement(cfg: SceneCfg):
     displace_render = ngl.Render(q, p)
     displace_render.update_frag_resources(t=ngl.Time())
 
-    displace_tex = ngl.Texture2D(width=m0.width, height=m0.height)
+    displace_tex = ngl.Texture2D(width=m0.width, height=m0.height, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(displace_render)
     rtt.add_color_textures(displace_tex)
 
@@ -311,7 +317,7 @@ def texture_clear_and_scissor(_):
     render = ngl.RenderColor(COLORS.white)
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask="")
 
-    texture = ngl.Texture2D(width=64, height=64)
+    texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS.orange + (1,))
     render = ngl.RenderTexture(texture)
 
@@ -325,7 +331,7 @@ def texture_scissor(cfg: SceneCfg):
 
     render = ngl.RenderColor(COLORS.orange)
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(32, 32, 32, 32))
-    texture = ngl.Texture2D(width=64, height=64)
+    texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(graphic_config, [texture], clear_color=(0, 0, 0, 1))
     render = ngl.RenderTexture(texture)
     return ngl.Group(children=(rtt, render))
@@ -362,7 +368,13 @@ def _get_texture_2d_array(cfg: SceneCfg, mipmap_filter="none"):
         data.extend([0, 0, i * 255 // n, 255])
     texture_buffer = ngl.BufferUBVec4(data=data)
     texture = ngl.Texture2DArray(
-        width=width, height=height, depth=depth, data_src=texture_buffer, mipmap_filter=mipmap_filter
+        width=width,
+        height=height,
+        depth=depth,
+        data_src=texture_buffer,
+        mipmap_filter=mipmap_filter,
+        min_filter="nearest",
+        mag_filter="nearest",
     )
     return texture
 
@@ -496,7 +508,14 @@ def texture_3d(cfg: SceneCfg):
     for i in cfg.rng.sample(range(n), n):
         data.extend([0, 0, i * 255 // n, 255])
     texture_buffer = ngl.BufferUBVec4(data=data)
-    texture = ngl.Texture3D(width=width, height=height, depth=depth, data_src=texture_buffer)
+    texture = ngl.Texture3D(
+        width=width,
+        height=height,
+        depth=depth,
+        data_src=texture_buffer,
+        min_filter="nearest",
+        mag_filter="nearest",
+    )
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE3D_VERT, fragment=_TEXTURE3D_FRAG)

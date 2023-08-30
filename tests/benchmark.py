@@ -120,7 +120,14 @@ def _get_random_geometry(rng):
 
 def _get_random_texture(cfg: SceneCfg, rng):
     filename = rng.choice(cfg.medias).filename
-    texture = cfg.texture_cache.get(filename, ngl.Texture2D(data_src=ngl.Media(filename)))
+    texture = cfg.texture_cache.get(
+        filename,
+        ngl.Texture2D(
+            data_src=ngl.Media(filename),
+            min_filter="nearest",
+            mag_filter="nearest",
+        ),
+    )
     cfg.texture_cache[filename] = texture
     return texture
 
@@ -295,6 +302,8 @@ def _get_random_layer(cfg: SceneCfg, rng, t0, t1, enable_computes, layer=4):
             rtt_tex = ngl.Texture2D(
                 width=rng.randint(50, 90),
                 height=rng.randint(15, 70),
+                min_filter="nearest",
+                mag_filter="nearest",
             )
             rtt = ngl.RenderToTexture(
                 child,

@@ -188,8 +188,8 @@ class _Diff:
         )
         scene = ngl.Render(quad, prog)
         scene.update_frag_resources(
-            tex0=ngl.Texture2D(data_src=ngl.Media(file0)),
-            tex1=ngl.Texture2D(data_src=ngl.Media(file1)),
+            tex0=ngl.Texture2D(data_src=ngl.Media(file0), min_filter="nearest", mag_filter="nearest"),
+            tex1=ngl.Texture2D(data_src=ngl.Media(file1), min_filter="nearest", mag_filter="nearest"),
             split=ngl.UniformVec2(split, live_id="split"),
             diff_mode=ngl.UniformBool(diff_mode, live_id="diff_mode"),
             vertical_split=ngl.UniformBool(vertical_split, live_id="vertical_split"),
