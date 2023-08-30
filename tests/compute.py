@@ -197,7 +197,13 @@ def compute_histogram(cfg: SceneCfg, show_dbg_points=False):
             )
         )
     texture_buffer = ngl.BufferVec4(data=data)
-    texture = ngl.Texture2D(width=size, height=size, data_src=texture_buffer)
+    texture = ngl.Texture2D(
+        width=size,
+        height=size,
+        data_src=texture_buffer,
+        min_filter="nearest",
+        mag_filter="nearest",
+    )
     texture.set_format("r32g32b32a32_sfloat")
 
     histogram_block = ngl.Block(layout="std140", label="histogram")
@@ -332,14 +338,40 @@ void main()
 def compute_image_load_store(cfg: SceneCfg, show_dbg_points=False):
     size = _N
     texture_data = ngl.BufferFloat(data=array.array("f", [x / (size**2) for x in range(size**2)]))
-    texture_r = ngl.Texture2D(format="r32_sfloat", width=size, height=size, data_src=texture_data)
-    texture_g = ngl.Texture2D(format="r32_sfloat", width=size, height=size, data_src=texture_data)
-    texture_b = ngl.Texture2D(format="r32_sfloat", width=size, height=size, data_src=texture_data)
+    texture_r = ngl.Texture2D(
+        format="r32_sfloat",
+        width=size,
+        height=size,
+        data_src=texture_data,
+        min_filter="nearest",
+        mag_filter="nearest",
+    )
+    texture_g = ngl.Texture2D(
+        format="r32_sfloat",
+        width=size,
+        height=size,
+        data_src=texture_data,
+        min_filter="nearest",
+        mag_filter="nearest",
+    )
+    texture_b = ngl.Texture2D(
+        format="r32_sfloat",
+        width=size,
+        height=size,
+        data_src=texture_data,
+        min_filter="nearest",
+        mag_filter="nearest",
+    )
     scale = ngl.Block(
         fields=[ngl.UniformVec2(value=(-1.0, 1.0), label="factors")],
         layout="std140",
     )
-    texture_rgba = ngl.Texture2D(width=size, height=size)
+    texture_rgba = ngl.Texture2D(
+        width=size,
+        height=size,
+        min_filter="nearest",
+        mag_filter="nearest",
+    )
     program = ngl.ComputeProgram(_IMAGE_LOAD_STORE_COMPUTE, workgroup_size=(size, size, 1))
     program.update_properties(
         texture_r=ngl.ResourceProps(as_image=True),
@@ -398,8 +430,15 @@ def _get_image_layered_load_store_cuepoints():
 
 def _get_compute_image_layered_load_store_scene(cfg: SceneCfg, texture_cls, show_dbg_points=False):
     size = _N
-    texture = texture_cls(format="r32_sfloat", width=size, height=size, depth=3)
-    texture_rgba = ngl.Texture2D(width=size, height=size)
+    texture = texture_cls(
+        format="r32_sfloat",
+        width=size,
+        height=size,
+        depth=3,
+        min_filter="nearest",
+        mag_filter="nearest",
+    )
+    texture_rgba = ngl.Texture2D(width=size, height=size, min_filter="nearest", mag_filter="nearest")
     program_store = ngl.ComputeProgram(_IMAGE_LAYERED_STORE_COMPUTE, workgroup_size=(size, size, 1))
     program_store.update_properties(
         texture=ngl.ResourceProps(as_image=True, writable=True),
@@ -518,7 +557,7 @@ void main()
 @scene()
 def compute_image_cube_load_store(cfg: SceneCfg):
     size = _N
-    texture = ngl.TextureCube(format="r32g32b32a32_sfloat", size=size)
+    texture = ngl.TextureCube(format="r32g32b32a32_sfloat", size=size, min_filter="nearest", mag_filter="nearest")
     program_store = ngl.ComputeProgram(_IMAGE_CUBE_STORE_COMPUTE, workgroup_size=(size, size, 6))
     program_store.update_properties(
         texture=ngl.ResourceProps(as_image=True, writable=True),

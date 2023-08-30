@@ -29,7 +29,13 @@ import pynopegl as ngl
 
 
 def _get_colorstats(media):
-    return ngl.ColorStats(texture=ngl.Texture2D(data_src=ngl.Media(media.filename)))
+    return ngl.ColorStats(
+        texture=ngl.Texture2D(
+            data_src=ngl.Media(media.filename),
+            min_filter="nearest",
+            mag_filter="nearest",
+        )
+    )
 
 
 @test_fingerprint(keyframes=5, tolerance=3)
@@ -129,9 +135,9 @@ def scope_rtt(cfg):
     cfg.aspect_ratio = (media.width, media.height)
 
     # Proxy scene
-    src_texture = ngl.Texture2D(data_src=ngl.Media(media.filename))
+    src_texture = ngl.Texture2D(data_src=ngl.Media(media.filename), min_filter="nearest", mag_filter="nearest")
     scene = ngl.RenderTexture(src_texture)
-    dst_texture = ngl.Texture2D(width=media.width, height=media.height)
+    dst_texture = ngl.Texture2D(width=media.width, height=media.height, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(scene, color_textures=[dst_texture])
 
     scope = ngl.RenderWaveform(stats=ngl.ColorStats(dst_texture))

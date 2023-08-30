@@ -132,12 +132,19 @@ def _get_rtt_scene(
     size = 1024
     texture_depth = None
     if texture_ds_format:
-        texture_depth = ngl.Texture2D(width=size, height=size, format=texture_ds_format)
+        texture_depth = ngl.Texture2D(
+            width=size,
+            height=size,
+            format=texture_ds_format,
+            min_filter="nearest",
+            mag_filter="nearest",
+        )
 
     texture = ngl.Texture2D(
         width=size,
         height=size,
         min_filter="linear",
+        mag_filter="nearest",
         mipmap_filter=mipmap_filter,
     )
     rtt = ngl.RenderToTexture(
@@ -192,10 +199,10 @@ def _rtt_load_attachment():
     background = ngl.RenderColor(COLORS.white)
     render = ngl.RenderColor(COLORS.orange)
 
-    texture = ngl.Texture2D(width=16, height=16)
+    texture = ngl.Texture2D(width=16, height=16, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(render, [texture])
 
-    texture_noop = ngl.Texture2D(width=16, height=16)
+    texture_noop = ngl.Texture2D(width=16, height=16, min_filter="nearest", mag_filter="nearest")
     rtt_noop = ngl.RenderToTexture(render, [texture_noop])
 
     quad = ngl.Quad((0, 0, 0), (1, 0, 0), (0, 1, 0))
@@ -221,7 +228,7 @@ def rtt_load_attachment_msaa(_):
 def _rtt_load_attachment_nested(samples=0):
     scene = _rtt_load_attachment()
 
-    texture = ngl.Texture2D(width=16, height=16)
+    texture = ngl.Texture2D(width=16, height=16, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(scene, [texture], samples=samples)
 
     foreground = ngl.RenderTexture(texture)
@@ -252,7 +259,7 @@ def rtt_clear_attachment_with_timeranges(cfg: SceneCfg):
     time_range_filter = ngl.TimeRangeFilter(render, end=0)
 
     # Intermediate no-op RTT to force the use of a different render pass internally
-    texture = ngl.Texture2D(width=32, height=32)
+    texture = ngl.Texture2D(width=32, height=32, min_filter="nearest", mag_filter="nearest")
     rtt_noop = ngl.RenderToTexture(ngl.Identity(), [texture])
 
     # Centered rotating quad
@@ -265,7 +272,7 @@ def rtt_clear_attachment_with_timeranges(cfg: SceneCfg):
     group = ngl.Group(children=(time_range_filter, rtt_noop, render))
 
     # Root RTT
-    texture = ngl.Texture2D(width=512, height=512)
+    texture = ngl.Texture2D(width=512, height=512, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(group, [texture])
 
     # Full screen render of the root RTT result

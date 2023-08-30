@@ -967,8 +967,8 @@ Parameter | Flags | Type | Description | Default
 `format` |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
 `width` |  | [`i32`](#parameter-types) | width of the texture | `0`
 `height` |  | [`i32`](#parameter-types) | height of the texture | `0`
-`min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
-`mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
+`min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `linear`
+`mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `linear`
 `mipmap_filter` |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
@@ -988,8 +988,8 @@ Parameter | Flags | Type | Description | Default
 `width` |  | [`i32`](#parameter-types) | width of the texture | `0`
 `height` |  | [`i32`](#parameter-types) | height of the texture | `0`
 `depth` |  | [`i32`](#parameter-types) | depth of the texture | `0`
-`min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
-`mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
+`min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `linear`
+`mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `linear`
 `mipmap_filter` |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
@@ -1008,8 +1008,8 @@ Parameter | Flags | Type | Description | Default
 `width` |  | [`i32`](#parameter-types) | width of the texture | `0`
 `height` |  | [`i32`](#parameter-types) | height of the texture | `0`
 `depth` |  | [`i32`](#parameter-types) | depth of the texture | `0`
-`min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
-`mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
+`min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `linear`
+`mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `linear`
 `mipmap_filter` |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
@@ -1026,8 +1026,8 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `format` |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
 `size` |  | [`i32`](#parameter-types) | width and height of the texture | `0`
-`min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
-`mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
+`min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `linear`
+`mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `linear`
 `mipmap_filter` |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`

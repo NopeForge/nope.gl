@@ -55,7 +55,7 @@ def _get_time_scene(cfg: SceneCfg):
     ]
 
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
-    t = ngl.Texture2D(data_src=m)
+    t = ngl.Texture2D(data_src=m, min_filter="nearest", mag_filter="nearest")
     r = ngl.RenderTexture(t)
 
     rf = ngl.TimeRangeFilter(r, range_start, range_stop, prefetch_time=prefetch_duration)
@@ -75,7 +75,7 @@ def media_flat_remap(cfg: SceneCfg):
     ]
 
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
-    t = ngl.Texture2D(data_src=m)
+    t = ngl.Texture2D(data_src=m, min_filter="nearest", mag_filter="nearest")
     return ngl.RenderTexture(t)
 
 
@@ -101,7 +101,7 @@ def media_clamp(cfg: SceneCfg):
     cfg.aspect_ratio = (m0.width, m0.height)
 
     media = ngl.Media(m0.filename)
-    texture = ngl.Texture2D(data_src=media, clamp_video=True)
+    texture = ngl.Texture2D(data_src=media, clamp_video=True, min_filter="nearest", mag_filter="nearest")
     return ngl.RenderTexture(texture)
 
 
@@ -133,7 +133,7 @@ def media_exposed_time(cfg: SceneCfg):
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     media = ngl.Media(m0.filename)
-    texture = ngl.Texture2D(data_src=media)
+    texture = ngl.Texture2D(data_src=media, min_filter="nearest", mag_filter="nearest")
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(uv=ngl.IOVec2())
     render = ngl.Render(quad, program)
@@ -183,7 +183,7 @@ def media_timeranges_rtt(cfg: SceneCfg):
 
     # Use a media/texture as leaf to exercise its prefetch/release mechanism
     media = ngl.Media(m0.filename)
-    texture = ngl.Texture2D(data_src=media)
+    texture = ngl.Texture2D(data_src=media, min_filter="nearest", mag_filter="nearest")
 
     # Diamond tree on the same media texture
     render0 = ngl.RenderTexture(texture, label="leaf 0")
@@ -191,8 +191,8 @@ def media_timeranges_rtt(cfg: SceneCfg):
 
     # Create intermediate RTT "proxy" to exercise prefetch/release at this
     # level as well
-    dst_tex0 = ngl.Texture2D(width=m0.width, height=m0.height)
-    dst_tex1 = ngl.Texture2D(width=m0.width, height=m0.height)
+    dst_tex0 = ngl.Texture2D(width=m0.width, height=m0.height, min_filter="nearest", mag_filter="nearest")
+    dst_tex1 = ngl.Texture2D(width=m0.width, height=m0.height, min_filter="nearest", mag_filter="nearest")
     rtt0 = ngl.RenderToTexture(render0, [dst_tex0])
     rtt1 = ngl.RenderToTexture(render1, [dst_tex1])
 

@@ -139,7 +139,7 @@ def filter_gamma_correct(_, linear=True):
     )
 
     # Intermediate RTT so that we can gamma correct the result
-    tex = ngl.Texture2D(width=320, height=240)
+    tex = ngl.Texture2D(width=320, height=240, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(blend, color_textures=[tex])
     render = ngl.RenderTexture(tex)
 

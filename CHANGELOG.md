@@ -48,6 +48,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   and smooth rendering at high resolution
 - The `@scene` decorator now relies on an explicity `controls` dictionary
   instead of `**kwargs`
+- The `Texture*` nodes now use `linear` filtering by default instead of
+  `nearest`
 
 ### Removed
 - `ResourceProps.variadic` bool flag as it was never a functional interface

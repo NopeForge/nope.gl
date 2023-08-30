@@ -23,9 +23,8 @@ def lut3d(cfg: SceneCfg, xsplit=0.3, trilinear=True):
     cfg.files.append(lut3d_filename)
     lut3d_buf = ngl.BufferUBVec4(filename=lut3d_filename)
     lut3d_tex = ngl.Texture3D(data_src=lut3d_buf, width=level2, height=level2, depth=level2)
-    if trilinear:
-        lut3d_tex.set_min_filter("linear")
-        lut3d_tex.set_mag_filter("linear")
+    lut3d_tex.set_min_filter("linear" if trilinear else "nearest")
+    lut3d_tex.set_mag_filter("linear" if trilinear else "nearest")
 
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
@@ -59,8 +58,7 @@ def buffer_dove(cfg: SceneCfg, bgcolor1=(0.6, 0, 0), bgcolor2=(0.8, 0.8, 0), bil
     img_buf = ngl.BufferUBVec4(filename=icon_filename, label="icon raw buffer")
 
     img_tex = ngl.Texture2D(data_src=img_buf, width=w, height=h)
-    if bilinear_filtering:
-        img_tex.set_mag_filter("linear")
+    img_tex.set_mag_filter("linear" if bilinear_filtering else "nearest")
     quad = ngl.Quad((-0.5, -0.5, 0.1), (1, 0, 0), (0, 1, 0))
     render = ngl.RenderTexture(img_tex, geometry=quad, blending="src_over")
 
@@ -202,7 +200,7 @@ def audiotex(cfg: SceneCfg, freq_precision=7, overlay=0.6):
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
     audio_m = ngl.Media(media.filename, audio_tex=True)
-    audio_tex = ngl.Texture2D(data_src=audio_m)
+    audio_tex = ngl.Texture2D(data_src=audio_m, min_filter="nearest", mag_filter="nearest")
 
     video_m = ngl.Media(media.filename)
     video_tex = ngl.Texture2D(data_src=video_m)
@@ -427,7 +425,7 @@ def cube(cfg: SceneCfg, display_depth_buffer=False):
     else:
         group = ngl.Group()
 
-        depth_texture = ngl.Texture2D()
+        depth_texture = ngl.Texture2D(min_filter="nearest", mag_filter="nearest")
         depth_texture.set_format("auto_depth")
         depth_texture.set_width(640)
         depth_texture.set_height(480)
@@ -521,7 +519,9 @@ def mountain(cfg: SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb
         mcolor = tuple(x * a + (1.0 - x) * b for a, b in zip(c0, c1))
 
         random_buf = ngl.BufferFloat(data=get_rand())
-        random_tex = ngl.Texture2D(data_src=random_buf, width=random_dim, height=1)
+        random_tex = ngl.Texture2D(
+            data_src=random_buf, width=random_dim, height=1, min_filter="nearest", mag_filter="nearest"
+        )
 
         utime_animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, i + 1)]
         utime = ngl.AnimatedFloat(utime_animkf)
