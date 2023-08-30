@@ -22,7 +22,7 @@
 import difflib
 import os
 import os.path as op
-from typing import Any, Callable, Generator, Optional, Sequence, Tuple
+from typing import Any, Callable, Generator, Optional, Sequence, Tuple, Union
 
 from pynopegl_utils.misc import SceneCfg, SceneInfo, get_backend, get_nopegl_tempdir
 
@@ -74,7 +74,7 @@ class CompareSceneBase(CompareBase):
         scene_func: Callable[..., SceneInfo],
         width: int = 1280,
         height: int = 800,
-        keyframes: int | Sequence[float] = 1,  # either a number of keyframes or a sequence of absolute times
+        keyframes: Union[int, Sequence[float]] = 1,  # either a number of keyframes or a sequence of absolute times
         keyframes_callback=None,
         clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0),
         exercise_serialization: bool = True,
