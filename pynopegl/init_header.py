@@ -220,7 +220,7 @@ class Scene(_ngl.Scene):
         return super().from_params(root, duration, framerate, aspect_ratio)
 
     @classmethod
-    def from_string(cls, s: str | bytes):
+    def from_string(cls, s: Union[str, bytes]):
         return super().from_string(s)
 
     def serialize(self) -> bytes:
