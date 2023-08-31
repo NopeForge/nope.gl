@@ -39,7 +39,6 @@ class NopeGLWidget(QQuickFramebufferObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._scene = None
         self.setMirrorVertically(True)
 
         # Fields used for sync with the renderer
@@ -50,17 +49,16 @@ class NopeGLWidget(QQuickFramebufferObject):
 
     def createRenderer(self):
         self._renderer = _NopeGLRenderer(self.window())
-
-        model_data = livectls.get_model_data(self._scene)
-        self.livectls_changes = {}
-        self.livectls_changed.emit(model_data)
-
-        self.request_scene = self._scene
-
         return self._renderer
 
     def set_scene(self, scene):
-        self._scene = scene
+        model_data = livectls.get_model_data(scene)
+
+        self.livectls_changes = {}
+        self.livectls_changed.emit(model_data)
+
+        self.request_scene = scene
+        self.update()
 
     @QtCore.Slot(float)
     def set_time(self, t):
