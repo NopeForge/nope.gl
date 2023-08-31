@@ -158,7 +158,7 @@ class _NopeGLRenderer(QQuickFramebufferObject.Renderer):
         self._context.gl_wrap_framebuffer(self._fbo.handle())
         self._context.resize(w, h, (0, 0, w, h))
 
-        for live_id, ctl in self._livectls_changes.items():
+        for ctl in self._livectls_changes.values():
             node = ctl["node"]
             type_ = ctl["type"]
             value = ctl["val"]
