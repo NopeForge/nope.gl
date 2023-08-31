@@ -1,4 +1,5 @@
 /Makefile
+appimage
 builddir
 external
 venv/

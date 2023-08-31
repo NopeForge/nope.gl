@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Categories=Development;Graphics;
+Icon=nope-viewer
+Name=NopeViewer
+Exec=ngl-viewer
+Terminal=false
