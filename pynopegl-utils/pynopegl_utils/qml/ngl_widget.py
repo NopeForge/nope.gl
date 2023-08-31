@@ -19,8 +19,9 @@
 # under the License.
 #
 
+from pynopegl_utils.qml import livectls
 from PySide6 import QtCore
-from PySide6.QtGui import QColor, QOpenGLContext, QOpenGLFunctions
+from PySide6.QtGui import QOpenGLContext, QOpenGLFunctions
 from PySide6.QtOpenGL import QOpenGLFramebufferObject, QOpenGLFramebufferObjectFormat
 from PySide6.QtQml import QmlElement
 from PySide6.QtQuick import QQuickFramebufferObject
@@ -36,16 +37,6 @@ QML_IMPORT_MINOR_VERSION = 0
 class NopeGLWidget(QQuickFramebufferObject):
     livectls_changed = QtCore.Signal(object)
 
-    _NODE_TYPES_MODEL_MAP = dict(
-        UniformColor="color",
-        UniformBool="bool",
-        UniformVec2="vec2",
-        UniformVec3="vec3",
-        UniformVec4="vec4",
-        UniformMat4="mat4",
-        Text="text",
-    )
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self._scene = None
@@ -60,21 +51,7 @@ class NopeGLWidget(QQuickFramebufferObject):
     def createRenderer(self):
         self._renderer = _NopeGLRenderer(self.window())
 
-        livectls = ngl.get_livectls(self._scene)
-        model_data = []
-        for label, ctl in livectls.items():
-            data = dict(
-                type=self._NODE_TYPES_MODEL_MAP.get(ctl["node_type"], "range"),
-                label=label,
-                val=ctl["val"],
-                node=ctl["node"],
-            )
-            if data["type"] not in ("bool", "text"):
-                data["min"] = ctl["min"]
-                data["max"] = ctl["max"]
-            if data["type"] == "color":
-                data["val"] = QColor.fromRgbF(*ctl["val"])
-            model_data.append(data)
+        model_data = livectls.get_model_data(self._scene)
         self.livectls_changes = {}
         self.livectls_changed.emit(model_data)
 
@@ -158,18 +135,7 @@ class _NopeGLRenderer(QQuickFramebufferObject.Renderer):
         self._context.gl_wrap_framebuffer(self._fbo.handle())
         self._context.resize(w, h, (0, 0, w, h))
 
-        for ctl in self._livectls_changes.values():
-            node = ctl["node"]
-            type_ = ctl["type"]
-            value = ctl["val"]
-            if type_ in ("range", "bool"):
-                node.set_value(value)
-            elif type_ == "color":
-                node.set_value(*QColor.getRgbF(value)[:3])
-            elif type_ == "text":
-                node.set_text(value)
-            elif type_.startswith("vec") or type_.startswith("mat"):
-                node.set_value(*value)
+        livectls.apply_changes(list(self._livectls_changes.values()))
         self._livectls_changes = {}
 
         self._context.draw(self._t)
