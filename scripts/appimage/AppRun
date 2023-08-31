@@ -1,0 +1,13 @@
+#!/bin/sh -ue
+
+self=$(readlink -f "$0")
+here=$(dirname "$self")
+
+platform=x86_64-linux-gnu
+python="$here/usr/bin/python3.10"
+exe="$here/usr/local/bin/ngl-viewer"
+
+export PATH="$here/usr/bin:$here/usr/local/bin:$PATH"
+export LD_LIBRARY_PATH="$here/lib/$platform:$here/usr/lib/$platform:$here/usr/lib"
+
+exec "$python" "$exe" "$@"
