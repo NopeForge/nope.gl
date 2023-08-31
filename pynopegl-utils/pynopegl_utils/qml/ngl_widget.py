@@ -61,23 +61,22 @@ class NopeGLWidget(QQuickFramebufferObject):
         self._renderer = _NopeGLRenderer(self.window())
 
         livectls = ngl.get_livectls(self._scene)
-        if livectls:
-            model_data = []
-            for label, ctl in livectls.items():
-                data = dict(
-                    type=self._NODE_TYPES_MODEL_MAP.get(ctl["node_type"], "range"),
-                    label=label,
-                    val=ctl["val"],
-                    node=ctl["node"],
-                )
-                if data["type"] not in ("bool", "text"):
-                    data["min"] = ctl["min"]
-                    data["max"] = ctl["max"]
-                if data["type"] == "color":
-                    data["val"] = QColor.fromRgbF(*ctl["val"])
-                model_data.append(data)
-            self.livectls_changes = {}
-            self.livectls_changed.emit(model_data)
+        model_data = []
+        for label, ctl in livectls.items():
+            data = dict(
+                type=self._NODE_TYPES_MODEL_MAP.get(ctl["node_type"], "range"),
+                label=label,
+                val=ctl["val"],
+                node=ctl["node"],
+            )
+            if data["type"] not in ("bool", "text"):
+                data["min"] = ctl["min"]
+                data["max"] = ctl["max"]
+            if data["type"] == "color":
+                data["val"] = QColor.fromRgbF(*ctl["val"])
+            model_data.append(data)
+        self.livectls_changes = {}
+        self.livectls_changed.emit(model_data)
 
         self.request_scene = self._scene
 
