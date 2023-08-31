@@ -419,7 +419,6 @@ class CommandUtils:
 
 class BuildExtCommand(build_ext):
     def run(self):
-        CommandUtils.write_definitions_pyx()
         build_ext.run(self)
 
 
@@ -435,9 +434,10 @@ class BuildSrcCommmand(Command):
     def run(self):
         from Cython.Compiler.Main import compile
 
-        CommandUtils.write_definitions_pyx()
         compile("_pynopegl.pyx", output_file="_pynopegl.c")
 
+
+CommandUtils.write_definitions_pyx()
 
 setup(
     name="pynopegl",
