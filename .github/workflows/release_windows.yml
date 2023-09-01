@@ -1,0 +1,60 @@
+name: 'build Windows release'
+
+on:
+  workflow_run:
+    workflows: ["create GitHub release"]
+    types: [completed]
+
+jobs:
+  msvc:
+
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    env:
+        VULKAN_SDK_VERSION: 1.3.250.1
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - build_backend: ninja
+
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          iwr https://sdk.lunarg.com/sdk/download/${{env.VULKAN_SDK_VERSION}}/windows/VulkanSDK-${{env.VULKAN_SDK_VERSION}}-Installer.exe -OutFile VulkanSDK-Installer.exe
+          .\VulkanSDK-Installer.exe --accept-licenses --default-answer --confirm-command install | Out-Null
+
+          iwr https://sdk.lunarg.com/sdk/download/${{env.VULKAN_SDK_VERSION}}/windows/VulkanRT-${{env.VULKAN_SDK_VERSION}}-Installer.exe -OutFile VulkanRT-Installer.exe
+          .\VulkanRT-Installer.exe /S | Out-Null
+
+      - name: Build (${{matrix.build_backend}})
+        run: |
+          .\scripts\msvc-env.ps1
+          python.exe .\configure.py --debug-opts gpu_capture --build-backend ${{matrix.build_backend}}
+          nmake
+
+      - name: Build installer
+        run: |
+          .\scripts\msvc-env.ps1
+          .\venv\Scripts\ngli-activate.ps1
+
+          pip install pyinstaller
+          pyinstaller.exe --collect-all pynopegl_utils --add-binary "venv/Scripts/ffmpeg.exe;bin" --add-binary "venv/Scripts/ffprobe.exe;bin" --windowed --onefile -i scripts/pyinstaller/nope-viewer.ico scripts/pyinstaller/nope-viewer.py
+
+      - name: Upload installer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "v" + $(Get-Content -TotalCount 1 .\VERSION)
+          gh release upload $tag dist/nope-viewer.exe
