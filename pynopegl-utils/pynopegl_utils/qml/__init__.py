@@ -19,6 +19,7 @@
 # under the License.
 #
 
+import locale
 import os
 import os.path as op
 import platform
@@ -51,6 +52,10 @@ def create_app_engine(argv, qml_file):
     QQuickWindow.setGraphicsApi(QSGRendererInterface.OpenGL)
     engine = QQmlApplicationEngine(qml_file)
     engine.quit.connect(app.quit)
+
+    # Force C locale to ensure consistent float parsing
+    locale.setlocale(locale.LC_ALL, "C")
+
     return app, engine
 
 
