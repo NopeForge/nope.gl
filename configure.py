@@ -691,13 +691,13 @@ def _build_venv(args):
 
 
 class _Config:
-    def __init__(self, args):
+    def __init__(self, args, externals):
         self.args = args
         self.prefix = op.abspath(args.venv_path)
         self.bin_name = "Scripts" if _SYSTEM == "Windows" else "bin"
         self.bin_path = op.join(self.prefix, self.bin_name)
         self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
-        self.externals = _fetch_externals(args)
+        self.externals = externals
 
         if _SYSTEM == "Windows":
             _nopemd_setup.prerequisites.append(_pkgconf_install)
@@ -789,7 +789,9 @@ def _run():
 
     _build_venv(args)
 
-    cfg = _Config(args)
+    externals = _fetch_externals(args)
+
+    cfg = _Config(args, externals)
 
     blocks = [
         _all,
