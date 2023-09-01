@@ -789,9 +789,8 @@ def _run():
 
     _build_venv(args)
 
-    dst_makefile = op.join(_ROOTDIR, "Makefile")
-    logging.info("writing %s", dst_makefile)
     cfg = _Config(args)
+
     blocks = [
         _all,
         _tests,
@@ -803,6 +802,9 @@ def _run():
     ]
     if args.coverage:
         blocks += [_coverage_html, _coverage_xml]
+
+    dst_makefile = op.join(_ROOTDIR, "Makefile")
+    logging.info("writing %s", dst_makefile)
     makefile = _get_makefile(cfg, blocks)
     with open(dst_makefile, "w") as f:
         f.write(makefile)
