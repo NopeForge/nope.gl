@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+
+## [2023.2] [libnopegl 0.9.0] - 2023-09-01
 ### Added
 - Much more detailed typing annotations in `pynopegl`
 - `RenderDisplace` node for texture displacement
