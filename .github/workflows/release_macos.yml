@@ -1,0 +1,52 @@
+name: 'build macOS release'
+
+on:
+  workflow_run:
+    workflows: ["create GitHub release"]
+    types: [completed]
+
+jobs:
+  macos:
+
+    permissions:
+      contents: write
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ffmpeg_version: [5.0.1]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        brew install ffmpeg python3 curl pkg-config nasm create-dmg
+
+    - name: Setup venv
+      run: |
+        ./configure.py
+
+    - name: Build
+      run: |
+        make
+
+    - name: Build installer
+      run: |
+        . venv/bin/ngli-activate
+        pip install pyinstaller
+        pyinstaller \
+            --collect-all pynopegl_utils \
+            --add-binary "$(which ffmpeg):bin" \
+            --add-binary "$(which ffprobe):bin" \
+            --add-binary "$(brew --prefix)/Cellar/libarchive/3.7.1/lib/libarchive.13.dylib:." \
+            --windowed \
+            -i scripts/pyinstaller/nope-viewer.icns \
+            scripts/pyinstaller/nope-viewer.py
+        create-dmg nope-viewer.dmg dist/nope-viewer.app
+
+    - name: Upload DMG
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release upload ${{ github.ref_name }} nope-viewer.dmg
