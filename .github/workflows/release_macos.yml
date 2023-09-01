@@ -49,4 +49,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release upload ${{ github.ref_name }} nope-viewer.dmg
+        gh release upload v$(cat VERSION) nope-viewer.dmg
