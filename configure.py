@@ -782,14 +782,21 @@ def _run():
     parser.add_argument(
         "--build-backend", choices=("ninja", "vs"), default=default_build_backend, help="Build backend to use"
     )
+    parser.add_argument(
+        "--download-only",
+        action=argparse.BooleanOptionalAction,
+        help="Only download the external dependencies",
+    )
 
     args = parser.parse_args()
 
     logging.basicConfig(level="INFO")
 
-    _build_venv(args)
-
     externals = _fetch_externals(args)
+    if args.download_only:
+        return
+
+    _build_venv(args)
 
     cfg = _Config(args, externals)
 
