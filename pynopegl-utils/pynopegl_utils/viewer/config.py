@@ -24,6 +24,7 @@ import json
 import os
 import os.path as op
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6 import QtCore
@@ -73,7 +74,9 @@ ENCODE_PROFILES = dict(
 
 
 class Config(QtCore.QObject):
-    FILEPATH = op.join(os.environ.get("XDG_DATA_HOME", op.expanduser("~/.local/share")), "nope.gl", "viewer.json")
+    FILEPATH = (
+        Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share")) / "nope.gl" / "viewer.json"
+    ).as_posix()
     CHOICES = {
         "framerate": [
             (8, 1),
@@ -103,7 +106,7 @@ class Config(QtCore.QObject):
             # Rendering settings
             "framerate": (60, 1),
             # Export
-            "export_filename": op.expanduser("~/nope.mp4"),
+            "export_filename": (Path.home() / "nope.mp4").as_posix(),
             "export_res": "1080p",
             "export_profile": "mp4_h264_420",
             "export_samples": 0,
