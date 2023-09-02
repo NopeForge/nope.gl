@@ -21,6 +21,7 @@
 #
 
 import os
+import platform
 import subprocess
 import sys
 from pathlib import Path
@@ -165,6 +166,8 @@ class _Viewer:
         script = QUrl(script).path()  # handle the file:// automatically added by Qt/QML
 
         if script.endswith(".py"):
+            if platform.system() == "Windows" and script.startswith("/"):
+                script = script[1:]
             dirname = Path(script).resolve().parent.as_posix()
             dirname = QUrl.fromLocalFile(dirname).url()
             self._script_dialog.setProperty("currentFolder", dirname)
@@ -208,6 +211,8 @@ class _Viewer:
         filename = self._export_filename_text.property("text")
         filename = QUrl(filename).path()  # handle the file:// automatically added by Qt/QML
 
+        if platform.system() == "Windows" and filename.startswith("/"):
+            filename = filename[1:]
         dirname = Path(filename).resolve().parent.as_posix()
         dirname = QUrl.fromLocalFile(dirname).url()
         self._export_dialog.setProperty("currentFolder", dirname)
