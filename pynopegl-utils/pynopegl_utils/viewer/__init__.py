@@ -165,7 +165,8 @@ class _Viewer:
         script = QUrl(script).path()  # handle the file:// automatically added by Qt/QML
 
         if script.endswith(".py"):
-            dirname = "file://" + Path(script).resolve().parent.as_posix()
+            dirname = Path(script).resolve().parent.as_posix()
+            dirname = QUrl.fromLocalFile(dirname).url()
             self._script_dialog.setProperty("currentFolder", dirname)
 
         self._config.set_script(script)
@@ -207,7 +208,8 @@ class _Viewer:
         filename = self._export_filename_text.property("text")
         filename = QUrl(filename).path()  # handle the file:// automatically added by Qt/QML
 
-        dirname = "file://" + Path(filename).resolve().parent.as_posix()
+        dirname = Path(filename).resolve().parent.as_posix()
+        dirname = QUrl.fromLocalFile(dirname).url()
         self._export_dialog.setProperty("currentFolder", dirname)
 
         self._config.set_export_filename(filename)
