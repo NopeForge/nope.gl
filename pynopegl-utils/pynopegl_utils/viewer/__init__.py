@@ -89,6 +89,8 @@ class _Viewer:
         self._ngl_widget.livectls_changed.connect(self._livectls_model.reset_data_model)
 
         self._script = app_window.findChild(QObject, "script")
+        if script.endswith(".py"):
+            script = QUrl.fromLocalFile(script).url()
         self._script.setProperty("text", script)
         self._script.editingFinished.connect(self._select_script)
 
