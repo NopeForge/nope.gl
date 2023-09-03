@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+### Fixed
+- Viewer path management on Windows
 
 ## [2023.3] [libnopegl 0.9.0] - 2023-09-01
 ### Fixed
