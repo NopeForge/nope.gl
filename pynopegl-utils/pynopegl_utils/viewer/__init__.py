@@ -115,6 +115,7 @@ class _Viewer:
         self._export_dialog = app_window.findChild(QObject, "exportDialog")
 
         export_filename = self._config.get("export_filename")
+        export_filename = QUrl.fromLocalFile(export_filename).url()
         self._export_filename_text = app_window.findChild(QObject, "exportFile")
         self._export_filename_text.setProperty("text", export_filename)
         self._export_filename_text.editingFinished.connect(self._set_export_filename)
