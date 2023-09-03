@@ -69,9 +69,11 @@ static char *escape_json_str(const char *s)
 #define I "        " /* keys indent */
 #define D I "\"default\": " /* default key */
 
-static void print_node_params(const char *name, const struct node_param *p)
+static void print_node_params(const char *name, const struct node_param *p, const char *file)
 {
     printf("  \"%s\": {\n", name);
+    if (file)
+        printf("    \"file\": \"%s\",\n", file);
     printf("    \"params\": [\n");
     if (p) {
         while (p->key) {
@@ -184,7 +186,7 @@ static void print_node_params(const char *name, const struct node_param *p)
 int main(void)
 {
     printf("{\n");
-    print_node_params("_Node", ngli_base_node_params);
+    print_node_params("_Node", ngli_base_node_params, NULL);
 
     static const struct node_class *node_classes[] = {
         NODE_MAP_TYPE2CLASS(CLASS_COMMALIST)
@@ -209,7 +211,7 @@ int main(void)
                 ngli_assert(mapped_param == p);
             } else {
                 printf(",\n");
-                print_node_params(pname, p);
+                print_node_params(pname, p, c->file);
                 ngli_hmap_set(params_map, c->params_id, (void *)p);
             }
             printf(",\n");
@@ -217,7 +219,7 @@ int main(void)
             ngli_free(pname);
         } else {
             printf(",\n");
-            print_node_params(c->name, p);
+            print_node_params(c->name, p, c->file);
         }
     }
 
