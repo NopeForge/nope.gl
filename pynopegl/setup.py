@@ -307,8 +307,10 @@ class _WrapperGenerator:
     def _get_type_id(class_name):
         return "_ngl.NODE_" + class_name.upper()
 
-    def _declare_class(self, class_name, params):
+    def _declare_class(self, class_name, data):
         specs = self._specs
+        inherit = isinstance(data, str)  # inherit from an intermediate node
+        params = [] if inherit else data["params"]
 
         # The inheritance of node classes has 4 to 5 layers, from bottom to
         # top:
@@ -326,13 +328,12 @@ class _WrapperGenerator:
             parent_class_name = "Node"  # inherit from native Cython node
             parent_params = []
             class_name = "_CommonNode"
-        elif isinstance(params, str):  # inherit from an intermediate node
-            parent_class_name = params
-            params = []
-            parent_params = specs[parent_class_name] + specs["_Node"]
+        elif inherit:
+            parent_class_name = data
+            parent_params = specs[parent_class_name]["params"] + specs["_Node"]["params"]
         else:
             parent_class_name = "_CommonNode"
-            parent_params = specs["_Node"]
+            parent_params = specs["_Node"]["params"]
 
         if params is None:
             params = []
@@ -358,11 +359,12 @@ class _WrapperGenerator:
         return class_code
 
     def _declare_classes(self):
-        return "\n\n".join(self._declare_class(class_name, params) for class_name, params in self._specs.items())
+        return "\n\n".join(self._declare_class(class_name, data) for class_name, data in self._specs.items())
 
     def _livectl_info(self):
         info_entries = []
-        for class_name, params in self._specs.items():
+        for class_name, data in self._specs.items():
+            params = data if isinstance(data, str) else data["params"]
             if class_name[0] == "_" or not params or isinstance(params, str):
                 continue
 

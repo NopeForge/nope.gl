@@ -66,15 +66,16 @@ static char *escape_json_str(const char *s)
     return ret;
 }
 
-#define I "      " /* keys indent */
+#define I "        " /* keys indent */
 #define D I "\"default\": " /* default key */
 
 static void print_node_params(const char *name, const struct node_param *p)
 {
-    printf("  \"%s\": [\n", name);
+    printf("  \"%s\": {\n", name);
+    printf("    \"params\": [\n");
     if (p) {
         while (p->key) {
-            printf("    {\n");
+            printf("      {\n");
             printf(I "\"name\": \"%s\",\n", p->key);
             printf(I "\"type\": \"%s\",\n", ngli_params_specs[p->type].name);
             switch (p->type) {
@@ -170,11 +171,12 @@ static void print_node_params(const char *name, const struct node_param *p)
             char *esc_desc = escape_json_str(p->desc);
             printf(I "\"desc\": \"%s\"\n", esc_desc ? esc_desc : "");
             free(esc_desc);
-            printf("    }%s\n", (p + 1)->key ? "," : "");
+            printf("      }%s\n", (p + 1)->key ? "," : "");
             p++;
         }
     }
-    printf("  ]");
+    printf("    ]\n");
+    printf("  }");
 }
 
 #define CLASS_COMMALIST(type_name, cls) &cls,
