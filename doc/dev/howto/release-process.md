@@ -2,7 +2,7 @@
 
 This document describes the steps required to make a new nope.gl release.
 
-1. Make sure the [Changelog](/CHANGELOG.md) is not missing any entry
+1. Make sure the [Changelog](source:CHANGELOG.md) is not missing any entry
 2. Run `./scripts/make-release` with no argument from the root directory in a
    clean and up-to-date git state
 3. Indicate the new `libnopegl` version as prompted, following the semantic

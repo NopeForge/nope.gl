@@ -21,5 +21,5 @@ In order to add a node, you need to:
 - refer to [internal.h][internal-h] for the available callbacks to
   implement in your class map
 
-[libnopegl-ref]: /doc/usr/ref/libnopegl.md
-[internal-h]: /libnopegl/src/internal.h
+[libnopegl-ref]: /usr/ref/libnopegl.md
+[internal-h]: source:libnopegl/src/internal.h

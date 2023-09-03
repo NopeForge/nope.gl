@@ -151,7 +151,7 @@ def _get_parameter_choices_block(choices) -> str:
 
 
 def _get_source(file) -> str:
-    return f"**Source**: [{file}](/libnopegl/{file})\n\n"
+    return f"**Source**: [{file}](source:libnopegl/{file})\n\n"
 
 
 def _get_nodes_block(nodes) -> str:

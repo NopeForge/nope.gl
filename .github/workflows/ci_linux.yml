@@ -64,6 +64,11 @@ jobs:
         . venv/bin/ngli-activate
         meson test -C builddir/libnopegl --wrap 'valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1'
 
+    - name: Build HTML doc
+      run: |
+        . venv/bin/ngli-activate
+        make htmldoc
+
     - name: Run tests ${{matrix.backend}}
       run: |
         ${{matrix.custom_env}} make tests-setup

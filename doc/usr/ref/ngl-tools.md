@@ -4,7 +4,7 @@ NGL tools
 The [ngl-tools][ngl-tools] is a set of small C programs making use of
 `libnopegl`.
 
-[ngl-tools]: /ngl-tools
+[ngl-tools]: source:ngl-tools
 
 
 ## ngl-player
@@ -19,7 +19,7 @@ The detail of available options can be obtained with `ngl-player -h`.
 
 ![ngl-player](img/ngl-player.png)
 
-**Source**: [ngl-tools/ngl-player.c](/ngl-tools/ngl-player.c)
+**Source**: [ngl-tools/ngl-player.c](source:ngl-tools/ngl-player.c)
 
 
 ## ngl-render
@@ -43,7 +43,7 @@ Option                      | Description
 
 **Example**: `ngl-serialize pynopegl_utils.examples.misc fibo - | ngl-render -t 0:60:60 -s 640x480 -o - | ffplay -f rawvideo -framerate 60 -video_size 640x480 -pixel_format rgba -`
 
-**Source**: [ngl-tools/ngl-render.c](/ngl-tools/ngl-render.c)
+**Source**: [ngl-tools/ngl-render.c](source:ngl-tools/ngl-render.c)
 
 
 ## ngl-python
@@ -61,7 +61,7 @@ The detail of available options can be obtained with `ngl-python -h`.
 
 **Example**: `ngl-python pynopegl_utils.examples.misc fibo`
 
-**Source**: [ngl-tools/ngl-python.c](/ngl-tools/ngl-python.c)
+**Source**: [ngl-tools/ngl-python.c](source:ngl-tools/ngl-python.c)
 
 
 ## ngl-serialize
@@ -77,7 +77,7 @@ at build time.
 
 **Example**: `ngl-serialize pynopegl_utils.examples.misc fibo -`
 
-**Source**: [ngl-tools/ngl-serialize.c](/ngl-tools/ngl-serialize.c)
+**Source**: [ngl-tools/ngl-serialize.c](source:ngl-tools/ngl-serialize.c)
 
 
 ## ngl-desktop

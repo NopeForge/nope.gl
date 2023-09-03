@@ -12,7 +12,7 @@ Follow the ["Dependencies" and "Quick user installation" guides][install] to
 bootstrap the nope.gl environment. The rest of the tutorial will assume you are
 in that environment.
 
-[install]: /doc/usr/howto/installation.md
+[install]: /usr/howto/installation.md
 
 ## 👁️ Running the controller
 
@@ -69,7 +69,7 @@ not a very interesting asset for most demos. It is suggested to select your own
 assets using this tab, and then play around with the controller and its
 default demos.
 
-[demo-tree]: /pynopegl-utils/pynopegl_utils/examples
+[demo-tree]: source:pynopegl-utils/pynopegl_utils/examples
 
 
 ## 🐍 Creating a simple scene in Python
@@ -153,7 +153,7 @@ void main()
 ![my reddish demo](img/ngl-control-reddish-scene.png)
 
 [book-of-shaders]: http://thebookofshaders.com/
-[expl-shaders]: /doc/usr/expl/shaders.md
+[expl-shaders]: /usr/expl/shaders.md
 
 ### Introducing uniforms
 
@@ -201,7 +201,7 @@ def test_demo(cfg, color=(1,0,0)):
 All the other widgets are documented in the [Controller widgets
 documentation][controller-widgets].
 
-[controller-widgets]: /doc/usr/ref/pynopegl-utils.md#controller-widgets
+[controller-widgets]: /usr/ref/pynopegl-utils.md#controller-widgets
 
 ### Animations
 
@@ -397,7 +397,7 @@ following new ones:
 You may also notice we picked a basic coloring fragment from `pynopegl_utils`
 with `get_frag('color')`, grabbing the content of [color.frag][color-frag].
 
-[color-frag]: /pynopegl-utils/pynopegl_utils/examples/shaders/color.frag
+[color-frag]: source:pynopegl-utils/pynopegl_utils/examples/shaders/color.frag
 
 ![3 basic shapes](img/ngl-control-3-basic-shapes.png)
 
@@ -427,9 +427,6 @@ disappear rhythmically:
 
 ## 🏊 Diving into the documentation
 
-As parting words, here are some suggestions on how to deal with the rest of the
-documentation, accessible from the [README](/README.md).
-
 From here, if you you're looking at a specific area, you may want to look at
 the [how-to guides][howto].
 
@@ -442,8 +439,8 @@ particular, [all the node definitions][ref-libnopegl]. The [pynopegl-utils
 reference documentation][ref-pynopegl-utils] will typically offer many helpers
 when starting a creative process.
 
-[howto]:                 /README.md#-how-to-guides
-[expl]:                  /README.md#%EF%B8%8F-discussions-and-explanations
-[refdoc]:                /README.md#-reference-documentation
-[ref-libnopegl]:         /doc/usr/ref/libnopegl.md
-[ref-pynopegl-utils]:    /doc/usr/ref/pynopegl-utils.md
+[howto]:                 /usr/howto/index.md
+[expl]:                  /usr/expl/index.md
+[refdoc]:                /usr/ref/index.md
+[ref-libnopegl]:         /usr/ref/libnopegl.md
+[ref-pynopegl-utils]:    /usr/ref/pynopegl-utils.md

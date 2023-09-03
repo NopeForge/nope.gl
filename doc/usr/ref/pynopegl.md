@@ -33,8 +33,8 @@ Parameter type | Node method                      | Python <param> type        |
 `*List`        | `add_<param>(self, *<param>)`    | positional arguments       | `group.add_children(r1, r2, r3)`
 All the others | `set_<param>(self, <param>)`     | positional arguments       | `camera.set_center(1.0, -1.0, 0.5)`
 
-[pynopegl]: /pynopegl
-[libnopegl]: /libnopegl
-[expl-pynopegl]: /doc/dev/expl/pynopegl.md
-[ref-libnopegl]: /doc/usr/ref/libnopegl.md
-[ref-libnopegl-group]: /doc/usr/ref/libnopegl.md#group
+[pynopegl]: source:pynopegl
+[libnopegl]: source:libnopegl
+[expl-pynopegl]: /dev/expl/pynopegl.md
+[ref-libnopegl]: /usr/ref/libnopegl.md
+[ref-libnopegl-group]: /usr/ref/libnopegl.md#group
