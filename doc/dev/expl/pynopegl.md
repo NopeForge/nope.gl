@@ -3,7 +3,7 @@ How the Python binding is created
 
 ## Simplified overview
 
-```mermaid
+```{mermaid}
 graph
 
     libnopegl_install(libnopegl install)
@@ -52,8 +52,8 @@ This generated `nodes.specs` file (see `updatespecs` build rule in libnopegl's
 generated `Makefile`) is installed on the system or targeted environment by the
 `install` rule.
 
-[specs]: /libnopegl/nodes.specs
-[gen-specs-c]: /libnopegl/gen_specs.c
+[specs]: source:libnopegl/nodes.specs
+[gen-specs-c]: source:libnopegl/gen_specs.c
 
 ### nodes.specs ← pynopegl
 
@@ -61,7 +61,7 @@ In its [setup.py][pynopegl-setup], `pynopegl` uses `pkg-config` to query the
 `libnopegl` installation data directory, in order to obtain the path to the
 installed `nodes.specs` file. The file is then loaded as JSON file.
 
-[pynopegl-setup]: /pynopegl/setup.py
+[pynopegl-setup]: source:pynopegl/setup.py
 
 ### pynopegl → nodes_def.pyx
 
@@ -89,7 +89,7 @@ the generated C source.
 Compiled source ends up being linked against Python library to create a
 `_pynopegl.so` loadable Python module.
 
-[pynopegl-pyx]: /pynopegl/_pynopegl.pyx
+[pynopegl-pyx]: source:pynopegl/_pynopegl.pyx
 
 ### pynopegl ← _pynopegl.so
 

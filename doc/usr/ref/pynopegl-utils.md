@@ -6,7 +6,7 @@ and its Python binding. Its core tool is the Qt controller with all its
 peripheral features such as the exporter or the tooling for easing the
 creation of `nope.gl` scene graphs.
 
-[pynopegl-utils]: /pynopegl-utils
+[pynopegl-utils]: source:pynopegl-utils
 
 
 ## Controller scenes

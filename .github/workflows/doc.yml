@@ -1,0 +1,66 @@
+name: documentation web export
+
+on:
+  push:
+    branches: [main]
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  Web-Export:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt -y update
+        #
+        # python3-venv is required to prevent the following issue:
+        #     The virtual environment was not created successfully because ensurepip is not
+        #     available.  On Debian/Ubuntu systems, you need to install the python3-venv
+        #     package using the following command.
+        #
+        #         apt-get install python3-venv
+        #
+        sudo apt -y install libsdl2-dev libva-dev python3-venv valgrind spirv-tools glslang-dev libvulkan-dev mesa-vulkan-drivers vulkan-validationlayers
+        sudo apt -y install ffmpeg libavcodec-dev libavutil-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libpostproc-dev
+        sudo apt -y install libfreetype-dev libharfbuzz-dev libfribidi-dev
+
+    - name: Build
+      run: |
+        ./configure.py --buildtype debug --debug-opts gl vk gpu_capture
+        make
+
+    - name: Build HTML doc
+      run: |
+        . venv/bin/ngli-activate
+        make htmldoc
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: builddir/doc
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2

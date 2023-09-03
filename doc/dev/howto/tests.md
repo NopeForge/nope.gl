@@ -11,7 +11,7 @@ that's what we rely on.
 Assuming nope.gl has been configured through the standard procedure (using
 `configure.py`), executing `make tests` is enough to trigger all the tests
 (including the component specific tests). For more information on the bootstrap
-procedure, see the [installation documentation](/doc/usr/howto/installation.md).
+procedure, see the [installation documentation](/usr/howto/installation.md).
 
 In case of failure, a log will be written and its path indicated on the
 standard output by meson.
@@ -33,7 +33,7 @@ Many tests are based on scenes constructed in Python, sometimes available with
 specific debugging options. So in order to get a visual feedback, you can
 usually test them in `ngl-control`/`ngl-desktop` (or `ngl-python`), for
 example: `ngl-control -m ./tests/blending.py`. For more information on the
-controller usage, check out the [starter tutorial](/doc/usr/tuto/start.md).
+controller usage, check out the [starter tutorial](/usr/tuto/start.md).
 
 For cue-points or fingerprint based tests, the `TESTS_OPTIONS=dump` environment
 toggle can be used to dump pictures (in `<tempdir>/nopegl/tests`).

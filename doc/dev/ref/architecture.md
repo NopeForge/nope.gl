@@ -25,7 +25,7 @@ The `nope.gl` project is split in several parts:
   `pynopegl` package). It is also recommended to install [Graphviz][graphviz]
   in order to render graph in the controller.
 
-```mermaid
+```{mermaid}
 graph
     libnopegl(libnopegl)
     ngl_tools(ngl-tools)

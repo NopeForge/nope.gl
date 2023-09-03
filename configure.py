@@ -586,6 +586,7 @@ def _clean_py(cfg):
 @_block("clean", [_clean_py])
 def _clean(cfg):
     return [
+        _rd(op.join("builddir", "doc")),
         _rd(op.join("builddir", "libnopegl")),
         _rd(op.join("builddir", "ngl-tools")),
         _rd(op.join("builddir", "tests")),
@@ -616,6 +617,16 @@ def _coverage_xml(cfg):
 @_block("tests", [_nopegl_tests, _tests_setup])
 def _tests(cfg):
     return ["$(MESON) " + _cmd_join("test", "-C", op.join("builddir", "tests"))]
+
+
+@_block("htmldoc-deps-install")
+def _htmldoc_deps_install(cfg):
+    return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "doc", "requirements.txt"))]
+
+
+@_block("htmldoc", [_htmldoc_deps_install])
+def _htmldoc(cfg):
+    return [_cmd_join("sphinx-build", "-W", "doc", op.join("builddir", "doc"))]
 
 
 def _quote(s):
@@ -869,6 +880,7 @@ def _run():
         _nopegl_updatespecs,
         _nopegl_updateglwrappers,
         _ngl_tools_install_nosetup,
+        _htmldoc,
     ]
     if args.coverage:
         blocks += [_coverage_html, _coverage_xml]
