@@ -112,7 +112,10 @@ class _Viewer:
         framerate_list.activated.connect(self._select_framerate)
 
         self._script_dialog = app_window.findChild(QObject, "scriptDialog")
+
+        extensions = " ".join(sorted(set(f"*.{p.format}" for p in ENCODE_PROFILES.values())))
         self._export_dialog = app_window.findChild(QObject, "exportDialog")
+        self._export_dialog.setProperty("nameFilters", f"Supported videos ({extensions})")
 
         export_filename = self._config.get("export_filename")
         export_filename = QUrl.fromLocalFile(export_filename).url()

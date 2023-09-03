@@ -52,7 +52,6 @@ ApplicationWindow {
     FileDialog {
         id: exportDialog
         objectName: "exportDialog"
-        nameFilters: ["MP4 (*.mp4)", "Animated GIF (*.gif)"]
         fileMode: FileDialog.SaveFile
         onAccepted: {
             exportFile.text = selectedFile
