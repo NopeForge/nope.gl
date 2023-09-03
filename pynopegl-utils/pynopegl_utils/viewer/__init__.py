@@ -171,7 +171,8 @@ class _Viewer:
         if script.endswith(".py"):
             if platform.system() == "Windows" and script.startswith("/"):
                 script = script[1:]
-            dirname = Path(script).resolve().parent.as_posix()
+            script = Path(script).resolve().as_posix()
+            dirname = Path(script).parent.as_posix()
             dirname = QUrl.fromLocalFile(dirname).url()
             self._script_dialog.setProperty("currentFolder", dirname)
 
