@@ -132,7 +132,7 @@ project_args = cc.get_supported_arguments([
 ])
 add_project_arguments(project_args, language: 'c')
 
-# Also apply to local generator targets such as gen_doc
+# Also apply to local generator targets such as gen_specs
 # See https://github.com/mesonbuild/meson/issues/7940
 add_project_arguments(project_args, language: 'c', native: true)
 
@@ -818,19 +818,13 @@ run_target(
 #
 
 if not get_option('small')
-  gen_doc = executable(
-    'gen_doc',
-    lib_src + files('src/gen_doc.c'),
-    dependencies: lib_deps,
-    build_by_default: false,
-    native: true,
-    include_directories: inc_dir,
-  )
   doc_file = custom_target(
     'libnopegl.md',
-    command: gen_doc,
+    command: [find_program('scripts/gen-doc.py'), '@INPUT@'],
     capture: true,
+    input: specs_file,
     output: 'libnopegl.md',
+    env: {'PYTHONIOENCODING': 'UTF-8'}
   )
   run_target(
     'updatedoc',
