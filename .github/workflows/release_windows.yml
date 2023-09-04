@@ -45,7 +45,14 @@ jobs:
           .\venv\Scripts\ngli-activate.ps1
 
           pip install pyinstaller
-          pyinstaller.exe --collect-all pynopegl_utils --add-binary "venv/Scripts/ffmpeg.exe;bin" --add-binary "venv/Scripts/ffprobe.exe;bin" --windowed --onefile -i scripts/pyinstaller/nope-viewer.ico scripts/pyinstaller/nope-viewer.py
+          pyinstaller.exe `
+              --collect-all pynopegl_utils `
+              --add-binary "venv/Scripts/ffmpeg.exe;bin" `
+              --add-binary "venv/Scripts/ffprobe.exe;bin" `
+              --windowed `
+              --onefile `
+              -i scripts/pyinstaller/nope-viewer.ico `
+              scripts/pyinstaller/nope-viewer.py
 
       - name: Upload installer
         env:
