@@ -13,11 +13,6 @@ jobs:
     runs-on: windows-latest
     env:
         VULKAN_SDK_VERSION: 1.3.250.1
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - build_backend: ninja
 
     defaults:
       run:
@@ -38,10 +33,10 @@ jobs:
           iwr https://sdk.lunarg.com/sdk/download/${{env.VULKAN_SDK_VERSION}}/windows/VulkanRT-${{env.VULKAN_SDK_VERSION}}-Installer.exe -OutFile VulkanRT-Installer.exe
           .\VulkanRT-Installer.exe /S | Out-Null
 
-      - name: Build (${{matrix.build_backend}})
+      - name: Build
         run: |
           .\scripts\msvc-env.ps1
-          python.exe .\configure.py --debug-opts gpu_capture --build-backend ${{matrix.build_backend}}
+          python.exe .\configure.py --debug-opts gpu_capture --build-backend ninja
           nmake
 
       - name: Build installer
