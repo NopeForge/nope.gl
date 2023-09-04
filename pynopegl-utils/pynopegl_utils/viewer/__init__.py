@@ -424,7 +424,7 @@ class _Viewer:
             elif data["type"] == "color":
                 val = QColor.getRgbF(val)[:3]
             elif data["type"] == "file" and val is not None:
-                val = QUrl(val).path()  # handle the file:// automatically added by Qt/QML
+                val = _uri_to_path(val)
             extra_args[data["label"]] = val
 
         return extra_args
