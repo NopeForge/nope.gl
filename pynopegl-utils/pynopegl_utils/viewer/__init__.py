@@ -291,22 +291,36 @@ class _Viewer:
 
             fd_r, fd_w = os.pipe()
 
+            ffmpeg = ["ffmpeg"]
+            input = f"pipe:{fd_r}"
+
+            if platform.system() == "Windows":
+                import msvcrt
+
+                handle = msvcrt.get_osfhandle(fd_r)
+                os.set_handle_inheritable(handle, True)
+                input = f"handle:{handle}"
+                ffmpeg = [sys.executable, "-m", "pynopegl_utils.viewer.ffmpeg_win32"]
+
             # fmt: off
-            cmd = [
-                "ffmpeg", "-r", "%d/%d" % fps,
+            cmd = ffmpeg + [
+                "-r", "%d/%d" % fps,
                 "-v", "warning",
                 "-nostats", "-nostdin",
                 "-f", "rawvideo",
                 "-video_size", "%dx%d" % (width, height),
                 "-pixel_format", "rgba",
-                "-i", "pipe:%d" % fd_r,
+                "-i", input,
             ] + profile.args + [
                 "-f", profile.format,
                 "-y", filename,
             ]
             # fmt: on
 
-            reader = subprocess.Popen(cmd, pass_fds=(fd_r,))
+            if platform.system() == "Windows":
+                reader = subprocess.Popen(cmd, close_fds=False)
+            else:
+                reader = subprocess.Popen(cmd, pass_fds=(fd_r,))
             os.close(fd_r)
 
             capture_buffer = bytearray(width * height * 4)
