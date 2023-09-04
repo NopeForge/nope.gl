@@ -251,6 +251,10 @@ class _Viewer:
         if scene_data is None:
             return
 
+        filename = QUrl(filename).path()  # handle the file:// automatically added by Qt/QML
+        if platform.system() == "Windows" and filename.startswith("/"):
+            filename = filename[1:]
+
         res = RESOLUTIONS[self._config.CHOICES["export_res"][res_index]]
         profile = ENCODE_PROFILES[self._config.CHOICES["export_profile"][profile_index]]
 
