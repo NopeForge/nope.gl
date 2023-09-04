@@ -101,6 +101,21 @@ _EXTERNAL_DEPS = dict(
         url="https://renderdoc.org/stable/@VERSION@/renderdoc_@VERSION@.tar.gz",
         sha256="ee2b466b15e9c54b42c4a83ec5aacfcda84fce7a65f69a5c19379b17108686e2",
     ),
+    freetype=dict(
+        version="2-13-2",
+        url="https://github.com/freetype/freetype/archive/refs/tags/VER-@VERSION@.tar.gz",
+        sha256="427201f5d5151670d05c1f5b45bef5dda1f2e7dd971ef54f0feaaa7ffd2ab90c",
+    ),
+    harfbuzz=dict(
+        version="8.1.1",
+        url="https://github.com/harfbuzz/harfbuzz/archive/refs/tags/@VERSION@.tar.gz",
+        sha256="b16e6bc0fc7e6a218583f40c7d201771f2e3072f85ef6e9217b36c1dc6b2aa25",
+    ),
+    fribidi=dict(
+        version="1.0.13",
+        url="https://github.com/fribidi/fribidi/archive/refs/tags/v@VERSION@.tar.gz",
+        sha256="f24e8e381bcf76533ae56bd776196f3a0369ec28e9c0fdb6edd163277e008314",
+    ),
 )
 
 
@@ -113,6 +128,9 @@ def _get_external_deps(args):
         deps.append("ffmpeg")
         deps.append("sdl2")
         deps.append("glslang")
+        deps.append("freetype")
+        deps.append("harfbuzz")
+        deps.append("fribidi")
     if "gpu_capture" in args.debug_opts:
         if _SYSTEM not in {"Windows", "Linux"}:
             raise Exception(f"Renderdoc is not supported on {_SYSTEM}")
@@ -459,6 +477,39 @@ def _ngl_tools_install(cfg):
     return _meson_compile_install_cmd("ngl-tools")
 
 
+@_block("freetype-setup", [_pkgconf_install])
+def _freetype_setup(cfg):
+    builddir = op.join("external", "freetype", "builddir")
+    return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["freetype"], builddir)]
+
+
+@_block("freetype-install", [_freetype_setup])
+def _freetype_install(cfg):
+    return _meson_compile_install_cmd("freetype", external=True)
+
+
+@_block("harfbuzz-setup", [_freetype_install])
+def _harfbuzz_setup(cfg):
+    builddir = op.join("external", "harfbuzz", "builddir")
+    return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["harfbuzz"], builddir)]
+
+
+@_block("harfbuzz-install", [_harfbuzz_setup])
+def _harfbuzz_install(cfg):
+    return _meson_compile_install_cmd("harfbuzz", external=True)
+
+
+@_block("fribidi-setup", [_pkgconf_install])
+def _fribidi_setup(cfg):
+    builddir = op.join("external", "fribidi", "builddir")
+    return ["$(MESON_SETUP) " + _cmd_join("-Ddocs=false", cfg.externals["fribidi"], builddir)]
+
+
+@_block("fribidi-install", [_fribidi_setup])
+def _fribidi_install(cfg):
+    return _meson_compile_install_cmd("fribidi", external=True)
+
+
 @_block("ngl-tools-install-nosetup", [_nopegl_install_nosetup])
 def _ngl_tools_install_nosetup(cfg):
     return _meson_compile_install_cmd("ngl-tools")
@@ -537,6 +588,9 @@ def _clean(cfg):
         _rd(op.join("builddir", "tests")),
         _rd(op.join("external", "pkgconf", "builddir")),
         _rd(op.join("external", "nopemd", "builddir")),
+        _rd(op.join("external", "freetype", "builddir")),
+        _rd(op.join("external", "harfbuzz", "builddir")),
+        _rd(op.join("external", "fribidi", "builddir")),
     ]
 
 
@@ -706,6 +760,9 @@ class _Config:
             _nopemd_setup.prerequisites.append(_ffmpeg_install)
             _nopemd_setup.prerequisites.append(_sdl2_install)
             _nopegl_setup.prerequisites.append(_glslang_install)
+            _nopegl_setup.prerequisites.append(_freetype_install)
+            _nopegl_setup.prerequisites.append(_harfbuzz_install)
+            _nopegl_setup.prerequisites.append(_fribidi_install)
             if "gpu_capture" in args.debug_opts:
                 _nopegl_setup.prerequisites.append(_renderdoc_install)
 
