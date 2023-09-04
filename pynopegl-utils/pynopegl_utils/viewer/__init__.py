@@ -39,6 +39,13 @@ from PySide6.QtGui import QColor
 import pynopegl as ngl
 
 
+def _uri_to_path(uri):
+    path = QUrl(uri).path()  # handle the file:// automatically added by Qt/QML
+    if platform.system() == "Windows" and path.startswith("/"):
+        path = path[1:]
+    return path
+
+
 class _Viewer:
     def __init__(self, app, qml_engine, ngl_widget, args):
         self._app = app
@@ -169,11 +176,9 @@ class _Viewer:
     @Slot()
     def _select_script(self):
         script = self._script.property("text")
-        script = QUrl(script).path()  # handle the file:// automatically added by Qt/QML
+        script = _uri_to_path(script)
 
         if script.endswith(".py"):
-            if platform.system() == "Windows" and script.startswith("/"):
-                script = script[1:]
             script = Path(script).resolve().as_posix()
             dirname = Path(script).parent.as_posix()
             dirname = QUrl.fromLocalFile(dirname).url()
@@ -216,10 +221,8 @@ class _Viewer:
     @Slot()
     def _set_export_filename(self):
         filename = self._export_filename_text.property("text")
-        filename = QUrl(filename).path()  # handle the file:// automatically added by Qt/QML
+        filename = _uri_to_path(filename)
 
-        if platform.system() == "Windows" and filename.startswith("/"):
-            filename = filename[1:]
         dirname = Path(filename).resolve().parent.as_posix()
         dirname = QUrl.fromLocalFile(dirname).url()
         self._export_dialog.setProperty("currentFolder", dirname)
@@ -251,9 +254,7 @@ class _Viewer:
         if scene_data is None:
             return
 
-        filename = QUrl(filename).path()  # handle the file:// automatically added by Qt/QML
-        if platform.system() == "Windows" and filename.startswith("/"):
-            filename = filename[1:]
+        filename = _uri_to_path(filename)
 
         res = RESOLUTIONS[self._config.CHOICES["export_res"][res_index]]
         profile = ENCODE_PROFILES[self._config.CHOICES["export_profile"][profile_index]]
