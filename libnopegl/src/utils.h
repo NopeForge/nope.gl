@@ -22,6 +22,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -126,6 +127,21 @@
                          NGLI_ARG_VEC4((v)+4*3)
 
 #define NGLI_HAS_ALL_FLAGS(a, b) (((a) & (b)) == (b))
+
+typedef void (*ngli_freep_func)(void **sp);
+
+struct ngli_rc {
+    size_t count;
+    ngli_freep_func freep;
+};
+
+#define NGLI_RC_CHECK_STRUCT(name) NGLI_STATIC_ASSERT(name ## _rc, offsetof(struct name, rc) == 0)
+#define NGLI_RC_CREATE(fn) (struct ngli_rc) { .count=1, .freep=(ngli_freep_func)fn }
+#define NGLI_RC_REF(s) (void *)ngli_rc_ref((struct ngli_rc *)(s))
+#define NGLI_RC_UNREFP(sp) ngli_rc_unrefp((struct ngli_rc **)(sp))
+
+struct ngli_rc *ngli_rc_ref(struct ngli_rc *s);
+void ngli_rc_unrefp(struct ngli_rc **sp);
 
 char *ngli_strdup(const char *s);
 int64_t ngli_gettime_relative(void);

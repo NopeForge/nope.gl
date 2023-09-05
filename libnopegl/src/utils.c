@@ -44,6 +44,24 @@
 #include "utils.h"
 #include "pthread_compat.h"
 
+struct ngli_rc *ngli_rc_ref(struct ngli_rc *s)
+{
+    s->count++;
+    return s;
+}
+
+void ngli_rc_unrefp(struct ngli_rc **sp)
+{
+    struct ngli_rc *s = *sp;
+    if (!s)
+        return;
+
+    if (s->count-- == 1)
+        s->freep((void **)sp);
+
+    *sp = NULL;
+}
+
 char *ngli_strdup(const char *s)
 {
     if (!s)
