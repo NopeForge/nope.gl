@@ -36,5 +36,5 @@ All the others | `set_<param>(self, <param>)`     | positional arguments       |
 [pynopegl]: /pynopegl
 [libnopegl]: /libnopegl
 [expl-pynopegl]: /doc/dev/expl/pynopegl.md
-[ref-libnopegl]: /libnopegl/doc/libnopegl.md
-[ref-libnopegl-group]: /libnopegl/doc/libnopegl.md#group
+[ref-libnopegl]: /doc/usr/ref/libnopegl.md
+[ref-libnopegl-group]: /doc/usr/ref/libnopegl.md#group

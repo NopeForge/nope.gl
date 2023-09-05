@@ -445,5 +445,5 @@ when starting a creative process.
 [howto]:                 /README.md#-how-to-guides
 [expl]:                  /README.md#%EF%B8%8F-discussions-and-explanations
 [refdoc]:                /README.md#-reference-documentation
-[ref-libnopegl]:         /libnopegl/doc/libnopegl.md
+[ref-libnopegl]:         /doc/usr/ref/libnopegl.md
 [ref-pynopegl-utils]:    /doc/usr/ref/pynopegl-utils.md

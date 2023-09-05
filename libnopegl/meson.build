@@ -814,26 +814,6 @@ run_target(
 
 
 #
-# Doc
-#
-
-if not get_option('small')
-  doc_file = custom_target(
-    'libnopegl.md',
-    command: [find_program('scripts/gen-doc.py'), '@INPUT@'],
-    capture: true,
-    input: specs_file,
-    output: 'libnopegl.md',
-    env: {'PYTHONIOENCODING': 'UTF-8'}
-  )
-  run_target(
-    'updatedoc',
-    command: [copyfile, doc_file, meson.current_source_dir() / 'doc'],
-  )
-endif
-
-
-#
 # OpenGL specifications
 #
 

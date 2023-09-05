@@ -88,7 +88,7 @@ and API can change at any time.
 [usr-expl-graphicconfig]:    /doc/usr/expl/graphicconfig.md
 [usr-expl-noise]:            /doc/usr/expl/noise.md
 [usr-expl-scopes]:           /doc/usr/expl/scopes.md
-[usr-ref-libnopegl]:         /libnopegl/doc/libnopegl.md
+[usr-ref-libnopegl]:         /doc/usr/ref/libnopegl.md
 [usr-ref-pynopegl]:          /doc/usr/ref/pynopegl.md
 [usr-ref-pynopegl-utils]:    /doc/usr/ref/pynopegl-utils.md
 [usr-ref-ngl-tools]:         /doc/usr/ref/ngl-tools.md

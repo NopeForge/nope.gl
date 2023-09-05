@@ -522,7 +522,10 @@ def _nopegl_run_target_cmd(cfg, target):
 
 @_block("nopegl-updatedoc", [_nopegl_install])
 def _nopegl_updatedoc(cfg):
-    return _nopegl_run_target_cmd(cfg, "updatedoc")
+    gen_doc = op.join("scripts", "gen-doc.py")
+    specs_path = op.join(cfg.args.venv_path, "share", "nopegl", "nodes.specs")
+    output_path = op.join("doc", "usr", "ref", "libnopegl.md")
+    return ["$(PYTHON) " + _cmd_join(gen_doc, specs_path, output_path)]
 
 
 @_block("nopegl-updatespecs", [_nopegl_install])
@@ -668,6 +671,7 @@ def _get_make_vars(cfg):
         meson_setup += ["--libdir=lib"]
 
     ret = dict(
+        PYTHON=python,
         PIP=_cmd_join(python, "-m", "pip"),
         MESON=meson,
     )
