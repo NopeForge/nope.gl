@@ -199,6 +199,58 @@ static void print_types(void)
     printf("  ]");
 }
 
+static void print_constants(const struct param_choices *choices)
+{
+    const struct param_const *consts = choices->consts;
+
+    printf("    \"%s\": [\n", choices->name);
+    for (size_t i = 0; consts[i].key; i++) {
+        const struct param_const *pc = &consts[i];
+        ngli_assert(pc->key && pc->desc);
+        printf("      {\n");
+        printf("        \"name\": \"%s\",\n", pc->key);
+        printf("        \"desc\": \"%s\"\n", pc->desc);
+        printf("      }%s\n", consts[i + 1].key ? "," : "");
+    }
+    printf("    ]");
+}
+
+static int print_choices(void)
+{
+    printf("  \"choices\": {\n");
+
+    struct hmap *choices_map = ngli_hmap_create();
+    if (!choices_map)
+        return -1;
+
+    for (size_t i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
+        const struct node_class *c = node_classes[i];
+
+        if (!c->params)
+            continue;
+        for (size_t j = 0; c->params[j].key; j++) {
+            const struct node_param *p = &c->params[j];
+            if (!p->choices)
+                continue;
+            void *mapped_choices = ngli_hmap_get(choices_map, p->choices->name);
+            if (mapped_choices) {
+                ngli_assert(mapped_choices == p->choices);
+            } else {
+                if (ngli_hmap_count(choices_map))
+                    printf(",\n");
+                print_constants(p->choices);
+                ngli_hmap_set(choices_map, p->choices->name, (void *)p->choices);
+
+            }
+        }
+    }
+
+    printf("\n  }");
+
+    ngli_hmap_freep(&choices_map);
+    return 0;
+}
+
 static int print_nodes(void)
 {
     printf("  \"nodes\": {\n");
@@ -248,6 +300,9 @@ int main(void)
     printf("{\n");
 
     print_types();
+    printf(",\n");
+
+    print_choices();
     printf(",\n");
 
     int ret = print_nodes();
