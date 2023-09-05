@@ -30,6 +30,7 @@ struct rendertarget_vk {
     struct rendertarget parent;
     uint32_t nb_attachments;
     VkImageView attachments[2*(NGLI_MAX_COLOR_ATTACHMENTS + 1)];
+    struct texture *attachments_refs[2*(NGLI_MAX_COLOR_ATTACHMENTS + 1)];
     VkFramebuffer framebuffer;
     VkRenderPass render_pass;
     VkClearValue clear_values[2*(NGLI_MAX_COLOR_ATTACHMENTS + 1)];

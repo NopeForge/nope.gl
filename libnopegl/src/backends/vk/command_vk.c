@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -42,6 +43,11 @@ void ngli_cmd_vk_freep(struct cmd_vk **sp)
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
+    struct ngli_rc **rcs = ngli_darray_data(&s->refs);
+    for (size_t i = 0; i < ngli_darray_count(&s->refs); i++)
+        NGLI_RC_UNREFP(&rcs[i]);
+    ngli_darray_reset(&s->refs);
+
     ngli_darray_reset(&s->wait_sems);
     ngli_darray_reset(&s->wait_stages);
     ngli_darray_reset(&s->signal_sems);
@@ -82,6 +88,7 @@ VkResult ngli_cmd_vk_init(struct cmd_vk *s, int type)
     ngli_darray_init(&s->wait_sems, sizeof(VkSemaphore), 0);
     ngli_darray_init(&s->wait_stages, sizeof(VkPipelineStageFlags), 0);
     ngli_darray_init(&s->signal_sems, sizeof(VkSemaphore), 0);
+    ngli_darray_init(&s->refs, sizeof(struct ngli_rc *), 0);
 
     return VK_SUCCESS;
 }
@@ -101,6 +108,16 @@ VkResult ngli_cmd_vk_add_signal_sem(struct cmd_vk *s, VkSemaphore *sem)
 {
     if (!ngli_darray_push(&s->signal_sems, sem))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
+
+    return VK_SUCCESS;
+}
+
+VkResult ngli_cmd_vk_ref(struct cmd_vk *s, struct ngli_rc *rc)
+{
+    if (!ngli_darray_push(&s->refs, &rc))
+        return VK_ERROR_OUT_OF_HOST_MEMORY;
+
+    NGLI_RC_REF(rc);
 
     return VK_SUCCESS;
 }
@@ -160,6 +177,11 @@ VkResult ngli_cmd_vk_wait(struct cmd_vk *s)
     VkResult res = vkWaitForFences(vk->device, 1, &s->fence, VK_TRUE, UINT64_MAX);
     if (res != VK_SUCCESS)
         return res;
+
+    struct ngli_rc **rcs = ngli_darray_data(&s->refs);
+    for (size_t i = 0; i < ngli_darray_count(&s->refs); i++)
+        NGLI_RC_UNREFP(&rcs[i]);
+    ngli_darray_clear(&s->refs);
 
     size_t i = 0;
     while (i < ngli_darray_count(&gpu_ctx_vk->pending_cmds)) {

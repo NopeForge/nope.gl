@@ -296,6 +296,7 @@ static VkResult rendertarget_vk_init(struct rendertarget *s)
             return res;
 
         s_priv->attachments[s_priv->nb_attachments] = view;
+        s_priv->attachments_refs[s_priv->nb_attachments] = NGLI_RC_REF(attachment->attachment);
         s_priv->nb_attachments++;
 
         s_priv->clear_values[s_priv->nb_clear_values] = (VkClearValue) {
@@ -310,6 +311,7 @@ static VkResult rendertarget_vk_init(struct rendertarget *s)
                 return res;
 
             s_priv->attachments[s_priv->nb_attachments] = view;
+            s_priv->attachments_refs[s_priv->nb_attachments] = NGLI_RC_REF(attachment->resolve_target);
             s_priv->nb_attachments++;
 
             s_priv->clear_values[s_priv->nb_clear_values] = (VkClearValue) {
@@ -328,6 +330,7 @@ static VkResult rendertarget_vk_init(struct rendertarget *s)
             return res;
 
         s_priv->attachments[s_priv->nb_attachments] = view;
+        s_priv->attachments_refs[s_priv->nb_attachments] = NGLI_RC_REF(texture);
         s_priv->nb_attachments++;
 
         s_priv->clear_values[s_priv->nb_clear_values] = (VkClearValue) {.depthStencil = {1.f, 0}};
@@ -340,6 +343,7 @@ static VkResult rendertarget_vk_init(struct rendertarget *s)
                 return res;
 
             s_priv->attachments[s_priv->nb_attachments] = view;
+            s_priv->attachments_refs[s_priv->nb_attachments] = NGLI_RC_REF(attachment->resolve_target);
             s_priv->nb_attachments++;
 
             s_priv->clear_values[s_priv->nb_clear_values] = (VkClearValue) {.depthStencil = {1.f, 0}};
@@ -381,8 +385,10 @@ void ngli_rendertarget_vk_freep(struct rendertarget **sp)
     vkDestroyRenderPass(vk->device, s_priv->render_pass, NULL);
     vkDestroyFramebuffer(vk->device, s_priv->framebuffer, NULL);
 
-    for (uint32_t i = 0; i < s_priv->nb_attachments; i++)
+    for (uint32_t i = 0; i < s_priv->nb_attachments; i++) {
         vkDestroyImageView(vk->device, s_priv->attachments[i], NULL);
+        NGLI_RC_UNREFP(&s_priv->attachments_refs[i]);
+    }
 
     vkDestroyBuffer(vk->device, s_priv->staging_buffer, NULL);
     vkFreeMemory(vk->device, s_priv->staging_memory, NULL);

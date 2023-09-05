@@ -412,11 +412,14 @@ int ngli_pipeline_vk_init(struct pipeline *s)
 static int prepare_and_bind_descriptor_set(struct pipeline *s, VkCommandBuffer cmd_buf)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+    struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
     ngli_bindgroup_vk_update_descriptor_set(gpu_ctx->bindgroup);
 
     if (gpu_ctx->bindgroup) {
+        NGLI_CMD_VK_REF(cmd_vk, gpu_ctx->bindgroup);
         struct bindgroup_vk *bindgroup_vk = (struct bindgroup_vk *)gpu_ctx->bindgroup;
         if (bindgroup_vk->desc_set)
             vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
@@ -467,7 +470,10 @@ static int prepare_and_bind_graphics_pipeline(struct pipeline *s, VkCommandBuffe
 void ngli_pipeline_vk_draw(struct pipeline *s, int nb_vertices, int nb_instances)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
+    struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
+    VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
+
+    NGLI_CMD_VK_REF(cmd_vk, s);
 
     int ret = prepare_and_bind_descriptor_set(s, cmd_buf);
     if (ret < 0)
@@ -483,7 +489,9 @@ void ngli_pipeline_vk_draw(struct pipeline *s, int nb_vertices, int nb_instances
 void ngli_pipeline_vk_draw_indexed(struct pipeline *s, int nb_indices, int nb_instances)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
+    struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
+    VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
+    NGLI_CMD_VK_REF(cmd_vk, s);
 
     int ret = prepare_and_bind_descriptor_set(s, cmd_buf);
     if (ret < 0)
@@ -509,6 +517,7 @@ void ngli_pipeline_vk_dispatch(struct pipeline *s, uint32_t nb_group_x, uint32_t
             return;
     }
     VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
+    NGLI_CMD_VK_REF(cmd_vk, s);
 
     int ret = prepare_and_bind_descriptor_set(s, cmd_buf);
     if (ret < 0)

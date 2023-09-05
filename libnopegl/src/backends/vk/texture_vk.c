@@ -500,8 +500,10 @@ void ngli_texture_vk_transition_layout(struct texture *s, VkImageLayout layout)
     if (s_priv->image_layout == layout)
         return;
 
-    VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
+    struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
+    NGLI_CMD_VK_REF(cmd_vk, s);
 
+    VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
         .baseMipLevel   = 0,
@@ -600,6 +602,7 @@ static VkResult texture_vk_upload(struct texture *s, const uint8_t *data, int li
             return res;
     }
     VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
+    NGLI_CMD_VK_REF(cmd_vk, s);
 
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
@@ -699,6 +702,7 @@ static VkResult texture_vk_generate_mipmap(struct texture *s)
             return res;
     }
     VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
+    NGLI_CMD_VK_REF(cmd_vk, s);
 
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
