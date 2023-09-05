@@ -404,16 +404,16 @@ class CommandUtils:
         import os.path as op
 
         specs_file = op.join(_LIB_CFG.data_root_dir, "nopegl", "nodes.specs")
-        with open(specs_file) as f:
+        with open(specs_file, encoding="utf-8") as f:
             specs = json.load(f)
         content = f'__version__ = "{_LIB_CFG.version}"\n\n'
         content += CommandUtils._gen_definitions_pyx(specs)
-        with open("nodes_def.pyx", "w") as output:
+        with open("nodes_def.pyx", "w", encoding="utf-8") as output:
             output.write(content)
-        with open("init_header.py") as header:
+        with open("init_header.py", encoding="utf-8") as header:
             content = header.read() + "\n\n"
         content += _WrapperGenerator(specs).generate()
-        with open("pynopegl/__init__.py", "w") as output:
+        with open("pynopegl/__init__.py", "w", encoding="utf-8") as output:
             output.write(content)
 
 
