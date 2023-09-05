@@ -113,10 +113,7 @@ static void print_node_params(const char *name, const struct node_param *p, cons
                 printf(D "%f,\n", p->def_value.f64);
                 break;
             case NGLI_PARAM_TYPE_BOOL:
-                if (p->def_value.i32 < 0)
-                    printf(D "\"unset\",\n");
-                else
-                    printf(D "%d,\n", p->def_value.i32);
+                printf(D "%d,\n", p->def_value.i32);
                 break;
             case NGLI_PARAM_TYPE_I32:
                 printf(D "%d,\n", p->def_value.i32);

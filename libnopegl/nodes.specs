@@ -977,7 +977,7 @@
         {
           "name": "blend",
           "type": "bool",
-          "default": "unset",
+          "default": -1,
           "flags": [],
           "desc": "enable blending"
         },
@@ -1040,14 +1040,14 @@
         {
           "name": "depth_test",
           "type": "bool",
-          "default": "unset",
+          "default": -1,
           "flags": [],
           "desc": "enable depth testing"
         },
         {
           "name": "depth_write_mask",
           "type": "bool",
-          "default": "unset",
+          "default": -1,
           "flags": [],
           "desc": "depth write mask"
         },
@@ -1062,7 +1062,7 @@
         {
           "name": "stencil_test",
           "type": "bool",
-          "default": "unset",
+          "default": -1,
           "flags": [],
           "desc": "enable stencil testing"
         },
@@ -1130,7 +1130,7 @@
         {
           "name": "scissor_test",
           "type": "bool",
-          "default": "unset",
+          "default": -1,
           "flags": [],
           "desc": "enable scissor testing"
         },
