@@ -121,6 +121,858 @@
       "desc": "Rational number (expressed as 2 32-bit integers, respectively as numerator and denominator)"
     }
   ],
+  "choices": {
+    "colorspace": [
+      {
+        "name": "srgb",
+        "desc": "sRGB (standard RGB)"
+      },
+      {
+        "name": "hsl",
+        "desc": "Hue/Saturation/Lightness (polar form of sRGB)"
+      },
+      {
+        "name": "hsv",
+        "desc": "Hue/Saturation/Value (polar form of sRGB)"
+      }
+    ],
+    "easing": [
+      {
+        "name": "linear",
+        "desc": "`linear(x)=x`"
+      },
+      {
+        "name": "quadratic_in",
+        "desc": "`quadratic(x)=x²`"
+      },
+      {
+        "name": "quadratic_out",
+        "desc": "`quadratic_out(x)=1-quadratic(1-x)`"
+      },
+      {
+        "name": "quadratic_in_out",
+        "desc": "`quadratic_in_out(x)=quadratic(2x)/2` if `x<½` else `1-quadratic(2*(1-x))/2`"
+      },
+      {
+        "name": "quadratic_out_in",
+        "desc": "`quadratic_out_in(x)=(1-quadratic(1-2x))/2` if `x<½` else `(1+quadratic(2x-1))/2`"
+      },
+      {
+        "name": "cubic_in",
+        "desc": "`cubic(x)=x³`"
+      },
+      {
+        "name": "cubic_out",
+        "desc": "`cubic_out(x)=1-cubic(1-x)`"
+      },
+      {
+        "name": "cubic_in_out",
+        "desc": "`cubic_in_out(x)=cubic(2x)/2` if `x<½` else `1-cubic(2*(1-x))/2`"
+      },
+      {
+        "name": "cubic_out_in",
+        "desc": "`cubic_out_in(x)=(1-cubic(1-2x))/2` if `x<½` else `(1+cubic(2x-1))/2`"
+      },
+      {
+        "name": "quartic_in",
+        "desc": "`quartic(x)=x⁴`"
+      },
+      {
+        "name": "quartic_out",
+        "desc": "`quartic_out(x)=1-quartic(1-x)`"
+      },
+      {
+        "name": "quartic_in_out",
+        "desc": "`quartic_in_out(x)=quartic(2x)/2` if `x<½` else `1-quartic(2*(1-x))/2`"
+      },
+      {
+        "name": "quartic_out_in",
+        "desc": "`quartic_out_in(x)=(1-quartic(1-2x))/2` if `x<½` else `(1+quartic(2x-1))/2`"
+      },
+      {
+        "name": "quintic_in",
+        "desc": "`quintic(x)=x⁵`"
+      },
+      {
+        "name": "quintic_out",
+        "desc": "`quintic_out(x)=1-quintic(1-x)`"
+      },
+      {
+        "name": "quintic_in_out",
+        "desc": "`quintic_in_out(x)=quintic(2x)/2` if `x<½` else `1-quintic(2*(1-x))/2`"
+      },
+      {
+        "name": "quintic_out_in",
+        "desc": "`quintic_out_in(x)=(1-quintic(1-2x))/2` if `x<½` else `(1+quintic(2x-1))/2`"
+      },
+      {
+        "name": "power_in",
+        "desc": "`power(x,a=1)=x^a`"
+      },
+      {
+        "name": "power_out",
+        "desc": "`power_out(x,a=1)=1-power(1-x,a)`"
+      },
+      {
+        "name": "power_in_out",
+        "desc": "`power_in_out(x,a=1)=power(2x,a)/2` if `x<½` else `1-power(2*(1-x),a)/2`"
+      },
+      {
+        "name": "power_out_in",
+        "desc": "`power_out_in(x,a=1)=(1-power(1-2x,a))/2` if `x<½` else `(1+power(2x-1,a))/2`"
+      },
+      {
+        "name": "sinus_in",
+        "desc": "`sinus(x)=1-cos(x*π/2)`"
+      },
+      {
+        "name": "sinus_out",
+        "desc": "`sinus_out(x)=1-sinus(1-x)`"
+      },
+      {
+        "name": "sinus_in_out",
+        "desc": "`sinus_in_out(x)=sinus(2x)/2` if `x<½` else `1-sinus(2*(1-x))/2`"
+      },
+      {
+        "name": "sinus_out_in",
+        "desc": "`sinus_out_in(x)=(1-sinus(1-2x))/2` if `x<½` else `(1+sinus(2x-1))/2`"
+      },
+      {
+        "name": "exp_in",
+        "desc": "`exp(x,a=1024)=(pow(a,x)-1)/(a-1)`"
+      },
+      {
+        "name": "exp_out",
+        "desc": "`exp_out(x,a=1024)=1-exp(1-x,a)`"
+      },
+      {
+        "name": "exp_in_out",
+        "desc": "`exp_in_out(x,a=1024)=exp(2x,a)/2` if `x<½` else `1-exp(2*(1-x),a)/2`"
+      },
+      {
+        "name": "exp_out_in",
+        "desc": "`exp_out_in(x,a=1024)=(1-exp(1-2x,a))/2` if `x<½` else `(1+exp(2x-1,a))/2`"
+      },
+      {
+        "name": "circular_in",
+        "desc": "`circular(x)=1-√(1-x²)`"
+      },
+      {
+        "name": "circular_out",
+        "desc": "`circular_out(x)=1-circular(1-x)`"
+      },
+      {
+        "name": "circular_in_out",
+        "desc": "`circular_in_out(x)=circular(2x)/2` if `x<½` else `1-circular(2*(1-x))/2`"
+      },
+      {
+        "name": "circular_out_in",
+        "desc": "`circular_out_in(x)=(1-circular(1-2x))/2` if `x<½` else `(1+circular(2x-1))/2`"
+      },
+      {
+        "name": "bounce_in",
+        "desc": "bouncing from right to left 4 times"
+      },
+      {
+        "name": "bounce_out",
+        "desc": "diagonally mirrored version of `bounce_in()`"
+      },
+      {
+        "name": "elastic_in",
+        "desc": "elastic effect from weak to strong"
+      },
+      {
+        "name": "elastic_out",
+        "desc": "mirrored `elastic_in` effect"
+      },
+      {
+        "name": "back_in",
+        "desc": "mirrored `back_out` effect"
+      },
+      {
+        "name": "back_out",
+        "desc": "overstep target value and smoothly converge back to it"
+      },
+      {
+        "name": "back_in_out",
+        "desc": "combination of `back_in` then `back_out`"
+      },
+      {
+        "name": "back_out_in",
+        "desc": "combination of `back_out` then `back_in`"
+      }
+    ],
+    "memory_layout": [
+      {
+        "name": "std140",
+        "desc": "standard uniform block memory layout 140"
+      },
+      {
+        "name": "std430",
+        "desc": "standard uniform block memory layout 430"
+      }
+    ],
+    "topology": [
+      {
+        "name": "point_list",
+        "desc": "point list"
+      },
+      {
+        "name": "line_strip",
+        "desc": "line strip"
+      },
+      {
+        "name": "line_list",
+        "desc": "line list"
+      },
+      {
+        "name": "triangle_strip",
+        "desc": "triangle strip"
+      },
+      {
+        "name": "triangle_list",
+        "desc": "triangle list"
+      }
+    ],
+    "blend_factor": [
+      {
+        "name": "unset",
+        "desc": "unset"
+      },
+      {
+        "name": "zero",
+        "desc": "`0`"
+      },
+      {
+        "name": "one",
+        "desc": "`1`"
+      },
+      {
+        "name": "src_color",
+        "desc": "`src_color`"
+      },
+      {
+        "name": "one_minus_src_color",
+        "desc": "`1 - src_color`"
+      },
+      {
+        "name": "dst_color",
+        "desc": "`dst_color`"
+      },
+      {
+        "name": "one_minus_dst_color",
+        "desc": "`1 - dst_color`"
+      },
+      {
+        "name": "src_alpha",
+        "desc": "`src_alpha`"
+      },
+      {
+        "name": "one_minus_src_alpha",
+        "desc": "`1 - src_alpha`"
+      },
+      {
+        "name": "dst_alpha",
+        "desc": "`dst_alpha`"
+      },
+      {
+        "name": "one_minus_dst_alpha",
+        "desc": "`1 - dst_alpha`"
+      }
+    ],
+    "blend_operation": [
+      {
+        "name": "unset",
+        "desc": "unset"
+      },
+      {
+        "name": "add",
+        "desc": "`src + dst`"
+      },
+      {
+        "name": "sub",
+        "desc": "`src - dst`"
+      },
+      {
+        "name": "revsub",
+        "desc": "`dst - src`"
+      },
+      {
+        "name": "min",
+        "desc": "`min(src, dst)`"
+      },
+      {
+        "name": "max",
+        "desc": "`max(src, dst)`"
+      }
+    ],
+    "component": [
+      {
+        "name": "r",
+        "desc": "red"
+      },
+      {
+        "name": "g",
+        "desc": "green"
+      },
+      {
+        "name": "b",
+        "desc": "blue"
+      },
+      {
+        "name": "a",
+        "desc": "alpha"
+      }
+    ],
+    "function": [
+      {
+        "name": "unset",
+        "desc": "unset"
+      },
+      {
+        "name": "never",
+        "desc": "`f(a,b) = 0`"
+      },
+      {
+        "name": "less",
+        "desc": "`f(a,b) = a < b`"
+      },
+      {
+        "name": "equal",
+        "desc": "`f(a,b) = a == b`"
+      },
+      {
+        "name": "lequal",
+        "desc": "`f(a,b) = a ≤ b`"
+      },
+      {
+        "name": "greater",
+        "desc": "`f(a,b) = a > b`"
+      },
+      {
+        "name": "notequal",
+        "desc": "`f(a,b) = a ≠ b`"
+      },
+      {
+        "name": "gequal",
+        "desc": "`f(a,b) = a ≥ b`"
+      },
+      {
+        "name": "always",
+        "desc": "`f(a,b) = 1`"
+      }
+    ],
+    "stencil_operation": [
+      {
+        "name": "unset",
+        "desc": "unset"
+      },
+      {
+        "name": "keep",
+        "desc": "keeps the current value"
+      },
+      {
+        "name": "zero",
+        "desc": "sets the stencil buffer value to 0"
+      },
+      {
+        "name": "replace",
+        "desc": "sets the stencil buffer value to ref, as specified by the stencil function"
+      },
+      {
+        "name": "incr",
+        "desc": "increments the current stencil buffer value and clamps it"
+      },
+      {
+        "name": "incr_wrap",
+        "desc": "increments the current stencil buffer value and wraps it"
+      },
+      {
+        "name": "decr",
+        "desc": "decrements the current stencil buffer value and clamps it"
+      },
+      {
+        "name": "decr_wrap",
+        "desc": "decrements the current stencil buffer value and wraps it"
+      },
+      {
+        "name": "decr_invert",
+        "desc": "bitwise inverts the current stencil buffer value"
+      }
+    ],
+    "cull_mode": [
+      {
+        "name": "unset",
+        "desc": "unset"
+      },
+      {
+        "name": "none",
+        "desc": "no facets are discarded"
+      },
+      {
+        "name": "front",
+        "desc": "cull front-facing facets"
+      },
+      {
+        "name": "back",
+        "desc": "cull back-facing facets"
+      }
+    ],
+    "precision": [
+      {
+        "name": "auto",
+        "desc": "automatic"
+      },
+      {
+        "name": "high",
+        "desc": "high"
+      },
+      {
+        "name": "medium",
+        "desc": "medium"
+      },
+      {
+        "name": "low",
+        "desc": "low"
+      }
+    ],
+    "nopemd_log_level": [
+      {
+        "name": "verbose",
+        "desc": "verbose messages"
+      },
+      {
+        "name": "debug",
+        "desc": "debugging messages"
+      },
+      {
+        "name": "info",
+        "desc": "informational messages"
+      },
+      {
+        "name": "warning",
+        "desc": "warning messages"
+      },
+      {
+        "name": "error",
+        "desc": "error messages"
+      }
+    ],
+    "nopemd_hwaccel": [
+      {
+        "name": "disabled",
+        "desc": "disable hardware acceleration"
+      },
+      {
+        "name": "auto",
+        "desc": "enable hardware acceleration if available"
+      }
+    ],
+    "interp_noise": [
+      {
+        "name": "linear",
+        "desc": "linear interpolation (not recommended), f(t)=t"
+      },
+      {
+        "name": "cubic",
+        "desc": "cubic hermite curve, f(t)=3t²-2t³"
+      },
+      {
+        "name": "quintic",
+        "desc": "quintic curve, f(t)=6t⁵-15t⁴+10t³"
+      }
+    ],
+    "blend_preset": [
+      {
+        "name": "default",
+        "desc": "unchanged current graphics state"
+      },
+      {
+        "name": "src_over",
+        "desc": "this node over destination"
+      },
+      {
+        "name": "dst_over",
+        "desc": "destination over this node"
+      },
+      {
+        "name": "src_out",
+        "desc": "subtract destination from this node"
+      },
+      {
+        "name": "dst_out",
+        "desc": "subtract this node from destination"
+      },
+      {
+        "name": "src_in",
+        "desc": "keep only the part of this node overlapping with destination"
+      },
+      {
+        "name": "dst_in",
+        "desc": "keep only the part of destination overlapping with this node"
+      },
+      {
+        "name": "src_atop",
+        "desc": "union of `src_in` and `dst_out`"
+      },
+      {
+        "name": "dst_atop",
+        "desc": "union of `src_out` and `dst_in`"
+      },
+      {
+        "name": "xor",
+        "desc": "exclusive or between this node and the destination"
+      }
+    ],
+    "gradient_mode": [
+      {
+        "name": "ramp",
+        "desc": "straight line gradient, uniform perpendicularly to the line between the points"
+      },
+      {
+        "name": "radial",
+        "desc": "distance between the points spread circularly"
+      }
+    ],
+    "scope_mode": [
+      {
+        "name": "mixed",
+        "desc": "R, G and B channels overlap on each others"
+      },
+      {
+        "name": "parade",
+        "desc": "split R, G and B channels"
+      },
+      {
+        "name": "luma_only",
+        "desc": "only the luma channel"
+      }
+    ],
+    "framebuffer_features": [
+      {
+        "name": "depth",
+        "desc": "add depth buffer"
+      },
+      {
+        "name": "stencil",
+        "desc": "add stencil buffer"
+      }
+    ],
+    "scale_mode": [
+      {
+        "name": "auto",
+        "desc": "automatic size by fitting the specified bounding box"
+      },
+      {
+        "name": "fixed",
+        "desc": "fixed character size (bounding box ignored for scaling)"
+      }
+    ],
+    "valign": [
+      {
+        "name": "center",
+        "desc": "vertically centered"
+      },
+      {
+        "name": "bottom",
+        "desc": "bottom positioned"
+      },
+      {
+        "name": "top",
+        "desc": "top positioned"
+      }
+    ],
+    "halign": [
+      {
+        "name": "center",
+        "desc": "horizontally centered"
+      },
+      {
+        "name": "right",
+        "desc": "right positioned"
+      },
+      {
+        "name": "left",
+        "desc": "left positioned"
+      }
+    ],
+    "writing_mode": [
+      {
+        "name": "horizontal-tb",
+        "desc": "left-to-right flow then top-to-bottom per line"
+      },
+      {
+        "name": "vertical-rl",
+        "desc": "top-to-bottom flow then right-to-left per line"
+      },
+      {
+        "name": "vertical-lr",
+        "desc": "top-to-bottom flow then left-to-right per line"
+      }
+    ],
+    "text_target": [
+      {
+        "name": "char",
+        "desc": "characters"
+      },
+      {
+        "name": "char_nospace",
+        "desc": "characters (skipping whitespaces)"
+      },
+      {
+        "name": "word",
+        "desc": "words"
+      },
+      {
+        "name": "line",
+        "desc": "lines"
+      },
+      {
+        "name": "text",
+        "desc": "whole text"
+      }
+    ],
+    "format": [
+      {
+        "name": "undefined",
+        "desc": "undefined"
+      },
+      {
+        "name": "r8_unorm",
+        "desc": "8-bit unsigned normalized R component"
+      },
+      {
+        "name": "r8_snorm",
+        "desc": "8-bit signed normalized R component"
+      },
+      {
+        "name": "r8_uint",
+        "desc": "8-bit unsigned integer R component"
+      },
+      {
+        "name": "r8_sint",
+        "desc": "8-bit signed integer R component"
+      },
+      {
+        "name": "r8g8_unorm",
+        "desc": "8-bit unsigned normalized RG components"
+      },
+      {
+        "name": "r8g8_snorm",
+        "desc": "8-bit signed normalized RG components"
+      },
+      {
+        "name": "r8g8_uint",
+        "desc": "8-bit unsigned integer RG components"
+      },
+      {
+        "name": "r8g8_sint",
+        "desc": "8-bit signed normalized RG components"
+      },
+      {
+        "name": "r8g8b8a8_unorm",
+        "desc": "8-bit unsigned normalized RGBA components"
+      },
+      {
+        "name": "r8g8b8a8_snorm",
+        "desc": "8-bit signed normalized RGBA components"
+      },
+      {
+        "name": "r8g8b8a8_uint",
+        "desc": "8-bit unsigned integer RGBA components"
+      },
+      {
+        "name": "r8g8b8a8_sint",
+        "desc": "8-bit signed integer RGBA components"
+      },
+      {
+        "name": "r8g8b8a8_srgb",
+        "desc": "8-bit unsigned normalized RGBA components"
+      },
+      {
+        "name": "b8g8r8a8_unorm",
+        "desc": "8-bit unsigned normalized BGRA components"
+      },
+      {
+        "name": "b8g8r8a8_snorm",
+        "desc": "8-bit signed normalized BGRA components"
+      },
+      {
+        "name": "b8g8r8a8_uint",
+        "desc": "8-bit unsigned integer BGRA components"
+      },
+      {
+        "name": "b8g8r8a8_sint",
+        "desc": "8-bit signed integer BGRA components"
+      },
+      {
+        "name": "r16_unorm",
+        "desc": "16-bit unsigned normalized R component"
+      },
+      {
+        "name": "r16_snorm",
+        "desc": "16-bit signed normalized R component"
+      },
+      {
+        "name": "r16_uint",
+        "desc": "16-bit unsigned integer R component"
+      },
+      {
+        "name": "r16_sint",
+        "desc": "16-bit signed integer R component"
+      },
+      {
+        "name": "r16_sfloat",
+        "desc": "16-bit signed float R component"
+      },
+      {
+        "name": "r16g16_unorm",
+        "desc": "16-bit unsigned normalized RG components"
+      },
+      {
+        "name": "r16g16_snorm",
+        "desc": "16-bit signed normalized RG components"
+      },
+      {
+        "name": "r16g16_uint",
+        "desc": "16-bit unsigned integer RG components"
+      },
+      {
+        "name": "r16g16_sint",
+        "desc": "16-bit signed integer RG components"
+      },
+      {
+        "name": "r16g16_sfloat",
+        "desc": "16-bit signed float RG components"
+      },
+      {
+        "name": "r16g16b16a16_unorm",
+        "desc": "16-bit unsigned normalized RGBA components"
+      },
+      {
+        "name": "r16g16b16a16_snorm",
+        "desc": "16-bit signed normalized RGBA components"
+      },
+      {
+        "name": "r16g16b16a16_uint",
+        "desc": "16-bit unsigned integer RGBA components"
+      },
+      {
+        "name": "r16g16b16a16_sint",
+        "desc": "16-bit signed integer RGBA components"
+      },
+      {
+        "name": "r16g16b16a16_sfloat",
+        "desc": "16-bit signed float RGBA components"
+      },
+      {
+        "name": "r32_uint",
+        "desc": "32-bit unsigned integer R component"
+      },
+      {
+        "name": "r32_sint",
+        "desc": "32-bit signed integer R component"
+      },
+      {
+        "name": "r32_sfloat",
+        "desc": "32-bit signed float R component"
+      },
+      {
+        "name": "r32g32_uint",
+        "desc": "32-bit unsigned integer RG components"
+      },
+      {
+        "name": "r32g32_sint",
+        "desc": "32-bit signed integer RG components"
+      },
+      {
+        "name": "r32g32_sfloat",
+        "desc": "32-bit signed float RG components"
+      },
+      {
+        "name": "r32g32b32a32_uint",
+        "desc": "32-bit unsigned integer RGBA components"
+      },
+      {
+        "name": "r32g32b32a32_sint",
+        "desc": "32-bit signed integer RGBA components"
+      },
+      {
+        "name": "r32g32b32a32_sfloat",
+        "desc": "32-bit signed float RGBA components"
+      },
+      {
+        "name": "d16_unorm",
+        "desc": "16-bit unsigned normalized depth component"
+      },
+      {
+        "name": "d24_unorm",
+        "desc": "32-bit packed format that has 24-bit unsigned normalized depth component + 8-bit of unused data"
+      },
+      {
+        "name": "d32_sfloat",
+        "desc": "32-bit signed float depth component"
+      },
+      {
+        "name": "d24_unorm_s8_uint",
+        "desc": "32-bit packed format that has 24-bit unsigned normalized depth component + 8-bit unsigned integer stencil component"
+      },
+      {
+        "name": "d32_sfloat_s8_uint",
+        "desc": "64-bit packed format that has 32-bit signed float depth component + 8-bit unsigned integer stencil component + 24-bit of unused data"
+      },
+      {
+        "name": "s8_uint",
+        "desc": "8-bit unsigned integer stencil component"
+      },
+      {
+        "name": "auto_depth",
+        "desc": "select automatically the preferred depth format"
+      },
+      {
+        "name": "auto_depth_stencil",
+        "desc": "select automatically the preferred depth + stencil format"
+      }
+    ],
+    "filter": [
+      {
+        "name": "nearest",
+        "desc": "nearest filtering"
+      },
+      {
+        "name": "linear",
+        "desc": "linear filtering"
+      }
+    ],
+    "mipmap_filter": [
+      {
+        "name": "none",
+        "desc": "no mipmap generation"
+      },
+      {
+        "name": "nearest",
+        "desc": "nearest filtering"
+      },
+      {
+        "name": "linear",
+        "desc": "linear filtering"
+      }
+    ],
+    "wrap": [
+      {
+        "name": "clamp_to_edge",
+        "desc": "clamp to edge wrapping"
+      },
+      {
+        "name": "mirrored_repeat",
+        "desc": "mirrored repeat wrapping"
+      },
+      {
+        "name": "repeat",
+        "desc": "repeat pattern wrapping"
+      }
+    ]
+  },
   "nodes": {
     "_Node": {
       "params": [
