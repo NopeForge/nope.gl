@@ -330,10 +330,10 @@ class _WrapperGenerator:
             class_name = "_CommonNode"
         elif inherit:
             parent_class_name = data
-            parent_params = specs[parent_class_name]["params"] + specs["_Node"]["params"]
+            parent_params = specs["nodes"][parent_class_name]["params"] + specs["nodes"]["_Node"]["params"]
         else:
             parent_class_name = "_CommonNode"
-            parent_params = specs["_Node"]["params"]
+            parent_params = specs["nodes"]["_Node"]["params"]
 
         if params is None:
             params = []
@@ -359,11 +359,11 @@ class _WrapperGenerator:
         return class_code
 
     def _declare_classes(self):
-        return "\n\n".join(self._declare_class(class_name, data) for class_name, data in self._specs.items())
+        return "\n\n".join(self._declare_class(class_name, data) for class_name, data in self._specs["nodes"].items())
 
     def _livectl_info(self):
         info_entries = []
-        for class_name, data in self._specs.items():
+        for class_name, data in self._specs["nodes"].items():
             params = data if isinstance(data, str) else data["params"]
             if class_name[0] == "_" or not params or isinstance(params, str):
                 continue
@@ -391,7 +391,7 @@ class CommandUtils:
         content = 'cdef extern from "nopegl.h":\n'
         nodes_decls = []
         constants = []
-        for node in specs.keys():
+        for node in specs["nodes"].keys():
             if not node.startswith("_"):
                 name = f"NODE_{node.upper()}"
                 constants.append(name)

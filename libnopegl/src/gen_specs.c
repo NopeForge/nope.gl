@@ -66,18 +66,18 @@ static char *escape_json_str(const char *s)
     return ret;
 }
 
-#define I "        " /* keys indent */
+#define I "          " /* keys indent */
 #define D I "\"default\": " /* default key */
 
 static void print_node_params(const char *name, const struct node_param *p, const char *file)
 {
-    printf("  \"%s\": {\n", name);
+    printf("    \"%s\": {\n", name);
     if (file)
-        printf("    \"file\": \"%s\",\n", file);
-    printf("    \"params\": [\n");
+        printf("      \"file\": \"%s\",\n", file);
+    printf("      \"params\": [\n");
     if (p) {
         while (p->key) {
-            printf("      {\n");
+            printf("        {\n");
             printf(I "\"name\": \"%s\",\n", p->key);
             printf(I "\"type\": \"%s\",\n", ngli_params_specs[p->type].name);
             switch (p->type) {
@@ -173,12 +173,12 @@ static void print_node_params(const char *name, const struct node_param *p, cons
             char *esc_desc = escape_json_str(p->desc);
             printf(I "\"desc\": \"%s\"\n", esc_desc ? esc_desc : "");
             free(esc_desc);
-            printf("      }%s\n", (p + 1)->key ? "," : "");
+            printf("        }%s\n", (p + 1)->key ? "," : "");
             p++;
         }
     }
-    printf("    ]\n");
-    printf("  }");
+    printf("      ]\n");
+    printf("    }");
 }
 
 #define CLASS_COMMALIST(type_name, cls) &cls,
@@ -186,6 +186,7 @@ static void print_node_params(const char *name, const struct node_param *p, cons
 int main(void)
 {
     printf("{\n");
+    printf("  \"nodes\": {\n");
     print_node_params("_Node", ngli_base_node_params, NULL);
 
     static const struct node_class *node_classes[] = {
@@ -215,7 +216,7 @@ int main(void)
                 ngli_hmap_set(params_map, c->params_id, (void *)p);
             }
             printf(",\n");
-            printf("  \"%s\": \"%s\"", c->name, pname);
+            printf("    \"%s\": \"%s\"", c->name, pname);
             ngli_free(pname);
         } else {
             printf(",\n");
@@ -224,6 +225,7 @@ int main(void)
     }
 
     ngli_hmap_freep(&params_map);
-    printf("\n}\n");
+    printf("\n  }\n");
+    printf("}\n");
     return 0;
 }
