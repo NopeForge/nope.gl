@@ -1,4 +1,126 @@
 {
+  "types": [
+    {
+      "name": "i32",
+      "size": 4,
+      "desc": "32-bit integer"
+    },
+    {
+      "name": "ivec2",
+      "size": 8,
+      "desc": "2 32-bit integers"
+    },
+    {
+      "name": "ivec3",
+      "size": 12,
+      "desc": "3 32-bit integers"
+    },
+    {
+      "name": "ivec4",
+      "size": 16,
+      "desc": "4 32-bit integers"
+    },
+    {
+      "name": "bool",
+      "size": 4,
+      "desc": "Boolean (map to `int` in C)"
+    },
+    {
+      "name": "u32",
+      "size": 4,
+      "desc": "32-bit unsigned integer"
+    },
+    {
+      "name": "uvec2",
+      "size": 8,
+      "desc": "2 32-bit unsigned integers"
+    },
+    {
+      "name": "uvec3",
+      "size": 12,
+      "desc": "3 32-bit unsigned integers"
+    },
+    {
+      "name": "uvec4",
+      "size": 16,
+      "desc": "4 32-bit unsigned integers"
+    },
+    {
+      "name": "f64",
+      "size": 8,
+      "desc": "64-bit float"
+    },
+    {
+      "name": "str",
+      "size": 8,
+      "desc": "String"
+    },
+    {
+      "name": "data",
+      "size": 16,
+      "desc": "Agnostic data buffer"
+    },
+    {
+      "name": "f32",
+      "size": 4,
+      "desc": "32-bit float"
+    },
+    {
+      "name": "vec2",
+      "size": 8,
+      "desc": "2 32-bit floats"
+    },
+    {
+      "name": "vec3",
+      "size": 12,
+      "desc": "3 32-bit floats"
+    },
+    {
+      "name": "vec4",
+      "size": 16,
+      "desc": "4 32-bit floats"
+    },
+    {
+      "name": "mat4",
+      "size": 64,
+      "desc": "4x4 32-bit floats"
+    },
+    {
+      "name": "node",
+      "size": 8,
+      "desc": "nope.gl Node"
+    },
+    {
+      "name": "node_list",
+      "size": 16,
+      "desc": "List of nope.gl Node"
+    },
+    {
+      "name": "f64_list",
+      "size": 16,
+      "desc": "List of 64-bit floats"
+    },
+    {
+      "name": "node_dict",
+      "size": 8,
+      "desc": "Dictionary mapping arbitrary string identifiers to nope.gl Nodes"
+    },
+    {
+      "name": "select",
+      "size": 4,
+      "desc": "Selection of one constant (expressed as a string)"
+    },
+    {
+      "name": "flags",
+      "size": 4,
+      "desc": "Combination of constants (expressed as strings), using `+` as separator. Can be empty for none."
+    },
+    {
+      "name": "rational",
+      "size": 8,
+      "desc": "Rational number (expressed as 2 32-bit integers, respectively as numerator and denominator)"
+    }
+  ],
   "nodes": {
     "_Node": {
       "params": [

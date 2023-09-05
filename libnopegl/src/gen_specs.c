@@ -183,9 +183,28 @@ static void print_node_params(const char *name, const struct node_param *p, cons
 
 #define CLASS_COMMALIST(type_name, cls) &cls,
 
+static void print_types(void)
+{
+    printf("  \"types\": [\n");
+    for (size_t i = 0; i < NGLI_PARAM_TYPE_NB; i++) {
+        const struct param_specs *ps = &ngli_params_specs[i];
+        ngli_assert(ps->name && ps->desc);
+        printf("    {\n");
+        printf("      \"name\": \"%s\",\n", ps->name);
+        printf("      \"size\": %zu,\n", ps->size);
+        printf("      \"desc\": \"%s\"\n", ps->desc);
+        printf("    }%s\n", i != NGLI_PARAM_TYPE_NB - 1 ? "," : "");
+    }
+    printf("  ]");
+}
+
 int main(void)
 {
     printf("{\n");
+
+    print_types();
+    printf(",\n");
+
     printf("  \"nodes\": {\n");
     print_node_params("_Node", ngli_base_node_params, NULL);
 
