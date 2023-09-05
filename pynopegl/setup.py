@@ -187,17 +187,16 @@ class _WrapperGenerator:
             return f"set_{param_name}(self, {param_name}: Tuple[int, int])"
         assert False
 
-    @classmethod
-    def _get_class_setters(cls, params):
+    def _get_class_setters(self, params):
         setters = []
         for param in params:
-            prototype = cls._get_setter_prototype(param)
-            setter_code = cls._get_setter_code(param, has_kwargs=True)
+            prototype = self._get_setter_prototype(param)
+            setter_code = self._get_setter_code(param, has_kwargs=True)
 
             desc = f'"""\n{param["desc"]}\n'
             choices = param.get("choices")
             if choices:
-                choices = ", ".join(choices)
+                choices = ", ".join(choice["name"] for choice in self._specs["choices"][choices])
                 if param["type"] == "flags":
                     desc += f"Combination of: {choices}\n"
                 elif param["type"] == "select":

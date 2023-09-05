@@ -86,10 +86,7 @@ static void print_node_params(const char *name, const struct node_param *p, cons
                 const char *s = ngli_params_get_select_str(p->choices->consts, v);
                 ngli_assert(s);
                 printf(D "\"%s\",\n", s);
-                printf(I "\"choices\": [");
-                for (size_t i = 0; p->choices->consts[i].key; i++)
-                    printf("%s\"%s\"", i ? ", " : "", p->choices->consts[i].key);
-                printf("],\n");
+                printf(I "\"choices\": \"%s\",\n", p->choices->name);
                 break;
             }
             case NGLI_PARAM_TYPE_FLAGS: {
@@ -100,10 +97,7 @@ static void print_node_params(const char *name, const struct node_param *p, cons
                 ngli_assert(*s);
                 printf(D "\"%s\",\n", s);
                 ngli_free(s);
-                printf(I "\"choices\": [");
-                for (size_t i = 0; p->choices->consts[i].key; i++)
-                    printf("%s\"%s\"", i ? ", " : "", p->choices->consts[i].key);
-                printf("],\n");
+                printf(I "\"choices\": \"%s\",\n", p->choices->name);
                 break;
             }
             case NGLI_PARAM_TYPE_F32:
