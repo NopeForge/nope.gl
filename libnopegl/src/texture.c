@@ -22,9 +22,19 @@
 #include "gpu_ctx.h"
 #include "texture.h"
 
+static void texture_freep(struct texture **sp)
+{
+    if (!*sp)
+        return;
+
+    (*sp)->gpu_ctx->cls->texture_freep(sp);
+}
+
 struct texture *ngli_texture_create(struct gpu_ctx *gpu_ctx)
 {
-    return gpu_ctx->cls->texture_create(gpu_ctx);
+    struct texture *s = gpu_ctx->cls->texture_create(gpu_ctx);
+    s->rc = NGLI_RC_CREATE(texture_freep);
+    return s;
 }
 
 int ngli_texture_init(struct texture *s, const struct texture_params *params)
@@ -44,7 +54,5 @@ int ngli_texture_generate_mipmap(struct texture *s)
 
 void ngli_texture_freep(struct texture **sp)
 {
-    if (!*sp)
-        return;
-    (*sp)->gpu_ctx->cls->texture_freep(sp);
+    NGLI_RC_UNREFP(sp);
 }

@@ -46,9 +46,22 @@ void ngli_pipeline_graphics_reset(struct pipeline_graphics *graphics)
     memset(graphics, 0, sizeof(*graphics));
 }
 
+static void pipeline_freep(struct pipeline **sp)
+{
+    if (!*sp)
+        return;
+
+    struct pipeline *s = *sp;
+    ngli_pipeline_graphics_reset(&s->graphics);
+
+    (*sp)->gpu_ctx->cls->pipeline_freep(sp);
+}
+
 struct pipeline *ngli_pipeline_create(struct gpu_ctx *gpu_ctx)
 {
-    return gpu_ctx->cls->pipeline_create(gpu_ctx);
+    struct pipeline *s = gpu_ctx->cls->pipeline_create(gpu_ctx);
+    s->rc = NGLI_RC_CREATE(pipeline_freep);
+    return s;
 }
 
 int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params)
@@ -67,11 +80,5 @@ int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params)
 
 void ngli_pipeline_freep(struct pipeline **sp)
 {
-    if (!*sp)
-        return;
-
-    struct pipeline *s = *sp;
-    ngli_pipeline_graphics_reset(&s->graphics);
-
-    (*sp)->gpu_ctx->cls->pipeline_freep(sp);
+    NGLI_RC_UNREFP(sp);
 }

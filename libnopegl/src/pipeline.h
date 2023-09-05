@@ -32,6 +32,7 @@
 #include "program.h"
 #include "rendertarget.h"
 #include "texture.h"
+#include "utils.h"
 
 struct gpu_ctx;
 
@@ -80,6 +81,7 @@ struct pipeline_params {
 };
 
 struct pipeline {
+    struct ngli_rc rc;
     struct gpu_ctx *gpu_ctx;
 
     int type;
@@ -87,6 +89,8 @@ struct pipeline {
     const struct program *program;
     struct pipeline_layout layout;
 };
+
+NGLI_RC_CHECK_STRUCT(pipeline);
 
 int ngli_pipeline_graphics_copy(struct pipeline_graphics *dst, const struct pipeline_graphics *src);
 void ngli_pipeline_graphics_reset(struct pipeline_graphics *graphics);

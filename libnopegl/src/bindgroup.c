@@ -34,9 +34,23 @@ static int layout_entry_is_compatible(const struct bindgroup_layout_entry *a,
            a->stage   == b->stage;
 }
 
+static void bindgroup_layout_freep(struct bindgroup_layout **sp)
+{
+    if (!*sp)
+        return;
+
+    struct bindgroup_layout *s = *sp;
+    ngli_freep(&s->buffers);
+    ngli_freep(&s->textures);
+
+    (*sp)->gpu_ctx->cls->bindgroup_layout_freep(sp);
+}
+
 struct bindgroup_layout *ngli_bindgroup_layout_create(struct gpu_ctx *gpu_ctx)
 {
-    return gpu_ctx->cls->bindgroup_layout_create(gpu_ctx);
+    struct bindgroup_layout *s = gpu_ctx->cls->bindgroup_layout_create(gpu_ctx);
+    s->rc = NGLI_RC_CREATE(bindgroup_layout_freep);
+    return s;
 }
 
 int ngli_bindgroup_layout_init(struct bindgroup_layout *s,
@@ -82,19 +96,22 @@ int ngli_bindgroup_layout_is_compatible(const struct bindgroup_layout *a, const 
 
 void ngli_bindgroup_layout_freep(struct bindgroup_layout **sp)
 {
+    NGLI_RC_UNREFP(sp);
+}
+
+static void bindgroup_freep(struct bindgroup **sp)
+{
     if (!*sp)
         return;
 
-    struct bindgroup_layout *s = *sp;
-    ngli_freep(&s->buffers);
-    ngli_freep(&s->textures);
-
-    (*sp)->gpu_ctx->cls->bindgroup_layout_freep(sp);
+    (*sp)->gpu_ctx->cls->bindgroup_freep(sp);
 }
 
 struct bindgroup *ngli_bindgroup_create(struct gpu_ctx *gpu_ctx)
 {
-    return gpu_ctx->cls->bindgroup_create(gpu_ctx);
+    struct bindgroup *s = gpu_ctx->cls->bindgroup_create(gpu_ctx);
+    s->rc = NGLI_RC_CREATE(bindgroup_freep);
+    return s;
 }
 
 int ngli_bindgroup_init(struct bindgroup *s, const struct bindgroup_params *params)
@@ -174,7 +191,5 @@ int ngli_bindgroup_update_buffer(struct bindgroup *s, int32_t index, const struc
 
 void ngli_bindgroup_freep(struct bindgroup **sp)
 {
-    if (!*sp)
-        return;
-    (*sp)->gpu_ctx->cls->bindgroup_freep(sp);
+    NGLI_RC_UNREFP(sp);
 }

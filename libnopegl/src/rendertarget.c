@@ -22,9 +22,19 @@
 #include "gpu_ctx.h"
 #include "rendertarget.h"
 
+static void rendertarget_freep(struct rendertarget **sp)
+{
+    if (!*sp)
+        return;
+
+    (*sp)->gpu_ctx->cls->rendertarget_freep(sp);
+}
+
 struct rendertarget *ngli_rendertarget_create(struct gpu_ctx *gpu_ctx)
 {
-    return gpu_ctx->cls->rendertarget_create(gpu_ctx);
+    struct rendertarget *s = gpu_ctx->cls->rendertarget_create(gpu_ctx);
+    s->rc = NGLI_RC_CREATE(rendertarget_freep);
+    return s;
 }
 
 int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_params *params)
@@ -82,7 +92,5 @@ int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_par
 
 void ngli_rendertarget_freep(struct rendertarget **sp)
 {
-    if (!*sp)
-        return;
-    (*sp)->gpu_ctx->cls->rendertarget_freep(sp);
+    NGLI_RC_UNREFP(sp);
 }

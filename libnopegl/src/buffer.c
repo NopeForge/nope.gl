@@ -23,10 +23,21 @@
 
 #include "buffer.h"
 #include "gpu_ctx.h"
+#include "utils.h"
+
+static void buffer_freep(struct buffer **sp)
+{
+    if (!*sp)
+        return;
+
+    (*sp)->gpu_ctx->cls->buffer_freep(sp);
+}
 
 struct buffer *ngli_buffer_create(struct gpu_ctx *gpu_ctx)
 {
-    return gpu_ctx->cls->buffer_create(gpu_ctx);
+    struct buffer *s = gpu_ctx->cls->buffer_create(gpu_ctx);
+    s->rc = NGLI_RC_CREATE(buffer_freep);
+    return s;
 }
 
 int ngli_buffer_init(struct buffer *s, size_t size, int usage)
@@ -54,7 +65,5 @@ void ngli_buffer_unmap(struct buffer *s)
 
 void ngli_buffer_freep(struct buffer **sp)
 {
-    if (!*sp)
-        return;
-    (*sp)->gpu_ctx->cls->buffer_freep(sp);
+    NGLI_RC_UNREFP(sp);
 }

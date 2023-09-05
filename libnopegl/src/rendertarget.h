@@ -25,6 +25,7 @@
 #include "darray.h"
 #include "gpu_limits.h"
 #include "texture.h"
+#include "utils.h"
 
 enum {
     NGLI_LOAD_OP_LOAD,
@@ -68,12 +69,15 @@ struct rendertarget_params {
 };
 
 struct rendertarget {
+    struct ngli_rc rc;
     struct gpu_ctx *gpu_ctx;
     struct rendertarget_params params;
     int32_t width;
     int32_t height;
     struct rendertarget_layout layout;
 };
+
+NGLI_RC_CHECK_STRUCT(rendertarget);
 
 struct rendertarget *ngli_rendertarget_create(struct gpu_ctx *gpu_ctx);
 int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_params *params);

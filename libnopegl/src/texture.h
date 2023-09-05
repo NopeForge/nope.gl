@@ -86,9 +86,12 @@ struct texture_params {
 };
 
 struct texture {
+    struct ngli_rc rc;
     struct gpu_ctx *gpu_ctx;
     struct texture_params params;
 };
+
+NGLI_RC_CHECK_STRUCT(texture);
 
 struct texture *ngli_texture_create(struct gpu_ctx *gpu_ctx);
 
