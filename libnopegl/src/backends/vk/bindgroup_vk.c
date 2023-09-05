@@ -289,16 +289,16 @@ int ngli_bindgroup_vk_update_texture(struct bindgroup *s, int32_t index, const s
     struct bindgroup_vk *s_priv = (struct bindgroup_vk *)s;
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
 
-    struct texture_binding_vk *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
+    struct texture_binding_vk *binding_vk = ngli_darray_get(&s_priv->texture_bindings, index);
 
-    NGLI_RC_UNREFP(&texture_binding->texture);
+    NGLI_RC_UNREFP(&binding_vk->texture);
 
     const struct texture *texture = binding->texture;
     if (!texture)
         texture = gpu_ctx_vk->dummy_texture;
 
-    texture_binding->texture = NGLI_RC_REF(texture);
-    texture_binding->update_desc = 1;
+    binding_vk->texture = NGLI_RC_REF(texture);
+    binding_vk->update_desc = 1;
 
     return 0;
 }
@@ -307,18 +307,18 @@ int ngli_bindgroup_vk_update_buffer(struct bindgroup *s, int32_t index, const st
 {
     struct bindgroup_vk *s_priv = (struct bindgroup_vk *)s;
 
-    struct buffer_binding_vk *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
+    struct buffer_binding_vk *binding_vk = ngli_darray_get(&s_priv->buffer_bindings, index);
 
-    NGLI_RC_UNREFP(&buffer_binding->buffer);
+    NGLI_RC_UNREFP(&binding_vk->buffer);
 
     const struct buffer *buffer = binding->buffer;
     if (buffer)
         buffer = NGLI_RC_REF(binding->buffer);
 
-    buffer_binding->buffer = buffer;
-    buffer_binding->offset = binding->offset;
-    buffer_binding->size   = binding->size;
-    buffer_binding->update_desc = 1;
+    binding_vk->buffer = buffer;
+    binding_vk->offset = binding->offset;
+    binding_vk->size   = binding->size;
+    binding_vk->update_desc = 1;
 
     return 0;
 }
