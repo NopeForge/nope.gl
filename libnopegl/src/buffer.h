@@ -24,6 +24,8 @@
 
 #include <stdlib.h>
 
+#include "utils.h"
+
 struct gpu_ctx;
 
 enum {
@@ -40,10 +42,13 @@ enum {
 };
 
 struct buffer {
+    struct ngli_rc rc;
     struct gpu_ctx *gpu_ctx;
     size_t size;
     int usage;
 };
+
+NGLI_RC_CHECK_STRUCT(buffer);
 
 struct buffer *ngli_buffer_create(struct gpu_ctx *gpu_ctx);
 int ngli_buffer_init(struct buffer *s, size_t size, int usage);

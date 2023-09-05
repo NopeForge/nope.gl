@@ -31,6 +31,7 @@
 #include "rendertarget.h"
 #include "texture.h"
 #include "type.h"
+#include "utils.h"
 
 struct gpu_ctx;
 
@@ -61,6 +62,7 @@ struct bindgroup_layout_params {
 };
 
 struct bindgroup_layout {
+    struct ngli_rc rc;
     struct gpu_ctx *gpu_ctx;
     struct bindgroup_layout_entry *textures;
     size_t nb_textures;
@@ -68,6 +70,8 @@ struct bindgroup_layout {
     size_t nb_buffers;
     size_t nb_dynamic_offsets;
 };
+
+NGLI_RC_CHECK_STRUCT(bindgroup_layout);
 
 struct texture_binding {
     const struct texture *texture;
@@ -89,9 +93,12 @@ struct bindgroup_params {
 };
 
 struct bindgroup {
+    struct ngli_rc rc;
     struct gpu_ctx *gpu_ctx;
     const struct bindgroup_layout *layout;
 };
+
+NGLI_RC_CHECK_STRUCT(bindgroup);
 
 struct bindgroup_layout *ngli_bindgroup_layout_create(struct gpu_ctx *gpu_ctx);
 int ngli_bindgroup_layout_init(struct bindgroup_layout *s, const struct bindgroup_layout_params *params);
