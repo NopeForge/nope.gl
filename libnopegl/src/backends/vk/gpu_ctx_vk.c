@@ -1321,6 +1321,8 @@ static void vk_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
         }
     }
 
+    NGLI_CMD_VK_REF(s_priv->cur_cmd, rt);
+
     VkCommandBuffer cmd_buf = s_priv->cur_cmd->cmd_buf;
     const VkRenderPassBeginInfo render_pass_begin_info = {
         .sType       = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,

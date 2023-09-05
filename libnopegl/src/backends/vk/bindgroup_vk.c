@@ -234,7 +234,8 @@ int ngli_bindgroup_vk_init(struct bindgroup *s, const struct bindgroup_params *p
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct bindgroup_vk *s_priv = (struct bindgroup_vk *)s;
 
-    s->layout = params->layout;
+    s->layout = NGLI_RC_REF(params->layout);
+
     const struct bindgroup_layout_vk *layout_vk = (const struct bindgroup_layout_vk *)s->layout;
 
     ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_vk), 0);
@@ -289,7 +290,14 @@ int ngli_bindgroup_vk_update_texture(struct bindgroup *s, int32_t index, const s
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
 
     struct texture_binding_vk *texture_binding = ngli_darray_get(&s_priv->texture_bindings, index);
-    texture_binding->texture = binding->texture ? binding->texture : gpu_ctx_vk->dummy_texture;
+
+    NGLI_RC_UNREFP(&texture_binding->texture);
+
+    const struct texture *texture = binding->texture;
+    if (!texture)
+        texture = gpu_ctx_vk->dummy_texture;
+
+    texture_binding->texture = NGLI_RC_REF(texture);
     texture_binding->update_desc = 1;
 
     return 0;
@@ -300,9 +308,14 @@ int ngli_bindgroup_vk_update_buffer(struct bindgroup *s, int32_t index, const st
     struct bindgroup_vk *s_priv = (struct bindgroup_vk *)s;
 
     struct buffer_binding_vk *buffer_binding = ngli_darray_get(&s_priv->buffer_bindings, index);
-    ngli_assert(buffer_binding);
 
-    buffer_binding->buffer = binding->buffer;
+    NGLI_RC_UNREFP(&buffer_binding->buffer);
+
+    const struct buffer *buffer = binding->buffer;
+    if (buffer)
+        buffer = NGLI_RC_REF(binding->buffer);
+
+    buffer_binding->buffer = buffer;
     buffer_binding->offset = binding->offset;
     buffer_binding->size   = binding->size;
     buffer_binding->update_desc = 1;
@@ -379,7 +392,19 @@ void ngli_bindgroup_vk_freep(struct bindgroup **sp)
     struct bindgroup *s = *sp;
     struct bindgroup_vk *s_priv = (struct bindgroup_vk *)s;
 
+    NGLI_RC_UNREFP(&s->layout);
+    struct texture_binding_vk *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
+        struct texture_binding_vk *binding = &texture_bindings[i];
+        NGLI_RC_UNREFP(&binding->texture);
+    }
     ngli_darray_reset(&s_priv->texture_bindings);
+
+    struct buffer_binding_vk *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
+        struct buffer_binding_vk *binding = &buffer_bindings[i];
+        NGLI_RC_UNREFP(&binding->buffer);
+    }
     ngli_darray_reset(&s_priv->buffer_bindings);
 
     ngli_freep(sp);

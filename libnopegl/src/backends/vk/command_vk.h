@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -25,6 +26,7 @@
 #include <vulkan/vulkan.h>
 
 #include "darray.h"
+#include "utils.h"
 
 struct cmd_vk {
     struct gpu_ctx *gpu_ctx;
@@ -35,6 +37,7 @@ struct cmd_vk {
     struct darray wait_sems;
     struct darray wait_stages;
     struct darray signal_sems;
+    struct darray refs; // array of ngli_rc pointers
 };
 
 struct cmd_vk *ngli_cmd_vk_create(struct gpu_ctx *gpu_ctx);
@@ -42,6 +45,10 @@ void ngli_cmd_vk_freep(struct cmd_vk **sp);
 VkResult ngli_cmd_vk_init(struct cmd_vk *s, int type);
 VkResult ngli_cmd_vk_add_wait_sem(struct cmd_vk *s, VkSemaphore *sem, VkPipelineStageFlags stage);
 VkResult ngli_cmd_vk_add_signal_sem(struct cmd_vk *s, VkSemaphore *sem);
+
+#define NGLI_CMD_VK_REF(cmd, rc) ngli_cmd_vk_ref((cmd), (struct ngli_rc *)(rc))
+VkResult ngli_cmd_vk_ref(struct cmd_vk *s, struct ngli_rc *rc);
+
 VkResult ngli_cmd_vk_begin(struct cmd_vk *s);
 VkResult ngli_cmd_vk_submit(struct cmd_vk *s);
 VkResult ngli_cmd_vk_wait(struct cmd_vk *s);
