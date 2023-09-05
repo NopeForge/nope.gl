@@ -198,13 +198,8 @@ static void print_types(void)
     printf("  ]");
 }
 
-int main(void)
+static int print_nodes(void)
 {
-    printf("{\n");
-
-    print_types();
-    printf(",\n");
-
     printf("  \"nodes\": {\n");
     print_node_params("_Node", ngli_base_node_params, NULL);
 
@@ -242,9 +237,24 @@ int main(void)
             print_node_params(c->name, p, c->file);
         }
     }
+    printf("\n  }");
 
     ngli_hmap_freep(&params_map);
-    printf("\n  }\n");
+    return 0;
+}
+
+int main(void)
+{
+    printf("{\n");
+
+    print_types();
+    printf(",\n");
+
+    int ret = print_nodes();
+    if (ret < 0)
+        return 1;
+    printf("\n");
+
     printf("}\n");
     return 0;
 }
