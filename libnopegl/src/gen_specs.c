@@ -183,6 +183,10 @@ static void print_node_params(const char *name, const struct node_param *p, cons
 
 #define CLASS_COMMALIST(type_name, cls) &cls,
 
+static const struct node_class *node_classes[] = {
+    NODE_MAP_TYPE2CLASS(CLASS_COMMALIST)
+};
+
 static void print_types(void)
 {
     printf("  \"types\": [\n");
@@ -202,10 +206,6 @@ static int print_nodes(void)
 {
     printf("  \"nodes\": {\n");
     print_node_params("_Node", ngli_base_node_params, NULL);
-
-    static const struct node_class *node_classes[] = {
-        NODE_MAP_TYPE2CLASS(CLASS_COMMALIST)
-    };
 
     struct hmap *params_map = ngli_hmap_create();
     if (!params_map)
