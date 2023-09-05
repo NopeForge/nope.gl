@@ -189,7 +189,8 @@ def _main():
     s += _get_parameter_flags_block()
     s += _get_parameter_choices_block(data["choices"])
 
-    print(s.rstrip())
+    with open(sys.argv[2], "w", encoding="utf-8") as f:
+        f.write(s)
 
 
 if __name__ == "__main__":
