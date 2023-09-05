@@ -13,6 +13,10 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Name filters in the export dialog of the viewer
 - Viewer export on Windows
 
+### Changed
+- The installed `nodes.specs` specifications have been extended to include more
+  information (types, choices, etc)
+
 ## [2023.3] [libnopegl 0.9.0] - 2023-09-01
 ### Fixed
 - Linux and macOS release jobs
