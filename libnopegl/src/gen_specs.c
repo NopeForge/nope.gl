@@ -211,6 +211,7 @@ static int print_nodes(void)
     if (!params_map)
         return -1;
 
+    int ret = 0;
     for (size_t i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
         const struct node_class *c = node_classes[i];
         const struct node_param *p = &c->params[0];
@@ -220,7 +221,8 @@ static int print_nodes(void)
             char *pname = ngli_asprintf("_%s", c->params_id);
             if (!pname) {
                 ngli_free(pname);
-                return -1;
+                ret = -1;
+                goto end;
             }
             if (mapped_param) {
                 ngli_assert(mapped_param == p);
@@ -239,8 +241,9 @@ static int print_nodes(void)
     }
     printf("\n  }");
 
+end:
     ngli_hmap_freep(&params_map);
-    return 0;
+    return ret;
 }
 
 int main(void)
