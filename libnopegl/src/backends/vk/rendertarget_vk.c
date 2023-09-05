@@ -268,6 +268,25 @@ static VkResult create_image_view(const struct rendertarget *s, const struct tex
     return vkCreateImageView(vk->device, &view_info, NULL, view);
 }
 
+static VkResult add_attachment(struct rendertarget *s, const struct texture *texture, int32_t layer, const VkClearValue *clear_value)
+{
+    struct rendertarget_vk *s_priv = (struct rendertarget_vk *)s;
+
+    VkImageView view;
+    VkResult res = create_image_view(s, texture, layer, &view);
+    if (res != VK_SUCCESS)
+        return res;
+
+    s_priv->attachments[s_priv->nb_attachments] = view;
+    s_priv->attachments_refs[s_priv->nb_attachments] = NGLI_RC_REF(texture);
+    s_priv->nb_attachments++;
+
+    s_priv->clear_values[s_priv->nb_clear_values] = *clear_value;
+    s_priv->nb_clear_values++;
+
+    return VK_SUCCESS;
+}
+
 struct rendertarget *ngli_rendertarget_vk_create(struct gpu_ctx *gpu_ctx)
 {
     struct rendertarget_vk *s = ngli_calloc(1, sizeof(*s));
@@ -290,64 +309,29 @@ static VkResult rendertarget_vk_init(struct rendertarget *s)
     for (size_t i = 0; i < s->params.nb_colors; i++) {
         const struct attachment *attachment = &s->params.colors[i];
 
-        VkImageView view;
-        res = create_image_view(s, attachment->attachment, attachment->attachment_layer, &view);
+        const VkClearValue clear_value = {.color.float32 = {NGLI_ARG_VEC4(attachment->clear_value)}};
+        res = add_attachment(s, attachment->attachment, attachment->attachment_layer, &clear_value);
         if (res != VK_SUCCESS)
             return res;
 
-        s_priv->attachments[s_priv->nb_attachments] = view;
-        s_priv->attachments_refs[s_priv->nb_attachments] = NGLI_RC_REF(attachment->attachment);
-        s_priv->nb_attachments++;
-
-        s_priv->clear_values[s_priv->nb_clear_values] = (VkClearValue) {
-            .color.float32 = {NGLI_ARG_VEC4(attachment->clear_value)},
-        };
-        s_priv->nb_clear_values++;
-
         if (attachment->resolve_target) {
-            VkImageView view;
-            res = create_image_view(s, attachment->resolve_target, attachment->resolve_target_layer, &view);
+            res = add_attachment(s, attachment->resolve_target, attachment->resolve_target_layer, &clear_value);
             if (res != VK_SUCCESS)
                 return res;
-
-            s_priv->attachments[s_priv->nb_attachments] = view;
-            s_priv->attachments_refs[s_priv->nb_attachments] = NGLI_RC_REF(attachment->resolve_target);
-            s_priv->nb_attachments++;
-
-            s_priv->clear_values[s_priv->nb_clear_values] = (VkClearValue) {
-                .color.float32 = {NGLI_ARG_VEC4(attachment->clear_value)},
-            };
-            s_priv->nb_clear_values++;
         }
     }
 
     const struct attachment *attachment = &s->params.depth_stencil;
-    const struct texture *texture = attachment->attachment;
-    if (texture) {
-        VkImageView view;
-        res = create_image_view(s, texture, attachment->attachment_layer, &view);
+    if (attachment->attachment) {
+        const VkClearValue clear_value = {.depthStencil = {1.f, 0}};
+        res = add_attachment(s, attachment->attachment, attachment->attachment_layer, &clear_value);
         if (res != VK_SUCCESS)
             return res;
 
-        s_priv->attachments[s_priv->nb_attachments] = view;
-        s_priv->attachments_refs[s_priv->nb_attachments] = NGLI_RC_REF(texture);
-        s_priv->nb_attachments++;
-
-        s_priv->clear_values[s_priv->nb_clear_values] = (VkClearValue) {.depthStencil = {1.f, 0}};
-        s_priv->nb_clear_values++;
-
         if (attachment->resolve_target) {
-            VkImageView view;
-            res = create_image_view(s, attachment->resolve_target, attachment->resolve_target_layer, &view);
+            res = add_attachment(s, attachment->resolve_target, attachment->resolve_target_layer, &clear_value);
             if (res != VK_SUCCESS)
                 return res;
-
-            s_priv->attachments[s_priv->nb_attachments] = view;
-            s_priv->attachments_refs[s_priv->nb_attachments] = NGLI_RC_REF(attachment->resolve_target);
-            s_priv->nb_attachments++;
-
-            s_priv->clear_values[s_priv->nb_clear_values] = (VkClearValue) {.depthStencil = {1.f, 0}};
-            s_priv->nb_clear_values++;
         }
     }
 
