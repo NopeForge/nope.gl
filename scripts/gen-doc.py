@@ -90,7 +90,7 @@ def _get_node_params_block(nodes, name, params) -> str:
     for param in params:
         name = param["name"]
         type = _get_type_str(nodes, param)
-        flags = "".join(f" [`{flag}`](#Parameter-flags)" for flag in param["flags"])
+        flags = "".join(f" [`{flag}`](#parameter-flags)" for flag in param["flags"])
         desc = param["desc"]
         default = _get_default_str(param)
         s += f"`{name}` | {flags} | {type} | {desc} | {default}\n"
