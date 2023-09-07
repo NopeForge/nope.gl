@@ -1,4 +1,5 @@
 #
+# Copyright 2023 Nope Foundry
 # Copyright 2020-2022 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -667,6 +668,7 @@ shaders = {
   'helper_linear2srgb.glsl': 'helper_linear2srgb_glsl.h',
   'helper_srgb2linear.glsl': 'helper_srgb2linear_glsl.h',
   'helper_misc_utils.glsl': 'helper_misc_utils_glsl.h',
+  'helper_noise.glsl': 'helper_noise_glsl.h',
   'hwconv.frag': 'hwconv_frag.h',
   'hwconv.vert': 'hwconv_vert.h',
   'path.frag': 'path_frag.h',
@@ -681,6 +683,8 @@ shaders = {
   'source_gradient4.vert': 'source_gradient4_vert.h',
   'source_histogram.frag': 'source_histogram_frag.h',
   'source_histogram.vert': 'source_histogram_vert.h',
+  'source_noise.frag': 'source_noise_frag.h',
+  'source_noise.vert': 'source_noise_vert.h',
   'source_texture.frag': 'source_texture_frag.h',
   'source_texture.vert': 'source_texture_vert.h',
   'source_waveform.frag': 'source_waveform_frag.h',

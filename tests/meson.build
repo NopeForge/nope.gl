@@ -467,6 +467,11 @@ foreach backend : backends
     ]
   endif
 
+  tests_noise = [
+    'blocky',
+    'perlin',
+  ]
+
   tests = {
     'api':           {'tests': tests_api, 'has_refs': false},
     'anim':          {'tests': tests_anim},
@@ -480,6 +485,7 @@ foreach backend : backends
     'filter':        {'tests': tests_filter},
     'live':          {'tests': tests_live},
     'media':         {'tests': tests_media},
+    'noise':         {'tests': tests_noise},
     'path':          {'tests': tests_path},
     'py_bindings':   {'tests': tests_py_bindings, 'has_refs': false},
     'velocity':      {'tests': tests_velocity},

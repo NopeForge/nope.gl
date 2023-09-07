@@ -1,4 +1,6 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail,com>
+ * Copyright 2023 Nope Foundry
  * Copyright 2021-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,6 +30,7 @@
 /* Shader helpers */
 #include "helper_linear2srgb_glsl.h"
 #include "helper_misc_utils_glsl.h"
+#include "helper_noise_glsl.h"
 #include "helper_srgb2linear_glsl.h"
 
 struct filterschain {
@@ -88,6 +91,7 @@ static const struct {
     const char * const * code; // double dimension to avoid initializer not being a constant
 } helpers_mask_code[] = {
     {NGLI_FILTER_HELPER_MISC_UTILS, &helper_misc_utils_glsl},
+    {NGLI_FILTER_HELPER_NOISE, &helper_noise_glsl},
     {NGLI_FILTER_HELPER_LINEAR2SRGB, &helper_linear2srgb_glsl},
     {NGLI_FILTER_HELPER_SRGB2LINEAR, &helper_srgb2linear_glsl},
 };
