@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Nope Foundry
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -275,6 +276,7 @@ NGL_API void ngl_scene_freep(struct ngl_scene **sp);
 #define NGL_NODE_RENDERGRADIENT         NGLI_FOURCC('R','g','r','d')
 #define NGL_NODE_RENDERGRADIENT4        NGLI_FOURCC('R','g','d','4')
 #define NGL_NODE_RENDERHISTOGRAM        NGLI_FOURCC('R','h','s','t')
+#define NGL_NODE_RENDERNOISE            NGLI_FOURCC('R','N','o','i')
 #define NGL_NODE_RENDERPATH             NGLI_FOURCC('R','P','t','h')
 #define NGL_NODE_RENDERTEXTURE          NGLI_FOURCC('R','t','e','x')
 #define NGL_NODE_RENDERTOTEXTURE        NGLI_FOURCC('R','T','T',' ')

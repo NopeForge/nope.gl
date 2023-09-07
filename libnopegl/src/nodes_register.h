@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Nope Foundry
  * Copyright 2017-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -132,6 +133,7 @@
     action(NGL_NODE_RENDERGRADIENT,         ngli_rendergradient_class)          \
     action(NGL_NODE_RENDERGRADIENT4,        ngli_rendergradient4_class)         \
     action(NGL_NODE_RENDERHISTOGRAM,        ngli_renderhistogram_class)         \
+    action(NGL_NODE_RENDERNOISE,            ngli_rendernoise_class)             \
     action(NGL_NODE_RENDERPATH,             ngli_renderpath_class)              \
     action(NGL_NODE_RENDERTEXTURE,          ngli_rendertexture_class)           \
     action(NGL_NODE_RENDERTOTEXTURE,        ngli_rtt_class)                     \

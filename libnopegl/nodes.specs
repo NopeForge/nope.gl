@@ -648,6 +648,16 @@
         "desc": "only the luma channel"
       }
     ],
+    "noise_type": [
+      {
+        "name": "blocky",
+        "desc": "blocky noise"
+      },
+      {
+        "name": "perlin",
+        "desc": "perlin noise"
+      }
+    ],
     "scale_mode": [
       {
         "name": "auto",
@@ -2866,6 +2876,90 @@
           "choices": "scope_mode",
           "flags": [],
           "desc": "define how to represent the data"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
+    "RenderNoise": {
+      "file": "src/node_renderother.c",
+      "params": [
+        {
+          "name": "type",
+          "type": "select",
+          "default": "blocky",
+          "choices": "noise_type",
+          "flags": [],
+          "desc": "noise type"
+        },
+        {
+          "name": "amplitude",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["node"],
+          "desc": "by how much it oscillates"
+        },
+        {
+          "name": "octaves",
+          "type": "u32",
+          "default": 3,
+          "flags": [],
+          "desc": "number of accumulated noise layers (controls the level of details), must in [1;8]"
+        },
+        {
+          "name": "lacunarity",
+          "type": "f32",
+          "default": 2.000000,
+          "flags": ["node"],
+          "desc": "frequency multiplier per octave"
+        },
+        {
+          "name": "gain",
+          "type": "f32",
+          "default": 0.500000,
+          "flags": ["node"],
+          "desc": "amplitude multiplier per octave (also known as persistence)"
+        },
+        {
+          "name": "seed",
+          "type": "u32",
+          "default": 0,
+          "flags": ["node"],
+          "desc": "random base seed"
+        },
+        {
+          "name": "scale",
+          "type": "vec2",
+          "default": [32.000000,32.000000],
+          "flags": ["node"],
+          "desc": "size of the grid in lattice units"
+        },
+        {
+          "name": "evolution",
+          "type": "f32",
+          "default": 0.000000,
+          "flags": ["node"],
+          "desc": "evolution of the 3rd non-spatial dimension, time if unspecified"
         },
         {
           "name": "blending",

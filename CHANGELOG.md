@@ -14,6 +14,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `GridLayout` node to make a grid out of a number of scenes
 - `FilterColorMap` node to remap colors using a gradient of color points
 - Animated GIF export in the viewer
+- `RenderNoise` node to generate fractal noise on the GPU
 
 ### Fixed
 - Viewer path management on Windows

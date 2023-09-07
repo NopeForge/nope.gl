@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Nope Foundry
  * Copyright 2021-2022 GoPro Inc.
  * Copyright 2021-2022 Clément Bœsch <u pkh.me>
  *
@@ -48,6 +49,8 @@
 #include "source_gradient4_vert.h"
 #include "source_histogram_frag.h"
 #include "source_histogram_vert.h"
+#include "source_noise_frag.h"
+#include "source_noise_vert.h"
 #include "source_texture_frag.h"
 #include "source_texture_vert.h"
 #include "source_waveform_frag.h"
@@ -208,6 +211,28 @@ struct renderhistogram_priv {
 
 struct rendertexture_opts {
     struct ngl_node *texture_node;
+    struct render_common_opts common;
+};
+
+struct rendernoise_priv {
+    struct render_common common;
+};
+
+struct rendernoise_opts {
+    int type;
+    struct ngl_node *amplitude_node;
+    float amplitude;
+    uint32_t octaves;
+    struct ngl_node *lacunarity_node;
+    float lacunarity;
+    struct ngl_node *gain_node;
+    float gain;
+    struct ngl_node *seed_node;
+    uint32_t seed;
+    struct ngl_node *scale_node;
+    float scale[2];
+    struct ngl_node *evolution_node;
+    float evolution;
     struct render_common_opts common;
 };
 
@@ -397,6 +422,56 @@ static const struct node_param renderhistogram_params[] = {
     {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
                  .node_types=FILTERS_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    {NULL}
+};
+#undef OFFSET
+
+#define NOISE_TYPE_BLOCKY 0
+#define NOISE_TYPE_PERLIN 1
+
+const struct param_choices noise_type_choices = {
+    .name = "noise_type",
+    .consts = {
+        {"blocky",    NOISE_TYPE_BLOCKY,  .desc=NGLI_DOCSTRING("blocky noise")},
+        {"perlin",    NOISE_TYPE_PERLIN,  .desc=NGLI_DOCSTRING("perlin noise")},
+        {NULL}
+    }
+};
+
+#define OFFSET(x) offsetof(struct rendernoise_opts, x)
+static const struct node_param rendernoise_params[] = {
+    {"type",        NGLI_PARAM_TYPE_SELECT, OFFSET(type),
+                    .choices=&noise_type_choices,
+                    .desc=NGLI_DOCSTRING("noise type")},
+    {"amplitude",   NGLI_PARAM_TYPE_F32, OFFSET(amplitude_node), {.f32=1.f},
+                    .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
+                    .desc=NGLI_DOCSTRING("by how much it oscillates")},
+    {"octaves",     NGLI_PARAM_TYPE_U32, OFFSET(octaves), {.u32=3},
+                    .desc=NGLI_DOCSTRING("number of accumulated noise layers (controls the level of details), must in [1;8]")},
+    {"lacunarity",  NGLI_PARAM_TYPE_F32, OFFSET(lacunarity_node), {.f32=2.f},
+                    .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
+                    .desc=NGLI_DOCSTRING("frequency multiplier per octave")},
+    {"gain",        NGLI_PARAM_TYPE_F32, OFFSET(gain_node), {.f32=0.5f},
+                    .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
+                    .desc=NGLI_DOCSTRING("amplitude multiplier per octave (also known as persistence)")},
+    {"seed",        NGLI_PARAM_TYPE_U32, OFFSET(seed_node), {.u32=0},
+                    .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
+                    .desc=NGLI_DOCSTRING("random base seed")},
+    {"scale",       NGLI_PARAM_TYPE_VEC2, OFFSET(scale_node), {.vec = {32.f, 32.f}},
+                    .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
+                    .desc=NGLI_DOCSTRING("size of the grid in lattice units")},
+    {"evolution",   NGLI_PARAM_TYPE_F32, OFFSET(evolution_node), {.f32 = 0.0},
+                    .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
+                    .desc=NGLI_DOCSTRING("evolution of the 3rd non-spatial dimension, time if unspecified")},
+    {"blending",    NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
+                    .choices=&ngli_blending_choices,
+                    .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
+    {"geometry",    NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
+                    .node_types=GEOMETRY_TYPES_LIST,
+                    .desc=NGLI_DOCSTRING("geometry to be rasterized")},
+    {"filters",     NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
+                    .node_types=FILTERS_TYPES_LIST,
+                    .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
     {NULL}
 };
 #undef OFFSET
@@ -614,6 +689,19 @@ static int renderhistogram_init(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
 
     return init(node, &s->common, &o->common, "source_histogram", source_histogram_frag);
+}
+
+static int rendernoise_init(struct ngl_node *node)
+{
+    struct rendernoise_priv *s = node->priv_data;
+    struct rendernoise_opts *o = node->opts;
+    if (o->octaves < 1 || o->octaves > 8) {
+        LOG(ERROR, "octaves must be in [1;8]");
+        return NGL_ERROR_INVALID_ARG;
+    }
+
+    s->common.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_NOISE;
+    return init(node, &s->common, &o->common, "source_noise", source_noise_frag);
 }
 
 static int rendertexture_init(struct ngl_node *node)
@@ -1029,6 +1117,53 @@ static int renderhistogram_prepare(struct ngl_node *node)
     return 0;
 }
 
+static int rendernoise_prepare(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct rendernoise_priv *s = node->priv_data;
+    struct rendernoise_opts *o = node->opts;
+
+    const struct pgcraft_uniform uniforms[] = {
+        {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="type",              .type=NGLI_TYPE_I32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->type},
+        {.name="amplitude",         .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->amplitude_node, &o->amplitude)},
+        {.name="octaves",           .type=NGLI_TYPE_U32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->octaves},
+        {.name="lacunarity",        .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->lacunarity_node, &o->lacunarity)},
+        {.name="gain",              .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->gain_node, &o->gain)},
+        {.name="seed",              .type=NGLI_TYPE_U32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->seed_node, &o->seed)},
+        {.name="scale",             .type=NGLI_TYPE_VEC2, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->scale_node, o->scale)},
+        {.name="evolution",         .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->evolution_node, &o->evolution)},
+    };
+
+    struct render_common *c = &s->common;
+    int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
+    if (ret < 0)
+        return ret;
+
+    static const struct pgcraft_iovar vert_out_vars[] = {
+        {.name = "uv", .type = NGLI_TYPE_VEC2},
+    };
+
+    struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
+    struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
+    const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
+    const struct pgcraft_params crafter_params = {
+        .program_label    = "nopegl/rendernoise",
+        .vert_base        = source_noise_vert,
+        .frag_base        = c->combined_fragment,
+        .uniforms         = ngli_darray_data(&desc->uniforms),
+        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .attributes       = attributes,
+        .nb_attributes    = NGLI_ARRAY_NB(attributes),
+        .vert_out_vars    = vert_out_vars,
+        .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
+    };
+
+    const struct render_common_opts *co = &o->common;
+    return finalize_pipeline(node, c, co, &crafter_params);
+}
+
 static int rendertexture_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -1270,5 +1405,6 @@ DECLARE_RENDEROTHER(renderdisplace,  NGL_NODE_RENDERDISPLACE,  "RenderDisplace")
 DECLARE_RENDEROTHER(rendergradient,  NGL_NODE_RENDERGRADIENT,  "RenderGradient")
 DECLARE_RENDEROTHER(rendergradient4, NGL_NODE_RENDERGRADIENT4, "RenderGradient4")
 DECLARE_RENDEROTHER(renderhistogram, NGL_NODE_RENDERHISTOGRAM, "RenderHistogram")
+DECLARE_RENDEROTHER(rendernoise,     NGL_NODE_RENDERNOISE,     "RenderNoise")
 DECLARE_RENDEROTHER(rendertexture,   NGL_NODE_RENDERTEXTURE,   "RenderTexture")
 DECLARE_RENDEROTHER(renderwaveform,  NGL_NODE_RENDERWAVEFORM,  "RenderWaveform")

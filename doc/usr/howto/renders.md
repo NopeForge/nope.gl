@@ -18,6 +18,11 @@ Render an image
 Render a video
 ```
 
+```{nope} renders.noise
+:export_type: video
+Render an animated fractal noise
+```
+
 ## Render with custom shaders
 
 It is also possible to create a custom shader using the [Render] node and get a
