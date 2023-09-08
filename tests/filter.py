@@ -19,7 +19,7 @@
 # under the License.
 #
 
-from pynopegl_utils.misc import scene
+from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.toolbox.colors import COLORS
 
@@ -42,6 +42,65 @@ def _base_scene(*filters):
 @scene()
 def filter_alpha(_):
     return _base_scene(ngl.FilterAlpha(0.4321))
+
+
+@test_cuepoints(points={f"x{i}": (i / (5 - 1) * 2 - 1, 0) for i in range(5)}, keyframes=10, tolerance=1)
+@scene()
+def filter_colormap(cfg: SceneCfg):
+    cfg.duration = 5.0
+    d = cfg.duration
+
+    # Try to animate slightly out of bound to test the clamping
+    off = 0.1
+
+    p0_animkf = [
+        ngl.AnimKeyFrameFloat(0, -off),
+        ngl.AnimKeyFrameFloat(d / 2, 2 / 3),
+        ngl.AnimKeyFrameFloat(d, -off),
+    ]
+    p1_animkf = [
+        ngl.AnimKeyFrameFloat(0, 1 / 4),
+        ngl.AnimKeyFrameFloat(d / 2, 3 / 4),
+        ngl.AnimKeyFrameFloat(d, 1 / 4),
+    ]
+    p2_animkf = [
+        ngl.AnimKeyFrameFloat(0, 1 + off),
+        ngl.AnimKeyFrameFloat(d / 2, 1 / 3),
+        ngl.AnimKeyFrameFloat(d, 1 + off),
+    ]
+
+    p0 = ngl.AnimatedFloat(keyframes=p0_animkf)
+    p1 = ngl.AnimatedFloat(keyframes=p1_animkf)
+    p2 = ngl.AnimatedFloat(keyframes=p2_animkf)
+
+    p0 = ngl.AnimatedFloat(keyframes=p0_animkf)
+    p1 = ngl.AnimatedFloat(keyframes=p1_animkf)
+    p2 = ngl.AnimatedFloat(keyframes=p2_animkf)
+
+    c0 = ngl.UniformColor(value=(1, 0.4, 0.4))
+    c1 = ngl.UniformColor(value=(0.3, 0.8, 0.3))
+    c2 = ngl.UniformColor(value=(0.5, 0.5, 1))
+
+    bg = ngl.RenderColor(color=(1, 0.5, 1))
+    remapped = ngl.RenderGradient4(
+        # Black to white grayscale from left to right
+        color_tl=(0, 0, 0),
+        color_bl=(0, 0, 0),
+        color_tr=(1, 1, 1),
+        color_br=(1, 1, 1),
+        linear=False,
+        blending="src_over",
+        filters=[
+            ngl.FilterColorMap(
+                colorkeys=[
+                    ngl.ColorKey(position=p0, color=c0, opacity=0.2),
+                    ngl.ColorKey(position=p1, color=c1),
+                    ngl.ColorKey(position=p2, color=c2, opacity=0.8),
+                ]
+            )
+        ],
+    )
+    return ngl.Group(children=[bg, remapped])
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)

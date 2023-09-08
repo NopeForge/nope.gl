@@ -389,6 +389,15 @@ struct animkeyframe_priv {
     double derivative_scale;
 };
 
+struct colorkey_opts {
+    struct ngl_node *position_node;
+    float position;
+    struct ngl_node *color_node;
+    float color[3];
+    struct ngl_node *opacity_node;
+    float opacity;
+};
+
 struct pathkey_move_opts {
     float to[3];
 };

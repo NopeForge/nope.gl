@@ -1,4 +1,6 @@
 /*
+ * Copyright 2022 Clément Bœsch <u pkh.me>
+ * Copyright 2023 Nope Foundry
  * Copyright 2021-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -21,9 +23,13 @@
 
 #include <stddef.h>
 
+#include "bstr.h"
 #include "darray.h"
 #include "filterschain.h"
 #include "internal.h"
+#include "log.h"
+#include "memory.h"
+#include "nopegl.h"
 #include "pgcraft.h"
 #include "type.h"
 
@@ -44,6 +50,15 @@ struct filteralpha_opts {
 };
 
 struct filteralpha_priv {
+    struct filter filter;
+};
+
+struct filtercolormap_opts {
+    struct ngl_node **colorkeys;
+    size_t nb_colorkeys;
+};
+
+struct filtercolormap_priv {
     struct filter filter;
 };
 
@@ -104,6 +119,7 @@ struct filtersrgb2linear_priv {
 /* struct filter must be on top of each context because that's how the private
  * data is read externally and in the params below */
 NGLI_STATIC_ASSERT(filter_on_top_of_alpha_priv,         offsetof(struct filteralpha_priv,         filter) == 0);
+NGLI_STATIC_ASSERT(filter_on_top_of_colormap_priv,      offsetof(struct filtercolormap_priv,      filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_contrast_priv,      offsetof(struct filtercontrast_priv,      filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_exposure_priv,      offsetof(struct filterexposure_priv,      filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_inversealpha_priv,  offsetof(struct filterinversealpha_priv,  filter) == 0);
@@ -118,6 +134,15 @@ static const struct node_param filteralpha_params[] = {
     {"alpha", NGLI_PARAM_TYPE_F32, OFFSET(alpha_node), {.f32=1.f},
               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
               .desc=NGLI_DOCSTRING("alpha channel value")},
+    {NULL}
+};
+#undef OFFSET
+
+#define OFFSET(x) offsetof(struct filtercolormap_opts, x)
+static const struct node_param filtercolormap_params[] = {
+    {"colorkeys", NGLI_PARAM_TYPE_NODELIST, OFFSET(colorkeys),
+                  .node_types=(const uint32_t[]){NGL_NODE_COLORKEY, NGLI_NODE_NONE},
+                  .desc=NGLI_DOCSTRING("color keys to interpolate from")},
     {NULL}
 };
 #undef OFFSET
@@ -199,6 +224,97 @@ static int filteralpha_init(struct ngl_node *node)
     s->filter.name = "alpha";
     s->filter.code = filter_alpha_glsl;
     return register_resource(&s->filter.resources, "alpha", o->alpha_node, &o->alpha, NGLI_TYPE_F32);
+}
+
+static int filtercolormap_init(struct ngl_node *node)
+{
+    int ret = filter_init(node);
+    if (ret < 0)
+        return ret;
+
+    struct filtercolormap_priv *s = node->priv_data;
+    struct filtercolormap_opts *o = node->opts;
+
+    if (o->nb_colorkeys < 2) {
+        LOG(ERROR, "a minimum of 2 color keys is required to make a color map");
+        return NGL_ERROR_INVALID_ARG;
+    }
+
+    s->filter.name = "colormap";
+    s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_LINEAR2SRGB | NGLI_FILTER_HELPER_SRGB2LINEAR;
+
+    /* Craft the shader dynamically according to the number of color keys */
+    struct bstr *str = ngli_bstr_create();
+    if (!str) {
+        ret = NGL_ERROR_MEMORY;
+        goto end;
+    }
+
+    #define I "    "
+
+    /* Prototype and initial declarations */
+    ngli_bstr_print(str, "vec4 filter_colormap(vec4 color, vec2 coords");
+    for (size_t i = 0; i < o->nb_colorkeys; i++)
+        ngli_bstr_printf(str, ", float pos%zu, vec3 color%zu, float opacity%zu", i, i, i);
+    ngli_bstr_print(str, ")\n{\n"
+                         I "float t_prv = 1.0, t_nxt = 0.0;\n"
+                         I "vec4 v_prv, v_nxt;\n"
+                         "\n");
+
+    /* Convert input color to grayscale to obtain the interpolation index */
+    ngli_bstr_print(str, I "float t = dot(color.rgb, ngli_luma_weights);\n\n");
+
+    /* Switch colors to linear space and saturate pos within [0;1] */
+    for (size_t i = 0; i < o->nb_colorkeys; i++) {
+        ngli_bstr_printf(str, I "pos%zu = ngli_sat(pos%zu);\n", i, i);
+        ngli_bstr_printf(str, I "color%zu = ngli_srgb2linear(color%zu);\n", i, i);
+    }
+
+    /* Identify left-most and right-most knots */
+    for (size_t i = 0; i < o->nb_colorkeys; i++) {
+        /* The '=' are here to make sure we enter in the loop at least once */
+        ngli_bstr_printf(str, I "if (pos%zu <= t_prv) { t_prv = pos%zu; v_prv = vec4(color%zu, opacity%zu); }\n", i, i, i, i);
+        ngli_bstr_printf(str, I "if (pos%zu >= t_nxt) { t_nxt = pos%zu; v_nxt = vec4(color%zu, opacity%zu); }\n", i, i, i, i);
+    }
+
+    /* Identify the two closest surrounding knots (if any) */
+    for (size_t i = 0; i < o->nb_colorkeys; i++) {
+        /* The '=' are here to make sure we honor the knot if we are exactly on it */
+        ngli_bstr_printf(str, I "if (pos%zu <= t && pos%zu > t_prv) { t_prv = pos%zu; v_prv = vec4(color%zu, opacity%zu); }\n", i, i, i, i, i);
+        ngli_bstr_printf(str, I "if (pos%zu >= t && pos%zu < t_nxt) { t_nxt = pos%zu; v_nxt = vec4(color%zu, opacity%zu); }\n", i, i, i, i, i);
+    }
+
+    /* Final interpolation: simple hermite spline */
+    ngli_bstr_print(str, I "vec4 ret = mix(v_prv, v_nxt, smoothstep(t_prv, t_nxt, t));\n"
+                         I "return vec4(ngli_linear2srgb(ret.rgb), 1.0) * ret.a;\n"
+                         "}\n");
+
+    s->filter.code = ngli_bstr_strdup(str);
+    if (!s->filter.code) {
+        ret = NGL_ERROR_MEMORY;
+        goto end;
+    }
+
+    char pos_name[64], color_name[64], opacity_name[64];
+
+    for (size_t i = 0; i < o->nb_colorkeys; i++) {
+        struct ngl_node *colorkey = o->colorkeys[i];
+        struct colorkey_opts *key_o = colorkey->opts;
+
+        snprintf(pos_name,     sizeof(pos_name),     "pos%zu", i);
+        snprintf(color_name,   sizeof(color_name),   "color%zu",    i);
+        snprintf(opacity_name, sizeof(opacity_name), "opacity%zu",  i);
+
+        if ((ret = register_resource(&s->filter.resources, pos_name,     key_o->position_node, &key_o->position, NGLI_TYPE_F32))  < 0 ||
+            (ret = register_resource(&s->filter.resources, color_name,   key_o->color_node,    key_o->color,     NGLI_TYPE_VEC3)) < 0 ||
+            (ret = register_resource(&s->filter.resources, opacity_name, key_o->opacity_node,  &key_o->opacity,  NGLI_TYPE_F32))  < 0)
+            goto end;
+    }
+
+end:
+    ngli_bstr_freep(&str);
+
+    return ret;
 }
 
 static int filtercontrast_init(struct ngl_node *node)
@@ -306,6 +422,25 @@ static void filter_uninit(struct ngl_node *node)
     struct filter *s = node->priv_data;
     ngli_darray_reset(&s->resources);
 }
+
+static void filtercolormap_uninit(struct ngl_node *node)
+{
+    struct filter *s = node->priv_data;
+    ngli_freep(&s->code);
+    filter_uninit(node);
+}
+
+const struct node_class ngli_filtercolormap_class = {   \
+    .id        = NGL_NODE_FILTERCOLORMAP,               \
+    .name      = "FilterColorMap",                      \
+    .init      = filtercolormap_init,                   \
+    .update    = ngli_node_update_children,             \
+    .uninit    = filtercolormap_uninit,                 \
+    .opts_size = sizeof(struct filtercolormap_opts),    \
+    .priv_size = sizeof(struct filtercolormap_priv),    \
+    .params    = filtercolormap_params,                 \
+    .file      = __FILE__,                              \
+};
 
 #define DECLARE_FILTER(type, cls_id, cls_opts_size, cls_name) \
 const struct node_class ngli_filter##type##_class = {   \
