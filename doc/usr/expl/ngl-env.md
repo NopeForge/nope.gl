@@ -1,4 +1,4 @@
-# nope.gl standalone build environment
+# Standalone build environment
 
 `configure.py` is the root script used to prepare a standalone nope.gl virtual
 environment for casual users and developers. If you are a packager, you
