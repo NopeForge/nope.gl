@@ -180,8 +180,8 @@ def _main():
 
     s = dedent(
         """\
-        libnopegl
-        =========
+        Nodes
+        =====
         """
     )
     s += _get_nodes_block(data["nodes"])
