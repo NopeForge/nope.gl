@@ -75,10 +75,12 @@
     action(NGL_NODE_BUFFERMAT4,             ngli_buffermat4_class)              \
     action(NGL_NODE_CAMERA,                 ngli_camera_class)                  \
     action(NGL_NODE_CIRCLE,                 ngli_circle_class)                  \
+    action(NGL_NODE_COLORKEY,               ngli_colorkey_class)                \
     action(NGL_NODE_COLORSTATS,             ngli_colorstats_class)              \
     action(NGL_NODE_COMPUTE,                ngli_compute_class)                 \
     action(NGL_NODE_COMPUTEPROGRAM,         ngli_computeprogram_class)          \
     action(NGL_NODE_FILTERALPHA,            ngli_filteralpha_class)             \
+    action(NGL_NODE_FILTERCOLORMAP,         ngli_filtercolormap_class)          \
     action(NGL_NODE_FILTERCONTRAST,         ngli_filtercontrast_class)          \
     action(NGL_NODE_FILTEREXPOSURE,         ngli_filterexposure_class)          \
     action(NGL_NODE_FILTERINVERSEALPHA,     ngli_filterinversealpha_class)      \

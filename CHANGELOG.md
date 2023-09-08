@@ -12,6 +12,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `Eval*` nodes now accept multi-dimensional input resources
 - `luma(r,g,b)` and `srgbmix(a,b,x)` functions in eval
 - `GridLayout` node to make a grid out of a number of scenes
+- `FilterColorMap` node to remap colors using a gradient of color points
 
 ### Fixed
 - Viewer path management on Windows

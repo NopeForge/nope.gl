@@ -191,6 +191,7 @@ foreach backend : backends
     'alpha',
     'composition_alpha',
     'composition_colors',
+    'colormap',
     'contrast',
     'exposure',
     'gamma_correct',

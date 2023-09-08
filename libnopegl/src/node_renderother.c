@@ -63,6 +63,7 @@
                                                NGLI_NODE_NONE}
 
 #define FILTERS_TYPES_LIST (const uint32_t[]){NGL_NODE_FILTERALPHA,          \
+                                              NGL_NODE_FILTERCOLORMAP,       \
                                               NGL_NODE_FILTERCONTRAST,       \
                                               NGL_NODE_FILTEREXPOSURE,       \
                                               NGL_NODE_FILTERINVERSEALPHA,   \

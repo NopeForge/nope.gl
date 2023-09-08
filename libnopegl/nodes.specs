@@ -1626,6 +1626,32 @@
         }
       ]
     },
+    "ColorKey": {
+      "file": "src/node_colorkey.c",
+      "params": [
+        {
+          "name": "position",
+          "type": "f32",
+          "default": 0.000000,
+          "flags": ["live", "node"],
+          "desc": "position of the gradient point on the axis (within [0;1])"
+        },
+        {
+          "name": "color",
+          "type": "vec3",
+          "default": [1.000000,1.000000,1.000000],
+          "flags": ["live", "node"],
+          "desc": "color at this specific position"
+        },
+        {
+          "name": "opacity",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["live", "node"],
+          "desc": "opacity at this specific position"
+        }
+      ]
+    },
     "ColorStats": {
       "file": "src/node_colorstats.c",
       "params": [
@@ -1698,6 +1724,18 @@
           "default": 1.000000,
           "flags": ["live", "node"],
           "desc": "alpha channel value"
+        }
+      ]
+    },
+    "FilterColorMap": {
+      "file": "src/node_filters.c",
+      "params": [
+        {
+          "name": "colorkeys",
+          "type": "node_list",
+          "node_types": ["ColorKey"],
+          "flags": [],
+          "desc": "color keys to interpolate from"
         }
       ]
     },
@@ -2600,7 +2638,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -2641,7 +2679,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -2725,7 +2763,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -2815,7 +2853,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -2857,7 +2895,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -2980,7 +3018,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -3069,7 +3107,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }

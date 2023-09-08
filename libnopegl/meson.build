@@ -178,6 +178,7 @@ lib_src = files(
   'src/node_buffer.c',
   'src/node_camera.c',
   'src/node_circle.c',
+  'src/node_colorkey.c',
   'src/node_colorstats.c',
   'src/node_compute.c',
   'src/node_computeprogram.c',
