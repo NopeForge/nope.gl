@@ -14,7 +14,7 @@ Whitespaces (including line breaks) are allowed as well.
 | `e`      | [Euler's number][euler], base of the natural logarithm |
 | `phi`    | [Golden ratio][phi]                                    |
 | `pi`     | [π][pi]                                                |
-| `tau`    | [2π][tau]                                              |
+| `tau`    | [𝜏][tau] (2π)                                          |
 
 [euler]: https://en.wikipedia.org/wiki/E_(mathematical_constant)
 [phi]: https://en.wikipedia.org/wiki/Golden_ratio
