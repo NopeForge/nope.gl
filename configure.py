@@ -624,7 +624,7 @@ def _htmldoc_deps_install(cfg):
     return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "doc", "requirements.txt"))]
 
 
-@_block("htmldoc", [_htmldoc_deps_install])
+@_block("htmldoc", [_nopegl_updatedoc, _htmldoc_deps_install])
 def _htmldoc(cfg):
     return [_cmd_join("sphinx-build", "-W", "doc", op.join("builddir", "doc"))]
 
