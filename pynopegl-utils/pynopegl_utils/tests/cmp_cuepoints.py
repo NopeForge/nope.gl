@@ -19,7 +19,7 @@
 # under the License.
 #
 
-from typing import Sequence, Tuple
+from typing import Mapping, Sequence, Tuple
 
 from PIL import Image
 
@@ -29,7 +29,19 @@ _MODE = "RGBA"
 
 
 class _CompareCuePoints(CompareSceneBase):
-    def __init__(self, scene_func, points, width: int = 128, height: int = 128, tolerance: int = 0, **kwargs):
+    def __init__(
+        self,
+        scene_func,
+        points: Mapping[str, Tuple[float, float]],
+        width: int = 128,
+        height: int = 128,
+        tolerance: int = 0,
+        **kwargs,
+    ):
+        """
+        points: dictionary associating point names with their 2D coordinates
+                within [-1;1] space
+        """
         super().__init__(scene_func, width=width, height=height, **kwargs)
         self._points = points
         self._tolerance = tolerance
