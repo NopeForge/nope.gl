@@ -1,0 +1,65 @@
+.nope-snippet {
+  border: 2px solid #222;
+  margin-bottom: 10px;
+  padding: 0;
+  border-radius: 5px;
+}
+
+.nope-title {
+  text-align: center;
+  font-weight: bold;
+  background-color: #222;
+  color: white;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+.nope-visual {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.nope-tabs-bar {
+  text-align: center;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+.nope-tab-graph {
+  text-align: center;
+  background-color: #222;
+}
+
+.nope-btn-on,
+.nope-btn-off {
+  display: inline;
+  border: 1px solid #222;
+  padding: 5px;
+  border-radius: 3px;
+  color: black;
+}
+
+.nope-btn-on {
+  background-color: #fff;
+  color: #333;
+  cursor: default;
+}
+
+.nope-btn-off {
+  background-color: #333;
+  color: #fff;
+  cursor: pointer;
+}
+
+.nope-tab-on,
+.nope-tab-off {
+  margin: 10px;
+}
+
+.nope-tab-on {
+  display: block;
+}
+
+.nope-tab-off {
+  display: none;
+}
