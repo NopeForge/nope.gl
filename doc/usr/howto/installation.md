@@ -1,9 +1,11 @@
-# Quick user build & installation
+# Installation
+
+## Quick user build & installation
 
 This page includes the system requirements as well as the steps needed for
 building and running the complete `nope.gl` stack.
 
-## Quick user installation on Linux and MacOS
+### Linux and MacOS
 
 - Install the needed dependencies:
   - **GCC** or **Clang**
@@ -18,7 +20,7 @@ building and running the complete `nope.gl` stack.
 - Build with `./configure.py && make`
 - Enter the virtual environment with `. venv/bin/ngli-activate`
 
-## Quick user installation on Windows (MinGW64 toolchain)
+### Windows (MinGW64 toolchain)
 
 - Install [MSYS2](https://www.msys2.org/) (which also brings **MinGW64**)
 - Install dependencies via pacman using **MinGW64** shell (*Not* MSYS2,
@@ -31,7 +33,7 @@ building and running the complete `nope.gl` stack.
 - From MinGW64, build with `./configure.py && make`
 - Enter the virtual environment with `. venv/bin/ngli-activate`
 
-## Quick user installation on Windows (MSVC toolchain)
+### Windows (MSVC toolchain)
 
 - Install [Python](https://www.python.org/downloads/windows/) ≥ 3.8 using the
   Windows Installer and make sure to select the option to add Python to the
@@ -53,12 +55,12 @@ building and running the complete `nope.gl` stack.
 - Finally, run `python.exe .\configure.py` followed by `nmake`
 
 
-# Manual components installation
+## Manual components installation
 
 This section is targeted at packagers willing to build packages for every
 individual components.
 
-## Installation of `libnopegl` (the core library)
+### `libnopegl` (the core library)
 
 `libnopegl` uses [Meson][meson] for its build system. Its compilation and
 installation usually looks like the following:
@@ -75,19 +77,19 @@ documentation][meson-doc] for more information.
 [meson]: https://mesonbuild.com/
 [meson-doc]: https://mesonbuild.com/Quick-guide.html#compiling-a-meson-project
 
-## Installation of `ngl-tools`
+### `ngl-tools`
 
 The `nope.gl` tools located in the `ngl-tools/` directory are to be built and
 installed exactly the same way as `libnopegl`.
 
-## Installation of `pynopegl` (the Python binding)
+### `pynopegl` (the Python binding)
 
 ```shell
 pip install -r ./pynopegl/requirements.txt
 pip install ./pynopegl
 ```
 
-## Installation of `pynopegl-utils` (the Python utilities and examples)
+### `pynopegl-utils` (the Python utilities and examples)
 
 ```shell
 pip install -r ./pynopegl-utils/requirements.txt
