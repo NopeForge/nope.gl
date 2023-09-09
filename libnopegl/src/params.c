@@ -121,7 +121,8 @@ const struct param_specs ngli_params_specs[] = {
     [NGLI_PARAM_TYPE_MAT4] = {
         .name = "mat4",
         .size = sizeof(float[4*4]),
-        .desc = NGLI_DOCSTRING("4x4 32-bit floats"),
+        .desc = NGLI_DOCSTRING("4x4 32-bit floats, column major memory layout "
+                               "(the first 4 floats corresponds to 1 mathematical matrix column)"),
     },
     [NGLI_PARAM_TYPE_NODE] = {
         .name = "node",
