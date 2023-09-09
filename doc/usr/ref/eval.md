@@ -12,7 +12,7 @@ Whitespaces (including line breaks) are allowed as well.
 | Constant | Description                                            |
 |----------|--------------------------------------------------------|
 | `e`      | [Euler's number][euler], base of the natural logarithm |
-| `phi`    | [Golden ratio][phi]                                    |
+| `phi`    | [φ][phi] (Golden ratio)                                |
 | `pi`     | [π][pi]                                                |
 | `tau`    | [𝜏][tau] (2π)                                          |
 
