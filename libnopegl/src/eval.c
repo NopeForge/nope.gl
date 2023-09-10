@@ -329,7 +329,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
     }
 
     /* At this point the token can only be a string identifier */
-    const size_t token_len = strspn(p, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
+    const size_t token_len = strspn(p, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.");
     if (!token_len) {
         LOG(ERROR, "parse error near '%.5s' at position %zu", p, pos);
         return NGL_ERROR_INVALID_DATA;

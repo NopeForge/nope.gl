@@ -21,11 +21,13 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "eval.h"
 #include "hmap.h"
 #include "internal.h"
 #include "log.h"
+#include "memory.h"
 #include "nopegl.h"
 #include "type.h"
 
@@ -43,12 +45,30 @@ struct eval_priv {
 };
 
 #define INPUT_TYPES_LIST (const uint32_t[]){NGL_NODE_NOISEFLOAT,      \
+                                            NGL_NODE_NOISEVEC2,       \
+                                            NGL_NODE_NOISEVEC3,       \
+                                            NGL_NODE_NOISEVEC4,       \
                                             NGL_NODE_EVALFLOAT,       \
+                                            NGL_NODE_EVALVEC2,        \
+                                            NGL_NODE_EVALVEC3,        \
+                                            NGL_NODE_EVALVEC4,        \
                                             NGL_NODE_UNIFORMFLOAT,    \
+                                            NGL_NODE_UNIFORMVEC2,     \
+                                            NGL_NODE_UNIFORMVEC3,     \
+                                            NGL_NODE_UNIFORMVEC4,     \
                                             NGL_NODE_ANIMATEDFLOAT,   \
+                                            NGL_NODE_ANIMATEDVEC2,    \
+                                            NGL_NODE_ANIMATEDVEC3,    \
+                                            NGL_NODE_ANIMATEDVEC4,    \
                                             NGL_NODE_STREAMEDFLOAT,   \
+                                            NGL_NODE_STREAMEDVEC2,    \
+                                            NGL_NODE_STREAMEDVEC3,    \
+                                            NGL_NODE_STREAMEDVEC4,    \
                                             NGL_NODE_TIME,            \
                                             NGL_NODE_VELOCITYFLOAT,   \
+                                            NGL_NODE_VELOCITYVEC2,    \
+                                            NGL_NODE_VELOCITYVEC3,    \
+                                            NGL_NODE_VELOCITYVEC4,    \
                                             NGLI_NODE_NONE}
 
 #define OFFSET(x) offsetof(struct eval_opts, x)
@@ -107,6 +127,31 @@ static const struct node_param eval_vec4_params[] = {
 
 NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct eval_priv, var) == 0);
 
+static const char * const comp_selectors[] = {"0123", "rgba", "xyzw", "stpq"};
+
+static int register_component_names(struct hmap *vars, const char *base_name, size_t nb_components, float *ptr)
+{
+    ngli_assert(nb_components > 1);
+
+    char name[256];
+    for (size_t j = 0; j < NGLI_ARRAY_NB(comp_selectors); j++) {
+        const char *selectors = comp_selectors[j];
+        for (size_t i = 0; i < nb_components; i++) {
+            const char component = selectors[i];
+            int len = snprintf(name, sizeof(name), "%s.%c", base_name, component);
+            if (len >= sizeof(name)) {
+                LOG(ERROR, "resource name \"%s\" is too long", base_name);
+                return NGL_ERROR_LIMIT_EXCEEDED;
+            }
+            int ret = ngli_hmap_set(vars, name, ptr + i);
+            if (ret < 0)
+                return ret;
+        }
+    }
+
+    return 0;
+}
+
 static int eval_init(struct ngl_node *node)
 {
     struct eval_priv *s = node->priv_data;
@@ -121,8 +166,18 @@ static int eval_init(struct ngl_node *node)
         while ((entry = ngli_hmap_next(o->resources, entry))) {
             struct ngl_node *res = entry->data;
             struct variable_info *var = res->priv_data;
-            ngli_assert(var->data_type == NGLI_TYPE_F32);
-            int ret = ngli_hmap_set(s->vars, entry->key, var->data);
+            int ret;
+            if (var->data_type == NGLI_TYPE_F32) {
+                ret = ngli_hmap_set(s->vars, entry->key, var->data);
+            } else if (var->data_type == NGLI_TYPE_VEC2) {
+                ret = register_component_names(s->vars, entry->key, 2, var->data);
+            } else if (var->data_type == NGLI_TYPE_VEC3) {
+                ret = register_component_names(s->vars, entry->key, 3, var->data);
+            } else if (var->data_type == NGLI_TYPE_VEC4) {
+                ret = register_component_names(s->vars, entry->key, 4, var->data);
+            } else {
+                ngli_assert(0);
+            }
             if (ret < 0)
                 return ret;
         }

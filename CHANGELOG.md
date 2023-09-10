@@ -8,6 +8,9 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+### Added
+- `Eval*` nodes now accept multi-dimensional input resources
+
 ### Fixed
 - Viewer path management on Windows
 - Name filters in the export dialog of the viewer
