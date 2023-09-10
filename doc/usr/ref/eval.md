@@ -6,6 +6,10 @@ parameters of the `Eval*` nodes.
 Basic operators (`+`, `-`, `*`, `/`) are supported, as well as parenthesis.
 Whitespaces (including line breaks) are allowed as well.
 
+If the input resources are multi-dimensional, component can be selected with
+`0123`, `rgba`, `xyzw` or `stpq`. For example, `foo.z` will pick the 3rd
+component of the 3+ dimensional input resources identified by "foo".
+
 
 ## Constants
 

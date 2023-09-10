@@ -384,10 +384,13 @@ def data_eval(cfg: SceneCfg):
 
     # Entangled dependencies between evals
     t = ngl.Time()
-    a = ngl.UniformFloat(0.7)
-    b = ngl.UniformFloat(0.3)
-    x = ngl.EvalFloat("sin(a - b + t*4)")
-    x.update_resources(t=t, a=a, b=b)
+    vec = ngl.UniformVec3(value=(0.7, 0.3, 4.0))
+    a = ngl.EvalFloat("vec.0")
+    a.update_resources(vec=vec)
+    b = ngl.EvalFloat("vec.t")
+    a.update_resources(vec=vec)
+    x = ngl.EvalFloat("sin(v.x - v.g + t*v.p)")
+    x.update_resources(t=t, v=vec)
     color = ngl.EvalVec4(
         expr0="sat(sin(x + t*4)/2 + wiggle/3)",
         expr1="abs(fract(sin(t + a)))",
