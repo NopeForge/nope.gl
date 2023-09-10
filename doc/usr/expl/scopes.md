@@ -13,7 +13,7 @@ the data block or build your own representation of the data.
 
 ![Scopes](img/scopes.jpg)
 
-This screenshot comes from the `pynopegl_utils.examples.scopes` demo.
+This screenshot comes from the `scopes` scene from the [nope.demos] repository.
 
 
 ## Requirements
@@ -87,3 +87,4 @@ Additional details:
 [Block]: /usr/ref/libnopegl.md#block
 [Render]: /usr/ref/libnopegl.md#render
 [Compute]: /usr/ref/libnopegl.md#compute
+[nope.demos]: https://github.com/NopeFoundry/nope.demos
