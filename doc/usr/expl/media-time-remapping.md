@@ -68,29 +68,9 @@ In this case, `my_render` will be visible between `t=2` (included) and `t=9`
 (excluded).
 
 
-## Complete example
-
-```python
-import pynopegl as ngl
-from pynopegl_utils.misc import scene
-
-
-@scene()
-def media_time_remapping(cfg):
-
-    # Time remapping
-    animkf = [
-        ngl.AnimKeyFrameFloat(5, 4),
-        ngl.AnimKeyFrameFloat(7, 10),
-    ]
-
-    # Basic media playback tree
-    m = ngl.Media(cfg.medias[0].filename, time_anim=ngl.AnimatedTime(animkf))
-    t = ngl.Texture2D(data_src=m)
-    r = ngl.RenderTexture(t)
-
-    # Time range filter
-    return ngl.TimeRangeFilter(r, start=2, end=9)
+```{nope} timeranges.media_time_remapping
+:export_type: video
+Time range filters and time remapping
 ```
 
 ## Behind the scene
