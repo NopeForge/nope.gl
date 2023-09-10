@@ -15,7 +15,7 @@ All the concepts explained here are summarized in the demo
 Each key frame associates a `nope.gl` time to a media time: `f(t) = Tm` with
 `f()` being the time interpolation function.
 
-### Example:
+For example:
 
 ```python
 anim = ngl.AnimatedTime([
