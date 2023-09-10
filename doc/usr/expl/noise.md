@@ -17,7 +17,10 @@ even display a waveform within a shader because there is only one random value
 at a given time. On the other hand, it can typically be used to "wiggle" an
 object or a parameter.
 
-![Noise graph](img/noise/graph.png)
+```{nope} noise.wiggle
+:export_type: video
+A wiggle effect on an hexagon
+```
 
 This mechanism could be implemented fully in GPU, but a GPU hash function can
 be costly, difficult to get right, and hardly shared between pipelines. Having
