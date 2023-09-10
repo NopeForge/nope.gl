@@ -351,30 +351,12 @@ def data_noise_time(cfg: SceneCfg):
 def data_noise_wiggle(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 3
-    vert = textwrap.dedent(
-        """\
-        void main()
-        {
-            vec2 position = ngl_position.xy + wiggle;
-            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(position, 0.0, 1.0);
-        }
-        """
-    )
-    frag = textwrap.dedent(
-        """\
-        void main()
-        {
-            ngl_out_color = vec4(color, 1.0);
-        }
-        """
-    )
 
     geometry = ngl.Circle(radius=0.25, npoints=6)
-    program = ngl.Program(vertex=vert, fragment=frag)
-    render = ngl.Render(geometry, program)
-    render.update_vert_resources(wiggle=ngl.NoiseVec2(octaves=8))
-    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.white))
-    return render
+    render = ngl.RenderColor(geometry=geometry)
+    translate = ngl.EvalVec3("wiggle.x", "wiggle.y", "0")
+    translate.update_resources(wiggle=ngl.NoiseVec2(octaves=8))
+    return ngl.Translate(render, vector=translate)
 
 
 @test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=1)
