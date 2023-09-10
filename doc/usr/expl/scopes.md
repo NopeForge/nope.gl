@@ -36,6 +36,11 @@ representation of the distribution of color in the input texture:
   left, maximum light on the right
 - the y-axis represents how much of each intensity is present in the texture
 
+```{nope} scopes.histogram
+:export_type: image
+Display the histogram of a media
+```
+
 
 ## RenderWaveform
 
@@ -54,6 +59,11 @@ The waveform spectrum (top-right and bottom-left in the screenshot) is a
 A simple way of understanding the representation is to consider that every
 column of pixels is like looking at an histogram from above (a peak in the
 histogram would be a bright color in the waveform)
+
+```{nope} scopes.waveform
+:export_type: image
+Display the waveform spectrum of a media
+```
 
 
 ## ColorStats
