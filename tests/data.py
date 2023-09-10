@@ -355,8 +355,8 @@ def data_noise_wiggle(cfg: SceneCfg):
         """\
         void main()
         {
-            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-            ngl_out_pos += vec4(wiggle, 0.0, 0.0);
+            vec2 position = ngl_position.xy + wiggle;
+            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(position, 0.0, 1.0);
         }
         """
     )
