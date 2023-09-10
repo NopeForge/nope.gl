@@ -336,6 +336,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
     }
     char name[MAX_ID_LEN];
     snprintf(name, sizeof(name), "%.*s", (int)token_len, p);
+    p += token_len;
 
     /* Lookup name in variables map */
     if (s->vars) {
@@ -343,7 +344,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
         if (data) {
             const struct token token = {.type=TOKEN_VARIABLE, .pos=pos, .ptr=data};
             PUSH(&s->tokens, &token);
-            return parse_post_subexpr(s, expr, p + token_len);
+            return parse_post_subexpr(s, expr, p);
         }
     }
 
@@ -353,7 +354,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
         const struct constant *c = data;
         const struct token token = {.type=TOKEN_CONSTANT, .pos=pos, .value=c->value};
         PUSH(&s->tokens, &token);
-        return parse_post_subexpr(s, expr, p + token_len);
+        return parse_post_subexpr(s, expr, p);
     }
 
     /* Lookup name in functions map */
@@ -369,7 +370,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
             .nb_args    = f->nb_args,
         };
         PUSH(&s->tokens, &token);
-        return parse_opening_paren(s, expr, p + token_len);
+        return parse_opening_paren(s, expr, p);
     }
 
     LOG(ERROR, "unrecognized token '%s' at position %zu", name, pos);
