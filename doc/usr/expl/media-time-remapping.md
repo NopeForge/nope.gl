@@ -1,10 +1,10 @@
 Media time remapping
 ====================
 
-When using one or more `Media` nodes in a demo, it is often needed to map the
+When using one or more [Media] nodes in a demo, it is often needed to map the
 `nope.gl` time (referred in this document as `t`) to a different media time
 (referred in this document as `Tm`). This time remapping is controlled by the
-`Media.time_anim` parameter and `TimeRangeFilter` nodes.
+`Media.time_anim` parameter and [TimeRangeFilter] nodes.
 
 All the concepts explained here are summarized in the demo
 `medias.time_remapping`.
@@ -28,7 +28,7 @@ In this example, for `t=5` we have `Tm=4`, and for `t=7` we have `Tm=10`. This
 means `10-4=6` seconds of the media will be played starting at `t=5` in `7-5=2`
 seconds (which means a faster playback).
 
-Since the linear interpolation is handled by `AnimatedFloat`, it has the same
+Since the linear interpolation is handled by [AnimatedFloat], it has the same
 properties out-of-bound. In this case, we have `Tm=4` for `t≤5` and `Tm=10` for
 `t≥7`.
 
@@ -51,10 +51,10 @@ There are a few limitations due to the streaming nature of medias:
 
 While `Media.time_anim` does define the time remapping, there is still a need
 to define the active range of the media. This is controlled through
-`TimeRangeFilter` nodes.
+[TimeRangeFilter] nodes.
 
 The time range filters will allow the prefetch and release mechanisms of the
-sub-tree (in our case, it will typically be a `Render` using a `Media` node as
+sub-tree (in our case, it will typically be a [Render] using a [Media] node as
 `data_src`).
 
 The typical use case for a video showing up randomly in a demo is to define a
@@ -84,11 +84,16 @@ when reaching the end of the trim:
 - `initial_seek` notably makes sure a seek command is queued to the demuxer
   before any packet is extracted.
 - `end_time` prevents the `node.media` queues to be filled until a
-  `TimeRangeFilter` triggers a release emptying these queues.
+  [TimeRangeFilter] triggers a release emptying these queues.
 
-Additionally, the `TimeRangeFilter` will cause asynchronous calls starting and
+Additionally, the [TimeRangeFilter] will cause asynchronous calls starting and
 stopping (*prefetch* and *release*) the multimedia pipeline in background
 (demuxer, decoder, ...).
 
 Coupled with hardware acceleration, these two main mechanism help getting great
 performances at a minimal memory cost.
+
+
+[Media]: /usr/ref/libnopegl.md#media
+[TimeRangeFilter]: /usr/ref/libnopegl.md#timerangefilter
+[AnimatedFloat]: /usr/ref/libnopegl.md#animatedfloat
