@@ -66,6 +66,7 @@ component of the 3+ dimensional input resources identified by "foo".
 | `log2(x)`           | base-2 logarithm of `x`                                                        |
 | `lt(a,b)`           | `1` if `a < b`, `0` otherwise                                                  |
 | `lte(a,b)`          | `1` if `a ≤ b`, `0` otherwise                                                  |
+| `luma(r,g,b)`       | gamma encoded luma Y' of the R'G'B' value, as defined by BT.709                |
 | `max(a,b)`          | maximum value between `a` and `b`                                              |
 | `min(a,b)`          | minimum value between `a` and `b`                                              |
 | `mix(a,b,x)`        | linearly remap `x` in range `[0;1]` to `[a;b]`                                 |
