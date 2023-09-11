@@ -1995,6 +1995,24 @@
         }
       ]
     },
+    "GridLayout": {
+      "file": "src/node_gridlayout.c",
+      "params": [
+        {
+          "name": "children",
+          "type": "node_list",
+          "flags": [],
+          "desc": "a set of scenes"
+        },
+        {
+          "name": "size",
+          "type": "ivec2",
+          "default": [-1,-1],
+          "flags": [],
+          "desc": "number of cols and rows in the grid"
+        }
+      ]
+    },
     "Group": {
       "file": "src/node_group.c",
       "params": [

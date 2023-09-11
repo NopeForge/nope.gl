@@ -184,6 +184,7 @@ lib_src = files(
   'src/node_filters.c',
   'src/node_geometry.c',
   'src/node_graphicconfig.c',
+  'src/node_gridlayout.c',
   'src/node_group.c',
   'src/node_identity.c',
   'src/node_io.c',

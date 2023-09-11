@@ -11,6 +11,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Added
 - `Eval*` nodes now accept multi-dimensional input resources
 - `luma(r,g,b)` and `srgbmix(a,b,x)` functions in eval
+- `GridLayout` node to make a grid out of a number of scenes
 
 ### Fixed
 - Viewer path management on Windows
