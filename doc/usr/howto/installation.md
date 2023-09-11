@@ -1,5 +1,17 @@
 # Installation
 
+## Download
+
+The sources can be downloaded on the [NopeFoundry/nope.gl GitHub repository][nopegl],
+either by downloading a zip snapshot or cloning them with `git`:
+
+```sh
+git clone https://github.com/NopeFoundry/nope.gl
+```
+
+[nopegl]: https://github.com/NopeFoundry/nope.gl
+
+
 ## Quick user build & installation
 
 This page includes the system requirements as well as the steps needed for
