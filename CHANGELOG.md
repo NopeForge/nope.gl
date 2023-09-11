@@ -10,6 +10,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ## [Unreleased]
 ### Added
 - `Eval*` nodes now accept multi-dimensional input resources
+- `luma(r,g,b)` function in eval
 
 ### Fixed
 - Viewer path management on Windows

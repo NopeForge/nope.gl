@@ -87,6 +87,7 @@ static float f_mla(float a, float b, float c) { return a*b + c; }
 static float f_mod_e(float a, float b) { return a - b * f_sign(b) * floorf(a / fabsf(b)); }
 static float f_mod_f(float a, float b) { return a - b * floorf(a / b); }
 static float f_mod_t(float a, float b) { return a - b * truncf(a / b); }
+static float f_luma(float r, float g, float b) { return 0.2126f*r + 0.7152f*g + 0.0722f*b; }
 
 static float f_degrees(float x) { return 180.f / PI_F32 * x; }
 static float f_radians(float x) { return PI_F32 / 180.f * x; }
@@ -171,6 +172,7 @@ static const struct function {
     {"log2",        1, log2f},
     {"lt",          2, f_lt},
     {"lte",         2, f_lte},
+    {"luma",        3, f_luma},
     {"max",         2, f_max},
     {"min",         2, f_min},
     {"mix",         3, f_mix},

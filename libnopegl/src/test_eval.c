@@ -94,6 +94,7 @@ static const struct test_expr expressions[] = {
     {1, "linear2srgb (srgb2linear( 0.04 )) ", 0.04f},
     {1, "linear2srgb (srgb2linear( 0.7 )) ", 0.7f},
     {1, "linearstep(1.3, 5.1, 6.4)", 1.f},
+    {1, "luma(0.5, 0.8, 0.9)", 0.74344f},
     {1, "mix(x, 3*(y + 1), z/2 + ceil(cos(3*pi/4)*5)) + .5", 65.002623f},
     {1, "mla(cbrt(phi), sqr(z), cube(e))", 20.1482f},
     {1, "mod_e(7.2, 5.3)", 1.9f},
