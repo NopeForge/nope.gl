@@ -70,7 +70,7 @@ building and running the complete `nope.gl` stack.
 ## Method 2: manual components installation
 
 This section is targeted at packagers willing to build packages for every
-individual components.
+individual components. The requirements are the same as the first method.
 
 ### `libnopegl` (the core library)
 
