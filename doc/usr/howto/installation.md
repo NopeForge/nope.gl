@@ -12,7 +12,7 @@ git clone https://github.com/NopeFoundry/nope.gl
 [nopegl]: https://github.com/NopeFoundry/nope.gl
 
 
-## Quick user build & installation
+## Method 1: quick user build & installation
 
 This page includes the system requirements as well as the steps needed for
 building and running the complete `nope.gl` stack.
@@ -67,7 +67,7 @@ building and running the complete `nope.gl` stack.
 - Finally, run `python.exe .\configure.py` followed by `nmake`
 
 
-## Manual components installation
+## Method 2: manual components installation
 
 This section is targeted at packagers willing to build packages for every
 individual components.
