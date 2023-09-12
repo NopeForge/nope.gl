@@ -94,6 +94,7 @@ static float f_radians(float x) { return PI_F32 / 180.f * x; }
 static float f_linear2srgb(float x) { return x < 0.0031308f ? x*12.92f : 1.055f * powf(x, 1.f/2.4f)-0.055f; }
 static float f_srgb2linear(float x) { return x < 0.04045f   ? x/12.92f : powf((x+.055f) / 1.055f, 2.4f); }
 static float f_mix(float a, float b, float x) { return NGLI_MIX_F32(a, b, x); }
+static float f_srgbmix(float a, float b, float x) { return f_linear2srgb(f_mix(f_srgb2linear(a), f_srgb2linear(b), x)); }
 static float f_linear(float a, float b, float x) { return NGLI_LINEAR_NORM(a, b, x); }
 static float f_linearstep(float a, float b, float x) { return f_sat(f_linear(a, b, x)); }
 
@@ -193,6 +194,7 @@ static const struct function {
     {"sqr",         1, f_sqr},
     {"sqrt",        1, sqrtf},
     {"srgb2linear", 1, f_srgb2linear},
+    {"srgbmix",     3, f_srgbmix},
     {"tan",         1, tanf},
     {"tanh",        1, tanhf},
     {"trunc",       1, truncf},

@@ -87,6 +87,7 @@ component of the 3+ dimensional input resources identified by "foo".
 | `sqr(x)`            | square of x (`x²`)                                                             |
 | `sqrt(x)`           | square root of `x`                                                             |
 | `srgb2linear(x)`    | convert `x` from sRGB to linear (see also `linear2srgb(x)`)                    |
+| `srgbmix(a,b,x)`    | mix `a` and `b` in linear space, but the inputs and output are gamma encoded   |
 | `tan(x)`            | tangent of `x`                                                                 |
 | `tanh(x)`           | hyperbolic tangent of `x`                                                      |
 | `trunc(x)`          | round to integer, toward zero (see also `floor()`)                             |
