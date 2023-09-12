@@ -1,43 +1,6 @@
 from pynopegl_utils.misc import SceneCfg, scene
-from pynopegl_utils.toolbox.colors import get_random_color_buffer
 
 import pynopegl as ngl
-
-
-@scene(controls=dict(color=scene.Color(), rotate=scene.Bool(), scale=scene.Bool(), translate=scene.Bool()))
-def animated_square(cfg: SceneCfg, color=(1, 0.66, 0), rotate=True, scale=True, translate=True):
-    """Animated Translate/Scale/Rotate on a square"""
-    cfg.duration = 5.0
-    cfg.aspect_ratio = (1, 1)
-
-    sz = 1 / 3.0
-    q = ngl.Quad((-sz / 2, -sz / 2, 0), (sz, 0, 0), (0, sz, 0))
-    node = ngl.RenderColor(color, geometry=q)
-
-    coords = [(-1, 1), (1, 1), (1, -1), (-1, -1), (-1, 1)]
-
-    if rotate:
-        animkf = (ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360))
-        node = ngl.Rotate(node, angle=ngl.AnimatedFloat(animkf))
-
-    if scale:
-        animkf = (
-            ngl.AnimKeyFrameVec3(0, (1, 1, 1)),
-            ngl.AnimKeyFrameVec3(cfg.duration / 2, (2, 2, 2)),
-            ngl.AnimKeyFrameVec3(cfg.duration, (1, 1, 1)),
-        )
-        node = ngl.Scale(node, factors=ngl.AnimatedVec3(animkf))
-
-    if translate:
-        animkf = []
-        tscale = 1.0 / float(len(coords) - 1) * cfg.duration
-        for i, xy in enumerate(coords):
-            pos = (xy[0] * 0.5, xy[1] * 0.5, 0)
-            t = i * tscale
-            animkf.append(ngl.AnimKeyFrameVec3(t, pos))
-        node = ngl.Translate(node, vector=ngl.AnimatedVec3(animkf))
-
-    return node
 
 
 @scene()
@@ -115,28 +78,6 @@ def animated_camera(cfg: SceneCfg, rotate=True):
     camera.set_perspective(ngl.AnimatedVec2(perspective_animkf))
 
     return camera
-
-
-@scene(controls=dict(dim=scene.Range(range=[1, 100])))
-def animated_buffer(cfg: SceneCfg, dim=50):
-    """Transform a random buffer content using animations"""
-    cfg.duration = 5.0
-
-    nb_kf = int(cfg.duration)
-    buffers = [get_random_color_buffer(cfg.rng, dim) for _ in range(nb_kf)]
-    random_animkf = []
-    time_scale = cfg.duration / float(nb_kf)
-    for i, buf in enumerate(buffers + [buffers[0]]):
-        random_animkf.append(ngl.AnimKeyFrameBuffer(i * time_scale, buf))
-    random_buffer = ngl.AnimatedBufferVec4(keyframes=random_animkf)
-    random_tex = ngl.Texture2D(
-        data_src=random_buffer,
-        width=dim,
-        height=dim,
-        min_filter="nearest",
-        mag_filter="nearest",
-    )
-    return ngl.RenderTexture(random_tex)
 
 
 @scene()
