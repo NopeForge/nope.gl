@@ -3,37 +3,6 @@ from pynopegl_utils.misc import SceneCfg, scene
 import pynopegl as ngl
 
 
-@scene(
-    controls=dict(
-        uv_corner=scene.Vector(n=2),
-        uv_width=scene.Vector(n=2),
-        uv_height=scene.Vector(n=2),
-        progress_bar=scene.Bool(),
-    )
-)
-def centered_media(cfg: SceneCfg, uv_corner=(0, 0), uv_width=(1, 0), uv_height=(0, 1), progress_bar=True):
-    """A simple centered media with an optional progress bar in the shader"""
-    m0 = cfg.medias[0]
-    cfg.duration = m0.duration
-    cfg.aspect_ratio = (m0.width, m0.height)
-
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0), uv_corner, uv_width, uv_height)
-    m = ngl.Media(m0.filename)
-    t = ngl.Texture2D(data_src=m)
-    p = ngl.Program(vertex=cfg.get_vert("texture"), fragment=cfg.get_frag("texture"))
-    p.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(q, p)
-    render.update_frag_resources(tex0=t)
-
-    if progress_bar:
-        p.set_fragment(cfg.get_frag("progress-bar"))
-
-        media_duration = ngl.UniformFloat(m0.duration)
-        ar = ngl.UniformFloat(cfg.aspect_ratio_float)
-        render.update_frag_resources(media_duration=media_duration, ar=ar)
-    return render
-
-
 @scene(controls=dict(speed=scene.Range(range=[0.01, 2], unit_base=1000)))
 def playback_speed(cfg: SceneCfg, speed=1.0):
     """Adjust media playback speed using animation keyframes"""

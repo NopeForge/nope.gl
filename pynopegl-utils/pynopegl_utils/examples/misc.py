@@ -4,7 +4,6 @@ import math
 import os.path as op
 
 from pynopegl_utils.misc import SceneCfg, scene
-from pynopegl_utils.toolbox.grid import autogrid_simple
 from pynopegl_utils.toolbox.scenes import compare
 from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 
@@ -43,37 +42,6 @@ def lut3d(cfg: SceneCfg, xsplit=0.3, trilinear=True):
     return compare(cfg, scene_tex, scene_lut, xsplit)
 
 
-@scene(controls=dict(bgcolor1=scene.Color(), bgcolor2=scene.Color(), bilinear_filtering=scene.Bool()))
-def buffer_dove(cfg: SceneCfg, bgcolor1=(0.6, 0, 0), bgcolor2=(0.8, 0.8, 0), bilinear_filtering=True):
-    """Blending of a Render using a Buffer as data source"""
-    cfg.duration = 3.0
-
-    # Credits: https://icons8.com/icon/40514/dove
-    # (Raw data is the premultiplied)
-    icon_filename = op.join(op.dirname(__file__), "data", "icons8-dove.raw")
-    cfg.files.append(icon_filename)
-    w, h = (96, 96)
-    cfg.aspect_ratio = (w, h)
-
-    img_buf = ngl.BufferUBVec4(filename=icon_filename, label="icon raw buffer")
-
-    img_tex = ngl.Texture2D(data_src=img_buf, width=w, height=h)
-    img_tex.set_mag_filter("linear" if bilinear_filtering else "nearest")
-    quad = ngl.Quad((-0.5, -0.5, 0.1), (1, 0, 0), (0, 1, 0))
-    render = ngl.RenderTexture(img_tex, geometry=quad, blending="src_over")
-
-    shape_bg = ngl.Circle(radius=0.6, npoints=256)
-    color_animkf = [
-        ngl.AnimKeyFrameColor(0, bgcolor1),
-        ngl.AnimKeyFrameColor(cfg.duration / 2.0, bgcolor2),
-        ngl.AnimKeyFrameColor(cfg.duration, bgcolor1),
-    ]
-    ucolor = ngl.AnimatedColor(color_animkf)
-    render_bg = ngl.RenderColor(ucolor, geometry=shape_bg, label="background")
-
-    return ngl.Group(children=(render_bg, render))
-
-
 @scene(controls=dict(size=scene.Range(range=[0, 2], unit_base=1000)))
 def triangle(cfg: SceneCfg, size=4 / 3):
     """Rotating triangle with edge coloring specified in a vertex attribute"""
@@ -98,120 +66,6 @@ def triangle(cfg: SceneCfg, size=4 / 3):
     ]
     node = ngl.Rotate(node, angle=ngl.AnimatedFloat(animkf))
     return node
-
-
-@scene(controls=dict(n=scene.Range(range=[2, 10])))
-def fibo(cfg: SceneCfg, n=8):
-    """Fibonacci with a recursive tree (nodes inherit transforms)"""
-    cfg.duration = 5.0
-    cfg.aspect_ratio = (1, 1)
-
-    fib = [0, 1, 1]
-    for i in range(2, n):
-        fib.append(fib[i] + fib[i - 1])
-    fib = fib[::-1]
-
-    shift = 1 / 3.0  # XXX: what's the exact math here?
-    shape_scale = 1.0 / ((2.0 - shift) * sum(fib))
-
-    orig = (-shift, -shift, 0)
-    g = None
-    root = None
-    for i, x in enumerate(fib[:-1]):
-        w = x * shape_scale
-        gray = 1.0 - i / float(n)
-        color = (gray, gray, gray)
-        q = ngl.Quad(orig, (w, 0, 0), (0, w, 0))
-        render = ngl.RenderColor(color, geometry=q)
-
-        new_g = ngl.Group()
-        animkf = [
-            ngl.AnimKeyFrameFloat(0, 90),
-            ngl.AnimKeyFrameFloat(cfg.duration / 2, -90, "exp_in_out"),
-            ngl.AnimKeyFrameFloat(cfg.duration, 90, "exp_in_out"),
-        ]
-        rot = ngl.Rotate(new_g, anchor=orig, angle=ngl.AnimatedFloat(animkf))
-        if g:
-            g.add_children(rot)
-        else:
-            root = rot
-        g = new_g
-        new_g.add_children(render)
-        orig = (orig[0] + w, orig[1] + w, 0)
-
-    assert root is not None
-    return root
-
-
-@scene(controls=dict(dim=scene.Range(range=[1, 50])))
-def cropboard(cfg: SceneCfg, dim=15):
-    """Divided media using instancing draw and UV coords offsetting from a buffer"""
-    m0 = cfg.medias[0]
-    cfg.duration = 10
-    cfg.aspect_ratio = (m0.width, m0.height)
-
-    kw = kh = 1.0 / dim
-    qw = qh = 2.0 / dim
-
-    p = ngl.Program(vertex=cfg.get_vert("cropboard"), fragment=cfg.get_frag("texture"))
-    p.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    m = ngl.Media(m0.filename)
-    t = ngl.Texture2D(data_src=m)
-
-    uv_offset_buffer = array.array("f")
-    translate_a_buffer = array.array("f")
-    translate_b_buffer = array.array("f")
-
-    q = ngl.Quad(
-        corner=(0, 0, 0), width=(qw, 0, 0), height=(0, qh, 0), uv_corner=(0, 0), uv_width=(kw, 0), uv_height=(0, kh)
-    )
-
-    for y in range(dim):
-        for x in range(dim):
-            uv_offset = [x * kw, (y + 1.0) * kh - 1.0]
-            src = [cfg.rng.uniform(-2, 2), cfg.rng.uniform(-2, 2)]
-            dst = [x * qw - 1.0, 1.0 - (y + 1.0) * qh]
-
-            uv_offset_buffer.extend(uv_offset)
-            translate_a_buffer.extend(src)
-            translate_b_buffer.extend(dst)
-
-    utime_animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration * 2 / 3.0, 1, "exp_out")]
-    utime = ngl.AnimatedFloat(utime_animkf)
-
-    render = ngl.Render(q, p, nb_instances=dim**2)
-    render.update_frag_resources(tex0=t)
-    render.update_vert_resources(time=utime)
-    render.update_instance_attributes(
-        uv_offset=ngl.BufferVec2(data=uv_offset_buffer),
-        translate_a=ngl.BufferVec2(data=translate_a_buffer),
-        translate_b=ngl.BufferVec2(data=translate_b_buffer),
-    )
-    return render
-
-
-@scene(controls=dict(freq_precision=scene.Range(range=[1, 10]), overlay=scene.Range(unit_base=100)))
-def audiotex(cfg: SceneCfg, freq_precision=7, overlay=0.6):
-    """FFT/Waves audio texture of the audio stream blended on top of the video stream"""
-    media = cfg.medias[0]
-    cfg.duration = media.duration
-    cfg.aspect_ratio = (media.width, media.height)
-
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-
-    audio_m = ngl.Media(media.filename, audio_tex=True)
-    audio_tex = ngl.Texture2D(data_src=audio_m, min_filter="nearest", mag_filter="nearest")
-
-    video_m = ngl.Media(media.filename)
-    video_tex = ngl.Texture2D(data_src=video_m)
-
-    p = ngl.Program(vertex=cfg.get_vert("dual-tex"), fragment=cfg.get_frag("audiotex"))
-    p.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_tex1_coord=ngl.IOVec2())
-    render = ngl.Render(q, p)
-    render.update_frag_resources(tex0=audio_tex, tex1=video_tex)
-    render.update_frag_resources(overlay=ngl.UniformFloat(overlay))
-    render.update_frag_resources(freq_precision=ngl.UniformInt(freq_precision))
-    return render
 
 
 @scene(controls=dict(particles=scene.Range(range=[1, 1023])))
@@ -552,46 +406,6 @@ def mountain(cfg: SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb
     return group
 
 
-@scene(controls=dict(demo_str=scene.Text(), time_unit=scene.Range(range=[0.01, 0.3], unit_base=100)))
-def text(cfg: SceneCfg, demo_str="Hello World!\n\nThis is a multi-line\ntext demonstration.", time_unit=0.05):
-    """Demonstrate the text node features (colors, scale, alignment, fitting, ...)"""
-
-    group = ngl.Group()
-
-    cfg.duration = time_unit * 2 * len(demo_str)
-
-    nb_chars = len(demo_str)
-    for i in range(nb_chars):
-        ascii_text = ngl.Text(
-            demo_str[: i + 1],
-            aspect_ratio=cfg.aspect_ratio,
-            bg_color=(0.15, 0.15, 0.15),
-            bg_opacity=1,
-            font_scale=1 / 2.0,
-        )
-        start_time = i * time_unit
-        end_time = None if i == nb_chars - 1 else (i + 1) * time_unit
-        group.add_children(ngl.TimeRangeFilter(ascii_text, start_time, end_time))
-
-    for valign in ("top", "center", "bottom"):
-        for halign in ("left", "center", "right"):
-            if (valign, halign) == ("center", "center"):
-                continue
-            fg_color = colorsys.hls_to_rgb(cfg.rng.uniform(0, 1), 0.5, 1.0)
-            aligned_text = ngl.Text(
-                f"{valign}-{halign}",
-                valign=valign,
-                halign=halign,
-                aspect_ratio=cfg.aspect_ratio,
-                fg_color=fg_color,
-                bg_opacity=0,
-                font_scale=1 / 5.0,
-            )
-            group.add_children(aligned_text)
-
-    return group
-
-
 @scene()
 def smptebars_glitch(cfg: SceneCfg):
     """SMPTE bars glitching at irregular intervals"""
@@ -645,45 +459,3 @@ def gradient_eval(cfg: SceneCfg, mode="ramp", c0=(1, 0.5, 0.5), c1=(0.5, 1, 0.5)
     grad = ngl.RenderGradient(pos0=pos0, pos1=pos1, mode=mode, color0=c0, color1=c1)
 
     return ngl.Group(children=(grad, p0, p1))
-
-
-_SCENE_CHOICES = (
-    "media",
-    "histogram/mixed",
-    "histogram/parade",
-    "histogram/luma_only",
-    "waveform/mixed",
-    "waveform/parade",
-    "waveform/luma_only",
-)
-
-
-@scene(
-    controls=dict(
-        scene0=scene.List(choices=_SCENE_CHOICES),
-        scene1=scene.List(choices=_SCENE_CHOICES),
-        scene2=scene.List(choices=_SCENE_CHOICES),
-        scene3=scene.List(choices=_SCENE_CHOICES),
-    )
-)
-def scopes(cfg, scene0="media", scene1="waveform/parade", scene2="waveform/mixed", scene3="histogram/parade"):
-    m = cfg.medias[0]
-    cfg.duration = m.duration
-    cfg.aspect_ratio = (m.width, m.height)
-
-    texture = ngl.Texture2D(data_src=ngl.Media(m.filename), mag_filter="linear", min_filter="linear")
-
-    stats = ngl.ColorStats(texture)
-
-    children = []
-    for scene in (scene0, scene1, scene2, scene3):
-        if scene == "media":
-            children.append(ngl.RenderTexture(texture))
-            continue
-        render_name, mode = scene.split("/", maxsplit=1)
-        if render_name == "histogram":
-            render = ngl.RenderHistogram(stats=stats, mode=mode)
-        else:
-            render = ngl.RenderWaveform(stats=stats, mode=mode)
-        children.append(render)
-    return autogrid_simple(children)
