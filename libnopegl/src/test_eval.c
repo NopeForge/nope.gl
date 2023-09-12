@@ -114,6 +114,7 @@ static const struct test_expr expressions[] = {
     {1, "smoothstep(x, -z, 1/2)", 0.501536f},
     {1, "srgb2linear (linear2srgb( 0.003 )) ", 0.003f},
     {1, "srgb2linear (linear2srgb( 0.8 )) ", 0.8f},
+    {1, "srgbmix(0.0, 1.0, 0.5)", 0.735357f},
     {1, "z", 0.231f},
 };
 
