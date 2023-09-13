@@ -44,14 +44,14 @@
 }
 
 .nope-btn-on {
-  background-color: #fff;
-  color: #333;
+  background-color: #333;
+  color: #fff;
   cursor: default;
 }
 
 .nope-btn-off {
-  background-color: #333;
-  color: #fff;
+  background-color: #fff;
+  color: #333;
   cursor: pointer;
 }
 
