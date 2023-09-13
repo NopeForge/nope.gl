@@ -182,7 +182,7 @@ def _visit_nope_html(self: HTML5Translator, node: _nope):
     if visual.endswith(".png"):
         visual_html = f'<img src="{visual}" alt="">'
     elif visual.endswith(".mp4"):
-        visual_html = f'<video loop muted autoplay><source src="{visual}" type="video/mp4"></video>'
+        visual_html = f'<video class="nope-video" loop muted autoplay><source src="{visual}" type="video/mp4"></video>'
     else:
         assert False
 
