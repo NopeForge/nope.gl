@@ -21,7 +21,6 @@
 
 from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynopegl_utils.toolbox.grid import autogrid_simple
 
 import pynopegl as ngl
 
