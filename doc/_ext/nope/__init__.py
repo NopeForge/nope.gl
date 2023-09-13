@@ -199,7 +199,7 @@ def _visit_nope_html(self: HTML5Translator, node: _nope):
                     <div class="nope-btn-off nope-btn-graph" onclick="show_tab(this.parentNode, 'graph')">Graph</div>
                 </div>
                 <div class="nope-tab-on nope-tab-code">
-                    <div class="highlight-python notranslate">{highlighted_code}</div>
+                    <div class="highlight-python notranslate nope-python">{highlighted_code}</div>
                 </div>
                 <div class="nope-tab-off nope-tab-graph">
                     <img src="{graph}" alt="graph">
