@@ -26,7 +26,7 @@ from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cmp_resources import test_resources
 from pynopegl_utils.toolbox.colors import COLORS
-from pynopegl_utils.toolbox.grid import AutoGrid
+from pynopegl_utils.toolbox.grid import autogrid_simple
 
 import pynopegl as ngl
 
@@ -152,8 +152,7 @@ def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
     medias = [m.filename for m in cfg.medias if m.filename.endswith(("mp4", "jpg"))]
 
     queued_medias = []
-    ag = AutoGrid(range(nb_medias))
-    for video_id, _, col, pos in ag:
+    for video_id in range(nb_medias):
         start = video_id * cfg.duration / nb_medias
         end = start + cfg.duration / nb_medias + overlap_time
 
@@ -165,13 +164,12 @@ def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
 
         texture = ngl.Texture2D(data_src=media, min_filter="linear", mag_filter="linear")
         render = ngl.RenderTexture(texture)
-        render = ag.place_node(render, (col, pos))
 
         rf = ngl.TimeRangeFilter(render, start, end)
 
         queued_medias.append(rf)
 
-    return ngl.Group(children=queued_medias)
+    return autogrid_simple(queued_medias)
 
 
 @test_fingerprint(width=320, height=240, keyframes=20, tolerance=1)
