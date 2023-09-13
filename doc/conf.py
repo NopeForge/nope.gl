@@ -15,6 +15,10 @@ release = version
 extensions = ["myst_parser", "sphinxcontrib.mermaid", "nope"]
 source_suffix = {".md": "markdown"}
 
+html_theme_options = {
+    "code_font_size": "0.8em",
+}
+
 # Automatically create anchors on titles following GitHub logic
 myst_heading_anchors = 3
 
