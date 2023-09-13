@@ -21,6 +21,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   information (types, choices, etc)
 - The documentation has been reworked, notably to include code examples with
   associated rendering and graph
+- `Transform` node now accepts a node as input parameter and can be animated
+  this way
 
 ## [2023.3] [libnopegl 0.9.0] - 2023-09-01
 ### Fixed

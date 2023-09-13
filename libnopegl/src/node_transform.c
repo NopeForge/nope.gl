@@ -29,6 +29,7 @@
 
 struct transform_opts {
     struct ngl_node *child;
+    struct ngl_node *matrix_node;
     float matrix[4*4];
 };
 
@@ -48,8 +49,8 @@ static int update_matrix(struct ngl_node *node)
 static const struct node_param transform_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child), .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to apply the transform to")},
-    {"matrix", NGLI_PARAM_TYPE_MAT4, OFFSET(matrix), {.mat=NGLI_MAT4_IDENTITY},
-               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+    {"matrix", NGLI_PARAM_TYPE_MAT4, OFFSET(matrix_node), {.mat=NGLI_MAT4_IDENTITY},
+               .flags=NGLI_PARAM_FLAG_ALLOW_NODE | NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=update_matrix,
                .desc=NGLI_DOCSTRING("transformation matrix")},
     {NULL}
@@ -68,8 +69,19 @@ static int transform_init(struct ngl_node *node)
 
 static int transform_update(struct ngl_node *node, double t)
 {
-    const struct transform_opts *o = node->opts;
-    return ngli_node_update(o->child, t);
+    struct transform_priv *s = node->priv_data;
+    struct transform_opts *o = node->opts;
+
+    int ret = ngli_node_update_children(node, t);
+    if (ret < 0)
+        return ret;
+
+    if (o->matrix_node) {
+        float *data = ngli_node_get_data_ptr(o->matrix_node, o->matrix);
+        memcpy(s->trf.matrix, data, sizeof(s->trf.matrix));
+    }
+
+    return 0;
 }
 
 const struct node_class ngli_transform_class = {
