@@ -19,6 +19,10 @@
   margin-bottom: 5px;
 }
 
+.nope-video {
+  max-width: 100%;
+}
+
 .nope-tabs-bar {
   text-align: center;
   padding: 5px;
