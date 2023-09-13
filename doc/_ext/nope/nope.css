@@ -23,6 +23,11 @@
   max-width: 100%;
 }
 
+.nope-python {
+  max-height: 30em;
+  overflow-y: scroll;
+}
+
 .nope-tabs-bar {
   text-align: center;
   padding: 5px;
