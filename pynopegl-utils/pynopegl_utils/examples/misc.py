@@ -316,18 +316,12 @@ def quaternion(cfg: SceneCfg):
         ngl.AnimKeyFrameQuat(4 * step, (x, 0, 0, x)),
         ngl.AnimKeyFrameQuat(5 * step, (0, 0, 0, 1)),
     ]
+
     quat = ngl.AnimatedQuat(quat_animkf, as_mat4=True)
+    render = ngl.RenderColor(color=(1.0, 1.0, 1.0))
+    transform = ngl.Transform(render, matrix=quat)
 
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    m = ngl.Media(cfg.medias[0].filename)
-    t = ngl.Texture2D(data_src=m)
-    p = ngl.Program(vertex=cfg.get_vert("uniform-mat4"), fragment=cfg.get_frag("texture"))
-    p.update_vert_out_vars(var_normal=ngl.IOVec3(), var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(q, p)
-    render.update_frag_resources(tex0=t)
-    render.update_vert_resources(transformation_matrix=quat)
-
-    camera = ngl.Camera(render)
+    camera = ngl.Camera(transform)
     camera.set_eye(0.0, 0.0, 4.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
