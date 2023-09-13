@@ -70,25 +70,25 @@ class AutoGrid:
 
 def autogrid_simple(scenes: Sequence[ngl.Node]) -> ngl.Node:
     ag = AutoGrid(scenes)
-    g = ngl.Group()
-    for scene, _, col, row in ag:
-        scene = ag.place_node(scene, (col, row))
-        g.add_children(scene)
-    return g
+    grid = ngl.GridLayout(scenes, size=(ag.nb_cols, ag.nb_rows))
+
+    # Always fit in a square
+    scale_x = ag.nb_cols * ag.scale
+    scale_y = ag.nb_rows * ag.scale
+    return ngl.Scale(grid, (scale_x, scale_y, 1), anchor=(-1, 1, 0))
 
 
 def autogrid_queue(scenes: Sequence[ngl.Node], duration: float, overlap_time: float) -> ngl.Node:
-    ag = AutoGrid(scenes)
-    g = ngl.Group()
-    for scene, scene_id, col, row in ag:
+    nb_scenes = len(scenes)
+    timed_scenes = []
+    for scene_id, scene in enumerate(scenes):
         if duration is not None:
             assert overlap_time is not None
-            start = scene_id * duration / ag.nb
-            end = start + duration / ag.nb + overlap_time
+            start = scene_id * duration / nb_scenes
+            end = start + duration / nb_scenes + overlap_time
             scene = ngl.TimeRangeFilter(scene, start, end)
-        scene = ag.place_node(scene, (col, row))
-        g.add_children(scene)
-    return g
+        timed_scenes.append(scene)
+    return autogrid_simple(timed_scenes)
 
 
 if __name__ == "__main__":
