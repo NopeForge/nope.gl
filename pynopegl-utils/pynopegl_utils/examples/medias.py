@@ -1,4 +1,4 @@
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, load_media, scene
 
 import pynopegl as ngl
 
@@ -6,7 +6,7 @@ import pynopegl as ngl
 @scene(controls=dict(speed=scene.Range(range=[0.01, 2], unit_base=1000)))
 def playback_speed(cfg: SceneCfg, speed=1.0):
     """Adjust media playback speed using animation keyframes"""
-    m0 = cfg.medias[0]
+    m0 = load_media(cfg, "mire")
     media_duration = m0.duration
     initial_seek = min(media_duration, 5)
     rush_duration = media_duration - initial_seek
@@ -30,7 +30,7 @@ def time_remapping(cfg: SceneCfg):
     - last frame displayed for a while (even though the media is closed)
     - nothing again until the end
     """
-    m0 = cfg.medias[0]
+    m0 = load_media(cfg, "mire")
 
     media_seek = 10
     noop_duration = 2

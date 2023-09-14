@@ -3,7 +3,7 @@ import colorsys
 import math
 import os.path as op
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, load_media, scene
 from pynopegl_utils.toolbox.scenes import compare
 from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 
@@ -25,7 +25,7 @@ def lut3d(cfg: SceneCfg, xsplit=0.3, trilinear=True):
     lut3d_tex.set_min_filter("linear" if trilinear else "nearest")
     lut3d_tex.set_mag_filter("linear" if trilinear else "nearest")
 
-    m0 = cfg.medias[0]
+    m0 = load_media(cfg, "mire")
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
     video = ngl.Media(m0.filename)
@@ -254,7 +254,8 @@ def cube(cfg: SceneCfg, display_depth_buffer=False):
     program = ngl.Program(vertex=vert_data, fragment=frag_data)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
 
-    texture = ngl.Texture2D(data_src=ngl.Media(cfg.medias[0].filename))
+    media = load_media(cfg, "mire")
+    texture = ngl.Texture2D(data_src=ngl.Media(media.filename))
     children = [_get_cube_side(texture, program, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)
 

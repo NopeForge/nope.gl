@@ -1,7 +1,7 @@
 import array
 import os.path as op
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, load_media, scene
 
 import pynopegl as ngl
 
@@ -70,7 +70,8 @@ def obj(cfg: SceneCfg, model=None):
     normals = ngl.BufferVec3(data=normals_data)
 
     q = ngl.Geometry(vertices, texcoords, normals)
-    m = ngl.Media(cfg.medias[0].filename)
+    media = load_media(cfg, "mire")
+    m = ngl.Media(media.filename)
     t = ngl.Texture2D(data_src=m)
     p = ngl.Program(vertex=cfg.get_vert("tex-tint-normals"), fragment=cfg.get_frag("tex-tint-normals"))
     p.update_vert_out_vars(var_normal=ngl.IOVec3(), var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
