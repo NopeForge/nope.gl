@@ -48,6 +48,7 @@ def export_worker(
     cmd = [
         "ffmpeg",
         "-r", "%d/%d" % fps,
+        "-v", "warning",
         "-nostats", "-nostdin",
         "-f", "rawvideo",
         "-video_size", "%dx%d" % (width, height),
