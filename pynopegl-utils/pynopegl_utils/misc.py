@@ -154,18 +154,18 @@ def get_nopegl_tempdir() -> str:
     return tmpdir
 
 
+MEDIA_FILES_DB = dict(
+    mire="mire-hevc.mp4",
+    cat="cat.mp4",
+    fallen_leaf="OpenMoji-1F342-Fallen_Leaf.png",
+    hamster="OpenMoji-1F439-Hamster.png",
+    rooster="Unsplash-Michael_Anfang-Rooster-cropped.jpg",
+    panda="Unsplash-Romane_Gautun-Red_Panda-cropped.jpg",
+)
+
+
 def _get_default_medias():
-    return [
-        MediaInfo.from_filename(op.join(op.dirname(__file__), "assets", name))
-        for name in (
-            "mire-hevc.mp4",
-            "cat.mp4",
-            "OpenMoji-1F342-Fallen_Leaf.png",
-            "OpenMoji-1F439-Hamster.png",
-            "Unsplash-Michael_Anfang-Rooster-cropped.jpg",
-            "Unsplash-Romane_Gautun-Red_Panda-cropped.jpg",
-        )
-    ]
+    return [MediaInfo.from_filename(op.join(op.dirname(__file__), "assets", name)) for name in MEDIA_FILES_DB.values()]
 
 
 @dataclass
