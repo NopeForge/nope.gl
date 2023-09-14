@@ -20,10 +20,18 @@
 #
 
 import array
+import inspect
 import os
 import platform
+import random
+from collections import namedtuple
+from dataclasses import asdict, dataclass, field
 from enum import IntEnum
-from typing import Any, Mapping, Optional, Sequence, Tuple, Union
+from functools import wraps
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+
+from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 
 if platform.system() == "Windows":
     ngl_dll_dirs = os.getenv("NGL_DLL_DIRS")
@@ -287,3 +295,94 @@ def easing_solve(
 
 def get_livectls(scene: Node) -> Mapping[str, Mapping[str, Any]]:
     return _ngl.get_livectls(scene)
+
+
+@dataclass
+class SceneCfg:
+    aspect_ratio: Tuple[int, int] = (16, 9)
+    duration: float = 30.0
+    framerate: Tuple[int, int] = (60, 1)
+    backend: str = "opengl"
+    samples: int = 0
+    system: str = platform.system()
+    files: List[str] = field(default_factory=list)
+    clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
+
+    def __post_init__(self):
+        # Predictible random number generator
+        self.rng = random.Random(0)
+
+    @property
+    def aspect_ratio_float(self) -> float:
+        return self.aspect_ratio[0] / self.aspect_ratio[1]
+
+    def as_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class SceneInfo:
+    scene: Scene
+    backend: str
+    samples: int
+    clear_color: Tuple[float, float, float, float]
+    files: List[str]
+
+
+def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str] = None):
+    def real_decorator(scene_func: Callable[..., Node]) -> Callable[..., SceneInfo]:
+        @wraps(scene_func)
+        def func_wrapper(scene_cfg: Optional[SceneCfg] = None, **extra_args):
+            version = Version(__version__)
+            if compat_specs and version not in SpecifierSet(compat_specs):
+                raise Exception(
+                    f"{scene_func.__name__} needs libnopegl{compat_specs} but libnopegl is currently at version {version}"
+                )
+
+            if scene_cfg is None:
+                scene_cfg = SceneCfg()
+            root = scene_func(scene_cfg, **extra_args)
+            scene = Scene.from_params(root, scene_cfg.duration, scene_cfg.framerate, scene_cfg.aspect_ratio)
+            return SceneInfo(
+                scene=scene,
+                backend=scene_cfg.backend,
+                samples=scene_cfg.samples,
+                clear_color=scene_cfg.clear_color,
+                files=scene_cfg.files,
+            )
+
+        # Construct widgets specs
+        widgets_specs = []
+        func_specs = inspect.getfullargspec(scene_func)
+        if controls is not None and func_specs.defaults:
+            nb_optionnals = len(func_specs.defaults)
+            for i, key in enumerate(func_specs.args[-nb_optionnals:]):
+                # Set controller defaults according to the function prototype
+                control = controls.get(key)
+                if control is not None:
+                    default = func_specs.defaults[i]
+                    ctl_id = control.__class__.__name__
+                    ctl_data = control._asdict()
+                    widgets_specs.append((key, default, ctl_id, ctl_data))
+
+        # Transfers the widget specs to the UI.
+        # We could use the return value but it's better if the user can still
+        # call its decorated scene function transparently inside his own code
+        # without getting garbage along the return value.
+        func_wrapper.widgets_specs = widgets_specs
+
+        # Flag the scene as a scene function so it's registered in the UI.
+        func_wrapper.iam_a_ngl_scene_func = True
+
+        return func_wrapper
+
+    return real_decorator
+
+
+scene.Range = namedtuple("Range", "range unit_base", defaults=([0, 1], 1))
+scene.Vector = namedtuple("Vector", "n minv maxv", defaults=(None, None))
+scene.Color = namedtuple("Color", "")
+scene.Bool = namedtuple("Bool", "")
+scene.File = namedtuple("File", "filter", defaults=("",))
+scene.List = namedtuple("List", "choices")
+scene.Text = namedtuple("Text", "")
