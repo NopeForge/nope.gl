@@ -74,11 +74,15 @@ class Exporter(QtCore.QThread):
                 pass1 = self._export(scene_info, palette_filename, width, height, pass1_args)
                 for progress in pass1:
                     self.progressed.emit(progress)
+                    if self._cancelled:
+                        break
                 export = self._export(scene_info, filename, width, height, pass2_args)
             else:
                 export = self._export(scene_info, filename, width, height, self._extra_enc_args)
             for progress in export:
                 self.progressed.emit(progress)
+                if self._cancelled:
+                    break
             self.export_finished.emit()
         except Exception:
             self.failed.emit("Something went wrong while trying to encode, check encoding parameters")
@@ -130,8 +134,6 @@ class Exporter(QtCore.QThread):
         # Draw every frame
         nb_frame = int(duration * fps[0] / fps[1])
         for i in range(nb_frame):
-            if self._cancelled:
-                break
             time = i * fps[1] / float(fps[0])
             ctx.draw(time)
             os.write(fd_w, capture_buffer)
