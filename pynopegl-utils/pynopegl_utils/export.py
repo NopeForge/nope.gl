@@ -26,6 +26,7 @@ import os
 import platform
 import subprocess
 import sys
+from dataclasses import dataclass
 from typing import List, Optional
 
 from pynopegl_utils.misc import SceneInfo, get_backend, get_viewport
@@ -42,6 +43,38 @@ RESOLUTIONS = {
     "1440p": 1440,
     "4k": 2048,
 }
+
+
+@dataclass
+class EncodeProfile:
+    name: str
+    format: str
+    args: List[str]
+
+
+ENCODE_PROFILES = dict(
+    mp4_h264_420=EncodeProfile(
+        name="MP4 / H264 4:2:0",
+        format="mp4",
+        # Since 4:2:0 is used for portability (over the Internet typically), we also use faststart
+        args=["-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "18", "-movflags", "+faststart"],
+    ),
+    mp4_h264_444=EncodeProfile(
+        name="MP4 / H264 4:4:4",
+        format="mp4",
+        args=["-pix_fmt", "yuv444p", "-c:v", "libx264", "-crf", "18"],
+    ),
+    mov_qtrle=EncodeProfile(
+        name="MOV / QTRLE (Lossless)",
+        format="mov",
+        args=["-c:v", "qtrle"],
+    ),
+    nut_ffv1=EncodeProfile(
+        name="NUT / FFV1 (Lossless)",
+        format="nut",
+        args=["-c:v", "ffv1"],
+    ),
+)
 
 
 def export_worker(
