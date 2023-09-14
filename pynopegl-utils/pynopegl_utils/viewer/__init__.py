@@ -20,7 +20,6 @@
 # under the License.
 #
 
-import os
 import platform
 import subprocess
 import sys
@@ -29,7 +28,8 @@ from typing import Any, Dict, List, Optional
 
 from pynopegl_utils import qml
 from pynopegl_utils.com import query_scene
-from pynopegl_utils.misc import SceneCfg, SceneInfo, get_viewport
+from pynopegl_utils.export import export_worker
+from pynopegl_utils.misc import SceneCfg, SceneInfo
 from pynopegl_utils.qml import livectls
 from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.viewer.config import ENCODE_PROFILES, RESOLUTIONS, Config
@@ -287,81 +287,18 @@ class _Viewer:
             # make sure it's a multiple of 2 for the h264 codec
             width &= ~1
 
-            fps = scene.framerate
-            duration = scene.duration
-
-            fd_r, fd_w = os.pipe()
-
-            ffmpeg = ["ffmpeg"]
-            input = f"pipe:{fd_r}"
-
-            if platform.system() == "Windows":
-                import msvcrt
-
-                handle = msvcrt.get_osfhandle(fd_r)
-                os.set_handle_inheritable(handle, True)
-                input = f"handle:{handle}"
-                ffmpeg = [sys.executable, "-m", "pynopegl_utils.viewer.ffmpeg_win32"]
-
-            # fmt: off
-            cmd = ffmpeg + [
-                "-r", "%d/%d" % fps,
-                "-v", "warning",
-                "-nostats", "-nostdin",
-                "-f", "rawvideo",
-                "-video_size", "%dx%d" % (width, height),
-                "-pixel_format", "rgba",
-                "-i", input,
-            ] + profile.args + [
-                "-f", profile.format,
-                "-y", filename,
-            ]
-            # fmt: on
-
-            if platform.system() == "Windows":
-                reader = subprocess.Popen(cmd, close_fds=False)
-            else:
-                reader = subprocess.Popen(cmd, pass_fds=(fd_r,))
-            os.close(fd_r)
-
-            capture_buffer = bytearray(width * height * 4)
-
-            ctx = ngl.Context()
-            ctx.configure(
-                ngl.Config(
-                    platform=ngl.Platform.AUTO,
-                    backend=ngl.Backend.AUTO,
-                    offscreen=True,
-                    width=width,
-                    height=height,
-                    viewport=get_viewport(width, height, scene.aspect_ratio),
-                    samples=cfg.samples,
-                    capture_buffer=capture_buffer,
-                )
-            )
-            ctx.set_scene(scene)
-
-            # Draw every frame
-            nb_frame = int(duration * fps[0] / fps[1])
-            for i in range(nb_frame):
+            extra_enc_args = profile.args + ["-f", profile.format]
+            export = export_worker(scene_info, filename, width, height, extra_enc_args)
+            for progress in export:
                 if self._cancel_export_request:
                     break
-                time = i * fps[1] / float(fps[0])
-                ctx.draw(time)
-                os.write(fd_w, capture_buffer)
-                progress = i / (nb_frame - 1)
-                self._export_bar.setProperty("value", progress)
+                self._export_bar.setProperty("value", progress / 100)
                 self._app.processEvents()  # refresh UI
 
             if self._cancel_export_request:
                 self._cancel_export_request = False
             else:
                 self._window.finish_export()
-
-            os.close(fd_w)
-            reader.wait()
-
-            del ctx
 
             self._ngl_widget.set_scene(scene)
 
