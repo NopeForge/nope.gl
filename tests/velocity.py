@@ -21,7 +21,7 @@
 
 import textwrap
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS
 from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
@@ -56,7 +56,7 @@ def velocity_triangle_rotate(cfg: SceneCfg):
     triangle = ngl.RenderColor(COLORS.white, geometry=ngl.Triangle(p0, p1, p2))
     triangle = ngl.Rotate(triangle, angle=anim)
 
-    prog_c = ngl.Program(vertex=cfg.get_vert("color"), fragment=frag)
+    prog_c = ngl.Program(vertex=get_shader("color.vert"), fragment=frag)
     circle = ngl.Render(ngl.Circle(radius=1.0, npoints=128), prog_c)
     circle.update_frag_resources(velocity=velocity)
     return ngl.Group(children=(circle, triangle))
@@ -92,7 +92,7 @@ def velocity_circle_distort_2d(cfg: SceneCfg):
     )
 
     geom = ngl.Circle(radius=0.2, npoints=128)
-    prog = ngl.Program(vertex=vert, fragment=cfg.get_frag("color"))
+    prog = ngl.Program(vertex=vert, fragment=get_shader("color.frag"))
     shape = ngl.Render(geom, prog)
     shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white), opacity=ngl.UniformFloat(1))
     shape.update_vert_resources(velocity=velocity, translate=anim)
@@ -128,7 +128,7 @@ def velocity_circle_distort_3d(cfg: SceneCfg):
     )
 
     geom = ngl.Circle(radius=0.2, npoints=128)
-    prog = ngl.Program(vertex=vert, fragment=cfg.get_frag("color"))
+    prog = ngl.Program(vertex=vert, fragment=get_shader("color.frag"))
     shape = ngl.Render(geom, prog)
     shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white), opacity=ngl.UniformFloat(1))
     shape.update_vert_resources(velocity=velocity)
