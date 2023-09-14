@@ -30,7 +30,6 @@ from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.ui.export_view import ExportView
 from pynopegl_utils.ui.graph_view import GraphView
 from pynopegl_utils.ui.hooks_view import HooksView
-from pynopegl_utils.ui.medias_view import MediasView
 from pynopegl_utils.ui.serial_view import SerialView
 from pynopegl_utils.ui.toolbar import Toolbar
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -63,14 +62,12 @@ class MainWindow(QtWidgets.QSplitter):
         graph_view = GraphView(get_scene_info, self._config)
         export_view = ExportView(get_scene_info, self._config)
         hooks_view = HooksView(self._hooks_ctl, self._config)
-        self._medias_view = MediasView(self._config)
         serial_view = SerialView(get_scene_info)
 
         self._tabs = [
             ("Hooks", hooks_view),
             ("Graph view", graph_view),
             ("Export", export_view),
-            ("Medias", self._medias_view),
             ("Serialization", serial_view),
         ]
         self._last_tab_index = -1
@@ -141,11 +138,6 @@ class MainWindow(QtWidgets.QSplitter):
         scene_func, extra_args = self._scene_toolbar.get_scene_info()
         if scene_func is None:
             return None
-        medias = self._medias_view.get_medias()
-        if medias:
-            # Replace the default medias with user medias only if the user has
-            # specified some
-            cfg.medias = medias
 
         # Config overrides
         if backend is not None:
