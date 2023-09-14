@@ -23,44 +23,11 @@
 import json
 import os
 import os.path as op
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
-from pynopegl_utils.export import RESOLUTIONS
+from pynopegl_utils.export import ENCODE_PROFILES, RESOLUTIONS
 from PySide6 import QtCore
-
-
-@dataclass
-class EncodeProfile:
-    name: str
-    format: str
-    args: List[str]
-
-
-ENCODE_PROFILES = dict(
-    mp4_h264_420=EncodeProfile(
-        name="MP4 / H264 4:2:0",
-        format="mp4",
-        # Since 4:2:0 is used for portability (over the Internet typically), we also use faststart
-        args=["-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "18", "-movflags", "+faststart"],
-    ),
-    mp4_h264_444=EncodeProfile(
-        name="MP4 / H264 4:4:4",
-        format="mp4",
-        args=["-pix_fmt", "yuv444p", "-c:v", "libx264", "-crf", "18"],
-    ),
-    mov_qtrle=EncodeProfile(
-        name="MOV / QTRLE (Lossless)",
-        format="mov",
-        args=["-c:v", "qtrle"],
-    ),
-    nut_ffv1=EncodeProfile(
-        name="NUT / FFV1 (Lossless)",
-        format="nut",
-        args=["-c:v", "ffv1"],
-    ),
-)
 
 
 class Config(QtCore.QObject):
