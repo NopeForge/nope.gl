@@ -1,4 +1,4 @@
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, load_media, scene
 
 import pynopegl as ngl
 
@@ -14,7 +14,8 @@ def media_time_remapping(cfg: SceneCfg):
     ]
 
     # Basic media playback tree
-    m = ngl.Media(cfg.medias[0].filename, time_anim=ngl.AnimatedTime(animkf))
+    media = load_media(cfg, "mire")
+    m = ngl.Media(media.filename, time_anim=ngl.AnimatedTime(animkf))
     t = ngl.Texture2D(data_src=m)
     r = ngl.RenderTexture(t)
 

@@ -1,12 +1,12 @@
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, load_media, scene
 
 import pynopegl as ngl
 
 
 @scene()
 def overlay(cfg: SceneCfg):
-    image = next(m for m in cfg.medias if m.filename.endswith(".jpg"))
-    overlay = next(m for m in cfg.medias if m.filename.endswith(".png"))
+    image = load_media(cfg, "rooster")
+    overlay = load_media(cfg, "fallen_leaf")
 
     cfg.aspect_ratio = image.width, image.height
 
