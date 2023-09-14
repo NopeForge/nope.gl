@@ -549,6 +549,7 @@ static const uint32_t * const param_type_to_nodes[] = {
         NGL_NODE_EVALFLOAT,
         NGL_NODE_NOISEFLOAT,
         NGL_NODE_STREAMEDFLOAT,
+        NGL_NODE_TIME,
         NGL_NODE_UNIFORMFLOAT,
         NGL_NODE_VELOCITYFLOAT,
         NGLI_NODE_NONE
