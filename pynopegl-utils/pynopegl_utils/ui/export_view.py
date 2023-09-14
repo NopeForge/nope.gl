@@ -22,7 +22,7 @@
 from fractions import Fraction
 from typing import Callable, Optional
 
-from pynopegl_utils.export import Exporter
+from pynopegl_utils.exporter import Exporter
 from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtWidgets
 
