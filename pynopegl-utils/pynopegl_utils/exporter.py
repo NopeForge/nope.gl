@@ -19,17 +19,13 @@
 # under the License.
 #
 
-import os
 import os.path as op
-import subprocess
 from typing import Callable, Optional
 
 from pynopegl_utils.com import query_scene
-from pynopegl_utils.export import ExportWorker
-from pynopegl_utils.misc import SceneCfg, SceneInfo, get_backend, get_nopegl_tempdir, get_viewport
+from pynopegl_utils.export import export_worker
+from pynopegl_utils.misc import SceneCfg, SceneInfo, get_nopegl_tempdir
 from PySide6 import QtCore, QtGui
-
-import pynopegl as ngl
 
 
 class Exporter(QtCore.QThread):
@@ -71,14 +67,14 @@ class Exporter(QtCore.QThread):
                     "-lavfi", "paletteuse",
                     # fmt: on
                 ]
-                pass1 = self._export(scene_info, palette_filename, width, height, pass1_args)
+                pass1 = export_worker(scene_info, palette_filename, width, height, pass1_args)
                 for progress in pass1:
                     self.progressed.emit(progress)
                     if self._cancelled:
                         break
-                export = self._export(scene_info, filename, width, height, pass2_args)
+                export = export_worker(scene_info, filename, width, height, pass2_args)
             else:
-                export = self._export(scene_info, filename, width, height, self._extra_enc_args)
+                export = export_worker(scene_info, filename, width, height, self._extra_enc_args)
             for progress in export:
                 self.progressed.emit(progress)
                 if self._cancelled:
@@ -86,61 +82,6 @@ class Exporter(QtCore.QThread):
             self.export_finished.emit()
         except Exception:
             self.failed.emit("Something went wrong while trying to encode, check encoding parameters")
-
-    def _export(self, scene_info: SceneInfo, filename, width, height, extra_enc_args=None):
-        fd_r, fd_w = os.pipe()
-
-        scene = scene_info.scene
-        fps = scene.framerate
-        duration = scene.duration
-        samples = scene_info.samples
-
-        cmd = [
-            # fmt: off
-            "ffmpeg", "-r", "%d/%d" % fps,
-            "-nostats", "-nostdin",
-            "-f", "rawvideo",
-            "-video_size", "%dx%d" % (width, height),
-            "-pixel_format", "rgba",
-            "-i", "pipe:%d" % fd_r
-            # fmt: on
-        ]
-        if extra_enc_args:
-            cmd += extra_enc_args
-        cmd += ["-y", filename]
-
-        reader = subprocess.Popen(cmd, pass_fds=(fd_r,))
-        os.close(fd_r)
-
-        capture_buffer = bytearray(width * height * 4)
-
-        ctx = ngl.Context()
-        ctx.configure(
-            ngl.Config(
-                platform=ngl.Platform.AUTO,
-                backend=get_backend(scene_info.backend),
-                offscreen=True,
-                width=width,
-                height=height,
-                viewport=get_viewport(width, height, scene.aspect_ratio),
-                samples=samples,
-                clear_color=scene_info.clear_color,
-                capture_buffer=capture_buffer,
-            )
-        )
-        ctx.set_scene(scene)
-
-        # Draw every frame
-        nb_frame = int(duration * fps[0] / fps[1])
-        for i in range(nb_frame):
-            time = i * fps[1] / float(fps[0])
-            ctx.draw(time)
-            os.write(fd_w, capture_buffer)
-            yield i * 100 / nb_frame
-        yield 100
-
-        os.close(fd_w)
-        reader.wait()
 
     def cancel(self):
         self._cancelled = True
