@@ -203,6 +203,15 @@ class SceneCfg:
     get_comp = partialmethod(_get_shader, "comp")
 
 
+def load_media(cfg: SceneCfg, file: str):
+    db_file = MEDIA_FILES_DB.get(file)
+    if db_file:
+        file = op.join(op.dirname(__file__), "assets", db_file)
+    media = MediaInfo.from_filename(file)
+    cfg.files.append(media.filename)  # Register the file for hooks
+    return media
+
+
 def get_viewport(width: int, height: int, aspect_ratio: Tuple[int, int]) -> Tuple[int, int, int, int]:
     view_width = width
     view_height = width * aspect_ratio[1] // aspect_ratio[0]
