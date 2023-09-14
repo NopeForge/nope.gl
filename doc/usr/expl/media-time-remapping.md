@@ -1,5 +1,4 @@
-Media time remapping
-====================
+# Media time remapping
 
 When using one or more [Media] nodes in a demo, it is often needed to map the
 `nope.gl` time (referred in this document as `t`) to a different media time

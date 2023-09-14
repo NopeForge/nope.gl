@@ -1,5 +1,4 @@
-Technological choices
-=====================
+# Technological choices
 
 ## C
 

@@ -1,5 +1,4 @@
-YCbCr to RGB color matrix computation
-=====================================
+# YCbCr to RGB color matrix computation
 
 
 ## Mathematic formulas

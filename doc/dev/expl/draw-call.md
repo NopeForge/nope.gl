@@ -1,5 +1,4 @@
-What happens in a draw call?
-============================
+# What happens in a draw call?
 
 The `ngl_draw()` call is split in 4 passes:
 

@@ -1,5 +1,4 @@
-Writing a new libnopegl node
-============================
+# Writing a new libnopegl node
 
 The vast majority of the code is "node code", in files following the `node_*.c`
 pattern. Since nodes need to be able to introspect each others, all their

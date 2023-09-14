@@ -1,5 +1,4 @@
-Project architecture and organization
-=====================================
+# Project architecture and organization
 
 The `nope.gl` project is split in several parts:
 

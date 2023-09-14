@@ -1,5 +1,4 @@
-🔰 Starter tutorial
-===================
+# 🔰 Starter tutorial
 
 ## Installing the viewer
 

@@ -1,5 +1,4 @@
-Developer guidelines
-====================
+# Developer guidelines
 
 ## Pull-request checklist
 
