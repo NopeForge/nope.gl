@@ -263,7 +263,10 @@ class _Viewer:
 
         # XXX: reduce the scope of the try-except?
         try:
-            scene_info: SceneInfo = scene_data["func"](**extra_args)
+            cfg = self._get_scene_cfg()
+            cfg.samples = samples
+
+            scene_info: SceneInfo = scene_data["func"](cfg, **extra_args)
             scene = scene_info.scene
 
             # Apply user live changes
@@ -276,9 +279,6 @@ class _Viewer:
                 entry["val"] = value
                 changes.append(entry)
             livectls.apply_changes(changes)
-
-            cfg = self._get_scene_cfg()
-            cfg.samples = samples
 
             ar = scene.aspect_ratio
             height = res
