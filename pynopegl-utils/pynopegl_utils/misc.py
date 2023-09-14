@@ -31,7 +31,7 @@ import tempfile
 from collections import namedtuple
 from dataclasses import asdict, dataclass, field
 from fractions import Fraction
-from functools import partialmethod, wraps
+from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from packaging.specifiers import SpecifierSet
@@ -172,7 +172,6 @@ class SceneCfg:
     system: str = platform.system()
     files: List[str] = field(default_factory=list)
     clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
-    shaders_module: str = "pynopegl_utils.examples.shaders"
 
     def __post_init__(self):
         # Predictible random number generator
@@ -184,16 +183,6 @@ class SceneCfg:
 
     def as_dict(self) -> Dict[str, Any]:
         return asdict(self)
-
-    def _get_shader(self, stype: str, name: str) -> str:
-        data = pkgutil.get_data(self.shaders_module, f"{name}.{stype}")
-        if data is None:
-            raise FileNotFoundError(f"Unable to find shader {name}")
-        return data.decode()
-
-    get_frag = partialmethod(_get_shader, "frag")
-    get_vert = partialmethod(_get_shader, "vert")
-    get_comp = partialmethod(_get_shader, "comp")
 
 
 def get_shader(name: str) -> str:
