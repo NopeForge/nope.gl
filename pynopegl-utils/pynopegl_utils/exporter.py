@@ -71,10 +71,14 @@ class Exporter(QtCore.QThread):
                     "-lavfi", "paletteuse",
                     # fmt: on
                 ]
-                self._export(scene_info, palette_filename, width, height, pass1_args)
-                self._export(scene_info, filename, width, height, pass2_args)
+                pass1 = self._export(scene_info, palette_filename, width, height, pass1_args)
+                for progress in pass1:
+                    self.progressed.emit(progress)
+                export = self._export(scene_info, filename, width, height, pass2_args)
             else:
-                self._export(scene_info, filename, width, height, self._extra_enc_args)
+                export = self._export(scene_info, filename, width, height, self._extra_enc_args)
+            for progress in export:
+                self.progressed.emit(progress)
             self.export_finished.emit()
         except Exception:
             self.failed.emit("Something went wrong while trying to encode, check encoding parameters")
@@ -131,8 +135,8 @@ class Exporter(QtCore.QThread):
             time = i * fps[1] / float(fps[0])
             ctx.draw(time)
             os.write(fd_w, capture_buffer)
-            self.progressed.emit(i * 100 / nb_frame)
-        self.progressed.emit(100)
+            yield i * 100 / nb_frame
+        yield 100
 
         os.close(fd_w)
         reader.wait()
