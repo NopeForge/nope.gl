@@ -32,6 +32,17 @@ from pynopegl_utils.misc import SceneInfo, get_backend, get_viewport
 
 import pynopegl as ngl
 
+RESOLUTIONS = {
+    "144p": 144,
+    "240p": 240,
+    "360p": 360,
+    "480p": 480,
+    "720p": 720,
+    "1080p": 1080,
+    "1440p": 1440,
+    "4k": 2048,
+}
+
 
 def export_worker(
     scene_info: SceneInfo,

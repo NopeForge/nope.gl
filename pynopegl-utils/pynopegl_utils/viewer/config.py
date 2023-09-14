@@ -27,18 +27,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from pynopegl_utils.export import RESOLUTIONS
 from PySide6 import QtCore
-
-RESOLUTIONS = {
-    "144p": 144,
-    "240p": 240,
-    "360p": 360,
-    "480p": 480,
-    "720p": 720,
-    "1080p": 1080,
-    "1440p": 1440,
-    "4k": 2048,
-}
 
 
 @dataclass
