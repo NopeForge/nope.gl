@@ -23,7 +23,7 @@
 import array
 from textwrap import dedent
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, load_media, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.debug import get_debug_points
@@ -99,7 +99,7 @@ def texture_data_seek_timeranges(cfg: SceneCfg, w=4, h=5):
 @test_fingerprint(keyframes=5)
 @scene()
 def texture_displacement(cfg: SceneCfg):
-    m0 = cfg.medias[0]
+    m0 = load_media(cfg, "mire")
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
     m = ngl.Media(m0.filename)

@@ -22,7 +22,7 @@
 import colorsys
 import textwrap
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import MEDIA_FILES_DB, SceneCfg, load_media, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cmp_resources import test_resources
 
@@ -118,17 +118,20 @@ def _get_random_geometry(rng):
     return shape_func(rng)
 
 
+_MEDIA_UIDS = list(MEDIA_FILES_DB.keys())
+
+
 def _get_random_texture(cfg: SceneCfg, rng):
-    filename = rng.choice(cfg.medias).filename
+    media_uid = rng.choice(_MEDIA_UIDS)
     texture = cfg.texture_cache.get(
-        filename,
+        media_uid,
         ngl.Texture2D(
-            data_src=ngl.Media(filename),
+            data_src=ngl.Media(load_media(cfg, media_uid).filename),
             min_filter="nearest",
             mag_filter="nearest",
         ),
     )
-    cfg.texture_cache[filename] = texture
+    cfg.texture_cache[media_uid] = texture
     return texture
 
 
