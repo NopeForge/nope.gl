@@ -22,7 +22,7 @@
 
 import textwrap
 
-from pynopegl_utils.misc import scene
+from pynopegl_utils.misc import load_media, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 
 import pynopegl as ngl
@@ -72,9 +72,7 @@ def scope_colorstats(cfg):
         """
     )
 
-    # The default media is too saturated so we pick a more realistic input
-    media = cfg.medias[1]
-    assert media.filename.endswith("cat.mp4")
+    media = load_media(cfg, "cat")
 
     # The selected test media has a lot of black so we zoom into the histogram
     # to have a relevant output
@@ -95,7 +93,7 @@ def _get_histogram_func(mode):
     @test_fingerprint(keyframes=5, tolerance=5)
     @scene()
     def scene_func(cfg):
-        media = cfg.medias[0]
+        media = load_media(cfg, "mire")
         cfg.duration = media.duration
         cfg.aspect_ratio = (media.width, media.height)
         return ngl.RenderHistogram(stats=_get_colorstats(media), mode=mode)
@@ -112,7 +110,7 @@ def _get_waveform_func(mode):
     @test_fingerprint(keyframes=5, tolerance=3)
     @scene()
     def scene_func(cfg):
-        media = cfg.medias[0]
+        media = load_media(cfg, "mire")
         cfg.duration = media.duration
         cfg.aspect_ratio = (media.width, media.height)
         return ngl.RenderWaveform(stats=_get_colorstats(media), mode=mode)
@@ -130,7 +128,7 @@ scope_render_waveform_parade = _get_waveform_func("parade")
 def scope_rtt(cfg):
     """This test makes sure the texture is analyzed after the RTT has written into it"""
 
-    media = cfg.medias[0]
+    media = load_media(cfg, "mire")
     cfg.duration = media.duration
     cfg.aspect_ratio = (media.width, media.height)
 
