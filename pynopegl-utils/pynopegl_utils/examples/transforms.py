@@ -1,4 +1,4 @@
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, load_media, scene
 
 import pynopegl as ngl
 
@@ -6,7 +6,7 @@ import pynopegl as ngl
 @scene()
 def animated_uniform(cfg: SceneCfg):
     """Uniform mat4 animated with a transform chain"""
-    m0 = cfg.medias[0]
+    m0 = load_media(cfg, "mire")
     cfg.aspect_ratio = (m0.width, m0.height)
 
     q = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
@@ -38,7 +38,8 @@ def animated_camera(cfg: SceneCfg, rotate=True):
     g = ngl.Group()
 
     q = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = ngl.Media(cfg.medias[0].filename)
+    media = load_media(cfg, "mire")
+    m = ngl.Media(media.filename)
     t = ngl.Texture2D(data_src=m)
     node = ngl.RenderTexture(t, geometry=q)
     g.add_children(node)

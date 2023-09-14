@@ -1,4 +1,4 @@
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, load_media, scene
 
 import pynopegl as ngl
 
@@ -19,8 +19,10 @@ def parallel_playback(cfg: SceneCfg, fast=True, segment_time=2.0, constrained_ti
     textures only when needed to be displayed, causing potential seek in the
     underlying media, and thus undesired delays.
     """
-    m1 = ngl.Media(cfg.medias[0].filename, label="media #1")
-    m2 = ngl.Media(cfg.medias[0].filename, label="media #2")
+    media1 = load_media(cfg, "mire")
+    media2 = load_media(cfg, "mire")
+    m1 = ngl.Media(media1.filename, label="media #1")
+    m2 = ngl.Media(media2.filename, label="media #2")
 
     t1 = ngl.Texture2D(data_src=m1, label="texture #1")
     t2 = ngl.Texture2D(data_src=m2, label="texture #2")
@@ -70,8 +72,10 @@ def simple_transition(cfg: SceneCfg, transition_start=2, transition_duration=4):
     p1_2 = ngl.Program(vertex=vertex, fragment=fragment)
     p1_2.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_tex1_coord=ngl.IOVec2())
 
-    m1 = ngl.Media(cfg.medias[0].filename, label="media #1")
-    m2 = ngl.Media(cfg.medias[1 % len(cfg.medias)].filename, label="media #2")
+    media1 = load_media(cfg, "mire")
+    media2 = load_media(cfg, "cat")
+    m1 = ngl.Media(media1.filename, label="media #1")
+    m2 = ngl.Media(media2.filename, label="media #2")
 
     animkf_m2 = [
         ngl.AnimKeyFrameFloat(transition_start, 0),
