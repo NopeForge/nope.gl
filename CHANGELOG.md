@@ -34,6 +34,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   associated rendering and graph
 - `Transform` node now accepts a node as input parameter and can be animated
   this way
+- `scene`, `SceneInfo` and `SceneCfg` are now part of `pynopegl` instead of
+  `pynopegl-utils`, where they are deprecated
 
 ### Removed
 - `RenderToTexture.features` as the RTT node is now able to detect
