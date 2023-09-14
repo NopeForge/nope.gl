@@ -60,7 +60,6 @@ def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str]
                 samples=scene_cfg.samples,
                 clear_color=scene_cfg.clear_color,
                 files=scene_cfg.files,
-                medias=scene_cfg.medias,
             )
 
         # Construct widgets specs
@@ -145,7 +144,6 @@ class SceneInfo:
     samples: int
     clear_color: Tuple[float, float, float, float]
     files: List[str]
-    medias: List[MediaInfo]
 
 
 def get_nopegl_tempdir() -> str:
@@ -164,10 +162,6 @@ MEDIA_FILES_DB = dict(
 )
 
 
-def _get_default_medias():
-    return [MediaInfo.from_filename(op.join(op.dirname(__file__), "assets", name)) for name in MEDIA_FILES_DB.values()]
-
-
 @dataclass
 class SceneCfg:
     aspect_ratio: Tuple[int, int] = (16, 9)
@@ -177,7 +171,6 @@ class SceneCfg:
     samples: int = 0
     system: str = platform.system()
     files: List[str] = field(default_factory=list)
-    medias: List[MediaInfo] = field(default_factory=_get_default_medias)
     clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
     shaders_module: str = "pynopegl_utils.examples.shaders"
 

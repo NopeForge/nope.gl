@@ -211,7 +211,7 @@ class _SceneChangeWorker(QtCore.QObject):
             # different from the one in local, so we need to fix up the scene
             # appropriately.
             serialized_scene = scene_info.scene.serialize().decode("ascii")
-            filelist = [m.filename for m in scene_info.medias] + scene_info.files
+            filelist = scene_info.files
             for i, localfile in enumerate(filelist, 1):
                 self.uploadingFile.emit(session_id, i, len(filelist), localfile)
                 try:
