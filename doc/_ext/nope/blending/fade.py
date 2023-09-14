@@ -1,13 +1,12 @@
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, load_media, scene
 
 import pynopegl as ngl
 
 
 @scene()
 def fade(cfg: SceneCfg):
-    jpegs = (m for m in cfg.medias if m.filename.endswith(".jpg"))
-    image0 = next(jpegs)
-    image1 = next(jpegs)
+    image0 = load_media(cfg, "rooster")
+    image1 = load_media(cfg, "panda")
 
     cfg.aspect_ratio = image0.width, image0.height
     cfg.duration = 4
