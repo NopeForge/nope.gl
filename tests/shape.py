@@ -23,7 +23,7 @@ import array
 import itertools
 import textwrap
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS, get_random_color_buffer
@@ -148,11 +148,11 @@ def _shape_geometry(cfg: SceneCfg, set_normals=False, set_indices=False):
 
     if set_normals:
         geometry.set_normals(normals_buffer)
-        prog = ngl.Program(vertex=cfg.get_vert("colored-normals"), fragment=cfg.get_frag("colored-normals"))
+        prog = ngl.Program(vertex=get_shader("colored-normals.vert"), fragment=get_shader("colored-normals.frag"))
         prog.update_vert_out_vars(var_normal=ngl.IOVec3())
         render = ngl.Render(geometry, prog)
     else:
-        prog = ngl.Program(vertex=cfg.get_vert("color"), fragment=cfg.get_frag("color"))
+        prog = ngl.Program(vertex=get_shader("color.vert"), fragment=get_shader("color.frag"))
         render = ngl.Render(geometry, prog)
         render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.magenta), opacity=ngl.UniformFloat(1))
 
@@ -250,7 +250,7 @@ def shape_morphing(cfg: SceneCfg, n=6):
 
     geom = ngl.Geometry(vertices)
     geom.set_topology("triangle_strip")
-    p = ngl.Program(vertex=cfg.get_vert("color"), fragment=cfg.get_frag("color"))
+    p = ngl.Program(vertex=get_shader("color.vert"), fragment=get_shader("color.frag"))
     render = ngl.Render(geom, p)
     render.update_frag_resources(color=ngl.UniformVec3(COLORS.cyan), opacity=ngl.UniformFloat(1))
     return render
@@ -280,7 +280,7 @@ def _get_cropboard_function(set_indices=False):
         kw = kh = 1.0 / dim_cut
         qw = qh = 2.0 / dim_cut
 
-        p = ngl.Program(vertex=cfg.get_vert("cropboard"), fragment=cfg.get_frag("texture"))
+        p = ngl.Program(vertex=get_shader("cropboard.vert"), fragment=get_shader("texture.frag"))
         p.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
 
         uv_offset_buffer = array.array("f")
@@ -395,7 +395,7 @@ def shape_triangles_mat4_attribute(cfg: SceneCfg):
 
     program = ngl.Program(
         vertex=TRIANGLES_MAT4_ATTRIBUTE_VERT,
-        fragment=cfg.get_frag("color"),
+        fragment=get_shader("color.frag"),
     )
     render = ngl.Render(geometry, program, nb_instances=2)
     render.update_instance_attributes(matrix=matrices)

@@ -22,7 +22,7 @@
 import colorsys
 import textwrap
 
-from pynopegl_utils.misc import MEDIA_FILES_DB, SceneCfg, load_media, scene
+from pynopegl_utils.misc import MEDIA_FILES_DB, SceneCfg, get_shader, load_media, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cmp_resources import test_resources
 
@@ -219,7 +219,7 @@ def _get_random_compute(cfg: SceneCfg, rng, t0, t1):
     compute.update_resources(time=ngl.AnimatedFloat(time_animkf), pos=pos)
 
     geometry = _get_random_geometry(rng)
-    program = ngl.Program(vertex=vertex_shader, fragment=cfg.get_frag("texture"))
+    program = ngl.Program(vertex=vertex_shader, fragment=get_shader("texture.frag"))
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
     render = ngl.Render(geometry, program, nb_instances=count, blending="src_over")
     render.update_frag_resources(tex0=_get_random_texture(cfg, rng))

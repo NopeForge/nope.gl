@@ -23,7 +23,7 @@
 import array
 from textwrap import dedent
 
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, load_media, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.debug import get_debug_points
@@ -45,7 +45,7 @@ def _render_buffer(cfg: SceneCfg, w, h):
     data = array.array("B", [i * 255 // n for i in range(n)])
     buf = ngl.BufferUByte(data=data)
     texture = ngl.Texture2D(width=w, height=h, data_src=buf, min_filter="nearest", mag_filter="nearest")
-    program = ngl.Program(vertex=cfg.get_vert("texture"), fragment=_RENDER_BUFFER_FRAG)
+    program = ngl.Program(vertex=get_shader("texture.vert"), fragment=_RENDER_BUFFER_FRAG)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
     render = ngl.Render(ngl.Quad(), program)
     render.update_frag_resources(tex0=texture)

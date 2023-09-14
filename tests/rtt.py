@@ -22,7 +22,7 @@
 
 import array
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS
@@ -180,7 +180,7 @@ def _get_rtt_scene(
 
     if sample_depth:
         quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-        program = ngl.Program(vertex=cfg.get_vert("texture"), fragment=_RENDER_DEPTH)
+        program = ngl.Program(vertex=get_shader("texture.vert"), fragment=_RENDER_DEPTH)
         program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
         render = ngl.Render(quad, program)
         render.update_frag_resources(tex0=texture_depth)

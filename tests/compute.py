@@ -22,7 +22,7 @@
 
 import array
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.debug import get_debug_points
@@ -104,7 +104,7 @@ def compute_particles(cfg: SceneCfg):
     compute.update_resources(time=time, duration=duration, idata=ipositions, odata=opositions)
 
     circle = ngl.Circle(radius=0.05)
-    program = ngl.Program(vertex=_PARTICULES_VERT, fragment=cfg.get_frag("color"))
+    program = ngl.Program(vertex=_PARTICULES_VERT, fragment=get_shader("color.frag"))
     render = ngl.Render(circle, program, nb_instances=nb_particles)
     render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.sgreen), opacity=ngl.UniformFloat(1))
     render.update_vert_resources(data=opositions)
@@ -298,7 +298,7 @@ def _compute_animation(cfg: SceneCfg, animate_pre_render=True):
 
     quad_buffer = ngl.BufferVec3(block=output_block, block_field="vertices")
     geometry = ngl.Geometry(quad_buffer, topology="triangle_strip")
-    program = ngl.Program(vertex=cfg.get_vert("color"), fragment=cfg.get_frag("color"))
+    program = ngl.Program(vertex=get_shader("color.vert"), fragment=get_shader("color.frag"))
     render = ngl.Render(geometry, program)
     render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.sgreen), opacity=ngl.UniformFloat(1))
 
