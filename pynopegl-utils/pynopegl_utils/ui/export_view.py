@@ -22,6 +22,7 @@
 from fractions import Fraction
 from typing import Callable, Optional
 
+from pynopegl_utils.export import RESOLUTIONS
 from pynopegl_utils.exporter import Exporter
 from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtWidgets
@@ -30,6 +31,8 @@ from PySide6 import QtCore, QtWidgets
 class ExportView(QtWidgets.QWidget):
     def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]], config):
         super().__init__()
+
+        self._config = config
 
         self._get_scene_info = get_scene_info
         self._framerate = config.get("framerate")
@@ -42,13 +45,12 @@ class ExportView(QtWidgets.QWidget):
         file_box.addWidget(self._ofile_text)
         file_box.addWidget(ofile_btn)
 
-        self._spinbox_width = QtWidgets.QSpinBox()
-        self._spinbox_width.setRange(1, 0xFFFF)
-        self._spinbox_width.setValue(config.get("export_width"))
-
-        self._spinbox_height = QtWidgets.QSpinBox()
-        self._spinbox_height.setRange(1, 0xFFFF)
-        self._spinbox_height.setValue(config.get("export_height"))
+        self._res_combobox = QtWidgets.QComboBox()
+        all_res = config.CHOICES["export_res"]
+        for res in all_res:
+            self._res_combobox.addItem(res)
+        res_idx = all_res.index(config.get("export_res"))
+        self._res_combobox.setCurrentIndex(res_idx)
 
         self._encopts_text = QtWidgets.QLineEdit()
         self._encopts_text.setText(config.get("export_extra_enc_args"))
@@ -64,8 +66,7 @@ class ExportView(QtWidgets.QWidget):
 
         form = QtWidgets.QFormLayout(self)
         form.addRow("Filename:", file_box)
-        form.addRow("Width:", self._spinbox_width)
-        form.addRow("Height:", self._spinbox_height)
+        form.addRow("Resolution:", self._res_combobox)
         form.addRow("Extra encoder arguments:", self._encopts_text)
         form.addRow(self._warning_label)
         form.addRow(btn_hbox)
@@ -74,10 +75,7 @@ class ExportView(QtWidgets.QWidget):
         self._export_btn.clicked.connect(self._export)
         self._ofile_text.textChanged.connect(self._check_settings)
         self._ofile_text.textChanged.connect(config.set_export_filename)
-        self._spinbox_width.valueChanged.connect(self._check_settings)
-        self._spinbox_width.valueChanged.connect(config.set_export_width)
-        self._spinbox_height.valueChanged.connect(self._check_settings)
-        self._spinbox_height.valueChanged.connect(config.set_export_height)
+        self._res_combobox.currentIndexChanged.connect(self._set_export_res)
         self._encopts_text.textChanged.connect(config.set_export_extra_enc_args)
 
         self._exporter = None
@@ -113,6 +111,11 @@ class ExportView(QtWidgets.QWidget):
             self._warning_label.hide()
 
     @QtCore.Slot(int)
+    def _set_export_res(self, index):
+        self._check_settings()
+        self._config.set_export_res(self._res_combobox.currentText())
+
+    @QtCore.Slot(int)
     def _progress(self, value):
         self._pgd.setValue(value)
 
@@ -141,15 +144,14 @@ class ExportView(QtWidgets.QWidget):
             return
 
         ofile = self._ofile_text.text()
-        width = self._spinbox_width.value()
-        height = self._spinbox_height.value()
+        res_id = self._res_combobox.currentText()
         extra_enc_args = self._encopts_text.text().split()
 
         self._pgd = QtWidgets.QProgressDialog("Exporting to %s" % ofile, "Stop", 0, 100, self)
         self._pgd.setWindowModality(QtCore.Qt.WindowModal)
         self._pgd.setMinimumDuration(100)
 
-        self._exporter = Exporter(self._get_scene_info, ofile, width, height, extra_enc_args)
+        self._exporter = Exporter(self._get_scene_info, ofile, res_id, extra_enc_args)
 
         self._pgd.canceled.connect(self._cancel)
         self._exporter.progressed.connect(self._progress)

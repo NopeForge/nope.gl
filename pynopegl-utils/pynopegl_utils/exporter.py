@@ -37,20 +37,18 @@ class Exporter(QtCore.QThread):
         self,
         get_scene_info: Callable[..., Optional[SceneInfo]],
         filename,
-        width,
-        height,
+        res_id: str,
         extra_enc_args=None,
     ):
         super().__init__()
         self._get_scene_info = get_scene_info
         self._filename = filename
-        self._width = width
-        self._height = height
+        self._res_id = res_id
         self._extra_enc_args = extra_enc_args if extra_enc_args is not None else []
         self._cancelled = False
 
     def run(self):
-        filename, width, height = self._filename, self._width, self._height
+        filename, res_id = self._filename, self._res_id
 
         try:
             scene_info = self._get_scene_info()
@@ -67,20 +65,20 @@ class Exporter(QtCore.QThread):
                     "-lavfi", "paletteuse",
                     # fmt: on
                 ]
-                pass1 = export_worker(scene_info, palette_filename, width, height, pass1_args)
+                pass1 = export_worker(scene_info, palette_filename, res_id, pass1_args)
                 for progress in pass1:
                     self.progressed.emit(progress)
                     if self._cancelled:
                         break
-                export = export_worker(scene_info, filename, width, height, pass2_args)
+                export = export_worker(scene_info, filename, res_id, pass2_args)
             else:
-                export = export_worker(scene_info, filename, width, height, self._extra_enc_args)
+                export = export_worker(scene_info, filename, res_id, self._extra_enc_args)
             for progress in export:
                 self.progressed.emit(progress)
                 if self._cancelled:
                     break
             self.export_finished.emit()
-        except Exception:
+        except Exception as e:
             self.failed.emit("Something went wrong while trying to encode, check encoding parameters")
 
     def cancel(self):
@@ -113,7 +111,7 @@ def test_export():
     filename = sys.argv[1]
     app = QtGui.QGuiApplication(sys.argv)
 
-    exporter = Exporter(_get_scene, filename, 320, 240)
+    exporter = Exporter(_get_scene, filename, "240p")
     exporter.progressed.connect(print_progress)
     exporter.start()
     exporter.wait()
