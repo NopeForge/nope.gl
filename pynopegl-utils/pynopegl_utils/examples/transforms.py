@@ -1,4 +1,4 @@
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, load_media, scene
 
 import pynopegl as ngl
 
@@ -12,7 +12,7 @@ def animated_uniform(cfg: SceneCfg):
     q = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = ngl.Media(m0.filename)
     t = ngl.Texture2D(data_src=m)
-    p = ngl.Program(vertex=cfg.get_vert("texture"), fragment=cfg.get_frag("matrix-transform"))
+    p = ngl.Program(vertex=get_shader("texture.vert"), fragment=get_shader("matrix-transform.frag"))
     p.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
     ts = ngl.Render(q, p)
     ts.update_frag_resources(tex0=t)

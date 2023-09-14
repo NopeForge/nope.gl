@@ -1,7 +1,7 @@
 import array
 import os.path as op
 
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, load_media, scene
 
 import pynopegl as ngl
 
@@ -73,7 +73,7 @@ def obj(cfg: SceneCfg, model=None):
     media = load_media(cfg, "mire")
     m = ngl.Media(media.filename)
     t = ngl.Texture2D(data_src=m)
-    p = ngl.Program(vertex=cfg.get_vert("tex-tint-normals"), fragment=cfg.get_frag("tex-tint-normals"))
+    p = ngl.Program(vertex=get_shader("tex-tint-normals.vert"), fragment=get_shader("tex-tint-normals.frag"))
     p.update_vert_out_vars(var_normal=ngl.IOVec3(), var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
     render = ngl.Render(q, p)
     render.update_frag_resources(tex0=t)
@@ -123,7 +123,7 @@ def stl(cfg: SceneCfg, stl=None, scale=0.8):
     normals = ngl.BufferVec3(data=normals_data)
 
     g = ngl.Geometry(vertices=vertices, normals=normals)
-    p = ngl.Program(vertex=cfg.get_vert("colored-normals"), fragment=cfg.get_frag("colored-normals"))
+    p = ngl.Program(vertex=get_shader("colored-normals.vert"), fragment=get_shader("colored-normals.frag"))
     p.update_vert_out_vars(var_normal=ngl.IOVec3(), var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
     solid = ngl.Render(g, p, label=solid_label)
     solid = ngl.GraphicConfig(solid, depth_test=True)
