@@ -71,14 +71,11 @@ class Exporter(QtCore.QThread):
                     "-lavfi", "paletteuse",
                     # fmt: on
                 ]
-                ok = self._export(scene_info, palette_filename, width, height, pass1_args)
-                if not ok:
-                    return
-                ok = self._export(scene_info, filename, width, height, pass2_args)
+                self._export(scene_info, palette_filename, width, height, pass1_args)
+                self._export(scene_info, filename, width, height, pass2_args)
             else:
-                ok = self._export(scene_info, filename, width, height, self._extra_enc_args)
-            if ok:
-                self.export_finished.emit()
+                self._export(scene_info, filename, width, height, self._extra_enc_args)
+            self.export_finished.emit()
         except Exception:
             self.failed.emit("Something went wrong while trying to encode, check encoding parameters")
 
@@ -139,7 +136,6 @@ class Exporter(QtCore.QThread):
 
         os.close(fd_w)
         reader.wait()
-        return True
 
     def cancel(self):
         self._cancelled = True
