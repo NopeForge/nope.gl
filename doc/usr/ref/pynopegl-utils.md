@@ -1,5 +1,4 @@
-pynopegl-utils
-==============
+# pynopegl-utils
 
 [pynopegl-utils][pynopegl-utils] provides various utilities around `nope.gl`
 and its Python binding. Its core tool is the Qt controller with all its

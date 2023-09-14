@@ -1,5 +1,4 @@
-How the Python binding is created
-=================================
+# How the Python binding is created
 
 ## Simplified overview
 

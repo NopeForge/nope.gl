@@ -1,5 +1,4 @@
-Using the C API
-===============
+# Using the C API
 
 All the C API is documented in the installed [nopegl.h][nopegl-header] header.
 Since the header documentation doesn't provide the big picture on how things

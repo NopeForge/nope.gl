@@ -1,5 +1,4 @@
-NGL tools
-=========
+# NGL tools
 
 The [ngl-tools][ngl-tools] is a set of small C programs making use of
 `libnopegl`.

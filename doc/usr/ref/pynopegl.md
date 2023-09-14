@@ -1,5 +1,4 @@
-pynopegl
-========
+# pynopegl
 
 [pynopegl][pynopegl] is the Python binding for [libnopegl][libnopegl]. It is
 automatically generated from to the `libnopegl` node specifications file.  For

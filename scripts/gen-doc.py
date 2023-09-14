@@ -101,8 +101,7 @@ def _get_node_params_block(nodes, name, params) -> str:
 def _get_parameter_types_block(types) -> str:
     s = dedent(
         """\
-        Parameter types
-        ===============
+        # Parameter types
 
         Type | Description
         ---- | -----------
@@ -117,8 +116,7 @@ def _get_parameter_types_block(types) -> str:
 def _get_parameter_flags_block() -> str:
     return dedent(
         """\
-        Parameter flags
-        ===============
+        # Parameter flags
 
         Marker   | Meaning
         -------- | -------
@@ -132,8 +130,7 @@ def _get_parameter_flags_block() -> str:
 def _get_parameter_choices_block(choices) -> str:
     s = dedent(
         """
-        Constants for choices parameters
-        ================================
+        # Constants for choices parameters
         """
     )
     for choice, items in choices.items():
@@ -180,8 +177,7 @@ def _main():
 
     s = dedent(
         """\
-        Nodes
-        =====
+        # Nodes
         """
     )
     s += _get_nodes_block(data["nodes"])
