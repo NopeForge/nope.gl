@@ -32,7 +32,7 @@ from pynopegl_utils.export import export_worker
 from pynopegl_utils.misc import SceneCfg, SceneInfo
 from pynopegl_utils.qml import livectls
 from pynopegl_utils.scriptsmgr import ScriptsManager
-from pynopegl_utils.viewer.config import ENCODE_PROFILES, RESOLUTIONS, Config
+from pynopegl_utils.viewer.config import ENCODE_PROFILES, Config
 from PySide6.QtCore import QAbstractListModel, QModelIndex, QObject, Qt, QUrl, Slot
 from PySide6.QtGui import QColor
 
@@ -256,7 +256,7 @@ class _Viewer:
 
         filename = _uri_to_path(filename)
 
-        res = RESOLUTIONS[self._config.CHOICES["export_res"][res_index]]
+        res_id = self._config.CHOICES["export_res"][res_index]
         profile = ENCODE_PROFILES[self._config.CHOICES["export_profile"][profile_index]]
 
         extra_args = self._get_scene_building_extra_args()
@@ -280,15 +280,8 @@ class _Viewer:
                 changes.append(entry)
             livectls.apply_changes(changes)
 
-            ar = scene.aspect_ratio
-            height = res
-            width = int(height * ar[0] / ar[1])
-
-            # make sure it's a multiple of 2 for the h264 codec
-            width &= ~1
-
             extra_enc_args = profile.args + ["-f", profile.format]
-            export = export_worker(scene_info, filename, width, height, extra_enc_args)
+            export = export_worker(scene_info, filename, res_id, extra_enc_args)
             for progress in export:
                 if self._cancel_export_request:
                     break

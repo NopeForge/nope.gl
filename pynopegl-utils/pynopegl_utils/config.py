@@ -23,6 +23,7 @@ import json
 import os
 import os.path as op
 
+from pynopegl_utils.export import RESOLUTIONS
 from PySide6 import QtCore
 
 from .misc import get_nopegl_tempdir
@@ -65,6 +66,7 @@ class Config(QtCore.QObject):
             "opengles",
             "vulkan",
         ],
+        "export_res": list(RESOLUTIONS.keys()),
     }
 
     def __init__(self, module_pkgname):
@@ -78,8 +80,7 @@ class Config(QtCore.QObject):
             "clear_color": (0.0, 0.0, 0.0, 1.0),
             "backend": "opengl",
             # Export
-            "export_width": 1280,
-            "export_height": 720,
+            "export_res": "720p",
             "export_filename": op.join(get_nopegl_tempdir(), "ngl-export.mp4"),
             "export_extra_enc_args": "",
             # Medias
@@ -146,12 +147,8 @@ class Config(QtCore.QObject):
         self._set_cfg("medias_last_dir", last_dir)
 
     @QtCore.Slot(int)
-    def set_export_width(self, export_width):
-        self._set_cfg("export_width", export_width)
-
-    @QtCore.Slot(int)
-    def set_export_height(self, export_height):
-        self._set_cfg("export_height", export_height)
+    def set_export_res(self, res):
+        self._set_cfg("export_res", res)
 
     @QtCore.Slot(str)
     def set_export_filename(self, filename):
