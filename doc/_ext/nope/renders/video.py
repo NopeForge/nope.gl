@@ -5,7 +5,7 @@ import pynopegl as ngl
 
 @scene()
 def video(cfg: SceneCfg):
-    video = load_media(cfg, "mire")  # Replace "mire" with a path to your video
+    video = load_media(cfg, "cat")  # Replace "cat" with a path to your video
 
     cfg.aspect_ratio = video.width, video.height
     cfg.duration = max(video.duration, 5)  # Limit to 5 seconds maximum
