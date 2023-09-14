@@ -196,6 +196,13 @@ class SceneCfg:
     get_comp = partialmethod(_get_shader, "comp")
 
 
+def get_shader(name: str) -> str:
+    data = pkgutil.get_data("pynopegl_utils.examples.shaders", name)
+    if data is None:
+        raise FileNotFoundError(f"Unable to find shader {name}")
+    return data.decode()
+
+
 def load_media(cfg: SceneCfg, file: str):
     db_file = MEDIA_FILES_DB.get(file)
     if db_file:
