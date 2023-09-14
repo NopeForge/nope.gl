@@ -3,7 +3,7 @@ import colorsys
 import math
 import os.path as op
 
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, load_media, scene
 from pynopegl_utils.toolbox.scenes import compare
 from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 
@@ -34,7 +34,7 @@ def lut3d(cfg: SceneCfg, xsplit=0.3, trilinear=True):
     scene_tex = ngl.RenderTexture(video_tex)
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    prog_lut = ngl.Program(fragment=cfg.get_frag("lut3d"), vertex=cfg.get_vert("lut3d"))
+    prog_lut = ngl.Program(fragment=get_shader("lut3d.frag"), vertex=get_shader("lut3d.vert"))
     prog_lut.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
     scene_lut = ngl.Render(quad, prog_lut)
     scene_lut.update_frag_resources(tex0=video_tex, lut3d=lut3d_tex)
@@ -53,7 +53,7 @@ def triangle(cfg: SceneCfg, size=4 / 3):
 
     p0, p1, p2 = equilateral_triangle_coords(size)
     triangle = ngl.Triangle(p0, p1, p2)
-    p = ngl.Program(fragment=cfg.get_frag("color"), vertex=cfg.get_vert("triangle"))
+    p = ngl.Program(fragment=get_shader("color.frag"), vertex=get_shader("triangle.vert"))
     p.update_vert_out_vars(color=ngl.IOVec3())
     node = ngl.Render(triangle, p)
     node.update_attributes(edge_color=colors_buffer)
@@ -72,9 +72,9 @@ def triangle(cfg: SceneCfg, size=4 / 3):
 def particles(cfg: SceneCfg, particles=32):
     """Particules demo using compute shaders and instancing"""
 
-    compute_shader = cfg.get_comp("particles")
-    vertex_shader = cfg.get_vert("particles")
-    fragment_shader = cfg.get_frag("color")
+    compute_shader = get_shader("particles.comp")
+    vertex_shader = get_shader("particles.vert")
+    fragment_shader = get_shader("color.frag")
 
     cfg.duration = 6
 
@@ -141,8 +141,8 @@ def particles(cfg: SceneCfg, particles=32):
 def blending_and_stencil(cfg: SceneCfg):
     """Scene using blending and stencil graphic features"""
     cfg.duration = 5
-    vertex = cfg.get_vert("color")
-    fragment = cfg.get_frag("color")
+    vertex = get_shader("color.vert")
+    fragment = get_shader("color.frag")
 
     program = ngl.Program(vertex=vertex, fragment=fragment)
     circle = ngl.Circle(npoints=256)
@@ -249,8 +249,8 @@ def cube(cfg: SceneCfg, display_depth_buffer=False):
     """
     cube = ngl.Group(label="cube")
 
-    vert_data = cfg.get_vert("texture")
-    frag_data = cfg.get_frag("tex-tint")
+    vert_data = get_shader("texture.vert")
+    frag_data = get_shader("tex-tint.frag")
     program = ngl.Program(vertex=vert_data, fragment=frag_data)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
 
@@ -352,7 +352,7 @@ def mountain(cfg: SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb
     black, white = (0, 0, 0), (1, 1, 1)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
-    prog = ngl.Program(vertex=cfg.get_vert("texture"), fragment=cfg.get_frag("mountain"))
+    prog = ngl.Program(vertex=get_shader("texture.vert"), fragment=get_shader("mountain.frag"))
     prog.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
     hscale = 1 / 2.0
     mountains = []
@@ -408,7 +408,7 @@ def smptebars_glitch(cfg: SceneCfg):
     cfg.duration = 15
     cfg.aspect_ratio = (4, 3)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    program = ngl.Program(vertex=cfg.get_vert("smptebars"), fragment=cfg.get_frag("smptebars"))
+    program = ngl.Program(vertex=get_shader("smptebars.vert"), fragment=get_shader("smptebars.frag"))
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
     render = ngl.Render(quad, program)
     freq = cfg.framerate[0] / cfg.framerate[1] + 1

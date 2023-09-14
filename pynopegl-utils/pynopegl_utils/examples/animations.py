@@ -2,7 +2,7 @@ import array
 import colorsys
 import math
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, scene
 
 import pynopegl as ngl
 
@@ -187,8 +187,8 @@ def easings(cfg: SceneCfg, easing_id="*"):
     """Display all the easings (primitive for animation / motion design) at once"""
     cfg.duration = 2.0
 
-    vert_data = cfg.get_vert("color")
-    frag_data = cfg.get_frag("color")
+    vert_data = get_shader("color.vert")
+    frag_data = get_shader("color.frag")
     color_program = ngl.Program(vertex=vert_data, fragment=frag_data, label="color")
     color_program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
     full_block = _block(2, 2, (0.3, 0.3, 0.3))

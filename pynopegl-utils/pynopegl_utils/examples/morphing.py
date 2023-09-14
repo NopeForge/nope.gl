@@ -1,7 +1,7 @@
 import array
 import math
 
-from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, scene
 
 import pynopegl as ngl
 
@@ -52,7 +52,7 @@ def square2circle(cfg: SceneCfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0
     ucolor = ngl.AnimatedColor(color_animkf)
 
     geom = ngl.Geometry(vertices, indices=ngl.BufferUShort(data=indices))
-    p = ngl.Program(vertex=cfg.get_vert("color"), fragment=cfg.get_frag("color"))
+    p = ngl.Program(vertex=get_shader("color.vert"), fragment=get_shader("color.frag"))
     render = ngl.Render(geom, p)
     render.update_frag_resources(color=ucolor, opacity=ngl.UniformFloat(1))
     return ngl.Scale(render, factors=(s, s, 1))

@@ -1,4 +1,4 @@
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import SceneCfg, get_shader, load_media, scene
 
 import pynopegl as ngl
 
@@ -65,8 +65,8 @@ def simple_transition(cfg: SceneCfg, transition_start=2, transition_duration=4):
 
     cfg.duration = transition_start * 2 + transition_duration
 
-    vertex = cfg.get_vert("dual-tex")
-    fragment = cfg.get_frag("tex-mix")
+    vertex = get_shader("dual-tex.vert")
+    fragment = get_shader("tex-mix.frag")
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p1_2 = ngl.Program(vertex=vertex, fragment=fragment)
