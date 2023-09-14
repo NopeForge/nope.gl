@@ -43,7 +43,6 @@ class Exporter(QtCore.QThread):
         width,
         height,
         extra_enc_args=None,
-        time=None,
     ):
         super().__init__()
         self._get_scene_info = get_scene_info
@@ -51,7 +50,6 @@ class Exporter(QtCore.QThread):
         self._width = width
         self._height = height
         self._extra_enc_args = extra_enc_args if extra_enc_args is not None else []
-        self._time = time
         self._cancelled = False
 
     def run(self):
@@ -127,21 +125,16 @@ class Exporter(QtCore.QThread):
         )
         ctx.set_scene(scene)
 
-        if self._time is not None:
-            ctx.draw(self._time)
+        # Draw every frame
+        nb_frame = int(duration * fps[0] / fps[1])
+        for i in range(nb_frame):
+            if self._cancelled:
+                break
+            time = i * fps[1] / float(fps[0])
+            ctx.draw(time)
             os.write(fd_w, capture_buffer)
-            self.progressed.emit(100)
-        else:
-            # Draw every frame
-            nb_frame = int(duration * fps[0] / fps[1])
-            for i in range(nb_frame):
-                if self._cancelled:
-                    break
-                time = i * fps[1] / float(fps[0])
-                ctx.draw(time)
-                os.write(fd_w, capture_buffer)
-                self.progressed.emit(i * 100 / nb_frame)
-            self.progressed.emit(100)
+            self.progressed.emit(i * 100 / nb_frame)
+        self.progressed.emit(100)
 
         os.close(fd_w)
         reader.wait()
