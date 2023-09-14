@@ -114,7 +114,6 @@ class Exporter(QtCore.QThread):
 
         capture_buffer = bytearray(width * height * 4)
 
-        # nope.gl context
         ctx = ngl.Context()
         ctx.configure(
             ngl.Config(
