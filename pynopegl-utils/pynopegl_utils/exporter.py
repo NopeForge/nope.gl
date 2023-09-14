@@ -25,6 +25,7 @@ import subprocess
 from typing import Callable, Optional
 
 from pynopegl_utils.com import query_scene
+from pynopegl_utils.export import ExportWorker
 from pynopegl_utils.misc import SceneCfg, SceneInfo, get_backend, get_nopegl_tempdir, get_viewport
 from PySide6 import QtCore, QtGui
 
@@ -56,6 +57,11 @@ class Exporter(QtCore.QThread):
         filename, width, height = self._filename, self._width, self._height
 
         try:
+            scene_info = self._get_scene_info()
+            if not scene_info:
+                self.failed.emit("You didn't select any scene to export.")
+                return
+
             if filename.endswith("gif"):
                 palette_filename = op.join(get_nopegl_tempdir(), "palette.png")
                 pass1_args = ["-vf", "palettegen"]
@@ -65,24 +71,19 @@ class Exporter(QtCore.QThread):
                     "-lavfi", "paletteuse",
                     # fmt: on
                 ]
-                ok = self._export(palette_filename, width, height, pass1_args)
+                ok = self._export(scene_info, palette_filename, width, height, pass1_args)
                 if not ok:
                     return
-                ok = self._export(filename, width, height, pass2_args)
+                ok = self._export(scene_info, filename, width, height, pass2_args)
             else:
-                ok = self._export(filename, width, height, self._extra_enc_args)
+                ok = self._export(scene_info, filename, width, height, self._extra_enc_args)
             if ok:
                 self.export_finished.emit()
         except Exception:
             self.failed.emit("Something went wrong while trying to encode, check encoding parameters")
 
-    def _export(self, filename, width, height, extra_enc_args=None):
+    def _export(self, scene_info: SceneInfo, filename, width, height, extra_enc_args=None):
         fd_r, fd_w = os.pipe()
-
-        scene_info = self._get_scene_info()
-        if not scene_info:
-            self.failed.emit("You didn't select any scene to export.")
-            return False
 
         scene = scene_info.scene
         fps = scene.framerate
