@@ -3,7 +3,6 @@ import colorsys
 import math
 
 from pynopegl_utils.misc import SceneCfg, scene
-from pynopegl_utils.toolbox.grid import AutoGrid
 
 import pynopegl as ngl
 
@@ -171,18 +170,16 @@ _easing_names = [e[0] for e in _easing_list]
 
 
 def _get_easing_nodes(cfg: SceneCfg, color_program):
-    ag = AutoGrid(_easing_list)
-    cfg.aspect_ratio = (ag.nb_cols, ag.nb_rows)
-    easing_h = 1.0 / ag.nb_rows
-    easing_w = 1.0 / ag.nb_cols
-    for easing, _, col, row in ag:
+    nb = len(_easing_list)
+    nb_rows = int(round(math.sqrt(nb)))
+    nb_cols = int(math.ceil(nb / float(nb_rows)))
+    cfg.aspect_ratio = (nb_cols, nb_rows)
+    scenes = []
+    for easing in _easing_list:
         easing_name, zoom = easing
         easing_node = _get_easing_node(cfg, easing_name, zoom, color_program)
-        easing_node = ngl.Scale(easing_node, factors=(easing_w, easing_h, 0))
-        x = easing_w * (-ag.nb_cols + 1 + 2 * col)
-        y = easing_h * (ag.nb_rows - 1 - 2 * row)
-        easing_node = ngl.Translate(easing_node, vector=(x, y, 0))
-        yield easing_node
+        scenes.append(easing_node)
+    return ngl.GridLayout(scenes, (nb_cols, nb_rows))
 
 
 @scene(controls=dict(easing_id=scene.List(choices=["*"] + _easing_names)))
@@ -199,8 +196,7 @@ def easings(cfg: SceneCfg, easing_id="*"):
     group = ngl.Group()
     group.add_children(full_block)
     if easing_id == "*":
-        for easing_node in _get_easing_nodes(cfg, color_program):
-            group.add_children(easing_node)
+        group.add_children(_get_easing_nodes(cfg, color_program))
     else:
         cfg.aspect_ratio = (1, 1)
         easing_index = _easing_names.index(easing_id)
