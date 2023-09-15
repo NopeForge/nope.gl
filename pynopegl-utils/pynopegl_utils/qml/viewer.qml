@@ -378,14 +378,17 @@ ApplicationWindow {
                         DelegateChoice {
                             roleValue: "range"
                             RowLayout {
+                                property bool fixed: model.step == 1.0
                                 Label { text: model.label }
                                 Slider {
+                                    snapMode: Slider.SnapAlways
+                                    stepSize: model.step
                                     from: model.min
                                     to: model.max
                                     value: model.val
-                                    onMoved: model.val = value
+                                    onMoved: model.val = fixed ? (value | 0) : value
                                 }
-                                Label { text: model.val.toFixed(3) }
+                                Label { text: model.val.toFixed(fixed ? 0 : 3) }
                             }
                         }
 
