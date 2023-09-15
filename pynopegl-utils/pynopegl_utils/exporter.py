@@ -21,10 +21,9 @@
 
 from typing import Callable, Optional
 
-from pynopegl_utils.com import query_scene
 from pynopegl_utils.export import export_workers
-from pynopegl_utils.misc import SceneCfg, SceneInfo
-from PySide6 import QtCore, QtGui
+from pynopegl_utils.misc import SceneInfo
+from PySide6 import QtCore
 
 
 class Exporter(QtCore.QThread):
@@ -66,41 +65,3 @@ class Exporter(QtCore.QThread):
 
     def cancel(self):
         self._cancelled = True
-
-
-def test_export():
-    import sys
-
-    def _get_scene(**cfg_overrides):
-        from pynopegl_utils.examples.misc import triangle
-
-        cfg = SceneCfg(duration=5, **cfg_overrides)
-        query_info = query_scene("pynopegl_utils.examples", triangle, cfg)
-        if query_info.error is not None:
-            print(query_info.error)
-            return None
-        return query_info.ret
-
-    def print_progress(progress):
-        sys.stdout.write("\r%d%%" % progress)
-        sys.stdout.flush()
-        if progress == 100:
-            sys.stdout.write("\n")
-
-    if len(sys.argv) != 2:
-        print("Usage: %s <outfile>" % sys.argv[0])
-        sys.exit(0)
-
-    filename = sys.argv[1]
-    app = QtGui.QGuiApplication(sys.argv)
-
-    exporter = Exporter(_get_scene, filename, "240p", "mp4_h264_420")
-    exporter.progressed.connect(print_progress)
-    exporter.start()
-    exporter.wait()
-
-    app.exit()
-
-
-if __name__ == "__main__":
-    test_export()
