@@ -28,7 +28,7 @@ from typing import Any, Dict, List, Optional
 
 from pynopegl_utils import qml
 from pynopegl_utils.com import query_scene
-from pynopegl_utils.export import export_worker
+from pynopegl_utils.export import export_workers
 from pynopegl_utils.misc import SceneCfg, SceneInfo
 from pynopegl_utils.qml import livectls
 from pynopegl_utils.scriptsmgr import ScriptsManager
@@ -257,7 +257,7 @@ class _Viewer:
         filename = _uri_to_path(filename)
 
         res_id = self._config.CHOICES["export_res"][res_index]
-        profile = ENCODE_PROFILES[self._config.CHOICES["export_profile"][profile_index]]
+        profile_id = self._config.CHOICES["export_profile"][profile_index]
 
         extra_args = self._get_scene_building_extra_args()
 
@@ -280,8 +280,7 @@ class _Viewer:
                 changes.append(entry)
             livectls.apply_changes(changes)
 
-            extra_enc_args = profile.args + ["-f", profile.format]
-            export = export_worker(scene_info, filename, res_id, extra_enc_args)
+            export = export_workers(scene_info, filename, res_id, profile_id)
             for progress in export:
                 if self._cancel_export_request:
                     break
