@@ -29,11 +29,18 @@ import pynopegl as ngl
 _NODE_TYPES_MODEL_MAP = dict(
     UniformColor="color",
     UniformBool="bool",
-    UniformVec2="vec2",
-    UniformVec3="vec3",
-    UniformVec4="vec4",
-    UniformMat4="mat4",
+    UniformVec2="vector",
+    UniformVec3="vector",
+    UniformVec4="vector",
+    UniformMat4="vector",
     Text="text",
+)
+
+_NODE_TYPES_CMP_MAP = dict(
+    UniformVec2=2,
+    UniformVec3=3,
+    UniformVec4=4,
+    UniformMat4=4 * 4,
 )
 
 
@@ -50,6 +57,8 @@ def get_model_data(scene) -> List[Dict[str, Any]]:
         if data["type"] not in ("bool", "text"):
             data["min"] = ctl["min"]
             data["max"] = ctl["max"]
+        if data["type"] == "vector":
+            data["n"] = _NODE_TYPES_CMP_MAP.get(ctl["node_type"], 0)
         if data["type"] == "color":
             data["val"] = QColor.fromRgbF(*ctl["val"])
         model_data.append(data)
@@ -67,5 +76,6 @@ def apply_changes(changes: List[Dict[str, Any]]):
             node.set_value(*QColor.getRgbF(value)[:3])
         elif type_ == "text":
             node.set_text(value)
-        elif type_.startswith("vec") or type_.startswith("mat"):
+        elif type_ == "vector":
+            value = [value.property(i).toNumber() for i in range(value.property("length").toInt())]
             node.set_value(*value)
