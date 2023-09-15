@@ -59,6 +59,17 @@ ApplicationWindow {
         }
     }
 
+    MessageDialog {
+        id: infoPopup
+        title: "Export information"
+        onAccepted: visible = false
+    }
+
+    function show_popup(msg) {
+        infoPopup.text = msg;
+        infoPopup.visible = true
+    }
+
     Popup {
         id: exportPopup
 

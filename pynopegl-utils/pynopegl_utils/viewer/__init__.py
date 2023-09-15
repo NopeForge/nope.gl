@@ -212,6 +212,25 @@ class _Viewer:
 
         self._load_current_scene()
 
+    def _test_settings(self):
+        profile_id = self._config.get("export_profile")
+        profile = ENCODE_PROFILES[profile_id]
+
+        # Check if extension is consistent with format
+        filename = self._export_filename_text.property("text")
+        filename = _uri_to_path(filename)
+        filepath = Path(filename)
+        extension = f".{profile.format}"
+        if filepath.suffix.lower() != extension:
+            new_filename = f"{filepath.stem}{extension}"
+            self._window.show_popup(
+                "Export file extension is being changed to match requested profile: "
+                f"`{filepath.name}` becomes `{new_filename}`."
+            )
+            filepath = filepath.parent / new_filename
+            self._export_filename_text.setProperty("text", filepath.as_posix())
+            self._set_export_filename()
+
     @Slot(int)
     def _select_framerate(self, index: int):
         framerate = self._config.CHOICES["framerate"][index]
@@ -238,6 +257,7 @@ class _Viewer:
     def _select_export_profile(self, index: int):
         profile_id = self._config.CHOICES["export_profile"][index]
         self._config.set_export_profile(profile_id)
+        self._test_settings()
 
     @Slot(int)
     def _select_export_samples(self, index: int):
