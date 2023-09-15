@@ -89,23 +89,23 @@ def export_workers(scene_info: SceneInfo, filename: str, resolution: str, profil
         with tempfile.NamedTemporaryFile(prefix="palette-", suffix=".png") as palette_file:
             # pass 1
             extra_enc_args = ["-vf", "palettegen", "-update", "1", "-frames:v", "1"]
-            export = export_worker(scene_info, palette_file.name, resolution, extra_enc_args)
+            export = _export_worker(scene_info, palette_file.name, resolution, extra_enc_args)
             for progress in export:
                 yield progress / 2
 
             # pass 2
             extra_enc_args = ["-i", palette_file.name, "-lavfi", "paletteuse"]
-            export = export_worker(scene_info, filename, resolution, extra_enc_args)
+            export = _export_worker(scene_info, filename, resolution, extra_enc_args)
             for progress in export:
                 yield 50 + progress / 2
     else:
         extra_enc_args = profile.args + ["-f", profile.format]
-        export = export_worker(scene_info, filename, resolution, extra_enc_args)
+        export = _export_worker(scene_info, filename, resolution, extra_enc_args)
         for progress in export:
             yield progress
 
 
-def export_worker(
+def _export_worker(
     scene_info: SceneInfo,
     filename: str,
     resolution: str,
