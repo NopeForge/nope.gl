@@ -29,8 +29,8 @@ import Qt.labs.qmlmodels // DelegateChooser is experimental
 
 ApplicationWindow {
     visible: true
-    minimumWidth: 640
-    minimumHeight: 480
+    minimumWidth: 1280
+    minimumHeight: 800
 
     signal exportVideo(string filename, int res, int profile, int samples)
     signal cancelExport()
