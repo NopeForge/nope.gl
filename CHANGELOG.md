@@ -13,6 +13,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `luma(r,g,b)` and `srgbmix(a,b,x)` functions in eval
 - `GridLayout` node to make a grid out of a number of scenes
 - `FilterColorMap` node to remap colors using a gradient of color points
+- Animated GIF export in the viewer
 
 ### Fixed
 - Viewer path management on Windows
