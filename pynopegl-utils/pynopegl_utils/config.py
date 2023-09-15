@@ -23,7 +23,7 @@ import json
 import os
 import os.path as op
 
-from pynopegl_utils.export import RESOLUTIONS
+from pynopegl_utils.export import ENCODE_PROFILES, RESOLUTIONS
 from PySide6 import QtCore
 
 from .misc import get_nopegl_tempdir
@@ -67,6 +67,7 @@ class Config(QtCore.QObject):
             "vulkan",
         ],
         "export_res": list(RESOLUTIONS.keys()),
+        "export_profile": list(ENCODE_PROFILES.keys()),
     }
 
     def __init__(self, module_pkgname):
@@ -82,7 +83,7 @@ class Config(QtCore.QObject):
             # Export
             "export_res": "720p",
             "export_filename": op.join(get_nopegl_tempdir(), "ngl-export.mp4"),
-            "export_extra_enc_args": "",
+            "export_profile": "mp4_h264_420",
             # Medias
             "medias_list": [],
             "medias_last_dir": QtCore.QDir.currentPath(),
@@ -155,8 +156,8 @@ class Config(QtCore.QObject):
         self._set_cfg("export_filename", filename)
 
     @QtCore.Slot(str)
-    def set_export_extra_enc_args(self, extra_enc_args):
-        self._set_cfg("export_extra_enc_args", extra_enc_args)
+    def set_export_profile(self, profile):
+        self._set_cfg("export_profile", profile)
 
     @QtCore.Slot(tuple)
     def set_aspect_ratio(self, ar):

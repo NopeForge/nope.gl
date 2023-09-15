@@ -22,7 +22,7 @@
 from fractions import Fraction
 from typing import Callable, Optional
 
-from pynopegl_utils.export import RESOLUTIONS
+from pynopegl_utils.export import ENCODE_PROFILES, RESOLUTIONS
 from pynopegl_utils.exporter import Exporter
 from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtWidgets
@@ -52,8 +52,12 @@ class ExportView(QtWidgets.QWidget):
         res_idx = all_res.index(config.get("export_res"))
         self._res_combobox.setCurrentIndex(res_idx)
 
-        self._encopts_text = QtWidgets.QLineEdit()
-        self._encopts_text.setText(config.get("export_extra_enc_args"))
+        self._profile_combobox = QtWidgets.QComboBox()
+        all_profile = ENCODE_PROFILES
+        for profile_id, profile in all_profile.items():
+            self._profile_combobox.addItem(profile.name, userData=profile_id)
+        profile_idx = config.CHOICES["export_profile"].index(config.get("export_profile"))
+        self._profile_combobox.setCurrentIndex(profile_idx)
 
         self._export_btn = QtWidgets.QPushButton("Export")
         btn_hbox = QtWidgets.QHBoxLayout()
@@ -67,7 +71,7 @@ class ExportView(QtWidgets.QWidget):
         form = QtWidgets.QFormLayout(self)
         form.addRow("Filename:", file_box)
         form.addRow("Resolution:", self._res_combobox)
-        form.addRow("Extra encoder arguments:", self._encopts_text)
+        form.addRow("Profile:", self._profile_combobox)
         form.addRow(self._warning_label)
         form.addRow(btn_hbox)
 
@@ -76,7 +80,7 @@ class ExportView(QtWidgets.QWidget):
         self._ofile_text.textChanged.connect(self._check_settings)
         self._ofile_text.textChanged.connect(config.set_export_filename)
         self._res_combobox.currentIndexChanged.connect(self._set_export_res)
-        self._encopts_text.textChanged.connect(config.set_export_extra_enc_args)
+        self._profile_combobox.currentIndexChanged.connect(self._set_export_profile)
 
         self._exporter = None
 
@@ -95,7 +99,7 @@ class ExportView(QtWidgets.QWidget):
     def _check_settings(self):
         warnings = []
 
-        if self._ofile_text.text().endswith(".gif"):
+        if self._profile_combobox.currentData() == "gif":
             fr = self._framerate
             gif_recommended_framerate = (Fraction(25, 1), Fraction(50, 1))
             if Fraction(*fr) not in gif_recommended_framerate:
@@ -114,6 +118,11 @@ class ExportView(QtWidgets.QWidget):
     def _set_export_res(self, index):
         self._check_settings()
         self._config.set_export_res(self._res_combobox.currentText())
+
+    @QtCore.Slot(int)
+    def _set_export_profile(self, index):
+        self._check_settings()
+        self._config.set_export_profile(self._profile_combobox.currentData())
 
     @QtCore.Slot(int)
     def _progress(self, value):
@@ -145,13 +154,13 @@ class ExportView(QtWidgets.QWidget):
 
         ofile = self._ofile_text.text()
         res_id = self._res_combobox.currentText()
-        extra_enc_args = self._encopts_text.text().split()
+        profile_id = self._profile_combobox.currentData()
 
         self._pgd = QtWidgets.QProgressDialog("Exporting to %s" % ofile, "Stop", 0, 100, self)
         self._pgd.setWindowModality(QtCore.Qt.WindowModal)
         self._pgd.setMinimumDuration(100)
 
-        self._exporter = Exporter(self._get_scene_info, ofile, res_id, extra_enc_args)
+        self._exporter = Exporter(self._get_scene_info, ofile, res_id, profile_id)
 
         self._pgd.canceled.connect(self._cancel)
         self._exporter.progressed.connect(self._progress)

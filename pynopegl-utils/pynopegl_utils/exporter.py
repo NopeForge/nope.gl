@@ -19,12 +19,11 @@
 # under the License.
 #
 
-import os.path as op
 from typing import Callable, Optional
 
 from pynopegl_utils.com import query_scene
-from pynopegl_utils.export import export_worker
-from pynopegl_utils.misc import SceneCfg, SceneInfo, get_nopegl_tempdir
+from pynopegl_utils.export import export_workers
+from pynopegl_utils.misc import SceneCfg, SceneInfo
 from PySide6 import QtCore, QtGui
 
 
@@ -38,17 +37,17 @@ class Exporter(QtCore.QThread):
         get_scene_info: Callable[..., Optional[SceneInfo]],
         filename,
         res_id: str,
-        extra_enc_args=None,
+        profile_id: str,
     ):
         super().__init__()
         self._get_scene_info = get_scene_info
         self._filename = filename
         self._res_id = res_id
-        self._extra_enc_args = extra_enc_args if extra_enc_args is not None else []
+        self._profile_id = profile_id
         self._cancelled = False
 
     def run(self):
-        filename, res_id = self._filename, self._res_id
+        filename, res_id, profile_id = self._filename, self._res_id, self._profile_id
 
         try:
             scene_info = self._get_scene_info()
@@ -56,23 +55,7 @@ class Exporter(QtCore.QThread):
                 self.failed.emit("You didn't select any scene to export.")
                 return
 
-            if filename.endswith("gif"):
-                palette_filename = op.join(get_nopegl_tempdir(), "palette.png")
-                pass1_args = ["-vf", "palettegen"]
-                pass2_args = self._extra_enc_args + [
-                    # fmt: off
-                    "-i", palette_filename,
-                    "-lavfi", "paletteuse",
-                    # fmt: on
-                ]
-                pass1 = export_worker(scene_info, palette_filename, res_id, pass1_args)
-                for progress in pass1:
-                    self.progressed.emit(progress)
-                    if self._cancelled:
-                        break
-                export = export_worker(scene_info, filename, res_id, pass2_args)
-            else:
-                export = export_worker(scene_info, filename, res_id, self._extra_enc_args)
+            export = export_workers(scene_info, filename, res_id, profile_id)
             for progress in export:
                 self.progressed.emit(progress)
                 if self._cancelled:
@@ -111,7 +94,7 @@ def test_export():
     filename = sys.argv[1]
     app = QtGui.QGuiApplication(sys.argv)
 
-    exporter = Exporter(_get_scene, filename, "240p")
+    exporter = Exporter(_get_scene, filename, "240p", "mp4_h264_420")
     exporter.progressed.connect(print_progress)
     exporter.start()
     exporter.wait()
