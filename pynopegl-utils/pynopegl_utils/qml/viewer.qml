@@ -536,6 +536,11 @@ ApplicationWindow {
                             ComboBox { id: samplesList; objectName: "samplesList"; Layout.fillWidth: true }
 
                         }
+                        Label {
+                            objectName: "exportWarning"
+                            visible: false
+                            color: "red"
+                        }
                         Button {
                             text: "Export"
                             Layout.alignment: Qt.AlignHCenter

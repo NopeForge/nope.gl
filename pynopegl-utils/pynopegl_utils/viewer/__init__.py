@@ -23,6 +23,7 @@
 import platform
 import subprocess
 import sys
+from fractions import Fraction
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -131,6 +132,8 @@ class _Viewer:
         self._export_filename_text.editingFinished.connect(self._set_export_filename)
         self._set_export_filename()  # make sure the current folder is set for the initial value
 
+        self._export_warning = app_window.findChild(QObject, "exportWarning")
+
         export_res_names = choices["export_res"]
         export_res = self._config.get("export_res")
         export_res_index = choices["export_res"].index(export_res)
@@ -167,6 +170,7 @@ class _Viewer:
         except Exception:
             app_window.disable_export("No working `ffmpeg` command found,\nexport is disabled.")
 
+        self._test_settings()
         self._select_script()
 
     @Slot()
@@ -231,10 +235,24 @@ class _Viewer:
             self._export_filename_text.setProperty("text", filepath.as_posix())
             self._set_export_filename()
 
+        # Check GIF framerate compatibility
+        self._export_warning.setProperty("visible", False)
+        if profile.format == "gif":
+            framerate = self._config.get("framerate")
+            gif_recommended_framerate = (Fraction(25, 1), Fraction(50, 1))
+            if Fraction(*framerate) not in gif_recommended_framerate:
+                gif_framerates = ", ".join(f"{x}" for x in gif_recommended_framerate)
+                self._export_warning.setProperty(
+                    "text",
+                    f"It is recommended to use one of these\nframe rate when exporting to GIF: {gif_framerates}",
+                )
+                self._export_warning.setProperty("visible", True)
+
     @Slot(int)
     def _select_framerate(self, index: int):
         framerate = self._config.CHOICES["framerate"][index]
         self._config.set_framerate(framerate)
+        self._test_settings()
         self._load_current_scene()
 
     @Slot()
