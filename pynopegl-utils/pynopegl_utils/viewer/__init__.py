@@ -25,6 +25,7 @@ import subprocess
 import sys
 from fractions import Fraction
 from pathlib import Path
+from textwrap import dedent
 from typing import Any, Dict, List, Optional
 
 from pynopegl_utils import qml
@@ -38,6 +39,39 @@ from PySide6.QtCore import QAbstractListModel, QModelIndex, QObject, Qt, QUrl, S
 from PySide6.QtGui import QColor
 
 import pynopegl as ngl
+
+_LICENSE_APACHE = "https://github.com/NopeFoundry/nope.gl/blob/main/LICENSE"
+_NOTICE = "https://github.com/NopeFoundry/nope.gl/blob/main/NOTICE"
+_NOPE_FOUNDRY = "https://www.nope-foundry.org"
+_NOPE_MEDIA = "https://github.com/NopeFoundry/nope.media"
+_ABOUT_POPUP_CONTENT = dedent(
+    f"""\
+    # About
+
+    The Nope viewer is part of the [Nope Foundry]({_NOPE_FOUNDRY}) project and
+    is licensed under the [Apache License, Version 2.0]({_LICENSE_APACHE}).
+
+    See the [NOTICE]({_NOTICE}) file for more information.
+
+    What you create with this software is your sole property. All your artwork
+    is free for you to use as you like. That means that the Nope Viewer can be
+    used commercially, for any purpose. There are no restrictions whatsoever.
+
+    This software also relies on [nope.media]({_NOPE_MEDIA}), which is under
+    LGPL v2.1.
+
+    Finally, it depends on the following third-party libraries:
+    - [FFmpeg](https://www.ffmpeg.org): LGPL v2.1 / GPL v3
+    - [Harfbuzz](https://harfbuzz.github.io): MIT
+    - [FreeType](https://freetype.org): FTL / GPL v2
+    - [FriBidi](https://github.com/fribidi/fribidi): LGPL v2.1
+    - [Qt6](https://www.qt.io): GPL v3
+    - [MoltenVK](https://github.com/KhronosGroup/MoltenVK): Apache v2
+    - [Pillow](https://python-pillow.org): BSD
+    - [python-watchdog](https://github.com/gorakhargosh/watchdog): Apache v2
+    - [python-packaging](https://github.com/pypa/packaging): Apache v2
+    """
+)
 
 
 def _uri_to_path(uri):
@@ -159,6 +193,8 @@ class _Viewer:
         export_samples_list.activated.connect(self._select_export_samples)
 
         self._errorText = app_window.findChild(QObject, "errorText")
+
+        app_window.set_about_content(_ABOUT_POPUP_CONTENT)
 
         try:
             ret = subprocess.run(

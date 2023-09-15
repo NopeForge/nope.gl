@@ -35,6 +35,43 @@ ApplicationWindow {
     signal exportVideo(string filename, int res, int profile, int samples)
     signal cancelExport()
 
+    Popup {
+        id: aboutPopup
+        modal: true
+        padding: 20
+        anchors.centerIn: parent
+        implicitWidth: 640
+        implicitHeight: 480
+
+        contentItem: ColumnLayout {
+            spacing: 20
+            TextArea {
+                id: aboutContent
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                readOnly: true
+                wrapMode: TextEdit.Wrap
+                textFormat: TextEdit.MarkdownText
+                onLinkActivated: (link) => Qt.openUrlExternally(link)
+
+                // Background is specified because of https://bugreports.qt.io/browse/QTBUG-105858
+                background: Rectangle { radius: 2; color: "white"; border.color: "#aaa" }
+
+                HoverHandler {
+                    enabled: parent.hoveredLink
+                    cursorShape: Qt.PointingHandCursor
+                }
+            }
+            Button {
+                text: "OK"
+                onClicked: aboutPopup.visible = false
+                Layout.alignment: Qt.AlignHCenter
+            }
+        }
+    }
+
+    function set_about_content(text) { aboutContent.text = text; }
+
     FileDialog {
         id: scriptDialog
         objectName: "scriptDialog"
@@ -496,12 +533,6 @@ ApplicationWindow {
                 }
             }
 
-            /* Spacer */
-            Item {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
-
             GroupBox {
                 title: "Export as video"
                 Layout.fillWidth: true
@@ -551,6 +582,19 @@ ApplicationWindow {
                     // 1: Export not available
                     Label { id: exportQueryError }
                 }
+            }
+
+            /* Spacer */
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            Button {
+                text: "About"
+                onClicked: aboutPopup.open()
+                Layout.alignment: Qt.AlignHCenter
+                Layout.margins: 5
             }
         }
 
