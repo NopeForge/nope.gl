@@ -231,13 +231,13 @@ class _Viewer:
 
     @Slot(int)
     def _select_export_res(self, index: int):
-        res = self._config.CHOICES["export_res"][index]
-        self._config.set_export_res(res)
+        res_id = self._config.CHOICES["export_res"][index]
+        self._config.set_export_res(res_id)
 
     @Slot(int)
     def _select_export_profile(self, index: int):
-        profile = self._config.CHOICES["export_profile"][index]
-        self._config.set_export_profile(profile)
+        profile_id = self._config.CHOICES["export_profile"][index]
+        self._config.set_export_profile(profile_id)
 
     @Slot(int)
     def _select_export_samples(self, index: int):
