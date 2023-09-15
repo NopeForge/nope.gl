@@ -8,5 +8,6 @@ renders.md
 blending.md
 timeranges.md
 eval.md
+path.md
 c-api.md
 ```
