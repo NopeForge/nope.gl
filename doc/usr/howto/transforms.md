@@ -25,6 +25,14 @@ Translate a circle from one side to another, and back
 Scale up and down a circle
 ```
 
+To combine transforms, they have to be chained. The following example combines 3
+of them: `Scale(Translate(Rotate(...)))`:
+
+```{nope} transforms.chained_transforms
+:export_type: video
+A chain of animated transforms
+```
+
 [Translate]: /usr/ref/libnopegl.md#translate
 [Scale]: /usr/ref/libnopegl.md#scale
 [Rotate]: /usr/ref/libnopegl.md#rotate
