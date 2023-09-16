@@ -12,41 +12,24 @@ def square2circle(cfg: SceneCfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
 
-    def sqxf(t):  # square x coordinates clockwise starting top-left
-        if t < 1 / 4.0:
-            return t * 4
-        if t < 1 / 2.0:
-            return 1
-        if t < 3 / 4.0:
-            return 1.0 - (t - 0.5) * 4
-        return 0
-
-    def sqyf(t):  # square y coordinates clockwise starting top-left
-        if t < 1 / 4.0:
-            return 1
-        if t < 1 / 2.0:
-            return 1.0 - (t - 0.25) * 4
-        if t < 3 / 4.0:
-            return 0
-        return (t - 0.75) * 4
-
     n = 1024  # number of vertices
-    s = 1.25  # shapes scale
+    s = 0.625  # shapes scale
     interp = "exp_in_out"
 
     center_vertex = [0, 0, 0]
+
+    square = lambda x: min(max(4 * abs(2 * ((x + 3 / 4) % 1) - 1) - 2, -1), 1)
     square_vertices = array.array("f", center_vertex)
     for i in range(n):
-        x = (sqxf(i / float(n)) - 0.5) * s
-        y = (sqyf(i / float(n)) - 0.5) * s
+        x = square(i / n + 1 / 4)
+        y = square(i / n)
         square_vertices.extend([x, y, 0])
 
     circle_vertices = array.array("f", center_vertex)
-    step = 2 * math.pi / float(n)
     for i in range(n):
-        angle = i * step - math.pi / 4.0
-        x = math.sin(angle) * 0.5 * s
-        y = math.cos(angle) * 0.5 * s
+        angle = i / n * math.tau
+        x = math.cos(angle)
+        y = math.sin(angle)
         circle_vertices.extend([x, y, 0])
 
     indices = array.array("H")
@@ -72,4 +55,4 @@ def square2circle(cfg: SceneCfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0
     p = ngl.Program(vertex=cfg.get_vert("color"), fragment=cfg.get_frag("color"))
     render = ngl.Render(geom, p)
     render.update_frag_resources(color=ucolor, opacity=ngl.UniformFloat(1))
-    return render
+    return ngl.Scale(render, factors=(s, s, 1))
