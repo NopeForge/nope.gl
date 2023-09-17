@@ -26,3 +26,4 @@
 
 const vec3 ngli_luma_weights = vec3(.2126, .7152, .0722); // BT.709
 const float ngli_pi = 3.14159265358979323846;
+const float ngli_tau = 6.28318530717958647692;
