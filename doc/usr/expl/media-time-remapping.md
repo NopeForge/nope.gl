@@ -93,6 +93,7 @@ Coupled with hardware acceleration, these two main mechanism help getting great
 performances at a minimal memory cost.
 
 
+[Render]: /usr/ref/libnopegl.md#render
 [Media]: /usr/ref/libnopegl.md#media
 [TimeRangeFilter]: /usr/ref/libnopegl.md#timerangefilter
 [AnimatedFloat]: /usr/ref/libnopegl.md#animatedfloat
