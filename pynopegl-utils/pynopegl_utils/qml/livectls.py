@@ -69,6 +69,7 @@ def get_model_data(scene) -> List[Dict[str, Any]]:
             label=label,
             val=ctl["val"],
             node=ctl["node"],
+            step=1 / 100,
         )
 
         if spec.base_type in ("int", "uint"):
