@@ -217,29 +217,6 @@ static const struct node_param graphicconfig_params[] = {
     {NULL}
 };
 
-static int graphicconfig_init(struct ngl_node *node)
-{
-    struct graphicconfig_priv *s = node->priv_data;
-    const struct graphicconfig_opts *o = node->opts;
-
-    if (o->stencil_write_mask != -1 &&
-        (o->stencil_write_mask < 0 || o->stencil_write_mask > 0xff)) {
-        LOG(ERROR, "stencil write mask (0x%x) must be in the range [0, 0xff]", o->stencil_write_mask);
-        return NGL_ERROR_INVALID_USAGE;
-    }
-
-    if (o->stencil_read_mask != -1 &&
-        (o->stencil_read_mask < 0 || o->stencil_read_mask > 0xff)) {
-        LOG(ERROR, "stencil read mask (0x%x) must be in the range [0, 0xff]", o->stencil_read_mask);
-        return NGL_ERROR_INVALID_USAGE;
-    }
-
-    static const int default_scissor[4] = DEFAULT_SCISSOR;
-    s->use_scissor = memcmp(o->scissor, default_scissor, sizeof(o->scissor));
-
-    return 0;
-}
-
 #define COPY_PARAM(name) do {        \
     if (o->name != -1) {             \
         state->name = o->name;       \
@@ -279,6 +256,29 @@ static void honor_config(struct ngl_node *node, struct graphics_state *state)
         state->cull_mode = ngli_gpu_ctx_transform_cull_mode(gpu_ctx, o->cull_mode);
 
     COPY_PARAM(scissor_test);
+}
+
+static int graphicconfig_init(struct ngl_node *node)
+{
+    struct graphicconfig_priv *s = node->priv_data;
+    const struct graphicconfig_opts *o = node->opts;
+
+    if (o->stencil_write_mask != -1 &&
+        (o->stencil_write_mask < 0 || o->stencil_write_mask > 0xff)) {
+        LOG(ERROR, "stencil write mask (0x%x) must be in the range [0, 0xff]", o->stencil_write_mask);
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    if (o->stencil_read_mask != -1 &&
+        (o->stencil_read_mask < 0 || o->stencil_read_mask > 0xff)) {
+        LOG(ERROR, "stencil read mask (0x%x) must be in the range [0, 0xff]", o->stencil_read_mask);
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    static const int default_scissor[4] = DEFAULT_SCISSOR;
+    s->use_scissor = memcmp(o->scissor, default_scissor, sizeof(o->scissor));
+
+    return 0;
 }
 
 static int graphicconfig_prepare(struct ngl_node *node)
