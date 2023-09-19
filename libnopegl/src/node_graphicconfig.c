@@ -246,12 +246,10 @@ static int graphicconfig_init(struct ngl_node *node)
     }                                \
 } while (0)                          \
 
-static void honor_config(struct ngl_node *node)
+static void honor_config(struct ngl_node *node, struct graphics_state *pending)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct rnode *rnode = ctx->rnode_pos;
-    struct graphics_state *pending = &rnode->graphics_state;
     const struct graphicconfig_opts *o = node->opts;
 
     COPY_PARAM(blend);
@@ -287,7 +285,9 @@ static int graphicconfig_prepare(struct ngl_node *node)
 {
     const struct graphicconfig_opts *o = node->opts;
 
-    honor_config(node);
+    struct rnode *rnode = node->ctx->rnode_pos;
+    honor_config(node, &rnode->graphics_state);
+
     return ngli_node_prepare(o->child);
 }
 
