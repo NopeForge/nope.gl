@@ -648,16 +648,6 @@
         "desc": "only the luma channel"
       }
     ],
-    "framebuffer_features": [
-      {
-        "name": "depth",
-        "desc": "add depth buffer"
-      },
-      {
-        "name": "stencil",
-        "desc": "add stencil buffer"
-      }
-    ],
     "scale_mode": [
       {
         "name": "auto",
@@ -3060,14 +3050,6 @@
           "default": [0.000000,0.000000,0.000000,0.000000],
           "flags": [],
           "desc": "color used to clear the `color_texture`"
-        },
-        {
-          "name": "features",
-          "type": "flags",
-          "default": "0",
-          "choices": "framebuffer_features",
-          "flags": [],
-          "desc": "framebuffer feature mask"
         }
       ]
     },
