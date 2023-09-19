@@ -28,6 +28,10 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `Transform` node now accepts a node as input parameter and can be animated
   this way
 
+### Removed
+- `RenderToTexture.features` as the RTT node is now able to detect
+  automatically if the underlying graph requires a depth/stencil buffer
+
 ## [2023.3] [libnopegl 0.9.0] - 2023-09-01
 ### Fixed
 - Linux and macOS release jobs

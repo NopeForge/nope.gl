@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Foundry
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -25,6 +26,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "graphics_state.h"
 #include "rendertarget.h"
 #include "format.h"
 #include "gpu_ctx.h"
@@ -33,8 +35,12 @@
 #include "internal.h"
 #include "utils.h"
 
+#define FEATURE_DEPTH       (1 << 0)
+#define FEATURE_STENCIL     (1 << 1)
+
 struct renderpass_info {
     int nb_interruptions;
+    uint32_t features;
 };
 
 struct rtt_opts {
@@ -44,7 +50,6 @@ struct rtt_opts {
     struct ngl_node *depth_texture;
     int32_t samples;
     float clear_color[4];
-    int features;
 };
 
 struct rtt_priv {
@@ -60,18 +65,6 @@ struct rtt_priv {
     struct texture *ms_colors[NGLI_MAX_COLOR_ATTACHMENTS];
     size_t nb_ms_colors;
     struct texture *ms_depth;
-};
-
-#define FEATURE_DEPTH       (1 << 0)
-#define FEATURE_STENCIL     (1 << 1)
-
-static const struct param_choices feature_choices = {
-    .name = "framebuffer_features",
-    .consts = {
-        {"depth",   FEATURE_DEPTH,   .desc=NGLI_DOCSTRING("add depth buffer")},
-        {"stencil", FEATURE_STENCIL, .desc=NGLI_DOCSTRING("add stencil buffer")},
-        {NULL}
-    }
 };
 
 #define OFFSET(x) offsetof(struct rtt_opts, x)
@@ -90,9 +83,6 @@ static const struct node_param rtt_params[] = {
                       .desc=NGLI_DOCSTRING("number of samples used for multisampling anti-aliasing")},
     {"clear_color",   NGLI_PARAM_TYPE_VEC4, OFFSET(clear_color),
                       .desc=NGLI_DOCSTRING("color used to clear the `color_texture`")},
-    {"features",      NGLI_PARAM_TYPE_FLAGS, OFFSET(features),
-                      .choices=&feature_choices,
-                      .desc=NGLI_DOCSTRING("framebuffer feature mask")},
     {NULL}
 };
 
@@ -201,6 +191,14 @@ static int get_renderpass_info(const struct ngl_node *node, int state, struct re
             if (state == RENDER_PASS_STATE_STOPPED)
                 info->nb_interruptions++;
             state = RENDER_PASS_STATE_STARTED;
+        } else if (child->cls->id == NGL_NODE_GRAPHICCONFIG) {
+            struct graphics_state graphics_state = {0};
+            ngli_node_graphicconfig_get_state(child, &graphics_state);
+            if (graphics_state.depth_test)
+                info->features |= FEATURE_DEPTH;
+            if (graphics_state.stencil_test)
+                info->features |= FEATURE_STENCIL;
+            state = get_renderpass_info(child, state, info);
         } else {
             state = get_renderpass_info(child, state, info);
         }
@@ -244,9 +242,9 @@ static int rtt_prepare(struct ngl_node *node)
         layout.depth_stencil.resolve = o->samples > 1;
     } else {
         int depth_format = NGLI_FORMAT_UNDEFINED;
-        if (o->features & FEATURE_STENCIL)
+        if (s->renderpass_info.features & FEATURE_STENCIL)
             depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
-        else if (o->features & FEATURE_DEPTH)
+        else if (s->renderpass_info.features & FEATURE_DEPTH)
             depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
         layout.depth_stencil.format = depth_format;
     }
@@ -379,9 +377,9 @@ static int rtt_prefetch(struct ngl_node *node)
             rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
         }
     } else {
-        if (o->features & FEATURE_STENCIL)
+        if (s->renderpass_info.features & FEATURE_STENCIL)
             depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
-        else if (o->features & FEATURE_DEPTH)
+        else if (s->renderpass_info.features & FEATURE_DEPTH)
             depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
 
         if (depth_format != NGLI_FORMAT_UNDEFINED) {

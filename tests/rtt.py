@@ -1,4 +1,5 @@
 #
+# Copyright 2023 Nope Foundry
 # Copyright 2020-2022 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -101,7 +102,13 @@ void main()
 
 
 def _get_rtt_scene(
-    cfg: SceneCfg, features="depth", texture_ds_format=None, samples=0, mipmap_filter="none", sample_depth=False
+    cfg: SceneCfg,
+    depth_test=True,
+    stencil_test=False,
+    texture_ds_format=None,
+    samples=0,
+    mipmap_filter="none",
+    sample_depth=False,
 ):
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)
@@ -118,7 +125,7 @@ def _get_rtt_scene(
         axis = tuple(int(i == x) for x in range(3))
         render = ngl.Rotate(render, axis=axis, angle=rot_animkf)
 
-    config = ngl.GraphicConfig(render, depth_test=True)
+    config = ngl.GraphicConfig(render, depth_test=depth_test, stencil_test=stencil_test)
 
     camera = ngl.Camera(
         config,
@@ -150,7 +157,6 @@ def _get_rtt_scene(
     rtt = ngl.RenderToTexture(
         camera,
         [texture],
-        features=features,
         depth_texture=texture_depth,
         samples=samples,
         clear_color=(0, 0, 0, 1),
@@ -177,11 +183,11 @@ def _get_rtt_function(**kwargs):
 
 
 _rtt_tests = dict(
-    feature_depth=dict(features="depth"),
-    feature_depth_stencil=dict(features="depth+stencil"),
-    feature_depth_msaa=dict(features="depth", samples=4),
-    feature_depth_stencil_msaa=dict(features="depth+stencil", samples=4),
-    mipmap=dict(features="depth", mipmap_filter="linear"),
+    feature_depth=dict(depth_test=True),
+    feature_depth_stencil=dict(depth_test=True, stencil_test=True),
+    feature_depth_msaa=dict(depth_test=True, samples=4),
+    feature_depth_stencil_msaa=dict(depth_test=True, stencil_test=True, samples=4),
+    mipmap=dict(depth_test=True, mipmap_filter="linear"),
     sample_depth=dict(texture_ds_format="auto_depth", sample_depth=True),
     sample_depth_msaa=dict(texture_ds_format="auto_depth", sample_depth=True, samples=4),
     texture_depth=dict(texture_ds_format="auto_depth"),
