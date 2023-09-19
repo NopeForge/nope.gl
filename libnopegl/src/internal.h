@@ -321,6 +321,8 @@ struct resourceprops_opts {
     int writable;
 };
 
+void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct graphics_state *state);
+
 enum easing_id {
     EASING_LINEAR,
     EASING_QUADRATIC_IN,
