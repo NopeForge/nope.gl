@@ -242,11 +242,11 @@ static int graphicconfig_init(struct ngl_node *node)
 
 #define COPY_PARAM(name) do {        \
     if (o->name != -1) {             \
-        pending->name = o->name;     \
+        state->name = o->name;       \
     }                                \
 } while (0)                          \
 
-static void honor_config(struct ngl_node *node, struct graphics_state *pending)
+static void honor_config(struct ngl_node *node, struct graphics_state *state)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -276,7 +276,7 @@ static void honor_config(struct ngl_node *node, struct graphics_state *pending)
     COPY_PARAM(stencil_depth_pass);
 
     if (o->cull_mode != -1)
-        pending->cull_mode = ngli_gpu_ctx_transform_cull_mode(gpu_ctx, o->cull_mode);
+        state->cull_mode = ngli_gpu_ctx_transform_cull_mode(gpu_ctx, o->cull_mode);
 
     COPY_PARAM(scissor_test);
 }
