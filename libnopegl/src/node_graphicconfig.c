@@ -63,7 +63,6 @@ struct graphicconfig_opts {
 };
 
 struct graphicconfig_priv {
-    struct graphics_state graphics_state;
     int use_scissor;
 };
 
@@ -252,11 +251,8 @@ static void honor_config(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rnode *rnode = ctx->rnode_pos;
-    struct graphicconfig_priv *s = node->priv_data;
     struct graphics_state *pending = &rnode->graphics_state;
     const struct graphicconfig_opts *o = node->opts;
-
-    s->graphics_state = *pending;
 
     COPY_PARAM(blend);
     COPY_PARAM(blend_dst_factor);
