@@ -55,6 +55,10 @@ ApplicationWindow {
         selectFramerate(current_index);
     }
 
+    function set_params_model(params) {
+        paramList.model = params;
+    }
+
     Popup {
         id: aboutPopup
         modal: true
@@ -281,8 +285,6 @@ ApplicationWindow {
 
                 contentItem: ListView {
                     id: paramList
-                    objectName: "paramList"
-
                     implicitWidth: contentItem.childrenRect.width
                     implicitHeight: contentHeight
                     clip: true
