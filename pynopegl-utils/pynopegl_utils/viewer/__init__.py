@@ -116,6 +116,7 @@ class _Viewer:
         app_window.selectScript.connect(self._select_script)
         app_window.selectScene.connect(self._select_scene)
         app_window.selectFramerate.connect(self._select_framerate)
+        app_window.selectExportFile.connect(self._select_export_file)
 
         self._params_model = UIElementsModel()
 
@@ -142,10 +143,6 @@ class _Viewer:
 
         export_filename = self._config.get("export_filename")
         export_filename = QUrl.fromLocalFile(export_filename).url()
-        self._export_filename_text = app_window.findChild(QObject, "exportFile")
-        self._export_filename_text.setProperty("text", export_filename)
-        self._export_filename_text.editingFinished.connect(self._set_export_filename)
-        self._set_export_filename()  # make sure the current folder is set for the initial value
 
         self._export_warning = app_window.findChild(QObject, "exportWarning")
 
@@ -190,6 +187,7 @@ class _Viewer:
         app_window.set_params_model(self._params_model)
         app_window.set_controls_model(self._livectls_model)
         app_window.set_export_name_filters(f"Supported videos ({extensions})")
+        app_window.set_export_file(export_filename)
         app_window.set_script(script)
         app_window.set_framerates(framerate_names, framerate_index)
 
@@ -242,7 +240,7 @@ class _Viewer:
         profile = ENCODE_PROFILES[profile_id]
 
         # Check if extension is consistent with format
-        filename = self._export_filename_text.property("text")
+        filename = self._window.get_export_file()
         filename = _uri_to_path(filename)
         filepath = Path(filename)
         extension = f".{profile.format}"
@@ -253,8 +251,7 @@ class _Viewer:
                 f"`{filepath.name}` becomes `{new_filename}`."
             )
             filepath = filepath.parent / new_filename
-            self._export_filename_text.setProperty("text", filepath.as_posix())
-            self._set_export_filename()
+            self._window.set_export_file(filepath.as_posix())
 
         # Check GIF framerate compatibility
         self._export_warning.setProperty("visible", False)
@@ -276,10 +273,9 @@ class _Viewer:
         self._test_settings()
         self._load_current_scene()
 
-    @Slot()
-    def _set_export_filename(self):
-        filename = self._export_filename_text.property("text")
-        filename = _uri_to_path(filename)
+    @Slot(str)
+    def _select_export_file(self, export_file: str):
+        filename = _uri_to_path(export_file)
 
         dirname = Path(filename).resolve().parent.as_posix()
         dirname = QUrl.fromLocalFile(dirname).url()
