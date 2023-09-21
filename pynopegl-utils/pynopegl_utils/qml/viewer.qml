@@ -33,12 +33,19 @@ ApplicationWindow {
     minimumHeight: 800
 
     signal selectScript(string script_name)
+    signal selectScene(int index)
     signal exportVideo(string filename, int res, int profile, int samples)
     signal cancelExport()
 
     function set_script(script_name) {
         script.text = script_name;
         selectScript(script_name);
+    }
+
+    function set_scenes(scenes, current_index) {
+        sceneList.model = scenes;
+        sceneList.currentIndex = current_index;
+        selectScene(current_index);
     }
 
     Popup {
@@ -235,8 +242,9 @@ ApplicationWindow {
 
                     Label { text: "Scene:" }
                     ComboBox {
+                        id: sceneList
                         Layout.fillWidth: true
-                        objectName: "sceneList"
+                        onActivated: selectScene(currentIndex)
                     }
                 }
             }

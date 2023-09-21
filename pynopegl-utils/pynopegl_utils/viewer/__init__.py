@@ -114,6 +114,7 @@ class _Viewer:
         app_window.exportVideo.connect(self._export_video)
         app_window.cancelExport.connect(self._cancel_export)
         app_window.selectScript.connect(self._select_script)
+        app_window.selectScene.connect(self._select_scene)
 
         self._params_model = UIElementsModel()
 
@@ -133,10 +134,6 @@ class _Viewer:
 
         if script.endswith(".py"):
             script = QUrl.fromLocalFile(script).url()
-
-        # The appropriate scene will be selected once the module is loaded
-        self._scene_list = app_window.findChild(QObject, "sceneList")
-        self._scene_list.activated.connect(self._select_scene)
 
         self._player = app_window.findChild(QObject, "player")
         self._player.timeChanged.connect(ngl_widget.set_time)
@@ -232,7 +229,7 @@ class _Viewer:
         self._scripts_mgr.start()
 
     @Slot(int)
-    def _select_scene(self, index):
+    def _select_scene(self, index: int):
         if index < 0 or index >= len(self._scene_data):
             self._ngl_widget.stop()
             return
@@ -394,11 +391,9 @@ class _Viewer:
         self._scene_data = scene_data
 
         scene_ids = [data["scene_id"] for data in scene_data]
-        self._scene_list.setProperty("model", scene_ids)
 
         index = scene_ids.index(cur_scene_id) if cur_scene_id and cur_scene_id in scene_ids else 0
-        self._scene_list.setProperty("currentIndex", index)
-        self._select_scene(index)
+        self._window.set_scenes(scene_ids, index)
 
     def _get_scene_cfg(self):
         return SceneCfg(
