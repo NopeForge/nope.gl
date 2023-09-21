@@ -147,8 +147,6 @@ class _Viewer:
         export_filename = self._config.get("export_filename")
         export_filename = QUrl.fromLocalFile(export_filename).url()
 
-        self._export_warning = app_window.findChild(QObject, "exportWarning")
-
         export_res_names = choices["export_res"]
         export_res = self._config.get("export_res")
         export_res_index = choices["export_res"].index(export_res)
@@ -248,17 +246,15 @@ class _Viewer:
             self._window.set_export_file(filepath.as_posix())
 
         # Check GIF framerate compatibility
-        self._export_warning.setProperty("visible", False)
+        self._window.hide_export_warning()
         if profile.format == "gif":
             framerate = self._config.get("framerate")
             gif_recommended_framerate = (Fraction(25, 1), Fraction(50, 1))
             if Fraction(*framerate) not in gif_recommended_framerate:
                 gif_framerates = ", ".join(f"{x}" for x in gif_recommended_framerate)
-                self._export_warning.setProperty(
-                    "text",
+                self._window.show_export_warning(
                     f"It is recommended to use one of these\nframe rate when exporting to GIF: {gif_framerates}",
                 )
-                self._export_warning.setProperty("visible", True)
 
     @Slot(int)
     def _select_framerate(self, index: int):
