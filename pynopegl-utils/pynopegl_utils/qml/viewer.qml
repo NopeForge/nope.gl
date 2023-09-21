@@ -91,12 +91,19 @@ ApplicationWindow {
 
     FileDialog {
         id: exportDialog
-        objectName: "exportDialog"
         fileMode: FileDialog.SaveFile
         onAccepted: {
             exportFile.text = selectedFile
             exportFile.editingFinished()
         }
+    }
+
+    function set_export_name_filters(name_filters) {
+        exportDialog.nameFilters = name_filters;
+    }
+
+    function set_export_directory(dir) {
+        exportDialog.currentFolder = dir;
     }
 
     MessageDialog {

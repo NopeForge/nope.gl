@@ -154,8 +154,6 @@ class _Viewer:
         framerate_list.activated.connect(self._select_framerate)
 
         extensions = " ".join(sorted(set(f"*.{p.format}" for p in ENCODE_PROFILES.values())))
-        self._export_dialog = app_window.findChild(QObject, "exportDialog")
-        self._export_dialog.setProperty("nameFilters", f"Supported videos ({extensions})")
 
         export_filename = self._config.get("export_filename")
         export_filename = QUrl.fromLocalFile(export_filename).url()
@@ -203,6 +201,8 @@ class _Viewer:
             )
         except Exception:
             app_window.disable_export("No working `ffmpeg` command found,\nexport is disabled.")
+
+        app_window.set_export_name_filters(f"Supported videos ({extensions})")
 
         self._test_settings()
         self._select_script()
@@ -296,7 +296,7 @@ class _Viewer:
 
         dirname = Path(filename).resolve().parent.as_posix()
         dirname = QUrl.fromLocalFile(dirname).url()
-        self._export_dialog.setProperty("currentFolder", dirname)
+        self._window.set_export_directory(dirname)
 
         self._config.set_export_filename(filename)
 
