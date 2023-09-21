@@ -106,6 +106,8 @@ class _Viewer:
             script = args[1]
             if len(args) > 2:
                 scene = args[2]
+        if script.endswith(".py"):
+            script = QUrl.fromLocalFile(script).url()
         self._config.set_script(script)
         self._config.set_scene(scene)
 
@@ -129,9 +131,6 @@ class _Viewer:
 
         self._ngl_widget = ngl_widget
         self._ngl_widget.livectls_changed.connect(self._livectls_model.reset_data_model)
-
-        if script.endswith(".py"):
-            script = QUrl.fromLocalFile(script).url()
 
         self._player = app_window.findChild(QObject, "player")
         self._player.timeChanged.connect(ngl_widget.set_time)
