@@ -35,6 +35,7 @@ ApplicationWindow {
     signal selectScript(string script_name)
     signal selectScene(int index)
     signal selectFramerate(int index)
+    signal selectExportFile(string export_file)
     signal exportVideo(string filename, int res, int profile, int samples)
     signal cancelExport()
 
@@ -61,6 +62,15 @@ ApplicationWindow {
 
     function set_controls_model(controls) {
         controlList.model = controls;
+    }
+
+    function set_export_file(export_file) {
+        exportFile.text = export_file;
+        selectExportFile(export_file);
+    }
+
+    function get_export_file() {
+        return exportFile.text;
     }
 
     Popup {
@@ -588,7 +598,11 @@ ApplicationWindow {
 
                             Label { text: "File:" }
                             RowLayout {
-                                TextField { id: exportFile; objectName: "exportFile"; Layout.fillWidth: true }
+                                TextField {
+                                    id: exportFile
+                                    Layout.fillWidth: true
+                                    onEditingFinished: selectExportFile(text)
+                                }
                                 Button {
                                     text: "Open"
                                     background.implicitWidth: 0
