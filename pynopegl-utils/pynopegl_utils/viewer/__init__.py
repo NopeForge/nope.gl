@@ -122,9 +122,6 @@ class _Viewer:
         # XXX should we have a trigger/apply button for those?
         self._params_model.dataChanged.connect(self._params_data_changed)
 
-        self._params_listview = app_window.findChild(QObject, "paramList")
-        self._params_listview.setProperty("model", self._params_model)
-
         self._livectls_model = UIElementsModel()
         self._livectls_model.dataChanged.connect(self._livectl_data_changed)
         self._livectls_listview = app_window.findChild(QObject, "controlList")
@@ -192,6 +189,7 @@ class _Viewer:
         except Exception:
             app_window.disable_export("No working `ffmpeg` command found,\nexport is disabled.")
 
+        app_window.set_params_model(self._params_model)
         app_window.set_export_name_filters(f"Supported videos ({extensions})")
         app_window.set_script(script)
         app_window.set_framerates(framerate_names, framerate_index)
