@@ -65,6 +65,12 @@ ENCODE_PROFILES = dict(
         format="mp4",
         args=["-pix_fmt", "yuv444p", "-c:v", "libx264", "-crf", "18"],
     ),
+    mp4_av1_420=EncodeProfile(
+        name="MP4 / AV1 4:2:0",
+        format="mp4",
+        # Since 4:2:0 is used for portability (most hardware decoders only support the main profile (4:2:0)), we also use faststart
+        args=["-pix_fmt", "yuv420p", "-c:v", "libsvtav1", "-crf", "18", "-movflags", "+faststart"],
+    ),
     mov_qtrle=EncodeProfile(
         name="MOV / QTRLE (Lossless)",
         format="mov",
