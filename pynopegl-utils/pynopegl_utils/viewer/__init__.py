@@ -153,8 +153,6 @@ class _Viewer:
         framerate_list.setProperty("currentIndex", framerate_index)
         framerate_list.activated.connect(self._select_framerate)
 
-        self._script_dialog = app_window.findChild(QObject, "scriptDialog")
-
         extensions = " ".join(sorted(set(f"*.{p.format}" for p in ENCODE_PROFILES.values())))
         self._export_dialog = app_window.findChild(QObject, "exportDialog")
         self._export_dialog.setProperty("nameFilters", f"Supported videos ({extensions})")
@@ -222,7 +220,7 @@ class _Viewer:
             script = Path(script).resolve().as_posix()
             dirname = Path(script).parent.as_posix()
             dirname = QUrl.fromLocalFile(dirname).url()
-            self._script_dialog.setProperty("currentFolder", dirname)
+            self._window.set_script_directory(dirname)
 
         self._config.set_script(script)
 

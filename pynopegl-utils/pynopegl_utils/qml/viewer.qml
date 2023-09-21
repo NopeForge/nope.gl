@@ -74,12 +74,15 @@ ApplicationWindow {
 
     FileDialog {
         id: scriptDialog
-        objectName: "scriptDialog"
         nameFilters: ["Python scripts (*.py)"]
         onAccepted: {
             script.text = selectedFile
             script.editingFinished()
         }
+    }
+
+    function set_script_directory(dir) {
+        scriptDialog.currentFolder = dir;
     }
 
     /*
