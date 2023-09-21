@@ -34,6 +34,7 @@ ApplicationWindow {
 
     signal selectScript(string script_name)
     signal selectScene(int index)
+    signal selectFramerate(int index)
     signal exportVideo(string filename, int res, int profile, int samples)
     signal cancelExport()
 
@@ -46,6 +47,12 @@ ApplicationWindow {
         sceneList.model = scenes;
         sceneList.currentIndex = current_index;
         selectScene(current_index);
+    }
+
+    function set_framerates(framerates, current_index) {
+        framerateList.model = framerates;
+        framerateList.currentIndex = current_index;
+        selectFramerate(current_index);
     }
 
     Popup {
@@ -259,8 +266,9 @@ ApplicationWindow {
 
                     Label { text: "Framerate:" }
                     ComboBox {
-                        objectName: "framerateList"
+                        id: framerateList
                         Layout.fillWidth: true
+                        onActivated: selectFramerate(currentIndex)
                     }
                 }
             }
