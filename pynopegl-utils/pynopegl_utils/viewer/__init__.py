@@ -115,6 +115,7 @@ class _Viewer:
         app_window.cancelExport.connect(self._cancel_export)
         app_window.selectScript.connect(self._select_script)
         app_window.selectScene.connect(self._select_scene)
+        app_window.selectFramerate.connect(self._select_framerate)
 
         self._params_model = UIElementsModel()
 
@@ -141,10 +142,6 @@ class _Viewer:
         framerate_names = ["%.5g FPS" % (fps[0] / fps[1]) for fps in choices["framerate"]]
         framerate = self._config.get("framerate")
         framerate_index = choices["framerate"].index(framerate)
-        framerate_list = app_window.findChild(QObject, "framerateList")
-        framerate_list.setProperty("model", framerate_names)
-        framerate_list.setProperty("currentIndex", framerate_index)
-        framerate_list.activated.connect(self._select_framerate)
 
         extensions = " ".join(sorted(set(f"*.{p.format}" for p in ENCODE_PROFILES.values())))
 
@@ -197,6 +194,7 @@ class _Viewer:
 
         app_window.set_export_name_filters(f"Supported videos ({extensions})")
         app_window.set_script(script)
+        app_window.set_framerates(framerate_names, framerate_index)
 
         self._test_settings()
 
