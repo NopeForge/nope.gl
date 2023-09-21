@@ -113,6 +113,7 @@ class _Viewer:
 
         app_window.exportVideo.connect(self._export_video)
         app_window.cancelExport.connect(self._cancel_export)
+        app_window.selectScript.connect(self._select_script)
 
         self._params_model = UIElementsModel()
 
@@ -130,11 +131,8 @@ class _Viewer:
         self._ngl_widget = ngl_widget
         self._ngl_widget.livectls_changed.connect(self._livectls_model.reset_data_model)
 
-        self._script = app_window.findChild(QObject, "script")
         if script.endswith(".py"):
             script = QUrl.fromLocalFile(script).url()
-        self._script.setProperty("text", script)
-        self._script.editingFinished.connect(self._select_script)
 
         # The appropriate scene will be selected once the module is loaded
         self._scene_list = app_window.findChild(QObject, "sceneList")
@@ -201,17 +199,16 @@ class _Viewer:
             app_window.disable_export("No working `ffmpeg` command found,\nexport is disabled.")
 
         app_window.set_export_name_filters(f"Supported videos ({extensions})")
+        app_window.set_script(script)
 
         self._test_settings()
-        self._select_script()
 
     @Slot()
     def _close(self):
         self._cancel_export()
 
-    @Slot()
-    def _select_script(self):
-        script = self._script.property("text")
+    @Slot(str)
+    def _select_script(self, script: str):
         script = _uri_to_path(script)
 
         if script.endswith(".py"):

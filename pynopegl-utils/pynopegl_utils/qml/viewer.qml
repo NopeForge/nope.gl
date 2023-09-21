@@ -32,8 +32,14 @@ ApplicationWindow {
     minimumWidth: 1280
     minimumHeight: 800
 
+    signal selectScript(string script_name)
     signal exportVideo(string filename, int res, int profile, int samples)
     signal cancelExport()
+
+    function set_script(script_name) {
+        script.text = script_name;
+        selectScript(script_name);
+    }
 
     Popup {
         id: aboutPopup
@@ -217,8 +223,8 @@ ApplicationWindow {
                     RowLayout {
                         TextField {
                             id: script
-                            objectName: "script"
                             Layout.fillWidth: true
+                            onEditingFinished: selectScript(text)
                         }
                         Button {
                             text: "Open"
