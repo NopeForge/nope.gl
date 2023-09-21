@@ -183,7 +183,7 @@ ApplicationWindow {
 
     function show_popup(msg) {
         infoPopup.text = msg;
-        infoPopup.visible = true
+        infoPopup.visible = true;
     }
 
     Popup {
@@ -240,24 +240,24 @@ ApplicationWindow {
     }
 
     function start_export(filename, res, profile, samples) {
-        exportBar.value = 0
-        exportStack.currentIndex = 0
-        exportPopup.visible = true
-        exportVideo(filename, res, profile, samples)
+        exportBar.value = 0;
+        exportStack.currentIndex = 0;
+        exportPopup.visible = true;
+        exportVideo(filename, res, profile, samples);
     }
 
     function finish_export() {
-        exportStack.currentIndex = 1
+        exportStack.currentIndex = 1;
     }
 
     function abort_export(msg) {
         exportErrorText.text = msg
-        exportStack.currentIndex = 2
+        exportStack.currentIndex = 2;
     }
 
     function disable_export(msg) {
-        exportQueryError.text = msg
-        exportQueryStack.currentIndex = 1
+        exportQueryError.text = msg;
+        exportQueryStack.currentIndex = 1;
     }
 
     function set_export_progress(progress) {
@@ -381,7 +381,7 @@ ApplicationWindow {
                                         readonly property int decimalFactor: Math.pow(10, decimals)
 
                                         function decimalToInt(decimal) {
-                                            return decimal * decimalFactor
+                                            return decimal * decimalFactor;
                                         }
 
                                         validator: DoubleValidator {
@@ -392,11 +392,11 @@ ApplicationWindow {
                                         }
 
                                         textFromValue: function(value, locale) {
-                                            return Number(value / decimalFactor).toLocaleString(locale, 'f', spinBox.decimals)
+                                            return Number(value / decimalFactor).toLocaleString(locale, 'f', spinBox.decimals);
                                         }
 
                                         valueFromText: function(text, locale) {
-                                            return Math.round(Number.fromLocaleString(locale, text) * decimalFactor)
+                                            return Math.round(Number.fromLocaleString(locale, text) * decimalFactor);
                                         }
 
                                         onValueModified: {
@@ -546,7 +546,7 @@ ApplicationWindow {
                                         readonly property int decimalFactor: Math.pow(10, decimals)
 
                                         function decimalToInt(decimal) {
-                                            return decimal * decimalFactor
+                                            return decimal * decimalFactor;
                                         }
 
                                         validator: DoubleValidator {
@@ -557,11 +557,11 @@ ApplicationWindow {
                                         }
 
                                         textFromValue: function(value, locale) {
-                                            return Number(value / decimalFactor).toLocaleString(locale, 'f', spinBox.decimals)
+                                            return Number(value / decimalFactor).toLocaleString(locale, 'f', spinBox.decimals);
                                         }
 
                                         valueFromText: function(text, locale) {
-                                            return Math.round(Number.fromLocaleString(locale, text) * decimalFactor)
+                                            return Math.round(Number.fromLocaleString(locale, text) * decimalFactor);
                                         }
 
                                         onValueModified: {
