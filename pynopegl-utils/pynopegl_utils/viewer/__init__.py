@@ -143,8 +143,6 @@ class _Viewer:
         self._player = app_window.findChild(QObject, "player")
         self._player.timeChanged.connect(ngl_widget.set_time)
 
-        self._export_bar = app_window.findChild(QObject, "exportBar")
-
         framerate_names = ["%.5g FPS" % (fps[0] / fps[1]) for fps in choices["framerate"]]
         framerate = self._config.get("framerate")
         framerate_index = choices["framerate"].index(framerate)
@@ -356,7 +354,7 @@ class _Viewer:
             for progress in export:
                 if self._cancel_export_request:
                     break
-                self._export_bar.setProperty("value", progress / 100)
+                self._window.set_export_progress(progress / 100)
                 self._app.processEvents()  # refresh UI
 
             if self._cancel_export_request:
