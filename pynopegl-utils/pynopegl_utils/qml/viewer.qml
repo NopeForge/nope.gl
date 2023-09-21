@@ -59,6 +59,10 @@ ApplicationWindow {
         paramList.model = params;
     }
 
+    function set_controls_model(controls) {
+        controlList.model = controls;
+    }
+
     Popup {
         id: aboutPopup
         modal: true
@@ -450,8 +454,6 @@ ApplicationWindow {
 
                 contentItem: ListView {
                     id: controlList
-                    objectName: "controlList"
-
                     implicitWidth: contentItem.childrenRect.width
                     implicitHeight: contentHeight
                     clip: true
