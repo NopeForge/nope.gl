@@ -291,8 +291,7 @@ static int texture_prefetch(struct ngl_node *node)
     const uint8_t *data = NULL;
 
     if (o->data_src) {
-        switch (o->data_src->cls->id) {
-        case NGL_NODE_MEDIA: {
+        if (o->data_src->cls->id == NGL_NODE_MEDIA) {
             struct ngl_node *media = o->data_src;
             ngli_unused struct media_priv *media_priv = media->priv_data;
             const struct hwmap_params hwmap_params = {
@@ -310,34 +309,15 @@ static int texture_prefetch(struct ngl_node *node)
 #endif
             };
             return ngli_hwmap_init(&s->hwmap, ctx, &hwmap_params);
-        }
-        case NGL_NODE_ANIMATEDBUFFERFLOAT:
-        case NGL_NODE_ANIMATEDBUFFERVEC2:
-        case NGL_NODE_ANIMATEDBUFFERVEC4:
-        case NGL_NODE_BUFFERBYTE:
-        case NGL_NODE_BUFFERBVEC2:
-        case NGL_NODE_BUFFERBVEC4:
-        case NGL_NODE_BUFFERINT:
-        case NGL_NODE_BUFFERIVEC2:
-        case NGL_NODE_BUFFERIVEC4:
-        case NGL_NODE_BUFFERSHORT:
-        case NGL_NODE_BUFFERSVEC2:
-        case NGL_NODE_BUFFERSVEC4:
-        case NGL_NODE_BUFFERUBYTE:
-        case NGL_NODE_BUFFERUBVEC2:
-        case NGL_NODE_BUFFERUBVEC4:
-        case NGL_NODE_BUFFERUINT:
-        case NGL_NODE_BUFFERUIVEC2:
-        case NGL_NODE_BUFFERUIVEC4:
-        case NGL_NODE_BUFFERUSHORT:
-        case NGL_NODE_BUFFERUSVEC2:
-        case NGL_NODE_BUFFERUSVEC4:
-        case NGL_NODE_BUFFERFLOAT:
-        case NGL_NODE_BUFFERVEC2:
-        case NGL_NODE_BUFFERVEC4: {
+        } else if (o->data_src->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
             struct buffer_info *buffer = o->data_src->priv_data;
             if (buffer->block) {
                 LOG(ERROR, "buffers used as a texture data source referencing a block are not supported");
+                return NGL_ERROR_UNSUPPORTED;
+            }
+
+            if (buffer->layout.type == NGLI_TYPE_VEC3) {
+                LOG(ERROR, "3-components texture formats are not supported");
                 return NGL_ERROR_UNSUPPORTED;
             }
 
@@ -364,9 +344,7 @@ static int texture_prefetch(struct ngl_node *node)
             }
             data = buffer->data;
             params->format = buffer->layout.format;
-            break;
-        }
-        default:
+        } else {
             ngli_assert(0);
         }
     }
