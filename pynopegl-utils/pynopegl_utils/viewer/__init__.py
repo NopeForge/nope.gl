@@ -124,8 +124,6 @@ class _Viewer:
 
         self._livectls_model = UIElementsModel()
         self._livectls_model.dataChanged.connect(self._livectl_data_changed)
-        self._livectls_listview = app_window.findChild(QObject, "controlList")
-        self._livectls_listview.setProperty("model", self._livectls_model)
 
         self._ngl_widget = ngl_widget
         self._ngl_widget.livectls_changed.connect(self._livectls_model.reset_data_model)
@@ -190,6 +188,7 @@ class _Viewer:
             app_window.disable_export("No working `ffmpeg` command found,\nexport is disabled.")
 
         app_window.set_params_model(self._params_model)
+        app_window.set_controls_model(self._livectls_model)
         app_window.set_export_name_filters(f"Supported videos ({extensions})")
         app_window.set_script(script)
         app_window.set_framerates(framerate_names, framerate_index)
