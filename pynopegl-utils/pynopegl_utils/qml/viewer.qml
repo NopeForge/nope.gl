@@ -36,6 +36,9 @@ ApplicationWindow {
     signal selectScene(int index)
     signal selectFramerate(int index)
     signal selectExportFile(string export_file)
+    signal selectExportResolution(int index)
+    signal selectExportProfile(int index)
+    signal selectExportSamples(int index)
     signal exportVideo(string filename, int res, int profile, int samples)
     signal cancelExport()
 
@@ -71,6 +74,21 @@ ApplicationWindow {
 
     function get_export_file() {
         return exportFile.text;
+    }
+
+    function set_export_resolutions(resolutions, current_index) {
+        resList.model = resolutions;
+        resList.currentIndex = current_index;
+    }
+
+    function set_export_profiles(profiles, current_index) {
+        profileList.model = profiles;
+        profileList.currentIndex = current_index;
+    }
+
+    function set_export_samples(samples, current_index) {
+        samplesList.model = samples;
+        samplesList.currentIndex = current_index;
     }
 
     Popup {
@@ -611,14 +629,25 @@ ApplicationWindow {
                             }
 
                             Label { text: "Res:" }
-                            ComboBox { id: resList; objectName: "resList"; Layout.fillWidth: true }
+                            ComboBox {
+                                id: resList
+                                Layout.fillWidth: true
+                                onActivated: selectExportResolution(currentIndex)
+                            }
 
                             Label { text: "Profile:" }
-                            ComboBox { id: profileList; objectName: "profileList"; Layout.fillWidth: true }
+                            ComboBox {
+                                id: profileList
+                                Layout.fillWidth: true
+                                onActivated: selectExportProfile(currentIndex)
+                            }
 
                             Label { text: "MSAA:" }
-                            ComboBox { id: samplesList; objectName: "samplesList"; Layout.fillWidth: true }
-
+                            ComboBox {
+                                id: samplesList
+                                Layout.fillWidth: true
+                                onActivated: selectExportSamples(currentIndex)
+                            }
                         }
                         Label {
                             objectName: "exportWarning"

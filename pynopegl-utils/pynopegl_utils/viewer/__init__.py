@@ -117,6 +117,9 @@ class _Viewer:
         app_window.selectScene.connect(self._select_scene)
         app_window.selectFramerate.connect(self._select_framerate)
         app_window.selectExportFile.connect(self._select_export_file)
+        app_window.selectExportResolution.connect(self._select_export_res)
+        app_window.selectExportProfile.connect(self._select_export_profile)
+        app_window.selectExportSamples.connect(self._select_export_samples)
 
         self._params_model = UIElementsModel()
 
@@ -149,26 +152,14 @@ class _Viewer:
         export_res_names = choices["export_res"]
         export_res = self._config.get("export_res")
         export_res_index = choices["export_res"].index(export_res)
-        export_res_list = app_window.findChild(QObject, "resList")
-        export_res_list.setProperty("model", export_res_names)
-        export_res_list.setProperty("currentIndex", export_res_index)
-        export_res_list.activated.connect(self._select_export_res)
 
         export_profile_names = [ENCODE_PROFILES[p].name for p in choices["export_profile"]]
         export_profile = self._config.get("export_profile")
         export_profile_index = choices["export_profile"].index(export_profile)
-        export_profile_list = app_window.findChild(QObject, "profileList")
-        export_profile_list.setProperty("model", export_profile_names)
-        export_profile_list.setProperty("currentIndex", export_profile_index)
-        export_profile_list.activated.connect(self._select_export_profile)
 
         export_samples_names = ["Disabled" if s == 0 else f"x{s}" for s in choices["export_samples"]]
         export_samples = self._config.get("export_samples")
         export_samples_index = choices["export_samples"].index(export_samples)
-        export_samples_list = app_window.findChild(QObject, "samplesList")
-        export_samples_list.setProperty("model", export_samples_names)
-        export_samples_list.setProperty("currentIndex", export_samples_index)
-        export_samples_list.activated.connect(self._select_export_samples)
 
         self._errorText = app_window.findChild(QObject, "errorText")
 
@@ -188,6 +179,9 @@ class _Viewer:
         app_window.set_controls_model(self._livectls_model)
         app_window.set_export_name_filters(f"Supported videos ({extensions})")
         app_window.set_export_file(export_filename)
+        app_window.set_export_resolutions(export_res_names, export_res_index)
+        app_window.set_export_profiles(export_profile_names, export_profile_index)
+        app_window.set_export_samples(export_samples_names, export_samples_index)
         app_window.set_script(script)
         app_window.set_framerates(framerate_names, framerate_index)
 
