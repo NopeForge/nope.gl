@@ -100,6 +100,10 @@ ApplicationWindow {
         exportWarning.visible = false;
     }
 
+    function set_error(error) {
+        errorText.text = error;
+    }
+
     Popup {
         id: aboutPopup
         modal: true
@@ -697,7 +701,6 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 visible: errorText.text != ""
                 TextEdit {
-                    objectName: "errorText"
                     readOnly: true
                     id: errorText
                     font.family: "monospace"

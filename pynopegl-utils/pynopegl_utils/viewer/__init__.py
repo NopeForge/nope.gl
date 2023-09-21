@@ -159,8 +159,6 @@ class _Viewer:
         export_samples = self._config.get("export_samples")
         export_samples_index = choices["export_samples"].index(export_samples)
 
-        self._errorText = app_window.findChild(QObject, "errorText")
-
         app_window.set_about_content(_ABOUT_POPUP_CONTENT)
 
         try:
@@ -347,7 +345,7 @@ class _Viewer:
         if error is None:
             error = ""
 
-        self._errorText.setProperty("text", error)
+        self._window.set_error(error)
 
         # Useful to have it in the console as well
         if error:
