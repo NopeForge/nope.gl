@@ -131,7 +131,6 @@ ApplicationWindow {
             ColumnLayout {
                 Label { text: "Exporting " + exportFile.text }
                 ProgressBar {
-                    objectName: "exportBar"
                     id: exportBar
                     Layout.fillWidth: true
                 }
@@ -190,6 +189,10 @@ ApplicationWindow {
     function disable_export(msg) {
         exportQueryError.text = msg
         exportQueryStack.currentIndex = 1
+    }
+
+    function set_export_progress(progress) {
+        exportBar.value = progress;
     }
 
     /*
