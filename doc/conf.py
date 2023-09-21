@@ -15,6 +15,7 @@ release = version
 extensions = ["myst_parser", "sphinxcontrib.mermaid", "nope"]
 source_suffix = {".md": "markdown"}
 
+html_favicon = "favicon.ico"
 html_theme_options = {
     "code_font_size": "0.8em",
 }
