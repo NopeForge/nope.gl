@@ -93,8 +93,6 @@ class _Viewer:
         self._scene_data = []
         self._current_scene_data = None
 
-        # Needed so that all the objects found with fincChild() remains accessible
-        # https://bugreports.qt.io/browse/QTBUG-116311
         self._window = app_window
 
         self._config = Config()
