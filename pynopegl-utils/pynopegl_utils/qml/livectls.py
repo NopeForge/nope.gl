@@ -52,6 +52,7 @@ _NODE_TYPES_SPEC_MAP = dict(
     UniformVec2=_ControlSpec("vector", "float", 2),
     UniformVec3=_ControlSpec("vector", "float", 3),
     UniformVec4=_ControlSpec("vector", "float", 4),
+    UserSwitch=_ControlSpec("bool", "bool", 1),
 )
 
 
@@ -91,7 +92,10 @@ def apply_changes(changes: List[Dict[str, Any]]):
         type_ = ctl["type"]
         value = ctl["val"]
         if type_ in ("range", "bool"):
-            node.set_value(value)
+            if isinstance(node, ngl.UserSwitch):
+                node.set_enabled(value)
+            else:
+                node.set_value(value)
         elif type_ == "color":
             node.set_value(*QColor.getRgbF(value)[:3])
         elif type_ == "text":
