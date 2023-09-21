@@ -91,6 +91,15 @@ ApplicationWindow {
         samplesList.currentIndex = current_index;
     }
 
+    function show_export_warning(warning) {
+        exportWarning.visible = true;
+        exportWarning.text = warning;
+    }
+
+    function hide_export_warning() {
+        exportWarning.visible = false;
+    }
+
     Popup {
         id: aboutPopup
         modal: true
@@ -649,11 +658,7 @@ ApplicationWindow {
                                 onActivated: selectExportSamples(currentIndex)
                             }
                         }
-                        Label {
-                            objectName: "exportWarning"
-                            visible: false
-                            color: "red"
-                        }
+                        Label { id: exportWarning; visible: false; color: "red" }
                         Button {
                             text: "Export"
                             Layout.alignment: Qt.AlignHCenter
