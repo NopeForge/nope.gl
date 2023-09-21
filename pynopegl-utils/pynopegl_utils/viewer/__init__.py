@@ -74,13 +74,6 @@ _ABOUT_POPUP_CONTENT = dedent(
 )
 
 
-def _uri_to_path(uri):
-    path = QUrl(uri).path()  # handle the file:// automatically added by Qt/QML
-    if platform.system() == "Windows" and path.startswith("/"):
-        path = path[1:]
-    return path
-
-
 class _Viewer:
     def __init__(self, app, qml_engine, ngl_widget, args):
         self._app = app
@@ -180,13 +173,20 @@ class _Viewer:
 
         self._test_settings()
 
+    @staticmethod
+    def _uri_to_path(uri):
+        path = QUrl(uri).path()  # handle the file:// automatically added by Qt/QML
+        if platform.system() == "Windows" and path.startswith("/"):
+            path = path[1:]
+        return path
+
     @Slot()
     def _close(self):
         self._cancel_export()
 
     @Slot(str)
     def _select_script(self, script: str):
-        script = _uri_to_path(script)
+        script = self._uri_to_path(script)
 
         if script.endswith(".py"):
             script = Path(script).resolve().as_posix()
@@ -228,7 +228,7 @@ class _Viewer:
 
         # Check if extension is consistent with format
         filename = self._window.get_export_file()
-        filename = _uri_to_path(filename)
+        filename = self._uri_to_path(filename)
         filepath = Path(filename)
         extension = f".{profile.format}"
         if filepath.suffix.lower() != extension:
@@ -260,7 +260,7 @@ class _Viewer:
 
     @Slot(str)
     def _select_export_file(self, export_file: str):
-        filename = _uri_to_path(export_file)
+        filename = self._uri_to_path(export_file)
 
         dirname = Path(filename).resolve().parent.as_posix()
         dirname = QUrl.fromLocalFile(dirname).url()
@@ -294,7 +294,7 @@ class _Viewer:
         if scene_data is None:
             return
 
-        filename = _uri_to_path(filename)
+        filename = self._uri_to_path(filename)
 
         res_id = self._config.CHOICES["export_res"][res_index]
         profile_id = self._config.CHOICES["export_profile"][profile_index]
@@ -391,7 +391,7 @@ class _Viewer:
             elif data["type"] == "color":
                 val = QColor.getRgbF(val)[:3]
             elif data["type"] == "file" and val is not None:
-                val = _uri_to_path(val)
+                val = self._uri_to_path(val)
             extra_args[data["label"]] = val
 
         return extra_args
