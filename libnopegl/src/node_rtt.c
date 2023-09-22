@@ -33,6 +33,7 @@
 #include "log.h"
 #include "nopegl.h"
 #include "internal.h"
+#include "rtt.h"
 #include "utils.h"
 
 struct rtt_opts {
@@ -50,14 +51,7 @@ struct rtt_priv {
     int32_t height;
 
     struct rendertarget_layout layout;
-    struct rendertarget *rt;
-    struct rendertarget *rt_resume;
-    struct rendertarget *available_rendertargets[2];
-    struct texture *depth;
-
-    struct texture *ms_colors[NGLI_MAX_COLOR_ATTACHMENTS];
-    size_t nb_ms_colors;
-    struct texture *ms_depth;
+    struct rtt_ctx *rtt_ctx;
 };
 
 #define OFFSET(x) offsetof(struct rtt_opts, x)
@@ -268,57 +262,28 @@ static int rtt_prefetch(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rtt_priv *s = node->priv_data;
-    const int nb_interruptions = s->renderpass_info.nb_interruptions;
     const struct rtt_opts *o = node->opts;
 
-    const int transient_usage = nb_interruptions == 0 ? NGLI_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT : 0;
-
-    struct rendertarget_params rt_params = {
+    struct rtt_params rtt_params = {
         .width = s->width,
         .height = s->height,
+        .samples = o->samples,
+        .nb_interruptions = s->renderpass_info.nb_interruptions,
     };
 
     for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
         struct texture_priv *texture_priv = info.texture_priv;
         struct texture *texture = texture_priv->texture;
-        struct texture_params *params = &texture->params;
         const int32_t layer_end = info.layer_base + info.layer_count;
         for (int32_t j = info.layer_base; j < layer_end; j++) {
-            if (o->samples) {
-                struct texture *ms_texture = ngli_texture_create(gpu_ctx);
-                if (!ms_texture)
-                    return NGL_ERROR_MEMORY;
-                s->ms_colors[s->nb_ms_colors++] = ms_texture;
-                struct texture_params attachment_params = {
-                    .type    = NGLI_TEXTURE_TYPE_2D,
-                    .format  = params->format,
-                    .width   = s->width,
-                    .height  = s->height,
-                    .samples = o->samples,
-                    .usage   = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | transient_usage,
-                };
-                ret = ngli_texture_init(ms_texture, &attachment_params);
-                if (ret < 0)
-                    return ret;
-                rt_params.colors[rt_params.nb_colors].attachment = ms_texture;
-                rt_params.colors[rt_params.nb_colors].attachment_layer = 0;
-                rt_params.colors[rt_params.nb_colors].resolve_target = texture;
-                rt_params.colors[rt_params.nb_colors].resolve_target_layer = j;
-                rt_params.colors[rt_params.nb_colors].load_op = NGLI_LOAD_OP_CLEAR;
-                float *clear_value = rt_params.colors[rt_params.nb_colors].clear_value;
-                memcpy(clear_value, o->clear_color, sizeof(o->clear_color));
-                const int store_op = nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
-                rt_params.colors[rt_params.nb_colors].store_op = store_op;
-            } else {
-                rt_params.colors[rt_params.nb_colors].attachment = texture;
-                rt_params.colors[rt_params.nb_colors].attachment_layer = j;
-                rt_params.colors[rt_params.nb_colors].load_op = NGLI_LOAD_OP_CLEAR;
-                float *clear_value = rt_params.colors[rt_params.nb_colors].clear_value;
-                memcpy(clear_value, o->clear_color, sizeof(o->clear_color));
-                rt_params.colors[rt_params.nb_colors].store_op = NGLI_STORE_OP_STORE;
-            }
-            rt_params.nb_colors++;
+            rtt_params.colors[rtt_params.nb_colors].attachment = texture;
+            rtt_params.colors[rtt_params.nb_colors].attachment_layer = j;
+            rtt_params.colors[rtt_params.nb_colors].load_op = NGLI_LOAD_OP_CLEAR;
+            float *clear_value = rtt_params.colors[rtt_params.nb_colors].clear_value;
+            memcpy(clear_value, o->clear_color, sizeof(o->clear_color));
+            rtt_params.colors[rtt_params.nb_colors].store_op = NGLI_STORE_OP_STORE;
+            rtt_params.nb_colors++;
         }
     }
 
@@ -327,111 +292,25 @@ static int rtt_prefetch(struct ngl_node *node)
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
         struct texture_priv *depth_texture_priv = info.texture_priv;
         struct texture *texture = depth_texture_priv->texture;
-        struct texture_params *params = &texture->params;
-
-        if (o->samples) {
-            struct texture *ms_texture = ngli_texture_create(gpu_ctx);
-            if (!ms_texture)
-                return NGL_ERROR_MEMORY;
-            s->ms_depth = ms_texture;
-            struct texture_params attachment_params = {
-                .type    = NGLI_TEXTURE_TYPE_2D,
-                .format  = params->format,
-                .width   = s->width,
-                .height  = s->height,
-                .samples = o->samples,
-                .usage   = NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | transient_usage,
-            };
-            ret = ngli_texture_init(ms_texture, &attachment_params);
-            if (ret < 0)
-                return ret;
-            rt_params.depth_stencil.attachment = ms_texture;
-            rt_params.depth_stencil.attachment_layer = 0;
-            rt_params.depth_stencil.resolve_target = texture;
-            rt_params.depth_stencil.resolve_target_layer = info.layer_base;
-            rt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
-            const int store_op = nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
-            rt_params.depth_stencil.store_op = store_op;
-        } else {
-            rt_params.depth_stencil.attachment = texture;
-            rt_params.depth_stencil.attachment_layer = info.layer_base;
-            rt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
-            rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
-        }
+        rtt_params.depth_stencil.attachment = texture;
+        rtt_params.depth_stencil.attachment_layer = info.layer_base;
+        rtt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
+        rtt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
     } else {
         if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
             depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
         else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
             depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
-
-        if (depth_format != NGLI_FORMAT_UNDEFINED) {
-            struct texture *depth = ngli_texture_create(gpu_ctx);
-            if (!depth)
-                return NGL_ERROR_MEMORY;
-            s->depth = depth;
-            struct texture_params attachment_params = {
-                .type    = NGLI_TEXTURE_TYPE_2D,
-                .format  = depth_format,
-                .width   = s->width,
-                .height  = s->height,
-                .samples = o->samples,
-                .usage   = NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | transient_usage,
-            };
-            ret = ngli_texture_init(depth, &attachment_params);
-            if (ret < 0)
-                return ret;
-            rt_params.depth_stencil.attachment = depth;
-            rt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
-            /*
-             * For the first rendertarget with load operations set to clear, if
-             * the depth attachment is not exposed in the graph (ie: it is not
-             * a user supplied texture) and if the renderpass is not
-             * interrupted we can discard the depth attachment at the end of
-             * the renderpass.
-             */
-            const int store_op = nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
-            rt_params.depth_stencil.store_op = store_op;
-        }
+        rtt_params.depth_stencil_format = depth_format;
     }
 
-    s->rt = ngli_rendertarget_create(gpu_ctx);
-    if (!s->rt)
+    s->rtt_ctx = ngli_rtt_create(node->ctx);
+    if (!s->rtt_ctx)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_rendertarget_init(s->rt, &rt_params);
+    ret = ngli_rtt_init(s->rtt_ctx, &rtt_params);
     if (ret < 0)
         return ret;
-
-    s->available_rendertargets[0] = s->rt;
-    s->available_rendertargets[1] = s->rt;
-
-    if (nb_interruptions) {
-        for (size_t i = 0; i < rt_params.nb_colors; i++)
-            rt_params.colors[i].load_op = NGLI_LOAD_OP_LOAD;
-        rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
-        if (o->depth_texture) {
-            rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
-        } else {
-            /*
-             * For the second rendertarget with load operations set to load, if
-             * the depth attachment is not exposed in the graph (ie: it is not
-             * a user supplied texture) and if the renderpass is interrupted
-             * *once*, we can discard the depth attachment at the end of the
-             * renderpass.
-             */
-            const int store_op = nb_interruptions > 1 ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
-            rt_params.depth_stencil.store_op = store_op;
-        }
-
-        s->rt_resume = ngli_rendertarget_create(gpu_ctx);
-        if (!s->rt_resume)
-            return NGL_ERROR_MEMORY;
-
-        ret = ngli_rendertarget_init(s->rt_resume, &rt_params);
-        if (ret < 0)
-            return ret;
-        s->available_rendertargets[1] = s->rt_resume;
-    }
 
     /* transform the color and depth textures so the coordinates
      * match how the graphics context uv coordinate system works */
@@ -454,78 +333,18 @@ static int rtt_prefetch(struct ngl_node *node)
 
 static void rtt_draw(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rtt_priv *s = node->priv_data;
     const struct rtt_opts *o = node->opts;
 
-    const struct viewport prev_vp = ngli_gpu_ctx_get_viewport(gpu_ctx);
-
-    const struct viewport vp = {0, 0, s->width, s->height};
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &vp);
-
-    struct scissor prev_scissor = ngli_gpu_ctx_get_scissor(gpu_ctx);
-
-    const struct scissor scissor = {0, 0, s->width, s->height};
-    ngli_gpu_ctx_set_scissor(gpu_ctx, &scissor);
-
-    struct rendertarget *prev_rendertargets[2] = {
-        ctx->available_rendertargets[0],
-        ctx->available_rendertargets[1],
-    };
-
-    struct rendertarget *prev_rendertarget = ctx->current_rendertarget;
-    if (ctx->render_pass_started) {
-        ngli_gpu_ctx_end_render_pass(gpu_ctx);
-        ctx->render_pass_started = 0;
-        prev_rendertarget = ctx->available_rendertargets[1];
-    }
-
-    ctx->available_rendertargets[0] = s->available_rendertargets[0];
-    ctx->available_rendertargets[1] = s->available_rendertargets[1];
-    ctx->current_rendertarget = s->available_rendertargets[0];
-
+    ngli_rtt_begin(s->rtt_ctx);
     ngli_node_draw(o->child);
-
-    if (!ctx->render_pass_started) {
-        ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-        ctx->render_pass_started = 1;
-    }
-    ngli_gpu_ctx_end_render_pass(gpu_ctx);
-    ctx->render_pass_started = 0;
-
-    ctx->current_rendertarget = prev_rendertarget;
-    ctx->available_rendertargets[0] = prev_rendertargets[0];
-    ctx->available_rendertargets[1] = prev_rendertargets[1];
-
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &prev_vp);
-    ngli_gpu_ctx_set_scissor(gpu_ctx, &prev_scissor);
-
-    for (size_t i = 0; i < o->nb_color_textures; i++) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        struct texture_priv *texture_priv = info.texture_priv;
-        struct texture *texture = texture_priv->texture;
-        const struct texture_params *texture_params = &texture->params;
-        if (texture_params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE)
-            ngli_texture_generate_mipmap(texture);
-    }
+    ngli_rtt_end(s->rtt_ctx);
 }
 
 static void rtt_release(struct ngl_node *node)
 {
     struct rtt_priv *s = node->priv_data;
-
-    s->available_rendertargets[0] = NULL;
-    s->available_rendertargets[1] = NULL;
-
-    ngli_rendertarget_freep(&s->rt);
-    ngli_rendertarget_freep(&s->rt_resume);
-    ngli_texture_freep(&s->depth);
-
-    for (size_t i = 0; i < s->nb_ms_colors; i++)
-        ngli_texture_freep(&s->ms_colors[i]);
-    s->nb_ms_colors = 0;
-    ngli_texture_freep(&s->ms_depth);
+    ngli_rtt_freep(&s->rtt_ctx);
 }
 
 const struct node_class ngli_rtt_class = {
