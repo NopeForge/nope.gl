@@ -49,6 +49,7 @@ struct rtt_priv {
     int32_t width;
     int32_t height;
 
+    struct rendertarget_layout layout;
     struct rendertarget *rt;
     struct rendertarget *rt_resume;
     struct rendertarget *available_rendertargets[2];
@@ -132,6 +133,15 @@ static int rtt_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
+    ngli_node_get_renderpass_info(o->child, &s->renderpass_info);
+#if DEBUG_SCENE
+    if (s->renderpass_info.nb_interruptions) {
+        LOG(WARNING, "the underlying render pass might not be optimal as it contains a rtt or compute node in the middle of it");
+    }
+#endif
+
+    s->layout.samples = o->samples;
+
     size_t nb_color_attachments = 0;
     for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
@@ -143,8 +153,8 @@ static int rtt_init(struct ngl_node *node)
             return NGL_ERROR_INVALID_ARG;
         }
 
-        const struct texture_priv *texture_priv = info.texture_priv;
-        const struct texture_params *params = &texture_priv->params;
+        struct texture_priv *texture_priv = info.texture_priv;
+        struct texture_params *params = &texture_priv->params;
         if (i == 0) {
             s->width = params->width;
             s->height = params->height;
@@ -152,6 +162,13 @@ static int rtt_init(struct ngl_node *node)
             LOG(ERROR, "all color texture dimensions do not match: %dx%d != %dx%d",
             s->width, s->height, params->width, params->height);
             return NGL_ERROR_INVALID_ARG;
+        }
+
+        params->usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+        for (int32_t j = 0; j < info.layer_count; j++) {
+            s->layout.colors[s->layout.nb_colors].format = params->format;
+            s->layout.colors[s->layout.nb_colors].resolve = o->samples > 1;
+            s->layout.nb_colors++;
         }
     }
 
@@ -168,8 +185,8 @@ static int rtt_init(struct ngl_node *node)
             return NGL_ERROR_INVALID_ARG;
         }
 
-        const struct texture_priv *texture_priv = info.texture_priv;
-        const struct texture_params *params = &texture_priv->params;
+        struct texture_priv *texture_priv = info.texture_priv;
+        struct texture_params *params = &texture_priv->params;
         if (s->width != params->width || s->height != params->height) {
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
                 s->width, s->height, params->width, params->height);
@@ -180,6 +197,17 @@ static int rtt_init(struct ngl_node *node)
             LOG(ERROR, "context does not support resolving depth/stencil attachments");
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
+
+        params->usage |= NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        s->layout.depth_stencil.format = params->format;
+        s->layout.depth_stencil.resolve = o->samples > 1;
+    } else {
+        int depth_format = NGLI_FORMAT_UNDEFINED;
+        if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
+            depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
+        else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
+            depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
+        s->layout.depth_stencil.format = depth_format;
     }
 
     return 0;
@@ -227,47 +255,10 @@ void ngli_node_get_renderpass_info(const struct ngl_node *node, struct renderpas
 static int rtt_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rnode *rnode = ctx->rnode_pos;
     struct rtt_priv *s = node->priv_data;
-    const struct rtt_opts *o = node->opts;
 
-    ngli_node_get_renderpass_info(o->child, &s->renderpass_info);
-#if DEBUG_SCENE
-    if (s->renderpass_info.nb_interruptions) {
-        LOG(WARNING, "the underlying render pass might not be optimal as it contains a rtt or compute node in the middle of it");
-    }
-#endif
-
-    struct rendertarget_layout layout = {
-        .samples = o->samples,
-    };
-    for (size_t i = 0; i < o->nb_color_textures; i++) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        struct texture_params *params = &info.texture_priv->params;
-        params->usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
-        for (int32_t j = 0; j < info.layer_count; j++) {
-            layout.colors[layout.nb_colors].format = params->format;
-            layout.colors[layout.nb_colors].resolve = o->samples > 1;
-            layout.nb_colors++;
-        }
-    }
-    if (o->depth_texture) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
-        struct texture_params *depth_texture_params = &info.texture_priv->params;
-        depth_texture_params->usage |= NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-        layout.depth_stencil.format = depth_texture_params->format;
-        layout.depth_stencil.resolve = o->samples > 1;
-    } else {
-        int depth_format = NGLI_FORMAT_UNDEFINED;
-        if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
-            depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
-        else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
-            depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
-        layout.depth_stencil.format = depth_format;
-    }
-    rnode->rendertarget_layout = layout;
-
+    rnode->rendertarget_layout = s->layout;
     return ngli_node_prepare_children(node);
 }
 
