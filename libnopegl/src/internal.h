@@ -269,6 +269,16 @@ struct program_priv {
     struct darray vert_out_vars_array; // pgcraft_iovar
 };
 
+#define NGLI_RENDERPASS_FEATURE_DEPTH   (1 << 0)
+#define NGLI_RENDERPASS_FEATURE_STENCIL (1 << 1)
+
+struct renderpass_info {
+    int nb_interruptions;
+    uint32_t features;
+};
+
+void ngli_node_get_renderpass_info(const struct ngl_node *node, struct renderpass_info *info);
+
 extern const struct param_choices ngli_mipmap_filter_choices;
 extern const struct param_choices ngli_filter_choices;
 
