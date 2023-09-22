@@ -660,6 +660,12 @@ static int renderdisplace_init(struct ngl_node *node)
 {
     struct renderdisplace_priv *s = node->priv_data;
     struct renderdisplace_opts *o = node->opts;
+
+    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
+    if (!ngli_darray_push(&s->common.draw_resources, &o->source_node) ||
+        !ngli_darray_push(&s->common.draw_resources, &o->displacement_node))
+        return NGL_ERROR_MEMORY;
+
     return init(node, &s->common, &o->common, "source_displace", source_displace_frag);
 }
 
@@ -708,6 +714,11 @@ static int rendertexture_init(struct ngl_node *node)
 {
     struct rendertexture_priv *s = node->priv_data;
     struct rendertexture_opts *o = node->opts;
+
+    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
+    if (!ngli_darray_push(&s->common.draw_resources, &o->texture_node))
+        return NGL_ERROR_MEMORY;
+
     return init(node, &s->common, &o->common, "source_texture", source_texture_frag);
 }
 
