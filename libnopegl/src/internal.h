@@ -288,6 +288,7 @@ struct texture_opts {
     struct ngl_node *data_src;
     int direct_rendering;
     int clamp_video;
+    float clear_color[4];
 };
 
 struct texture_priv {
@@ -297,6 +298,10 @@ struct texture_priv {
     struct image image;
     size_t image_rev;
     struct hwmap hwmap;
+    int rtt;
+    struct renderpass_info renderpass_info;
+    struct rendertarget_layout rendertarget_layout;
+    struct rtt_ctx *rtt_ctx;
 };
 
 struct media_priv {

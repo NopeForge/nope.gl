@@ -28,6 +28,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   associated rendering and graph
 - `Transform` node now accepts a node as input parameter and can be animated
   this way
+- `Texture2D` node now accepts a scene as `data_src` and acts as an implicit
+  render target (which simplifies the graph when all the features of the
+  `RenderToTexture` node are not needed)
 
 ### Removed
 - `RenderToTexture.features` as the RTT node is now able to detect

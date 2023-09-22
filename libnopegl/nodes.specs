@@ -3703,7 +3703,6 @@
         {
           "name": "data_src",
           "type": "node",
-          "node_types": ["Media", "AnimatedBufferFloat", "AnimatedBufferVec2", "AnimatedBufferVec4", "BufferByte", "BufferBVec2", "BufferBVec4", "BufferInt", "BufferIVec2", "BufferIVec4", "BufferShort", "BufferSVec2", "BufferSVec4", "BufferUByte", "BufferUBVec2", "BufferUBVec4", "BufferUInt", "BufferUIVec2", "BufferUIVec4", "BufferUShort", "BufferUSVec2", "BufferUSVec4", "BufferFloat", "BufferVec2", "BufferVec4"],
           "flags": [],
           "desc": "data source"
         },
@@ -3720,6 +3719,13 @@
           "default": 0,
           "flags": [],
           "desc": "clamp ngl_texvideo() output to [0;1]"
+        },
+        {
+          "name": "clear_color",
+          "type": "vec4",
+          "default": [0.000000,0.000000,0.000000,0.000000],
+          "flags": [],
+          "desc": "color used to clear the texture when used as an implicit render target"
         }
       ]
     },
