@@ -276,8 +276,8 @@ foreach backend : backends
   tests_rtt = [
     'load_attachment',
     'load_attachment_nested',
-    'feature_depth',
-    'feature_depth_stencil',
+    'depth',
+    'depth_stencil',
     'mipmap',
     'sample_depth',
     'texture_depth',
@@ -289,8 +289,8 @@ foreach backend : backends
     tests_rtt += [
       'load_attachment_msaa',
       'load_attachment_nested_msaa',
-      'feature_depth_msaa',
-      'feature_depth_stencil_msaa',
+      'depth_msaa',
+      'depth_stencil_msaa',
     ]
 
     if has_ds_resolve

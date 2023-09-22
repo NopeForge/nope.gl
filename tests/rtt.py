@@ -183,10 +183,10 @@ def _get_rtt_function(**kwargs):
 
 
 _rtt_tests = dict(
-    feature_depth=dict(depth_test=True),
-    feature_depth_stencil=dict(depth_test=True, stencil_test=True),
-    feature_depth_msaa=dict(depth_test=True, samples=4),
-    feature_depth_stencil_msaa=dict(depth_test=True, stencil_test=True, samples=4),
+    depth=dict(depth_test=True),
+    depth_stencil=dict(depth_test=True, stencil_test=True),
+    depth_msaa=dict(depth_test=True, samples=4),
+    depth_stencil_msaa=dict(depth_test=True, stencil_test=True, samples=4),
     mipmap=dict(depth_test=True, mipmap_filter="linear"),
     sample_depth=dict(texture_ds_format="auto_depth", sample_depth=True),
     sample_depth_msaa=dict(texture_ds_format="auto_depth", sample_depth=True, samples=4),
