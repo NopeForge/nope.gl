@@ -234,6 +234,7 @@ lib_src = files(
   'src/precision.c',
   'src/program.c',
   'src/rendertarget.c',
+  'src/rtt.c',
   'src/rnode.c',
   'src/scene.c',
   'src/serialize.c',
