@@ -54,7 +54,7 @@ int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_par
     }
 
     /* Set the rendertarget samples value from the attachments samples value
-     * and ensure all the attachments have the same samples value */
+     * and ensure all the attachments have the same width/height/samples value */
     int32_t samples = -1;
     for (size_t i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
@@ -63,9 +63,13 @@ int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_par
         s->layout.colors[s->layout.nb_colors].format = texture_params->format;
         s->layout.colors[s->layout.nb_colors].resolve = attachment->resolve_target != NULL;
         s->layout.nb_colors++;
+        ngli_assert(texture_params->width == s->width);
+        ngli_assert(texture_params->height == s->height);
         ngli_assert(texture_params->usage & NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT);
         if (attachment->resolve_target) {
             const struct texture_params *target_params = &attachment->resolve_target->params;
+            ngli_assert(target_params->width == s->width);
+            ngli_assert(target_params->height == s->height);
             ngli_assert(target_params->usage & NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT);
         }
         ngli_assert(samples == -1 || samples == texture_params->samples);
@@ -77,9 +81,13 @@ int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_par
         const struct texture_params *texture_params = &texture->params;
         s->layout.depth_stencil.format = texture_params->format;
         s->layout.depth_stencil.resolve = attachment->resolve_target != NULL;
+        ngli_assert(texture_params->width == s->width);
+        ngli_assert(texture_params->height == s->height);
         ngli_assert(texture_params->usage & NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         if (attachment->resolve_target) {
             const struct texture_params *target_params = &attachment->resolve_target->params;
+            ngli_assert(target_params->width == s->width);
+            ngli_assert(target_params->height == s->height);
             ngli_assert(target_params->usage & NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         }
         ngli_assert(samples == -1 || samples == texture_params->samples);
