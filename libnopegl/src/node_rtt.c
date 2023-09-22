@@ -125,6 +125,7 @@ static int rtt_init(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     const struct gpu_limits *limits = &gpu_ctx->limits;
     const struct rtt_opts *o = node->opts;
+    struct rtt_priv *s = node->priv_data;
 
     if (!o->nb_color_textures) {
         LOG(ERROR, "at least one color texture must be specified");
@@ -141,6 +142,17 @@ static int rtt_init(struct ngl_node *node)
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
         }
+
+        const struct texture_priv *texture_priv = info.texture_priv;
+        const struct texture_params *params = &texture_priv->params;
+        if (i == 0) {
+            s->width = params->width;
+            s->height = params->height;
+        } else if (s->width != params->width || s->height != params->height) {
+            LOG(ERROR, "all color texture dimensions do not match: %dx%d != %dx%d",
+            s->width, s->height, params->width, params->height);
+            return NGL_ERROR_INVALID_ARG;
+        }
     }
 
     if (nb_color_attachments > limits->max_color_attachments) {
@@ -155,6 +167,15 @@ static int rtt_init(struct ngl_node *node)
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
         }
+
+        const struct texture_priv *texture_priv = info.texture_priv;
+        const struct texture_params *params = &texture_priv->params;
+        if (s->width != params->width || s->height != params->height) {
+            LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
+                s->width, s->height, params->width, params->height);
+            return NGL_ERROR_INVALID_ARG;
+        }
+
         if (!(gpu_ctx->features & NGLI_FEATURE_DEPTH_STENCIL_RESOLVE) && o->samples > 0) {
             LOG(ERROR, "context does not support resolving depth/stencil attachments");
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
@@ -258,33 +279,6 @@ static int rtt_prefetch(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
     const int nb_interruptions = s->renderpass_info.nb_interruptions;
     const struct rtt_opts *o = node->opts;
-
-    for (size_t i = 0; i < o->nb_color_textures; i++) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        const struct texture_priv *texture_priv = info.texture_priv;
-        const struct texture *texture = texture_priv->texture;
-        const struct texture_params *params = &texture->params;
-        if (i == 0) {
-            s->width = params->width;
-            s->height = params->height;
-        } else if (s->width != params->width || s->height != params->height) {
-            LOG(ERROR, "all color texture dimensions do not match %dx%d != %dx%d",
-            s->width, s->height, params->width, params->height);
-            return NGL_ERROR_INVALID_ARG;
-        }
-    }
-
-    if (o->depth_texture) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
-        const struct texture_priv *depth_texture_priv = info.texture_priv;
-        const struct texture *depth_texture = depth_texture_priv->texture;
-        const struct texture_params *depth_texture_params = &depth_texture->params;
-        if (s->width != depth_texture_params->width || s->height != depth_texture_params->height) {
-            LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
-                s->width, s->height, depth_texture_params->width, depth_texture_params->height);
-            return NGL_ERROR_INVALID_ARG;
-        }
-    }
 
     const int transient_usage = nb_interruptions == 0 ? NGLI_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT : 0;
 
