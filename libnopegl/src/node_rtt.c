@@ -35,14 +35,6 @@
 #include "internal.h"
 #include "utils.h"
 
-#define FEATURE_DEPTH       (1 << 0)
-#define FEATURE_STENCIL     (1 << 1)
-
-struct renderpass_info {
-    int nb_interruptions;
-    uint32_t features;
-};
-
 struct rtt_opts {
     struct ngl_node *child;
     struct ngl_node **color_textures;
@@ -195,15 +187,20 @@ static int get_renderpass_info(const struct ngl_node *node, int state, struct re
             struct graphics_state graphics_state = {0};
             ngli_node_graphicconfig_get_state(child, &graphics_state);
             if (graphics_state.depth_test)
-                info->features |= FEATURE_DEPTH;
+                info->features |= NGLI_RENDERPASS_FEATURE_DEPTH;
             if (graphics_state.stencil_test)
-                info->features |= FEATURE_STENCIL;
+                info->features |= NGLI_RENDERPASS_FEATURE_STENCIL;
             state = get_renderpass_info(child, state, info);
         } else {
             state = get_renderpass_info(child, state, info);
         }
     }
     return state;
+}
+
+void ngli_node_get_renderpass_info(const struct ngl_node *node, struct renderpass_info *info)
+{
+    get_renderpass_info(node, RENDER_PASS_STATE_NONE, info);
 }
 
 static int rtt_prepare(struct ngl_node *node)
@@ -214,7 +211,7 @@ static int rtt_prepare(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
     const struct rtt_opts *o = node->opts;
 
-    get_renderpass_info(o->child, RENDER_PASS_STATE_NONE, &s->renderpass_info);
+    ngli_node_get_renderpass_info(o->child, &s->renderpass_info);
 #if DEBUG_SCENE
     if (s->renderpass_info.nb_interruptions) {
         LOG(WARNING, "the underlying render pass might not be optimal as it contains a rtt or compute node in the middle of it");
@@ -242,9 +239,9 @@ static int rtt_prepare(struct ngl_node *node)
         layout.depth_stencil.resolve = o->samples > 1;
     } else {
         int depth_format = NGLI_FORMAT_UNDEFINED;
-        if (s->renderpass_info.features & FEATURE_STENCIL)
+        if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
             depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
-        else if (s->renderpass_info.features & FEATURE_DEPTH)
+        else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
             depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
         layout.depth_stencil.format = depth_format;
     }
@@ -377,9 +374,9 @@ static int rtt_prefetch(struct ngl_node *node)
             rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
         }
     } else {
-        if (s->renderpass_info.features & FEATURE_STENCIL)
+        if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
             depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
-        else if (s->renderpass_info.features & FEATURE_DEPTH)
+        else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
             depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
 
         if (depth_format != NGLI_FORMAT_UNDEFINED) {
