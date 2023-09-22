@@ -34,6 +34,7 @@
 #include "math_utils.h"
 #include "nopegl.h"
 #include "internal.h"
+#include "rtt.h"
 #include "texture.h"
 
 const struct param_choices ngli_mipmap_filter_choices = {
@@ -186,12 +187,14 @@ static const struct node_param texture2d_params[] = {
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
     {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGLI_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the t dimension (vertical)")},
-    {"data_src", NGLI_PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_2D,
+    {"data_src", NGLI_PARAM_TYPE_NODE, OFFSET(data_src),
                  .desc=NGLI_DOCSTRING("data source")},
     {"direct_rendering", NGLI_PARAM_TYPE_BOOL, OFFSET(direct_rendering), {.i32=1},
                          .desc=NGLI_DOCSTRING("whether direct rendering is allowed or not for media playback")},
     {"clamp_video", NGLI_PARAM_TYPE_BOOL, OFFSET(clamp_video), {.i32=0},
                     .desc=NGLI_DOCSTRING("clamp ngl_texvideo() output to [0;1]")},
+    {"clear_color", NGLI_PARAM_TYPE_VEC4, OFFSET(clear_color),
+                    .desc=NGLI_DOCSTRING("color used to clear the texture when used as an implicit render target")},
     {NULL}
 };
 
@@ -344,8 +347,6 @@ static int texture_prefetch(struct ngl_node *node)
             }
             data = buffer->data;
             params->format = buffer->layout.format;
-        } else {
-            ngli_assert(0);
         }
     }
 
@@ -370,6 +371,43 @@ static int texture_prefetch(struct ngl_node *node)
     };
     ngli_image_init(&s->image, &image_params, &s->texture);
     s->image.rev = s->image_rev++;
+
+    if (s->rtt) {
+        /* Transform the color textures coordinates so it matches how the
+         * graphics context uv coordinate system works regarding render targets */
+        ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, s->image.coordinates_matrix);
+
+        int depth_format = NGLI_FORMAT_UNDEFINED;
+        if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
+            depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
+        else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
+            depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
+
+        const struct rtt_params rtt_params = {
+            .width = params->width,
+            .height = params->height,
+            .nb_interruptions = s->renderpass_info.nb_interruptions,
+            .nb_colors = 1,
+            .colors[0] = {
+                .attachment = s->texture,
+                .load_op = NGLI_LOAD_OP_CLEAR,
+                .store_op = NGLI_STORE_OP_STORE,
+                .clear_value[0] = o->clear_color[0],
+                .clear_value[1] = o->clear_color[1],
+                .clear_value[2] = o->clear_color[2],
+                .clear_value[3] = o->clear_color[3],
+            },
+            .depth_stencil_format = depth_format,
+        };
+
+        s->rtt_ctx = ngli_rtt_create(node->ctx);
+        if (!s->rtt_ctx)
+            return NGL_ERROR_MEMORY;
+
+        int ret = ngli_rtt_init(s->rtt_ctx, &rtt_params);
+        if (ret < 0)
+            return ret;
+    }
 
     return 0;
 }
@@ -451,10 +489,24 @@ static int texture_update(struct ngl_node *node, double t)
     return 0;
 }
 
+static void texture_draw(struct ngl_node *node)
+{
+    struct texture_priv *s = node->priv_data;
+    struct texture_opts *o = node->opts;
+
+    if (!s->rtt)
+        return;
+
+    ngli_rtt_begin(s->rtt_ctx);
+    ngli_node_draw(o->data_src);
+    ngli_rtt_end(s->rtt_ctx);
+}
+
 static void texture_release(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
 
+    ngli_rtt_freep(&s->rtt_ctx);
     ngli_hwmap_uninit(&s->hwmap);
     ngli_texture_freep(&s->texture);
     ngli_image_reset(&s->image);
@@ -499,21 +551,43 @@ static int texture2d_init(struct ngl_node *node)
      * prevents us from sharing the Media node across multiple textures.
      */
     struct ngl_node *data_src = o->data_src;
-    if (!data_src) {
-        /* If there is no data_src, the texture dimensions must be set and valid */
-        if (s->params.width <= 0 || s->params.height <= 0) {
-            LOG(ERROR, "texture dimensions (%d,%d) are invalid",
-                s->params.width, s->params.height);
-            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-        }
-    } else if (data_src && data_src->cls->id == NGL_NODE_MEDIA) {
+    if (data_src && data_src->cls->id == NGL_NODE_MEDIA) {
         struct media_priv *media_priv = data_src->priv_data;
         if (media_priv->nb_parents++ > 0) {
             LOG(ERROR, "A media node (label=%s) can not be shared, "
                 "the Texture should be shared instead", data_src->label);
             return NGL_ERROR_INVALID_USAGE;
         }
+    } else if (data_src && data_src->cls->category != NGLI_NODE_CATEGORY_BUFFER) {
+        s->rtt = 1;
+        ngli_node_get_renderpass_info(data_src, &s->renderpass_info);
+
+        s->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+        s->rendertarget_layout.colors[s->rendertarget_layout.nb_colors].format = s->params.format;
+        s->rendertarget_layout.nb_colors++;
+
+        int depth_format = NGLI_FORMAT_UNDEFINED;
+        if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
+            depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
+        else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
+            depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
+        s->rendertarget_layout.depth_stencil.format = depth_format;
     }
+
+    return 0;
+}
+
+static int texture2d_prepare(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct rnode *rnode = ctx->rnode_pos;
+    struct texture_priv *s = node->priv_data;
+
+    if (!s->rtt)
+        return 0;
+
+    rnode->rendertarget_layout = s->rendertarget_layout;
+    return ngli_node_prepare_children(node);
 
     return 0;
 }
@@ -595,8 +669,10 @@ const struct node_class ngli_texture2d_class = {
     .category  = NGLI_NODE_CATEGORY_TEXTURE,
     .name      = "Texture2D",
     .init      = texture2d_init,
+    .prepare   = texture2d_prepare,
     .prefetch  = texture_prefetch,
     .update    = texture_update,
+    .draw      = texture_draw,
     .release   = texture_release,
     .opts_size = sizeof(struct texture_opts),
     .priv_size = sizeof(struct texture_priv),

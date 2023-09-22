@@ -285,6 +285,10 @@ static int rtt_prefetch(struct ngl_node *node)
             rtt_params.colors[rtt_params.nb_colors].store_op = NGLI_STORE_OP_STORE;
             rtt_params.nb_colors++;
         }
+        /* Transform the color textures coordinates so it matches how the
+         * graphics context uv coordinate system works */
+        struct image *image = &texture_priv->image;
+        ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, image->coordinates_matrix);
     }
 
     int depth_format = NGLI_FORMAT_UNDEFINED;
