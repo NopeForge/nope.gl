@@ -411,8 +411,6 @@ static int pass_graphics_init(struct pass *s)
     }
     s->nb_instances = s->params.nb_instances;
 
-    ngli_darray_init(&s->draw_resources, sizeof(struct ngl_node *), 0);
-
     int ret;
 
     if ((ret = register_resources(s, params->vert_resources, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
@@ -645,6 +643,7 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     ngli_darray_init(&s->crafter_blocks, sizeof(struct pgcraft_block), 0);
 
     ngli_darray_init(&s->pipeline_descs, sizeof(struct pipeline_desc), 0);
+    ngli_darray_init(&s->draw_resources, sizeof(struct ngl_node *), 0);
 
     int ret = register_builtin_uniforms(s);
     if (ret < 0)
