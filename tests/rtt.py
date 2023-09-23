@@ -133,6 +133,7 @@ def _get_rtt_scene(
     stencil_test=False,
     texture_ds_format=None,
     samples=0,
+    implicit=False,
     mipmap_filter="none",
     sample_depth=False,
 ):
@@ -149,6 +150,14 @@ def _get_rtt_scene(
         mag_filter="nearest",
         mipmap_filter=mipmap_filter,
     )
+
+    if implicit:
+        assert texture_ds_format == None
+        assert samples == 0
+        assert sample_depth == False
+        texture.set_data_src(scene)
+        texture.set_clear_color(0, 0, 0, 1)
+        return ngl.RenderTexture(texture)
 
     texture_depth = None
     if texture_ds_format:
@@ -193,6 +202,8 @@ _rtt_tests = dict(
     depth_stencil=dict(depth_test=True, stencil_test=True),
     depth_msaa=dict(depth_test=True, samples=4),
     depth_stencil_msaa=dict(depth_test=True, stencil_test=True, samples=4),
+    depth_implicit=dict(depth_test=True, implicit=True),
+    depth_stencil_implicit=dict(depth_test=True, stencil_test=True, implicit=True),
     depth_texture=dict(texture_ds_format="auto_depth"),
     depth_stencil_texture=dict(texture_ds_format="auto_depth_stencil"),
     depth_texture_msaa=dict(texture_ds_format="auto_depth", samples=4),
