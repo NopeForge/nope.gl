@@ -92,6 +92,32 @@ void main()
 """
 
 
+def _get_cube_scene(cfg: SceneCfg, depth_test=True, stencil_test=False):
+    cube = _get_cube()
+    program = ngl.Program(vertex=_RENDER_CUBE_VERT, fragment=_RENDER_CUBE_FRAG)
+    program.update_vert_out_vars(var_normal=ngl.IOVec3())
+    render = ngl.Render(cube, program)
+    render = ngl.Scale(render, (0.5, 0.5, 0.5))
+
+    for i in range(3):
+        rot_animkf = ngl.AnimatedFloat(
+            [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
+        )
+        axis = tuple(int(i == x) for x in range(3))
+        render = ngl.Rotate(render, axis=axis, angle=rot_animkf)
+
+    config = ngl.GraphicConfig(render, depth_test=depth_test, stencil_test=stencil_test)
+
+    return ngl.Camera(
+        config,
+        eye=(0.0, 0.0, 3.0),
+        center=(0.0, 0.0, 0.0),
+        up=(0.0, 1.0, 0.0),
+        perspective=(45.0, cfg.aspect_ratio_float),
+        clipping=(1.0, 10.0),
+    )
+
+
 _RENDER_DEPTH = """
 void main()
 {
@@ -112,29 +138,8 @@ def _get_rtt_scene(
 ):
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)
-    cube = _get_cube()
-    program = ngl.Program(vertex=_RENDER_CUBE_VERT, fragment=_RENDER_CUBE_FRAG)
-    program.update_vert_out_vars(var_normal=ngl.IOVec3())
-    render = ngl.Render(cube, program)
-    render = ngl.Scale(render, (0.5, 0.5, 0.5))
 
-    for i in range(3):
-        rot_animkf = ngl.AnimatedFloat(
-            [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
-        )
-        axis = tuple(int(i == x) for x in range(3))
-        render = ngl.Rotate(render, axis=axis, angle=rot_animkf)
-
-    config = ngl.GraphicConfig(render, depth_test=depth_test, stencil_test=stencil_test)
-
-    camera = ngl.Camera(
-        config,
-        eye=(0.0, 0.0, 3.0),
-        center=(0.0, 0.0, 0.0),
-        up=(0.0, 1.0, 0.0),
-        perspective=(45.0, cfg.aspect_ratio_float),
-        clipping=(1.0, 10.0),
-    )
+    scene = _get_cube_scene(cfg, depth_test, stencil_test)
 
     size = 1024
     texture_depth = None
@@ -155,7 +160,7 @@ def _get_rtt_scene(
         mipmap_filter=mipmap_filter,
     )
     rtt = ngl.RenderToTexture(
-        camera,
+        scene,
         [texture],
         depth_texture=texture_depth,
         samples=samples,
