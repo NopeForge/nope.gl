@@ -193,13 +193,13 @@ _rtt_tests = dict(
     depth_stencil=dict(depth_test=True, stencil_test=True),
     depth_msaa=dict(depth_test=True, samples=4),
     depth_stencil_msaa=dict(depth_test=True, stencil_test=True, samples=4),
+    depth_texture=dict(texture_ds_format="auto_depth"),
+    depth_stencil_texture=dict(texture_ds_format="auto_depth_stencil"),
+    depth_texture_msaa=dict(texture_ds_format="auto_depth", samples=4),
+    depth_stencil_texture_msaa=dict(texture_ds_format="auto_depth_stencil", samples=4),
     mipmap=dict(depth_test=True, mipmap_filter="linear"),
     sample_depth=dict(texture_ds_format="auto_depth", sample_depth=True),
     sample_depth_msaa=dict(texture_ds_format="auto_depth", sample_depth=True, samples=4),
-    texture_depth=dict(texture_ds_format="auto_depth"),
-    texture_depth_stencil=dict(texture_ds_format="auto_depth_stencil"),
-    texture_depth_msaa=dict(texture_ds_format="auto_depth", samples=4),
-    texture_depth_stencil_msaa=dict(texture_ds_format="auto_depth_stencil", samples=4),
 )
 
 
