@@ -142,6 +142,14 @@ def _get_rtt_scene(
     scene = _get_cube_scene(cfg, depth_test, stencil_test)
 
     size = 1024
+    texture = ngl.Texture2D(
+        width=size,
+        height=size,
+        min_filter="linear",
+        mag_filter="nearest",
+        mipmap_filter=mipmap_filter,
+    )
+
     texture_depth = None
     if texture_ds_format:
         texture_depth = ngl.Texture2D(
@@ -152,13 +160,6 @@ def _get_rtt_scene(
             mag_filter="nearest",
         )
 
-    texture = ngl.Texture2D(
-        width=size,
-        height=size,
-        min_filter="linear",
-        mag_filter="nearest",
-        mipmap_filter=mipmap_filter,
-    )
     rtt = ngl.RenderToTexture(
         scene,
         [texture],
