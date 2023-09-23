@@ -278,6 +278,8 @@ foreach backend : backends
     'load_attachment_nested',
     'depth',
     'depth_stencil',
+    'depth_implicit',
+    'depth_stencil_implicit',
     'depth_texture',
     'depth_stencil_texture',
     'mipmap',
