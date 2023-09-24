@@ -296,6 +296,10 @@ static int rtt_prefetch(struct ngl_node *node)
         rtt_params.depth_stencil.attachment_layer = info.layer_base;
         rtt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
         rtt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
+        /* Transform the depth texture coordinates so it matches how the
+         * graphics context uv coordinate system works */
+        struct image *depth_image = &depth_texture_priv->image;
+        ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, depth_image->coordinates_matrix);
     } else {
         if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
             depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
@@ -311,22 +315,6 @@ static int rtt_prefetch(struct ngl_node *node)
     ret = ngli_rtt_init(s->rtt_ctx, &rtt_params);
     if (ret < 0)
         return ret;
-
-    /* transform the color and depth textures so the coordinates
-     * match how the graphics context uv coordinate system works */
-    for (size_t i = 0; i < o->nb_color_textures; i++) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        struct texture_priv *texture_priv = info.texture_priv;
-        struct image *image = &texture_priv->image;
-        ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, image->coordinates_matrix);
-    }
-
-    if (o->depth_texture) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
-        struct texture_priv *depth_texture_priv = info.texture_priv;
-        struct image *depth_image = &depth_texture_priv->image;
-        ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, depth_image->coordinates_matrix);
-    }
 
     return 0;
 }
