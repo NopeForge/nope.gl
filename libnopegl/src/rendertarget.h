@@ -22,7 +22,6 @@
 #ifndef RENDERTARGET_H
 #define RENDERTARGET_H
 
-#include "darray.h"
 #include "gpu_limits.h"
 #include "texture.h"
 #include "utils.h"
