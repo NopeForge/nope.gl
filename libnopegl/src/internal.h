@@ -57,6 +57,7 @@
 #include "format.h"
 #include "rendertarget.h"
 #include "rnode.h"
+#include "rtt.h"
 #include "texture.h"
 
 struct node_class;
@@ -301,6 +302,7 @@ struct texture_priv {
     int rtt;
     struct renderpass_info renderpass_info;
     struct rendertarget_layout rendertarget_layout;
+    struct rtt_params rtt_params;
     struct rtt_ctx *rtt_ctx;
 };
 
