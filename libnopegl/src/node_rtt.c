@@ -51,6 +51,7 @@ struct rtt_priv {
     int32_t height;
 
     struct rendertarget_layout layout;
+    struct rtt_params rtt_params;
     struct rtt_ctx *rtt_ctx;
 };
 
@@ -264,7 +265,7 @@ static int rtt_prefetch(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
     const struct rtt_opts *o = node->opts;
 
-    struct rtt_params rtt_params = {
+    s->rtt_params = (struct rtt_params) {
         .width = s->width,
         .height = s->height,
         .samples = o->samples,
@@ -277,13 +278,13 @@ static int rtt_prefetch(struct ngl_node *node)
         struct texture *texture = texture_priv->texture;
         const int32_t layer_end = info.layer_base + info.layer_count;
         for (int32_t j = info.layer_base; j < layer_end; j++) {
-            rtt_params.colors[rtt_params.nb_colors].attachment = texture;
-            rtt_params.colors[rtt_params.nb_colors].attachment_layer = j;
-            rtt_params.colors[rtt_params.nb_colors].load_op = NGLI_LOAD_OP_CLEAR;
-            float *clear_value = rtt_params.colors[rtt_params.nb_colors].clear_value;
+            s->rtt_params.colors[s->rtt_params.nb_colors].attachment = texture;
+            s->rtt_params.colors[s->rtt_params.nb_colors].attachment_layer = j;
+            s->rtt_params.colors[s->rtt_params.nb_colors].load_op = NGLI_LOAD_OP_CLEAR;
+            float *clear_value = s->rtt_params.colors[s->rtt_params.nb_colors].clear_value;
             memcpy(clear_value, o->clear_color, sizeof(o->clear_color));
-            rtt_params.colors[rtt_params.nb_colors].store_op = NGLI_STORE_OP_STORE;
-            rtt_params.nb_colors++;
+            s->rtt_params.colors[s->rtt_params.nb_colors].store_op = NGLI_STORE_OP_STORE;
+            s->rtt_params.nb_colors++;
         }
         /* Transform the color textures coordinates so it matches how the
          * graphics context uv coordinate system works */
@@ -296,10 +297,10 @@ static int rtt_prefetch(struct ngl_node *node)
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
         struct texture_priv *depth_texture_priv = info.texture_priv;
         struct texture *texture = depth_texture_priv->texture;
-        rtt_params.depth_stencil.attachment = texture;
-        rtt_params.depth_stencil.attachment_layer = info.layer_base;
-        rtt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
-        rtt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
+        s->rtt_params.depth_stencil.attachment = texture;
+        s->rtt_params.depth_stencil.attachment_layer = info.layer_base;
+        s->rtt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
+        s->rtt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
         /* Transform the depth texture coordinates so it matches how the
          * graphics context uv coordinate system works */
         struct image *depth_image = &depth_texture_priv->image;
@@ -309,14 +310,14 @@ static int rtt_prefetch(struct ngl_node *node)
             depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
         else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
             depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
-        rtt_params.depth_stencil_format = depth_format;
+        s->rtt_params.depth_stencil_format = depth_format;
     }
 
     s->rtt_ctx = ngli_rtt_create(node->ctx);
     if (!s->rtt_ctx)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_rtt_init(s->rtt_ctx, &rtt_params);
+    ret = ngli_rtt_init(s->rtt_ctx, &s->rtt_params);
     if (ret < 0)
         return ret;
 
