@@ -350,17 +350,19 @@ static int texture_prefetch(struct ngl_node *node)
         }
     }
 
-    s->texture = ngli_texture_create(gpu_ctx);
-    if (!s->texture)
-        return NGL_ERROR_MEMORY;
+    if (s->params.width > 0 && s->params.height > 0) {
+        s->texture = ngli_texture_create(gpu_ctx);
+        if (!s->texture)
+            return NGL_ERROR_MEMORY;
 
-    int ret = ngli_texture_init(s->texture, params);
-    if (ret < 0)
-        return ret;
+        int ret = ngli_texture_init(s->texture, params);
+        if (ret < 0)
+            return ret;
 
-    ret = ngli_texture_upload(s->texture, data, 0);
-    if (ret < 0)
-        return ret;
+        ret = ngli_texture_upload(s->texture, data, 0);
+        if (ret < 0)
+            return ret;
+    }
 
     const struct image_params image_params = {
         .width = params->width,
@@ -397,13 +399,15 @@ static int texture_prefetch(struct ngl_node *node)
             .depth_stencil_format = depth_format,
         };
 
-        s->rtt_ctx = ngli_rtt_create(node->ctx);
-        if (!s->rtt_ctx)
-            return NGL_ERROR_MEMORY;
+        if (s->params.width > 0 && s->params.height > 0) {
+            s->rtt_ctx = ngli_rtt_create(node->ctx);
+            if (!s->rtt_ctx)
+                return NGL_ERROR_MEMORY;
 
-        int ret = ngli_rtt_init(s->rtt_ctx, &s->rtt_params);
-        if (ret < 0)
-            return ret;
+            int ret = ngli_rtt_init(s->rtt_ctx, &s->rtt_params);
+            if (ret < 0)
+                return ret;
+        }
     }
 
     return 0;
@@ -486,6 +490,68 @@ static int texture_update(struct ngl_node *node, double t)
     return 0;
 }
 
+static int rtt_resize(struct ngl_node *node)
+{
+    int ret = 0;
+    struct ngl_ctx *ctx = node->ctx;
+    struct texture_priv *s = node->priv_data;
+
+    const int32_t width = ctx->current_rendertarget->width;
+    const int32_t height = ctx->current_rendertarget->height;
+    if (s->params.width == width && s->params.height == height)
+        return 0;
+
+    struct texture *texture = ngli_texture_create(ctx->gpu_ctx);
+    if (!texture) {
+        ret = NGL_ERROR_MEMORY;
+        goto fail;
+    }
+
+    struct texture_params texture_params = s->params;
+    texture_params.width = width;
+    texture_params.height = height;
+
+    ret = ngli_texture_init(texture, &texture_params);
+    if (ret < 0)
+        goto fail;
+
+    struct rtt_ctx *rtt_ctx = ngli_rtt_create(ctx);
+    if (!rtt_ctx) {
+        ret = NGL_ERROR_MEMORY;
+        goto fail;
+    }
+
+    struct rtt_params rtt_params = s->rtt_params;
+    rtt_params.width  = width;
+    rtt_params.height = height;
+    rtt_params.colors[0].attachment = texture;
+
+    ret = ngli_rtt_init(rtt_ctx, &rtt_params);
+    if (ret < 0)
+        goto fail;
+
+    ngli_rtt_freep(&s->rtt_ctx);
+    ngli_texture_freep(&s->texture);
+
+    s->params = texture_params;
+    s->texture = texture;
+    s->image.params.width = width;
+    s->image.params.height = height;
+    s->image.planes[0] = texture;
+    s->image.rev = s->image_rev++;
+    s->rtt_params = rtt_params;
+    s->rtt_ctx = rtt_ctx;
+
+    return 0;
+
+fail:
+    ngli_texture_freep(&texture);
+    ngli_rtt_freep(&rtt_ctx);
+
+    LOG(ERROR, "failed to resize texture: %dx%d", width, height);
+    return ret;
+}
+
 static void texture_draw(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
@@ -493,6 +559,12 @@ static void texture_draw(struct ngl_node *node)
 
     if (!s->rtt)
         return;
+
+    if (s->rtt_resizeable) {
+        int ret = rtt_resize(node);
+        if (ret < 0)
+            return;
+    }
 
     ngli_rtt_begin(s->rtt_ctx);
     ngli_node_draw(o->data_src);
@@ -557,6 +629,8 @@ static int texture2d_init(struct ngl_node *node)
         }
     } else if (data_src && data_src->cls->category != NGLI_NODE_CATEGORY_BUFFER) {
         s->rtt = 1;
+        s->rtt_resizeable = (s->params.width == 0 && s->params.height == 0);
+
         ngli_node_get_renderpass_info(data_src, &s->renderpass_info);
 
         s->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;

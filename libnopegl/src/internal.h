@@ -300,6 +300,7 @@ struct texture_priv {
     size_t image_rev;
     struct hwmap hwmap;
     int rtt;
+    int rtt_resizeable;
     struct renderpass_info renderpass_info;
     struct rendertarget_layout rendertarget_layout;
     struct rtt_params rtt_params;
