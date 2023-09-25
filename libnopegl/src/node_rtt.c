@@ -49,6 +49,7 @@ struct rtt_priv {
     struct renderpass_info renderpass_info;
     int32_t width;
     int32_t height;
+    int resizeable;
 
     struct rendertarget_layout layout;
     struct rtt_params rtt_params;
@@ -153,6 +154,7 @@ static int rtt_init(struct ngl_node *node)
         if (i == 0) {
             s->width = params->width;
             s->height = params->height;
+            s->resizeable = (s->width == 0 && s->height == 0);
         } else if (s->width != params->width || s->height != params->height) {
             LOG(ERROR, "all color texture dimensions do not match: %dx%d != %dx%d",
             s->width, s->height, params->width, params->height);
@@ -315,6 +317,9 @@ static int rtt_prefetch(struct ngl_node *node)
         s->rtt_params.depth_stencil_format = depth_format;
     }
 
+    if (s->resizeable)
+        return 0;
+
     s->rtt_ctx = ngli_rtt_create(node->ctx);
     if (!s->rtt_ctx)
         return NGL_ERROR_MEMORY;
@@ -326,10 +331,123 @@ static int rtt_prefetch(struct ngl_node *node)
     return 0;
 }
 
+static int rtt_resize(struct ngl_node *node)
+{
+    int ret = 0;
+    struct ngl_ctx *ctx = node->ctx;
+    struct rtt_priv *s = node->priv_data;
+    struct rtt_opts *o = node->opts;
+
+    const int32_t width = ctx->current_rendertarget->width;
+    const int32_t height = ctx->current_rendertarget->height;
+    if (s->width == width && s->height == height)
+        return 0;
+
+    struct texture *textures[NGLI_MAX_COLOR_ATTACHMENTS] = {NULL};
+    struct texture *depth_texture = NULL;
+    for (size_t i = 0; i < o->nb_color_textures; i++) {
+        textures[i] = ngli_texture_create(ctx->gpu_ctx);
+        if (!textures[i]) {
+            ret = NGL_ERROR_MEMORY;
+            goto fail;
+        }
+
+        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
+        struct texture_params texture_params = info.texture_priv->params;
+        texture_params.width = width;
+        texture_params.height = height;
+
+        ret = ngli_texture_init(textures[i], &texture_params);
+        if (ret < 0)
+            goto fail;
+    }
+
+    if (o->depth_texture) {
+        depth_texture = ngli_texture_create(ctx->gpu_ctx);
+        if (!depth_texture) {
+            ret = NGL_ERROR_MEMORY;
+            goto fail;
+        }
+
+        const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
+        struct texture_params texture_params = info.texture_priv->params;
+        texture_params.width = width;
+        texture_params.height = height;
+
+        ret = ngli_texture_init(depth_texture, &texture_params);
+        if (ret < 0)
+            goto fail;
+    }
+
+    struct rtt_ctx *rtt_ctx = ngli_rtt_create(ctx);
+    if (!rtt_ctx) {
+        ret = NGL_ERROR_MEMORY;
+        goto fail;
+    }
+
+    struct rtt_params rtt_params = s->rtt_params;
+    rtt_params.width  = width;
+    rtt_params.height = height;
+
+    for (size_t i = 0; i < o->nb_color_textures; i++)
+        rtt_params.colors[i].attachment = textures[i];
+    rtt_params.depth_stencil.attachment = depth_texture;
+
+    ret = ngli_rtt_init(rtt_ctx, &rtt_params);
+    if (ret < 0)
+        goto fail;
+
+    ngli_rtt_freep(&s->rtt_ctx);
+
+    s->width = width;
+    s->height = height;
+    s->rtt_params = rtt_params;
+    s->rtt_ctx = rtt_ctx;
+
+    for (size_t i = 0; i < o->nb_color_textures; i++) {
+        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
+        struct texture_priv *texture_priv = info.texture_priv;
+        ngli_texture_freep(&texture_priv->texture);
+        texture_priv->texture = textures[i];
+        texture_priv->image.params.width = width;
+        texture_priv->image.params.height = height;
+        texture_priv->image.planes[0] = textures[i];
+        texture_priv->image.rev = texture_priv->image_rev++;
+    }
+
+    if (o->depth_texture) {
+        const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
+        struct texture_priv *texture_priv = info.texture_priv;
+        ngli_texture_freep(&texture_priv->texture);
+        texture_priv->texture = depth_texture;
+        texture_priv->image.params.width = width;
+        texture_priv->image.params.height = height;
+        texture_priv->image.planes[0] = depth_texture;
+        texture_priv->image.rev = texture_priv->image_rev++;
+    }
+
+    return 0;
+
+fail:
+    for (size_t i = 0; i < o->nb_color_textures; i++)
+        ngli_texture_freep(&textures[i]);
+    ngli_texture_freep(&depth_texture);
+    ngli_rtt_freep(&rtt_ctx);
+
+    LOG(ERROR, "failed to resize rtt: %dx%d", width, height);
+    return ret;
+}
+
 static void rtt_draw(struct ngl_node *node)
 {
     struct rtt_priv *s = node->priv_data;
     const struct rtt_opts *o = node->opts;
+
+    if (s->resizeable) {
+        int ret = rtt_resize(node);
+        if (ret < 0)
+            return;
+    }
 
     ngli_rtt_begin(s->rtt_ctx);
     ngli_node_draw(o->child);
