@@ -383,7 +383,7 @@ static int texture_prefetch(struct ngl_node *node)
         else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
             depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
 
-        const struct rtt_params rtt_params = {
+        s->rtt_params = (struct rtt_params) {
             .width = params->width,
             .height = params->height,
             .nb_interruptions = s->renderpass_info.nb_interruptions,
@@ -404,7 +404,7 @@ static int texture_prefetch(struct ngl_node *node)
         if (!s->rtt_ctx)
             return NGL_ERROR_MEMORY;
 
-        int ret = ngli_rtt_init(s->rtt_ctx, &rtt_params);
+        int ret = ngli_rtt_init(s->rtt_ctx, &s->rtt_params);
         if (ret < 0)
             return ret;
     }
