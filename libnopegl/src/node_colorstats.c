@@ -394,6 +394,7 @@ static int colorstats_update(struct ngl_node *node, double t)
 static void colorstats_draw(struct ngl_node *node)
 {
     struct colorstats_priv *s = node->priv_data;
+    const struct colorstats_opts *o = node->opts;
 
     struct ngl_ctx *ctx = node->ctx;
     if (ctx->render_pass_started) {
@@ -402,6 +403,8 @@ static void colorstats_draw(struct ngl_node *node)
         ctx->render_pass_started = 0;
         ctx->current_rendertarget = ctx->available_rendertargets[1];
     }
+
+    ngli_node_draw(o->texture_node);
 
     /* Init */
     ngli_pipeline_compat_update_uniform(s->init.pipeline_compat, s->init.depth_index, &s->depth);
