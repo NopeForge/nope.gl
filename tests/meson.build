@@ -278,11 +278,15 @@ foreach backend : backends
     'load_attachment_nested',
     'depth',
     'depth_stencil',
+    'depth_stencil_resizeable',
     'depth_implicit',
     'depth_stencil_implicit',
+    'depth_stencil_implicit_resizeable',
     'depth_texture',
     'depth_stencil_texture',
+    'depth_stencil_texture_resizeable',
     'mipmap',
+    'mipmap_resizeable',
     'sample_depth',
     'clear_attachment_with_timeranges',
   ]
@@ -293,12 +297,14 @@ foreach backend : backends
       'load_attachment_nested_msaa',
       'depth_msaa',
       'depth_stencil_msaa',
+      'depth_stencil_msaa_resizeable',
     ]
 
     if has_ds_resolve
       tests_rtt += [
         'depth_texture_msaa',
         'depth_stencil_texture_msaa',
+        'depth_stencil_texture_msaa_resizeable',
         'sample_depth_msaa',
     ]
     endif
