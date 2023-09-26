@@ -50,4 +50,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release upload v$(cat VERSION) nope-viewer.dmg
+        output_file="NopeViewer-$(cat VERSION)-x86_64.dmg"
+        mv nope-viewer.dmg $output_file
+        gh release upload v$(cat VERSION) $output_file
