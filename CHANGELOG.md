@@ -18,6 +18,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `Texture2D` node now accepts a scene as `data_src` and acts as an implicit
   render target (which simplifies the graph when all the features of the
   `RenderToTexture` node are not needed)
+- `RenderToTexture` and `Texture2D` nodes can now be automatically resized to
+  match screen size if their initial dimensions are left to (0, 0)
 
 ### Fixed
 - Viewer path management on Windows
