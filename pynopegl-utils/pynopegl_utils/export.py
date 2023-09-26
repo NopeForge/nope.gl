@@ -101,13 +101,13 @@ def export_workers(scene_info: SceneInfo, filename: str, resolution: str, profil
     if profile.format == "gif":
         with tempfile.NamedTemporaryFile(prefix="palette-", suffix=".png") as palette:
             # pass 1
-            extra_enc_args = ["-vf", "palettegen", "-update", "1", "-frames:v", "1"]
+            extra_enc_args = ["-vf", "palettegen", "-update", "1", "-frames:v", "1", "-c:v", "png", "-f", "image2"]
             export = _export_worker(scene_info, palette.name, resolution, extra_enc_args)
             for progress in export:
                 yield progress / 2
 
             # pass 2
-            extra_enc_args = ["-i", palette.name, "-lavfi", "paletteuse"]
+            extra_enc_args = ["-i", palette.name, "-lavfi", "paletteuse", "-c:v", profile.encoder, "-f", profile.format]
             export = _export_worker(scene_info, filename, resolution, extra_enc_args)
             for progress in export:
                 yield 50 + progress / 2
