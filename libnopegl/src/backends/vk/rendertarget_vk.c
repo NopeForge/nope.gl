@@ -27,7 +27,6 @@
 #include "format.h"
 #include "format_vk.h"
 #include "gpu_ctx_vk.h"
-#include "internal.h"
 #include "log.h"
 #include "memory.h"
 #include "rendertarget_vk.h"
