@@ -392,10 +392,7 @@ static int texture_prefetch(struct ngl_node *node)
                 .attachment = s->texture,
                 .load_op = NGLI_LOAD_OP_CLEAR,
                 .store_op = NGLI_STORE_OP_STORE,
-                .clear_value[0] = o->clear_color[0],
-                .clear_value[1] = o->clear_color[1],
-                .clear_value[2] = o->clear_color[2],
-                .clear_value[3] = o->clear_color[3],
+                .clear_value = {NGLI_ARG_VEC4(o->clear_color)},
             },
             .depth_stencil_format = depth_format,
         };
