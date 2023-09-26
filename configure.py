@@ -47,9 +47,9 @@ _RENDERDOC_ID = f"renderdoc_{_SYSTEM}"
 _EXTERNAL_DEPS = dict(
     ffmpeg=dict(
         version="6.0",
-        url="https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2023-03-31-12-50/ffmpeg-n@VERSION@-11-g3980415627-win64-lgpl-shared-@VERSION@.zip",
+        url="https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2023-03-31-12-50/ffmpeg-n@VERSION@-11-g3980415627-win64-gpl-shared-@VERSION@.zip",
         dst_file="ffmpeg-@VERSION@.zip",
-        sha256="1416af28ebd2e52018276a88fe0a279cdb2660dd70a5afac327b13e856373425",
+        sha256="13c3c2f0203136eff24bd15c1ee22c0b523efdc0ace59ef5e1f8abfcecf8c7df",
     ),
     nopemd=dict(
         version="11.0.2",
