@@ -278,13 +278,13 @@ static int rtt_prefetch(struct ngl_node *node)
         struct texture *texture = texture_priv->texture;
         const int32_t layer_end = info.layer_base + info.layer_count;
         for (int32_t j = info.layer_base; j < layer_end; j++) {
-            s->rtt_params.colors[s->rtt_params.nb_colors].attachment = texture;
-            s->rtt_params.colors[s->rtt_params.nb_colors].attachment_layer = j;
-            s->rtt_params.colors[s->rtt_params.nb_colors].load_op = NGLI_LOAD_OP_CLEAR;
-            float *clear_value = s->rtt_params.colors[s->rtt_params.nb_colors].clear_value;
-            memcpy(clear_value, o->clear_color, sizeof(o->clear_color));
-            s->rtt_params.colors[s->rtt_params.nb_colors].store_op = NGLI_STORE_OP_STORE;
-            s->rtt_params.nb_colors++;
+            s->rtt_params.colors[s->rtt_params.nb_colors++] = (struct attachment) {
+                .attachment       = texture,
+                .attachment_layer = j,
+                .load_op          = NGLI_LOAD_OP_CLEAR,
+                .clear_value      = {NGLI_ARG_VEC4(o->clear_color)},
+                .store_op         = NGLI_STORE_OP_STORE,
+            };
         }
         /* Transform the color textures coordinates so it matches how the
          * graphics context uv coordinate system works */
@@ -297,10 +297,12 @@ static int rtt_prefetch(struct ngl_node *node)
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
         struct texture_priv *depth_texture_priv = info.texture_priv;
         struct texture *texture = depth_texture_priv->texture;
-        s->rtt_params.depth_stencil.attachment = texture;
-        s->rtt_params.depth_stencil.attachment_layer = info.layer_base;
-        s->rtt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
-        s->rtt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
+        s->rtt_params.depth_stencil = (struct attachment) {
+            .attachment       = texture,
+            .attachment_layer = info.layer_base,
+            .load_op          = NGLI_LOAD_OP_CLEAR,
+            .store_op         = NGLI_STORE_OP_STORE,
+        };
         /* Transform the depth texture coordinates so it matches how the
          * graphics context uv coordinate system works */
         struct image *depth_image = &depth_texture_priv->image;
