@@ -24,13 +24,11 @@
 
 #include "config.h"
 #include "rendertarget_gl.h"
-#include "format.h"
 #include "gpu_ctx_gl.h"
 #include "glcontext.h"
 #include "glincludes.h"
 #include "log.h"
 #include "memory.h"
-#include "internal.h"
 #include "texture_gl.h"
 #include "utils.h"
 
