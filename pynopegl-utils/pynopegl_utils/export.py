@@ -50,6 +50,7 @@ RESOLUTIONS = {
 class EncodeProfile:
     name: str
     format: str
+    encoder: str
     args: List[str]
 
 
@@ -58,33 +59,39 @@ ENCODE_PROFILES = dict(
         name="MP4 / H264 4:2:0",
         format="mp4",
         # Since 4:2:0 is used for portability (over the Internet typically), we also use faststart
-        args=["-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "18", "-movflags", "+faststart"],
+        args=["-pix_fmt", "yuv420p", "-crf", "18", "-movflags", "+faststart"],
+        encoder="libx264",
     ),
     mp4_h264_444=EncodeProfile(
         name="MP4 / H264 4:4:4",
         format="mp4",
-        args=["-pix_fmt", "yuv444p", "-c:v", "libx264", "-crf", "18"],
+        args=["-pix_fmt", "yuv444p", "-crf", "18"],
+        encoder="libx264",
     ),
     mp4_av1_420=EncodeProfile(
         name="MP4 / AV1 4:2:0",
         format="mp4",
         # Since 4:2:0 is used for portability (most hardware decoders only support the main profile (4:2:0)), we also use faststart
-        args=["-pix_fmt", "yuv420p", "-c:v", "libsvtav1", "-crf", "18", "-movflags", "+faststart"],
+        args=["-pix_fmt", "yuv420p", "-crf", "18", "-movflags", "+faststart"],
+        encoder="libsvtav1",
     ),
     mov_qtrle=EncodeProfile(
         name="MOV / QTRLE (Lossless)",
         format="mov",
-        args=["-c:v", "qtrle"],
+        encoder="qtrle",
+        args=[],
     ),
     nut_ffv1=EncodeProfile(
         name="NUT / FFV1 (Lossless)",
         format="nut",
-        args=["-c:v", "ffv1"],
+        encoder="ffv1",
+        args=[],
     ),
     gif=EncodeProfile(
         name="Animated GIF",
         format="gif",
-        args=["-c:v", "gif"],
+        encoder="gif",
+        args=[],
     ),
 )
 
@@ -105,7 +112,7 @@ def export_workers(scene_info: SceneInfo, filename: str, resolution: str, profil
             for progress in export:
                 yield 50 + progress / 2
     else:
-        extra_enc_args = profile.args + ["-f", profile.format]
+        extra_enc_args = profile.args + ["-c:v", profile.encoder, "-f", profile.format]
         export = _export_worker(scene_info, filename, resolution, extra_enc_args)
         for progress in export:
             yield progress
