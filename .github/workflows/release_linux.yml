@@ -39,4 +39,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release upload v$(cat VERSION) appimage/NopeViewer-x86_64.AppImage
+        output_file="appimage/NopeViewer-$(cat VERSION)-x86_64.AppImage"
+        mv appimage/NopeViewer-x86_64.AppImage $output_file
+        gh release upload v$(cat VERSION) $output_file

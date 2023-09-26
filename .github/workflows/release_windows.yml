@@ -58,5 +58,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $tag = "v" + $(Get-Content -TotalCount 1 .\VERSION)
-          gh release upload $tag dist/nope-viewer.exe
+          $version = $(Get-Content -TotalCount 1 .\VERSION)
+          $output_file = "dist/NopeViewer-$version-x86_64.exe"
+          mv dist/nope-viewer.exe $output_file
+          gh release upload "v$version" $output_file
