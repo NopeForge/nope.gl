@@ -31,7 +31,6 @@
 #include "hwmap.h"
 #include "image.h"
 #include "log.h"
-#include "math_utils.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "rtt.h"
