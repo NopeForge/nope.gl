@@ -141,10 +141,6 @@ class _Viewer:
         export_res = self._config.get("export_res")
         export_res_index = choices["export_res"].index(export_res)
 
-        export_profile_names = [ENCODE_PROFILES[p].name for p in choices["export_profile"]]
-        export_profile = self._config.get("export_profile")
-        export_profile_index = choices["export_profile"].index(export_profile)
-
         export_samples_names = ["Disabled" if s == 0 else f"x{s}" for s in choices["export_samples"]]
         export_samples = self._config.get("export_samples")
         export_samples_index = choices["export_samples"].index(export_samples)
@@ -161,6 +157,13 @@ class _Viewer:
         except Exception:
             app_window.disable_export("No working `ffmpeg` command found,\nexport is disabled.")
 
+        encoders = self._get_available_encoders()
+        export_profile_names = [
+            ENCODE_PROFILES[p].name for p in choices["export_profile"] if ENCODE_PROFILES[p].encoder in encoders
+        ]
+        export_profile = self._config.get("export_profile")
+        export_profile_index = choices["export_profile"].index(export_profile)
+
         app_window.set_params_model(self._params_model)
         app_window.set_controls_model(self._livectls_model)
         app_window.set_export_name_filters(f"Supported videos ({extensions})")
@@ -172,6 +175,13 @@ class _Viewer:
         app_window.set_framerates(framerate_names, framerate_index)
 
         self._test_settings()
+
+    @staticmethod
+    def _get_available_encoders():
+        output = subprocess.run(["ffmpeg", "-hide_banner", "-encoders"], capture_output=True).stdout.decode()
+        line_iter = iter(output.splitlines())
+        any(line.strip() == "------" for line in line_iter)  # skip to start of the list
+        return [line.split(maxsplit=3)[1] for line in line_iter]  # pick 2nd column
 
     @staticmethod
     def _uri_to_path(uri):
