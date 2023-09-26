@@ -99,15 +99,15 @@ ENCODE_PROFILES = dict(
 def export_workers(scene_info: SceneInfo, filename: str, resolution: str, profile_id: str):
     profile = ENCODE_PROFILES[profile_id]
     if profile.format == "gif":
-        with tempfile.NamedTemporaryFile(prefix="palette-", suffix=".png") as palette_file:
+        with tempfile.NamedTemporaryFile(prefix="palette-", suffix=".png") as palette:
             # pass 1
             extra_enc_args = ["-vf", "palettegen", "-update", "1", "-frames:v", "1"]
-            export = _export_worker(scene_info, palette_file.name, resolution, extra_enc_args)
+            export = _export_worker(scene_info, palette.name, resolution, extra_enc_args)
             for progress in export:
                 yield progress / 2
 
             # pass 2
-            extra_enc_args = ["-i", palette_file.name, "-lavfi", "paletteuse"]
+            extra_enc_args = ["-i", palette.name, "-lavfi", "paletteuse"]
             export = _export_worker(scene_info, filename, resolution, extra_enc_args)
             for progress in export:
                 yield 50 + progress / 2
