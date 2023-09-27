@@ -1,10 +1,10 @@
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import load_media
 
 import pynopegl as ngl
 
 
-@scene(controls=dict(speed=scene.Range(range=[0.01, 2], unit_base=1000)))
-def playback_speed(cfg: SceneCfg, speed=1.0):
+@ngl.scene(controls=dict(speed=ngl.scene.Range(range=[0.01, 2], unit_base=1000)))
+def playback_speed(cfg: ngl.SceneCfg, speed=1.0):
     """Adjust media playback speed using animation keyframes"""
     m0 = load_media(cfg, "mire")
     media_duration = m0.duration
@@ -20,8 +20,8 @@ def playback_speed(cfg: SceneCfg, speed=1.0):
     return ngl.RenderTexture(t, geometry=q)
 
 
-@scene()
-def time_remapping(cfg: SceneCfg):
+@ngl.scene()
+def time_remapping(cfg: ngl.SceneCfg):
     """
     Time remapping in the following order:
     - nothing displayed for a while (but media prefetch happening in background)

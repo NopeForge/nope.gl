@@ -1,13 +1,13 @@
 import array
 import math
 
-from pynopegl_utils.misc import SceneCfg, get_shader, scene
+from pynopegl_utils.misc import get_shader
 
 import pynopegl as ngl
 
 
-@scene(controls=dict(square_color=scene.Color(), circle_color=scene.Color()))
-def square2circle(cfg: SceneCfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0, 1.0, 1.0)):
+@ngl.scene(controls=dict(square_color=ngl.scene.Color(), circle_color=ngl.scene.Color()))
+def square2circle(cfg: ngl.SceneCfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0, 1.0, 1.0)):
     """Morphing of a square (composed of many vertices) into a circle"""
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)

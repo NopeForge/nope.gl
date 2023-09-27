@@ -1,7 +1,7 @@
 import array
 import os.path as op
 
-from pynopegl_utils.misc import SceneCfg, get_shader, load_media, scene
+from pynopegl_utils.misc import get_shader, load_media
 
 import pynopegl as ngl
 
@@ -55,8 +55,8 @@ def _load_model(fp):
     return indexed_vertices, indexed_uvs, indexed_normals
 
 
-@scene(controls=dict(model=scene.File(filter="Object files (*.obj)")))
-def obj(cfg: SceneCfg, model=None):
+@ngl.scene(controls=dict(model=ngl.scene.File(filter="Object files (*.obj)")))
+def obj(cfg: ngl.SceneCfg, model=None):
     """Load and display a cube object (generated with Blender)"""
 
     if model is None:
@@ -92,8 +92,13 @@ def obj(cfg: SceneCfg, model=None):
     return camera
 
 
-@scene(controls=dict(stl=scene.File(filter="STL files (*.stl)"), scale=scene.Range(range=[0.01, 10], unit_base=100)))
-def stl(cfg: SceneCfg, stl=None, scale=0.8):
+@ngl.scene(
+    controls=dict(
+        stl=ngl.scene.File(filter="STL files (*.stl)"),
+        scale=ngl.scene.Range(range=[0.01, 10], unit_base=100),
+    )
+)
+def stl(cfg: ngl.SceneCfg, stl=None, scale=0.8):
     """Load and display a sphere generated with OpenSCAD"""
 
     if stl is None:
