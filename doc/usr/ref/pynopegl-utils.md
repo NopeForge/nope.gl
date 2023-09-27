@@ -16,9 +16,7 @@ recognized by the `ngl-control`.
 **Example**:
 
 ```python
-from pynopegl_utils.misc import scene
-
-@scene()
+@ngl.scene()
 def my_scene(cfg):
     ...
 ```
@@ -42,7 +40,7 @@ scene function argument.
 **Example**:
 
 ```python
-@scene(controls=dict(foo=scene.Bool(), bar=scene.Color()))
+@ngl.scene(controls=dict(foo=ngl.scene.Bool(), bar=ngl.scene.Color()))
 def example(cfg, foo=True, bar=(1.0, 0.2, 0.5)):
     ...
 ```
@@ -65,7 +63,7 @@ The associated argument value is expected to be a scalar value.
 **Example**:
 
 ```python
-@scene(controls=dict(n=scene.Range(range=[0, 5], unit_base=100)))
+@ngl.scene(controls=dict(n=ngl.scene.Range(range=[0, 5], unit_base=100)))
 def range_example(cfg, n=2.5):
     ...
 ```
@@ -89,7 +87,7 @@ The associated argument is expected to be a `tuple` of `n` floats.
 **Example**:
 
 ```python
-@scene(controls=dict(vec=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1))))
+@ngl.scene(controls=dict(vec=ngl.scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1))))
 def vector_example(cfg, vec=(0.4, -0.75, -0.2, 1.0))
     ...
 ```
@@ -105,7 +103,7 @@ The associated argument value is expected to be a 3-value `tuple` or `list`.
 **Example**:
 
 ```python
-@scene(controls=dict(bgcolor=scene.Color()))
+@ngl.scene(controls=dict(bgcolor=ngl.scene.Color()))
 def color_example(cfg, bgcolor=(0.3, 0.4, 0.5)):
     ...
 ```
@@ -121,7 +119,7 @@ The associated argument is expected to be a `bool`.
 **Example**:
 
 ```python
-@scene(controls=dict(bilinear=scene.Bool()))
+@ngl.scene(controls=dict(bilinear=ngl.scene.Bool()))
 def bool_example(cfg, bilinear=True):
     ...
 ```
@@ -144,7 +142,7 @@ Option      | Description
 **Example**:
 
 ```python
-@scene(controls=dict(input=scene.File(filter='Text files (*.txt)')))
+@ngl.scene(controls=dict(input=ngl.scene.File(filter='Text files (*.txt)')))
 def file_example(cfg, input=None):
     ...
 ```
@@ -166,7 +164,7 @@ Option      | Description
 **Example**:
 
 ```python
-@scene(controls=dict(easing=scene.List(choices=('linear', 'exp_in', 'sinus_in'))))
+@ngl.scene(controls=dict(easing=ngl.scene.List(choices=('linear', 'exp_in', 'sinus_in'))))
 def anim(cfg, easing='exp_in'):
     ...
 ```
@@ -182,7 +180,7 @@ The associated argument is expected to be a `str`.
 **Example**:
 
 ```python
-@scene(controls=dict(intro=scene.Text()))
+@ngl.scene(controls=dict(intro=ngl.scene.Text()))
 def demo(cfg, intro='Hello World!'):
     ...
 ```

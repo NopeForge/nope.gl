@@ -1,10 +1,8 @@
-from pynopegl_utils.misc import SceneCfg, scene
-
 import pynopegl as ngl
 
 
-@scene()
-def animated(cfg: SceneCfg):
+@ngl.scene()
+def animated(cfg: ngl.SceneCfg):
     cfg.duration = 3
     cfg.aspect_ratio = (1, 1)
 

@@ -1,12 +1,10 @@
 from textwrap import dedent
 
-from pynopegl_utils.misc import SceneCfg, scene
-
 import pynopegl as ngl
 
 
-@scene()
-def shadertoy(cfg: SceneCfg):
+@ngl.scene()
+def shadertoy(cfg: ngl.SceneCfg):
     cfg.duration = 5
 
     vert = dedent(

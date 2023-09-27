@@ -28,8 +28,8 @@ Loading that script in the viewer should provide the same rendering observed
 here.
 
 In this first example, all we did was to declare a function that returns a
-single node (the [Text] node). The `@scene()` decorator is used to make it
-discoverable by the viewer. The function receives a configuration of type
+single node (the [Text] node). The `@ngl.scene()` decorator is used to make
+it discoverable by the viewer. The function receives a configuration of type
 `SceneCfg` which gives us access to various metadata of the scene such as
 `aspect_ratio`, `duration` or `framerate` (for both reading and sometimes
 writing).

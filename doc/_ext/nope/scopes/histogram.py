@@ -1,10 +1,10 @@
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import load_media
 
 import pynopegl as ngl
 
 
-@scene()
-def histogram(cfg: SceneCfg):
+@ngl.scene()
+def histogram(cfg: ngl.SceneCfg):
     image = load_media(cfg, "rooster")
 
     stats = ngl.ColorStats(texture=ngl.Texture2D(data_src=ngl.Media(image.filename)))

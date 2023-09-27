@@ -1,10 +1,8 @@
-from pynopegl_utils.examples.misc import SceneCfg, scene
-
 import pynopegl as ngl
 
 
-@scene()
-def palette_strip(cfg: SceneCfg):
+@ngl.scene()
+def palette_strip(cfg: ngl.SceneCfg):
     cols, rows = (7, 5)
     cfg.aspect_ratio = (cols, rows)
 

@@ -30,7 +30,7 @@ from typing import Any
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from pynopegl_utils.misc import SceneCfg, get_viewport
+from pynopegl_utils.misc import get_viewport
 from sphinx.application import Sphinx
 from sphinx.config import Config
 from sphinx.util.docutils import SphinxDirective
@@ -64,7 +64,7 @@ class _Nope(SphinxDirective):
         scene_func = getattr(module, func_name)
         content = "\n".join(self.content)
 
-        cfg = SceneCfg(samples=4)
+        cfg = ngl.SceneCfg(samples=4)
         data = scene_func(cfg)
         scene = data.scene
 

@@ -1,10 +1,10 @@
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import load_media
 
 import pynopegl as ngl
 
 
-@scene()
-def fade(cfg: SceneCfg):
+@ngl.scene()
+def fade(cfg: ngl.SceneCfg):
     image0 = load_media(cfg, "rooster")
     image1 = load_media(cfg, "panda")
 

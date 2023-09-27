@@ -1,10 +1,10 @@
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import load_media
 
 import pynopegl as ngl
 
 
-@scene()
-def overlay(cfg: SceneCfg):
+@ngl.scene()
+def overlay(cfg: ngl.SceneCfg):
     image = load_media(cfg, "rooster")
     overlay = load_media(cfg, "fallen_leaf")
 

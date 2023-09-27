@@ -1,10 +1,10 @@
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import load_media
 
 import pynopegl as ngl
 
 
-@scene()
-def media_time_remapping(cfg: SceneCfg):
+@ngl.scene()
+def media_time_remapping(cfg: ngl.SceneCfg):
     cfg.duration = 10
 
     # Time remapping

@@ -1,10 +1,8 @@
-from pynopegl_utils.misc import SceneCfg, scene
-
 import pynopegl as ngl
 
 
-@scene()
-def chained_transforms(cfg: SceneCfg):
+@ngl.scene()
+def chained_transforms(cfg: ngl.SceneCfg):
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
 
