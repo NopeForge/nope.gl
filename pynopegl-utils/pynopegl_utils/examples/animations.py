@@ -2,7 +2,7 @@ import array
 import colorsys
 import math
 
-from pynopegl_utils.misc import SceneCfg, get_shader, scene
+from pynopegl_utils.misc import get_shader
 
 import pynopegl as ngl
 
@@ -27,7 +27,7 @@ def _easing_join(easing, args):
     return easing if not args else easing + ":" + ":".join("%g" % x for x in args)
 
 
-def _get_easing_node(cfg: SceneCfg, easing, curve_zoom, color_program, nb_points=128):
+def _get_easing_node(cfg: ngl.SceneCfg, easing, curve_zoom, color_program, nb_points=128):
     text_vratio = 1 / 8.0
     graph_hpad_ratio = 1 / 16.0
 
@@ -169,7 +169,7 @@ _easing_list = _get_easing_list()
 _easing_names = [e[0] for e in _easing_list]
 
 
-def _get_easing_nodes(cfg: SceneCfg, color_program):
+def _get_easing_nodes(cfg: ngl.SceneCfg, color_program):
     nb = len(_easing_list)
     nb_rows = int(round(math.sqrt(nb)))
     nb_cols = int(math.ceil(nb / float(nb_rows)))
@@ -182,8 +182,8 @@ def _get_easing_nodes(cfg: SceneCfg, color_program):
     return ngl.GridLayout(scenes, (nb_cols, nb_rows))
 
 
-@scene(controls=dict(easing_id=scene.List(choices=["*"] + _easing_names)))
-def easings(cfg: SceneCfg, easing_id="*"):
+@ngl.scene(controls=dict(easing_id=ngl.scene.List(choices=["*"] + _easing_names)))
+def easings(cfg: ngl.SceneCfg, easing_id="*"):
     """Display all the easings (primitive for animation / motion design) at once"""
     cfg.duration = 2.0
 

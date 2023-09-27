@@ -3,15 +3,15 @@ import colorsys
 import math
 import os.path as op
 
-from pynopegl_utils.misc import SceneCfg, get_shader, load_media, scene
+from pynopegl_utils.misc import get_shader, load_media
 from pynopegl_utils.toolbox.scenes import compare
 from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 
 import pynopegl as ngl
 
 
-@scene(controls=dict(xsplit=scene.Range(range=[0, 1], unit_base=100), trilinear=scene.Bool()))
-def lut3d(cfg: SceneCfg, xsplit=0.3, trilinear=True):
+@ngl.scene(controls=dict(xsplit=ngl.scene.Range(range=[0, 1], unit_base=100), trilinear=ngl.scene.Bool()))
+def lut3d(cfg: ngl.SceneCfg, xsplit=0.3, trilinear=True):
     """Lookup Table 3D using a Texture3D"""
     level = 6
     level2 = level**2
@@ -42,8 +42,8 @@ def lut3d(cfg: SceneCfg, xsplit=0.3, trilinear=True):
     return compare(cfg, scene_tex, scene_lut, xsplit)
 
 
-@scene(controls=dict(size=scene.Range(range=[0, 2], unit_base=1000)))
-def triangle(cfg: SceneCfg, size=4 / 3):
+@ngl.scene(controls=dict(size=ngl.scene.Range(range=[0, 2], unit_base=1000)))
+def triangle(cfg: ngl.SceneCfg, size=4 / 3):
     """Rotating triangle with edge coloring specified in a vertex attribute"""
     cfg.duration = 3.0
     cfg.aspect_ratio = (1, 1)
@@ -68,8 +68,8 @@ def triangle(cfg: SceneCfg, size=4 / 3):
     return node
 
 
-@scene(controls=dict(particles=scene.Range(range=[1, 1023])))
-def particles(cfg: SceneCfg, particles=32):
+@ngl.scene(controls=dict(particles=ngl.scene.Range(range=[1, 1023])))
+def particles(cfg: ngl.SceneCfg, particles=32):
     """Particules demo using compute shaders and instancing"""
 
     compute_shader = get_shader("particles.comp")
@@ -137,8 +137,8 @@ def particles(cfg: SceneCfg, particles=32):
     return ngl.Camera(g)
 
 
-@scene()
-def blending_and_stencil(cfg: SceneCfg):
+@ngl.scene()
+def blending_and_stencil(cfg: ngl.SceneCfg):
     """Scene using blending and stencil graphic features"""
     cfg.duration = 5
     vertex = get_shader("color.vert")
@@ -241,8 +241,8 @@ def _get_cube_side(texture, program, corner, width, height, color):
     return render
 
 
-@scene(controls=dict(display_depth_buffer=scene.Bool()))
-def cube(cfg: SceneCfg, display_depth_buffer=False):
+@ngl.scene(controls=dict(display_depth_buffer=ngl.scene.Bool()))
+def cube(cfg: ngl.SceneCfg, display_depth_buffer=False):
     """
     Cube with a common media Texture but a different color tainting on each side.
     Also includes a depth map visualization.
@@ -303,8 +303,8 @@ def cube(cfg: SceneCfg, display_depth_buffer=False):
         return group
 
 
-@scene()
-def quaternion(cfg: SceneCfg):
+@ngl.scene()
+def quaternion(cfg: ngl.SceneCfg):
     """Animated quaternion used to rotate a plane"""
     cfg.duration = 10.0
     step = cfg.duration / 5.0
@@ -332,15 +332,15 @@ def quaternion(cfg: SceneCfg):
     return camera
 
 
-@scene(
+@ngl.scene(
     controls=dict(
-        ndim=scene.Range(range=[1, 8]),
-        nb_layers=scene.Range(range=[1, 10]),
-        ref_color=scene.Color(),
-        nb_mountains=scene.Range(range=[3, 15]),
+        ndim=ngl.scene.Range(range=[1, 8]),
+        nb_layers=ngl.scene.Range(range=[1, 10]),
+        ref_color=ngl.scene.Color(),
+        nb_mountains=ngl.scene.Range(range=[3, 15]),
     )
 )
-def mountain(cfg: SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb_mountains=6):
+def mountain(cfg: ngl.SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb_mountains=6):
     """Mountain generated with a stack of noise shaders using Textures as random source"""
     random_dim = 1 << ndim
     cfg.aspect_ratio = (16, 9)
@@ -401,8 +401,8 @@ def mountain(cfg: SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb
     return group
 
 
-@scene()
-def smptebars_glitch(cfg: SceneCfg):
+@ngl.scene()
+def smptebars_glitch(cfg: ngl.SceneCfg):
     """SMPTE bars glitching at irregular intervals"""
 
     cfg.duration = 15

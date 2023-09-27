@@ -1,10 +1,10 @@
-from pynopegl_utils.misc import SceneCfg, get_shader, load_media, scene
+from pynopegl_utils.misc import get_shader, load_media
 
 import pynopegl as ngl
 
 
-@scene()
-def animated_uniform(cfg: SceneCfg):
+@ngl.scene()
+def animated_uniform(cfg: ngl.SceneCfg):
     """Uniform mat4 animated with a transform chain"""
     m0 = load_media(cfg, "mire")
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -32,8 +32,8 @@ def animated_uniform(cfg: SceneCfg):
     return ts
 
 
-@scene(controls=dict(rotate=scene.Bool()))
-def animated_camera(cfg: SceneCfg, rotate=True):
+@ngl.scene(controls=dict(rotate=ngl.scene.Bool()))
+def animated_camera(cfg: ngl.SceneCfg, rotate=True):
     """Animated camera around a scene"""
     g = ngl.Group()
 
