@@ -24,12 +24,13 @@ from typing import Callable, Optional
 
 from pynopegl_utils.export import ENCODE_PROFILES, RESOLUTIONS
 from pynopegl_utils.exporter import Exporter
-from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtWidgets
+
+import pynopegl as ngl
 
 
 class ExportView(QtWidgets.QWidget):
-    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]], config):
+    def __init__(self, get_scene_info: Callable[..., Optional[ngl.SceneInfo]], config):
         super().__init__()
 
         self._config = config

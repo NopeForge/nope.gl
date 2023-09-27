@@ -30,7 +30,7 @@ import tempfile
 from dataclasses import dataclass
 from typing import List, Optional
 
-from pynopegl_utils.misc import SceneInfo, get_backend, get_viewport
+from pynopegl_utils.misc import get_backend, get_viewport
 
 import pynopegl as ngl
 
@@ -119,7 +119,7 @@ def export_workers(scene_info: SceneInfo, filename: str, resolution: str, profil
 
 
 def _export_worker(
-    scene_info: SceneInfo,
+    scene_info: ngl.SceneInfo,
     filename: str,
     resolution: str,
     extra_enc_args: Optional[List[str]] = None,

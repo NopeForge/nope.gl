@@ -27,9 +27,10 @@ import traceback
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional, Set
 
-from pynopegl_utils.misc import SceneCfg, SceneInfo
 from pynopegl_utils.module import load_script
 from pynopegl_utils.resourcetracker import ResourceTracker
+
+import pynopegl as ngl
 
 
 @dataclass
@@ -68,7 +69,7 @@ def _wrap_query(func) -> Callable[..., QueryInfo]:
 
 
 @_wrap_query
-def query_scene(pkg, func, cfg: SceneCfg, extra_args=None) -> SceneInfo:
+def query_scene(pkg, func, cfg: ngl.SceneCfg, extra_args=None) -> ngl.SceneInfo:
     # Call user constructing function
     if extra_args is None:
         extra_args = {}
