@@ -23,7 +23,6 @@ from fractions import Fraction
 
 from pynopegl_utils.config import Config
 from pynopegl_utils.control_widgets import control_to_widget
-from pynopegl_utils.misc import SceneCfg, SceneInfo
 from PySide6 import QtCore, QtGui, QtWidgets
 
 import pynopegl as ngl
@@ -191,9 +190,9 @@ class Toolbar(QtWidgets.QWidget):
         groupbox.setLayout(vbox)
         return groupbox
 
-    def get_cfg(self) -> SceneCfg:
+    def get_cfg(self) -> ngl.SceneCfg:
         choices = Config.CHOICES
-        return SceneCfg(
+        return ngl.SceneCfg(
             aspect_ratio=choices["aspect_ratio"][self._ar_cbbox.currentIndex()],
             framerate=choices["framerate"][self._fr_cbbox.currentIndex()],
             samples=choices["samples"][self._samples_cbbox.currentIndex()],
@@ -267,7 +266,7 @@ class Toolbar(QtWidgets.QWidget):
         self._reload_scene_view(scenes)
         self._load_current_scene()
 
-    def set_scene_info(self, scene_info: SceneInfo):
+    def set_scene_info(self, scene_info: ngl.SceneInfo):
         try:
             cfg_ar = Fraction(*scene_info.scene.aspect_ratio)
             cfg_ar = (cfg_ar.numerator, cfg_ar.denominator)

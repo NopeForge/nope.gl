@@ -25,7 +25,6 @@ from typing import Optional
 from pynopegl_utils.com import query_scene
 from pynopegl_utils.config import Config
 from pynopegl_utils.hooks import HooksCaller, HooksController
-from pynopegl_utils.misc import SceneCfg, SceneInfo
 from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.ui.export_view import ExportView
 from pynopegl_utils.ui.graph_view import GraphView
@@ -34,9 +33,11 @@ from pynopegl_utils.ui.serial_view import SerialView
 from pynopegl_utils.ui.toolbar import Toolbar
 from PySide6 import QtCore, QtGui, QtWidgets
 
+import pynopegl as ngl
+
 
 class MainWindow(QtWidgets.QSplitter):
-    sceneLoaded = QtCore.Signal(SceneInfo)
+    sceneLoaded = QtCore.Signal(ngl.SceneInfo)
     error = QtCore.Signal(str)
 
     def __init__(self, module_pkgname, hooks_scripts):
@@ -133,7 +134,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.clear_scripts()
         self._scene_err(err_str)
 
-    def _get_scene(self, backend=None, system=None) -> Optional[SceneInfo]:
+    def _get_scene(self, backend=None, system=None) -> Optional[ngl.SceneInfo]:
         cfg = self._scene_toolbar.get_cfg()
         scene_func, extra_args = self._scene_toolbar.get_scene_info()
         if scene_func is None:
@@ -173,7 +174,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._hooks_ctl.process(module_name, scene_name)
 
     @QtCore.Slot(dict)
-    def _scene_loaded(self, scene_info: SceneInfo):
+    def _scene_loaded(self, scene_info: ngl.SceneInfo):
         self._scene_toolbar.set_scene_info(scene_info)
 
     def _emit_geometry(self):

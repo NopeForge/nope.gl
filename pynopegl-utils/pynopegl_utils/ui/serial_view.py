@@ -21,12 +21,13 @@
 
 from typing import Callable, Optional
 
-from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtGui, QtWidgets
+
+import pynopegl as ngl
 
 
 class SerialView(QtWidgets.QWidget):
-    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]]):
+    def __init__(self, get_scene_info: Callable[..., Optional[ngl.SceneInfo]]):
         super().__init__()
 
         self._get_scene_info = get_scene_info

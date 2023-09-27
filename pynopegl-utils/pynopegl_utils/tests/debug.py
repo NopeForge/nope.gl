@@ -21,14 +21,13 @@
 
 from typing import Mapping, Tuple
 
-from pynopegl_utils.misc import SceneCfg
 from pynopegl_utils.toolbox.colors import COLORS
 
 import pynopegl as ngl
 
 
 def get_debug_points(
-    cfg: SceneCfg,
+    cfg: ngl.SceneCfg,
     points: Mapping[str, Tuple[float, float]],
     radius: float = 0.025,
     color: Tuple[float, float, float] = COLORS.green,

@@ -20,13 +20,11 @@
 # under the License.
 #
 
-from pynopegl_utils.misc import SceneCfg, scene
-
 import pynopegl as ngl
 
 
-@scene(controls=dict(shape=scene.List(choices=["triangle", "square", "circle"])))
-def demo(cfg: SceneCfg, shape="square"):
+@ngl.scene(controls=dict(shape=ngl.scene.List(choices=["triangle", "square", "circle"])))
+def demo(cfg: ngl.SceneCfg, shape="square"):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 3
 

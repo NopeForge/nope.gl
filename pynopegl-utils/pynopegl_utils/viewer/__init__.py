@@ -31,7 +31,6 @@ from typing import Any, Dict, List, Optional
 from pynopegl_utils import qml
 from pynopegl_utils.com import query_scene
 from pynopegl_utils.export import export_workers
-from pynopegl_utils.misc import SceneCfg, SceneInfo
 from pynopegl_utils.qml import livectls
 from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.viewer.config import ENCODE_PROFILES, Config
@@ -316,7 +315,7 @@ class _Viewer:
             cfg = self._get_scene_cfg()
             cfg.samples = samples
 
-            scene_info: SceneInfo = scene_data["func"](cfg, **extra_args)
+            scene_info: ngl.SceneInfo = scene_data["func"](cfg, **extra_args)
             scene = scene_info.scene
 
             # Apply user live changes
@@ -382,7 +381,7 @@ class _Viewer:
         self._window.set_scenes(scene_ids, index)
 
     def _get_scene_cfg(self):
-        return SceneCfg(
+        return ngl.SceneCfg(
             framerate=self._config.get("framerate"),
         )
 
@@ -477,7 +476,7 @@ class _Viewer:
         if query_info.error:
             return
 
-        scene_info: SceneInfo = query_info.ret
+        scene_info: ngl.SceneInfo = query_info.ret
         scene = scene_info.scene
 
         # TODO Ideally we would honor the saved live data settings for the

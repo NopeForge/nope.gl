@@ -24,7 +24,6 @@ import subprocess
 from typing import Callable, Optional
 
 from pynopegl_utils import misc
-from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore, QtGui, QtSvgWidgets, QtWidgets
 
 import pynopegl as ngl
@@ -71,7 +70,7 @@ class _Clock:
 
 
 class GraphView(QtWidgets.QWidget):
-    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]], config):
+    def __init__(self, get_scene_info: Callable[..., Optional[ngl.SceneInfo]], config):
         super().__init__()
 
         self._get_scene_info = get_scene_info

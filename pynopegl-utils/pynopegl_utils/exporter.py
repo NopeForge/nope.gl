@@ -22,7 +22,6 @@
 from typing import Callable, Optional
 
 from pynopegl_utils.export import export_workers
-from pynopegl_utils.misc import SceneInfo
 from PySide6 import QtCore
 
 
@@ -33,7 +32,7 @@ class Exporter(QtCore.QThread):
 
     def __init__(
         self,
-        get_scene_info: Callable[..., Optional[SceneInfo]],
+        get_scene_info: Callable[..., Optional[ngl.SceneInfo]],
         filename,
         res_id: str,
         profile_id: str,

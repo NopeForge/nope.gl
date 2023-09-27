@@ -26,9 +26,10 @@ import tempfile
 import time
 from typing import Callable, Optional
 
-from pynopegl_utils.misc import SceneInfo
 from pynopegl_utils.module import load_script
 from PySide6 import QtCore
+
+import pynopegl as ngl
 
 
 class _HooksCaller:
@@ -56,7 +57,7 @@ class _HooksCaller:
             uint_color |= comp_val << (24 - i * 8)
         return uint_color
 
-    def scene_change(self, session_id, local_scene, scene_info: SceneInfo):
+    def scene_change(self, session_id, local_scene, scene_info: ngl.SceneInfo):
         return self._module.scene_change(
             session_id,
             local_scene,
@@ -109,7 +110,7 @@ class HooksCaller:
         caller, session_id = self._get_caller_session_id(session_id)
         return caller.get_session_info(session_id)
 
-    def scene_change(self, session_id, local_scene, scene_info: SceneInfo):
+    def scene_change(self, session_id, local_scene, scene_info: ngl.SceneInfo):
         caller, session_id = self._get_caller_session_id(session_id)
         return caller.scene_change(session_id, local_scene, scene_info)
 
@@ -161,7 +162,7 @@ class _SceneChangeWorker(QtCore.QObject):
     success = QtCore.Signal(str, str, float)
     error = QtCore.Signal(str, str)
 
-    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]], hooks_caller):
+    def __init__(self, get_scene_info: Callable[..., Optional[ngl.SceneInfo]], hooks_caller):
         super().__init__()
         self._get_scene_info = get_scene_info
         self._hooks_caller = hooks_caller
@@ -247,7 +248,7 @@ class HooksController(QtCore.QObject):
     session_removed = QtCore.Signal(str)
     session_info_changed = QtCore.Signal(object)
 
-    def __init__(self, get_scene_info: Callable[..., Optional[SceneInfo]], hooks_caller):
+    def __init__(self, get_scene_info: Callable[..., Optional[ngl.SceneInfo]], hooks_caller):
         super().__init__()
         self._get_scene_info = get_scene_info
         self._hooks_caller = hooks_caller

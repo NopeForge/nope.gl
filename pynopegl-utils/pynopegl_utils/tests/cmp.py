@@ -24,7 +24,7 @@ import os
 import os.path as op
 from typing import Any, Callable, Generator, Optional, Sequence, Tuple, Union
 
-from pynopegl_utils.misc import SceneCfg, SceneInfo, get_backend, get_nopegl_tempdir
+from pynopegl_utils.misc import get_backend, get_nopegl_tempdir
 
 import pynopegl as ngl
 
@@ -71,7 +71,7 @@ class CompareBase:
 class CompareSceneBase(CompareBase):
     def __init__(
         self,
-        scene_func: Callable[..., SceneInfo],
+        scene_func: Callable[..., ngl.SceneInfo],
         width: int = 1280,
         height: int = 800,
         keyframes: Union[int, Sequence[float]] = 1,  # either a number of keyframes or a sequence of absolute times
@@ -96,7 +96,7 @@ class CompareSceneBase(CompareBase):
         self._hud_export_filename = None
 
     def render_frames(self) -> Generator[Tuple[int, int, bytearray], None, None]:
-        cfg = SceneCfg(samples=self._samples, clear_color=self._clear_color)
+        cfg = ngl.SceneCfg(samples=self._samples, clear_color=self._clear_color)
 
         backend = os.environ.get("BACKEND")
         if backend:

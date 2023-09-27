@@ -98,7 +98,7 @@ def get_shader(name: str) -> str:
     return data.decode()
 
 
-def load_media(cfg: SceneCfg, file: str):
+def load_media(cfg: ngl.SceneCfg, file: str):
     db_file = MEDIA_FILES_DB.get(file)
     if db_file:
         file = op.join(op.dirname(__file__), "assets", db_file)
