@@ -19,7 +19,6 @@
 # under the License.
 #
 
-from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.toolbox.colors import COLORS
 
@@ -39,14 +38,14 @@ def _base_scene(*filters):
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
-@scene()
+@ngl.scene()
 def filter_alpha(_):
     return _base_scene(ngl.FilterAlpha(0.4321))
 
 
 @test_cuepoints(points={f"x{i}": (i / (5 - 1) * 2 - 1, 0) for i in range(5)}, keyframes=10, tolerance=1)
-@scene()
-def filter_colormap(cfg: SceneCfg):
+@ngl.scene()
+def filter_colormap(cfg: ngl.SceneCfg):
     cfg.duration = 5.0
     d = cfg.duration
 
@@ -104,37 +103,37 @@ def filter_colormap(cfg: SceneCfg):
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
-@scene()
+@ngl.scene()
 def filter_contrast(_):
     return _base_scene(ngl.FilterContrast(1.2, pivot=0.3))
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
-@scene()
+@ngl.scene()
 def filter_exposure(_):
     return _base_scene(ngl.FilterExposure(0.7))
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
-@scene()
+@ngl.scene()
 def filter_inversealpha(_):
     return _base_scene(ngl.FilterInverseAlpha())
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
-@scene()
+@ngl.scene()
 def filter_opacity(_):
     return _base_scene(ngl.FilterOpacity(0.4321))
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
-@scene()
+@ngl.scene()
 def filter_saturation(_):
     return _base_scene(ngl.FilterSaturation(1.5))
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
-@scene()
+@ngl.scene()
 def filter_composition_colors(_):
     return ngl.RenderGradient4(
         filters=(
@@ -147,7 +146,7 @@ def filter_composition_colors(_):
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
-@scene()
+@ngl.scene()
 def filter_composition_alpha(_):
     return ngl.RenderGradient(
         color0=(1, 0.5, 0),
@@ -166,7 +165,7 @@ def filter_composition_alpha(_):
 
 
 @test_cuepoints(points=_CUEPOINTS, width=320, height=240, keyframes=1, tolerance=1)
-@scene(controls=dict(linear=scene.Bool()))
+@ngl.scene(controls=dict(linear=ngl.scene.Bool()))
 def filter_gamma_correct(_, linear=True):
     """This test operates a gamma correct blending (the blending happens in linear space)"""
 

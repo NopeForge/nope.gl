@@ -21,7 +21,7 @@
 
 import textwrap
 
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import load_media
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cmp_resources import test_resources
@@ -31,7 +31,7 @@ from pynopegl_utils.toolbox.grid import autogrid_simple
 import pynopegl as ngl
 
 
-def _get_time_scene(cfg: SceneCfg):
+def _get_time_scene(cfg: ngl.SceneCfg):
     m0 = load_media(cfg, "mire")
 
     media_seek = 10
@@ -64,8 +64,8 @@ def _get_time_scene(cfg: SceneCfg):
 
 
 @test_fingerprint(width=320, height=240, keyframes=3, tolerance=1)
-@scene()
-def media_flat_remap(cfg: SceneCfg):
+@ngl.scene()
+def media_flat_remap(cfg: ngl.SceneCfg):
     m0 = load_media(cfg, "mire")
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -80,22 +80,22 @@ def media_flat_remap(cfg: SceneCfg):
 
 
 @test_cuepoints(points={"X": (0, -0.625)}, keyframes=15, clear_color=list(COLORS.violet) + [1], tolerance=1)
-@scene()
-def media_phases_display(cfg: SceneCfg):
+@ngl.scene()
+def media_phases_display(cfg: ngl.SceneCfg):
     return _get_time_scene(cfg)
 
 
 @test_resources(keyframes=15)
-@scene()
-def media_phases_resources(cfg: SceneCfg):
+@ngl.scene()
+def media_phases_resources(cfg: ngl.SceneCfg):
     return _get_time_scene(cfg)
 
 
 # Note: the following test only makes sure the clamping code shader compiles,
 # not check for an actual overflow
 @test_cuepoints(points={"X": (0, -0.625)}, keyframes=1, tolerance=1)
-@scene()
-def media_clamp(cfg: SceneCfg):
+@ngl.scene()
+def media_clamp(cfg: ngl.SceneCfg):
     m0 = load_media(cfg, "mire")
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -106,8 +106,8 @@ def media_clamp(cfg: SceneCfg):
 
 
 @test_cuepoints(points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, keyframes=5, tolerance=1)
-@scene()
-def media_exposed_time(cfg: SceneCfg):
+@ngl.scene()
+def media_exposed_time(cfg: ngl.SceneCfg):
     m0 = load_media(cfg, "mire")
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -142,8 +142,8 @@ def media_exposed_time(cfg: SceneCfg):
 
 
 @test_fingerprint(width=1024, height=1024, keyframes=30, tolerance=2)
-@scene(controls=dict(overlap_time=scene.Range(range=[0, 10], unit_base=10), dim=scene.Range(range=[1, 10])))
-def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
+@ngl.scene(controls=dict(overlap_time=ngl.scene.Range(range=[0, 10], unit_base=10), dim=ngl.scene.Range(range=[1, 10])))
+def media_queue(cfg: ngl.SceneCfg, overlap_time=7.0, dim=3):
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)
 
@@ -173,8 +173,8 @@ def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
 
 
 @test_fingerprint(width=320, height=240, keyframes=20, tolerance=1)
-@scene()
-def media_timeranges_rtt(cfg: SceneCfg):
+@ngl.scene()
+def media_timeranges_rtt(cfg: ngl.SceneCfg):
     m0 = load_media(cfg, "mire")
     cfg.duration = d = 10
     cfg.aspect_ratio = (m0.width, m0.height)

@@ -21,7 +21,7 @@
 
 import textwrap
 
-from pynopegl_utils.misc import SceneCfg, get_shader, scene
+from pynopegl_utils.misc import get_shader
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS
 from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
@@ -30,8 +30,8 @@ import pynopegl as ngl
 
 
 @test_fingerprint(width=320, height=320, keyframes=20, tolerance=1)
-@scene()
-def velocity_triangle_rotate(cfg: SceneCfg):
+@ngl.scene()
+def velocity_triangle_rotate(cfg: ngl.SceneCfg):
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
@@ -63,8 +63,8 @@ def velocity_triangle_rotate(cfg: SceneCfg):
 
 
 @test_fingerprint(width=320, height=320, keyframes=20, tolerance=1)
-@scene()
-def velocity_circle_distort_2d(cfg: SceneCfg):
+@ngl.scene()
+def velocity_circle_distort_2d(cfg: ngl.SceneCfg):
     cfg.duration = 4.0
     cfg.aspect_ratio = (1, 1)
 
@@ -100,8 +100,8 @@ def velocity_circle_distort_2d(cfg: SceneCfg):
 
 
 @test_fingerprint(width=320, height=320, keyframes=20, tolerance=1)
-@scene()
-def velocity_circle_distort_3d(cfg: SceneCfg):
+@ngl.scene()
+def velocity_circle_distort_3d(cfg: ngl.SceneCfg):
     cfg.duration = 4.0
     cfg.aspect_ratio = (1, 1)
 

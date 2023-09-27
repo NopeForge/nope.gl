@@ -19,7 +19,6 @@
 # under the License.
 #
 
-from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS
 from pynopegl_utils.toolbox.grid import autogrid_simple
@@ -54,7 +53,7 @@ void main() {
 """
 
 
-def _get_compositing_scene(cfg: SceneCfg, op, show_label=False):
+def _get_compositing_scene(cfg: ngl.SceneCfg, op, show_label=False):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 6
 
@@ -110,15 +109,15 @@ def _get_compositing_scene(cfg: SceneCfg, op, show_label=False):
 
 def _get_compositing_func(op):
     @test_fingerprint(keyframes=10, tolerance=1)
-    @scene()
-    def scene_func(cfg: SceneCfg):
+    @ngl.scene()
+    def scene_func(cfg: ngl.SceneCfg):
         return _get_compositing_scene(cfg, op)
 
     return scene_func
 
 
-@scene()
-def compositing_all_operators(cfg: SceneCfg):
+@ngl.scene()
+def compositing_all_operators(cfg: ngl.SceneCfg):
     scenes = []
     for op in _OPERATORS:
         scene = _get_compositing_scene(cfg, op, show_label=True)

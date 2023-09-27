@@ -22,7 +22,7 @@
 import colorsys
 import textwrap
 
-from pynopegl_utils.misc import MEDIA_FILES_DB, SceneCfg, get_shader, load_media, scene
+from pynopegl_utils.misc import MEDIA_FILES_DB, get_shader, load_media
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cmp_resources import test_resources
 
@@ -121,7 +121,7 @@ def _get_random_geometry(rng):
 _MEDIA_UIDS = list(MEDIA_FILES_DB.keys())
 
 
-def _get_random_texture(cfg: SceneCfg, rng):
+def _get_random_texture(cfg: ngl.SceneCfg, rng):
     media_uid = rng.choice(_MEDIA_UIDS)
     texture = cfg.texture_cache.get(
         media_uid,
@@ -135,7 +135,7 @@ def _get_random_texture(cfg: SceneCfg, rng):
     return texture
 
 
-def _get_random_rendertexture(cfg: SceneCfg, rng):
+def _get_random_rendertexture(cfg: ngl.SceneCfg, rng):
     return ngl.RenderTexture(
         texture=_get_random_texture(cfg, rng),
         geometry=_get_random_geometry(rng),
@@ -160,7 +160,7 @@ def _get_random_text(rng):
     )
 
 
-def _get_random_compute(cfg: SceneCfg, rng, t0, t1):
+def _get_random_compute(cfg: ngl.SceneCfg, rng, t0, t1):
     count = 10
 
     vertex_shader = textwrap.dedent(
@@ -229,7 +229,7 @@ def _get_random_compute(cfg: SceneCfg, rng, t0, t1):
     return ngl.Group(children=(compute, render))
 
 
-def _get_random_render(cfg: SceneCfg, rng, t0, t1, enable_computes):
+def _get_random_render(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes):
     color = lambda rng: ngl.RenderColor(
         color=_get_random_animated_color(rng, t0, t1),
         opacity=_get_random_animated_opacity(rng, t0, t1),
@@ -290,7 +290,7 @@ def _get_random_time_range(rng, t0, t1):
     return t_start, t_end
 
 
-def _get_random_layer(cfg: SceneCfg, rng, t0, t1, enable_computes, layer=4):
+def _get_random_layer(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes, layer=4):
     nb_elems = rng.randint(2, 5)
     children = []
     sub_layers = rng.sample(range(nb_elems), 2)
@@ -337,7 +337,7 @@ def _get_random_layer(cfg: SceneCfg, rng, t0, t1, enable_computes, layer=4):
     return ngl.Group(children=children)
 
 
-def _get_scene(cfg: SceneCfg, seed=0, enable_computes=True):
+def _get_scene(cfg: ngl.SceneCfg, seed=0, enable_computes=True):
     cfg.duration = 30
     cfg.aspect_ratio = (16, 9)
     rng = cfg.rng
@@ -372,31 +372,31 @@ def _get_scene(cfg: SceneCfg, seed=0, enable_computes=True):
     return ngl.Group(children=(bg, camera))
 
 
-@scene(controls=dict(seed=scene.Range(range=[0, 1000]), enable_computes=scene.Bool()))
-def benchmark_test(cfg: SceneCfg, seed=82, enable_computes=True):
+@ngl.scene(controls=dict(seed=ngl.scene.Range(range=[0, 1000]), enable_computes=ngl.scene.Bool()))
+def benchmark_test(cfg: ngl.SceneCfg, seed=82, enable_computes=True):
     """Function to be used for manual testing"""
     return _get_scene(cfg, seed, enable_computes)
 
 
 @test_fingerprint(width=1920, height=1080, keyframes=120, tolerance=4)
-@scene()
-def benchmark_fingerprint_with_compute(cfg: SceneCfg):
+@ngl.scene()
+def benchmark_fingerprint_with_compute(cfg: ngl.SceneCfg):
     return _get_scene(cfg, seed=0, enable_computes=True)
 
 
 @test_fingerprint(width=1920, height=1080, keyframes=120, tolerance=4)
-@scene()
-def benchmark_fingerprint_without_compute(cfg: SceneCfg):
+@ngl.scene()
+def benchmark_fingerprint_without_compute(cfg: ngl.SceneCfg):
     return _get_scene(cfg, seed=1, enable_computes=False)
 
 
 @test_resources(keyframes=60)
-@scene()
-def benchmark_resources_with_compute(cfg: SceneCfg):
+@ngl.scene()
+def benchmark_resources_with_compute(cfg: ngl.SceneCfg):
     return _get_scene(cfg, seed=2, enable_computes=True)
 
 
 @test_resources(keyframes=60)
-@scene()
-def benchmark_resources_without_compute(cfg: SceneCfg):
+@ngl.scene()
+def benchmark_resources_without_compute(cfg: ngl.SceneCfg):
     return _get_scene(cfg, seed=3, enable_computes=False)

@@ -19,7 +19,6 @@
 # under the License.
 #
 
-from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS
 
@@ -42,8 +41,8 @@ def _get_userlive_switch_func():
         switch2.set_enabled(t_id % 4 == 0)
 
     @test_fingerprint(keyframes=10, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
-    @scene(controls=dict(s0=scene.Bool(), s1=scene.Bool(), s2=scene.Bool()))
-    def scene_func(cfg: SceneCfg, s0_enabled=True, s1_enabled=True, s2_enabled=True):
+    @ngl.scene(controls=dict(s0=ngl.scene.Bool(), s1=ngl.scene.Bool(), s2=ngl.scene.Bool()))
+    def scene_func(cfg: ngl.SceneCfg, s0_enabled=True, s1_enabled=True, s2_enabled=True):
         cfg.aspect_ratio = (1, 1)
         switch0.set_enabled(s0_enabled)
         switch1.set_enabled(s1_enabled)
@@ -89,8 +88,8 @@ def _get_userlive_select_func():
         select.set_branch((t_id // 2) % 4)
 
     @test_fingerprint(keyframes=8, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
-    @scene(controls=dict(branch=scene.Range([0, 3])))
-    def scene_func(cfg: SceneCfg, branch=0):
+    @ngl.scene(controls=dict(branch=ngl.scene.Range([0, 3])))
+    def scene_func(cfg: ngl.SceneCfg, branch=0):
         cfg.aspect_ratio = (1, 1)
         select.set_branch(branch)
         return ngl.Group(children=(below, select))
