@@ -1,10 +1,10 @@
-from pynopegl_utils.misc import SceneCfg, load_media, scene
+from pynopegl_utils.misc import load_media
 
 import pynopegl as ngl
 
 
-@scene()
-def video(cfg: SceneCfg):
+@ngl.scene()
+def video(cfg: ngl.SceneCfg):
     video = load_media(cfg, "cat")  # Replace "cat" with a path to your video
 
     cfg.aspect_ratio = video.width, video.height

@@ -1,10 +1,8 @@
-from pynopegl_utils.misc import SceneCfg, scene
-
 import pynopegl as ngl
 
 
-@scene()
-def shapes(cfg: SceneCfg):
+@ngl.scene()
+def shapes(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 6.0
 

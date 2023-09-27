@@ -1,10 +1,8 @@
-from pynopegl_utils.examples.misc import SceneCfg, scene
-
 import pynopegl as ngl
 
 
-@scene()
-def gradient(cfg: SceneCfg, mode="ramp"):
+@ngl.scene()
+def gradient(cfg: ngl.SceneCfg, mode="ramp"):
     cfg.duration = 15
 
     # Create live-controls for the color of each point

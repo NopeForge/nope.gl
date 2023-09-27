@@ -1,10 +1,8 @@
-from pynopegl_utils.misc import SceneCfg, scene
-
 import pynopegl as ngl
 
 
-@scene()
-def simple(cfg: SceneCfg):
+@ngl.scene()
+def simple(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     keyframes = [

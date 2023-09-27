@@ -1,12 +1,10 @@
 import array
 
-from pynopegl_utils.misc import SceneCfg, scene
-
 import pynopegl as ngl
 
 
-@scene()
-def geometry(cfg: SceneCfg):
+@ngl.scene()
+def geometry(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     p0 = (cfg.rng.uniform(-1, 0), cfg.rng.uniform(0, 1), 0)
