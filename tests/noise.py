@@ -20,15 +20,14 @@
 # under the License.
 #
 
-from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 
 import pynopegl as ngl
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def noise_blocky(cfg: SceneCfg):
+@ngl.scene()
+def noise_blocky(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 5
 
@@ -36,8 +35,8 @@ def noise_blocky(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def noise_perlin(cfg: SceneCfg):
+@ngl.scene()
+def noise_perlin(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 5
 

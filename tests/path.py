@@ -19,13 +19,12 @@
 # under the License.
 #
 
-from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 
 import pynopegl as ngl
 
 
-def _shape_variant_0(cfg: SceneCfg, *kfs):
+def _shape_variant_0(cfg: ngl.SceneCfg, *kfs):
     cfg.aspect_ratio = (1, 1)
     keyframes = (
         [
@@ -45,43 +44,43 @@ def _shape_variant_0(cfg: SceneCfg, *kfs):
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_shape_0(cfg: SceneCfg):
+@ngl.scene()
+def path_shape_0(cfg: ngl.SceneCfg):
     kf = ngl.PathKeyLine(to=(0.2, -0.75, 0))
     return _shape_variant_0(cfg, kf)
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_shape_1(cfg: SceneCfg):
+@ngl.scene()
+def path_shape_1(cfg: ngl.SceneCfg):
     kf = ngl.PathKeyBezier2(to=(0.2, -0.75, 0), control=(-0.1, -0.5, 0))
     return _shape_variant_0(cfg, kf)
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_shape_2(cfg: SceneCfg):
+@ngl.scene()
+def path_shape_2(cfg: ngl.SceneCfg):
     kf = ngl.PathKeyBezier3(to=(0.2, -0.75, 0), control1=(0.0, -0.2, 0), control2=(-0.2, -1.0, 0))
     return _shape_variant_0(cfg, kf)
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_shape_3(cfg: SceneCfg):
+@ngl.scene()
+def path_shape_3(cfg: ngl.SceneCfg):
     kf = ngl.PathKeyBezier3(to=(0.2, -0.75, 0), control1=(0.0, -1.0, 0), control2=(-0.2, -0.2, 0))
     return _shape_variant_0(cfg, kf)
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_shape_4(cfg: SceneCfg):
+@ngl.scene()
+def path_shape_4(cfg: ngl.SceneCfg):
     kf = ngl.PathKeyBezier2(to=(0.2, -0.75, 0), control=(-0.1, -0.95, 0))
     return _shape_variant_0(cfg, kf)
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_shape_5(cfg: SceneCfg):
+@ngl.scene()
+def path_shape_5(cfg: ngl.SceneCfg):
     kfs = [
         ngl.PathKeyLine(to=(-0.1, -0.65, 0)),
         ngl.PathKeyLine(to=(0.2, -0.75, 0)),
@@ -90,8 +89,8 @@ def path_shape_5(cfg: SceneCfg):
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_shape_6(cfg: SceneCfg):
+@ngl.scene()
+def path_shape_6(cfg: ngl.SceneCfg):
     kfs = [
         ngl.PathKeyLine(to=(-0.1, -0.85, 0)),
         ngl.PathKeyLine(to=(0.2, -0.75, 0)),
@@ -100,8 +99,8 @@ def path_shape_6(cfg: SceneCfg):
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_shape_7(cfg: SceneCfg):
+@ngl.scene()
+def path_shape_7(cfg: ngl.SceneCfg):
     kfs = [
         ngl.PathKeyLine(to=(-0.2, -0.65, 0)),
         ngl.PathKeyLine(to=(0.0, -0.85, 0)),
@@ -111,8 +110,8 @@ def path_shape_7(cfg: SceneCfg):
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_shape_8(cfg: SceneCfg):
+@ngl.scene()
+def path_shape_8(cfg: ngl.SceneCfg):
     kfs = [
         ngl.PathKeyLine(to=(-0.2, -0.85, 0)),
         ngl.PathKeyLine(to=(0.0, -0.65, 0)),
@@ -122,8 +121,8 @@ def path_shape_8(cfg: SceneCfg):
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_parabola(cfg: SceneCfg):
+@ngl.scene()
+def path_parabola(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     orig = (-0.4, -0.75, 0)
     keyframes = [
@@ -136,8 +135,8 @@ def path_parabola(cfg: SceneCfg):
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_flip_t(cfg: SceneCfg, x_base=-0.5, y_base=-0.5):
+@ngl.scene()
+def path_flip_t(cfg: ngl.SceneCfg, x_base=-0.5, y_base=-0.5):
     cfg.aspect_ratio = (1, 1)
     keyframes = [
         ngl.PathKeyMove(to=(x_base + 1 / 8, y_base + 4 / 8, 0)),
@@ -156,8 +155,8 @@ def path_flip_t(cfg: SceneCfg, x_base=-0.5, y_base=-0.5):
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_pie_slice(cfg: SceneCfg):
+@ngl.scene()
+def path_pie_slice(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     keyframes = [
         ngl.PathKeyMove(to=(0.3, 0.261727, 0)),
@@ -193,8 +192,8 @@ def _get_overlap_shape1(clockwise):
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_overlap_add(cfg: SceneCfg):
+@ngl.scene()
+def path_overlap_add(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     keyframes = _get_overlap_shape0() + _get_overlap_shape1(clockwise=True)
     path = ngl.Path(keyframes)
@@ -202,8 +201,8 @@ def path_overlap_add(cfg: SceneCfg):
 
 
 @test_fingerprint(width=640, height=640)
-@scene()
-def path_overlap_xor(cfg: SceneCfg):
+@ngl.scene()
+def path_overlap_xor(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     keyframes = _get_overlap_shape0() + _get_overlap_shape1(clockwise=False)
     path = ngl.Path(keyframes)

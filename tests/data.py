@@ -22,7 +22,6 @@
 import array
 import textwrap
 
-from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.data import (
@@ -135,8 +134,12 @@ def _get_data_function(spec, category, field_type, layout):
         tolerance=1,
         debug_positions=False,
     )
-    @scene(controls=dict(seed=scene.Range(range=[0, 100]), debug_positions=scene.Bool(), color_tint=scene.Bool()))
-    def scene_func(cfg: SceneCfg, seed=0, debug_positions=True, color_tint=False):
+    @ngl.scene(
+        controls=dict(
+            seed=ngl.scene.Range(range=[0, 100]), debug_positions=ngl.scene.Bool(), color_tint=ngl.scene.Bool()
+        )
+    )
+    def scene_func(cfg: ngl.SceneCfg, seed=0, debug_positions=True, color_tint=False):
         cfg.duration = ANIM_DURATION
         return get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint)
 
@@ -177,7 +180,7 @@ def _get_data_streamed_buffer_cuepoints(size):
     return {f"{x}{y}": (c(x), c(y)) for y in range(size) for x in range(size)}
 
 
-def _get_data_streamed_buffer_vec4_scene(cfg: SceneCfg, size, keyframes, scale, single, show_dbg_points):
+def _get_data_streamed_buffer_vec4_scene(cfg: ngl.SceneCfg, size, keyframes, scale, single, show_dbg_points):
     cfg.duration = keyframes * scale
     cfg.aspect_ratio = (1, 1)
     data_size = size * size
@@ -239,8 +242,8 @@ def _get_data_streamed_buffer_function(scale, single):
     keyframes = 4
 
     @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(size), keyframes=keyframes, tolerance=1)
-    @scene(controls=dict(show_dbg_points=scene.Bool()))
-    def scene_func(cfg: SceneCfg, show_dbg_points=False):
+    @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
+    def scene_func(cfg: ngl.SceneCfg, show_dbg_points=False):
         return _get_data_streamed_buffer_vec4_scene(cfg, size, keyframes, scale, single, show_dbg_points)
 
     return scene_func
@@ -253,8 +256,8 @@ data_streamed_buffer_vec4_time_anim = _get_data_streamed_buffer_function(2, Fals
 
 
 @test_cuepoints(points={"c": (0, 0)}, tolerance=1)
-@scene()
-def data_integer_iovars(cfg: SceneCfg):
+@ngl.scene()
+def data_integer_iovars(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     vert = textwrap.dedent(
         """\
@@ -282,8 +285,8 @@ def data_integer_iovars(cfg: SceneCfg):
 
 
 @test_cuepoints(points={"c": (0, 0)}, tolerance=1)
-@scene()
-def data_mat_iovars(cfg: SceneCfg):
+@ngl.scene()
+def data_mat_iovars(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     vert = textwrap.dedent(
         """\
@@ -316,8 +319,8 @@ def data_mat_iovars(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def data_noise_time(cfg: SceneCfg):
+@ngl.scene()
+def data_noise_time(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 2
     vert = textwrap.dedent(
@@ -347,8 +350,8 @@ def data_noise_time(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=30, tolerance=1)
-@scene()
-def data_noise_wiggle(cfg: SceneCfg):
+@ngl.scene()
+def data_noise_wiggle(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 3
 
@@ -360,8 +363,8 @@ def data_noise_wiggle(cfg: SceneCfg):
 
 
 @test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=1)
-@scene()
-def data_eval(cfg: SceneCfg):
+@ngl.scene()
+def data_eval(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     # Entangled dependencies between evals
@@ -405,7 +408,7 @@ def data_eval(cfg: SceneCfg):
     return render
 
 
-def _data_vertex_and_fragment_blocks(cfg: SceneCfg, layout):
+def _data_vertex_and_fragment_blocks(cfg: ngl.SceneCfg, layout):
     """
     This test ensures that the block bindings are properly set by pgcraft
     when UBOs or SSBOs are bound to different stages.
@@ -457,12 +460,12 @@ def _data_vertex_and_fragment_blocks(cfg: SceneCfg, layout):
 
 
 @test_cuepoints(points={"c": (0, 0)}, keyframes=1, tolerance=1)
-@scene()
-def data_vertex_and_fragment_blocks(cfg: SceneCfg):
+@ngl.scene()
+def data_vertex_and_fragment_blocks(cfg: ngl.SceneCfg):
     return _data_vertex_and_fragment_blocks(cfg, "std140")
 
 
 @test_cuepoints(points={"c": (0, 0)}, keyframes=1, tolerance=1)
-@scene()
-def data_vertex_and_fragment_blocks_std430(cfg: SceneCfg):
+@ngl.scene()
+def data_vertex_and_fragment_blocks_std430(cfg: ngl.SceneCfg):
     return _data_vertex_and_fragment_blocks(cfg, "std430")

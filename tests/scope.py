@@ -22,7 +22,7 @@
 
 import textwrap
 
-from pynopegl_utils.misc import load_media, scene
+from pynopegl_utils.misc import load_media
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 
 import pynopegl as ngl
@@ -39,7 +39,7 @@ def _get_colorstats(media):
 
 
 @test_fingerprint(keyframes=5, tolerance=3)
-@scene()
+@ngl.scene()
 def scope_colorstats(cfg):
     vert = textwrap.dedent(
         """
@@ -91,7 +91,7 @@ def scope_colorstats(cfg):
 
 def _get_histogram_func(mode):
     @test_fingerprint(keyframes=5, tolerance=5)
-    @scene()
+    @ngl.scene()
     def scene_func(cfg):
         media = load_media(cfg, "mire")
         cfg.duration = media.duration
@@ -108,7 +108,7 @@ scope_render_histogram_parade = _get_histogram_func("parade")
 
 def _get_waveform_func(mode):
     @test_fingerprint(keyframes=5, tolerance=3)
-    @scene()
+    @ngl.scene()
     def scene_func(cfg):
         media = load_media(cfg, "mire")
         cfg.duration = media.duration
@@ -124,7 +124,7 @@ scope_render_waveform_parade = _get_waveform_func("parade")
 
 
 @test_fingerprint(keyframes=5, tolerance=3)
-@scene()
+@ngl.scene()
 def scope_rtt(cfg):
     """This test makes sure the texture is analyzed after the RTT has written into it"""
 

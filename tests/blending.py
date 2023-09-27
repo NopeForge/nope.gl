@@ -22,7 +22,6 @@
 import math
 from typing import Mapping, Tuple
 
-from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.debug import get_debug_points
 from pynopegl_utils.toolbox.colors import COLORS
@@ -107,7 +106,7 @@ def _get_blending_scene_with_args(colored_circles, circle, positions, bname, bco
     return g
 
 
-def _get_blending_scene(cfg: SceneCfg, bname, bcolor, **bparams):
+def _get_blending_scene(cfg: ngl.SceneCfg, bname, bcolor, **bparams):
     cfg.aspect_ratio = (1, 1)
     colored_circles, circle, positions = _get_blending_base_objects()
     return _get_blending_scene_with_args(colored_circles, circle, positions, bname, bcolor, **bparams)
@@ -150,7 +149,7 @@ _BLENDINGS = list(b[0] for b in _BLENDING_CFGS)
 _NB_BLENDINGS = len(_BLENDINGS)
 
 
-def _get_blending_scenes(cfg: SceneCfg):
+def _get_blending_scenes(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = len(_BLENDING_CFGS)
 
@@ -165,7 +164,7 @@ def _get_blending_scenes(cfg: SceneCfg):
     return scenes
 
 
-def _debug_overlay(cfg: SceneCfg, scene, grid_names, show_dbg_points=False, show_labels=False):
+def _debug_overlay(cfg: ngl.SceneCfg, scene, grid_names, show_dbg_points=False, show_labels=False):
     if not show_dbg_points and not show_labels:
         return scene
 
@@ -212,16 +211,16 @@ _TEST_SETTINGS = dict(show_dbg_points=False, show_labels=False, clear_color=list
 
 
 @test_cuepoints(points=_get_dbg_positions(_NB_BLENDINGS), **_TEST_SETTINGS)
-@scene(controls=dict(show_dbg_points=scene.Bool(), show_labels=scene.Bool()))
-def blending_all_diamond(cfg: SceneCfg, show_dbg_points=True, show_labels=True):
+@ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool(), show_labels=ngl.scene.Bool()))
+def blending_all_diamond(cfg: ngl.SceneCfg, show_dbg_points=True, show_labels=True):
     scenes = _get_blending_scenes(cfg)
     scene = autogrid_simple(scenes)
     return _debug_overlay(cfg, scene, _BLENDINGS, show_dbg_points, show_labels)
 
 
 @test_cuepoints(points=_get_dbg_positions(_NB_BLENDINGS), keyframes=_NB_BLENDINGS + 1, **_TEST_SETTINGS)
-@scene(controls=dict(show_dbg_points=scene.Bool(), show_labels=scene.Bool()))
-def blending_all_timed_diamond(cfg: SceneCfg, show_dbg_points=True, show_labels=True):
+@ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool(), show_labels=ngl.scene.Bool()))
+def blending_all_timed_diamond(cfg: ngl.SceneCfg, show_dbg_points=True, show_labels=True):
     scenes = _get_blending_scenes(cfg)
     scene = autogrid_queue(scenes, duration=cfg.duration, overlap_time=1.5)
     return _debug_overlay(cfg, scene, _BLENDINGS, show_dbg_points, show_labels)
@@ -229,8 +228,8 @@ def blending_all_timed_diamond(cfg: SceneCfg, show_dbg_points=True, show_labels=
 
 def _get_blending_function(bname, bcolor, **bparams):
     @test_cuepoints(points=_get_dbg_positions(), **_TEST_SETTINGS)
-    @scene(controls=dict(show_dbg_points=scene.Bool(), show_labels=scene.Bool()))
-    def scene_func(cfg: SceneCfg, show_dbg_points=True, show_labels=True):
+    @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool(), show_labels=ngl.scene.Bool()))
+    def scene_func(cfg: ngl.SceneCfg, show_dbg_points=True, show_labels=True):
         scene = _get_blending_scene(cfg, bname, bcolor, **bparams)
         return _debug_overlay(cfg, scene, [bname], show_dbg_points, show_labels)
 

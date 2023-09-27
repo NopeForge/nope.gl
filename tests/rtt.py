@@ -22,7 +22,7 @@
 
 import array
 
-from pynopegl_utils.misc import SceneCfg, get_shader, scene
+from pynopegl_utils.misc import get_shader
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS
@@ -92,7 +92,7 @@ void main()
 """
 
 
-def _get_cube_scene(cfg: SceneCfg, depth_test=True, stencil_test=False):
+def _get_cube_scene(cfg: ngl.SceneCfg, depth_test=True, stencil_test=False):
     cube = _get_cube()
     program = ngl.Program(vertex=_RENDER_CUBE_VERT, fragment=_RENDER_CUBE_FRAG)
     program.update_vert_out_vars(var_normal=ngl.IOVec3())
@@ -128,7 +128,7 @@ void main()
 
 
 def _get_rtt_scene(
-    cfg: SceneCfg,
+    cfg: ngl.SceneCfg,
     depth_test=True,
     stencil_test=False,
     texture_ds_format=None,
@@ -191,8 +191,8 @@ def _get_rtt_scene(
 
 def _get_rtt_function(**kwargs):
     @test_fingerprint(width=512, height=512, keyframes=10)
-    @scene()
-    def rtt_function(cfg: SceneCfg):
+    @ngl.scene()
+    def rtt_function(cfg: ngl.SceneCfg):
         return _get_rtt_scene(cfg, **kwargs)
 
     return rtt_function
@@ -242,7 +242,7 @@ def _rtt_load_attachment():
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
-@scene()
+@ngl.scene()
 def rtt_load_attachment(_):
     return _rtt_load_attachment()
 
@@ -250,7 +250,7 @@ def rtt_load_attachment(_):
 @test_cuepoints(
     samples=4, width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1
 )
-@scene()
+@ngl.scene()
 def rtt_load_attachment_msaa(_):
     return _rtt_load_attachment()
 
@@ -267,20 +267,20 @@ def _rtt_load_attachment_nested(samples=0):
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
-@scene()
+@ngl.scene()
 def rtt_load_attachment_nested(_):
     return _rtt_load_attachment_nested()
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
-@scene()
+@ngl.scene()
 def rtt_load_attachment_nested_msaa(_):
     return _rtt_load_attachment_nested(4)
 
 
 @test_fingerprint(width=512, height=512, keyframes=10, tolerance=3)
-@scene()
-def rtt_clear_attachment_with_timeranges(cfg: SceneCfg):
+@ngl.scene()
+def rtt_clear_attachment_with_timeranges(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     # Time-disabled full screen white quad

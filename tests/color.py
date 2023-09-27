@@ -20,7 +20,6 @@
 #
 
 
-from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 
 import pynopegl as ngl
@@ -28,8 +27,8 @@ import pynopegl as ngl
 
 def _get_anim_color_scene_func(c0, c1, space):
     @test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=1)
-    @scene()
-    def scene_func(cfg: SceneCfg):
+    @ngl.scene()
+    def scene_func(cfg: ngl.SceneCfg):
         cfg.duration = 5
         color_animkf = [
             # Start at t=1 and end 1s earlier so that it tests the underflow
@@ -45,7 +44,7 @@ def _get_anim_color_scene_func(c0, c1, space):
 
 def _get_static_color_scene_func(c, space):
     @test_cuepoints(points={"c": (0, 0)}, keyframes=1, tolerance=1)
-    @scene()
+    @ngl.scene()
     def scene_func(_):
         return ngl.RenderColor(color=ngl.UniformColor(c, space=space))
 
@@ -62,8 +61,8 @@ color_static_hsv = _get_static_color_scene_func((0.3, 0.7, 0.6), "hsv")
 
 
 @test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=0)
-@scene()
-def color_negative_values_srgb(cfg: SceneCfg):
+@ngl.scene()
+def color_negative_values_srgb(cfg: ngl.SceneCfg):
     cfg.duration = 5
     kfs = (
         # The elastic_in easing has the special property to undershoot under 0

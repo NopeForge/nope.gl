@@ -19,15 +19,14 @@
 # under the License.
 #
 
-from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 
 import pynopegl as ngl
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def texteffect_color(cfg: SceneCfg):
+@ngl.scene()
+def texteffect_color(cfg: ngl.SceneCfg):
     cfg.duration = 3
 
     text = "Rainbow"
@@ -60,8 +59,8 @@ def texteffect_color(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def texteffect_opacity(cfg: SceneCfg):
+@ngl.scene()
+def texteffect_opacity(cfg: ngl.SceneCfg):
     cfg.duration = 3
 
     animkf = [
@@ -83,8 +82,8 @@ def texteffect_opacity(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def texteffect_transform(cfg: SceneCfg):
+@ngl.scene()
+def texteffect_transform(cfg: ngl.SceneCfg):
     cfg.duration = 3
 
     animkf = [
@@ -108,8 +107,8 @@ def texteffect_transform(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def texteffect_chars_space_nospace(cfg: SceneCfg):
+@ngl.scene()
+def texteffect_chars_space_nospace(cfg: ngl.SceneCfg):
     cfg.duration = 5
 
     animkf = [
@@ -141,8 +140,8 @@ def texteffect_chars_space_nospace(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def texteffect_blur(cfg: SceneCfg):
+@ngl.scene()
+def texteffect_blur(cfg: ngl.SceneCfg):
     cfg.duration = 5
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
@@ -154,8 +153,8 @@ def texteffect_blur(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def texteffect_blur_outline(cfg: SceneCfg):
+@ngl.scene()
+def texteffect_blur_outline(cfg: ngl.SceneCfg):
     cfg.duration = 5
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
@@ -167,8 +166,8 @@ def texteffect_blur_outline(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=10, tolerance=1)
-@scene()
-def texteffect_glow(cfg: SceneCfg):
+@ngl.scene()
+def texteffect_glow(cfg: ngl.SceneCfg):
     cfg.duration = 5
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
@@ -180,8 +179,8 @@ def texteffect_glow(cfg: SceneCfg):
 
 
 @test_fingerprint(keyframes=10, tolerance=2)
-@scene()
-def texteffect_glow_outline(cfg: SceneCfg):
+@ngl.scene()
+def texteffect_glow_outline(cfg: ngl.SceneCfg):
     cfg.duration = 5
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
