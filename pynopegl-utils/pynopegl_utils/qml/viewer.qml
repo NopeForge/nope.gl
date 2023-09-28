@@ -37,9 +37,9 @@ ApplicationWindow {
     signal selectFramerate(int index)
     signal selectExportFile(string export_file)
     signal selectExportResolution(int index)
-    signal selectExportProfile(int index)
+    signal selectExportProfile(string profile_id)
     signal selectExportSamples(int index)
-    signal exportVideo(string filename, int res, int profile, int samples)
+    signal exportVideo(string filename, int res, string profile_id, int samples)
     signal cancelExport()
 
     function set_script(script_name) {
@@ -233,11 +233,11 @@ ApplicationWindow {
         }
     }
 
-    function start_export(filename, res, profile, samples) {
+    function start_export(filename, res, profile_id, samples) {
         exportBar.value = 0;
         exportStack.currentIndex = 0;
         exportPopup.visible = true;
-        exportVideo(filename, res, profile, samples);
+        exportVideo(filename, res, profile_id, samples);
     }
 
     function finish_export() {
@@ -651,7 +651,9 @@ ApplicationWindow {
                             ComboBox {
                                 id: profileList
                                 Layout.fillWidth: true
-                                onActivated: selectExportProfile(currentIndex)
+                                onActivated: selectExportProfile(currentValue)
+                                valueRole: "profile_id"
+                                textRole: "title"
                             }
 
                             Label { text: "MSAA:" }
@@ -665,7 +667,7 @@ ApplicationWindow {
                         Button {
                             text: "Export"
                             Layout.alignment: Qt.AlignHCenter
-                            onClicked: start_export(exportFile.text, resList.currentIndex, profileList.currentIndex, samplesList.currentIndex)
+                            onClicked: start_export(exportFile.text, resList.currentIndex, profileList.currentValue, samplesList.currentIndex)
                         }
                     }
 

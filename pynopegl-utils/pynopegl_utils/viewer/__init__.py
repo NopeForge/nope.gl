@@ -157,18 +157,25 @@ class _Viewer:
             app_window.disable_export("No working `ffmpeg` command found,\nexport is disabled.")
 
         encoders = self._get_available_encoders()
-        export_profile_names = [
-            ENCODE_PROFILES[p].name for p in choices["export_profile"] if ENCODE_PROFILES[p].encoder in encoders
+        export_profiles_model = [
+            dict(profile_id=p, title=ENCODE_PROFILES[p].name)
+            for p in choices["export_profile"]
+            if ENCODE_PROFILES[p].encoder in encoders
         ]
+        export_profile_ids = [p["profile_id"] for p in export_profiles_model]
         export_profile = self._config.get("export_profile")
-        export_profile_index = choices["export_profile"].index(export_profile)
+        assert export_profile is not None
+        try:
+            export_profile_index = export_profile_ids.index(export_profile)
+        except ValueError:
+            export_profile_index = 0
 
         app_window.set_params_model(self._params_model)
         app_window.set_controls_model(self._livectls_model)
         app_window.set_export_name_filters(f"Supported videos ({extensions})")
         app_window.set_export_file(export_filename)
         app_window.set_export_resolutions(export_res_names, export_res_index)
-        app_window.set_export_profiles(export_profile_names, export_profile_index)
+        app_window.set_export_profiles(export_profiles_model, export_profile_index)
         app_window.set_export_samples(export_samples_names, export_samples_index)
         app_window.set_script(script)
         app_window.set_framerates(framerate_names, framerate_index)
@@ -282,9 +289,8 @@ class _Viewer:
         res_id = self._config.CHOICES["export_res"][index]
         self._config.set_export_res(res_id)
 
-    @Slot(int)
-    def _select_export_profile(self, index: int):
-        profile_id = self._config.CHOICES["export_profile"][index]
+    @Slot(str)
+    def _select_export_profile(self, profile_id: str):
         self._config.set_export_profile(profile_id)
         self._test_settings()
 
@@ -297,8 +303,8 @@ class _Viewer:
     def _cancel_export(self):
         self._cancel_export_request = True
 
-    @Slot(str, int, int, int)
-    def _export_video(self, filename: str, res_index: int, profile_index: int, samples: int):
+    @Slot(str, int, str, int)
+    def _export_video(self, filename: str, res_index: int, profile_id: str, samples: int):
         scene_data = self._current_scene_data
         if scene_data is None:
             return
@@ -306,7 +312,6 @@ class _Viewer:
         filename = self._uri_to_path(filename)
 
         res_id = self._config.CHOICES["export_res"][res_index]
-        profile_id = self._config.CHOICES["export_profile"][profile_index]
 
         extra_args = self._get_scene_building_extra_args()
 
