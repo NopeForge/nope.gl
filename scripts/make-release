@@ -34,6 +34,10 @@ echo "New project version: $prv_prj_ver → $new_prj_ver"
 cur_lib_ver=$(cat libnopegl/VERSION)
 printf "Enter new libnopegl version [current: %s]: " "$cur_lib_ver"
 read -r new_lib_ver
+if ! echo "$new_lib_ver" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+    echo "Invalid libnopegl version: \"$new_lib_ver\""
+    exit 1
+fi
 
 # Execute the version bump: we are verbose with set -x to be transparent about
 # the actions that matters
