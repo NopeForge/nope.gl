@@ -144,10 +144,7 @@ ApplicationWindow {
     FileDialog {
         id: scriptDialog
         nameFilters: ["Python scripts (*.py)"]
-        onAccepted: {
-            script.text = selectedFile
-            script.editingFinished()
-        }
+        onAccepted: set_script(selectedFile)
     }
 
     function set_script_directory(dir) {
