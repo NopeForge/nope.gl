@@ -158,10 +158,7 @@ ApplicationWindow {
     FileDialog {
         id: exportDialog
         fileMode: FileDialog.SaveFile
-        onAccepted: {
-            exportFile.text = selectedFile
-            exportFile.editingFinished()
-        }
+        onAccepted: set_export_file(selectedFile)
     }
 
     function set_export_name_filters(name_filters) {
