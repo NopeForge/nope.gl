@@ -30,13 +30,18 @@ import os
 import shutil
 import sys
 
-if __name__ == "__main__":
-    argv = sys.argv[1:].copy()
-    for index, arg in enumerate(argv):
+
+def run(args):
+    args = args.copy()
+    for index, arg in enumerate(args):
         if arg.startswith("handle:"):
             handle = int(arg[len("handle:") :])
             fd = msvcrt.open_osfhandle(handle, os.O_RDONLY)
-            argv[index] = f"pipe:{fd}"
+            args[index] = f"pipe:{fd}"
 
     ffmpeg = shutil.which("ffmpeg.exe")
-    sys.exit(os.spawnl(os.P_WAIT, ffmpeg, "ffmpeg.exe", *argv))
+    sys.exit(os.spawnl(os.P_WAIT, ffmpeg, "ffmpeg.exe", *args))
+
+
+if __name__ == "__main__":
+    run(sys.argv[1:])
