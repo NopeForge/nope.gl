@@ -24,7 +24,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
-import QtQuick.Templates as T
 import Qt.labs.qmlmodels // DelegateChooser is experimental
 
 ApplicationWindow {
