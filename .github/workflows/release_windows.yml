@@ -49,15 +49,16 @@ jobs:
               --collect-all pynopegl_utils `
               --add-binary "venv/Scripts/ffmpeg.exe;bin" `
               --add-binary "venv/Scripts/ffprobe.exe;bin" `
-              --onefile `
               -i scripts/pyinstaller/nope-viewer.ico `
               scripts/pyinstaller/nope-viewer.py
+          mv ./dist/nope-viewer ./dist/NopeViewer
+          Compress-Archive -Path ./dist/NopeViewer/ ./dist/NopeViewer.zip
 
       - name: Upload installer
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $version = $(Get-Content -TotalCount 1 .\VERSION)
-          $output_file = "dist/NopeViewer-$version-x86_64.exe"
-          mv dist/nope-viewer.exe $output_file
+          $output_file = "dist/NopeViewer-$version-x86_64.zip"
+          mv dist/NopeViewer.zip $output_file
           gh release upload "v$version" $output_file
