@@ -24,6 +24,8 @@ from typing import Callable, Optional
 from pynopegl_utils.export import export_workers
 from PySide6 import QtCore
 
+import pynopegl as ngl
+
 
 class Exporter(QtCore.QThread):
     progressed = QtCore.Signal(int)
