@@ -264,6 +264,11 @@ ApplicationWindow {
         exportBar.value = progress;
     }
 
+    DropArea {
+        anchors.fill: parent
+        onDropped: (drop) => set_script(drop.urls[0])
+    }
+
     /*
      * Main view
      */
