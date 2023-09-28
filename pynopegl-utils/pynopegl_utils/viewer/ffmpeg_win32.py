@@ -39,4 +39,4 @@ if __name__ == "__main__":
             argv[index] = f"pipe:{fd}"
 
     ffmpeg = shutil.which("ffmpeg.exe")
-    exit(os.spawnl(os.P_WAIT, ffmpeg, "ffmpeg.exe", *argv))
+    sys.exit(os.spawnl(os.P_WAIT, ffmpeg, "ffmpeg.exe", *argv))
