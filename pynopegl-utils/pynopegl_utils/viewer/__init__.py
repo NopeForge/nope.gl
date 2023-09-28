@@ -254,7 +254,8 @@ class _Viewer:
                 f"`{filepath.name}` becomes `{new_filename}`."
             )
             filepath = filepath.parent / new_filename
-            self._window.set_export_file(filepath.as_posix())
+            filepath = QUrl.fromLocalFile(filepath.as_posix()).url()
+            self._window.set_export_file(filepath)
 
         # Check GIF framerate compatibility
         self._window.hide_export_warning()
