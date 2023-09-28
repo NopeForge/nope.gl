@@ -96,7 +96,7 @@ ENCODE_PROFILES = dict(
 )
 
 
-def export_workers(scene_info: SceneInfo, filename: str, resolution: str, profile_id: str):
+def export_workers(scene_info: ngl.SceneInfo, filename: str, resolution: str, profile_id: str):
     profile = ENCODE_PROFILES[profile_id]
     if profile.format == "gif":
         with tempfile.NamedTemporaryFile(prefix="palette-", suffix=".png") as palette:
