@@ -20,6 +20,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   `RenderToTexture` node are not needed)
 - `RenderToTexture` and `Texture2D` nodes can now be automatically resized to
   match screen size if their initial dimensions are left to (0, 0)
+- Ability to drag'n drop Python scripts in the Viewer
 
 ### Fixed
 - Viewer path management on Windows
