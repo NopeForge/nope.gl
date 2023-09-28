@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+
+## [2023.4] [libnopegl 0.10.0] - 2023-09-28
 ### Added
 - `Eval*` nodes now accept multi-dimensional input resources
 - `luma(r,g,b)` and `srgbmix(a,b,x)` functions in eval
