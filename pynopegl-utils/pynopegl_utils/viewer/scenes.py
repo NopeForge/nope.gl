@@ -68,4 +68,9 @@ def demo(cfg: ngl.SceneCfg, shape="square"):
         ngl.AnimKeyFrameVec3(cfg.duration, (0.7, 0.7, 0.7), "exp_in"),
     ]
     scene = ngl.Scale(scene, factors=ngl.AnimatedVec3(scale_animkf))
+
+    translate = ngl.UniformVec2(live_id="translate", live_min=(-1.5, -1.5), live_max=(1.5, 1.5))
+    translate3 = ngl.EvalVec3("t.x", "t.y", "0", resources=dict(t=translate))
+
+    scene = ngl.Translate(scene, vector=translate3)
     return scene
