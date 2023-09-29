@@ -6,12 +6,50 @@ import Qt.labs.qmlmodels // DelegateChooser is experimental
 
 GroupBox {
     required property string box_title
+    required property var window
     property alias widget_model: paramList.model
 
+    id: root
     title: box_title
     Layout.fillWidth: true
     Layout.margins: 5
     visible: paramList.count > 0
+
+    /*
+     * A scene widget is composed of a Label for the 1st column and the
+     * specified widget for the 2nd column.
+     */
+    component SceneWidget: Item {
+        id: sceneWidget
+        property string label
+        property int row
+        default property Item contentItem
+
+        Binding {
+            target: sceneWidget.contentItem
+            property: "parent"
+            value: paramGrid
+        }
+
+        Binding {
+            target: sceneWidget.Layout
+            property: "row"
+            value: sceneWidget.row
+        }
+
+        Binding {
+            target: sceneWidget.Layout
+            property: "column"
+            value: 1
+        }
+
+        Label {
+            text: label + ":"
+            parent: paramGrid
+            Layout.column: 0
+            Layout.row: sceneWidget.row
+        }
+    }
 
     contentItem: GridLayout {
         id: paramGrid
@@ -23,18 +61,11 @@ GroupBox {
 
                 DelegateChoice {
                     roleValue: "range"
-                    QtObject {
+                    SceneWidget {
+                        label: model.label
+                        row: index
                         property bool fixed: model.step == 1.0
-                        property Label col0: Label {
-                            parent: paramGrid
-                            Layout.column: 0
-                            Layout.row: index
-                            text: model.label + ":"
-                        }
-                        property RowLayout col1: RowLayout {
-                            parent: paramGrid
-                            Layout.column: 1
-                            Layout.row: index
+                        RowLayout {
                             Slider {
                                 Layout.fillWidth: true
                                 snapMode: Slider.SnapAlways
@@ -51,19 +82,11 @@ GroupBox {
 
                 DelegateChoice {
                     roleValue: "vector"
-                    QtObject {
-                        property Label col0: Label {
-                            parent: paramGrid
-                            Layout.column: 0
-                            Layout.row: index
-                            text: model.label + ":"
-                        }
+                    SceneWidget {
+                        label: model.label
+                        row: index
                         property var mdl: model
-                        property RowLayout col1: RowLayout {
-                            parent: paramGrid
-                            Layout.column: 1
-                            Layout.row: index
-
+                        RowLayout {
                             Repeater {
                                 model: mdl.n
 
@@ -115,23 +138,17 @@ GroupBox {
 
                 DelegateChoice {
                     roleValue: "color"
-                    QtObject {
-                        property Label col0: Label {
-                            parent: paramGrid
-                            Layout.column: 0
-                            Layout.row: index
-                            text: model.label + ":"
-                        }
-                        property Button col1: Button {
+                    SceneWidget {
+                        label: model.label
+                        row: index
+                        Button {
                             ColorDialog {
                                 id: color_dialog
+                                parentWindow: root.window
                                 onSelectedColorChanged: model.val = selectedColor
                                 Component.onCompleted: selectedColor = model.val
                                 options: ColorDialog.NoButtons
                             }
-                            parent: paramGrid
-                            Layout.column: 1
-                            Layout.row: index
                             palette.button : color_dialog.selectedColor
                             text: color_dialog.selectedColor
                             onClicked: color_dialog.open()
@@ -141,17 +158,10 @@ GroupBox {
 
                 DelegateChoice {
                     roleValue: "bool"
-                    QtObject {
-                        property Label col0: Label {
-                            parent: paramGrid
-                            Layout.column: 0
-                            Layout.row: index
-                            text: model.label + ":"
-                        }
-                        property Switch col1: Switch {
-                            parent: paramGrid
-                            Layout.column: 1
-                            Layout.row: index
+                    SceneWidget {
+                        label: model.label
+                        row: index
+                        Switch {
                             checked: model.val
                             onToggled: model.val = checked
                         }
@@ -160,17 +170,10 @@ GroupBox {
 
                 DelegateChoice {
                     roleValue: "file"
-                    RowLayout {
-                        property Label col0: Label {
-                            parent: paramGrid
-                            Layout.column: 0
-                            Layout.row: index
-                            text: model.label + ":"
-                        }
-                        property RowLayout col1: RowLayout {
-                            parent: paramGrid
-                            Layout.column: 1
-                            Layout.row: index
+                    SceneWidget {
+                        label: model.label
+                        row: index
+                        RowLayout {
                             TextField {
                                 id: file_text
                                 text: model.val ? model.val : ""
@@ -180,6 +183,7 @@ GroupBox {
                             Button {
                                 FileDialog {
                                     id: file_dialog
+                                    parentWindow: root.window
                                     nameFilters: [model.filter]
                                     onAccepted: model.val = selectedFile.toString()
                                 }
@@ -193,21 +197,14 @@ GroupBox {
 
                 DelegateChoice {
                     roleValue: "list"
-                    QtObject {
+                    SceneWidget {
+                        label: model.label
+                        row: index
                         // this is needed to avoid confusion between
                         // the element "model" entry and the ComboBox.model.
                         // That's also why we don't use model.val here.
                         property var _choices: model.choices
-                        property Label col0: Label {
-                            parent: paramGrid
-                            Layout.column: 0
-                            Layout.row: index
-                            text: model.label + ":"
-                        }
-                        property ComboBox col1: ComboBox {
-                            parent: paramGrid
-                            Layout.column: 1
-                            Layout.row: index
+                        ComboBox {
                             Layout.fillWidth: true
                             model: _choices
                             currentIndex: _choices.indexOf(val)
@@ -218,17 +215,10 @@ GroupBox {
 
                 DelegateChoice {
                     roleValue: "text"
-                    QtObject {
-                        property Label col0: Label {
-                            parent: paramGrid
-                            Layout.column: 0
-                            Layout.row: index
-                            text: model.label + ":"
-                        }
-                        property TextField col1: TextField {
-                            parent: paramGrid
-                            Layout.column: 1
-                            Layout.row: index
+                    SceneWidget {
+                        label: model.label
+                        row: index
+                        TextField {
                             Layout.fillWidth: true
                             text: model.val
                             onEditingFinished: model.val = text

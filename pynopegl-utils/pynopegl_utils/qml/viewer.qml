@@ -26,6 +26,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 
 ApplicationWindow {
+    id: root
     visible: true
     minimumWidth: 1280
     minimumHeight: 800
@@ -322,11 +323,13 @@ ApplicationWindow {
             SceneWidgets {
                 id: paramList
                 box_title: "Build scene options"
+                window: root
             }
 
             SceneWidgets {
                 id: controlList
                 box_title: "Live scene controls"
+                window: root
             }
 
             GroupBox {
