@@ -86,50 +86,27 @@ GroupBox {
                         label: model.label
                         row: index
                         property var mdl: model
-                        RowLayout {
+                        ColumnLayout {
                             Repeater {
                                 model: mdl.n
 
-                                // This code is directly derived form the documentation snippet...
-                                // https://doc.qt.io/Qt-6/qml-qtquick-controls-spinbox.html
-                                SpinBox {
-                                    id: spinBox
-                                    from: decimalToInt(mdl.min[index])
-                                    value: decimalToInt(mdl.val[index])
-                                    to: decimalToInt(mdl.max[index])
-                                    stepSize: decimalToInt(0.01)
-                                    editable: true
-                                    background.implicitWidth: 0
-
-                                    property int decimals: 2
-                                    property real realValue: value / decimalFactor
-                                    readonly property int decimalFactor: Math.pow(10, decimals)
-
-                                    function decimalToInt(decimal) {
-                                        return decimal * decimalFactor;
+                                RowLayout {
+                                    Label { text: "xyzw"[index] }
+                                    Slider {
+                                        Layout.fillWidth: true
+                                        snapMode: Slider.SnapAlways
+                                        stepSize: 0.01
+                                        from: mdl.min[index]
+                                        to: mdl.max[index]
+                                        value: mdl.val[index]
+                                        onMoved: {
+                                            // mdl.val[index] = value has no effect so we do this dance
+                                            let val = mdl.val
+                                            val[index] = value
+                                            mdl.val = val
+                                        }
                                     }
-
-                                    validator: DoubleValidator {
-                                        bottom: Math.min(spinBox.from, spinBox.to)
-                                        top:  Math.max(spinBox.from, spinBox.to)
-                                        decimals: spinBox.decimals
-                                        notation: DoubleValidator.StandardNotation
-                                    }
-
-                                    textFromValue: function(value, locale) {
-                                        return Number(value / decimalFactor).toLocaleString(locale, 'f', spinBox.decimals);
-                                    }
-
-                                    valueFromText: function(text, locale) {
-                                        return Math.round(Number.fromLocaleString(locale, text) * decimalFactor);
-                                    }
-
-                                    onValueModified: {
-                                        // mdl.val[index] = realValue has no effect so we do this dance
-                                        let val = mdl.val
-                                        val[index] = realValue
-                                        mdl.val = val
-                                    }
+                                    Label { text: mdl.val[index].toFixed(3) }
                                 }
                             }
                         }
