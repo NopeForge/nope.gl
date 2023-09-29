@@ -101,5 +101,6 @@ def apply_changes(changes: List[Dict[str, Any]]):
         elif type_ == "text":
             node.set_text(value)
         elif type_ == "vector":
-            value = [value.property(i).toNumber() for i in range(value.property("length").toInt())]
+            if not isinstance(value, (list, tuple)):
+                value = [value.property(i).toNumber() for i in range(value.property("length").toInt())]
             node.set_value(*value)

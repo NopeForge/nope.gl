@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+### Fixed
+- Moving the split position in `ngl-diff`
 
 ## [2023.4] [libnopegl 0.10.0] - 2023-09-28
 ### Added
