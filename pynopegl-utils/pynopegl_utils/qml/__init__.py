@@ -72,3 +72,10 @@ def create_ngl_widget(engine):
     widget.setParentItem(placeholder)
 
     return widget
+
+
+def uri_to_path(uri: str) -> str:
+    path = QUrl(uri).path()  # handle the file:// automatically added by Qt/QML
+    if platform.system() == "Windows" and path.startswith("/"):
+        path = path[1:]
+    return path
