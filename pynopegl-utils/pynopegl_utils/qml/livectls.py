@@ -92,11 +92,7 @@ def apply_changes(changes: List[Dict[str, Any]]):
                 node.set_enabled(value)
             else:
                 node.set_value(value)
-        elif type_ == "color":
+        elif type_ in ("vector", "color"):
             node.set_value(*value)
         elif type_ == "text":
             node.set_text(value)
-        elif type_ == "vector":
-            if not isinstance(value, (list, tuple)):
-                value = [value.property(i).toNumber() for i in range(value.property("length").toInt())]
-            node.set_value(*value)

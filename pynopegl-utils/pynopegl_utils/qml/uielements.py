@@ -73,6 +73,9 @@ class Model(QAbstractListModel):
         if role_name == "val":
             if item["type"] == "color":
                 value = QColor.getRgbF(value)[:3]
+            elif item["type"] == "vector":
+                # QJSValue array to native list
+                value = [value.property(i).toNumber() for i in range(value.property("length").toInt())]
 
         item[role_name] = value
         self.dataChanged.emit(index, index)
