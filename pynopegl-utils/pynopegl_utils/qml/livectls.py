@@ -23,8 +23,6 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from PySide6.QtGui import QColor
-
 import pynopegl as ngl
 
 
@@ -80,8 +78,6 @@ def get_model_data(scene) -> List[Dict[str, Any]]:
         if data["type"] not in ("bool", "text"):
             data["min"] = ctl["min"]
             data["max"] = ctl["max"]
-        if data["type"] == "color":
-            data["val"] = QColor.fromRgbF(*ctl["val"])
         model_data.append(data)
     return model_data
 
@@ -97,7 +93,7 @@ def apply_changes(changes: List[Dict[str, Any]]):
             else:
                 node.set_value(value)
         elif type_ == "color":
-            node.set_value(*QColor.getRgbF(value)[:3])
+            node.set_value(*value)
         elif type_ == "text":
             node.set_text(value)
         elif type_ == "vector":

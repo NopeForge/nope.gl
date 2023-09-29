@@ -55,8 +55,6 @@ def get_model_data(widgets_specs) -> List[Dict[str, Any]]:
             data["min"] = [0] * n if minv is None else list(minv)
             data["val"] = list(default)
             data["max"] = [1] * n if maxv is None else list(maxv)
-        elif ctl_id == "Color":
-            data["val"] = QColor.fromRgbF(*default)
         elif ctl_id == "List":
             data["choices"] = list(ctl_data["choices"])
         elif ctl_id == "File":

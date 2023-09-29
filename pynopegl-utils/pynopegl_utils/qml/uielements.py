@@ -21,6 +21,7 @@
 #
 
 from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt, Slot
+from PySide6.QtGui import QColor
 
 
 class Model(QAbstractListModel):
@@ -53,12 +54,26 @@ class Model(QAbstractListModel):
     def data(self, index, role: int):
         if not index.isValid():
             return None
-        return self._data[index.row()].get(self._roles_map[role])
+        item = self._data[index.row()]
+        role_name = self._roles_map[role]
+        value = item.get(role_name)
+
+        if role_name == "val":
+            if item["type"] == "color":
+                value = QColor.fromRgbF(*value)
+
+        return value
 
     def setData(self, index, value, role):
         if not index.isValid():
             return False
         item = self._data[index.row()]
-        item[self._roles_map[role]] = value
+        role_name = self._roles_map[role]
+
+        if role_name == "val":
+            if item["type"] == "color":
+                value = QColor.getRgbF(value)[:3]
+
+        item[role_name] = value
         self.dataChanged.emit(index, index)
         return True
