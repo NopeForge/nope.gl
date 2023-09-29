@@ -35,7 +35,6 @@ from pynopegl_utils.qml import livectls, params, uielements
 from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.viewer.config import ENCODE_PROFILES, Config
 from PySide6.QtCore import QObject, QUrl, Slot
-from PySide6.QtGui import QColor
 
 import pynopegl as ngl
 
@@ -397,8 +396,6 @@ class _Viewer:
             if data["type"] == "vector" and not isinstance(val, (list, tuple)):
                 # QJSValue array to native list
                 val = [val.property(i).toNumber() for i in range(val.property("length").toInt())]
-            elif data["type"] == "color":
-                val = QColor.getRgbF(val)[:3]
             elif data["type"] == "file" and val is not None:
                 val = qml.uri_to_path(val)
             extra_args[data["label"]] = val
