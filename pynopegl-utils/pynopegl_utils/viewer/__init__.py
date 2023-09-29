@@ -388,12 +388,7 @@ class _Viewer:
         extra_args = {}
         for i in range(self._params_model.rowCount()):
             data = self._params_model.get_row(i)
-
-            val = data["val"]
-            if data["type"] == "file" and val is not None:
-                val = qml.uri_to_path(val)
-            extra_args[data["label"]] = val
-
+            extra_args[data["label"]] = data["val"]
         return extra_args
 
     def _load_current_scene(self):
