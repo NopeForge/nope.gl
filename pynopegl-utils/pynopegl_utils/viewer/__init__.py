@@ -31,7 +31,7 @@ from typing import Any, Dict, List, Optional
 from pynopegl_utils import qml
 from pynopegl_utils.com import query_scene
 from pynopegl_utils.export import export_workers
-from pynopegl_utils.qml import livectls, uielements
+from pynopegl_utils.qml import livectls, params, uielements
 from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.viewer.config import ENCODE_PROFILES, Config
 from PySide6.QtCore import QObject, QUrl, Slot
@@ -227,7 +227,8 @@ class _Viewer:
         self._current_scene_data = scene_data
         self._config.set_scene(scene_data["scene_id"])
 
-        self._set_widgets_from_specs(scene_data["func"].widgets_specs)
+        model_data = params.get_model_data(scene_data["func"].widgets_specs)
+        self._params_model.reset_data_model(model_data)
 
         self._load_current_scene()
 
@@ -403,49 +404,6 @@ class _Viewer:
             extra_args[data["label"]] = val
 
         return extra_args
-
-    # Convert from scene namedtuple to role value in the QML model
-    _WIDGET_TYPES_MODEL_MAP = dict(
-        Range="range",
-        Vector="vector",
-        Color="color",
-        Bool="bool",
-        File="file",
-        List="list",
-        Text="text",
-    )
-
-    def _set_widgets_from_specs(self, widgets_specs):
-        model_data = []
-        for key, default, ctl_id, ctl_data in widgets_specs:
-            type_ = self._WIDGET_TYPES_MODEL_MAP.get(ctl_id)
-            if type_ is None:
-                print(f"widget type {ctl_id} is not yet supported")
-                continue
-
-            data = dict(type=type_, label=key, val=default)
-            if ctl_id == "Range":
-                data["min"] = ctl_data["range"][0]
-                data["max"] = ctl_data["range"][1]
-                data["step"] = 1 / ctl_data["unit_base"]
-            elif ctl_id == "Vector":
-                n = ctl_data["n"]
-                minv = ctl_data.get("minv")
-                maxv = ctl_data.get("maxv")
-                data["n"] = n
-                data["min"] = [0] * n if minv is None else list(minv)
-                data["val"] = list(default)
-                data["max"] = [1] * n if maxv is None else list(maxv)
-            elif ctl_id == "Color":
-                data["val"] = QColor.fromRgbF(*default)
-            elif ctl_id == "List":
-                data["choices"] = list(ctl_data["choices"])
-            elif ctl_id == "File":
-                data["filter"] = ctl_data["filter"]
-
-            model_data.append(data)
-
-        self._params_model.reset_data_model(model_data)
 
     def _load_current_scene(self):
         scene_data = self._current_scene_data
