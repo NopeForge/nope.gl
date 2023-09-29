@@ -31,10 +31,10 @@ from typing import Any, Dict, List, Optional
 from pynopegl_utils import qml
 from pynopegl_utils.com import query_scene
 from pynopegl_utils.export import export_workers
-from pynopegl_utils.qml import livectls
+from pynopegl_utils.qml import livectls, uielements
 from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.viewer.config import ENCODE_PROFILES, Config
-from PySide6.QtCore import QAbstractListModel, QModelIndex, QObject, Qt, QUrl, Slot
+from PySide6.QtCore import QObject, QUrl, Slot
 from PySide6.QtGui import QColor
 
 import pynopegl as ngl
@@ -113,12 +113,12 @@ class _Viewer:
         app_window.selectExportProfile.connect(self._select_export_profile)
         app_window.selectExportSamples.connect(self._select_export_samples)
 
-        self._params_model = UIElementsModel()
+        self._params_model = uielements.Model()
 
         # XXX should we have a trigger/apply button for those?
         self._params_model.dataChanged.connect(self._params_data_changed)
 
-        self._livectls_model = UIElementsModel()
+        self._livectls_model = uielements.Model()
         self._livectls_model.dataChanged.connect(self._livectl_data_changed)
 
         self._ngl_widget = ngl_widget
@@ -501,47 +501,6 @@ class _Viewer:
             # data context agnostic
             scene_data["live"][data["label"]] = data["val"]
         self._ngl_widget.update()
-
-
-class UIElementsModel(QAbstractListModel):
-    """Model for both the build scene options widgets and live controls"""
-
-    _roles = ["type", "label", "val", "min", "max", "n", "step", "choices", "filter"]
-    _roles_map = {Qt.UserRole + i: s for i, s in enumerate(_roles)}
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._data = []
-
-    @Slot(object)
-    def reset_data_model(self, data):
-        self.beginResetModel()
-        self._data = data
-        self.endResetModel()
-
-    def get_row(self, row):
-        return self._data[row]
-
-    def roleNames(self):
-        names = super().roleNames()
-        names.update({k: v.encode() for k, v in self._roles_map.items()})
-        return names
-
-    def rowCount(self, parent=QModelIndex()):
-        return len(self._data)
-
-    def data(self, index, role: int):
-        if not index.isValid():
-            return None
-        return self._data[index.row()].get(self._roles_map[role])
-
-    def setData(self, index, value, role):
-        if not index.isValid():
-            return False
-        item = self._data[index.row()]
-        item[self._roles_map[role]] = value
-        self.dataChanged.emit(index, index)
-        return True
 
 
 def run():
