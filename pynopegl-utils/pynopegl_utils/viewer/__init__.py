@@ -189,20 +189,13 @@ class _Viewer:
         any(line.strip() == "------" for line in line_iter)  # skip to start of the list
         return [line.split(maxsplit=3)[1] for line in line_iter]  # pick 2nd column
 
-    @staticmethod
-    def _uri_to_path(uri):
-        path = QUrl(uri).path()  # handle the file:// automatically added by Qt/QML
-        if platform.system() == "Windows" and path.startswith("/"):
-            path = path[1:]
-        return path
-
     @Slot()
     def _close(self):
         self._cancel_export()
 
     @Slot(str)
     def _select_script(self, script: str):
-        script = self._uri_to_path(script)
+        script = qml.uri_to_path(script)
 
         if script.endswith(".py"):
             script = Path(script).resolve().as_posix()
@@ -244,7 +237,7 @@ class _Viewer:
 
         # Check if extension is consistent with format
         filename = self._window.get_export_file()
-        filename = self._uri_to_path(filename)
+        filename = qml.uri_to_path(filename)
         filepath = Path(filename)
         extension = f".{profile.format}"
         if filepath.suffix.lower() != extension:
@@ -277,7 +270,7 @@ class _Viewer:
 
     @Slot(str)
     def _select_export_file(self, export_file: str):
-        filename = self._uri_to_path(export_file)
+        filename = qml.uri_to_path(export_file)
 
         dirname = Path(filename).resolve().parent.as_posix()
         dirname = QUrl.fromLocalFile(dirname).url()
@@ -310,7 +303,7 @@ class _Viewer:
         if scene_data is None:
             return
 
-        filename = self._uri_to_path(filename)
+        filename = qml.uri_to_path(filename)
 
         res_id = self._config.CHOICES["export_res"][res_index]
 
@@ -406,7 +399,7 @@ class _Viewer:
             elif data["type"] == "color":
                 val = QColor.getRgbF(val)[:3]
             elif data["type"] == "file" and val is not None:
-                val = self._uri_to_path(val)
+                val = qml.uri_to_path(val)
             extra_args[data["label"]] = val
 
         return extra_args
