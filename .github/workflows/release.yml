@@ -17,4 +17,5 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create ${{  github.ref_name }} -F CHANGELOG.md
+          scripts/release-changelog.py ${{ github.ref_name }} > RELEASE_CHANGELOG.md
+          gh release create ${{ github.ref_name }} -F RELEASE_CHANGELOG.md
