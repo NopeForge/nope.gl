@@ -20,6 +20,7 @@
 # under the License.
 #
 
+from pynopegl_utils import qml
 from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt, Slot
 from PySide6.QtGui import QColor
 
@@ -76,6 +77,8 @@ class Model(QAbstractListModel):
             elif item["type"] == "vector":
                 # QJSValue array to native list
                 value = [value.property(i).toNumber() for i in range(value.property("length").toInt())]
+            elif item["type"] == "file" and value is not None:
+                value = qml.uri_to_path(value)
 
         item[role_name] = value
         self.dataChanged.emit(index, index)
