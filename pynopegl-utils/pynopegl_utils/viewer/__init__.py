@@ -423,11 +423,6 @@ class _Viewer:
     )
 
     def _set_widgets_from_specs(self, widgets_specs):
-        scene_data = self._current_scene_data
-        assert scene_data is not None
-
-        widgets_specs = scene_data["func"].widgets_specs
-
         model_data = []
         for key, default, ctl_id, ctl_data in widgets_specs:
             type_ = self._WIDGET_TYPES_MODEL_MAP.get(ctl_id)
