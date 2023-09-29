@@ -390,13 +390,7 @@ class _Viewer:
             data = self._params_model.get_row(i)
 
             val = data["val"]
-            # It appears that the QML cannot modify the model entries with
-            # native backend types, so we have to convert them back after the
-            # model data has been tainted by the QML
-            if data["type"] == "vector" and not isinstance(val, (list, tuple)):
-                # QJSValue array to native list
-                val = [val.property(i).toNumber() for i in range(val.property("length").toInt())]
-            elif data["type"] == "file" and val is not None:
+            if data["type"] == "file" and val is not None:
                 val = qml.uri_to_path(val)
             extra_args[data["label"]] = val
 
