@@ -396,6 +396,9 @@ def _nopegl_setup(cfg):
         debug_opts = ",".join(cfg.args.debug_opts)
         nopegl_opts += [f"-Ddebug_opts={debug_opts}"]
 
+    if cfg.args.sanitize:
+        nopegl_opts += [f"-Db_sanitize={cfg.args.sanitize}"]
+
     if "gpu_capture" in cfg.args.debug_opts:
         renderdoc_dir = cfg.externals[_RENDERDOC_ID]
         nopegl_opts += [f"-Drenderdoc_dir={renderdoc_dir}"]
@@ -843,6 +846,11 @@ def _run():
     parser.add_argument("-p", "--venv-path", default=op.join(_ROOTDIR, "venv"), help="Virtual environment directory")
     parser.add_argument("--buildtype", choices=("release", "debug"), default="release", help="Build type")
     parser.add_argument("--coverage", action="store_true", help="Code coverage")
+    parser.add_argument(
+        "--sanitize",
+        choices=("none", "address", "thread", "undefined", "memory", "leak", "address,undefined"),
+        help="Code sanitizer to use",
+    )
     parser.add_argument(
         "-d",
         "--debug-opts",
