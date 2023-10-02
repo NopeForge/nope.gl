@@ -23,6 +23,8 @@ import subprocess
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
+import pynopegl as ngl
+
 
 class _SpawnView(QtWidgets.QGroupBox):
     def __init__(self, config):
@@ -41,11 +43,7 @@ class _SpawnView(QtWidgets.QGroupBox):
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
-        backend_names = {
-            "opengl": "OpenGL",
-            "opengles": "OpenGL ES",
-            "vulkan": "Vulkan",
-        }
+        backend_names = {key.name.lower(): value["name"] for key, value in ngl.get_backends().items()}
         all_backends = config.CHOICES["backend"]
         default_backend = config.get("backend")
         self._backend_cbbox = QtWidgets.QComboBox()

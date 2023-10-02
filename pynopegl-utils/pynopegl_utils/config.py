@@ -26,6 +26,8 @@ import os.path as op
 from pynopegl_utils.export import ENCODE_PROFILES, RESOLUTIONS
 from PySide6 import QtCore
 
+import pynopegl as ngl
+
 from .misc import get_nopegl_tempdir
 
 
@@ -61,11 +63,7 @@ class Config(QtCore.QObject):
             "error",
             "quiet",
         ],
-        "backend": [
-            "opengl",
-            "opengles",
-            "vulkan",
-        ],
+        "backend": [key.name.lower() for key in ngl.get_backends().keys()],
         "export_res": list(RESOLUTIONS.keys()),
         "export_profile": list(ENCODE_PROFILES.keys()),
     }
