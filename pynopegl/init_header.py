@@ -313,6 +313,7 @@ class SceneCfg:
     system: str = platform.system()
     files: List[str] = field(default_factory=list)
     clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
+    caps: Optional[Mapping[Cap, int]] = None
 
     def __post_init__(self):
         # Predictible random number generator
@@ -351,6 +352,16 @@ def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str]
             # Make sure the SceneCfg backend has a concrete value
             if scene_cfg.backend == Backend.AUTO:
                 scene_cfg.backend = next(k for k, v in get_backends().items() if v["is_default"])
+
+            # Provide the capabilities of the selected backend
+            if scene_cfg.caps is None:
+                backends = probe_backends()
+                scene_cfg.caps = backends[scene_cfg.backend]["caps"]
+            else:
+                ref_set = set(cap.value for cap in Cap)
+                usr_set = set(scene_cfg.caps.keys())
+                if ref_set != usr_set:
+                    raise Exception("the specified capabilities set does not match the available capabilities")
 
             root = scene_func(scene_cfg, **extra_args)
             scene = Scene.from_params(root, scene_cfg.duration, scene_cfg.framerate, scene_cfg.aspect_ratio)
