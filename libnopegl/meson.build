@@ -176,6 +176,7 @@ lib_src = files(
   'src/filterschain.c',
   'src/format.c',
   'src/geometry.c',
+  'src/gpu_block.c',
   'src/gpu_ctx.c',
   'src/hmap.c',
   'src/hud.c',
