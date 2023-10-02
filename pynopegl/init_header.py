@@ -27,7 +27,7 @@ import random
 from collections import namedtuple
 from dataclasses import asdict, dataclass, field
 from enum import IntEnum
-from functools import wraps
+from functools import lru_cache, wraps
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 from packaging.specifiers import SpecifierSet
@@ -168,10 +168,12 @@ def _pythonize_backends(backends: Mapping[str, Any]) -> Mapping[Backend, Any]:
     return ret
 
 
+@lru_cache
 def get_backends(config: Optional[Config] = None) -> Mapping[Backend, Any]:
     return _pythonize_backends(_ngl.probe_backends(_ngl.PROBE_MODE_NO_GRAPHICS, config))
 
 
+@lru_cache
 def probe_backends(config: Optional[Config] = None) -> Mapping[Backend, Any]:
     return _pythonize_backends(_ngl.probe_backends(_ngl.PROBE_MODE_FULL, config))
 
