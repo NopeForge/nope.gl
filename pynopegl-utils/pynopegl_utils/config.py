@@ -77,7 +77,7 @@ class Config(QtCore.QObject):
             "framerate": (60, 1),
             "log_level": "info",
             "clear_color": (0.0, 0.0, 0.0, 1.0),
-            "backend": "opengl",
+            "backend": next(k.name.lower() for k, v in ngl.get_backends().items() if v["is_default"]),
             # Export
             "export_res": "720p",
             "export_filename": op.join(get_nopegl_tempdir(), "ngl-export.mp4"),
