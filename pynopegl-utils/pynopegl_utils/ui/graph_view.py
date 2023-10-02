@@ -166,13 +166,13 @@ class GraphView(QtWidgets.QWidget):
         del self._ctx
         self._ctx = None
 
-    def _init_ctx(self, rendering_backend):
+    def _init_ctx(self, rendering_backend: ngl.Backend):
         if self._ctx:
             return
         self._ctx = ngl.Context()
         self._ctx.configure(
             ngl.Config(
-                backend=misc.get_backend(rendering_backend),
+                backend=rendering_backend,
                 offscreen=True,
                 width=16,
                 height=16,

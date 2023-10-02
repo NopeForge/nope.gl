@@ -134,7 +134,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.clear_scripts()
         self._scene_err(err_str)
 
-    def _get_scene(self, backend=None, system=None) -> Optional[ngl.SceneInfo]:
+    def _get_scene(self, backend: Optional[ngl.Backend] = None, system=None) -> Optional[ngl.SceneInfo]:
         cfg = self._scene_toolbar.get_cfg()
         scene_func, extra_args = self._scene_toolbar.get_scene_info()
         if scene_func is None:

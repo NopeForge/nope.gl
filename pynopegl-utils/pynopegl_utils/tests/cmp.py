@@ -100,7 +100,7 @@ class CompareSceneBase(CompareBase):
 
         backend = os.environ.get("BACKEND")
         if backend:
-            cfg.backend = backend
+            cfg.backend = get_backend(backend)
 
         scene_info = self._scene_func(cfg, **self._scene_kwargs)
         width, height = self._width, self._height
@@ -114,7 +114,7 @@ class CompareSceneBase(CompareBase):
                 offscreen=True,
                 width=width,
                 height=height,
-                backend=get_backend(backend) if backend else ngl.Backend.AUTO,
+                backend=cfg.backend if backend else ngl.Backend.AUTO,
                 samples=cfg.samples,
                 clear_color=cfg.clear_color,
                 capture_buffer=capture_buffer,
