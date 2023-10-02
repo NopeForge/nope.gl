@@ -153,6 +153,10 @@ class Config(_ngl.Config):
             hud_scale,
         )
 
+    @property
+    def backend(self) -> Backend:
+        return Backend(super().backend)
+
 
 def _pythonize_backends(backends: Mapping[str, Any]) -> Mapping[Backend, Any]:
     """Replace key string identifiers with their corresponding enum (Backend and Cap)"""
