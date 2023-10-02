@@ -8,6 +8,10 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+### Added
+- Ability to get the selected backend by reading `ngl.Config.backend` after the
+  configure step, in Python
+
 ### Fixed
 - Moving the split position in `ngl-diff`
 

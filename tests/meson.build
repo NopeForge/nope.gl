@@ -65,6 +65,7 @@ foreach backend : backends
     'trf_seek_keep_alive',
     'dot',
     'probing',
+    'auto_backend',
   ]
   if has_text_libraries
     tests_api += 'text_live_change_with_font'
