@@ -381,6 +381,7 @@ class _Viewer:
 
     def _get_scene_cfg(self):
         return ngl.SceneCfg(
+            backend=ngl.Backend.OPENGL,
             framerate=self._config.get("framerate"),
         )
 
