@@ -523,3 +523,23 @@ def api_auto_backend():
     assert ret == 0
     assert isinstance(cfg.backend, ngl.Backend)
     assert cfg.backend != ngl.Backend.AUTO
+
+
+def api_caps():
+    # Manually build a scene config with the default backend and explicit capabilities
+    scene_cfg = ngl.SceneCfg(backend=next(k for k, v in ngl.get_backends().items() if v["is_default"]))
+    backends = ngl.probe_backends()
+    scene_cfg.caps = backends[scene_cfg.backend]["caps"]
+
+    # Building this scene is expected to succeed because caps are consistent
+    scene_func = ngl.scene()(lambda _: ngl.Group())
+    scene_func(scene_cfg)
+
+    # This one must fail because it lacks a capability
+    scene_cfg.caps.pop(ngl.Cap.TEXT_LIBRARIES)
+    try:
+        scene_func(scene_cfg)
+    except Exception:
+        pass
+    else:
+        assert False
