@@ -169,11 +169,11 @@ def _pythonize_backends(backends: Mapping[str, Any]) -> Mapping[Backend, Any]:
 
 
 def get_backends(config: Optional[Config] = None) -> Mapping[Backend, Any]:
-    return _pythonize_backends(_ngl.probe_backends(_ngl.PROBE_MODE_FULL, config))
+    return _pythonize_backends(_ngl.probe_backends(_ngl.PROBE_MODE_NO_GRAPHICS, config))
 
 
 def probe_backends(config: Optional[Config] = None) -> Mapping[Backend, Any]:
-    return _pythonize_backends(_ngl.probe_backends(_ngl.PROBE_MODE_NO_GRAPHICS, config))
+    return _pythonize_backends(_ngl.probe_backends(_ngl.PROBE_MODE_FULL, config))
 
 
 class Node(_Node):
