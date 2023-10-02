@@ -96,22 +96,17 @@ class CompareSceneBase(CompareBase):
         self._hud_export_filename = None
 
     def render_frames(self) -> Generator[Tuple[int, int, bytearray], None, None]:
-        cfg = ngl.SceneCfg(samples=self._samples, clear_color=self._clear_color)
-
         backend = os.environ.get("BACKEND")
-        if backend:
-            cfg.backend = get_backend(backend)
 
         width, height = self._width, self._height
-
         capture_buffer = bytearray(width * height * 4)
         ctx_cfg = ngl.Config(
             offscreen=True,
             width=width,
             height=height,
-            backend=cfg.backend if backend else ngl.Backend.AUTO,
-            samples=cfg.samples,
-            clear_color=cfg.clear_color,
+            backend=get_backend(backend) if backend else ngl.Backend.AUTO,
+            samples=self._samples,
+            clear_color=self._clear_color,
             capture_buffer=capture_buffer,
             hud=self._hud,
             hud_export_filename=self._hud_export_filename,
@@ -120,6 +115,7 @@ class CompareSceneBase(CompareBase):
         ret = ctx.configure(ctx_cfg)
         assert ret == 0
 
+        cfg = ngl.SceneCfg(samples=self._samples, clear_color=self._clear_color, backend=ctx_cfg.backend)
         scene_info = self._scene_func(cfg, **self._scene_kwargs)
         scene = scene_info.scene
         duration = scene.duration
