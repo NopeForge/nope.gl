@@ -347,6 +347,11 @@ def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str]
 
             if scene_cfg is None:
                 scene_cfg = SceneCfg()
+
+            # Make sure the SceneCfg backend has a concrete value
+            if scene_cfg.backend == Backend.AUTO:
+                scene_cfg.backend = next(k for k, v in get_backends().items() if v["is_default"])
+
             root = scene_func(scene_cfg, **extra_args)
             scene = Scene.from_params(root, scene_cfg.duration, scene_cfg.framerate, scene_cfg.aspect_ratio)
             return SceneInfo(
