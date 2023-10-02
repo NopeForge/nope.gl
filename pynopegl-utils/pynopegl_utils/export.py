@@ -30,7 +30,7 @@ import tempfile
 from dataclasses import dataclass
 from typing import List, Optional
 
-from pynopegl_utils.misc import get_backend, get_viewport
+from pynopegl_utils.misc import get_viewport
 
 import pynopegl as ngl
 
@@ -174,7 +174,7 @@ def _export_worker(
     ctx.configure(
         ngl.Config(
             platform=ngl.Platform.AUTO,
-            backend=get_backend(scene_info.backend),
+            backend=scene_info.backend,
             offscreen=True,
             width=width,
             height=height,

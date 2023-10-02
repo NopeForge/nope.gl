@@ -26,6 +26,7 @@ import tempfile
 import time
 from typing import Callable, Optional
 
+from pynopegl_utils.misc import get_backend
 from pynopegl_utils.module import load_script
 from PySide6 import QtCore
 
@@ -201,7 +202,7 @@ class _SceneChangeWorker(QtCore.QObject):
         system = session["system"]
 
         self.buildingScene.emit(session_id, backend, system)
-        scene_info = self._get_scene_info(backend=backend, system=system)
+        scene_info = self._get_scene_info(backend=get_backend(backend), system=system)
         if not scene_info:
             self.error.emit(session_id, "Error getting scene")
             return

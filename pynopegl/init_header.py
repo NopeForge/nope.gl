@@ -308,7 +308,7 @@ class SceneCfg:
     aspect_ratio: Tuple[int, int] = (16, 9)
     duration: float = 30.0
     framerate: Tuple[int, int] = (60, 1)
-    backend: str = "opengl"
+    backend: Backend = Backend.OPENGL
     samples: int = 0
     system: str = platform.system()
     files: List[str] = field(default_factory=list)
@@ -329,7 +329,7 @@ class SceneCfg:
 @dataclass
 class SceneInfo:
     scene: Scene
-    backend: str
+    backend: Backend
     samples: int
     clear_color: Tuple[float, float, float, float]
     files: List[str]

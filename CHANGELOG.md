@@ -18,6 +18,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Changed
 - `ngl.get_backends()` and `ngl.probe_backends()` were mistakenly inverted in
   v2023.2, this is changed back in this release
+- `SceneCfg` and `SceneInfo` now use the `Backend` enum instead of a string
 
 ## [2023.4] [libnopegl 0.10.0] - 2023-09-28
 ### Added
