@@ -104,7 +104,7 @@ struct pgcraft_block {
     int stage;
     int writable;
     const struct block *block;
-    struct buffer *buffer;
+    struct buffer_binding buffer;
 };
 
 struct pgcraft_attribute {

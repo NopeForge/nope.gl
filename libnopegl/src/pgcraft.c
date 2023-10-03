@@ -60,7 +60,7 @@ struct pgcraft_pipeline_info {
     } desc;
     struct {
         struct darray textures;   // texture pointer
-        struct darray buffers;    // buffer pointer
+        struct darray buffers;    // buffer_binding
         struct darray vertex_buffers; // buffer pointer
     } data;
 };
@@ -688,7 +688,6 @@ static int inject_ublock(struct pgcraft *s, struct bstr *b, int stage)
         .type          = NGLI_TYPE_UNIFORM_BUFFER,
         .stage         = stage,
         .block         = block,
-        .buffer        = NULL,
     };
     snprintf(pgcraft_block.name, sizeof(pgcraft_block.name), "ngl_%s", ublock_names[stage]);
 
@@ -1428,11 +1427,11 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
     ngli_darray_init(&s->filtered_pipeline_info.desc.vertex_buffers, sizeof(struct vertex_buffer_layout), 0);
 
     ngli_darray_init(&s->pipeline_info.data.textures,   sizeof(struct texture *), 0);
-    ngli_darray_init(&s->pipeline_info.data.buffers,    sizeof(struct buffer *),  0);
+    ngli_darray_init(&s->pipeline_info.data.buffers,    sizeof(struct buffer_binding),  0);
     ngli_darray_init(&s->pipeline_info.data.vertex_buffers, sizeof(struct buffer *),  0);
 
     ngli_darray_init(&s->filtered_pipeline_info.data.textures,   sizeof(struct texture *), 0);
-    ngli_darray_init(&s->filtered_pipeline_info.data.buffers,    sizeof(struct buffer *),  0);
+    ngli_darray_init(&s->filtered_pipeline_info.data.buffers,    sizeof(struct buffer_binding),  0);
     ngli_darray_init(&s->filtered_pipeline_info.data.vertex_buffers, sizeof(struct buffer *),  0);
 
     return s;

@@ -30,7 +30,7 @@
 struct pipeline_compat_resources {
     struct texture **textures;
     size_t nb_textures;
-    struct buffer **buffers;
+    struct buffer_binding *buffers;
     size_t nb_buffers;
     struct buffer **vertex_buffers;
     size_t nb_vertex_buffers;

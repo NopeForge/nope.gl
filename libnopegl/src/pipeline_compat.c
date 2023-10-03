@@ -214,14 +214,8 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     const size_t nb_buffers = resources->nb_buffers;
     if (nb_buffers) {
         s->buffers = ngli_calloc(nb_buffers, sizeof(*s->buffers));
-        for (size_t i = 0; i < nb_buffers; i++) {
-            const struct buffer *buffer = resources->buffers[i];
-            s->buffers[i] = (struct buffer_binding) {
-                .buffer = buffer,
-                .offset = 0,
-                .size   = buffer ? buffer->size : 0,
-            };
-        }
+        for (size_t i = 0; i < nb_buffers; i++)
+            s->buffers[i] = resources->buffers[i];
         s->nb_buffers = nb_buffers;
     }
 
