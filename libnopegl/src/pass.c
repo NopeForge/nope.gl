@@ -245,12 +245,17 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     else
         ngli_assert(0);
 
+    const struct buffer *buffer = block_info->buffer;
+    const size_t buffer_size = buffer ? buffer->size : 0;
     struct pgcraft_block crafter_block = {
         .type     = type,
         .stage    = stage,
         .writable = writable,
         .block    = block,
-        .buffer   = block_info->buffer,
+        .buffer   = {
+            .buffer = buffer,
+            .size   = buffer_size,
+        },
     };
     snprintf(crafter_block.name, sizeof(crafter_block.name), "%s", name);
 
