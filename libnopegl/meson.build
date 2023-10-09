@@ -1,5 +1,5 @@
 #
-# Copyright 2023 Nope Foundry
+# Copyright 2023 Nope Forge
 # Copyright 2020-2022 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -735,7 +735,7 @@ endif
 
 # Create nopegl version data for rc
 nopegl_version_cdata = configuration_data()
-nopegl_version_cdata.set('NOPEGL_COPYRIGHT', 'Copyright Nope Foundry')
+nopegl_version_cdata.set('NOPEGL_COPYRIGHT', 'Copyright Nope Forge')
 nopegl_version_cdata.set('NOPEGL_MAJOR_VERSION', version_array[0])
 nopegl_version_cdata.set('NOPEGL_MINOR_VERSION', version_array[1])
 nopegl_version_cdata.set('NOPEGL_MICRO_VERSION', version_array[2])

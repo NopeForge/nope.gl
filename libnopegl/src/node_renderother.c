@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nope Foundry
+ * Copyright 2023 Nope Forge
  * Copyright 2021-2022 GoPro Inc.
  * Copyright 2021-2022 Clément Bœsch <u pkh.me>
  *

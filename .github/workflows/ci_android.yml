@@ -59,7 +59,7 @@ jobs:
 
     - name: Build nope.media for Android & reshape files tree
       run: |
-        curl -sL https://github.com/NopeFoundry/nope.media/archive/refs/tags/v${{ matrix.nopemd_version }}.tar.gz -o nope.media.tgz
+        curl -sL https://github.com/NopeForge/nope.media/archive/refs/tags/v${{ matrix.nopemd_version }}.tar.gz -o nope.media.tgz
         tar xf nope.media.tgz
         cd nope.media-${{ matrix.nopemd_version }}
         PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \

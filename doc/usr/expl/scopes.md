@@ -97,4 +97,4 @@ Additional details:
 [Block]: /usr/ref/libnopegl.md#block
 [Render]: /usr/ref/libnopegl.md#render
 [Compute]: /usr/ref/libnopegl.md#compute
-[nope.demos]: https://github.com/NopeFoundry/nope.demos
+[nope.demos]: https://github.com/NopeForge/nope.demos
