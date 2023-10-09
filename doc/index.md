@@ -1,6 +1,6 @@
-# Nope Foundry documentation
+# Nope Forge documentation
 
-The [Nope Foundry project][nope-foundry] provides a free and open source cross-platform
+The [Nope Forge project][nopeforge] provides a free and open source cross-platform
 framework for **motion design**, **2D composition** and **visual effects**.
 
 This documentation is split into 2 main sections: **user** and **developers**
@@ -25,5 +25,5 @@ usr/index.md
 dev/index.md
 ```
 
-[nope-foundry]: https://www.nope-foundry.org
-[nopegl]: https://github.com/NopeFoundry/nope.gl
+[nopeforge]: https://www.nopeforge.org
+[nopegl]: https://github.com/NopeForge/nope.gl

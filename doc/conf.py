@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.append((Path(__file__).resolve().parent / "_ext").as_posix())
 
 # Project information
-project = "Nope Foundry"
+project = "Nope Forge"
 project_copyright = f"2023 {project}"
 author = "Clément Bœsch"
 version = "main"
@@ -26,5 +26,5 @@ myst_heading_anchors = 3
 myst_url_schemes = dict(
     http=None,
     https=None,
-    source=f"https://github.com/NopeFoundry/nope.gl/tree/{version}/" + "{{path}}",
+    source=f"https://github.com/NopeForge/nope.gl/tree/{version}/" + "{{path}}",
 )

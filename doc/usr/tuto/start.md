@@ -12,7 +12,7 @@ installation guide][install]. In a nutshell: `./configure.py && make` creates a
 complete Python-based working environment. Within that virtual environment, the
 `ngl-viewer` command is available.
 
-[releases]: https://github.com/NopeFoundry/nope.gl/releases/
+[releases]: https://github.com/NopeForge/nope.gl/releases/
 [install]: /usr/howto/installation.md
 
 ## Creating a simple scene in Python

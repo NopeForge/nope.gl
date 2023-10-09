@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2023 Nope Foundry
+# Copyright 2023 Nope Forge
 # Copyright 2021-2022 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -53,7 +53,7 @@ _EXTERNAL_DEPS = dict(
     ),
     nopemd=dict(
         version="11.1.0",
-        url="https://github.com/NopeFoundry/nope.media/archive/v@VERSION@.tar.gz",
+        url="https://github.com/NopeForge/nope.media/archive/v@VERSION@.tar.gz",
         dst_file="nope.media-@VERSION@.tar.gz",
         sha256="262d0841471276acb7f224610286b1cde360df3440dc9a07e01fd5488e44adfb",
     ),

@@ -1,6 +1,6 @@
 #
 # Copyright 2023 Clément Bœsch <u pkh.me>
-# Copyright 2023 Nope Foundry
+# Copyright 2023 Nope Forge
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -38,15 +38,15 @@ from PySide6.QtCore import QObject, QUrl, Slot
 
 import pynopegl as ngl
 
-_LICENSE_APACHE = "https://github.com/NopeFoundry/nope.gl/blob/main/LICENSE"
-_NOTICE = "https://github.com/NopeFoundry/nope.gl/blob/main/NOTICE"
-_NOPE_FOUNDRY = "https://www.nope-foundry.org"
-_NOPE_MEDIA = "https://github.com/NopeFoundry/nope.media"
+_LICENSE_APACHE = "https://github.com/NopeForge/nope.gl/blob/main/LICENSE"
+_NOTICE = "https://github.com/NopeForge/nope.gl/blob/main/NOTICE"
+_NOPE_FORGE = "https://www.nopeforge.org"
+_NOPE_MEDIA = "https://github.com/NopeForge/nope.media"
 _ABOUT_POPUP_CONTENT = dedent(
     f"""\
     # About
 
-    The Nope viewer is part of the [Nope Foundry]({_NOPE_FOUNDRY}) project and
+    The Nope viewer is part of the [Nope Forge]({_NOPE_FORGE}) project and
     is licensed under the [Apache License, Version 2.0]({_LICENSE_APACHE}).
 
     See the [NOTICE]({_NOTICE}) file for more information.
