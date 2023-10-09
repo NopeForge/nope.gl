@@ -255,12 +255,7 @@ static int init_block(struct colorstats_priv *s, struct gpu_ctx *gpu_ctx)
     struct block *block = &s->blk.block;
     ngli_block_init(gpu_ctx, block, NGLI_BLOCK_LAYOUT_STD430);
 
-    /* Set block fields */
-    static const struct {
-        const char *name;
-        int type;
-        size_t count;
-    } block_layout[] = {
+    static const struct block_field block_fields[] = {
         {"max_rgb",       NGLI_TYPE_UVEC2, 0},
         {"max_luma",      NGLI_TYPE_UVEC2, 0},
         {"depth",         NGLI_TYPE_I32,   0},
@@ -268,11 +263,9 @@ static int init_block(struct colorstats_priv *s, struct gpu_ctx *gpu_ctx)
         {"summary",       NGLI_TYPE_UVEC4, 1 << MAX_BIT_DEPTH},
         {"data",          NGLI_TYPE_UVEC4, NGLI_BLOCK_VARIADIC_COUNT},
     };
-    for (size_t i = 0; i < NGLI_ARRAY_NB(block_layout); i++) {
-        int ret = ngli_block_add_field(block, block_layout[i].name, block_layout[i].type, block_layout[i].count);
-        if (ret < 0)
-            return ret;
-    }
+    int ret = ngli_block_add_fields(block, block_fields, NGLI_ARRAY_NB(block_fields));
+    if (ret < 0)
+        return ret;
 
     /* We do not have any CPU data */
     s->blk.data = NULL;
