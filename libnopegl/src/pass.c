@@ -36,7 +36,6 @@
 #include "image.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "pass.h"
@@ -44,7 +43,6 @@
 #include "pipeline_compat.h"
 #include "program.h"
 #include "texture.h"
-#include "topology.h"
 #include "type.h"
 #include "utils.h"
 
