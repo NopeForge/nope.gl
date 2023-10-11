@@ -27,6 +27,8 @@ jobs:
     steps:
     - name: Checkout sources
       uses: actions/checkout@v3
+      with:
+        fetch-tags: true
 
     - name: Install dependencies
       run: |
@@ -44,15 +46,32 @@ jobs:
         sudo apt -y install libfreetype-dev libharfbuzz-dev libfribidi-dev
         sudo apt -y install graphviz
 
-    - name: Build
+    - name: Build (main)
       run: |
         ./configure.py --buildtype debug --debug-opts gl vk gpu_capture
         make
 
-    - name: Build HTML doc
+    - name: Build HTML doc (main)
       run: |
         . venv/bin/ngli-activate
         make htmldoc
+        mv builddir/doc doc-main
+
+    - name: Switch to latest stable
+      run: |
+        make clean
+        git checkout v$(cat VERSION)
+
+    - name: Build (stable)
+      run: |
+        ./configure.py --buildtype debug --debug-opts gl vk gpu_capture
+        make
+
+    - name: Build HTML doc (stable)
+      run: |
+        . venv/bin/ngli-activate
+        make htmldoc
+        mv doc-main builddir/doc/main
 
     - name: Setup Pages
       uses: actions/configure-pages@v3
