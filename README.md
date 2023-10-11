@@ -7,7 +7,7 @@ iOS).
 **Warning:** note that `nope.gl` is still highly experimental. This means the ABI
 and API can change at any time.
 
-📚 [Documentation](https://nopeforge.github.io/nope.gl)
+📚 [Documentation](https://doc.nopeforge.org)
 
 ![tests Linux](https://github.com/NopeForge/nope.gl/workflows/tests%20Linux/badge.svg)
 ![tests Mac](https://github.com/NopeForge/nope.gl/workflows/tests%20Mac/badge.svg)
