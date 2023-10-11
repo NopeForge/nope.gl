@@ -105,20 +105,19 @@ class CompareSceneBase(CompareBase):
         width, height = self._width, self._height
 
         capture_buffer = bytearray(width * height * 4)
-        ctx = ngl.Context()
-        ret = ctx.configure(
-            ngl.Config(
-                offscreen=True,
-                width=width,
-                height=height,
-                backend=cfg.backend if backend else ngl.Backend.AUTO,
-                samples=cfg.samples,
-                clear_color=cfg.clear_color,
-                capture_buffer=capture_buffer,
-                hud=self._hud,
-                hud_export_filename=self._hud_export_filename,
-            )
+        ctx_cfg = ngl.Config(
+            offscreen=True,
+            width=width,
+            height=height,
+            backend=cfg.backend if backend else ngl.Backend.AUTO,
+            samples=cfg.samples,
+            clear_color=cfg.clear_color,
+            capture_buffer=capture_buffer,
+            hud=self._hud,
+            hud_export_filename=self._hud_export_filename,
         )
+        ctx = ngl.Context()
+        ret = ctx.configure(ctx_cfg)
         assert ret == 0
 
         scene_info = self._scene_func(cfg, **self._scene_kwargs)
