@@ -102,10 +102,7 @@ class CompareSceneBase(CompareBase):
         if backend:
             cfg.backend = get_backend(backend)
 
-        scene_info = self._scene_func(cfg, **self._scene_kwargs)
         width, height = self._width, self._height
-        scene = scene_info.scene
-        duration = scene.duration
 
         capture_buffer = bytearray(width * height * 4)
         ctx = ngl.Context()
@@ -123,6 +120,10 @@ class CompareSceneBase(CompareBase):
             )
         )
         assert ret == 0
+
+        scene_info = self._scene_func(cfg, **self._scene_kwargs)
+        scene = scene_info.scene
+        duration = scene.duration
 
         if isinstance(self._keyframes, int):
             timescale = duration / self._keyframes
