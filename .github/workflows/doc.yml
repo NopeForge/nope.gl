@@ -27,8 +27,6 @@ jobs:
     steps:
     - name: Checkout sources
       uses: actions/checkout@v3
-      with:
-        fetch-tags: true
 
     - name: Install dependencies
       run: |
@@ -60,6 +58,7 @@ jobs:
     - name: Switch to latest stable
       run: |
         make clean
+        git fetch --tags
         git checkout v$(cat VERSION)
 
     - name: Build (stable)
