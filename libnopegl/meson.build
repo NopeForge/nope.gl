@@ -197,6 +197,7 @@ lib_src = files(
   'src/node_colorstats.c',
   'src/node_compute.c',
   'src/node_computeprogram.c',
+  'src/node_fgblur.c',
   'src/node_filters.c',
   'src/node_gblur.c',
   'src/node_geometry.c',
@@ -667,6 +668,10 @@ endforeach
 shaders = {
   'blur_gaussian.vert': 'blur_gaussian_vert.h',
   'blur_gaussian.frag': 'blur_gaussian_frag.h',
+  'blur_common.vert': 'blur_common_vert.h',
+  'blur_downsample.frag': 'blur_downsample_frag.h',
+  'blur_upsample.frag': 'blur_upsample_frag.h',
+  'blur_interpolate.frag': 'blur_interpolate_frag.h',
   'colorstats_init.comp': 'colorstats_init_comp.h',
   'colorstats_sumscale.comp': 'colorstats_sumscale_comp.h',
   'colorstats_waveform.comp': 'colorstats_waveform_comp.h',
