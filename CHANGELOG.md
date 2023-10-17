@@ -20,6 +20,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `GaussianBlur` node to apply a post processing gaussian blur effect to a
   scene with a resolution dependent bluriness parameter. The bluriness
   parameter can provide a gaussian blur effect with a radius up to 126 pixels
+- `FastGaussianBlur` node to apply a post processing gaussian blur effect to a
+  scene that is suitable for real time rendering on mobile devices as well as
+  providing a resolution independent blurriness parameter
 
 ### Fixed
 - Moving the split position in `ngl-diff`

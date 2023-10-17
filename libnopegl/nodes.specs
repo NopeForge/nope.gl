@@ -1814,6 +1814,32 @@
       "params": [
       ]
     },
+    "FastGaussianBlur": {
+      "file": "src/node_fgblur.c",
+      "params": [
+        {
+          "name": "source",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": ["nonull"],
+          "desc": "source to use for the blur"
+        },
+        {
+          "name": "destination",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": ["nonull"],
+          "desc": "destination to use for the blur"
+        },
+        {
+          "name": "bluriness",
+          "type": "f32",
+          "default": 0.030000,
+          "flags": ["node"],
+          "desc": "amount of bluriness in the range [0, 1]"
+        }
+      ]
+    },
     "GaussianBlur": {
       "file": "src/node_gblur.c",
       "params": [
