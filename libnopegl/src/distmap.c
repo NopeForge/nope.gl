@@ -663,9 +663,6 @@ int ngli_distmap_finalize(struct distmap *s)
     if (!s->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_compat_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(s->crafter);
-    const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(s->crafter);
-
     const struct pipeline_compat_params params = {
         .type = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics = {
@@ -676,8 +673,8 @@ int ngli_distmap_finalize(struct distmap *s)
         },
         .program     = ngli_pgcraft_get_program(s->crafter),
         .layout      = ngli_pgcraft_get_pipeline_layout(s->crafter),
-        .resources   = &pipeline_resources,
-        .compat_info = compat_info,
+        .resources   = ngli_pgcraft_get_pipeline_resources(s->crafter),
+        .compat_info = ngli_pgcraft_get_compat_info(s->crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->pipeline_compat, &params);
