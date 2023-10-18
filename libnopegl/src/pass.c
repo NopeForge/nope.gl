@@ -592,8 +592,6 @@ int ngli_pass_prepare(struct pass *s)
     if (!desc->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_compat_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
-    const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(desc->crafter);
 
     const struct pipeline_compat_params params = {
         .type = s->pipeline_type,
@@ -605,8 +603,8 @@ int ngli_pass_prepare(struct pass *s)
         },
         .program     = ngli_pgcraft_get_program(desc->crafter),
         .layout      = ngli_pgcraft_get_pipeline_layout(desc->crafter),
-        .resources   = &pipeline_resources,
-        .compat_info = compat_info,
+        .resources   = ngli_pgcraft_get_pipeline_resources(desc->crafter),
+        .compat_info = ngli_pgcraft_get_compat_info(desc->crafter),
     };
     ret = ngli_pipeline_compat_init(desc->pipeline_compat, &params);
     if (ret < 0)

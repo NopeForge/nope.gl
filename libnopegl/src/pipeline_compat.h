@@ -48,7 +48,7 @@ struct pipeline_compat_params {
     struct pipeline_graphics graphics;
     const struct program *program;
     struct pipeline_compat_layout layout;
-    const struct pipeline_compat_resources *resources;
+    struct pipeline_compat_resources resources;
     const struct pgcraft_compat_info *compat_info;
 };
 

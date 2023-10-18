@@ -202,7 +202,7 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     NGLI_ARRAY_MEMDUP(s->bindgroup_layout_params, params->layout, textures);
     NGLI_ARRAY_MEMDUP(s->bindgroup_layout_params, params->layout, buffers);
 
-    const struct pipeline_compat_resources *resources = params->resources;
+    const struct pipeline_compat_resources *resources = &params->resources;
     const size_t nb_vertex_buffers = resources->nb_vertex_buffers;
     if (nb_vertex_buffers) {
         s->vertex_buffers = ngli_calloc(nb_vertex_buffers, sizeof(*s->vertex_buffers));

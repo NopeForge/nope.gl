@@ -829,9 +829,6 @@ static int finalize_pipeline(struct ngl_node *node,
     if (!desc->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    const struct pipeline_compat_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
-    const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(desc->crafter);
-
     const struct pipeline_compat_params params = {
         .type = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics = {
@@ -842,8 +839,8 @@ static int finalize_pipeline(struct ngl_node *node,
         },
         .program     = ngli_pgcraft_get_program(desc->crafter),
         .layout      = ngli_pgcraft_get_pipeline_layout(desc->crafter),
-        .resources   = &pipeline_resources,
-        .compat_info = compat_info,
+        .resources   = ngli_pgcraft_get_pipeline_resources(desc->crafter),
+        .compat_info = ngli_pgcraft_get_compat_info(desc->crafter),
     };
 
     ret = ngli_node_prepare_children(node);

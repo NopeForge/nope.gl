@@ -101,15 +101,12 @@ static int setup_compute(struct colorstats_priv *s, struct pgcraft *crafter,
     if (ret < 0)
         return ret;
 
-    const struct pipeline_compat_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(crafter);
-    const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(crafter);
-
     const struct pipeline_compat_params params = {
         .type        = NGLI_PIPELINE_TYPE_COMPUTE,
         .program     = ngli_pgcraft_get_program(crafter),
         .layout      = ngli_pgcraft_get_pipeline_layout(crafter),
-        .resources   = &pipeline_resources,
-        .compat_info = compat_info,
+        .resources   = ngli_pgcraft_get_pipeline_resources(crafter),
+        .compat_info = ngli_pgcraft_get_compat_info(crafter),
     };
 
     return ngli_pipeline_compat_init(pipeline_compat, &params);
