@@ -29,7 +29,6 @@
 #include "memory.h"
 #include "nopegl.h"
 #include "pipeline_compat.h"
-#include "type.h"
 #include "utils.h"
 
 #define MAX_BINDGROUPS 16
