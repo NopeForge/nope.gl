@@ -293,6 +293,7 @@ NGL_API void ngl_scene_unrefp(struct ngl_scene **sp);
 #define NGL_NODE_FILTERPREMULT          NGLI_FOURCC('F','p','r','e')
 #define NGL_NODE_FILTERSATURATION       NGLI_FOURCC('F','s','a','t')
 #define NGL_NODE_FILTERSRGB2LINEAR      NGLI_FOURCC('F','l','i','n')
+#define NGL_NODE_GAUSSIANBLUR           NGLI_FOURCC('G','B','l','r')
 #define NGL_NODE_GEOMETRY               NGLI_FOURCC('G','e','o','m')
 #define NGL_NODE_GRAPHICCONFIG          NGLI_FOURCC('G','r','C','f')
 #define NGL_NODE_GRIDLAYOUT             NGLI_FOURCC('G','r','d','L')

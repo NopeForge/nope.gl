@@ -17,6 +17,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   supported, passing them through the command line is not mandatory anymore
 - `ngl_scene_ref` and `ngl_scene_unrefp` functions to respectively increment and
   decrement the reference counter of a scene
+- `GaussianBlur` node to apply a post processing gaussian blur effect to a
+  scene with a resolution dependent bluriness parameter. The bluriness
+  parameter can provide a gaussian blur effect with a radius up to 126 pixels
 
 ### Fixed
 - Moving the split position in `ngl-diff`
