@@ -198,6 +198,7 @@ lib_src = files(
   'src/node_compute.c',
   'src/node_computeprogram.c',
   'src/node_filters.c',
+  'src/node_gblur.c',
   'src/node_geometry.c',
   'src/node_graphicconfig.c',
   'src/node_gridlayout.c',
@@ -664,6 +665,8 @@ endforeach
 # GLSL to C (header)
 #
 shaders = {
+  'blur_gaussian.vert': 'blur_gaussian_vert.h',
+  'blur_gaussian.frag': 'blur_gaussian_frag.h',
   'colorstats_init.comp': 'colorstats_init_comp.h',
   'colorstats_sumscale.comp': 'colorstats_sumscale_comp.h',
   'colorstats_waveform.comp': 'colorstats_waveform_comp.h',
