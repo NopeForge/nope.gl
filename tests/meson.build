@@ -86,6 +86,10 @@ foreach backend : backends
     'lighten',
   ]
 
+  tests_blur = [
+    'gaussian',
+  ]
+
   tests_color = [
     'anim_srgb',
     'anim_hsl',
@@ -490,6 +494,7 @@ foreach backend : backends
     'api':           {'tests': tests_api, 'has_refs': false},
     'anim':          {'tests': tests_anim},
     'benchmark':     {'tests': tests_benchmark},
+    'blur':          {'tests': tests_blur},
     'blending':      {'tests': tests_blending},
     'color':         {'tests': tests_color},
     'compositing':   {'tests': tests_compositing},
