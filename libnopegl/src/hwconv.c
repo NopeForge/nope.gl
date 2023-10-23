@@ -171,8 +171,10 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     struct pipeline_compat *pipeline = hwconv->pipeline_compat;
 
     const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(hwconv->crafter);
-    const struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
     ngli_assert(ngli_darray_count(texture_infos_array) == 1);
+
+    struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
+    info->image = image;
 
     ngli_pipeline_compat_update_texture_info(pipeline, info);
     ngli_pipeline_compat_draw(pipeline, 3, 1);
