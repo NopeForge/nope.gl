@@ -151,8 +151,8 @@ struct pgcraft_texture_info {
     int precision;
     int writable;
     int format;
-    struct texture *texture;
-    struct image *image;
+    const struct texture *texture;
+    const struct image *image;
     struct pgcraft_texture_info_field fields[NGLI_INFO_FIELD_NB];
 };
 
