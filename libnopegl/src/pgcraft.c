@@ -78,6 +78,7 @@ struct pgcraft {
     struct pgcraft_pipeline_info filtered_pipeline_info;
 
     struct darray vert_out_vars; // pgcraft_iovar
+    struct darray textures; // pgcraft_texture
 
     struct program *program;
 
@@ -414,28 +415,20 @@ static int prepare_texture_info_fields(struct pgcraft *s, const struct pgcraft_p
     return 0;
 }
 
-/*
- * A single texture info can be shared between multiple stage, so we need to do
- * a first pass to allocate them with and make them hold all the information
- * needed for the following injection stage.
- * FIXME: this means the internally exposed pgcraft_texture_info contains many
- * unnecessary stuff for our users of the pgcraft API.
- */
 static int prepare_texture_infos(struct pgcraft *s, const struct pgcraft_params *params, int graphics)
 {
+    ngli_darray_init(&s->textures, sizeof(struct pgcraft_texture), 0);
     for (size_t i = 0; i < params->nb_textures; i++) {
         const struct pgcraft_texture *texture = &params->textures[i];
         ngli_assert(!(texture->type == NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO && texture->texture));
 
+        if (!ngli_darray_push(&s->textures, &params->textures[i]))
+            return NGL_ERROR_MEMORY;
+
         struct pgcraft_texture_info info = {
-            .stage     = texture->stage,
-            .precision = texture->precision,
             .texture   = texture->texture,
             .image     = texture->image,
-            .format    = texture->format,
-            .writable  = texture->writable,
         };
-
         int ret = prepare_texture_info_fields(s, params, graphics, texture, &info);
         if (ret < 0)
             return ret;
@@ -446,7 +439,7 @@ static int prepare_texture_infos(struct pgcraft *s, const struct pgcraft_params 
     return 0;
 }
 
-static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *info, int stage)
+static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *texture, struct pgcraft_texture_info *info, int stage)
 {
     for (size_t i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         const struct pgcraft_texture_info_field *field = &info->fields[i];
@@ -464,18 +457,18 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
                 .id       = ngli_darray_count(&s->symbols) - 1,
                 .type     = field->type,
                 .binding  = request_next_binding(s, field->type),
-                .access   = info->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
+                .access   = texture->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
                 .stage    = stage,
             };
 
             const char *prefix = "";
             if (is_image(field->type)) {
-                if (info->format == NGLI_TYPE_NONE) {
+                if (texture->format == NGLI_TYPE_NONE) {
                     LOG(ERROR, "texture format must be set when accessing it as an image");
                     return NGL_ERROR_INVALID_ARG;
                 }
-                const char *format = image_glsl_format_map[info->format].format;
-                prefix = image_glsl_format_map[info->format].prefix;
+                const char *format = image_glsl_format_map[texture->format].format;
+                prefix = image_glsl_format_map[texture->format].prefix;
                 if (!format || !prefix) {
                     LOG(ERROR, "unsupported texture format");
                     return NGL_ERROR_UNSUPPORTED;
@@ -495,18 +488,18 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
                  *     specify a memory qualifier (readonly, writeonly, or both).
                  */
                 const char *writable_qualifier= "";
-                if (info->format != NGLI_FORMAT_R32_SFLOAT &&
-                    info->format != NGLI_FORMAT_R32_SINT &&
-                    info->format != NGLI_FORMAT_R32_UINT) {
+                if (texture->format != NGLI_FORMAT_R32_SFLOAT &&
+                    texture->format != NGLI_FORMAT_R32_SINT &&
+                    texture->format != NGLI_FORMAT_R32_UINT) {
                     writable_qualifier = "writeonly";
                 }
-                ngli_bstr_printf(b, ") %s ", info->writable ? writable_qualifier : "readonly");
+                ngli_bstr_printf(b, ") %s ", texture->writable ? writable_qualifier : "readonly");
             } else if (s->has_explicit_bindings) {
                 ngli_bstr_printf(b, "layout(binding=%d) ", layout_entry.binding);
             }
 
             const char *type = get_glsl_type(field->type);
-            const char *precision = get_precision_qualifier(s, field->type, info->precision, "lowp");
+            const char *precision = get_precision_qualifier(s, field->type, texture->precision, "lowp");
             ngli_bstr_printf(b, "uniform %s %s%s %s;\n", precision, prefix, type, field->name);
 
             if (!ngli_darray_push(&s->pipeline_info.desc.textures, &layout_entry))
@@ -528,13 +521,14 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
     return 0;
 }
 
-static int inject_texture_infos(struct pgcraft *s, const struct pgcraft_params *params, int stage)
+static int inject_textures(struct pgcraft *s, const struct pgcraft_params *params, int stage)
 {
     struct darray *texture_infos_array = &s->texture_infos;
+    const struct pgcraft_texture *textures = ngli_darray_data(&s->textures);
     struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
     for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
         struct pgcraft_texture_info *info = &texture_infos[i];
-        int ret = inject_texture_info(s, info, stage);
+        int ret = inject_texture(s, &textures[i], info, stage);
         if (ret < 0)
             return ret;
     }
@@ -1063,7 +1057,7 @@ static int craft_vert(struct pgcraft *s, const struct pgcraft_params *params)
     int ret;
     if ((ret = inject_iovars(s, b, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
         (ret = inject_uniforms(s, b, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = inject_texture_infos(s, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
+        (ret = inject_textures(s, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
         (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
         (ret = inject_attributes(s, b, params)) < 0 ||
         (ret = inject_ublock(s, b, NGLI_PROGRAM_SHADER_VERT)) < 0)
@@ -1114,7 +1108,7 @@ static int craft_frag(struct pgcraft *s, const struct pgcraft_params *params)
     int ret;
     if ((ret = inject_iovars(s, b, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
         (ret = inject_uniforms(s, b, params, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
-        (ret = inject_texture_infos(s, params, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
+        (ret = inject_textures(s, params, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
         (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
         (ret = inject_ublock(s, b, NGLI_PROGRAM_SHADER_FRAG)) < 0)
         return ret;
@@ -1136,7 +1130,7 @@ static int craft_comp(struct pgcraft *s, const struct pgcraft_params *params)
 
     int ret;
     if ((ret = inject_uniforms(s, b, params, NGLI_PROGRAM_SHADER_COMP)) < 0 ||
-        (ret = inject_texture_infos(s, params, NGLI_PROGRAM_SHADER_COMP)) < 0 ||
+        (ret = inject_textures(s, params, NGLI_PROGRAM_SHADER_COMP)) < 0 ||
         (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_COMP)) < 0 ||
         (ret = inject_ublock(s, b, NGLI_PROGRAM_SHADER_COMP)) < 0)
         return ret;
@@ -1611,6 +1605,7 @@ void ngli_pgcraft_freep(struct pgcraft **sp)
     if (!s)
         return;
 
+    ngli_darray_reset(&s->textures);
     ngli_darray_reset(&s->texture_infos);
     ngli_darray_reset(&s->vert_out_vars);
 
