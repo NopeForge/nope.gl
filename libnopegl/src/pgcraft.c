@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -402,11 +403,6 @@ static int prepare_texture_info_fields(struct pgcraft *s, const struct pgcraft_p
         if (type == NGLI_TYPE_NONE || !is_type_supported(s, type))
             continue;
         field->type = type;
-        int len = snprintf(field->name, sizeof(field->name), "%s%s", texture->name, texture_info_suffixes[i]);
-        if (len >= sizeof(field->name)) {
-            LOG(ERROR, "texture name \"%s\" is too long", texture->name);
-            return NGL_ERROR_MEMORY;
-        }
         if (graphics && i == NGLI_INFO_FIELD_COORDINATE_MATRIX)
             field->stage = NGLI_PROGRAM_SHADER_VERT;
         else
@@ -447,10 +443,17 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
         if (field->type == NGLI_TYPE_NONE || field->stage != stage)
             continue;
 
+        char name[MAX_ID_LEN];
+        int len = snprintf(name, sizeof(name), "%s%s", texture->name, texture_info_suffixes[i]);
+        if (len >= sizeof(name)) {
+            LOG(ERROR, "texture name \"%s\" is too long", texture->name);
+            return NGL_ERROR_MEMORY;
+        }
+
         struct bstr *b = s->shaders[stage];
 
         if (is_sampler(field->type) || is_image(field->type)) {
-            if (!ngli_darray_push(&s->symbols, field->name))
+            if (!ngli_darray_push(&s->symbols, name))
                 return NGL_ERROR_MEMORY;
 
             const struct bindgroup_layout_entry layout_entry = {
@@ -500,7 +503,7 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
 
             const char *type = get_glsl_type(field->type);
             const char *precision = get_precision_qualifier(s, field->type, texture->precision, "lowp");
-            ngli_bstr_printf(b, "uniform %s %s%s %s;\n", precision, prefix, type, field->name);
+            ngli_bstr_printf(b, "uniform %s %s%s %s;\n", precision, prefix, type, name);
 
             if (!ngli_darray_push(&s->pipeline_info.desc.textures, &layout_entry))
                 return NGL_ERROR_MEMORY;
@@ -512,7 +515,7 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
                 .stage = field->stage,
                 .type = field->type,
             };
-            snprintf(uniform.name, sizeof(uniform.name), "%s", field->name);
+            snprintf(uniform.name, sizeof(uniform.name), "%s", name);
             int ret = inject_uniform(s, b, &uniform);
             if (ret < 0)
                 return ret;
@@ -1231,26 +1234,33 @@ static int32_t get_texture_index(const struct pgcraft *s, const char *name)
     return -1;
 }
 
-static void probe_texture_info_elems(const struct pgcraft *s, struct pgcraft_texture_info_field *fields)
+static void probe_texture_info_elems(const struct pgcraft *s,
+                                     const struct pgcraft_texture *texture,
+                                     struct pgcraft_texture_info_field *fields)
 {
     for (size_t i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         struct pgcraft_texture_info_field *field = &fields[i];
+        char name[MAX_ID_LEN];
+        int len = snprintf(name, sizeof(name), "%s%s", texture->name, texture_info_suffixes[i]);
+        ngli_assert(len < sizeof(name));
         if (field->type == NGLI_TYPE_NONE)
             field->index = -1;
         else if (is_sampler(field->type) || is_image(field->type))
-            field->index = get_texture_index(s, field->name);
+            field->index = get_texture_index(s, name);
         else
-            field->index = ngli_pgcraft_get_uniform_index(s, field->name, field->stage);
+            field->index = ngli_pgcraft_get_uniform_index(s, name, field->stage);
     }
 }
 
 static void probe_texture_infos(struct pgcraft *s)
 {
+    const struct pgcraft_texture *textures = ngli_darray_data(&s->textures);
     struct darray *texture_infos_array = &s->texture_infos;
     struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
     for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+        const struct pgcraft_texture *texture = &textures[i];
         struct pgcraft_texture_info *info = &texture_infos[i];
-        probe_texture_info_elems(s, info->fields);
+        probe_texture_info_elems(s, texture, info->fields);
     }
 }
 
