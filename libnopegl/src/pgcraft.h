@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -140,7 +141,6 @@ enum {
 };
 
 struct pgcraft_texture_info_field {
-    char name[MAX_ID_LEN];
     int type;
     int32_t index;
     int stage;
