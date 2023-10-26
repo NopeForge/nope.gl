@@ -147,7 +147,6 @@ struct pgcraft_texture_info_field {
 };
 
 struct pgcraft_texture_info {
-    const struct texture *texture;
     const struct image *image;
     struct pgcraft_texture_info_field fields[NGLI_INFO_FIELD_NB];
 };

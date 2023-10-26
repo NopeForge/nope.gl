@@ -422,7 +422,6 @@ static int prepare_texture_infos(struct pgcraft *s, const struct pgcraft_params 
             return NGL_ERROR_MEMORY;
 
         struct pgcraft_texture_info info = {
-            .texture   = texture->texture,
             .image     = texture->image,
         };
         int ret = prepare_texture_info_fields(s, params, graphics, texture, &info);
@@ -508,7 +507,7 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
             if (!ngli_darray_push(&s->pipeline_info.desc.textures, &layout_entry))
                 return NGL_ERROR_MEMORY;
 
-            if (!ngli_darray_push(&s->pipeline_info.data.textures, &info->texture))
+            if (!ngli_darray_push(&s->pipeline_info.data.textures, &texture->texture))
                 return NGL_ERROR_MEMORY;
         } else {
             struct pgcraft_uniform uniform = {
