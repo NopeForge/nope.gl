@@ -1255,9 +1255,8 @@ static void probe_texture_info_elems(const struct pgcraft *s,
 static void probe_texture_infos(struct pgcraft *s)
 {
     const struct pgcraft_texture *textures = ngli_darray_data(&s->textures);
-    struct darray *texture_infos_array = &s->texture_infos;
-    struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
-    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+    struct pgcraft_texture_info *texture_infos = ngli_darray_data(&s->texture_infos);
+    for (size_t i = 0; i < ngli_darray_count(&s->texture_infos); i++) {
         const struct pgcraft_texture *texture = &textures[i];
         struct pgcraft_texture_info *info = &texture_infos[i];
         probe_texture_info_elems(s, texture, info->fields);
