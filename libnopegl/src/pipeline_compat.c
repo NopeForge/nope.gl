@@ -260,7 +260,7 @@ int ngli_pipeline_compat_update_vertex_buffer(struct pipeline_compat *s, int32_t
 int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t index, const void *value, size_t count)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    
+
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
