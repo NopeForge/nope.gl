@@ -1223,10 +1223,10 @@ static int32_t get_ublock_index(const struct pgcraft *s, const char *name, int s
 
 static int32_t get_texture_index(const struct pgcraft *s, const char *name)
 {
-    const struct bindgroup_layout_entry *pipeline_texture_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
+    const struct bindgroup_layout_entry *entries = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
     for (int32_t i = 0; i < (int32_t)ngli_darray_count(&s->filtered_pipeline_info.desc.textures); i++) {
-        const struct bindgroup_layout_entry *pipeline_texture_desc = &pipeline_texture_descs[i];
-        const char *texture_name = ngli_pgcraft_get_symbol_name(s, pipeline_texture_desc->id);
+        const struct bindgroup_layout_entry *entry = &entries[i];
+        const char *texture_name = ngli_pgcraft_get_symbol_name(s, entry->id);
         if (!strcmp(texture_name, name))
             return i;
     }
@@ -1275,12 +1275,12 @@ static void probe_ublocks(struct pgcraft *s)
         if (!block_size)
             continue;
 
-        const struct bindgroup_layout_entry *buffer_descs = ngli_darray_data(array);
+        const struct bindgroup_layout_entry *entries = ngli_darray_data(array);
         for (size_t j = 0; j < ngli_darray_count(array); j++) {
-            const struct bindgroup_layout_entry *desc = &buffer_descs[j];
-            if (desc->type    == NGLI_TYPE_UNIFORM_BUFFER &&
-                desc->binding == binding &&
-                desc->stage   == i) {
+            const struct bindgroup_layout_entry *entry = &entries[j];
+            if (entry->type    == NGLI_TYPE_UNIFORM_BUFFER &&
+                entry->binding == binding &&
+                entry->stage   == i) {
                 info->uindices[i] = (int32_t)j;
                 break;
             }
