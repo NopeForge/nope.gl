@@ -22,6 +22,11 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   v2023.2, this is changed back in this release
 - `SceneCfg` and `SceneInfo` now use the `Backend` enum instead of a string
 
+### Removed
+- `%s_dimensions` uniform for 2D array and 3D images/textures, users must use
+  textureSize()/imageSize() instead (`%s_dimensions` is still available for 2D
+  textures)
+
 ## [2023.4] [libnopegl 0.10.0] - 2023-09-28
 ### Added
 - `Eval*` nodes now accept multi-dimensional input resources
