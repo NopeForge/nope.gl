@@ -341,7 +341,7 @@ _TEXTURE2D_ARRAY_VERT = """
 void main()
 {
     ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    var_uvcoord = ngl_uvcoord;
+    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;
 }
 """
 
@@ -349,9 +349,9 @@ void main()
 _TEXTURE2D_ARRAY_FRAG = """
 void main()
 {
-    ngl_out_color  = texture(tex0, vec3(var_uvcoord, 0.0));
-    ngl_out_color += texture(tex0, vec3(var_uvcoord, 1.0));
-    ngl_out_color += texture(tex0, vec3(var_uvcoord, 2.0));
+    ngl_out_color  = texture(tex0, vec3(var_tex0_coord, 0.0));
+    ngl_out_color += texture(tex0, vec3(var_tex0_coord, 1.0));
+    ngl_out_color += texture(tex0, vec3(var_tex0_coord, 2.0));
 }
 """
 
@@ -385,7 +385,7 @@ def texture_2d_array(cfg: ngl.SceneCfg):
     texture = _get_texture_2d_array(cfg)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_FRAG)
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
     render = ngl.Render(quad, program)
     render.update_frag_resources(tex0=texture)
     return render
@@ -394,9 +394,9 @@ def texture_2d_array(cfg: ngl.SceneCfg):
 _TEXTURE2D_ARRAY_LOD_FRAG = """
 void main()
 {
-    ngl_out_color  = textureLod(tex0, vec3(var_uvcoord, 0.0), 2.0);
-    ngl_out_color += textureLod(tex0, vec3(var_uvcoord, 1.0), 2.0);
-    ngl_out_color += textureLod(tex0, vec3(var_uvcoord, 2.0), 2.0);
+    ngl_out_color  = textureLod(tex0, vec3(var_tex0_coord, 0.0), 2.0);
+    ngl_out_color += textureLod(tex0, vec3(var_tex0_coord, 1.0), 2.0);
+    ngl_out_color += textureLod(tex0, vec3(var_tex0_coord, 2.0), 2.0);
 }
 """
 
@@ -407,7 +407,7 @@ def texture_2d_array_mipmap(cfg: ngl.SceneCfg):
     texture = _get_texture_2d_array(cfg, mipmap_filter="nearest")
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_LOD_FRAG)
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
     render = ngl.Render(quad, program)
     render.update_frag_resources(tex0=texture)
     return render
@@ -454,7 +454,7 @@ def _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, samples=0):
     rtt = ngl.RenderToTexture(render, [texture], samples=samples)
 
     program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_FRAG)
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
     render = ngl.Render(quad, program)
     render.update_frag_resources(tex0=texture)
 
@@ -481,7 +481,7 @@ _TEXTURE3D_VERT = """
 void main()
 {
     ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    var_uvcoord = ngl_uvcoord;
+    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;
 }
 """
 
@@ -489,9 +489,9 @@ void main()
 _TEXTURE3D_FRAG = """
 void main()
 {
-    ngl_out_color  = texture(tex0, vec3(var_uvcoord, 0.0));
-    ngl_out_color += texture(tex0, vec3(var_uvcoord, 0.5));
-    ngl_out_color += texture(tex0, vec3(var_uvcoord, 1.0));
+    ngl_out_color  = texture(tex0, vec3(var_tex0_coord, 0.0));
+    ngl_out_color += texture(tex0, vec3(var_tex0_coord, 0.5));
+    ngl_out_color += texture(tex0, vec3(var_tex0_coord, 1.0));
 }
 """
 
@@ -520,7 +520,7 @@ def texture_3d(cfg: ngl.SceneCfg):
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE3D_VERT, fragment=_TEXTURE3D_FRAG)
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
     render = ngl.Render(quad, program)
     render.update_frag_resources(tex0=texture)
     return render
@@ -565,7 +565,7 @@ def _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, samples=0):
     rtt = ngl.RenderToTexture(render, [texture], samples=samples)
 
     program = ngl.Program(vertex=_TEXTURE3D_VERT, fragment=_TEXTURE3D_FRAG)
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
     render = ngl.Render(quad, program)
     render.update_frag_resources(tex0=texture)
 
