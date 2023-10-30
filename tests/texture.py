@@ -425,6 +425,7 @@ _RENDER_TO_TEXTURE2D_ARRAY_FRAG = """
 void main()
 {
     float x = floor(var_uvcoord.x * steps) / steps;
+    x = var_uvcoord.y < 0.5 ? x : 1.0 - x;
     ngl_out_color[0] = vec4(x, 0.0, 0.0, 1.0);
     ngl_out_color[1] = vec4(0.0, x, 0.0, 1.0);
     ngl_out_color[2] = vec4(0.0, 0.0, x, 1.0);
@@ -438,7 +439,7 @@ def _get_texture_2d_array_from_mrt_cuepoints():
     f = float(_STEPS)
     off = 1 / (2 * f)
     c = lambda i: (i / f + off) * 2.0 - 1.0
-    return {f"{x}": (c(x), 0.0) for x in range(_STEPS)}
+    return {f"{x}": (c(x), 0.5) for x in range(_STEPS)}
 
 
 def _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, samples=0):
@@ -538,6 +539,7 @@ _RENDER_TO_TEXTURE3D_FRAG = """
 void main()
 {
     float x = floor(var_uvcoord.x * steps) / steps;
+    x = var_uvcoord.y < 0.5 ? x : 1.0 - x;
     ngl_out_color[0] = vec4(x, 0.0, 0.0, 1.0);
     ngl_out_color[1] = vec4(0.0, x, 0.0, 1.0);
     ngl_out_color[2] = vec4(0.0, 0.0, x, 1.0);
@@ -551,7 +553,7 @@ def _get_texture_3d_from_mrt_cuepoints():
     f = float(_STEPS)
     off = 1 / (2 * f)
     c = lambda i: (i / f + off) * 2.0 - 1.0
-    return {f"{x}": (c(x), 0.0) for x in range(_STEPS)}
+    return {f"{x}": (c(x), 0.5) for x in range(_STEPS)}
 
 
 def _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, samples=0):
