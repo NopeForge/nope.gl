@@ -439,7 +439,7 @@ static int prepare_texture_infos(struct pgcraft *s, const struct pgcraft_params 
     return 0;
 }
 
-static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *texture, struct pgcraft_texture_info *info, int stage)
+static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *texture, const struct pgcraft_texture_info *info, int stage)
 {
     for (size_t i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         const struct pgcraft_texture_info_field *field = &info->fields[i];
@@ -524,9 +524,9 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
 static int inject_textures(struct pgcraft *s, const struct pgcraft_params *params, int stage)
 {
     const struct pgcraft_texture *textures = ngli_darray_data(&s->textures);
-    struct pgcraft_texture_info *texture_infos = ngli_darray_data(&s->texture_infos);
+    const struct pgcraft_texture_info *texture_infos = ngli_darray_data(&s->texture_infos);
     for (size_t i = 0; i < ngli_darray_count(&s->texture_infos); i++) {
-        struct pgcraft_texture_info *info = &texture_infos[i];
+        const struct pgcraft_texture_info *info = &texture_infos[i];
         int ret = inject_texture(s, &textures[i], info, stage);
         if (ret < 0)
             return ret;
