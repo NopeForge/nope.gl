@@ -459,7 +459,7 @@ def _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, samples=0):
 
     group = ngl.Group(children=(rtt, render))
     if show_dbg_points:
-        group.add_children(get_debug_points(cfg, _get_texture_3d_from_mrt_cuepoints()))
+        group.add_children(get_debug_points(cfg, _get_texture_2d_array_from_mrt_cuepoints()))
 
     return group
 
