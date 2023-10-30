@@ -12,6 +12,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Ability to get the selected backend by reading `ngl.Config.backend` after the
   configure step, in Python
 - `ngl.SceneCfg` now includes the backend capabilities
+- `%s_coord_matrix` uniform is now exposed for 2D array and 3D textures
 
 ### Fixed
 - Moving the split position in `ngl-diff`
