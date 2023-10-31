@@ -75,7 +75,7 @@ struct ngl_node;
  * Imply that the parameter must be set, otherwise it will fail at the node
  * initialization.
  *
- * Only applicable for pointer-based parameters such as nodes or strings.
+ * Only applicable to pointer-based parameters such as nodes or strings.
  *
  * This option can not be combined with NGLI_PARAM_FLAG_ALLOW_NODE.
  */
@@ -85,7 +85,7 @@ struct ngl_node;
  * Imply that the parameter needs to be represented in a single block (more
  * compact) in the dot output.
  *
- * Only applicable for node list parameters.
+ * Only applicable to node list parameters.
  *
  * Note that this flag only works with nodes that do not have any other nodes
  * as children (since no outgoing link can be individually represented
@@ -97,7 +97,7 @@ struct ngl_node;
  * Display the field name alongside the edge associated with this parameter in
  * the dot output.
  *
- * Only applicable for node parameters.
+ * Only applicable to node parameters.
  *
  * This is useful to prevent potential confusion on which parameter the edge is
  * associated with. For example, a node may have multiple parameters accepting
@@ -123,7 +123,7 @@ struct ngl_node;
  * Imply that the parameter allows an additional node parameter, taking over
  * the non-pointer-based parameter.
  *
- * Only applicable for non-pointer-based parameters.
+ * Only applicable to non-pointer-based parameters.
  *
  * If this flag is set, the node field must be placed before the non-pointer
  * field in the private structure. The offset must also point to the node
