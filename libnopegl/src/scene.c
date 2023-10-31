@@ -25,6 +25,17 @@
 #include "memory.h"
 #include "utils.h"
 
+static void detach_root(struct ngl_scene *s)
+{
+    ngl_node_unrefp(&s->params.root);
+}
+
+static int attach_root(struct ngl_scene *s, struct ngl_node *node)
+{
+    s->params.root = ngl_node_ref(node);
+    return 0;
+}
+
 struct ngl_scene *ngl_scene_create(void)
 {
     struct ngl_scene *s = ngli_calloc(1, sizeof(*s));
@@ -61,15 +72,14 @@ int ngl_scene_init(struct ngl_scene *s, const struct ngl_scene_params *params)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    ngl_node_unrefp(&s->params.root);
+    detach_root(s);
     s->params = *params;
-    s->params.root = ngl_node_ref(s->params.root);
-    return 0;
+    return attach_root(s, s->params.root);
 }
 
 int ngl_scene_init_from_str(struct ngl_scene *s, const char *str)
 {
-    ngl_node_unrefp(&s->params.root);
+    detach_root(s);
     return ngli_scene_deserialize(s, str);
 }
 
@@ -93,6 +103,6 @@ void ngl_scene_freep(struct ngl_scene **sp)
     struct ngl_scene *s = *sp;
     if (!s)
         return;
-    ngl_node_unrefp(&s->params.root);
+    detach_root(s);
     ngli_freep(sp);
 }
