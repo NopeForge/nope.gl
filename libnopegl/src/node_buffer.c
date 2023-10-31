@@ -58,6 +58,7 @@ static const struct node_param buffer_params[] = {
     {"data",   NGLI_PARAM_TYPE_DATA,   OFFSET(data),
                .desc=NGLI_DOCSTRING("buffer of `count` elements")},
     {"filename", NGLI_PARAM_TYPE_STR,  OFFSET(filename),
+               .flags=NGLI_PARAM_FLAG_FILEPATH,
                .desc=NGLI_DOCSTRING("filename from which the buffer will be read, cannot be used with `data`")},
     {"block",  NGLI_PARAM_TYPE_NODE,    OFFSET(block),
                .node_types=(const uint32_t[]){NGL_NODE_BLOCK, NGLI_NODE_NONE},

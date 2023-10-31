@@ -1575,7 +1575,7 @@
         {
           "name": "filename",
           "type": "str",
-          "flags": [],
+          "flags": ["filepath"],
           "desc": "filename from which the buffer will be read, cannot be used with `data`"
         },
         {
@@ -1979,7 +1979,7 @@
         {
           "name": "path",
           "type": "str",
-          "flags": ["nonull"],
+          "flags": ["nonull", "filepath"],
           "desc": "path to the font file"
         }
       ]
@@ -2417,7 +2417,7 @@
         {
           "name": "filename",
           "type": "str",
-          "flags": ["nonull"],
+          "flags": ["nonull", "filepath"],
           "desc": "path to input media file"
         },
         {
