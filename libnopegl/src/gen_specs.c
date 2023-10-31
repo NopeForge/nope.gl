@@ -326,7 +326,7 @@ static int check_node_params(const struct node_class *cls)
 
         if ((par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE) && node_based_parameter(par)) {
             fprintf(stderr, "%s.%s is a node based parameter, "
-                    "so it can not be live changed", cls->name, par->key);
+                    "so it can not be live changed\n", cls->name, par->key);
             return NGL_ERROR_BUG;
         }
 
