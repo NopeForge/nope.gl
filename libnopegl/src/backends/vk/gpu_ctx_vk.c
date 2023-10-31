@@ -28,7 +28,6 @@
 #include <vulkan/vulkan.h>
 
 #include "glslang_utils.h"
-#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
