@@ -151,6 +151,7 @@ static void print_node_params(const char *name, const struct node_param *p, cons
                 {"live", NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE},
                 {"node", NGLI_PARAM_FLAG_ALLOW_NODE},
                 {"nonull", NGLI_PARAM_FLAG_NON_NULL},
+                {"filepath", NGLI_PARAM_FLAG_FILEPATH},
             };
             printf(I "\"flags\": [");
             int ihasflag = 0;
@@ -339,6 +340,17 @@ static int check_node_params(const struct node_class *cls)
             fprintf(stderr, "%s.%s is already a pointer-based parameter, "
                     "so the allow node flag should not be present\n", cls->name, par->key);
             return NGL_ERROR_BUG;
+        }
+
+        if (par->flags & NGLI_PARAM_FLAG_FILEPATH) {
+            if (par->type != NGLI_PARAM_TYPE_STR) {
+                fprintf(stderr, "filepath parameter %s.%s must be a string\n", cls->name, par->key);
+                return NGL_ERROR_BUG;
+            }
+            if (par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE) {
+                fprintf(stderr, "filepath parameter %s.%s cannot be live-changeable\n", cls->name, par->key);
+                return NGL_ERROR_BUG;
+            }
         }
 
         par++;

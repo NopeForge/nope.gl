@@ -135,6 +135,14 @@ struct ngl_node;
  */
 #define NGLI_PARAM_FLAG_ALLOW_NODE (1U<<4)
 
+/*
+ * Imply that the parameter refers to an external path.
+ *
+ * Only applicable to string parameters. It is also not possible to live change
+ * such a parameter.
+ */
+#define NGLI_PARAM_FLAG_FILEPATH (1U<<5)
+
 struct node_param {
     const char *key;
     int type; // NGLI_PARAM_TYPE_*

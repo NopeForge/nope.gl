@@ -123,6 +123,7 @@ def _get_parameter_flags_block() -> str:
         `live`   | value is live-changeable between draw calls
         `node`   | nodes with the same data size are also allowed (e.g a `vec3` parameter can accept `AnimatedVec3`, `EvalVec3`, `NoiseVec3`, …)
         `nonull` | parameter must be set
+        `filepath` | the parameter is a string containing a path to a file
         """
     )
 

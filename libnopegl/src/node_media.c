@@ -81,7 +81,8 @@ static const struct param_choices nopemd_hwaccel_choices = {
 
 #define OFFSET(x) offsetof(struct media_opts, x)
 static const struct node_param media_params[] = {
-    {"filename", NGLI_PARAM_TYPE_STR, OFFSET(filename), {.str=NULL}, NGLI_PARAM_FLAG_NON_NULL,
+    {"filename", NGLI_PARAM_TYPE_STR, OFFSET(filename), {.str=NULL},
+                 .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_FILEPATH,
                  .desc=NGLI_DOCSTRING("path to input media file")},
     {"nopemd_min_level", NGLI_PARAM_TYPE_SELECT, OFFSET(nopemd_min_level), {.i32=NMD_LOG_WARNING},
                          .choices=&nopemd_log_level_choices,

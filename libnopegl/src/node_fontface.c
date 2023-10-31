@@ -27,7 +27,7 @@
 #define OFFSET(x) offsetof(struct fontface_opts, x)
 static const struct node_param fontface_params[] = {
     {"path",  NGLI_PARAM_TYPE_STR, OFFSET(path),
-              .flags=NGLI_PARAM_FLAG_NON_NULL,
+              .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_FILEPATH,
               .desc=NGLI_DOCSTRING("path to the font file")},
     {NULL}
 };
