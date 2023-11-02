@@ -193,7 +193,11 @@ static void node_uninit(struct ngl_node *node)
     node->visit_time = -1.;
 }
 
-static int track_children(struct ngl_node *node)
+/*
+ * Apply a function on all children by walking through them. This is useful when
+ * node->children is not yet initialized (or confirmed to be complete yet).
+ */
+int ngli_node_children_apply_func(ngli_children_func_type func, void *user_arg, struct ngl_node *node)
 {
     uint8_t *base_ptr = node->opts;
     const struct node_param *par = node->cls->params;
@@ -207,10 +211,9 @@ static int track_children(struct ngl_node *node)
         if (par->type == NGLI_PARAM_TYPE_NODE || (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)) {
             struct ngl_node *child = *(struct ngl_node **)parp;
             if (child) {
-                if (!ngli_darray_push(&node->children, &child))
-                    return NGL_ERROR_MEMORY;
-                if (!ngli_darray_push(&child->parents, &node))
-                    return NGL_ERROR_MEMORY;
+                int ret = func(user_arg, node, child);
+                if (ret < 0)
+                    return ret;
             }
         } else if (par->type == NGLI_PARAM_TYPE_NODELIST) {
             uint8_t *elems_p = parp;
@@ -219,10 +222,9 @@ static int track_children(struct ngl_node *node)
             const size_t nb_elems = *(size_t *)nb_elems_p;
             for (size_t i = 0; i < nb_elems; i++) {
                 struct ngl_node *child = elems[i];
-                if (!ngli_darray_push(&node->children, &child))
-                    return NGL_ERROR_MEMORY;
-                if (!ngli_darray_push(&child->parents, &node))
-                    return NGL_ERROR_MEMORY;
+                int ret = func(user_arg, node, child);
+                if (ret < 0)
+                    return ret;
             }
         } else if (par->type == NGLI_PARAM_TYPE_NODEDICT) {
             struct hmap *hmap = *(struct hmap **)parp;
@@ -230,16 +232,24 @@ static int track_children(struct ngl_node *node)
                 const struct hmap_entry *entry = NULL;
                 while ((entry = ngli_hmap_next(hmap, entry))) {
                     struct ngl_node *child = entry->data;
-                    if (!ngli_darray_push(&node->children, &child))
-                        return NGL_ERROR_MEMORY;
-                    if (!ngli_darray_push(&child->parents, &node))
-                        return NGL_ERROR_MEMORY;
+                    int ret = func(user_arg, node, child);
+                    if (ret < 0)
+                        return ret;
                 }
             }
         }
         par++;
     }
 
+    return 0;
+}
+
+static int track_children(void *user_arg, struct ngl_node *parent, struct ngl_node *node)
+{
+    if (!ngli_darray_push(&parent->children, &node))
+        return NGL_ERROR_MEMORY;
+    if (!ngli_darray_push(&node->parents, &parent))
+        return NGL_ERROR_MEMORY;
     return 0;
 }
 
@@ -275,7 +285,7 @@ static int node_init(struct ngl_node *node)
     ngli_darray_init(&node->children, sizeof(struct ngl_node *), 0);
     ngli_darray_init(&node->parents, sizeof(struct ngl_node *), 0);
 
-    ret = track_children(node);
+    ret = ngli_node_children_apply_func(track_children, NULL, node);
     if (ret < 0) {
         node->state = STATE_INIT_FAILED;
         node_uninit(node);
@@ -309,8 +319,10 @@ static const struct livectl *get_internal_livectl(const struct ngl_node *node)
     return ctl;
 }
 
-static int find_livectls(const struct ngl_node *node, struct hmap *hm)
+static int find_livectls(void *user_arg, struct ngl_node *parent, struct ngl_node *node)
 {
+    struct hmap *hm = user_arg;
+
     if (node->cls->flags & NGLI_NODE_FLAG_LIVECTL) {
         const struct livectl *ref_ctl = get_internal_livectl(node);
         if (ref_ctl->id) {
@@ -328,44 +340,7 @@ static int find_livectls(const struct ngl_node *node, struct hmap *hm)
         }
     }
 
-    const struct node_param *par = node->cls->params;
-    if (!par)
-        return 0;
-    while (par->key) {
-        const uint8_t *parp = (const uint8_t*)node->opts + par->offset;
-
-        if (par->type == NGLI_PARAM_TYPE_NODE || (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)) {
-            const struct ngl_node *child = *(struct ngl_node **)parp;
-            if (child) {
-                int ret = find_livectls(child, hm);
-                if (ret < 0)
-                    return ret;
-            }
-        } else if (par->type == NGLI_PARAM_TYPE_NODELIST) {
-            const uint8_t *elems_p = parp;
-            const uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
-            struct ngl_node * const *elems = *(struct ngl_node ***)elems_p;
-            const size_t nb_elems = *(size_t *)nb_elems_p;
-            for (size_t i = 0; i < nb_elems; i++) {
-                int ret = find_livectls(elems[i], hm);
-                if (ret < 0)
-                    return ret;
-            }
-        } else if (par->type == NGLI_PARAM_TYPE_NODEDICT) {
-            const struct hmap *hmap = *(struct hmap **)parp;
-            if (hmap) {
-                const struct hmap_entry *entry = NULL;
-                while ((entry = ngli_hmap_next(hmap, entry))) {
-                    const struct ngl_node *child = entry->data;
-                    int ret = find_livectls(child, hm);
-                    if (ret < 0)
-                        return ret;
-                }
-            }
-        }
-        par++;
-    }
-    return 0;
+    return ngli_node_children_apply_func(find_livectls, hm, node);
 }
 
 int ngli_node_livectls_get(const struct ngl_scene *scene, size_t *nb_livectlsp, struct ngl_livectl **livectlsp)
@@ -378,7 +353,7 @@ int ngli_node_livectls_get(const struct ngl_scene *scene, size_t *nb_livectlsp, 
     if (!livectls_index)
         return NGL_ERROR_MEMORY;
 
-    int ret = find_livectls(scene->params.root, livectls_index);
+    int ret = find_livectls(livectls_index, NULL, scene->params.root);
     if (ret < 0)
         goto end;
 
@@ -455,48 +430,17 @@ void ngli_node_livectls_freep(struct ngl_livectl **livectlsp)
 
 static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx);
 
-static int node_set_children_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx)
+struct ctx_pair {
+    struct ngl_ctx *ctx;
+    struct ngl_ctx *pctx;
+};
+
+static int node_set_children_ctx(void *user_arg, struct ngl_node *parent, struct ngl_node *node)
 {
-    uint8_t *base_ptr = node->opts;
-    const struct node_param *params = node->cls->params;
-
-    if (!params)
-        return 0;
-    for (size_t i = 0; params[i].key; i++) {
-        const struct node_param *par = &params[i];
-        uint8_t *parp = base_ptr + par->offset;
-
-        if (par->type == NGLI_PARAM_TYPE_NODE || (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)) {
-            struct ngl_node *node = *(struct ngl_node **)parp;
-            if (node) {
-                int ret = node_set_ctx(node, ctx, pctx);
-                if (ret < 0)
-                    return ret;
-            }
-        } else if (par->type == NGLI_PARAM_TYPE_NODELIST) {
-            uint8_t *elems_p = parp;
-            uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
-            struct ngl_node **elems = *(struct ngl_node ***)elems_p;
-            const size_t nb_elems = *(size_t *)nb_elems_p;
-            for (size_t j = 0; j < nb_elems; j++) {
-                int ret = node_set_ctx(elems[j], ctx, pctx);
-                if (ret < 0)
-                    return ret;
-            }
-        } else if (par->type == NGLI_PARAM_TYPE_NODEDICT) {
-            struct hmap *hmap = *(struct hmap **)parp;
-            if (!hmap)
-                continue;
-            const struct hmap_entry *entry = NULL;
-            while ((entry = ngli_hmap_next(hmap, entry))) {
-                struct ngl_node *node = entry->data;
-                int ret = node_set_ctx(node, ctx, pctx);
-                if (ret < 0)
-                    return ret;
-            }
-        }
-    }
-    return 0;
+    struct ctx_pair *pair = user_arg;
+    struct ngl_ctx *ctx = pair->ctx;
+    struct ngl_ctx *pctx = pair->pctx;
+    return node_set_ctx(node, ctx, pctx);
 }
 
 static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx)
@@ -527,7 +471,8 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_c
         ngli_assert(node->ctx_refcount >= 0);
     }
 
-    ret = node_set_children_ctx(node, ctx, pctx);
+    struct ctx_pair pair = {.ctx=ctx, .pctx=pctx};
+    ret = ngli_node_children_apply_func(node_set_children_ctx, &pair, node);
     if (ret < 0)
         return ret;
 
