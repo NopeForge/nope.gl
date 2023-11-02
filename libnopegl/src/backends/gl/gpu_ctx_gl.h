@@ -1,4 +1,6 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,13 +30,8 @@
 #include <CoreVideo/CoreVideo.h>
 #endif
 
-#include "bindgroup.h"
-#include "nopegl.h"
 #include "glstate.h"
-#include "graphics_state.h"
 #include "rendertarget.h"
-#include "pgcache.h"
-#include "pipeline.h"
 #include "gpu_ctx.h"
 
 struct ngl_ctx;
@@ -58,6 +55,8 @@ struct gpu_ctx_gl {
     struct texture *depth_stencil;
     /* Offscreen capture callback and resources */
     capture_func_type capture_func;
+    struct rendertarget *capture_rt;
+    struct texture *capture_texture;
 #if defined(TARGET_IPHONE)
     CVPixelBufferRef capture_cvbuffer;
     CVOpenGLESTextureRef capture_cvtexture;
