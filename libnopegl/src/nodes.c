@@ -48,6 +48,7 @@ NGLI_STATIC_ASSERT(node_anim_vec_flt,    NGL_NODE_ANIMATEDVEC4     - NGL_NODE_AN
 
 extern const struct param_specs ngli_params_specs[];
 
+/* Warning: the common node parameters *must* not include any node-based parameter */
 #define OFFSET(x) offsetof(struct ngl_node, x)
 const struct node_param ngli_base_node_params[] = {
     {"label",     NGLI_PARAM_TYPE_STR,      OFFSET(label)},
@@ -454,9 +455,11 @@ void ngli_node_livectls_freep(struct ngl_livectl **livectlsp)
 
 static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx);
 
-static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *params,
-                                 struct ngl_ctx *ctx, struct ngl_ctx *pctx)
+static int node_set_children_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx)
 {
+    uint8_t *base_ptr = node->opts;
+    const struct node_param *params = node->cls->params;
+
     if (!params)
         return 0;
     for (size_t i = 0; params[i].key; i++) {
@@ -524,8 +527,8 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_c
         ngli_assert(node->ctx_refcount >= 0);
     }
 
-    if ((ret = node_set_children_ctx(node->opts, node->cls->params, ctx, pctx)) < 0 ||
-        (ret = node_set_children_ctx((uint8_t *)node, ngli_base_node_params, ctx, pctx)) < 0)
+    ret = node_set_children_ctx(node, ctx, pctx);
+    if (ret < 0)
         return ret;
 
     if (ctx) {
