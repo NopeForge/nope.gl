@@ -478,16 +478,7 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
         const struct node_param *par = &params[i];
         uint8_t *parp = base_ptr + par->offset;
 
-        if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE) {
-            struct ngl_node *node = *(struct ngl_node **)parp;
-            if (node) {
-                int ret = node_set_ctx(node, ctx, pctx);
-                if (ret < 0)
-                    return ret;
-            }
-        }
-
-        if (par->type == NGLI_PARAM_TYPE_NODE) {
+        if (par->type == NGLI_PARAM_TYPE_NODE || (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)) {
             struct ngl_node *node = *(struct ngl_node **)parp;
             if (node) {
                 int ret = node_set_ctx(node, ctx, pctx);
