@@ -203,33 +203,29 @@ static int track_children(struct ngl_node *node)
     while (par->key) {
         uint8_t *parp = base_ptr + par->offset;
 
-        switch (par->type) {
-            case NGLI_PARAM_TYPE_NODE: {
-                struct ngl_node *child = *(struct ngl_node **)parp;
-                if (child && !ngli_darray_push(&node->children, &child))
+        if (par->type == NGLI_PARAM_TYPE_NODE || (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)) {
+            struct ngl_node *child = *(struct ngl_node **)parp;
+            if (child) {
+                if (!ngli_darray_push(&node->children, &child))
                     return NGL_ERROR_MEMORY;
-                if (child && !ngli_darray_push(&child->parents, &node))
+                if (!ngli_darray_push(&child->parents, &node))
                     return NGL_ERROR_MEMORY;
-                break;
             }
-            case NGLI_PARAM_TYPE_NODELIST: {
-                uint8_t *elems_p = parp;
-                uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
-                struct ngl_node **elems = *(struct ngl_node ***)elems_p;
-                const size_t nb_elems = *(size_t *)nb_elems_p;
-                for (size_t i = 0; i < nb_elems; i++) {
-                    struct ngl_node *child = elems[i];
-                    if (!ngli_darray_push(&node->children, &child))
-                        return NGL_ERROR_MEMORY;
-                    if (!ngli_darray_push(&child->parents, &node))
-                        return NGL_ERROR_MEMORY;
-                }
-                break;
+        } else if (par->type == NGLI_PARAM_TYPE_NODELIST) {
+            uint8_t *elems_p = parp;
+            uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
+            struct ngl_node **elems = *(struct ngl_node ***)elems_p;
+            const size_t nb_elems = *(size_t *)nb_elems_p;
+            for (size_t i = 0; i < nb_elems; i++) {
+                struct ngl_node *child = elems[i];
+                if (!ngli_darray_push(&node->children, &child))
+                    return NGL_ERROR_MEMORY;
+                if (!ngli_darray_push(&child->parents, &node))
+                    return NGL_ERROR_MEMORY;
             }
-            case NGLI_PARAM_TYPE_NODEDICT: {
-                struct hmap *hmap = *(struct hmap **)parp;
-                if (!hmap)
-                    break;
+        } else if (par->type == NGLI_PARAM_TYPE_NODEDICT) {
+            struct hmap *hmap = *(struct hmap **)parp;
+            if (hmap) {
                 const struct hmap_entry *entry = NULL;
                 while ((entry = ngli_hmap_next(hmap, entry))) {
                     struct ngl_node *child = entry->data;
@@ -238,17 +234,6 @@ static int track_children(struct ngl_node *node)
                     if (!ngli_darray_push(&child->parents, &node))
                         return NGL_ERROR_MEMORY;
                 }
-                break;
-            }
-            default: {
-                if (!(par->flags & NGLI_PARAM_FLAG_ALLOW_NODE))
-                    break;
-                struct ngl_node *child = *(struct ngl_node **)parp;
-                if (child && !ngli_darray_push(&node->children, &child))
-                    return NGL_ERROR_MEMORY;
-                if (child && !ngli_darray_push(&child->parents, &node))
-                    return NGL_ERROR_MEMORY;
-                break;
             }
         }
         par++;
