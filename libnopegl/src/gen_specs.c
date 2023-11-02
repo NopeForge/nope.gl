@@ -342,6 +342,21 @@ static int check_node_params(const struct node_class *cls)
     return 0;
 }
 
+static int check_common_node_params(const struct node_param *par)
+{
+    while (par->key) {
+        if (par->type == NGLI_PARAM_TYPE_NODE ||
+            par->type == NGLI_PARAM_TYPE_NODEDICT ||
+            par->type == NGLI_PARAM_TYPE_NODELIST ||
+            (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)) {
+            fprintf(stderr, "the common node parameters must not include any node-based parameter\n");
+            return NGL_ERROR_BUG;
+        }
+        par++;
+    }
+    return 0;
+}
+
 static int print_nodes(void)
 {
     printf("  \"nodes\": {\n");
@@ -351,7 +366,10 @@ static int print_nodes(void)
     if (!params_map)
         return -1;
 
-    int ret = 0;
+    int ret = check_common_node_params(ngli_base_node_params);
+    if (ret < 0)
+        goto end;
+
     for (size_t i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
         const struct node_class *c = node_classes[i];
         const struct node_param *p = &c->params[0];
