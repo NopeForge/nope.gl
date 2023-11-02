@@ -289,6 +289,13 @@ static int node_init(struct ngl_node *node)
     ngli_darray_init(&node->children, sizeof(struct ngl_node *), 0);
     ngli_darray_init(&node->parents, sizeof(struct ngl_node *), 0);
 
+    ret = track_children(node);
+    if (ret < 0) {
+        node->state = STATE_INIT_FAILED;
+        node_uninit(node);
+        return ret;
+    }
+
     ngli_assert(node->ctx);
     if (node->cls->init) {
         LOG(VERBOSE, "INIT %s @ %p", node->label, node);
@@ -299,13 +306,6 @@ static int node_init(struct ngl_node *node)
             node_uninit(node);
             return ret;
         }
-    }
-
-    ret = track_children(node);
-    if (ret < 0) {
-        node->state = STATE_INIT_FAILED;
-        node_uninit(node);
-        return ret;
     }
 
     if (node->cls->prefetch)
