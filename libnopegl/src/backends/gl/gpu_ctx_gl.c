@@ -1,4 +1,6 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -50,11 +52,10 @@ static void capture_cpu(struct gpu_ctx *s)
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
     struct ngl_config *config = &s->config;
-    struct rendertarget *rt = s_priv->default_rt;
+    struct rendertarget *rt = s_priv->capture_rt;
     struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
 
-    const GLuint fbo_id = rt_gl->resolve_id ? rt_gl->resolve_id : rt_gl->id;
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rt_gl->id);
     ngli_glReadPixels(gl, 0, 0, rt->width, rt->height, GL_RGBA, GL_UNSIGNED_BYTE, config->capture_buffer);
 }
 
@@ -244,11 +245,11 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         if (config->capture_buffer) {
             s_priv->capture_cvbuffer = (CVPixelBufferRef)CFRetain(config->capture_buffer);
             int ret = wrap_capture_cvpixelbuffer(s, s_priv->capture_cvbuffer,
-                                                 &s_priv->color, &s_priv->capture_cvtexture);
+                                                 &s_priv->capture_texture, &s_priv->capture_cvtexture);
             if (ret < 0)
                 return ret;
         } else {
-            int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->color);
+            int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->capture_texture);
             if (ret < 0)
                 return ret;
         }
@@ -257,7 +258,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         return NGL_ERROR_UNSUPPORTED;
 #endif
     } else if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_CPU) {
-        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->color);
+        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->capture_texture);
         if (ret < 0)
             return ret;
     } else {
@@ -265,13 +266,22 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         return NGL_ERROR_UNSUPPORTED;
     }
 
+    int ret = create_rendertarget(s, s_priv->capture_texture, NULL, NULL,
+                                  NGLI_LOAD_OP_CLEAR, &s_priv->capture_rt);
+    if (ret < 0)
+        return ret;
+
+    ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->color);
+    if (ret < 0)
+        return ret;
+
     if (config->samples) {
         int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, config->samples, COLOR_USAGE, &s_priv->ms_color);
         if (ret < 0)
             return ret;
     }
 
-    int ret = create_texture(s, NGLI_FORMAT_D24_UNORM_S8_UINT, config->samples, DEPTH_USAGE, &s_priv->depth_stencil);
+    ret = create_texture(s, NGLI_FORMAT_D24_UNORM_S8_UINT, config->samples, DEPTH_USAGE, &s_priv->depth_stencil);
     if (ret < 0)
         return ret;
 
@@ -316,6 +326,9 @@ static void rendertarget_reset(struct gpu_ctx *s)
     ngli_texture_freep(&s_priv->color);
     ngli_texture_freep(&s_priv->ms_color);
     ngli_texture_freep(&s_priv->depth_stencil);
+
+    ngli_rendertarget_freep(&s_priv->capture_rt);
+    ngli_texture_freep(&s_priv->capture_texture);
 #if defined(TARGET_IPHONE)
     reset_capture_cvpixelbuffer(s);
 #endif
@@ -783,6 +796,26 @@ static int gl_begin_draw(struct gpu_ctx *s, double t)
     return 0;
 }
 
+static void blit_vflip(struct gpu_ctx *s, struct rendertarget *src, struct rendertarget *dst)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct glcontext *gl = s_priv->glcontext;
+
+    struct rendertarget_gl *src_gl = (struct rendertarget_gl *)src;
+    const GLuint src_fbo = src_gl->resolve_id ? src_gl->resolve_id : src_gl->id;
+
+    struct rendertarget_gl *dst_gl = (struct rendertarget_gl *)dst;
+    const GLuint dst_fbo = dst_gl->id;
+
+    const int32_t w = src->width, h = dst->height;
+
+    ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, src_fbo);
+    ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, dst_fbo);
+    ngli_glBlitFramebuffer(gl, 0, 0, w, h,
+                               0, h, w, 0,
+                               GL_COLOR_BUFFER_BIT, GL_NEAREST);
+}
+
 static int gl_end_draw(struct gpu_ctx *s, double t)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
@@ -790,8 +823,10 @@ static int gl_end_draw(struct gpu_ctx *s, double t)
     const struct ngl_config *config = &s->config;
     const struct ngl_config_gl *config_gl = config->backend_config;
 
-    if (s_priv->capture_func && config->capture_buffer)
+    if (s_priv->capture_func && config->capture_buffer) {
+        blit_vflip(s, s_priv->default_rt, s_priv->capture_rt);
         s_priv->capture_func(s);
+    }
 
     int ret = ngli_glcontext_check_gl_error(gl, __func__);
 
@@ -856,36 +891,15 @@ static void gl_destroy(struct gpu_ctx *s)
 
 static int gl_transform_cull_mode(struct gpu_ctx *s, int cull_mode)
 {
-    const struct ngl_config *config = &s->config;
-    if (!config->offscreen)
-        return cull_mode;
-    static const int cull_mode_map[NGLI_CULL_MODE_NB] = {
-        [NGLI_CULL_MODE_NONE]      = NGLI_CULL_MODE_NONE,
-        [NGLI_CULL_MODE_FRONT_BIT] = NGLI_CULL_MODE_BACK_BIT,
-        [NGLI_CULL_MODE_BACK_BIT]  = NGLI_CULL_MODE_FRONT_BIT,
-    };
-    return cull_mode_map[cull_mode];
+    return cull_mode;
 }
 
 static void gl_transform_projection_matrix(struct gpu_ctx *s, float *dst)
 {
-    const struct ngl_config *config = &s->config;
-    if (!config->offscreen)
-        return;
-    static const NGLI_ALIGNED_MAT(matrix) = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f,-1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f,
-    };
-    ngli_mat4_mul(dst, matrix, dst);
 }
 
 static void gl_get_rendertarget_uvcoord_matrix(struct gpu_ctx *s, float *dst)
 {
-    const struct ngl_config *config = &s->config;
-    if (config->offscreen)
-        return;
     static const NGLI_ALIGNED_MAT(matrix) = {
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f,-1.0f, 0.0f, 0.0f,

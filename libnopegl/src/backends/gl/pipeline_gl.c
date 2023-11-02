@@ -179,16 +179,11 @@ static void set_graphics_state(struct pipeline *s)
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct glstate *glstate = &gpu_ctx_gl->glstate;
-    const struct ngl_config *config = &gpu_ctx->config;
-    struct rendertarget *rendertarget = gpu_ctx->rendertarget;
     struct pipeline_graphics *graphics = &s->graphics;
 
     ngli_glstate_update(gl, glstate, &graphics->state);
     ngli_glstate_update_viewport(gl, glstate, &gpu_ctx->viewport);
-    struct scissor scissor = gpu_ctx->scissor;
-    if (config->offscreen)
-        scissor.y = NGLI_MAX(rendertarget->height - scissor.y - scissor.height, 0);
-    ngli_glstate_update_scissor(gl, glstate, &scissor);
+    ngli_glstate_update_scissor(gl, glstate, &gpu_ctx->scissor);
 }
 
 void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances)
