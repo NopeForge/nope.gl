@@ -151,6 +151,7 @@ void ngli_ctx_reset(struct ngl_ctx *s, int action);
 struct ngl_node {
     const struct node_class *cls;
     struct ngl_ctx *ctx;
+    struct ngl_scene *scene;
 
     void *opts;
 

@@ -26,14 +26,67 @@
 
 NGLI_RC_CHECK_STRUCT(ngl_scene);
 
+static int reset_nodes(void *user_arg, struct ngl_node *parent, struct ngl_node *node)
+{
+    struct ngl_scene *s = user_arg;
+
+    if (!node->scene)
+        return 0;
+
+    /*
+     * This can happen if a failure happened during nodes association, for
+     * example if part of the graph was associated with another scene. We make
+     * sure to reset only the nodes we actually own.
+     */
+    if (node->scene != s)
+        return 0;
+
+    int ret = ngli_node_children_apply_func(reset_nodes, s, node);
+    ngli_assert(ret == 0);
+
+    node->scene = NULL;
+    return 0;
+}
+
 static void detach_root(struct ngl_scene *s)
 {
+    if (!s->params.root)
+        return;
+
+    int ret = reset_nodes(s, NULL, s->params.root);
+    ngli_assert(ret == 0);
+
     ngl_node_unrefp(&s->params.root);
+}
+
+static int setup_nodes(void *user_arg, struct ngl_node *parent, struct ngl_node *node)
+{
+    struct ngl_scene *s = user_arg;
+
+    if (node->scene) {
+        if (node->scene != s) {
+            LOG(ERROR, "one or more nodes of the graph are associated with another scene already");
+            return NGL_ERROR_INVALID_USAGE;
+        }
+    } else {
+        node->scene = s;
+
+        int ret = ngli_node_children_apply_func(setup_nodes, s, node);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
 }
 
 static int attach_root(struct ngl_scene *s, struct ngl_node *node)
 {
     s->params.root = ngl_node_ref(node);
+
+    int ret = setup_nodes(s, NULL, s->params.root);
+    if (ret < 0)
+        return ret;
+
     return 0;
 }
 
