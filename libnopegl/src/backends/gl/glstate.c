@@ -22,12 +22,9 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "gpu_ctx_gl.h"
 #include "glcontext.h"
-#include "glincludes.h"
 #include "glstate.h"
 #include "graphics_state.h"
-#include "internal.h"
 
 static const GLenum gl_blend_factor_map[NGLI_BLEND_FACTOR_NB] = {
     [NGLI_BLEND_FACTOR_ZERO]                = GL_ZERO,
