@@ -190,7 +190,11 @@ def _get_rtt_scene(
 
 
 def _get_rtt_function(**kwargs):
-    @test_fingerprint(width=512, height=512, keyframes=10)
+    tolerance = 0
+    if kwargs.get("sample_depth", False):
+        tolerance = 2
+
+    @test_fingerprint(width=512, height=512, keyframes=10, tolerance=tolerance)
     @ngl.scene()
     def rtt_function(cfg: ngl.SceneCfg):
         return _get_rtt_scene(cfg, **kwargs)
