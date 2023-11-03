@@ -151,27 +151,71 @@ def api_ctx_ownership():
     del ctx2
 
 
-def api_ctx_ownership_subgraph():
-    for shared in (True, False):
-        ctx = ngl.Context()
-        ctx2 = ngl.Context()
-        ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
-        assert ret == 0
-        ret = ctx2.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
-        assert ret == 0
-        quad = ngl.Quad()
-        render1 = _get_scene(quad)
-        if not shared:
-            quad = ngl.Quad()
-        render2 = _get_scene(quad)
-        root = ngl.Group([render1.root, render2.root])
-        scene = ngl.Scene.from_params(root)
-        assert ctx.set_scene(render2) == 0
-        assert ctx.draw(0) == 0
-        assert ctx2.set_scene(scene) != 0
-        assert ctx2.draw(0) == 0
-        del ctx
-        del ctx2
+def api_scene_context_transfer():
+    """Test transfering a scene from one context to another"""
+    scene = _get_scene()
+    ctx = ngl.Context()
+    ctx2 = ngl.Context()
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
+    assert ret == 0
+    ret = ctx2.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
+    assert ret == 0
+    assert ctx.set_scene(scene) == 0
+    assert ctx.draw(0) == 0
+    assert ctx.set_scene(None) == 0
+    assert ctx2.set_scene(scene) == 0
+    assert ctx2.draw(0) == 0
+    assert ctx2.set_scene(None) == 0
+
+
+def api_scene_lifetime():
+    """Test if the context is still working properly when we release the user scene ownership"""
+    scene = _get_scene()
+    ctx = ngl.Context()
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
+    assert ret == 0
+    assert ctx.set_scene(scene) == 0
+    del scene
+    assert ctx.draw(0) == 0
+    del ctx
+
+
+def api_scene_ownership():
+    """Test if part of a graph is shared between 2 different scenes"""
+    shared_geometry = ngl.Quad()
+    scene0 = ngl.Scene.from_params(ngl.RenderColor(geometry=shared_geometry))
+    try:
+        scene1 = ngl.Scene.from_params(ngl.RenderColor(geometry=shared_geometry))
+    except Exception:
+        pass
+    else:
+        del scene1
+        assert False
+    del scene0
+
+
+def api_scene_resilience():
+    """Similar to API the scene ownership test but make sure the API is error resilient"""
+    shared_geometry = ngl.Quad()
+    scene0 = ngl.Scene.from_params(ngl.RenderColor(geometry=shared_geometry))
+
+    ctx = ngl.Context()
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
+    assert ret == 0
+    assert ctx.set_scene(scene0) == 0
+    assert ctx.draw(0) == 0
+
+    try:
+        scene1 = ngl.Scene.from_params(ngl.RenderColor(geometry=shared_geometry))
+    except Exception:
+        pass
+    else:
+        del scene1
+        assert False
+
+    assert ctx.draw(0) == 0
+    del scene0
+    del ctx
 
 
 def api_capture_buffer_lifetime(width=1024, height=1024):
