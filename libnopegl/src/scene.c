@@ -19,7 +19,6 @@
  * under the License.
  */
 
-#include "nopegl.h"
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
