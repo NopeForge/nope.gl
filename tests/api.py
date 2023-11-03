@@ -39,8 +39,8 @@ _backend_str = os.environ.get("BACKEND")
 _backend = get_backend(_backend_str) if _backend_str else ngl.Backend.AUTO
 
 
-def _get_scene(geometry=None):
-    return ngl.Scene.from_params(ngl.RenderColor(geometry=ngl.Quad() if geometry is None else geometry))
+def _get_scene():
+    return ngl.Scene.from_params(ngl.RenderColor(geometry=ngl.Quad()))
 
 
 def api_backend():
