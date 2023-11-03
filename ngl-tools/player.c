@@ -420,10 +420,12 @@ static int set_scene(struct player *p, struct ngl_scene *scene)
     int ret;
 
     if (p->enable_ui) {
-        scene->root = add_progress_bar(p, scene);
-        if (!scene->root)
+        struct ngl_node *new_root = add_progress_bar(p, scene);
+        if (!new_root)
             return NGL_ERROR_MEMORY;
-        ret = ngl_set_scene(p->ngl, scene);
+        ret = ngl_scene_init_from_node(scene, new_root);
+        if (ret >= 0)
+            ret = ngl_set_scene(p->ngl, scene);
         ngl_node_unrefp(&scene->root);
     } else {
         ret = ngl_set_scene(p->ngl, scene);
