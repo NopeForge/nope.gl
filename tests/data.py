@@ -327,8 +327,8 @@ def data_noise_time(cfg: ngl.SceneCfg):
         """\
         void main()
         {
-            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-            ngl_out_pos += vec4(t - 1., signal, 0.0, 0.0);
+            ngl_out_pos = ngl_modelview_matrix * vec4(ngl_position, 1.0) + vec4(t - 1.0, -signal, 0.0, 0.0);
+            ngl_out_pos = ngl_projection_matrix * ngl_out_pos;
         }
         """
     )
