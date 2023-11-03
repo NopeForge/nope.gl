@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2017-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -333,16 +334,22 @@ void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstat
 
 void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *glstate, const struct scissor *scissor)
 {
-    if (!memcmp(glstate->scissor, scissor, sizeof(glstate->scissor)))
+    if (glstate->scissor.x == scissor->x &&
+        glstate->scissor.y == scissor->y &&
+        glstate->scissor.width == scissor->width &&
+        glstate->scissor.height == scissor->height)
         return;
-    memcpy(glstate->scissor, scissor, sizeof(glstate->scissor));
+    glstate->scissor = *scissor;
     ngli_glScissor(gl, scissor->x, scissor->y, scissor->width, scissor->height);
 }
 
 void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *glstate, const struct viewport *viewport)
 {
-    if (!memcmp(glstate->viewport, viewport, sizeof(glstate->viewport)))
+    if (glstate->viewport.x == viewport->x &&
+        glstate->viewport.y == viewport->y &&
+        glstate->viewport.width == viewport->width &&
+        glstate->viewport.height == viewport->height)
         return;
-    memcpy(glstate->viewport, viewport, sizeof(glstate->viewport));
+    glstate->viewport = *viewport;
     ngli_glViewport(gl, viewport->x, viewport->y, viewport->width, viewport->height);
 }
