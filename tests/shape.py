@@ -42,7 +42,7 @@ def shape_precision_iovar(cfg: ngl.SceneCfg):
         void main()
         {
             ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-            color = vec4((ngl_out_pos.xy + 1.0) * .5, 1.0 - (ngl_out_pos.x + 1.0) * .5 - (ngl_out_pos.y + 1.0) * .5, 1.0);
+            color = vec4(ngl_uvcoord.xy, 1.0 - ngl_uvcoord.x - ngl_uvcoord.y, 1.0);
         }
         """
     )
