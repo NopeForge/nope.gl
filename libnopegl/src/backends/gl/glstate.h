@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2017-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,11 +25,9 @@
 #define GLSTATE_H
 
 #include "glcontext.h"
-#include "glincludes.h"
+#include "gpu_ctx.h"
 
 struct graphics_state;
-struct scissor;
-struct viewport;
 
 struct glstate {
     /* Graphics state */
@@ -61,8 +60,8 @@ struct glstate {
     GLboolean scissor_test;
 
     /* Dynamic graphics state */
-    int32_t scissor[4];
-    int32_t viewport[4];
+    struct scissor scissor;
+    struct viewport viewport;
 
     /* Common state */
     GLuint program_id;
