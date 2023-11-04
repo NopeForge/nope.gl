@@ -28,6 +28,7 @@ if platform.system() != "Windows":
 import msvcrt
 import os
 import shutil
+import subprocess
 import sys
 
 
@@ -38,6 +39,8 @@ def run(args):
             handle = int(arg[len("handle:") :])
             fd = msvcrt.open_osfhandle(handle, os.O_RDONLY)
             args[index] = f"pipe:{fd}"
+        else:
+            args[index] = subprocess.list2cmdline([arg])
 
     ffmpeg = shutil.which("ffmpeg.exe")
     sys.exit(os.spawnl(os.P_WAIT, ffmpeg, "ffmpeg.exe", *args))
