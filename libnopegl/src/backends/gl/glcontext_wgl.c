@@ -217,7 +217,7 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
         static const int context_attributes[] = {
-            WGL_CONTEXT_MAJOR_VERSION_ARB, 2,
+            WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
             WGL_CONTEXT_MINOR_VERSION_ARB, 0,
             WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_ES2_PROFILE_BIT_EXT,
             0
