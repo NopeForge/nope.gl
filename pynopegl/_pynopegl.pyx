@@ -174,6 +174,8 @@ cdef extern from "nopegl.h":
     int ngl_backends_get(const ngl_config *user_config, size_t *nb_backendsp, ngl_backend **backendsp)
     void ngl_backends_freep(ngl_backend **backendsp)
     int ngl_configure(ngl_ctx *s, ngl_config *config)
+    int ngl_get_backend(ngl_ctx *s, ngl_backend *backend)
+    void ngl_reset_backend(ngl_backend *backend)
     int ngl_resize(ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
     int ngl_set_capture_buffer(ngl_ctx *s, void *capture_buffer)
     int ngl_set_scene(ngl_ctx *s, ngl_scene *scene)
@@ -681,6 +683,25 @@ cdef class Context:
         cdef uintptr_t ptr = py_config.cptr
         cdef ngl_config *configp = <ngl_config *>ptr
         return ngl_configure(self.ctx, configp)
+
+    def get_backend(self):
+        cdef ngl_backend backend
+        memset(&backend, 0, sizeof(backend))
+        cdef int ret = ngl_get_backend(self.ctx, &backend)
+        if ret < 0:
+            raise Exception("Error getting backend information")
+        caps = {}
+        for i in range(backend.nb_caps):
+            cap = &backend.caps[i]
+            caps[cap.string_id] = cap.value
+        py_backend = dict(
+            id=backend.id,
+            name=backend.name,
+            is_default=True if backend.is_default else False,
+            caps=caps,
+        )
+        ngl_reset_backend(&backend)
+        return py_backend
 
     def resize(self, width, height, viewport=None):
         if viewport is None:

@@ -253,6 +253,10 @@ class Context(_ngl.Context):
     def configure(self, config: Config) -> int:
         return super().configure(config)
 
+    def get_backend(self) -> Dict[str, Any]:
+        backend = super().get_backend()
+        return _pythonize_backend(backend)
+
     def resize(
         self,
         width: int,

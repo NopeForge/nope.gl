@@ -96,6 +96,7 @@ struct ngl_ctx {
     struct rnode *rnode_pos;
     struct ngl_scene *scene;
     struct ngl_config config;
+    struct ngl_backend backend;
     struct rendertarget *available_rendertargets[2];
     struct rendertarget *current_rendertarget;
     int render_pass_started;

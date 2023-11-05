@@ -1,4 +1,6 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -195,6 +197,17 @@ static int backend_init(struct ngl_backend *backend, struct gpu_ctx *gpu_ctx)
     return 0;
 }
 
+static int backend_copy(struct ngl_backend *dst, const struct ngl_backend *src)
+{
+    *dst = *src;
+
+    dst->caps = ngli_memdup(src->caps, src->nb_caps * sizeof(*src->caps));
+    if (!dst->caps)
+        return NGL_ERROR_MEMORY;
+
+    return 0;
+}
+
 static void backend_reset(struct ngl_backend *backend)
 {
     ngli_free(backend->caps);
@@ -293,6 +306,7 @@ void ngli_ctx_reset(struct ngl_ctx *s, int action)
     ngli_pgcache_reset(&s->pgcache);
     ngli_gpu_ctx_freep(&s->gpu_ctx);
     ngli_config_reset(&s->config);
+    backend_reset(&s->backend);
 }
 
 void ngli_free_text_builtin_atlas(void *user_arg, void *data)
@@ -690,8 +704,31 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
     if (ret < 0)
         return ret;
 
+    ret = backend_init(&s->backend, s->gpu_ctx);
+    if (ret < 0)
+        return ret;
+
     s->configured = 1;
     return 0;
+}
+
+int ngl_get_backend(struct ngl_ctx *s, struct ngl_backend *backend)
+{
+    if (!s->configured) {
+        LOG(ERROR, "context must be configured in order to get the information of the selected backend");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    int ret = backend_copy(backend, &s->backend);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+void ngl_reset_backend(struct ngl_backend *backend)
+{
+    backend_reset(backend);
 }
 
 int ngl_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
