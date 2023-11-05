@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -880,6 +881,12 @@ static int vk_init(struct gpu_ctx *s)
         ngli_gpu_capture_begin(s->gpu_capture_ctx);
 #endif
 
+    struct vkcontext *vk = s_priv->vkcontext;
+
+    s->version = 100 * VK_API_VERSION_MAJOR(vk->api_version)
+               +  10 * VK_API_VERSION_MINOR(vk->api_version);
+    s->language_version = 450;
+
     s->features = NGLI_FEATURE_COMPUTE |
                   NGLI_FEATURE_IMAGE_LOAD_STORE |
                   NGLI_FEATURE_STORAGE_BUFFER |
@@ -887,7 +894,6 @@ static int vk_init(struct gpu_ctx *s)
                   NGLI_FEATURE_TEXTURE_FLOAT_RENDERABLE |
                   NGLI_FEATURE_TEXTURE_HALF_FLOAT_RENDERABLE;
 
-    struct vkcontext *vk = s_priv->vkcontext;
     const VkPhysicalDeviceLimits *limits = &vk->phy_device_props.limits;
     s->limits.max_vertex_attributes              = limits->maxVertexInputAttributes;
     s->limits.max_color_attachments              = get_max_color_attachments(limits);
