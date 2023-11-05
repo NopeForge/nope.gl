@@ -13,6 +13,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   configure step, in Python
 - `ngl.SceneCfg` now includes the backend capabilities
 - `%s_coord_matrix` uniform is now exposed for 2D array and 3D textures
+- `ngl_get_backend()` function to retrieve the backend information associated
+  with a configured `nope.gl` context
 
 ### Fixed
 - Moving the split position in `ngl-diff`
