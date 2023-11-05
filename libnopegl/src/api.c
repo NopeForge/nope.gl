@@ -172,6 +172,35 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
     return 0;
 }
 
+static int backend_init(struct ngl_backend *backend, struct gpu_ctx *gpu_ctx)
+{
+    struct ngl_config *config = &gpu_ctx->config;
+
+    ngli_assert(gpu_ctx->backend_str);
+    ngli_assert(gpu_ctx->cls);
+
+    backend->id         = config->backend;
+    backend->string_id  = gpu_ctx->backend_str;
+    backend->name       = gpu_ctx->cls->name;
+    backend->is_default = config->backend == DEFAULT_BACKEND;
+
+    /* If GPU context is not initialized, return early */
+    if (!gpu_ctx->version)
+        return 0;
+
+    int ret = load_caps(backend, gpu_ctx);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+static void backend_reset(struct ngl_backend *backend)
+{
+    ngli_free(backend->caps);
+    memset(backend, 0, sizeof(*backend));
+}
+
 static int cmd_stop(struct ngl_ctx *s, void *arg)
 {
     return 0;
@@ -494,21 +523,13 @@ static int backend_probe(struct ngl_backend *backend, const struct ngl_config *c
     if (!gpu_ctx)
         return NGL_ERROR_MEMORY;
 
-    ngli_assert(gpu_ctx->backend_str);
-    ngli_assert(gpu_ctx->cls);
+    if (mode == PROBE_MODE_FULL) {
+        ret = ngli_gpu_ctx_init(gpu_ctx);
+        if (ret < 0)
+            goto end;
+    }
 
-    backend->id         = config->backend;
-    backend->string_id  = gpu_ctx->backend_str;
-    backend->name       = gpu_ctx->cls->name;
-
-    if (mode == PROBE_MODE_NO_GRAPHICS)
-        goto end;
-
-    ret = ngli_gpu_ctx_init(gpu_ctx);
-    if (ret < 0)
-        goto end;
-
-    ret = load_caps(backend, gpu_ctx);
+    ret = backend_init(backend, gpu_ctx);
     if (ret < 0)
         goto end;
 
@@ -557,7 +578,6 @@ static int backends_probe(const struct ngl_config *user_config, size_t *nb_backe
         int ret = backend_probe(&backends[nb_backends], &config, mode);
         if (ret < 0)
             continue;
-        backends[nb_backends].is_default = backend_ids[i] == DEFAULT_BACKEND;
 
         nb_backends++;
     }
@@ -586,7 +606,7 @@ void ngl_backends_freep(struct ngl_backend **backendsp)
     if (!backends)
         return;
     for (size_t i = 0; i < NGLI_ARRAY_NB(backend_ids); i++)
-        ngli_free(backends[i].caps);
+        backend_reset(&backends[i]);
     ngli_freep(backendsp);
 }
 
