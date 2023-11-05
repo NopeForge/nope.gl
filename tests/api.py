@@ -543,3 +543,26 @@ def api_caps():
         pass
     else:
         assert False
+
+
+def api_get_backend():
+    """
+    Exercise the ngl.Context.get_backend() API; the result is platform/hardware
+    specific so tricky to test its output
+    """
+    ctx = ngl.Context()
+    cfg = ngl.Config(offscreen=True, width=32, height=32, backend=ngl.Backend.AUTO)
+    try:
+        backend = ctx.get_backend()
+    except Exception:
+        pass
+    else:
+        assert False
+    ret = ctx.configure(cfg)
+    assert ret == 0
+    backend = ctx.get_backend()
+    assert isinstance(backend["id"], ngl.Backend)
+    assert backend["id"] != ngl.Backend.AUTO
+    assert backend["is_default"] == True
+    assert backend["caps"]
+    pprint.pprint(backend)
