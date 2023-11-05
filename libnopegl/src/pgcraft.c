@@ -1356,7 +1356,10 @@ static void setup_glsl_info_gl(struct pgcraft *s)
 #if defined(BACKEND_VK)
 static void setup_glsl_info_vk(struct pgcraft *s)
 {
-    s->glsl_version = 450;
+    struct ngl_ctx *ctx = s->ctx;
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+
+    s->glsl_version = gpu_ctx->language_version;
 
     s->sym_vertex_index   = "gl_VertexIndex";
     s->sym_instance_index = "gl_InstanceIndex";
