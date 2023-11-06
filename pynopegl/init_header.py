@@ -153,10 +153,6 @@ class Config(_ngl.Config):
             hud_scale,
         )
 
-    @property
-    def backend(self) -> Backend:
-        return Backend(super().backend)
-
 
 def _pythonize_backend(backend: Dict[str, Any]) -> Dict[str, Any]:
     new_caps = {}

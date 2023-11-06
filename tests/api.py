@@ -513,18 +513,6 @@ def api_probing():
     pprint.pprint(probe)
 
 
-def api_auto_backend():
-    """
-    Test if Backend.AUTO is updated to reflect the selected backend.
-    """
-    ctx = ngl.Context()
-    cfg = ngl.Config(offscreen=True, width=32, height=32, backend=ngl.Backend.AUTO)
-    ret = ctx.configure(cfg)
-    assert ret == 0
-    assert isinstance(cfg.backend, ngl.Backend)
-    assert cfg.backend != ngl.Backend.AUTO
-
-
 def api_caps():
     # Manually build a scene config with the default backend and explicit capabilities
     scene_cfg = ngl.SceneCfg(backend=next(k for k, v in ngl.get_backends().items() if v["is_default"]))

@@ -660,47 +660,48 @@ fail:
     return NULL;
 }
 
-int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
+int ngl_configure(struct ngl_ctx *s, const struct ngl_config *user_config)
 {
     if (s->configured) {
         s->api_impl->reset(s, NGLI_ACTION_KEEP_SCENE);
         s->configured = 0;
     }
 
-    if (!config) {
+    if (!user_config) {
         LOG(ERROR, "context configuration cannot be NULL");
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (config->backend == NGL_BACKEND_AUTO && config->backend_config) {
+    if (user_config->backend == NGL_BACKEND_AUTO && user_config->backend_config) {
         LOG(ERROR, "backend specific configuration is not allowed "
                    "while automatic backend selection is used");
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    if (config->backend == NGL_BACKEND_AUTO)
-        config->backend = DEFAULT_BACKEND;
-    if (config->platform == NGL_PLATFORM_AUTO)
-        config->platform = get_default_platform();
-    if (config->platform < 0) {
+    struct ngl_config config = *user_config;
+    if (config.backend == NGL_BACKEND_AUTO)
+        config.backend = DEFAULT_BACKEND;
+    if (config.platform == NGL_PLATFORM_AUTO)
+        config.platform = get_default_platform();
+    if (config.platform < 0) {
         LOG(ERROR, "can not determine which platform to use");
-        return config->platform;
+        return config.platform;
     }
 
-    if (config->backend < 0 ||
-        config->backend >= NGLI_ARRAY_NB(api_map)) {
-        LOG(ERROR, "unknown backend %d", config->backend);
+    if (config.backend < 0 ||
+        config.backend >= NGLI_ARRAY_NB(api_map)) {
+        LOG(ERROR, "unknown backend %d", config.backend);
         return NGL_ERROR_INVALID_ARG;
     }
 
-    s->api_impl = api_map[config->backend].api_impl;
+    s->api_impl = api_map[config.backend].api_impl;
     if (!s->api_impl) {
         LOG(ERROR, "backend \"%s\" not available with this build",
-            api_map[config->backend].string_id);
+            api_map[config.backend].string_id);
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    int ret = s->api_impl->configure(s, config);
+    int ret = s->api_impl->configure(s, &config);
     if (ret < 0)
         return ret;
 
