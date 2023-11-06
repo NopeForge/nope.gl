@@ -320,12 +320,6 @@ static inline void ngli_glDrawArraysInstanced(const struct glcontext *gl, GLenum
     check_error_code(gl, "glDrawArraysInstanced");
 }
 
-static inline void ngli_glDrawBuffer(const struct glcontext *gl, GLenum buf)
-{
-    gl->funcs.DrawBuffer(buf);
-    check_error_code(gl, "glDrawBuffer");
-}
-
 static inline void ngli_glDrawBuffers(const struct glcontext *gl, GLsizei n, const GLenum * bufs)
 {
     gl->funcs.DrawBuffers(n, bufs);
@@ -403,12 +397,6 @@ static inline void ngli_glFramebufferTexture2D(const struct glcontext *gl, GLenu
 {
     gl->funcs.FramebufferTexture2D(target, attachment, textarget, texture, level);
     check_error_code(gl, "glFramebufferTexture2D");
-}
-
-static inline void ngli_glFramebufferTexture3D(const struct glcontext *gl, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset)
-{
-    gl->funcs.FramebufferTexture3D(target, attachment, textarget, texture, level, zoffset);
-    check_error_code(gl, "glFramebufferTexture3D");
 }
 
 static inline void ngli_glFramebufferTextureLayer(const struct glcontext *gl, GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)

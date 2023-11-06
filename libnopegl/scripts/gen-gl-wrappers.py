@@ -127,7 +127,6 @@ cmds = [
     "glReadPixels",
     "glBlitFramebuffer",
     "glGetFramebufferAttachmentParameteriv",
-    "glFramebufferTexture3D",
     "glFramebufferTextureLayer",
     # Renderbuffer
     "glRenderbufferStorageMultisample",
@@ -216,7 +215,6 @@ cmds = [
     "glClientWaitSync",
     # Read/Draw Buffer
     "glReadBuffer",
-    "glDrawBuffer",
     "glDrawBuffers",
     # Clear Buffer
     "glClearBufferfv",

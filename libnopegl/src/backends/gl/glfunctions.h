@@ -57,7 +57,6 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *DispatchCompute)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
     void (NGLI_GL_APIENTRY *DrawArrays)(GLenum mode, GLint first, GLsizei count);
     void (NGLI_GL_APIENTRY *DrawArraysInstanced)(GLenum mode, GLint first, GLsizei count, GLsizei instancecount);
-    void (NGLI_GL_APIENTRY *DrawBuffer)(GLenum buf);
     void (NGLI_GL_APIENTRY *DrawBuffers)(GLsizei n, const GLenum * bufs);
     void (NGLI_GL_APIENTRY *DrawElements)(GLenum mode, GLsizei count, GLenum type, const void * indices);
     void (NGLI_GL_APIENTRY *DrawElementsInstanced)(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
@@ -71,7 +70,6 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *Flush)();
     void (NGLI_GL_APIENTRY *FramebufferRenderbuffer)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
     void (NGLI_GL_APIENTRY *FramebufferTexture2D)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-    void (NGLI_GL_APIENTRY *FramebufferTexture3D)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset);
     void (NGLI_GL_APIENTRY *FramebufferTextureLayer)(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
     void (NGLI_GL_APIENTRY *GenBuffers)(GLsizei n, GLuint * buffers);
     void (NGLI_GL_APIENTRY *GenFramebuffers)(GLsizei n, GLuint * framebuffers);
