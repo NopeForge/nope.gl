@@ -128,7 +128,7 @@ static int create_fbo(struct rendertarget *s, int resolve, GLuint *idp)
             ngli_glFramebufferTextureLayer(gl, GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, layer);
             break;
         case GL_TEXTURE_3D:
-            ngli_glFramebufferTexture3D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_3D, texture_gl->id, 0, layer);
+            ngli_glFramebufferTextureLayer(gl, GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, layer);
             break;
         case GL_TEXTURE_CUBE_MAP:
             ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, texture_gl->id, 0);
