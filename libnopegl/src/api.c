@@ -110,6 +110,68 @@ static int get_default_platform(void)
 #endif
 }
 
+static const char *get_cap_string_id(unsigned cap_id)
+{
+    switch (cap_id) {
+    case NGL_CAP_COMPUTE:                       return "compute";
+    case NGL_CAP_DEPTH_STENCIL_RESOLVE:         return "depth_stencil_resolve";
+    case NGL_CAP_MAX_COLOR_ATTACHMENTS:         return "max_color_attachments";
+    case NGL_CAP_MAX_COMPUTE_GROUP_COUNT_X:     return "max_compute_group_count_x";
+    case NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Y:     return "max_compute_group_count_y";
+    case NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Z:     return "max_compute_group_count_z";
+    case NGL_CAP_MAX_COMPUTE_GROUP_INVOCATIONS: return "max_compute_group_invocations";
+    case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_X:      return "max_compute_group_size_x";
+    case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Y:      return "max_compute_group_size_y";
+    case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Z:      return "max_compute_group_size_z";
+    case NGL_CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE:return "max_compute_shared_memory_size";
+    case NGL_CAP_MAX_SAMPLES:                   return "max_samples";
+    case NGL_CAP_MAX_TEXTURE_ARRAY_LAYERS:      return "max_texture_array_layers";
+    case NGL_CAP_MAX_TEXTURE_DIMENSION_1D:      return "max_texture_dimension_1d";
+    case NGL_CAP_MAX_TEXTURE_DIMENSION_2D:      return "max_texture_dimension_2d";
+    case NGL_CAP_MAX_TEXTURE_DIMENSION_3D:      return "max_texture_dimension_3d";
+    case NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE:    return "max_texture_dimension_cube";
+    case NGL_CAP_TEXT_LIBRARIES:                return "text_libraries";
+    }
+    ngli_assert(0);
+}
+
+#define CAP(cap_id, value) {cap_id, get_cap_string_id(cap_id), value}
+
+static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
+{
+    const int has_compute        = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_FEATURE_COMPUTE);
+    const int has_ds_resolve     = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_FEATURE_DEPTH_STENCIL_RESOLVE);
+
+    const struct gpu_limits *limits = &gpu_ctx->limits;
+    const struct ngl_cap caps[] = {
+        CAP(NGL_CAP_COMPUTE,                       has_compute),
+        CAP(NGL_CAP_DEPTH_STENCIL_RESOLVE,         has_ds_resolve),
+        CAP(NGL_CAP_MAX_COLOR_ATTACHMENTS,         limits->max_color_attachments),
+        CAP(NGL_CAP_MAX_COMPUTE_GROUP_COUNT_X,     limits->max_compute_work_group_count[0]),
+        CAP(NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Y,     limits->max_compute_work_group_count[1]),
+        CAP(NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Z,     limits->max_compute_work_group_count[2]),
+        CAP(NGL_CAP_MAX_COMPUTE_GROUP_INVOCATIONS, limits->max_compute_work_group_invocations),
+        CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_X,      limits->max_compute_work_group_size[0]),
+        CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Y,      limits->max_compute_work_group_size[1]),
+        CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Z,      limits->max_compute_work_group_size[2]),
+        CAP(NGL_CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE,limits->max_compute_shared_memory_size),
+        CAP(NGL_CAP_MAX_SAMPLES,                   limits->max_samples),
+        CAP(NGL_CAP_MAX_TEXTURE_ARRAY_LAYERS,      limits->max_texture_array_layers),
+        CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_1D,      limits->max_texture_dimension_1d),
+        CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_2D,      limits->max_texture_dimension_2d),
+        CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_3D,      limits->max_texture_dimension_3d),
+        CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE,    limits->max_texture_dimension_cube),
+        CAP(NGL_CAP_TEXT_LIBRARIES,                HAVE_TEXT_LIBRARIES),
+    };
+
+    backend->nb_caps = NGLI_ARRAY_NB(caps);
+    backend->caps = ngli_memdup(caps, sizeof(caps));
+    if (!backend->caps)
+        return NGL_ERROR_MEMORY;
+
+    return 0;
+}
+
 static int cmd_stop(struct ngl_ctx *s, void *arg)
 {
     return 0;
@@ -417,68 +479,6 @@ static void *worker_thread(void *arg)
     pthread_mutex_unlock(&s->lock);
 
     return NULL;
-}
-
-static const char *get_cap_string_id(unsigned cap_id)
-{
-    switch (cap_id) {
-    case NGL_CAP_COMPUTE:                       return "compute";
-    case NGL_CAP_DEPTH_STENCIL_RESOLVE:         return "depth_stencil_resolve";
-    case NGL_CAP_MAX_COLOR_ATTACHMENTS:         return "max_color_attachments";
-    case NGL_CAP_MAX_COMPUTE_GROUP_COUNT_X:     return "max_compute_group_count_x";
-    case NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Y:     return "max_compute_group_count_y";
-    case NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Z:     return "max_compute_group_count_z";
-    case NGL_CAP_MAX_COMPUTE_GROUP_INVOCATIONS: return "max_compute_group_invocations";
-    case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_X:      return "max_compute_group_size_x";
-    case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Y:      return "max_compute_group_size_y";
-    case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Z:      return "max_compute_group_size_z";
-    case NGL_CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE:return "max_compute_shared_memory_size";
-    case NGL_CAP_MAX_SAMPLES:                   return "max_samples";
-    case NGL_CAP_MAX_TEXTURE_ARRAY_LAYERS:      return "max_texture_array_layers";
-    case NGL_CAP_MAX_TEXTURE_DIMENSION_1D:      return "max_texture_dimension_1d";
-    case NGL_CAP_MAX_TEXTURE_DIMENSION_2D:      return "max_texture_dimension_2d";
-    case NGL_CAP_MAX_TEXTURE_DIMENSION_3D:      return "max_texture_dimension_3d";
-    case NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE:    return "max_texture_dimension_cube";
-    case NGL_CAP_TEXT_LIBRARIES:                return "text_libraries";
-    }
-    ngli_assert(0);
-}
-
-#define CAP(cap_id, value) {cap_id, get_cap_string_id(cap_id), value}
-
-static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
-{
-    const int has_compute        = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_FEATURE_COMPUTE);
-    const int has_ds_resolve     = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_FEATURE_DEPTH_STENCIL_RESOLVE);
-
-    const struct gpu_limits *limits = &gpu_ctx->limits;
-    const struct ngl_cap caps[] = {
-        CAP(NGL_CAP_COMPUTE,                       has_compute),
-        CAP(NGL_CAP_DEPTH_STENCIL_RESOLVE,         has_ds_resolve),
-        CAP(NGL_CAP_MAX_COLOR_ATTACHMENTS,         limits->max_color_attachments),
-        CAP(NGL_CAP_MAX_COMPUTE_GROUP_COUNT_X,     limits->max_compute_work_group_count[0]),
-        CAP(NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Y,     limits->max_compute_work_group_count[1]),
-        CAP(NGL_CAP_MAX_COMPUTE_GROUP_COUNT_Z,     limits->max_compute_work_group_count[2]),
-        CAP(NGL_CAP_MAX_COMPUTE_GROUP_INVOCATIONS, limits->max_compute_work_group_invocations),
-        CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_X,      limits->max_compute_work_group_size[0]),
-        CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Y,      limits->max_compute_work_group_size[1]),
-        CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Z,      limits->max_compute_work_group_size[2]),
-        CAP(NGL_CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE,limits->max_compute_shared_memory_size),
-        CAP(NGL_CAP_MAX_SAMPLES,                   limits->max_samples),
-        CAP(NGL_CAP_MAX_TEXTURE_ARRAY_LAYERS,      limits->max_texture_array_layers),
-        CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_1D,      limits->max_texture_dimension_1d),
-        CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_2D,      limits->max_texture_dimension_2d),
-        CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_3D,      limits->max_texture_dimension_3d),
-        CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE,    limits->max_texture_dimension_cube),
-        CAP(NGL_CAP_TEXT_LIBRARIES,                HAVE_TEXT_LIBRARIES),
-    };
-
-    backend->nb_caps = NGLI_ARRAY_NB(caps);
-    backend->caps = ngli_memdup(caps, sizeof(caps));
-    if (!backend->caps)
-        return NGL_ERROR_MEMORY;
-
-    return 0;
 }
 
 enum {
