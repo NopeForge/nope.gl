@@ -54,7 +54,7 @@ Allocating the rendering context can be made at any time using `ngl_create()`:
     if (!ctx)
         return -1;
 
-    struct ngl_config config = {...};
+    const struct ngl_config config = {...};
     int ret = ngl_configure(ctx, &config);
     if (ret < 0)
         return ret;

@@ -65,7 +65,6 @@ foreach backend : backends
     'trf_seek_keep_alive',
     'dot',
     'probing',
-    'auto_backend',
     'caps',
     'get_backend',
   ]

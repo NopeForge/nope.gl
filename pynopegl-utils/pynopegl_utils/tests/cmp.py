@@ -115,7 +115,8 @@ class CompareSceneBase(CompareBase):
         ret = ctx.configure(ctx_cfg)
         assert ret == 0
 
-        cfg = ngl.SceneCfg(samples=self._samples, clear_color=self._clear_color, backend=ctx_cfg.backend)
+        backend = ctx.get_backend()
+        cfg = ngl.SceneCfg(samples=self._samples, clear_color=self._clear_color, backend=backend["id"])
         scene_info = self._scene_func(cfg, **self._scene_kwargs)
         scene = scene_info.scene
         duration = scene.duration

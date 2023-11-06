@@ -9,8 +9,6 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
 ### Added
-- Ability to get the selected backend by reading `ngl.Config.backend` after the
-  configure step, in Python
 - `ngl.SceneCfg` now includes the backend capabilities
 - `%s_coord_matrix` uniform is now exposed for 2D array and 3D textures
 - `ngl_get_backend()` function to retrieve the backend information associated
@@ -25,6 +23,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `ngl.get_backends()` and `ngl.probe_backends()` were mistakenly inverted in
   v2023.2, this is changed back in this release
 - `SceneCfg` and `SceneInfo` now use the `Backend` enum instead of a string
+- `ngl_configure()` does not update the `backend` field from the user
+  configuration anymore and the `config` argument is now const. Users must now
+  use `ngl_get_backend()` to get the underlying backend information
 
 ### Removed
 - `%s_dimensions` uniform for 2D array and 3D images/textures, users must use

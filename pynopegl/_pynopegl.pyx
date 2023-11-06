@@ -664,10 +664,6 @@ cdef class Config:
     def cptr(self):
         return <uintptr_t>&self.config
 
-    @property
-    def backend(self):
-        return self.config.backend
-
 
 cdef class Context:
     cdef ngl_ctx *ctx
