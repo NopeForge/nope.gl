@@ -455,6 +455,7 @@ def probe_backends(mode, py_config):
             cap = &backend.caps[j]
             caps[cap.string_id] = cap.value
         backend_set[backend.string_id] = dict(
+            id=backend.id,
             name=backend.name,
             is_default=True if backend.is_default else False,
             caps=caps,

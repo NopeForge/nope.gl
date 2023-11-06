@@ -167,6 +167,7 @@ def _pythonize_backends(backends: Mapping[str, Any]) -> Mapping[Backend, Any]:
         for cap_str, cap_data in backend_data["caps"].items():
             cap_id = Cap[cap_str.upper()]
             new_caps[cap_id] = cap_data
+        backend_data["id"] = Backend(backend_data["id"])
         backend_data["caps"] = new_caps
         ret[backend_id] = backend_data
     return ret
