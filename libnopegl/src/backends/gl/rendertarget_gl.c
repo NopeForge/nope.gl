@@ -76,13 +76,9 @@ static void resolve_draw_buffers(struct rendertarget *s)
         if (i == 0)
             flags |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
         ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0 + (GLenum)i);
-#if defined(TARGET_DARWIN)
-        ngli_glDrawBuffer(gl, GL_COLOR_ATTACHMENT0 + (GLenum)i);
-#else
         GLenum draw_buffers[NGLI_MAX_COLOR_ATTACHMENTS] = {0};
         draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
         ngli_glDrawBuffers(gl, (GLsizei)i + 1, draw_buffers);
-#endif
         ngli_glBlitFramebuffer(gl, 0, 0, s->width, s->height, 0, 0, s->width, s->height, flags, GL_NEAREST);
     }
     ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0);
