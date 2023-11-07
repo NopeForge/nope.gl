@@ -67,7 +67,7 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
     s->params = *params;
 
     int transient_usage = 0;
-    if (params->nb_interruptions)
+    if (!params->nb_interruptions)
         transient_usage |= NGLI_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT;
 
     struct rendertarget_params rt_params = {
