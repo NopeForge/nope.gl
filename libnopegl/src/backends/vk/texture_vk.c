@@ -387,13 +387,11 @@ static VkResult texture_vk_init(struct texture *s, const struct texture_params *
     VkMemoryRequirements mem_reqs;
     vkGetImageMemoryRequirements(vk->device, s_priv->image, &mem_reqs);
 
-    int lazy_allocated = 0;
     int mem_type_index = NGL_ERROR_NOT_FOUND;
     if (s->params.usage & NGLI_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT) {
         const VkMemoryPropertyFlags mem_props = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
                                                 VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
         mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_props);
-        lazy_allocated = mem_type_index >= 0;
     }
 
     if (mem_type_index < 0) {
@@ -405,7 +403,7 @@ static VkResult texture_vk_init(struct texture *s, const struct texture_params *
 
     const VkMemoryAllocateInfo alloc_info = {
         .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-        .allocationSize  = lazy_allocated ? 0 : mem_reqs.size,
+        .allocationSize  = mem_reqs.size,
         .memoryTypeIndex = mem_type_index,
     };
     res = vkAllocateMemory(vk->device, &alloc_info, NULL, &s_priv->image_memory);
