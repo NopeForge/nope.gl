@@ -214,6 +214,18 @@ static VkFormatFeatureFlags get_vk_format_features(int usage)
          | (usage & NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ? VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT : 0);
 }
 
+static VkFormatFeatureFlags get_vk_texture_format_features(const struct texture_params *params)
+{
+    VkFormatFeatureFlags features = get_vk_format_features(params->usage);
+
+    if (params->usage & NGLI_TEXTURE_USAGE_SAMPLED_BIT && (
+        params->min_filter != NGLI_FILTER_NEAREST ||
+        params->mag_filter != NGLI_FILTER_NEAREST))
+        features |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+
+    return features;
+}
+
 static int get_mipmap_levels(int32_t width, int32_t height)
 {
     int mipmap_levels = 1;
@@ -347,7 +359,7 @@ static VkResult texture_vk_init(struct texture *s, const struct texture_params *
         ngli_assert(0);
     }
 
-    const VkFormatFeatureFlags features = get_vk_format_features(s->params.usage);
+    const VkFormatFeatureFlags features = get_vk_texture_format_features(params);
     if ((properties.optimalTilingFeatures & features) != features) {
         LOG(ERROR, "unsupported format %d, supported features: 0x%x, requested features: 0x%x",
             s_priv->format, supported_features, features);
