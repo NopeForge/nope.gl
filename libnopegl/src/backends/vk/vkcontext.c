@@ -428,6 +428,7 @@ static void get_memory_property_flags_str(struct bstr *bstr, VkMemoryPropertyFla
         {VK_MEMORY_PROPERTY_PROTECTED_BIT,           "protected"},
         {VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD, "device_coherent_amd"},
         {VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD, "device_uncached_amd"},
+        {VK_MEMORY_PROPERTY_RDMA_CAPABLE_BIT_NV,     "rdma_capable_nv"},
     };
 
     int nb_props = 0;
