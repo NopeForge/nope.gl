@@ -23,8 +23,9 @@
 #define FORMAT_GL_H
 
 #include "format.h"
-#include "glcontext.h"
 #include "glincludes.h"
+
+struct glcontext;
 
 struct format_gl {
     GLint format;
