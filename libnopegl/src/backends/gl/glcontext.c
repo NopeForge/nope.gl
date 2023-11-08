@@ -336,7 +336,7 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
     *(value) = gl_value;                                         \
 } while (0)                                                      \
 
-static int glcontext_probe_settings(struct glcontext *glcontext)
+static int glcontext_probe_limits(struct glcontext *glcontext)
 {
     struct gpu_limits *limits = &glcontext->limits;
 
@@ -438,7 +438,7 @@ static int glcontext_load_extensions(struct glcontext *glcontext)
     if (ret < 0)
         return ret;
 
-    ret = glcontext_probe_settings(glcontext);
+    ret = glcontext_probe_limits(glcontext);
     if (ret < 0)
         return ret;
 
