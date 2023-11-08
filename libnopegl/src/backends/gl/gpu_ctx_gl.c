@@ -949,6 +949,15 @@ static int gl_get_preferred_depth_stencil_format(struct gpu_ctx *s)
     return NGLI_FORMAT_D24_UNORM_S8_UINT;
 }
 
+static uint32_t gl_get_format_features(struct gpu_ctx *s, int format)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct glcontext *gl = s_priv->glcontext;
+
+    const struct format_gl *format_gl = ngli_format_get_gl_texture_format(gl, format);
+    return format_gl->features;
+}
+
 static void gl_set_bindgroup(struct gpu_ctx *s, struct bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
 {
     ngli_bindgroup_gl_bind(bindgroup);
@@ -1014,6 +1023,7 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
                                                                                  \
     .get_preferred_depth_format         = gl_get_preferred_depth_format,         \
     .get_preferred_depth_stencil_format = gl_get_preferred_depth_stencil_format, \
+    .get_format_features                = gl_get_format_features,                \
                                                                                  \
     .set_bindgroup                      = gl_set_bindgroup,                      \
                                                                                  \

@@ -1391,6 +1391,18 @@ static int vk_get_preferred_depth_stencil_format(struct gpu_ctx *s)
     return vk->preferred_depth_stencil_format;
 }
 
+static uint32_t vk_get_format_features(struct gpu_ctx *s, int format)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct vkcontext *vk = s_priv->vkcontext;
+
+    VkFormat vk_format = ngli_format_ngl_to_vk(format);
+    VkFormatProperties properties;
+    vkGetPhysicalDeviceFormatProperties(vk->phy_device, vk_format, &properties);
+
+    return ngli_format_feature_vk_to_ngl(properties.optimalTilingFeatures);
+}
+
 static void vk_set_bindgroup(struct gpu_ctx *s, struct bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
 {
 }
@@ -1484,6 +1496,7 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
 
     .get_preferred_depth_format         = vk_get_preferred_depth_format,
     .get_preferred_depth_stencil_format = vk_get_preferred_depth_stencil_format,
+    .get_format_features                = vk_get_format_features,
 
     .set_bindgroup                      = vk_set_bindgroup,
 
