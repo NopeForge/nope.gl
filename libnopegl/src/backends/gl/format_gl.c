@@ -19,10 +19,13 @@
  * under the License.
  */
 
+#include <string.h>
+
 #include "format_gl.h"
+#include "glcontext.h"
 #include "utils.h"
 
-static const struct format_gl formats[] = {
+static const struct format_gl formats[NGLI_FORMAT_NB] = {
     [NGLI_FORMAT_UNDEFINED]            = {0,                  0,                     0},
     [NGLI_FORMAT_R8_UNORM]             = {GL_RED,             GL_R8,                 GL_UNSIGNED_BYTE},
     [NGLI_FORMAT_R8_SNORM]             = {GL_RED,             GL_R8_SNORM,           GL_BYTE},
@@ -86,10 +89,17 @@ static const struct format_gl formats[] = {
     [NGLI_FORMAT_S8_UINT]              = {GL_STENCIL_INDEX,   GL_STENCIL_INDEX8,     GL_UNSIGNED_BYTE},
 };
 
+NGLI_STATIC_ASSERT(formats_size, NGLI_FIELD_SIZEOF(struct glcontext, formats) == sizeof(formats));
+
+void ngli_format_gl_init(struct glcontext *gl)
+{
+    memcpy(gl->formats, formats, sizeof(formats));
+}
+
 const struct format_gl *ngli_format_get_gl_texture_format(struct glcontext *gl, int format)
 {
-    ngli_assert(format >= 0 && format < NGLI_ARRAY_NB(formats));
-    const struct format_gl *format_gl = &formats[format];
+    ngli_assert(format >= 0 && format < NGLI_ARRAY_NB(gl->formats));
+    const struct format_gl *format_gl = &gl->formats[format];
 
     if (format != NGLI_FORMAT_UNDEFINED)
         ngli_assert(format_gl->format && format_gl->internal_format && format_gl->type);

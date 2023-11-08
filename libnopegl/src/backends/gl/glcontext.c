@@ -387,6 +387,13 @@ static int glcontext_probe_limits(struct glcontext *glcontext)
     return 0;
 }
 
+static int glcontext_probe_formats(struct glcontext *glcontext)
+{
+    ngli_format_gl_init(glcontext);
+
+    return 0;
+}
+
 static int glcontext_check_driver(struct glcontext *glcontext)
 {
     const char *gl_version = (const char *)ngli_glGetString(glcontext, GL_VERSION);
@@ -439,6 +446,10 @@ static int glcontext_load_extensions(struct glcontext *glcontext)
         return ret;
 
     ret = glcontext_probe_limits(glcontext);
+    if (ret < 0)
+        return ret;
+
+    ret = glcontext_probe_formats(glcontext);
     if (ret < 0)
         return ret;
 
