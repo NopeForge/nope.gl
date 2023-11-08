@@ -260,13 +260,13 @@ static int texture_init_fields(struct texture *s)
          params->usage == DEPTH_USAGE ||
          params->usage == TRANSIENT_COLOR_USAGE ||
          params->usage == TRANSIENT_DEPTH_USAGE)) {
-        s_priv->target = GL_RENDERBUFFER;
-        int ret = ngli_format_get_gl_renderbuffer_format(gl, params->format, &s_priv->format);
-        if (ret < 0)
-            return ret;
-        s_priv->internal_format = s_priv->format;
+        const struct format_gl *format_gl = ngli_format_get_gl_texture_format(gl, params->format);
 
-        ret = renderbuffer_check_samples(s);
+        s_priv->target = GL_RENDERBUFFER;
+        s_priv->format = format_gl->internal_format;
+        s_priv->internal_format = format_gl->internal_format;
+
+        int ret = renderbuffer_check_samples(s);
         if (ret < 0)
             return ret;
         return 0;
@@ -286,14 +286,10 @@ static int texture_init_fields(struct texture *s)
     else
         ngli_assert(0);
 
-    int ret = ngli_format_get_gl_texture_format(gl,
-                                                params->format,
-                                                &s_priv->format,
-                                                &s_priv->internal_format,
-                                                &s_priv->format_type);
-    if (ret < 0)
-        return ret;
-
+    const struct format_gl *format_gl = ngli_format_get_gl_texture_format(gl, params->format);
+    s_priv->format          = format_gl->format;
+    s_priv->internal_format = format_gl->internal_format;
+    s_priv->format_type     = format_gl->type;
     s_priv->bytes_per_pixel = ngli_format_get_bytes_per_pixel(params->format);
     s_priv->barriers = get_gl_barriers(params->usage);
 
