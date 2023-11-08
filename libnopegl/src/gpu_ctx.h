@@ -79,6 +79,7 @@ struct gpu_ctx_class {
 
     int (*get_preferred_depth_format)(struct gpu_ctx *s);
     int (*get_preferred_depth_stencil_format)(struct gpu_ctx *s);
+    uint32_t (*get_format_features)(struct gpu_ctx *s, int format);
 
     void (*set_vertex_buffer)(struct gpu_ctx *s, uint32_t index, const struct buffer *buffer);
     void (*set_index_buffer)(struct gpu_ctx *s, const struct buffer *buffer, int format);
@@ -184,6 +185,7 @@ struct scissor ngli_gpu_ctx_get_scissor(struct gpu_ctx *s);
 
 int ngli_gpu_ctx_get_preferred_depth_format(struct gpu_ctx *s);
 int ngli_gpu_ctx_get_preferred_depth_stencil_format(struct gpu_ctx *s);
+uint32_t ngli_gpu_ctx_get_format_features(struct gpu_ctx *s, int format);
 
 void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline);
 void ngli_gpu_ctx_set_bindgroup(struct gpu_ctx *s, struct bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);

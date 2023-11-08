@@ -1,4 +1,6 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -158,4 +160,38 @@ int ngli_format_vk_to_ngl(VkFormat format)
     case VK_FORMAT_S8_UINT:             return NGLI_FORMAT_S8_UINT;
     default:                            ngli_assert(0);
     }
+}
+
+VkFormatFeatureFlags ngli_format_feature_ngl_to_vk(uint32_t features)
+{
+    VkFormatFeatureFlags flags = 0;
+    if (features & NGLI_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)
+        flags |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
+    if (features & NGLI_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)
+        flags |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+    if (features & NGLI_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+        flags |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
+    if (features & NGLI_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT)
+        flags |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT;
+    if (features & NGLI_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+        flags |= VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+    return flags;
+}
+
+uint32_t ngli_format_feature_vk_to_ngl(VkFormatFeatureFlags features)
+{
+    uint32_t flags = 0;
+    if (features & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)
+        flags |= NGLI_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
+    if (features & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)
+        flags |= NGLI_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+    if (features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+        flags |= NGLI_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
+    if (features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT)
+        flags |= NGLI_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT;
+    if (features & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+        flags |= NGLI_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+    return flags;
 }

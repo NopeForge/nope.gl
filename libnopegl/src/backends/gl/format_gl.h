@@ -1,4 +1,6 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -22,6 +24,8 @@
 #ifndef FORMAT_GL_H
 #define FORMAT_GL_H
 
+#include <stdint.h>
+
 #include "format.h"
 #include "glincludes.h"
 
@@ -31,6 +35,7 @@ struct format_gl {
     GLint format;
     GLint internal_format;
     GLenum type;
+    uint32_t features;
 };
 
 void ngli_format_gl_init(struct glcontext *gl);

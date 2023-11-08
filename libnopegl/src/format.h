@@ -88,6 +88,14 @@ enum {
     NGLI_FORMAT_NB
 };
 
+enum {
+    NGLI_FORMAT_FEATURE_SAMPLED_IMAGE_BIT               = 1 << 0,
+    NGLI_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT = 1 << 1,
+    NGLI_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT            = 1 << 2,
+    NGLI_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT      = 1 << 3,
+    NGLI_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT    = 1 << 4,
+};
+
 int ngli_format_get_bytes_per_pixel(int format);
 
 int ngli_format_get_nb_comp(int format);

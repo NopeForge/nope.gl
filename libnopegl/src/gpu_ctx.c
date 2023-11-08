@@ -233,6 +233,11 @@ int ngli_gpu_ctx_get_preferred_depth_stencil_format(struct gpu_ctx *s)
     return s->cls->get_preferred_depth_stencil_format(s);
 }
 
+uint32_t ngli_gpu_ctx_get_format_features(struct gpu_ctx *s, int format)
+{
+    return s->cls->get_format_features(s, format);
+}
+
 void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline)
 {
     s->pipeline = pipeline;

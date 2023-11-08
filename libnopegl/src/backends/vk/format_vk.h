@@ -1,4 +1,6 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -22,6 +24,7 @@
 #ifndef FORMAT_VK_H
 #define FORMAT_VK_H
 
+#include <stdint.h>
 #include <vulkan/vulkan.h>
 
 #include "format.h"
@@ -29,5 +32,7 @@
 
 VkFormat ngli_format_ngl_to_vk(int format);
 int ngli_format_vk_to_ngl(VkFormat format);
+VkFormatFeatureFlags ngli_format_feature_ngl_to_vk(uint32_t features);
+uint32_t ngli_format_feature_vk_to_ngl(VkFormatFeatureFlags features);
 
 #endif
