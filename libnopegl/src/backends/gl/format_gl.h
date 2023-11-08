@@ -33,6 +33,7 @@ struct format_gl {
     GLenum type;
 };
 
+void ngli_format_gl_init(struct glcontext *gl);
 const struct format_gl *ngli_format_get_gl_texture_format(struct glcontext *gl, int format);
 
 #endif
