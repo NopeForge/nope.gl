@@ -32,15 +32,6 @@ struct format_gl {
     GLenum type;
 };
 
-int ngli_format_get_gl_texture_format(struct glcontext *gl,
-                                      int data_format,
-                                      GLint *formatp,
-                                      GLint *internal_formatp,
-                                      GLenum *typep);
-
-int ngli_format_get_gl_renderbuffer_format(struct glcontext *gl,
-                                           int data_format,
-                                           GLint *formatp);
-
+const struct format_gl *ngli_format_get_gl_texture_format(struct glcontext *gl, int data_format);
 
 #endif

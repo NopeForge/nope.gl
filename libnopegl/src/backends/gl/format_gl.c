@@ -22,8 +22,7 @@
 #include "format_gl.h"
 #include "utils.h"
 
-static int get_gl_format_type(struct glcontext *gl, int data_format,
-                              GLint *formatp, GLint *internal_formatp, GLenum *typep)
+const struct format_gl *ngli_format_get_gl_texture_format(struct glcontext *gl, int data_format)
 {
     static const struct format_gl formats[] = {
         [NGLI_FORMAT_UNDEFINED]            = {0,                  0,                     0},
@@ -90,43 +89,11 @@ static int get_gl_format_type(struct glcontext *gl, int data_format,
     };
 
     ngli_assert(data_format >= 0 && data_format < NGLI_ARRAY_NB(formats));
-    const struct format_gl *entry = &formats[data_format];
+    const struct format_gl *format_gl = &formats[data_format];
 
-    ngli_assert(data_format == NGLI_FORMAT_UNDEFINED ||
-               (entry->format && entry->internal_format && entry->type));
+    if (data_format != NGLI_FORMAT_UNDEFINED)
+        ngli_assert(format_gl->format && format_gl->internal_format && format_gl->type);
 
-    if (formatp)
-        *formatp = entry->format;
-    if (internal_formatp)
-        *internal_formatp = entry->internal_format;
-    if (typep)
-        *typep = entry->type;
-
-    return 0;
+    return format_gl;
 }
 
-int ngli_format_get_gl_texture_format(struct glcontext *gl, int data_format,
-                                      GLint *formatp, GLint *internal_formatp, GLenum *typep)
-{
-    GLint format;
-    GLint internal_format;
-    GLenum type;
-
-    int ret = get_gl_format_type(gl, data_format, &format, &internal_format, &type);
-    if (ret < 0)
-        return ret;
-
-    if (formatp)
-        *formatp = format;
-    if (internal_formatp)
-        *internal_formatp = internal_format;
-    if (typep)
-        *typep = type;
-
-    return 0;
-}
-
-int ngli_format_get_gl_renderbuffer_format(struct glcontext *gl, int data_format, GLint *formatp)
-{
-    return get_gl_format_type(gl, data_format, NULL, formatp, NULL);
-}
