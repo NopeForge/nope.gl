@@ -466,6 +466,27 @@ static void normalize_coordinates(struct distmap *s)
     }
 }
 
+#define DISTMAP_FEATURES (NGLI_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |               \
+                          NGLI_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
+                          NGLI_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+
+static int get_prefered_distmap_format(const struct distmap *s)
+{
+    struct gpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
+
+    static const int formats[] = {
+        NGLI_FORMAT_R32_SFLOAT,
+        NGLI_FORMAT_R16_SFLOAT,
+        NGLI_FORMAT_R8_UNORM,
+    };
+    for (size_t i = 0; i < NGLI_ARRAY_NB(formats); i++) {
+        const uint32_t features = ngli_gpu_ctx_get_format_features(gpu_ctx, formats[i]);
+        if (NGLI_HAS_ALL_FLAGS(features, DISTMAP_FEATURES))
+            return formats[i];
+    }
+    ngli_assert(0);
+}
+
 int ngli_distmap_finalize(struct distmap *s)
 {
     if (s->texture) {
@@ -527,17 +548,11 @@ int ngli_distmap_finalize(struct distmap *s)
      */
     struct gpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
 
-    int format = NGLI_FORMAT_R8_SNORM;
-    if (gpu_ctx->features & NGLI_FEATURE_TEXTURE_FLOAT_RENDERABLE)
-        format = NGLI_FORMAT_R32_SFLOAT;
-    else if (gpu_ctx->features & NGLI_FEATURE_TEXTURE_HALF_FLOAT_RENDERABLE)
-        format = NGLI_FORMAT_R16_SFLOAT;
-
     const struct texture_params tex_params = {
         .type       = NGLI_TEXTURE_TYPE_2D,
         .width      = s->texture_w,
         .height     = s->texture_h,
-        .format     = format,
+        .format     = get_prefered_distmap_format(s),
         .min_filter = NGLI_FILTER_LINEAR,
         .mag_filter = NGLI_FILTER_LINEAR,
         .usage      = NGLI_TEXTURE_USAGE_TRANSFER_SRC_BIT
