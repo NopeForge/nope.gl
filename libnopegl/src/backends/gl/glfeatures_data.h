@@ -1,4 +1,6 @@
 /*
+ * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -171,5 +173,10 @@ static const struct glfeature {
         .extensions     = (const char*[]){"GL_ARB_buffer_storage", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(BufferStorage),
                                            -1}
+    }, {
+        .name           = "texture_norm16",
+        .flag           = NGLI_FEATURE_GL_TEXTURE_NORM16,
+        .version        = 300,
+        .es_extensions  = (const char*[]){"EXT_texture_norm16", NULL},
     },
 };

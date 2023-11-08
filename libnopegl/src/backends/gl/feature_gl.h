@@ -45,6 +45,7 @@
 #define NGLI_FEATURE_GL_COLOR_BUFFER_HALF_FLOAT                    (1ULL << 37)
 #define NGLI_FEATURE_GL_BUFFER_STORAGE                             (1ULL << 39)
 #define NGLI_FEATURE_GL_EGL_MESA_QUERY_DRIVER                      (1ULL << 41)
+#define NGLI_FEATURE_GL_TEXTURE_NORM16                             (1ULL << 42)
 
 #define NGLI_FEATURE_GL_COMPUTE_SHADER_ALL (NGLI_FEATURE_GL_COMPUTE_SHADER           | \
                                             NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY  | \
