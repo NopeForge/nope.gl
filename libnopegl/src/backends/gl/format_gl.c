@@ -25,11 +25,7 @@
 static int get_gl_format_type(struct glcontext *gl, int data_format,
                               GLint *formatp, GLint *internal_formatp, GLenum *typep)
 {
-    static const struct entry {
-        GLint format;
-        GLint internal_format;
-        GLenum type;
-    } format_map[] = {
+    static const struct format_gl format_map[] = {
         [NGLI_FORMAT_UNDEFINED]            = {0,                  0,                     0},
         [NGLI_FORMAT_R8_UNORM]             = {GL_RED,             GL_R8,                 GL_UNSIGNED_BYTE},
         [NGLI_FORMAT_R8_SNORM]             = {GL_RED,             GL_R8_SNORM,           GL_BYTE},
@@ -94,7 +90,7 @@ static int get_gl_format_type(struct glcontext *gl, int data_format,
     };
 
     ngli_assert(data_format >= 0 && data_format < NGLI_ARRAY_NB(format_map));
-    const struct entry *entry = &format_map[data_format];
+    const struct format_gl *entry = &format_map[data_format];
 
     ngli_assert(data_format == NGLI_FORMAT_UNDEFINED ||
                (entry->format && entry->internal_format && entry->type));

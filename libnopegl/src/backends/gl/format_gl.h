@@ -26,6 +26,12 @@
 #include "glcontext.h"
 #include "glincludes.h"
 
+struct format_gl {
+    GLint format;
+    GLint internal_format;
+    GLenum type;
+};
+
 int ngli_format_get_gl_texture_format(struct glcontext *gl,
                                       int data_format,
                                       GLint *formatp,
