@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Nope Forge
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,7 +25,6 @@
 
 #include "glslang_utils.h"
 #include "gpu_ctx_vk.h"
-#include "internal.h"
 #include "log.h"
 #include "memory.h"
 #include "program_vk.h"
