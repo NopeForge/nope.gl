@@ -43,8 +43,6 @@ cmds_optional = [
     "glGetProgramResourceiv",
     "glGetProgramInterfaceiv",
     "glGetProgramResourceName",
-    # Polygon
-    "glPolygonMode",
     # Internal format
     "glGetInternalformativ",
     # Query

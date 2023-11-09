@@ -114,7 +114,6 @@ struct glfunctions {
     void * (NGLI_GL_APIENTRY *MapBufferRange)(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access);
     void (NGLI_GL_APIENTRY *MemoryBarrier)(GLbitfield barriers);
     void (NGLI_GL_APIENTRY *PixelStorei)(GLenum pname, GLint param);
-    void (NGLI_GL_APIENTRY *PolygonMode)(GLenum face, GLenum mode);
     void (NGLI_GL_APIENTRY *QueryCounter)(GLuint id, GLenum target);
     void (NGLI_GL_APIENTRY *QueryCounterEXT)(GLuint id, GLenum target);
     void (NGLI_GL_APIENTRY *ReadBuffer)(GLenum src);

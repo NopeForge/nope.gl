@@ -670,12 +670,6 @@ static inline void ngli_glPixelStorei(const struct glcontext *gl, GLenum pname, 
     check_error_code(gl, "glPixelStorei");
 }
 
-static inline void ngli_glPolygonMode(const struct glcontext *gl, GLenum face, GLenum mode)
-{
-    gl->funcs.PolygonMode(face, mode);
-    check_error_code(gl, "glPolygonMode");
-}
-
 static inline void ngli_glQueryCounter(const struct glcontext *gl, GLuint id, GLenum target)
 {
     gl->funcs.QueryCounter(id, target);
