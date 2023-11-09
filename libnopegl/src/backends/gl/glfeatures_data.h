@@ -178,5 +178,17 @@ static const struct glfeature {
         .flag           = NGLI_FEATURE_GL_TEXTURE_NORM16,
         .version        = 300,
         .es_extensions  = (const char*[]){"EXT_texture_norm16", NULL},
+    }, {
+        .name           = "texture_float_linear",
+        .flag           = NGLI_FEATURE_GL_TEXTURE_FLOAT_LINEAR,
+        .version        = 300,
+        .es_version     = 320,
+        .es_extensions  = (const char*[]){"OES_texture_float_linear", NULL},
+    }, {
+        .name           = "float_blend",
+        .flag           = NGLI_FEATURE_GL_FLOAT_BLEND,
+        .version        = 300,
+        .es_version     = 320,
+        .es_extensions  = (const char*[]){"EXT_float_blend", NULL},
     },
 };
