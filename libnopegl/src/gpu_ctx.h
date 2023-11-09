@@ -43,12 +43,12 @@ struct scissor {
 
 int ngli_viewport_is_valid(const struct viewport *viewport);
 
-#define NGLI_FEATURE_COMPUTE                           (1 << 0)
-#define NGLI_FEATURE_SOFTWARE                          (1 << 4)
-#define NGLI_FEATURE_IMAGE_LOAD_STORE                  (1 << 9)
-#define NGLI_FEATURE_STORAGE_BUFFER                    (1 << 10)
-#define NGLI_FEATURE_DEPTH_STENCIL_RESOLVE             (1 << 11)
-#define NGLI_FEATURE_BUFFER_MAP_PERSISTENT             (1 << 14)
+#define NGLI_FEATURE_SOFTWARE                          (1 << 0)
+#define NGLI_FEATURE_COMPUTE                           (1 << 1)
+#define NGLI_FEATURE_IMAGE_LOAD_STORE                  (1 << 2)
+#define NGLI_FEATURE_STORAGE_BUFFER                    (1 << 3)
+#define NGLI_FEATURE_BUFFER_MAP_PERSISTENT             (1 << 4)
+#define NGLI_FEATURE_DEPTH_STENCIL_RESOLVE             (1 << 5)
 
 struct gpu_ctx_class {
     const char *name;
