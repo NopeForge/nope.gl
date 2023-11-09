@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -29,7 +30,6 @@
 #include "glincludes.h"
 #include "glcontext.h"
 #include "memory.h"
-#include "internal.h"
 #include "texture_gl.h"
 
 static const GLint gl_filter_map[NGLI_NB_FILTER][NGLI_NB_MIPMAP] = {
