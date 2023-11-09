@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023 Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -22,11 +23,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "bstr.h"
 #include "gpu_ctx_gl.h"
 #include "glincludes.h"
 #include "log.h"
 #include "memory.h"
-#include "internal.h"
 #include "program_gl.h"
 #include "type.h"
 
