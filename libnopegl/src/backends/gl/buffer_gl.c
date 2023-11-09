@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023 Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,7 +28,6 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "memory.h"
-#include "internal.h"
 
 static GLbitfield get_gl_barriers(int usage)
 {
