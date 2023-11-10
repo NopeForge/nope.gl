@@ -55,7 +55,7 @@ static struct ngl_scene *get_scene(const char *filename)
     int ret = ngl_scene_init_from_str(scene, buf);
     free(buf);
     if (ret < 0)
-        ngl_scene_freep(&scene);
+        ngl_scene_unrefp(&scene);
     return scene;
 }
 
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 
     ctx = ngl_create();
     if (!ctx) {
-        ngl_scene_freep(&scene);
+        ngl_scene_unrefp(&scene);
         goto end;
     }
 
@@ -200,19 +200,19 @@ int main(int argc, char *argv[])
     if (!s.cfg.offscreen) {
         ret = wsi_set_ngl_config(&s.cfg, window);
         if (ret < 0) {
-            ngl_scene_freep(&scene);
+            ngl_scene_unrefp(&scene);
             return ret;
         }
     }
 
     ret = ngl_configure(ctx, &s.cfg);
     if (ret < 0) {
-        ngl_scene_freep(&scene);
+        ngl_scene_unrefp(&scene);
         goto end;
     }
 
     ret = ngl_set_scene(ctx, scene);
-    ngl_scene_freep(&scene);
+    ngl_scene_unrefp(&scene);
     if (ret < 0)
         goto end;
 

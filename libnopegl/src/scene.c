@@ -116,7 +116,7 @@ char *ngl_scene_dot(const struct ngl_scene *s)
     return ngli_scene_dot(s);
 }
 
-void ngl_scene_freep(struct ngl_scene **sp)
+void ngl_scene_unrefp(struct ngl_scene **sp)
 {
     struct ngl_scene *s = *sp;
     if (!s)

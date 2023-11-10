@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
     struct player p;
     ret = player_init(&p, "ngl-python", scene, &s.cfg, s.player_ui);
-    ngl_scene_freep(&scene);
+    ngl_scene_unrefp(&scene);
     if (ret < 0)
         goto end;
 

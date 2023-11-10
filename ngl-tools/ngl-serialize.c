@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     }
 
     char *serialized_scene = ngl_scene_serialize(scene);
-    ngl_scene_freep(&scene);
+    ngl_scene_unrefp(&scene);
     if (!serialized_scene) {
         ret = EXIT_FAILURE;
         goto end;

@@ -15,6 +15,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   with a configured `nope.gl` context
 - `ngl-diff` can now set and change the input files from the GUI. While still
   supported, passing them through the command line is not mandatory anymore
+- `ngl_scene_ref` and `ngl_scene_unrefp` functions to respectively increment and
+  decrement the reference counter of a scene
 
 ### Fixed
 - Moving the split position in `ngl-diff`
@@ -37,6 +39,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `%s_dimensions` uniform for 2D array and 3D images/textures, users must use
   textureSize()/imageSize() instead (`%s_dimensions` is still available for 2D
   textures)
+
+### Removed
+- `ngl_scene_freep` function; use `ngl_scene_unrefp` instead
 
 ## [2023.4] [libnopegl 0.10.0] - 2023-09-28
 ### Added

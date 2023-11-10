@@ -188,6 +188,6 @@ At the end of the rendering, you need to destroy the scene by unreferencing the
 root node and destroying the `nope.gl` rendering context:
 
 ```c
-    ngl_scene_freep(&scene);
+    ngl_scene_unrefp(&scene);
     ngl_freep(&ctx);
 ```
