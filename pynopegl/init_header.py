@@ -158,18 +158,22 @@ class Config(_ngl.Config):
         return Backend(super().backend)
 
 
+def _pythonize_backend(backend: Dict[str, Any]) -> Dict[str, Any]:
+    new_caps = {}
+    for cap_str, cap_data in backend["caps"].items():
+        cap_id = Cap[cap_str.upper()]
+        new_caps[cap_id] = cap_data
+    backend["id"] = Backend(backend["id"])
+    backend["caps"] = new_caps
+    return backend
+
+
 def _pythonize_backends(backends: Mapping[str, Any]) -> Mapping[Backend, Any]:
     """Replace key string identifiers with their corresponding enum (Backend and Cap)"""
     ret = {}
     for backend_str, backend_data in backends.items():
         backend_id = Backend[backend_str.upper()]
-        new_caps = {}
-        for cap_str, cap_data in backend_data["caps"].items():
-            cap_id = Cap[cap_str.upper()]
-            new_caps[cap_id] = cap_data
-        backend_data["id"] = Backend(backend_data["id"])
-        backend_data["caps"] = new_caps
-        ret[backend_id] = backend_data
+        ret[backend_id] = _pythonize_backend(backend_data)
     return ret
 
 
