@@ -445,7 +445,7 @@ static struct ngl_scene *get_default_scene(const char *host, const char *port)
     };
 
     if (!group || !texts[0] || !texts[1]) {
-        ngl_scene_freep(&scene);
+        ngl_scene_unrefp(&scene);
         goto end;
     }
     ngl_node_param_set_str(texts[0], "text", "No scene");
@@ -457,7 +457,7 @@ static struct ngl_scene *get_default_scene(const char *host, const char *port)
     struct ngl_scene_params params = ngl_scene_default_params(group);
     params.duration = 0.0;
     if (ngl_scene_init(scene, &params) < 0)
-        ngl_scene_freep(&scene);
+        ngl_scene_unrefp(&scene);
 
 end:
     ngl_node_unrefp(&group);
@@ -673,7 +673,7 @@ int main(int argc, char *argv[])
     player_main_loop(&s.p);
 
 end:
-    ngl_scene_freep(&scene);
+    ngl_scene_unrefp(&scene);
 
     remove_session_file(&s);
 

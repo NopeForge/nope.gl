@@ -84,7 +84,7 @@ static struct ngl_scene *get_scene(const struct ctx *s, const char *filename)
     params.aspect_ratio[0] = s->media_info.width;
     params.aspect_ratio[1] = s->media_info.height;
     if (ngl_scene_init(scene, &params) < 0)
-        ngl_scene_freep(&scene);
+        ngl_scene_unrefp(&scene);
 
     ngl_node_unrefp(&render);
     ngl_node_unrefp(&media);
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
     s.cfg.width  = s.media_info.width;
     s.cfg.height = s.media_info.height;
     ret = player_init(&p, "ngl-player", scene, &s.cfg, s.player_ui);
-    ngl_scene_freep(&scene);
+    ngl_scene_unrefp(&scene);
     if (ret < 0)
         goto end;
 

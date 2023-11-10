@@ -547,7 +547,7 @@ static int handle_scene(struct player *p, const void *data)
         goto end;
     ret = set_scene(p, scene);
 end:
-    ngl_scene_freep(&scene);
+    ngl_scene_unrefp(&scene);
     return ret;
 }
 

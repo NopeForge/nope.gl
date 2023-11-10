@@ -225,7 +225,7 @@ static void reset_scene(struct ngl_ctx *s, int action)
     if (s->scene) {
         ngli_node_detach_ctx(s->scene->params.root, s);
         if (action == NGLI_ACTION_UNREF_SCENE)
-            ngl_scene_freep(&s->scene);
+            ngl_scene_unrefp(&s->scene);
     }
     ngli_rnode_reset(&s->rnode);
 }
@@ -361,7 +361,7 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
         s->scene = old_scene; // restore detached scene on error
         goto fail;
     }
-    ngl_scene_freep(&old_scene); // ngli_ctx_set_scene() copied the scene safely so we drop the old one
+    ngl_scene_unrefp(&old_scene); // ngli_ctx_set_scene() incremented the ref counter of the scene so we can safely unref here
 
     return 0;
 

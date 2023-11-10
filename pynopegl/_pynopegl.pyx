@@ -127,7 +127,7 @@ cdef extern from "nopegl.h":
     int ngl_scene_init_from_str(ngl_scene *s, const char *str)
     char *ngl_scene_serialize(const ngl_scene *scene)
     char *ngl_scene_dot(const ngl_scene *scene)
-    void ngl_scene_freep(ngl_scene **sp)
+    void ngl_scene_unrefp(ngl_scene **sp)
 
     cdef struct ngl_ctx
 
@@ -591,7 +591,7 @@ cdef class Scene:
         return <uintptr_t>self.ctx
 
     def __dealloc__(self):
-        ngl_scene_freep(&self.ctx)
+        ngl_scene_unrefp(&self.ctx)
 
 
 cdef class ConfigGL:

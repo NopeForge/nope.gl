@@ -128,7 +128,7 @@ NGL_API struct ngl_scene_params ngl_scene_default_params(struct ngl_node *root);
  *
  * The reference counter of the allocated scene is set to 1.
  *
- * Must be destroyed using ngl_scene_freep().
+ * Must be destroyed using ngl_scene_unrefp().
  */
 NGL_API struct ngl_scene *ngl_scene_create(void);
 
@@ -210,7 +210,7 @@ NGL_API char *ngl_scene_dot(const struct ngl_scene *s);
  *
  * @param ss    pointer to the pointer to the nope.gl context
  */
-NGL_API void ngl_scene_freep(struct ngl_scene **sp);
+NGL_API void ngl_scene_unrefp(struct ngl_scene **sp);
 
 #define NGLI_FOURCC(a,b,c,d) (((uint32_t)(a))<<24 | (b)<<16 | (c)<<8 | (d))
 

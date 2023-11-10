@@ -91,7 +91,7 @@ end:
         PyErr_PrintEx(0);
 
     if (!params.root)
-        ngl_scene_freep(&scene);
+        ngl_scene_unrefp(&scene);
 
     Py_XDECREF(com);
     Py_XDECREF(load_script);
