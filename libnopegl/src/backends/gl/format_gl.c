@@ -22,7 +22,7 @@
 #include "format_gl.h"
 #include "utils.h"
 
-const struct format_gl *ngli_format_get_gl_texture_format(struct glcontext *gl, int data_format)
+const struct format_gl *ngli_format_get_gl_texture_format(struct glcontext *gl, int format)
 {
     static const struct format_gl formats[] = {
         [NGLI_FORMAT_UNDEFINED]            = {0,                  0,                     0},
@@ -88,10 +88,10 @@ const struct format_gl *ngli_format_get_gl_texture_format(struct glcontext *gl, 
         [NGLI_FORMAT_S8_UINT]              = {GL_STENCIL_INDEX,   GL_STENCIL_INDEX8,     GL_UNSIGNED_BYTE},
     };
 
-    ngli_assert(data_format >= 0 && data_format < NGLI_ARRAY_NB(formats));
-    const struct format_gl *format_gl = &formats[data_format];
+    ngli_assert(format >= 0 && format < NGLI_ARRAY_NB(formats));
+    const struct format_gl *format_gl = &formats[format];
 
-    if (data_format != NGLI_FORMAT_UNDEFINED)
+    if (format != NGLI_FORMAT_UNDEFINED)
         ngli_assert(format_gl->format && format_gl->internal_format && format_gl->type);
 
     return format_gl;
