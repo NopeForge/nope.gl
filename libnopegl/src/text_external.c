@@ -308,7 +308,8 @@ static int build_glyph_index(struct text *text, struct hmap *glyph_index, const 
                  * character code).
                  */
                 LOG(ERROR, "unable to load glyph id %u", glyph_id);
-                return NGL_ERROR_EXTERNAL;
+                ret = NGL_ERROR_EXTERNAL;
+                goto end;
             }
 
             const FT_GlyphSlot slot = ft_face->glyph;
