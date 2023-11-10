@@ -1,0 +1,64 @@
+# Warning: this name must stay in sync with the badges referenced in the README
+name: 'coverity scan'
+
+on:
+  push:
+    branches:
+      - 'main'
+  schedule:
+      - cron: "0 0 * * *"  # Run daily at midnight
+  workflow_dispatch:
+
+jobs:
+  linux:
+
+    runs-on: ubuntu-22.04
+
+    if: ${{ github.repository_owner == 'NopeForge' }}
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt -y update
+        #
+        # python3-venv is required to prevent the following issue:
+        #     The virtual environment was not created successfully because ensurepip is not
+        #     available.  On Debian/Ubuntu systems, you need to install the python3-venv
+        #     package using the following command.
+        #
+        #         apt-get install python3-venv
+        #
+        sudo apt -y install libsdl2-dev libva-dev python3-venv valgrind spirv-tools glslang-dev libvulkan-dev mesa-vulkan-drivers vulkan-validationlayers
+        sudo apt -y install ffmpeg libavcodec-dev libavutil-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libpostproc-dev
+        sudo apt -y install libfreetype-dev libharfbuzz-dev libfribidi-dev
+        sudo apt -y install graphviz
+
+    - name: Download Coverity Build Tool
+      run: |
+        wget https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ secrets.COVERITY_SCAN_TOKEN }}&project=nope.gl" -O cov-analysis-linux64.tar.gz
+        mkdir cov-analysis-linux64
+        tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
+
+    - name: Build
+      run: |
+        export PATH="$(pwd)/cov-analysis-linux64/bin:$PATH"
+        ./configure.py --buildtype debug --debug-opts gl vk scene gpu_capture
+        . venv/bin/activate
+        make nopegl-setup
+        cov-build --dir cov-int ninja -C builddir/libnopegl
+        make ngl-tools-setup
+        cov-build --dir cov-int ninja -C builddir/ngl-tools
+
+    - name: Submit the result to Coverity Scan
+      run: |
+        revision=$(git rev-parse --short HEAD)
+        tar czvf ngl.tgz cov-int
+        curl \
+          --form project=nope.gl \
+          --form token=${{ secrets.COVERITY_SCAN_TOKEN }} \
+          --form email=contact@nopeforge.org \
+          --form file=@ngl.tgz \
+          --form version=main \
+          --form description="nope.gl-$revision" \
+          https://scan.coverity.com/builds?project=nope.gl
