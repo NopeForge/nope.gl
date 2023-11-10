@@ -36,7 +36,7 @@ jobs:
 
     - name: Download Coverity Build Tool
       run: |
-        wget https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ secrets.COVERITY_SCAN_TOKEN }}&project=nope.gl" -O cov-analysis-linux64.tar.gz
+        wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ secrets.COVERITY_SCAN_TOKEN }}&project=nope.gl" -O cov-analysis-linux64.tar.gz
         mkdir cov-analysis-linux64
         tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
 
