@@ -126,6 +126,8 @@ NGL_API struct ngl_scene_params ngl_scene_default_params(struct ngl_node *root);
 /**
  * Create a scene object
  *
+ * The reference counter of the allocated scene is set to 1.
+ *
  * Must be destroyed using ngl_scene_freep().
  */
 NGL_API struct ngl_scene *ngl_scene_create(void);
@@ -167,6 +169,17 @@ NGL_API const struct ngl_scene_params *ngl_scene_get_params(const struct ngl_sce
 NGL_API int ngl_scene_init_from_str(struct ngl_scene *s, const char *str);
 
 /**
+ * Increment the reference counter of a given scene by 1.
+ *
+ * This function is NOT thread-safe.
+ *
+ * @param s pointer to the scene to reference count
+ *
+ * @return scene with its reference counter incremented.
+ */
+NGL_API struct ngl_scene *ngl_scene_ref(struct ngl_scene *s);
+
+/**
  * Serialize scene in nope.gl format (.ngl).
  *
  * Must be destroyed using free().
@@ -191,7 +204,9 @@ NGL_API char *ngl_scene_serialize(const struct ngl_scene *s);
 NGL_API char *ngl_scene_dot(const struct ngl_scene *s);
 
 /**
- * Destroy a scene object. The passed pointer will also be set to NULL.
+ * Decrement the reference counter of a given scene by 1, and destroy its
+ * content if the reference counter reaches 0. The passed scene pointer will
+ * also be set to NULL.
  *
  * @param ss    pointer to the pointer to the nope.gl context
  */
