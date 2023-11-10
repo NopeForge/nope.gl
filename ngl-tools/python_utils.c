@@ -31,14 +31,10 @@ struct ngl_scene *python_get_scene(const char *modname, const char *func_name)
     PyObject *com = NULL, *load_script = NULL, *path = NULL;
     PyObject *mod = NULL;
     PyObject *scene_info = NULL;
-    PyObject *scene_func = NULL, *pyroot = NULL, *cptr = NULL;
-    PyObject *pyaspect = NULL, *pyduration = NULL;
+    PyObject *scene_func = NULL;
+    PyObject *scene_ptr = NULL;
 
-    struct ngl_scene *scene = ngl_scene_create();
-    if (!scene)
-        return NULL;
-
-    struct ngl_scene_params params = ngl_scene_default_params(NULL);
+    struct ngl_scene *scene = NULL;
 
     Py_Initialize();
 
@@ -57,41 +53,15 @@ struct ngl_scene *python_get_scene(const char *modname, const char *func_name)
     if (!(scene_func = PyObject_GetAttrString(mod, func_name))         ||
         !(scene_info = PyObject_CallFunctionObjArgs(scene_func, NULL)) ||
         !(pyscene    = PyObject_GetAttrString(scene_info, "scene"))    ||
-        !(pyroot     = PyObject_GetAttrString(pyscene, "root"))        ||
-        !(pyduration = PyObject_GetAttrString(pyscene, "duration"))    ||
-        !(pyaspect   = PyObject_GetAttrString(pyscene, "aspect_ratio"))||
-        !(cptr       = PyObject_GetAttrString(pyroot, "cptr"))) {
+        !(scene_ptr  = PyObject_GetAttrString(pyscene, "cptr"))) {
         goto end;
     }
 
-    /* Aspect ratio */
-    PyObject *pyaspect0, *pyaspect1;
-    if (!(pyaspect0 = PyTuple_GetItem(pyaspect, 0)) ||
-        !(pyaspect1 = PyTuple_GetItem(pyaspect, 1)))
-        goto end;
-    params.aspect_ratio[0] = (int32_t)PyLong_AsLong(pyaspect0);
-    if (PyErr_Occurred())
-        goto end;
-    params.aspect_ratio[1] = (int32_t)PyLong_AsLong(pyaspect1);
-    if (PyErr_Occurred())
-        goto end;
-
-    /* Duration */
-    params.duration = PyFloat_AsDouble(pyduration);
-    if (PyErr_Occurred())
-        goto end;
-
-    /* Scene */
-    params.root = PyLong_AsVoidPtr(cptr);
-    if (ngl_scene_init(scene, &params) < 0)
-        goto end;
+    scene = ngl_scene_ref(PyLong_AsVoidPtr(scene_ptr));
 
 end:
     if (PyErr_Occurred())
         PyErr_PrintEx(0);
-
-    if (!params.root)
-        ngl_scene_unrefp(&scene);
 
     Py_XDECREF(com);
     Py_XDECREF(load_script);
@@ -100,10 +70,7 @@ end:
     Py_XDECREF(scene_func);
     Py_XDECREF(scene_info);
     Py_XDECREF(pyscene);
-    Py_XDECREF(pyroot);
-    Py_XDECREF(pyduration);
-    Py_XDECREF(pyaspect);
-    Py_XDECREF(cptr);
+    Py_XDECREF(scene_ptr);
 
     Py_Finalize();
     return scene;
