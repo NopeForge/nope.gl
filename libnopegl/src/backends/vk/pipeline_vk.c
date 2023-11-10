@@ -416,16 +416,17 @@ static int prepare_and_bind_descriptor_set(struct pipeline *s, VkCommandBuffer c
     struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
+    if (!gpu_ctx->bindgroup)
+        return 0;
+
     ngli_bindgroup_vk_update_descriptor_set(gpu_ctx->bindgroup);
 
-    if (gpu_ctx->bindgroup) {
-        NGLI_CMD_VK_REF(cmd_vk, gpu_ctx->bindgroup);
-        struct bindgroup_vk *bindgroup_vk = (struct bindgroup_vk *)gpu_ctx->bindgroup;
-        if (bindgroup_vk->desc_set)
-            vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
-                                    1, &bindgroup_vk->desc_set,
-                                    (uint32_t)gpu_ctx->nb_dynamic_offsets, gpu_ctx->dynamic_offsets);
-    }
+    NGLI_CMD_VK_REF(cmd_vk, gpu_ctx->bindgroup);
+    struct bindgroup_vk *bindgroup_vk = (struct bindgroup_vk *)gpu_ctx->bindgroup;
+    if (bindgroup_vk->desc_set)
+        vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
+                                1, &bindgroup_vk->desc_set,
+                                (uint32_t)gpu_ctx->nb_dynamic_offsets, gpu_ctx->dynamic_offsets);
 
     return 0;
 }
