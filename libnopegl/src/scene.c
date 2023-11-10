@@ -66,7 +66,7 @@ struct ngl_scene_params ngl_scene_default_params(struct ngl_node *root)
     return params;
 }
 
-struct ngl_scene *ngli_scene_ref(struct ngl_scene *s)
+struct ngl_scene *ngl_scene_ref(struct ngl_scene *s)
 {
     return NGLI_RC_REF(s);
 }
