@@ -46,6 +46,7 @@ struct hmap {
 
 void ngli_hmap_set_free(struct hmap *hm, user_free_func_type user_free_func, void *user_arg)
 {
+    ngli_assert(!hm->count);
     hm->user_free_func = user_free_func;
     hm->user_arg = user_arg;
 }
