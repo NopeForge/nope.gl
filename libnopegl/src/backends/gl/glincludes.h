@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#if __APPLE__
+#ifdef __APPLE__
 # include <TargetConditionals.h>
 # if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
 #  include <OpenGLES/ES3/gl.h>
@@ -35,12 +35,12 @@
 # endif
 #endif
 
-#if __ANDROID__
+#ifdef __ANDROID__
 # include <GLES3/gl3.h>
 # include <GLES3/gl3ext.h>
 #endif
 
-#if __linux__ && !__ANDROID__
+#if defined(__linux__) && !defined(__ANDROID__)
 # define GL_GLEXT_PROTOTYPES
 # include <GL/glcorearb.h>
 # include <GL/glext.h>
