@@ -42,6 +42,7 @@ void *ngli_darray_tail(const struct darray *darray);
 void *ngli_darray_get(const struct darray *darray, size_t index);
 void ngli_darray_remove(struct darray *darray, size_t index);
 void ngli_darray_remove_range(struct darray *darray, size_t index, size_t count);
+void ngli_darray_clear(struct darray *darray);
 void ngli_darray_reset(struct darray *darray);
 
 static inline size_t ngli_darray_count(const struct darray *darray)
@@ -52,11 +53,6 @@ static inline size_t ngli_darray_count(const struct darray *darray)
 static inline void *ngli_darray_data(const struct darray *darray)
 {
     return (void *)darray->data;
-}
-
-static inline void ngli_darray_clear(struct darray *darray)
-{
-    darray->count = 0;
 }
 
 #endif
