@@ -413,7 +413,7 @@ int ngli_params_set_dict(uint8_t *dstp, const struct node_param *par, const char
         *hmapp = ngli_hmap_create();
         if (!*hmapp)
             return NGL_ERROR_MEMORY;
-        ngli_hmap_set_free(*hmapp, node_hmap_free, NULL);
+        ngli_hmap_set_free_func(*hmapp, node_hmap_free, NULL);
     }
 
     ret = ngli_hmap_set(*hmapp, name, node);

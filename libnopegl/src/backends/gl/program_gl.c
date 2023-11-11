@@ -93,7 +93,7 @@ static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
     struct hmap *umap = ngli_hmap_create();
     if (!umap)
         return NULL;
-    ngli_hmap_set_free(umap, free_pinfo, NULL);
+    ngli_hmap_set_free_func(umap, free_pinfo, NULL);
 
     GLint nb_active_uniforms;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
@@ -138,7 +138,7 @@ static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
     struct hmap *amap = ngli_hmap_create();
     if (!amap)
         return NULL;
-    ngli_hmap_set_free(amap, free_pinfo, NULL);
+    ngli_hmap_set_free_func(amap, free_pinfo, NULL);
 
     GLint nb_active_attributes;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
@@ -173,7 +173,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
     struct hmap *bmap = ngli_hmap_create();
     if (!bmap)
         return NULL;
-    ngli_hmap_set_free(bmap, free_pinfo, NULL);
+    ngli_hmap_set_free_func(bmap, free_pinfo, NULL);
 
     /* Uniform Buffers */
     GLint nb_active_uniform_buffers;

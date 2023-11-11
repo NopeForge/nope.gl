@@ -45,8 +45,8 @@ int ngli_pgcache_init(struct pgcache *s, struct gpu_ctx *gpu_ctx)
     s->compute_cache = ngli_hmap_create();
     if (!s->graphics_cache || !s->compute_cache)
         return NGL_ERROR_MEMORY;
-    ngli_hmap_set_free(s->graphics_cache, reset_cached_frag_map, s);
-    ngli_hmap_set_free(s->compute_cache, reset_cached_program, s);
+    ngli_hmap_set_free_func(s->graphics_cache, reset_cached_frag_map, s);
+    ngli_hmap_set_free_func(s->compute_cache, reset_cached_program, s);
     return 0;
 }
 
@@ -98,7 +98,7 @@ int ngli_pgcache_get_graphics_program(struct pgcache *s, struct program **dstp, 
         frag_map = ngli_hmap_create();
         if (!frag_map)
             return NGL_ERROR_MEMORY;
-        ngli_hmap_set_free(frag_map, reset_cached_program, s);
+        ngli_hmap_set_free_func(frag_map, reset_cached_program, s);
 
         int ret = ngli_hmap_set(s->graphics_cache, params->vertex, frag_map);
         if (ret < 0) {

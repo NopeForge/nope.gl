@@ -345,7 +345,7 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
         ret = NGL_ERROR_MEMORY;
         goto fail;
     }
-    ngli_hmap_set_free(s->text_builtin_atlasses, ngli_free_text_builtin_atlas, NULL);
+    ngli_hmap_set_free_func(s->text_builtin_atlasses, ngli_free_text_builtin_atlas, NULL);
 
 #if defined(HAVE_VAAPI)
     ret = ngli_vaapi_ctx_init(s->gpu_ctx, &s->vaapi_ctx);

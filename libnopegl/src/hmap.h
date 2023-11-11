@@ -46,7 +46,7 @@ struct hmap_entry {
 };
 
 struct hmap *ngli_hmap_create(void);
-void ngli_hmap_set_free(struct hmap *hm, ngli_user_free_func_type user_free_func, void *user_arg);
+void ngli_hmap_set_free_func(struct hmap *hm, ngli_user_free_func_type user_free_func, void *user_arg);
 size_t ngli_hmap_count(const struct hmap *hm);
 int ngli_hmap_set(struct hmap *hm, const char *key, void *data);
 void *ngli_hmap_get(const struct hmap *hm, const char *key);

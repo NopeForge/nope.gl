@@ -784,7 +784,7 @@ static int text_external_set_string(struct text *text, const char *str, struct d
         ret = NGL_ERROR_MEMORY;
         goto end;
     }
-    ngli_hmap_set_free(glyph_index, free_glyph, NULL);
+    ngli_hmap_set_free_func(glyph_index, free_glyph, NULL);
     ret = build_glyph_index(text, glyph_index, &runs_array);
     if (ret < 0)
         goto end;
