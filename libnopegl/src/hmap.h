@@ -24,6 +24,8 @@
 
 #include <stdlib.h>
 
+#include "utils.h"
+
 #ifndef HMAP_SIZE_NBIT
 #define HMAP_SIZE_NBIT 3
 #endif
@@ -43,10 +45,8 @@ struct hmap_entry {
     struct hmap_ref next;
 };
 
-typedef void (*user_free_func_type)(void *user_arg, void *data);
-
 struct hmap *ngli_hmap_create(void);
-void ngli_hmap_set_free(struct hmap *hm, user_free_func_type user_free_func, void *user_arg);
+void ngli_hmap_set_free(struct hmap *hm, ngli_user_free_func_type user_free_func, void *user_arg);
 size_t ngli_hmap_count(const struct hmap *hm);
 int ngli_hmap_set(struct hmap *hm, const char *key, void *data);
 void *ngli_hmap_get(const struct hmap *hm, const char *key);
