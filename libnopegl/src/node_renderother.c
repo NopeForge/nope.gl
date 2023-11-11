@@ -570,6 +570,17 @@ static void draw_indexed(struct render_common *s, struct pipeline_compat *pl_com
                                       (int)s->geometry->indices_layout.count, 1);
 }
 
+static void reset_pipeline_desc(void *user_arg, void *data)
+{
+    struct pipeline_desc *desc = data;
+    ngli_pipeline_compat_freep(&desc->pipeline_compat);
+    ngli_pgcraft_freep(&desc->crafter);
+    ngli_darray_reset(&desc->uniforms);
+    ngli_darray_reset(&desc->uniforms_map);
+    ngli_darray_reset(&desc->blocks_map);
+    ngli_darray_reset(&desc->textures_map);
+}
+
 static int init(struct ngl_node *node,
                 struct render_common *s, const struct render_common_opts *o,
                 const char *base_name, const char *base_fragment)
@@ -578,6 +589,7 @@ static int init(struct ngl_node *node,
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
     ngli_darray_init(&s->pipeline_descs, sizeof(struct pipeline_desc), 0);
+    ngli_darray_set_free_func(&s->pipeline_descs, reset_pipeline_desc, NULL);
 
     snprintf(s->position_attr.name, sizeof(s->position_attr.name), "position");
     s->position_attr.type   = NGLI_TYPE_VEC3;
@@ -1364,19 +1376,9 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
 
 static void renderother_uninit(struct ngl_node *node, struct render_common *s)
 {
-    struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
-    for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
-        struct pipeline_desc *desc = &descs[i];
-        ngli_pipeline_compat_freep(&desc->pipeline_compat);
-        ngli_pgcraft_freep(&desc->crafter);
-        ngli_darray_reset(&desc->uniforms);
-        ngli_darray_reset(&desc->uniforms_map);
-        ngli_darray_reset(&desc->blocks_map);
-        ngli_darray_reset(&desc->textures_map);
-    }
+    ngli_darray_reset(&s->pipeline_descs);
     ngli_freep(&s->combined_fragment);
     ngli_filterschain_freep(&s->filterschain);
-    ngli_darray_reset(&s->pipeline_descs);
     ngli_buffer_freep(&s->vertices);
     ngli_buffer_freep(&s->uvcoords);
     ngli_darray_reset(&s->draw_resources);
