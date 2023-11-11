@@ -43,6 +43,12 @@ struct atlas {
     struct darray bitmaps; // struct bitmap
 };
 
+static void free_bitmap(void *user_arg, void *data)
+{
+    struct bitmap *bitmap = data;
+    ngli_freep(&bitmap->buffer);
+}
+
 struct atlas *ngli_atlas_create(struct ngl_ctx *ctx)
 {
     struct atlas *s = ngli_calloc(1, sizeof(*s));
@@ -50,6 +56,7 @@ struct atlas *ngli_atlas_create(struct ngl_ctx *ctx)
         return NULL;
     s->ctx = ctx;
     ngli_darray_init(&s->bitmaps, sizeof(struct bitmap), 0);
+    ngli_darray_set_free_func(&s->bitmaps, free_bitmap, NULL);
     return s;
 }
 
@@ -190,11 +197,6 @@ void ngli_atlas_freep(struct atlas **sp)
     struct atlas *s = *sp;
     if (!s)
         return;
-    struct bitmap *bitmaps = ngli_darray_data(&s->bitmaps);
-    for (size_t i = 0; i < ngli_darray_count(&s->bitmaps); i++) {
-        struct bitmap *bitmap = &bitmaps[i];
-        ngli_freep(&bitmap->buffer);
-    }
     ngli_darray_reset(&s->bitmaps);
     ngli_texture_freep(&s->texture);
     ngli_freep(sp);
