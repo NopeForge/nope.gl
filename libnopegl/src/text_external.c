@@ -114,6 +114,18 @@ static int load_font(struct text *text, const char *font_file)
     return 0;
 }
 
+static void free_ft_face(void *user_arg, void *data)
+{
+    FT_Face *face = data;
+    FT_Done_Face(*face);
+}
+
+static void free_hb_font(void *user_arg, void *data)
+{
+    struct hb_font_t **fontp = data;
+    hb_font_destroy(*fontp);
+}
+
 static int text_external_init(struct text *text)
 {
     int ret = 0;
@@ -121,6 +133,9 @@ static int text_external_init(struct text *text)
 
     ngli_darray_init(&s->ft_faces, sizeof(FT_Face), 0);
     ngli_darray_init(&s->hb_fonts, sizeof(hb_font_t *), 0);
+
+    ngli_darray_set_free_func(&s->ft_faces, free_ft_face, NULL);
+    ngli_darray_set_free_func(&s->hb_fonts, free_hb_font, NULL);
 
     FT_Error ft_error = FT_Init_FreeType(&s->ft_library);
     if (ft_error) {
@@ -808,14 +823,7 @@ static void text_external_reset(struct text *text)
 {
     struct text_external *s = text->priv_data;
 
-    struct hb_font_t **hb_fonts = ngli_darray_data(&s->hb_fonts);
-    for (size_t i = 0; i < ngli_darray_count(&s->hb_fonts); i++)
-        hb_font_destroy(hb_fonts[i]);
     ngli_darray_reset(&s->hb_fonts);
-
-    FT_Face *ft_faces = ngli_darray_data(&s->ft_faces);
-    for (size_t i = 0; i < ngli_darray_count(&s->ft_faces); i++)
-        FT_Done_Face(ft_faces[i]);
     ngli_darray_reset(&s->ft_faces);
 
     FT_Done_FreeType(s->ft_library);
