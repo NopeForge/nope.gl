@@ -34,6 +34,12 @@ struct cmd_vk *ngli_cmd_vk_create(struct gpu_ctx *gpu_ctx)
     return s;
 }
 
+static void unref_rc(void *user_arg, void *data)
+{
+    struct ngli_rc **rcp = data;
+    NGLI_RC_UNREFP(rcp);
+}
+
 void ngli_cmd_vk_freep(struct cmd_vk **sp)
 {
     struct cmd_vk *s = *sp;
@@ -43,9 +49,6 @@ void ngli_cmd_vk_freep(struct cmd_vk **sp)
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
-    struct ngli_rc **rcs = ngli_darray_data(&s->refs);
-    for (size_t i = 0; i < ngli_darray_count(&s->refs); i++)
-        NGLI_RC_UNREFP(&rcs[i]);
     ngli_darray_reset(&s->refs);
 
     ngli_darray_reset(&s->wait_sems);
@@ -89,6 +92,8 @@ VkResult ngli_cmd_vk_init(struct cmd_vk *s, int type)
     ngli_darray_init(&s->wait_stages, sizeof(VkPipelineStageFlags), 0);
     ngli_darray_init(&s->signal_sems, sizeof(VkSemaphore), 0);
     ngli_darray_init(&s->refs, sizeof(struct ngli_rc *), 0);
+
+    ngli_darray_set_free_func(&s->refs, unref_rc, NULL);
 
     return VK_SUCCESS;
 }
@@ -178,9 +183,6 @@ VkResult ngli_cmd_vk_wait(struct cmd_vk *s)
     if (res != VK_SUCCESS)
         return res;
 
-    struct ngli_rc **rcs = ngli_darray_data(&s->refs);
-    for (size_t i = 0; i < ngli_darray_count(&s->refs); i++)
-        NGLI_RC_UNREFP(&rcs[i]);
     ngli_darray_clear(&s->refs);
 
     size_t i = 0;
