@@ -317,7 +317,7 @@ struct widget {
 struct widget_spec {
     int text_cols, text_rows;
     int graph_w, graph_h;
-    int nb_data_graph;
+    size_t nb_data_graph;
     size_t priv_size;
     int (*init)(struct hud *s, struct widget *widget);
     void (*make_stats)(struct hud *s, struct widget *widget);
@@ -941,7 +941,7 @@ static int create_widget(struct hud *s, enum widget_type type, const void *user_
     widgetp->data_graph = ngli_calloc(spec->nb_data_graph, sizeof(*widgetp->data_graph));
     if (!widgetp->data_graph)
         return NGL_ERROR_MEMORY;
-    for (int i = 0; i < spec->nb_data_graph; i++) {
+    for (size_t i = 0; i < spec->nb_data_graph; i++) {
         struct data_graph *d = &widgetp->data_graph[i];
         d->nb_values = widgetp->graph_rect.w;
         d->values = ngli_calloc(d->nb_values, sizeof(*d->values));
@@ -958,7 +958,7 @@ static void reset_widget(void *user_arg, void *data)
     struct widget *widget = data;
     widget_specs[widget->type].uninit(s, widget);
     ngli_free(widget->priv_data);
-    for (int i = 0; i < widget_specs[widget->type].nb_data_graph; i++)
+    for (size_t i = 0; i < widget_specs[widget->type].nb_data_graph; i++)
         ngli_free(widget->data_graph[i].values);
     ngli_free(widget->data_graph);
 }
