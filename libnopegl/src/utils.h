@@ -143,6 +143,8 @@ struct ngli_rc {
 struct ngli_rc *ngli_rc_ref(struct ngli_rc *s);
 void ngli_rc_unrefp(struct ngli_rc **sp);
 
+typedef void (*ngli_user_free_func_type)(void *user_arg, void *data);
+
 char *ngli_strdup(const char *s);
 int64_t ngli_gettime_relative(void);
 char *ngli_asprintf(const char *fmt, ...) ngli_printf_format(1, 2);

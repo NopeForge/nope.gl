@@ -38,13 +38,13 @@ struct hmap {
     size_t size;
     size_t mask;
     size_t count; // total number of entries
-    user_free_func_type user_free_func;
+    ngli_user_free_func_type user_free_func;
     void *user_arg;
     struct hmap_ref first;
     struct hmap_ref last;
 };
 
-void ngli_hmap_set_free(struct hmap *hm, user_free_func_type user_free_func, void *user_arg)
+void ngli_hmap_set_free(struct hmap *hm, ngli_user_free_func_type user_free_func, void *user_arg)
 {
     ngli_assert(!hm->count);
     hm->user_free_func = user_free_func;
