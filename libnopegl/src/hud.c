@@ -952,9 +952,21 @@ static int create_widget(struct hud *s, enum widget_type type, const void *user_
     return 0;
 }
 
+static void reset_widget(void *user_arg, void *data)
+{
+    struct hud *s = user_arg;
+    struct widget *widget = data;
+    widget_specs[widget->type].uninit(s, widget);
+    ngli_free(widget->priv_data);
+    for (int i = 0; i < widget_specs[widget->type].nb_data_graph; i++)
+        ngli_free(widget->data_graph[i].values);
+    ngli_free(widget->data_graph);
+}
+
 static int widgets_init(struct hud *s)
 {
     ngli_darray_init(&s->widgets, sizeof(struct widget), 0);
+    ngli_darray_set_free_func(&s->widgets, reset_widget, s);
 
     /* Smallest dimensions possible (in pixels) */
     const int latency_width  = get_widget_width(WIDGET_LATENCY);
@@ -1133,23 +1145,8 @@ static void widgets_csv_report(struct hud *s)
 #endif
 }
 
-static void free_widget(struct widget *widget)
-{
-    ngli_free(widget->priv_data);
-    for (int i = 0; i < widget_specs[widget->type].nb_data_graph; i++)
-        ngli_free(widget->data_graph[i].values);
-    ngli_free(widget->data_graph);
-}
-
 static void widgets_uninit(struct hud *s)
 {
-    struct darray *widgets_array = &s->widgets;
-    struct widget *widgets = ngli_darray_data(widgets_array);
-    for (size_t i = 0; i < ngli_darray_count(widgets_array); i++) {
-        struct widget *widget = &widgets[i];
-        widget_specs[widget->type].uninit(s, widget);
-        free_widget(widget);
-    }
     ngli_darray_reset(&s->widgets);
 }
 
