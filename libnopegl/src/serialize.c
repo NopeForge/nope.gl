@@ -495,7 +495,7 @@ char *ngli_scene_serialize(const struct ngl_scene *scene)
         goto end;
 
     /* Write header */
-    ngli_hmap_set_free(nlist, free_func, NULL);
+    ngli_hmap_set_free_func(nlist, free_func, NULL);
     ngli_bstr_printf(b, "# Nope.GL v%d.%d.%d\n",
                     NGL_VERSION_MAJOR, NGL_VERSION_MINOR, NGL_VERSION_MICRO);
 

@@ -100,7 +100,7 @@ int main(void)
         struct hmap *hm = ngli_hmap_create();
 
         if (custom_alloc)
-            ngli_hmap_set_free(hm, free_func, NULL);
+            ngli_hmap_set_free_func(hm, free_func, NULL);
 
         /* Test addition */
         for (size_t i = 0; i < NGLI_ARRAY_NB(kvs); i++) {
