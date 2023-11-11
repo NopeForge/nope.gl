@@ -141,7 +141,7 @@ static VkResult create_desc_set_layout_bindings(struct bindgroup_layout *s)
             .stageFlags         = get_vk_stage_flags(entry->stage),
         };
         if (entry->immutable_sampler) {
-            struct ycbcr_sampler_vk *ycbcr_sampler = entry->immutable_sampler;;
+            struct ycbcr_sampler_vk *ycbcr_sampler = entry->immutable_sampler;
             binding.pImmutableSamplers =  &ycbcr_sampler->sampler;
 
             if (!ngli_darray_push(&s_priv->immutable_samplers, &ycbcr_sampler))
