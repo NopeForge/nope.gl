@@ -96,7 +96,7 @@ static VkResult create_desc_set_layout_bindings(struct bindgroup_layout *s)
     struct bindgroup_layout_vk *s_priv = (struct bindgroup_layout_vk *)s;
 
     ngli_darray_init(&s_priv->desc_set_layout_bindings, sizeof(VkDescriptorSetLayoutBinding), 0);
-    ngli_darray_init(&s_priv->immutable_samplers, sizeof(struct ycbcr_sampler *), 0);
+    ngli_darray_init(&s_priv->immutable_samplers, sizeof(struct ycbcr_sampler_vk *), 0);
 
     VkDescriptorPoolSize desc_pool_size_map[NGLI_TYPE_NB] = {
         [NGLI_TYPE_UNIFORM_BUFFER]         = {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER},
