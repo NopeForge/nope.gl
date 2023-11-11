@@ -282,29 +282,10 @@ static void destroy_render_resources(struct gpu_ctx *s)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
 
-    struct texture **colors = ngli_darray_data(&s_priv->colors);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->colors); i++)
-        ngli_texture_freep(&colors[i]);
     ngli_darray_reset(&s_priv->colors);
-
-    struct texture **ms_colors = ngli_darray_data(&s_priv->ms_colors);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->ms_colors); i++)
-        ngli_texture_freep(&ms_colors[i]);
     ngli_darray_reset(&s_priv->ms_colors);
-
-    struct texture **depth_stencils = ngli_darray_data(&s_priv->depth_stencils);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->depth_stencils); i++)
-        ngli_texture_freep(&depth_stencils[i]);
     ngli_darray_reset(&s_priv->depth_stencils);
-
-    struct rendertarget **rts = ngli_darray_data(&s_priv->rts);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->rts); i++)
-        ngli_rendertarget_freep(&rts[i]);
     ngli_darray_reset(&s_priv->rts);
-
-    struct rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->rts_load); i++)
-        ngli_rendertarget_freep(&rts_load[i]);
     ngli_darray_reset(&s_priv->rts_load);
 
     if (s_priv->mapped_data) {
@@ -642,29 +623,10 @@ static VkResult recreate_swapchain(struct gpu_ctx *gpu_ctx, struct vkcontext *vk
     if (!surface_caps.currentExtent.width || !surface_caps.currentExtent.height)
         return VK_SUCCESS;
 
-    struct texture **colors = ngli_darray_data(&s_priv->colors);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->colors); i++)
-        ngli_texture_freep(&colors[i]);
     ngli_darray_clear(&s_priv->colors);
-
-    struct texture **ms_colors = ngli_darray_data(&s_priv->ms_colors);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->ms_colors); i++)
-        ngli_texture_freep(&ms_colors[i]);
     ngli_darray_clear(&s_priv->ms_colors);
-
-    struct texture **depth_stencils = ngli_darray_data(&s_priv->depth_stencils);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->depth_stencils); i++)
-        ngli_texture_freep(&depth_stencils[i]);
     ngli_darray_clear(&s_priv->depth_stencils);
-
-    struct rendertarget **rts = ngli_darray_data(&s_priv->rts);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->rts); i++)
-        ngli_rendertarget_freep(&rts[i]);
     ngli_darray_clear(&s_priv->rts);
-
-    struct rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
-    for (size_t i = 0; i < ngli_darray_count(&s_priv->rts_load); i++)
-        ngli_rendertarget_freep(&rts_load[i]);
     ngli_darray_clear(&s_priv->rts_load);
 
     vkDestroySwapchainKHR(vk->device, s_priv->swapchain, NULL);
@@ -818,6 +780,18 @@ static void set_viewport_and_scissor(struct gpu_ctx *s, int32_t width, int32_t h
     ngli_gpu_ctx_set_scissor(s, &scissor);
 }
 
+static void free_texture(void *user_arg, void *data)
+{
+    struct texture **texturep = data;
+    ngli_texture_freep(texturep);
+}
+
+static void free_rendertarget(void *user_arg, void *data)
+{
+    struct rendertarget **rtp = data;
+    ngli_rendertarget_freep(rtp);
+}
+
 static int vk_init(struct gpu_ctx *s)
 {
     const struct ngl_config *config = &s->config;
@@ -857,8 +831,16 @@ static int vk_init(struct gpu_ctx *s)
     ngli_darray_init(&s_priv->colors, sizeof(struct texture *), 0);
     ngli_darray_init(&s_priv->ms_colors, sizeof(struct texture *), 0);
     ngli_darray_init(&s_priv->depth_stencils, sizeof(struct texture *), 0);
+
+    ngli_darray_set_free_func(&s_priv->colors, free_texture, NULL);
+    ngli_darray_set_free_func(&s_priv->ms_colors, free_texture, NULL);
+    ngli_darray_set_free_func(&s_priv->depth_stencils, free_texture, NULL);
+
     ngli_darray_init(&s_priv->rts, sizeof(struct rendertarget *), 0);
     ngli_darray_init(&s_priv->rts_load, sizeof(struct rendertarget *), 0);
+
+    ngli_darray_set_free_func(&s_priv->rts, free_rendertarget, NULL);
+    ngli_darray_set_free_func(&s_priv->rts_load, free_rendertarget, NULL);
 
     s_priv->vkcontext = ngli_vkcontext_create();
     if (!s_priv->vkcontext)
