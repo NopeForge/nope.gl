@@ -135,9 +135,10 @@ void ngli_darray_remove(struct darray *darray, size_t index)
 
 void ngli_darray_remove_range(struct darray *darray, size_t index, size_t count)
 {
-    ngli_assert((index + count) <= darray->count);
+    const size_t end = index + count;
+    ngli_assert(end <= darray->count);
     uint8_t *dst = darray->data + index * darray->element_size;
-    const uint8_t *src = darray->data + (index + count) * darray->element_size;
+    const uint8_t *src = darray->data + end * darray->element_size;
     const size_t n = (darray->count - index - count) * darray->element_size;
     memmove(dst, src, n);
     darray->count -= count;
