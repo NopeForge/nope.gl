@@ -143,6 +143,11 @@ void ngli_darray_remove_range(struct darray *darray, size_t index, size_t count)
     darray->count -= count;
 }
 
+void ngli_darray_clear(struct darray *darray)
+{
+    darray->count = 0;
+}
+
 void ngli_darray_reset(struct darray *darray)
 {
     if (darray->release)
