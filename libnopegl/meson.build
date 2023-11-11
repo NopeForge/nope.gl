@@ -126,6 +126,7 @@ project_args = cc.get_supported_arguments([
   '-Wignored-qualifiers',
   '-Wimplicit-fallthrough',
   '-Wlogical-op',
+  '-Wundef',
   '-Wconversion',
   '-Wno-sign-conversion',
   '-fmacro-prefix-map=@0@/='.format(trim_prefix),

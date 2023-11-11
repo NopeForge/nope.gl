@@ -39,6 +39,7 @@ add_project_arguments(
     '-Wignored-qualifiers',
     '-Wimplicit-fallthrough',
     '-Wlogical-op',
+    '-Wundef',
     '-Wconversion',
     '-Wno-sign-conversion',
   ]),
