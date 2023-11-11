@@ -69,6 +69,8 @@ void ngli_darray_init(struct darray *darray, size_t element_size, int aligned)
     darray->count = 0;
     darray->capacity = 0;
     darray->element_size = element_size;
+    darray->user_free_func = NULL;
+    darray->user_arg = NULL;
     if (aligned) {
         darray->reserve = reserve_aligned;
         darray->release = ngli_free_aligned;
@@ -76,6 +78,13 @@ void ngli_darray_init(struct darray *darray, size_t element_size, int aligned)
         darray->reserve = reserve_non_aligned;
         darray->release = ngli_free;
     }
+}
+
+void ngli_darray_set_free_func(struct darray *darray, ngli_user_free_func_type user_free_func, void *user_arg)
+{
+    ngli_assert(!darray->count);
+    darray->user_free_func = user_free_func;
+    darray->user_arg = user_arg;
 }
 
 void *ngli_darray_push(struct darray *darray, const void *element)
@@ -128,6 +137,18 @@ void *ngli_darray_get(const struct darray *darray, size_t index)
     return darray->data + index * darray->element_size;
 }
 
+static void invalidate_range(struct darray *darray, size_t index, size_t count)
+{
+    if (!darray->user_free_func)
+        return;
+    const size_t end = index + count;
+    ngli_assert(end <= darray->count);
+    for (size_t i = index; i < end; i++) {
+        uint8_t *element = darray->data + i * darray->element_size;
+        darray->user_free_func(darray->user_arg, element);
+    }
+}
+
 void ngli_darray_remove(struct darray *darray, size_t index)
 {
     ngli_darray_remove_range(darray, index, 1);
@@ -135,6 +156,7 @@ void ngli_darray_remove(struct darray *darray, size_t index)
 
 void ngli_darray_remove_range(struct darray *darray, size_t index, size_t count)
 {
+    invalidate_range(darray, index, count);
     const size_t end = index + count;
     ngli_assert(end <= darray->count);
     uint8_t *dst = darray->data + index * darray->element_size;
@@ -146,11 +168,13 @@ void ngli_darray_remove_range(struct darray *darray, size_t index, size_t count)
 
 void ngli_darray_clear(struct darray *darray)
 {
+    invalidate_range(darray, 0, darray->count);
     darray->count = 0;
 }
 
 void ngli_darray_reset(struct darray *darray)
 {
+    invalidate_range(darray, 0, darray->count);
     if (darray->release)
         darray->release(darray->data);
     memset(darray, 0, sizeof(*darray));

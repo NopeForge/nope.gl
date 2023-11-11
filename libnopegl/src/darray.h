@@ -25,16 +25,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "utils.h"
+
 struct darray {
     uint8_t *data;
     size_t count;
     size_t capacity;
     size_t element_size;
+    ngli_user_free_func_type user_free_func;
+    void *user_arg;
     int (*reserve)(struct darray *darray, size_t capacity);
     void (*release)(void *ptr);
 };
 
 void ngli_darray_init(struct darray *darray, size_t element_size, int aligned);
+void ngli_darray_set_free_func(struct darray *darray, ngli_user_free_func_type user_free_func, void *user_arg);
 void *ngli_darray_push(struct darray *darray, const void *element);
 void *ngli_darray_pop(struct darray *darray);
 void *ngli_darray_pop_unsafe(struct darray *darray);

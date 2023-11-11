@@ -19,8 +19,53 @@
  * under the License.
  */
 
+#include <string.h>
+
 #include "darray.h"
 #include "utils.h"
+
+struct my_item {
+    int id;
+    void *ptr;
+};
+
+static void free_elem(void *user_arg, void *data)
+{
+    struct my_item *item = data;
+    ngli_assert(!strcmp(user_arg, "test"));
+    free(item->ptr);
+}
+
+static void test_free(void)
+{
+    struct darray darray;
+    ngli_darray_init(&darray, sizeof(struct my_item), 0);
+
+    void *user_arg = "test";
+    ngli_darray_set_free_func(&darray, free_elem, user_arg);
+
+    struct my_item p0 = {.id=0x12, .ptr=malloc(10)};
+    struct my_item p1 = {.id=0x34, .ptr=malloc(20)};
+    struct my_item p2 = {.id=0x56, .ptr=malloc(30)};
+    struct my_item p3 = {.id=0x78, .ptr=malloc(40)};
+    struct my_item p4 = {.id=0x9a, .ptr=malloc(50)};
+    struct my_item p5 = {.id=0xbc, .ptr=malloc(60)};
+
+    ngli_assert(p0.ptr && p1.ptr && p2.ptr && p3.ptr && p4.ptr && p5.ptr);
+    ngli_assert(ngli_darray_push(&darray, &p0));
+    ngli_assert(ngli_darray_push(&darray, &p1));
+    ngli_assert(ngli_darray_push(&darray, &p2));
+    ngli_assert(ngli_darray_push(&darray, &p3));
+    ngli_assert(ngli_darray_push(&darray, &p4));
+    ngli_assert(ngli_darray_push(&darray, &p5));
+
+    ngli_darray_remove_range(&darray, 1, 3);
+    ngli_assert(ngli_darray_count(&darray) == 3);
+    ngli_darray_clear(&darray);
+    ngli_assert(ngli_darray_count(&darray) == 0);
+
+    ngli_darray_reset(&darray);
+}
 
 int main(void)
 {
@@ -63,6 +108,8 @@ int main(void)
     }
 
     ngli_darray_reset(&darray);
+
+    test_free();
 
     return 0;
 }
