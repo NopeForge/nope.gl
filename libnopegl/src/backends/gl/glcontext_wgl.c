@@ -20,6 +20,7 @@
  */
 
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <Windows.h>
 
@@ -113,7 +114,7 @@ static int wgl_init_extensions(struct glcontext *ctx)
             LOG(ERROR, "could not retrieve %s()", name);
             goto done;
         }
-        memcpy(((uint8_t *)wgl) + offset, &function_ptr, sizeof(function_ptr));
+        memcpy((uintptr_t)wgl + offset, &function_ptr, sizeof(function_ptr));
     }
 
     wgl->SwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
