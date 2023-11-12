@@ -21,6 +21,7 @@
 
 #include <jni.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "bstr.h"
 #include "jni_utils.h"
@@ -293,7 +294,7 @@ int ngli_jni_init_jfields(JNIEnv *env, void *jfields, const struct JniField *jfi
                 goto done;
             }
 
-            last_cls = *(jclass*)((uint8_t*)jfields + jfields_mapping[i].offset) =
+            last_cls = *(jclass*)((uintptr_t)jfields + jfields_mapping[i].offset) =
                     global ? (*env)->NewGlobalRef(env, cls) : cls;
 
             if (global) {
@@ -314,7 +315,7 @@ int ngli_jni_init_jfields(JNIEnv *env, void *jfields, const struct JniField *jfi
                     goto done;
                 }
 
-                *(jfieldID*)((uint8_t*)jfields + jfields_mapping[i].offset) = field_id;
+                *(jfieldID*)((uintptr_t)jfields + jfields_mapping[i].offset) = field_id;
                 break;
             }
             case NGLI_JNI_STATIC_FIELD: {
@@ -323,7 +324,7 @@ int ngli_jni_init_jfields(JNIEnv *env, void *jfields, const struct JniField *jfi
                     goto done;
                 }
 
-                *(jfieldID*)((uint8_t*)jfields + jfields_mapping[i].offset) = field_id;
+                *(jfieldID*)((uintptr_t)jfields + jfields_mapping[i].offset) = field_id;
                 break;
             }
             case NGLI_JNI_METHOD: {
@@ -332,7 +333,7 @@ int ngli_jni_init_jfields(JNIEnv *env, void *jfields, const struct JniField *jfi
                     goto done;
                 }
 
-                *(jmethodID*)((uint8_t*)jfields + jfields_mapping[i].offset) = method_id;
+                *(jmethodID*)((uintptr_t)jfields + jfields_mapping[i].offset) = method_id;
                 break;
             }
             case NGLI_JNI_STATIC_METHOD: {
@@ -341,7 +342,7 @@ int ngli_jni_init_jfields(JNIEnv *env, void *jfields, const struct JniField *jfi
                     goto done;
                 }
 
-                *(jmethodID*)((uint8_t*)jfields + jfields_mapping[i].offset) = method_id;
+                *(jmethodID*)((uintptr_t)jfields + jfields_mapping[i].offset) = method_id;
                 break;
             }
             default:
@@ -372,7 +373,7 @@ int ngli_jni_reset_jfields(JNIEnv *env, void *jfields, const struct JniField *jf
 
         switch(type) {
         case NGLI_JNI_CLASS: {
-            jclass cls = *(jclass*)((uint8_t*)jfields + jfields_mapping[i].offset);
+            jclass cls = *(jclass*)((uintptr_t)jfields + jfields_mapping[i].offset);
             if (!cls)
                 continue;
 
@@ -382,23 +383,23 @@ int ngli_jni_reset_jfields(JNIEnv *env, void *jfields, const struct JniField *jf
                 (*env)->DeleteLocalRef(env, cls);
             }
 
-            *(jclass*)((uint8_t*)jfields + jfields_mapping[i].offset) = NULL;
+            *(jclass*)((uintptr_t)jfields + jfields_mapping[i].offset) = NULL;
             break;
         }
         case NGLI_JNI_FIELD: {
-            *(jfieldID*)((uint8_t*)jfields + jfields_mapping[i].offset) = NULL;
+            *(jfieldID*)((uintptr_t)jfields + jfields_mapping[i].offset) = NULL;
             break;
         }
         case NGLI_JNI_STATIC_FIELD: {
-            *(jfieldID*)((uint8_t*)jfields + jfields_mapping[i].offset) = NULL;
+            *(jfieldID*)((uintptr_t)jfields + jfields_mapping[i].offset) = NULL;
             break;
         }
         case NGLI_JNI_METHOD: {
-            *(jmethodID*)((uint8_t*)jfields + jfields_mapping[i].offset) = NULL;
+            *(jmethodID*)((uintptr_t)jfields + jfields_mapping[i].offset) = NULL;
             break;
         }
         case NGLI_JNI_STATIC_METHOD: {
-            *(jmethodID*)((uint8_t*)jfields + jfields_mapping[i].offset) = NULL;
+            *(jmethodID*)((uintptr_t)jfields + jfields_mapping[i].offset) = NULL;
             break;
         }
         default:
