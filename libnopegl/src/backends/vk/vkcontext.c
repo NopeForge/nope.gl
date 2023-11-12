@@ -840,7 +840,7 @@ struct vk_extension {
 
 static int load_function(struct vkcontext *s, const struct vk_function *func)
 {
-    PFN_vkVoidFunction *func_ptr = (void *)((uint8_t *)s + func->offset);
+    PFN_vkVoidFunction *func_ptr = (void *)((uintptr_t)s + func->offset);
     if (func->device)
         *func_ptr = vkGetDeviceProcAddr(s->device, func->name);
     else
