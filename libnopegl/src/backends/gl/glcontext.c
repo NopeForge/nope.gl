@@ -125,7 +125,7 @@ static int glcontext_load_functions(struct glcontext *glcontext)
             return NGL_ERROR_NOT_FOUND;
         }
 
-        *(void **)((uint8_t *)gl + gldefinition->offset) = func;
+        *(void **)((uintptr_t)gl + gldefinition->offset) = func;
     }
 
     return 0;
@@ -279,7 +279,7 @@ static int glcontext_check_functions(struct glcontext *glcontext,
         return 1;
 
     while (*funcs_offsets != -1) {
-        void *func_ptr = *(void **)((uint8_t *)gl + *funcs_offsets);
+        void *func_ptr = *(void **)((uintptr_t)gl + *funcs_offsets);
         if (!func_ptr)
             return 0;
         funcs_offsets++;
