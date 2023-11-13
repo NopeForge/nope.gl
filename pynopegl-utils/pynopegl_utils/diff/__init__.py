@@ -68,7 +68,18 @@ class _Diff:
         media0 = self._media0
         media1 = self._media1
 
-        scene = self._get_scene(media0, media1)
+        scene = self._get_scene(
+            media0,
+            media1,
+            diff_mode=self._app_window.get_diff_mode(),
+            vertical_split=self._app_window.get_vertical_split(),
+            threshold=self._app_window.get_threshold(),
+            show_r=self._app_window.get_show_r(),
+            show_g=self._app_window.get_show_g(),
+            show_b=self._app_window.get_show_b(),
+            show_a=self._app_window.get_show_a(),
+            premultiplied=self._app_window.get_premultiplied(),
+        )
 
         self._ngl_widget.set_scene(scene)
 
@@ -167,14 +178,14 @@ class _Diff:
         self,
         media0: MediaInfo,
         media1: MediaInfo,
-        diff_mode=False,
-        vertical_split=True,
-        threshold=0.001,
-        show_r=True,
-        show_g=True,
-        show_b=True,
-        show_a=True,
-        premultiplied=False,
+        diff_mode,
+        vertical_split,
+        threshold,
+        show_r,
+        show_g,
+        show_b,
+        show_a,
+        premultiplied,
         split=(0.5, 0.5),
     ):
         width = max(media0.width, media1.width)
