@@ -79,19 +79,22 @@ ApplicationWindow {
 
             Item { Layout.fillWidth: true } /* spacer */
 
-            Repeater {
-                model: 4
-                delegate: Button {
-                    text: "RGBA"[index]
-                    checked: true
-                    checkable: true
-                    onClicked: showCompChanged(index, checked)
+            component ColorCompButton: Button {
+                required property int index
 
-                    /* remove padding */
-                    background.implicitWidth: 0
-                    background.implicitHeight: 0
-                }
+                checked: true
+                checkable: true
+                onClicked: showCompChanged(index, checked)
+
+                /* remove padding */
+                background.implicitWidth: 0
+                background.implicitHeight: 0
             }
+
+            ColorCompButton { id: show_r; text: "R"; index: 0 }
+            ColorCompButton { id: show_g; text: "G"; index: 1 }
+            ColorCompButton { id: show_b; text: "B"; index: 2 }
+            ColorCompButton { id: show_a; text: "A"; index: 3 }
 
             CheckBox {
                 text: "Premultiplied"
