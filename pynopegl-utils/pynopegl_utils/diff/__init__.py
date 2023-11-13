@@ -40,8 +40,8 @@ class _Diff:
         self._reframing_scale = 1
         self._reframing_off = (0, 0)
 
+        ngl_widget.livectls_changed.connect(self._livectls_changed)
         self._ngl_widget = ngl_widget
-        self._ngl_widget.livectls_changed.connect(self._livectls_changed)
 
         app_window = qml_engine.rootObjects()[0]
         app_window.diffModeToggled.connect(self._diff_mode_toggled)
@@ -49,14 +49,14 @@ class _Diff:
         app_window.thresholdMoved.connect(self._threshold_moved)
         app_window.showCompChanged.connect(self._show_comp_changed)
         app_window.premultipliedChanged.connect(self._premultiplied_changed)
-
         self._app_window = app_window
 
-        self._player = app_window.findChild(QObject, "player")
-        self._player.timeChanged.connect(ngl_widget.set_time)
-        self._player.mouseDown.connect(self._mouse_down)
-        self._player.zoom.connect(self._zoom)
-        self._player.pan.connect(self._pan)
+        player = app_window.findChild(QObject, "player")
+        player.timeChanged.connect(ngl_widget.set_time)
+        player.mouseDown.connect(self._mouse_down)
+        player.zoom.connect(self._zoom)
+        player.pan.connect(self._pan)
+        self._player = player
 
         fname0, fname1 = args[1], args[2]
         self._media0 = MediaInfo.from_filename(fname0)
