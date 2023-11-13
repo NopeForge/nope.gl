@@ -168,14 +168,14 @@ class _Diff:
         media0: MediaInfo,
         media1: MediaInfo,
         diff_mode=False,
-        split=(0.5, 0.5),
         vertical_split=True,
+        threshold=0.001,
         show_r=True,
         show_g=True,
         show_b=True,
         show_a=True,
         premultiplied=False,
-        threshold=0.001,
+        split=(0.5, 0.5),
     ):
         width = max(media0.width, media1.width)
         height = max(media0.height, media1.height)
