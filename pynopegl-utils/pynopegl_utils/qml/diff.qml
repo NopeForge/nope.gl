@@ -60,6 +60,7 @@ ApplicationWindow {
             }
 
             Button {
+                id: vertical_split
                 text: checked ? "|" : "―"
                 checkable: true
                 checked: true
@@ -70,6 +71,7 @@ ApplicationWindow {
             }
 
             Slider {
+                id: threshold
                 visible: diff_mode.checked
                 from: 0
                 to: 0.1
@@ -97,6 +99,7 @@ ApplicationWindow {
             ColorCompButton { id: show_a; text: "A"; index: 3 }
 
             CheckBox {
+                id: premultiplied
                 text: "Premultiplied"
                 checked: false
                 onClicked: premultipliedChanged(checked)
