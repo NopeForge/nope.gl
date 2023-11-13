@@ -44,26 +44,11 @@ class _Diff:
         self._ngl_widget.livectls_changed.connect(self._livectls_changed)
 
         fname0, fname1 = args[1], args[2]
-        media0 = MediaInfo.from_filename(fname0)
-        media1 = MediaInfo.from_filename(fname1)
-
-        scene = self._get_scene(media0, media1)
-        self._ngl_widget.set_scene(scene)
+        self._media0 = MediaInfo.from_filename(fname0)
+        self._media1 = MediaInfo.from_filename(fname1)
 
         app_window = qml_engine.rootObjects()[0]
         self._player = app_window.findChild(QObject, "player")
-
-        for i, media in enumerate((media0, media1)):
-            app_window.setProperty(f"filename{i}", op.basename(media.filename))
-            app_window.setProperty(f"width{i}", media.width)
-            app_window.setProperty(f"height{i}", media.height)
-            app_window.setProperty(f"pix_fmt{i}", media.pix_fmt)
-            app_window.setProperty(f"duration{i}", media.duration)
-            app_window.setProperty(f"avg_frame_rate{i}", float(media.avg_frame_rate))
-
-        self._player.setProperty("duration", scene.duration)
-        self._player.setProperty("framerate", list(scene.framerate))
-        self._player.setProperty("aspect", list(scene.aspect_ratio))
 
         app_window.diffModeToggled.connect(self._diff_mode_toggled)
         app_window.verticalSplitChanged.connect(self._vertical_split_changed)
@@ -71,10 +56,34 @@ class _Diff:
         app_window.showCompChanged.connect(self._show_comp_changed)
         app_window.premultipliedChanged.connect(self._premultiplied_changed)
 
+        self._app_window = app_window
+
         self._player.timeChanged.connect(ngl_widget.set_time)
         self._player.mouseDown.connect(self._mouse_down)
         self._player.zoom.connect(self._zoom)
         self._player.pan.connect(self._pan)
+
+        self._refresh_scene()
+
+    def _refresh_scene(self):
+        media0 = self._media0
+        media1 = self._media1
+
+        scene = self._get_scene(media0, media1)
+
+        self._ngl_widget.set_scene(scene)
+
+        for i, media in enumerate((media0, media1)):
+            self._app_window.setProperty(f"filename{i}", op.basename(media.filename))
+            self._app_window.setProperty(f"width{i}", media.width)
+            self._app_window.setProperty(f"height{i}", media.height)
+            self._app_window.setProperty(f"pix_fmt{i}", media.pix_fmt)
+            self._app_window.setProperty(f"duration{i}", media.duration)
+            self._app_window.setProperty(f"avg_frame_rate{i}", float(media.avg_frame_rate))
+
+        self._player.setProperty("duration", scene.duration)
+        self._player.setProperty("framerate", list(scene.framerate))
+        self._player.setProperty("aspect", list(scene.aspect_ratio))
 
     @Slot(object)
     def _livectls_changed(self, data):
