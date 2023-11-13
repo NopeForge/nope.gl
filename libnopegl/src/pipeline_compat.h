@@ -28,7 +28,7 @@
 #include "pipeline.h"
 
 struct pipeline_compat_resources {
-    struct texture **textures;
+    struct texture_binding *textures;
     size_t nb_textures;
     struct buffer_binding *buffers;
     size_t nb_buffers;

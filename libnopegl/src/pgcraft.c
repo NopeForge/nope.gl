@@ -59,7 +59,7 @@ struct pgcraft_pipeline_info {
         struct darray vertex_buffers; // vertex_buffer_layout
     } desc;
     struct {
-        struct darray textures;   // texture pointer
+        struct darray textures;   // texture_binding
         struct darray buffers;    // buffer_binding
         struct darray vertex_buffers; // buffer pointer
     } data;
@@ -507,7 +507,10 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
             if (!ngli_darray_push(&s->pipeline_info.desc.textures, &layout_entry))
                 return NGL_ERROR_MEMORY;
 
-            if (!ngli_darray_push(&s->pipeline_info.data.textures, &texture->texture))
+            const struct texture_binding texture_binding = {
+                .texture = texture->texture,
+            };
+            if (!ngli_darray_push(&s->pipeline_info.data.textures, &texture_binding))
                 return NGL_ERROR_MEMORY;
         } else {
             struct pgcraft_uniform uniform = {
@@ -1426,11 +1429,11 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
     ngli_darray_init(&s->filtered_pipeline_info.desc.buffers,    sizeof(struct bindgroup_layout_entry),  0);
     ngli_darray_init(&s->filtered_pipeline_info.desc.vertex_buffers, sizeof(struct vertex_buffer_layout), 0);
 
-    ngli_darray_init(&s->pipeline_info.data.textures,   sizeof(struct texture *), 0);
+    ngli_darray_init(&s->pipeline_info.data.textures,   sizeof(struct texture_binding), 0);
     ngli_darray_init(&s->pipeline_info.data.buffers,    sizeof(struct buffer_binding),  0);
     ngli_darray_init(&s->pipeline_info.data.vertex_buffers, sizeof(struct buffer *),  0);
 
-    ngli_darray_init(&s->filtered_pipeline_info.data.textures,   sizeof(struct texture *), 0);
+    ngli_darray_init(&s->filtered_pipeline_info.data.textures,   sizeof(struct texture_binding), 0);
     ngli_darray_init(&s->filtered_pipeline_info.data.buffers,    sizeof(struct buffer_binding),  0);
     ngli_darray_init(&s->filtered_pipeline_info.data.vertex_buffers, sizeof(struct buffer *),  0);
 
