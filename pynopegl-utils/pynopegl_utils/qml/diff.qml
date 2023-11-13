@@ -47,6 +47,15 @@ ApplicationWindow {
     signal showCompChanged(int comp, bool checked)
     signal premultipliedChanged(bool enabled)
 
+    function get_diff_mode() { return diff_mode.checked; }
+    function get_vertical_split() { return vertical_split.checked; }
+    function get_threshold() { return threshold.value; }
+    function get_show_r() { return show_r.checked; }
+    function get_show_g() { return show_g.checked; }
+    function get_show_b() { return show_b.checked; }
+    function get_show_a() { return show_a.checked; }
+    function get_premultiplied() { return premultiplied.checked; }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 5
