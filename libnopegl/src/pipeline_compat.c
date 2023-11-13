@@ -222,9 +222,7 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     if (nb_textures) {
         s->textures = ngli_calloc(nb_textures, sizeof(*s->textures));
         for (size_t i = 0; i < nb_textures; i++)
-            s->textures[i] = (struct texture_binding) {
-                .texture = resources->textures[i],
-            };
+            s->textures[i] = resources->textures[i];
         s->nb_textures = nb_textures;
     }
 
