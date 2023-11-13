@@ -43,10 +43,6 @@ class _Diff:
         self._ngl_widget = ngl_widget
         self._ngl_widget.livectls_changed.connect(self._livectls_changed)
 
-        fname0, fname1 = args[1], args[2]
-        self._media0 = MediaInfo.from_filename(fname0)
-        self._media1 = MediaInfo.from_filename(fname1)
-
         app_window = qml_engine.rootObjects()[0]
         app_window.diffModeToggled.connect(self._diff_mode_toggled)
         app_window.verticalSplitChanged.connect(self._vertical_split_changed)
@@ -61,6 +57,10 @@ class _Diff:
         self._player.mouseDown.connect(self._mouse_down)
         self._player.zoom.connect(self._zoom)
         self._player.pan.connect(self._pan)
+
+        fname0, fname1 = args[1], args[2]
+        self._media0 = MediaInfo.from_filename(fname0)
+        self._media1 = MediaInfo.from_filename(fname1)
 
         self._refresh_scene()
 
