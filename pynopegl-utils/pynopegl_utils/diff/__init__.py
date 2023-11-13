@@ -48,8 +48,6 @@ class _Diff:
         self._media1 = MediaInfo.from_filename(fname1)
 
         app_window = qml_engine.rootObjects()[0]
-        self._player = app_window.findChild(QObject, "player")
-
         app_window.diffModeToggled.connect(self._diff_mode_toggled)
         app_window.verticalSplitChanged.connect(self._vertical_split_changed)
         app_window.thresholdMoved.connect(self._threshold_moved)
@@ -58,6 +56,7 @@ class _Diff:
 
         self._app_window = app_window
 
+        self._player = app_window.findChild(QObject, "player")
         self._player.timeChanged.connect(ngl_widget.set_time)
         self._player.mouseDown.connect(self._mouse_down)
         self._player.zoom.connect(self._zoom)
