@@ -47,14 +47,7 @@ class _Diff:
         media0 = MediaInfo.from_filename(fname0)
         media1 = MediaInfo.from_filename(fname1)
 
-        width = max(media0.width, media1.width)
-        height = max(media0.height, media1.height)
-        duration = max(media0.duration, media1.duration)
-        time_base = media0.time_base if media0.duration >= media1.duration else media1.time_base
-        avg_frame_rate = max(media0.avg_frame_rate, media1.avg_frame_rate)
-
-        assert time_base > 0
-        scene = self._get_scene(fname0, fname1)
+        scene = self._get_scene(media0, media1)
         self._ngl_widget.set_scene(scene)
 
         app_window = qml_engine.rootObjects()[0]
@@ -68,9 +61,9 @@ class _Diff:
             app_window.setProperty(f"duration{i}", media.duration)
             app_window.setProperty(f"avg_frame_rate{i}", float(media.avg_frame_rate))
 
-        self._player.setProperty("duration", duration)
-        self._player.setProperty("framerate", list(avg_frame_rate.as_integer_ratio()))
-        self._player.setProperty("aspect", [width, height])
+        self._player.setProperty("duration", scene.duration)
+        self._player.setProperty("framerate", list(scene.framerate))
+        self._player.setProperty("aspect", list(scene.aspect_ratio))
 
         app_window.diffModeToggled.connect(self._diff_mode_toggled)
         app_window.verticalSplitChanged.connect(self._vertical_split_changed)
@@ -164,8 +157,8 @@ class _Diff:
 
     def _get_scene(
         self,
-        file0,
-        file1,
+        media0: MediaInfo,
+        media1: MediaInfo,
         diff_mode=False,
         split=(0.5, 0.5),
         vertical_split=True,
@@ -176,6 +169,14 @@ class _Diff:
         premultiplied=False,
         threshold=0.001,
     ):
+        width = max(media0.width, media1.width)
+        height = max(media0.height, media1.height)
+        duration = max(media0.duration, media1.duration)
+        time_base = media0.time_base if media0.duration >= media1.duration else media1.time_base
+        avg_frame_rate = max(media0.avg_frame_rate, media1.avg_frame_rate)
+
+        assert time_base > 0
+
         vert = pkgutil.get_data("pynopegl_utils.diff.shaders", "diff.vert")
         frag = pkgutil.get_data("pynopegl_utils.diff.shaders", "diff.frag")
         assert vert is not None and frag is not None
@@ -188,8 +189,8 @@ class _Diff:
         )
         scene = ngl.Render(quad, prog)
         scene.update_frag_resources(
-            tex0=ngl.Texture2D(data_src=ngl.Media(file0), min_filter="nearest", mag_filter="nearest"),
-            tex1=ngl.Texture2D(data_src=ngl.Media(file1), min_filter="nearest", mag_filter="nearest"),
+            tex0=ngl.Texture2D(data_src=ngl.Media(media0.filename), min_filter="nearest", mag_filter="nearest"),
+            tex1=ngl.Texture2D(data_src=ngl.Media(media1.filename), min_filter="nearest", mag_filter="nearest"),
             split=ngl.UniformVec2(split, live_id="split"),
             diff_mode=ngl.UniformBool(diff_mode, live_id="diff_mode"),
             vertical_split=ngl.UniformBool(vertical_split, live_id="vertical_split"),
@@ -214,7 +215,12 @@ class _Diff:
                 live_max=(self._MAX_SCALE, self._MAX_SCALE),
             ),
         )
-        return ngl.Scene.from_params(scene)
+        return ngl.Scene.from_params(
+            scene,
+            duration=duration,
+            framerate=avg_frame_rate.as_integer_ratio(),
+            aspect_ratio=(width, height),
+        )
 
 
 def run():
