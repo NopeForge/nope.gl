@@ -53,8 +53,8 @@ ApplicationWindow {
 
         RowLayout {
             Switch {
-                text: "Diff mode"
                 id: diff_mode
+                text: "Diff mode"
                 checked: false
                 onToggled: diffModeToggled(checked)
             }
