@@ -68,6 +68,10 @@ class _Diff:
         media0 = self._media0
         media1 = self._media1
 
+        self._livectls = {}
+        self._reframing_scale = 1
+        self._reframing_off = (0, 0)
+
         scene = self._get_scene(
             media0,
             media1,
