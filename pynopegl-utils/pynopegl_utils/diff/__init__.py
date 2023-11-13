@@ -221,5 +221,7 @@ def run():
     qml_file = op.join(op.dirname(qml.__file__), "diff.qml")
     app, engine = qml.create_app_engine(sys.argv, qml_file)
     ngl_widget = qml.create_ngl_widget(engine)
-    diff = _Diff(engine, ngl_widget, sys.argv)  # noqa: need to assign for correct lifetime
-    sys.exit(app.exec())
+    diff = _Diff(engine, ngl_widget, sys.argv)
+    ret = app.exec()
+    del diff
+    sys.exit(ret)
