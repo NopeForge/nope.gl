@@ -21,6 +21,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 
 ApplicationWindow {
@@ -46,6 +47,7 @@ ApplicationWindow {
     signal thresholdMoved(real value)
     signal showCompChanged(int comp, bool checked)
     signal premultipliedChanged(bool enabled)
+    signal setFile(int file_id, string filename)
 
     function get_diff_mode() { return diff_mode.checked; }
     function get_vertical_split() { return vertical_split.checked; }
@@ -55,6 +57,13 @@ ApplicationWindow {
     function get_show_b() { return show_b.checked; }
     function get_show_a() { return show_a.checked; }
     function get_premultiplied() { return premultiplied.checked; }
+
+    function set_media_directory(index, directory) {
+        if (index == 0)
+            mediaDialog0.currentFolder = directory;
+        else if (index == 1)
+            mediaDialog1.currentFolder = directory;
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -121,29 +130,55 @@ ApplicationWindow {
 
                 RowLayout {
                     readonly property string diffColor: "red"
+                    readonly property bool bothSet: filename0 && filename1
 
+                    Button {
+                        background.implicitWidth: 0
+                        background.implicitHeight: 0
+                        text: "❌"
+                        onClicked: setFile(media_id, "")
+                    }
                     Label { text: filename }
                     Label {
                         text: width_ + "×" + height_
-                        Binding on color { value: diffColor; when: width0 != width1 || height0 != height1 }
+                        Binding on color { value: diffColor; when: bothSet && (width0 != width1 || height0 != height1) }
                     }
                     Label {
                         text: pix_fmt
-                        Binding on color { value: diffColor; when: pix_fmt0 != pix_fmt1 }
+                        Binding on color { value: diffColor; when: bothSet && pix_fmt0 != pix_fmt1 }
                     }
                     Label {
                         text: "D:" + duration.toFixed(2)
-                        Binding on color { value: diffColor; when: duration0 != duration1 }
+                        Binding on color { value: diffColor; when: bothSet && duration0 != duration1 }
                     }
                     Label {
                         text: avg_frame_rate.toFixed(2) + "FPS"
-                        Binding on color { value: diffColor; when: avg_frame_rate0 != avg_frame_rate1 }
+                        Binding on color { value: diffColor; when: bothSet && avg_frame_rate0 != avg_frame_rate1 }
                     }
                 }
             }
 
+            Component {
+                id: mediaSelector
+                RowLayout {
+                    Button {
+                        text: "Select media #" + media_id
+                        onClicked: [mediaDialog0, mediaDialog1][media_id].open()
+                    }
+                }
+            }
+
+            component MediaDialog: FileDialog {
+                required property int file_id
+                onAccepted: setFile(file_id, selectedFile)
+            }
+
+            MediaDialog { id: mediaDialog0; file_id: 0 }
+            MediaDialog { id: mediaDialog1; file_id: 1 }
+
             Loader {
-                sourceComponent: mediaInfo
+                readonly property int media_id: 0
+                sourceComponent: filename0 ? mediaInfo : mediaSelector
                 property string filename: filename0
                 property int width_: width0
                 property int height_: height0
@@ -155,7 +190,8 @@ ApplicationWindow {
             Item { Layout.fillWidth: true } /* spacer */
 
             Loader {
-                sourceComponent: mediaInfo
+                readonly property int media_id: 1
+                sourceComponent: filename1 ? mediaInfo : mediaSelector
                 property string filename: filename1
                 property int width_: width1
                 property int height_: height1

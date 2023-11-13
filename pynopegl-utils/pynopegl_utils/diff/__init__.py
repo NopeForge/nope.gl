@@ -22,20 +22,18 @@
 import os.path as op
 import pkgutil
 import sys
+from pathlib import Path
+from typing import Optional
 
 from pynopegl_utils import qml
 from pynopegl_utils.misc import MediaInfo
-from PySide6.QtCore import QObject, Slot
+from PySide6.QtCore import QObject, QUrl, Slot
 
 import pynopegl as ngl
 
 
 class _Diff:
     def __init__(self, qml_engine, ngl_widget, args):
-        if len(args) != 3:
-            print(f"Usage: {args[0]} <media0> <media1>")
-            sys.exit(1)
-
         self._livectls = {}
         self._reframing_scale = 1
         self._reframing_off = (0, 0)
@@ -49,6 +47,7 @@ class _Diff:
         app_window.thresholdMoved.connect(self._threshold_moved)
         app_window.showCompChanged.connect(self._show_comp_changed)
         app_window.premultipliedChanged.connect(self._premultiplied_changed)
+        app_window.setFile.connect(self._set_file_refresh)
         self._app_window = app_window
 
         player = app_window.findChild(QObject, "player")
@@ -58,11 +57,38 @@ class _Diff:
         player.pan.connect(self._pan)
         self._player = player
 
-        fname0, fname1 = args[1], args[2]
-        self._media0 = MediaInfo.from_filename(fname0)
-        self._media1 = MediaInfo.from_filename(fname1)
+        self._media0: Optional[MediaInfo] = None
+        self._media1: Optional[MediaInfo] = None
 
+        if len(args) > 1:
+            self._set_file(0, args[1])
+            if len(args) > 2:
+                self._set_file(1, args[2])
         self._refresh_scene()
+
+    @Slot(int, str)
+    def _set_file_refresh(self, index: int, fname: str):
+        self._set_file(index, fname)
+        self._refresh_scene()
+
+    def _set_file(self, index: int, fname: str):
+        if not fname:
+            media = None
+            dirname = None
+        else:
+            path = qml.uri_to_path(fname)
+            media = MediaInfo.from_filename(path)
+            dirname = Path(path).parent.as_posix()
+            dirname = QUrl.fromLocalFile(dirname).url()
+
+        medias = [self._media0, self._media1]
+        medias[index] = media
+        self._media0, self._media1 = medias
+
+        if dirname:
+            self._app_window.set_media_directory(index, dirname)
+            if medias[index ^ 1] is None:
+                self._app_window.set_media_directory(index ^ 1, dirname)
 
     def _refresh_scene(self):
         media0 = self._media0
@@ -72,22 +98,28 @@ class _Diff:
         self._reframing_scale = 1
         self._reframing_off = (0, 0)
 
-        scene = self._get_scene(
-            media0,
-            media1,
-            diff_mode=self._app_window.get_diff_mode(),
-            vertical_split=self._app_window.get_vertical_split(),
-            threshold=self._app_window.get_threshold(),
-            show_r=self._app_window.get_show_r(),
-            show_g=self._app_window.get_show_g(),
-            show_b=self._app_window.get_show_b(),
-            show_a=self._app_window.get_show_a(),
-            premultiplied=self._app_window.get_premultiplied(),
-        )
+        if not media0 or not media1:
+            scene = self._get_wait_scene()
+        else:
+            scene = self._get_scene(
+                media0,
+                media1,
+                diff_mode=self._app_window.get_diff_mode(),
+                vertical_split=self._app_window.get_vertical_split(),
+                threshold=self._app_window.get_threshold(),
+                show_r=self._app_window.get_show_r(),
+                show_g=self._app_window.get_show_g(),
+                show_b=self._app_window.get_show_b(),
+                show_a=self._app_window.get_show_a(),
+                premultiplied=self._app_window.get_premultiplied(),
+            )
 
         self._ngl_widget.set_scene(scene)
 
         for i, media in enumerate((media0, media1)):
+            if media is None:
+                self._app_window.setProperty(f"filename{i}", "")
+                continue
             self._app_window.setProperty(f"filename{i}", op.basename(media.filename))
             self._app_window.setProperty(f"width{i}", media.width)
             self._app_window.setProperty(f"height{i}", media.height)
@@ -104,6 +136,8 @@ class _Diff:
         self._livectls = {v["label"]: v for v in data}
 
     def _update_livectl(self, key, val):
+        if not self._media0 or not self._media1:
+            return
         data = self._livectls[key]
         data["val"] = val
         self._ngl_widget.livectls_changes[key] = data
@@ -177,6 +211,20 @@ class _Diff:
         nx = self._clamp(cx + vx, 1 - cs, cs - 1)
         ny = self._clamp(cy + vy, 1 - cs, cs - 1)
         return self._set_framing(cs, nx, ny)
+
+    def _get_wait_scene(self):
+        ar = (16, 9)
+        n = 2 - [self._media0, self._media1].count(None)
+        root = ngl.Text(
+            text=f"{n}/2 media selected",
+            fg_color=(1, 1, 1),
+            fg_opacity=1,
+            bg_color=(0.15, 0.15, 0.15),
+            bg_opacity=1,
+            aspect_ratio=ar,
+            padding=54,
+        )
+        return ngl.Scene.from_params(root, aspect_ratio=ar)
 
     def _get_scene(
         self,

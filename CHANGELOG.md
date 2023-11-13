@@ -13,6 +13,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `%s_coord_matrix` uniform is now exposed for 2D array and 3D textures
 - `ngl_get_backend()` function to retrieve the backend information associated
   with a configured `nope.gl` context
+- `ngl-diff` can now set and change the input files from the GUI. While still
+  supported, passing them through the command line is not mandatory anymore
 
 ### Fixed
 - Moving the split position in `ngl-diff`
