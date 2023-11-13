@@ -202,29 +202,9 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     NGLI_ARRAY_MEMDUP(s->bindgroup_layout_params, params->layout, buffers);
 
     const struct pipeline_compat_resources *resources = &params->resources;
-    const size_t nb_vertex_buffers = resources->nb_vertex_buffers;
-    if (nb_vertex_buffers) {
-        s->vertex_buffers = ngli_calloc(nb_vertex_buffers, sizeof(*s->vertex_buffers));
-        for (size_t i = 0; i < nb_vertex_buffers; i++)
-            s->vertex_buffers[i] = resources->vertex_buffers[i];
-        s->nb_vertex_buffers = nb_vertex_buffers;
-    }
-
-    const size_t nb_buffers = resources->nb_buffers;
-    if (nb_buffers) {
-        s->buffers = ngli_calloc(nb_buffers, sizeof(*s->buffers));
-        for (size_t i = 0; i < nb_buffers; i++)
-            s->buffers[i] = resources->buffers[i];
-        s->nb_buffers = nb_buffers;
-    }
-
-    const size_t nb_textures = resources->nb_textures;
-    if (nb_textures) {
-        s->textures = ngli_calloc(nb_textures, sizeof(*s->textures));
-        for (size_t i = 0; i < nb_textures; i++)
-            s->textures[i] = resources->textures[i];
-        s->nb_textures = nb_textures;
-    }
+    NGLI_ARRAY_MEMDUP(*s, *resources, vertex_buffers);
+    NGLI_ARRAY_MEMDUP(*s, *resources, buffers);
+    NGLI_ARRAY_MEMDUP(*s, *resources, textures);
 
     s->compat_info = params->compat_info;
     ret = init_blocks_buffers(s, params);
