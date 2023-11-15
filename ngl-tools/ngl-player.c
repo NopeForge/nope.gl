@@ -64,6 +64,10 @@ static struct ngl_scene *get_scene(const struct ctx *s, const char *filename)
     if (!scene)
         return NULL;
 
+    scene->duration = s->media_info.duration;
+    scene->aspect_ratio[0] = s->media_info.width;
+    scene->aspect_ratio[1] = s->media_info.height;
+
     struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA);
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDERTEXTURE);
@@ -139,10 +143,6 @@ int main(int argc, char *argv[])
     struct ngl_scene *scene = get_scene(&s, filename);
     if (!scene)
         return -1;
-
-    scene->duration = s.media_info.duration;
-    scene->aspect_ratio[0] = s.media_info.width;
-    scene->aspect_ratio[1] = s.media_info.height;
 
     struct player p;
     s.cfg.width  = s.media_info.width;
