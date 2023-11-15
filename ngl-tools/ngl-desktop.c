@@ -432,7 +432,6 @@ static struct ngl_scene *get_default_scene(const char *host, const char *port)
     struct ngl_scene *scene = ngl_scene_create();
     if (!scene)
         return NULL;
-    scene->duration = 0.;
 
     char subtext_buf[64];
     snprintf(subtext_buf, sizeof(subtext_buf), "Listening on %s:%s", host, port);
@@ -455,7 +454,9 @@ static struct ngl_scene *get_default_scene(const char *host, const char *port)
     ngl_node_param_set_vec3(texts[1], "box_height", subtext_h);
     ngl_node_param_add_nodes(group, "children", 2, texts);
 
-    if (ngl_scene_init_from_node(scene, group) < 0)
+    struct ngl_scene_params params = ngl_scene_default_params(group);
+    params.duration = 0.0;
+    if (ngl_scene_init(scene, &params) < 0)
         ngl_scene_freep(&scene);
 
 end:
@@ -651,7 +652,8 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-    get_viewport(s.cfg.width, s.cfg.height, scene->aspect_ratio, s.cfg.viewport);
+    const struct ngl_scene_params *params = ngl_scene_get_params(scene);
+    get_viewport(s.cfg.width, s.cfg.height, params->aspect_ratio, s.cfg.viewport);
 
     if ((ret = setup_paths(&s)) < 0 ||
         (ret = setup_network(&s)) < 0 ||

@@ -172,6 +172,10 @@ struct ngl_node {
     void *priv_data;
 };
 
+struct ngl_scene {
+    struct ngl_scene_params params;
+};
+
 #define TRANSFORM_TYPES_LIST (const uint32_t[]){NGL_NODE_ROTATE,    \
                                                 NGL_NODE_ROTATEQUAT,\
                                                 NGL_NODE_TRANSFORM, \

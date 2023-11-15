@@ -112,15 +112,18 @@ cdef extern from "nopegl.h":
         ngl_cap *caps
         size_t nb_caps
 
-    cdef struct ngl_scene:
-        void *internal
+    cdef struct ngl_scene
+
+    cdef struct ngl_scene_params:
         ngl_node *root
         double duration
         int32_t framerate[2]
         int32_t aspect_ratio[2]
 
+    ngl_scene_params ngl_scene_default_params(ngl_node *root)
     ngl_scene *ngl_scene_create()
-    int ngl_scene_init_from_node(ngl_scene *s, ngl_node *root)
+    int ngl_scene_init(ngl_scene *s, const ngl_scene_params *params)
+    const ngl_scene_params *ngl_scene_get_params(const ngl_scene *s)
     int ngl_scene_init_from_str(ngl_scene *s, const char *str)
     char *ngl_scene_serialize(const ngl_scene *scene)
     char *ngl_scene_dot(const ngl_scene *scene)
@@ -531,18 +534,18 @@ cdef class Scene:
         cdef uintptr_t sptr = scene.cptr
         cdef ngl_scene *scenep = <ngl_scene *>sptr
         cdef uintptr_t rptr = root.cptr
-        cdef ngl_node *rootp = <ngl_node *>rptr
-        cdef int ret = ngl_scene_init_from_node(scenep, rootp)
+        cdef ngl_scene_params params = ngl_scene_default_params(<ngl_node *>rptr)
+        if duration is not None:
+            params.duration = duration
+        if aspect_ratio is not None:
+            params.aspect_ratio[0] = aspect_ratio[0]
+            params.aspect_ratio[1] = aspect_ratio[1]
+        if framerate is not None:
+            params.framerate[0] = framerate[0]
+            params.framerate[1] = framerate[1]
+        cdef int ret = ngl_scene_init(scenep, &params)
         if ret < 0:
             raise MemoryError()
-        if duration is not None:
-            scenep.duration = duration
-        if aspect_ratio is not None:
-            scenep.aspect_ratio[0] = aspect_ratio[0]
-            scenep.aspect_ratio[1] = aspect_ratio[1]
-        if framerate is not None:
-            scenep.framerate[0] = framerate[0]
-            scenep.framerate[1] = framerate[1]
         scene.root = root
         return scene
 
@@ -554,8 +557,9 @@ cdef class Scene:
         cdef int ret = ngl_scene_init_from_str(scenep, s)
         if ret < 0:
             raise MemoryError()
+        cdef const ngl_scene_params *params = ngl_scene_get_params(scenep);
         # FIXME: this is limited because the node won't even have set_label()
-        scene.root = _Node(ctx=<uintptr_t>scenep.root)
+        scene.root = _Node(ctx=<uintptr_t>params.root)
         return scene
 
     def serialize(self):
@@ -567,17 +571,20 @@ cdef class Scene:
     @property
     def duration(self):
         assert self.ctx != NULL, "Scene not initialized"
-        return self.ctx.duration
+        cdef const ngl_scene_params *params = ngl_scene_get_params(self.ctx);
+        return params.duration
 
     @property
     def framerate(self):
         assert self.ctx != NULL, "Scene not initialized"
-        return (self.ctx.framerate[0], self.ctx.framerate[1])
+        cdef const ngl_scene_params *params = ngl_scene_get_params(self.ctx);
+        return (params.framerate[0], params.framerate[1])
 
     @property
     def aspect_ratio(self):
         assert self.ctx != NULL, "Scene not initialized"
-        return (self.ctx.aspect_ratio[0], self.ctx.aspect_ratio[1])
+        cdef const ngl_scene_params *params = ngl_scene_get_params(self.ctx);
+        return (params.aspect_ratio[0], params.aspect_ratio[1])
 
     @property
     def cptr(self):

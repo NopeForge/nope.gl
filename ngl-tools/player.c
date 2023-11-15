@@ -336,7 +336,8 @@ static int add_progress_bar(struct player *p, struct ngl_scene *scene)
         goto end;
     }
 
-    struct ngl_node *children[] = {scene->root, render, text};
+    const struct ngl_scene_params *params = ngl_scene_get_params(scene);
+    struct ngl_node *children[] = {params->root, render, text};
 
     ngl_node_param_set_vec3(quad, "corner", bar_corner);
     ngl_node_param_set_vec3(quad, "width",  bar_width);
@@ -363,9 +364,11 @@ static int add_progress_bar(struct player *p, struct ngl_scene *scene)
     ngl_node_param_set_vec3(text, "box_height", text_height);
     ngl_node_param_set_f32(text, "bg_opacity", 0.f);
     ngl_node_param_set_f32(text, "fg_opacity", 0.f);
-    ngl_node_param_set_rational(text, "aspect_ratio", scene->aspect_ratio[0], scene->aspect_ratio[1]);
+    ngl_node_param_set_rational(text, "aspect_ratio", params->aspect_ratio[0], params->aspect_ratio[1]);
 
-    ret = ngl_scene_init_from_node(scene, group);
+    struct ngl_scene_params new_params = *params;
+    new_params.root = group;
+    ret = ngl_scene_init(scene, &new_params);
     if (ret < 0)
         goto end;
 
@@ -439,9 +442,10 @@ static int set_scene(struct player *p, struct ngl_scene *scene)
         p->pgbar_text_node     = NULL;
     }
 
-    if ((ret = set_duration(p, scene->duration)) < 0 ||
-        (ret = set_framerate(p, scene->framerate)) < 0 ||
-        (ret = set_aspect_ratio(p, scene->aspect_ratio)) < 0)
+    const struct ngl_scene_params *params = ngl_scene_get_params(scene);
+    if ((ret = set_duration(p, params->duration)) < 0 ||
+        (ret = set_framerate(p, params->framerate)) < 0 ||
+        (ret = set_aspect_ratio(p, params->aspect_ratio)) < 0)
         return ret;
 
     return 0;
@@ -461,21 +465,23 @@ int player_init(struct player *p, const char *win_title, struct ngl_scene *scene
         return -1;
     }
 
+    const struct ngl_scene_params *params = ngl_scene_get_params(scene);
+
     p->clock_off = -1;
     p->lasthover = -1;
     p->text_last_frame_index = -1;
-    p->duration_f = scene->duration;
-    p->duration = (int64_t)(scene->duration * 1000000.0);
+    p->duration_f = params->duration;
+    p->duration = (int64_t)(params->duration * 1000000.0);
     p->enable_ui = enable_ui;
     p->framerate[0] = 60;
     p->framerate[1] = 1;
 
-    if (!scene->framerate[0] || !scene->framerate[1]) {
-        fprintf(stderr, "Invalid framerate %d/%d\n", scene->framerate[0], scene->framerate[1]);
+    if (!params->framerate[0] || !params->framerate[1]) {
+        fprintf(stderr, "Invalid framerate %d/%d\n", params->framerate[0], params->framerate[1]);
         return -1;
     }
-    memcpy(p->framerate, scene->framerate, sizeof(p->framerate));
-    p->duration_i = llrint(p->duration_f * scene->framerate[0] / (double)scene->framerate[1]);
+    memcpy(p->framerate, params->framerate, sizeof(p->framerate));
+    p->duration_i = llrint(p->duration_f * params->framerate[0] / (double)params->framerate[1]);
 
     p->ngl_config = *cfg;
 

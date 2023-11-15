@@ -379,7 +379,7 @@ static int make_nodes_set(struct ngl_scene *scene, struct darray *nodes_list, co
     if (!nodes_set)
         return NGL_ERROR_MEMORY;
     for (size_t n = 0; node_types[n] != NGLI_NODE_NONE; n++) {
-        int ret = track_children_per_types(nodes_set, scene->root, node_types[n]);
+        int ret = track_children_per_types(nodes_set, scene->params.root, node_types[n]);
         if (ret < 0) {
             ngli_hmap_freep(&nodes_set);
             return ret;
@@ -1108,7 +1108,7 @@ static int widgets_csv_header(struct hud *s)
 static void widgets_csv_report(struct hud *s)
 {
     const struct ngl_ctx *ctx = s->ctx;
-    const struct ngl_node *scene = ctx->scene->root;
+    const struct ngl_node *scene = ctx->scene->params.root;
 
     /*
      * Set C locale temporarily so floats are printed deterministically. We

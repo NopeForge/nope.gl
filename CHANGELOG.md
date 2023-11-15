@@ -28,6 +28,10 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `ngl_configure()` does not update the `backend` field from the user
   configuration anymore and the `config` argument is now const. Users must now
   use `ngl_get_backend()` to get the underlying backend information
+- `ngl_scene_init_from_node()` has been replaced with
+  `ngl_scene_init()` with the associated `ngl_scene_params` structure
+- the `ngl_scene` structure is now private; its parameters can now be obtained
+  using `ngl_scene_get_params()`
 
 ### Removed
 - `%s_dimensions` uniform for 2D array and 3D images/textures, users must use

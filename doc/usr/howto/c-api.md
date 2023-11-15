@@ -132,7 +132,8 @@ static struct ngl_scene *get_scene(const char *filename)
     ngl_node_param_set_node(render, "program", program);
     ngl_node_param_set_dict(render, "textures", "tex0", texture);
 
-    ngl_scene_init_from_node(scene, render);
+    const struct ngl_scene_params params = ngl_scene_default_params(render);
+    ngl_scene_init(scene, &params);
 
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);

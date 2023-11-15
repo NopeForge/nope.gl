@@ -392,7 +392,7 @@ int ngli_node_livectls_get(const struct ngl_scene *scene, size_t *nb_livectlsp, 
     if (!livectls_index)
         return NGL_ERROR_MEMORY;
 
-    int ret = find_livectls(scene->root, livectls_index);
+    int ret = find_livectls(scene->params.root, livectls_index);
     if (ret < 0)
         goto end;
 

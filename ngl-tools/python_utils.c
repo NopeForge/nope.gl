@@ -38,6 +38,8 @@ struct ngl_scene *python_get_scene(const char *modname, const char *func_name)
     if (!scene)
         return NULL;
 
+    struct ngl_scene_params params = ngl_scene_default_params(NULL);
+
     Py_Initialize();
 
     const size_t len = strlen(modname);
@@ -67,27 +69,28 @@ struct ngl_scene *python_get_scene(const char *modname, const char *func_name)
     if (!(pyaspect0 = PyTuple_GetItem(pyaspect, 0)) ||
         !(pyaspect1 = PyTuple_GetItem(pyaspect, 1)))
         goto end;
-    scene->aspect_ratio[0] = (int32_t)PyLong_AsLong(pyaspect0);
+    params.aspect_ratio[0] = (int32_t)PyLong_AsLong(pyaspect0);
     if (PyErr_Occurred())
         goto end;
-    scene->aspect_ratio[1] = (int32_t)PyLong_AsLong(pyaspect1);
+    params.aspect_ratio[1] = (int32_t)PyLong_AsLong(pyaspect1);
     if (PyErr_Occurred())
         goto end;
 
     /* Duration */
-    scene->duration = PyFloat_AsDouble(pyduration);
+    params.duration = PyFloat_AsDouble(pyduration);
     if (PyErr_Occurred())
         goto end;
 
     /* Scene */
-    if (ngl_scene_init_from_node(scene, PyLong_AsVoidPtr(cptr)) < 0)
+    params.root = PyLong_AsVoidPtr(cptr);
+    if (ngl_scene_init(scene, &params) < 0)
         goto end;
 
 end:
     if (PyErr_Occurred())
         PyErr_PrintEx(0);
 
-    if (!scene->root)
+    if (!params.root)
         ngl_scene_freep(&scene);
 
     Py_XDECREF(com);
