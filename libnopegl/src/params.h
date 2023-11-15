@@ -79,7 +79,7 @@ struct ngl_node;
  *
  * This option can not be combined with NGLI_PARAM_FLAG_ALLOW_NODE.
  */
-#define NGLI_PARAM_FLAG_NON_NULL (1<<0)
+#define NGLI_PARAM_FLAG_NON_NULL (1U<<0)
 
 /*
  * Imply that the parameter needs to be represented in a single block (more
@@ -91,7 +91,7 @@ struct ngl_node;
  * as children (since no outgoing link can be individually represented
  * anymore).
  */
-#define NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED (1<<1)
+#define NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED (1U<<1)
 
 /*
  * Display the field name alongside the edge associated with this parameter in
@@ -106,7 +106,7 @@ struct ngl_node;
  * Having this flag unconditionally would clutter the output too much, so it
  * needs to be explicitly specified where appropriate.
  */
-#define NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME (1<<2)
+#define NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME (1U<<2)
 
 /*
  * Imply that the parameter can be live changed post-init (when a context is
@@ -117,7 +117,7 @@ struct ngl_node;
  *
  * Only applicable for non-node-based parameters.
  */
-#define NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE (1<<3)
+#define NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE (1U<<3)
 
 /*
  * Imply that the parameter allows an additional node parameter, taking over
@@ -133,7 +133,7 @@ struct ngl_node;
  * to set or unset a node at runtime (but it works pre-init). If a node is not
  * set, live-change on the non-pointer-based parameter will work as expected.
  */
-#define NGLI_PARAM_FLAG_ALLOW_NODE (1<<4)
+#define NGLI_PARAM_FLAG_ALLOW_NODE (1U<<4)
 
 struct node_param {
     const char *key;
@@ -152,7 +152,7 @@ struct node_param {
         float mat[4*4];
         int32_t r[2];
     } def_value;
-    int flags;
+    uint32_t flags;
     const uint32_t *node_types;
     const char *desc;
     const struct param_choices *choices;
