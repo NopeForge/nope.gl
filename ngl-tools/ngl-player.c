@@ -58,7 +58,7 @@ static const struct opt options[] = {
     {NULL, "--mipmap",           OPT_TYPE_INT,      .offset=OFFSET(mipmap)},
 };
 
-static struct ngl_scene *get_scene(const char *filename, int direct_rendering, int hwaccel, int mipmap)
+static struct ngl_scene *get_scene(const struct ctx *s, const char *filename)
 {
     struct ngl_scene *scene = ngl_scene_create();
     if (!scene)
@@ -69,14 +69,14 @@ static struct ngl_scene *get_scene(const char *filename, int direct_rendering, i
     struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDERTEXTURE);
 
     ngl_node_param_set_str(media, "filename", filename);
-    ngl_node_param_set_select(media, "hwaccel", hwaccel ? "auto" : "disabled");
+    ngl_node_param_set_select(media, "hwaccel", s->hwaccel ? "auto" : "disabled");
     ngl_node_param_set_node(texture, "data_src", media);
     ngl_node_param_set_select(texture, "min_filter", "linear");
     ngl_node_param_set_select(texture, "mag_filter", "linear");
-    if (mipmap)
+    if (s->mipmap)
         ngl_node_param_set_select(texture, "mipmap_filter", "linear");
-    if (direct_rendering != -1)
-        ngl_node_param_set_bool(texture, "direct_rendering", direct_rendering);
+    if (s->direct_rendering != -1)
+        ngl_node_param_set_bool(texture, "direct_rendering", s->direct_rendering);
     ngl_node_param_set_node(render, "texture", texture);
 
     if (ngl_scene_init_from_node(scene, render) < 0)
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     if (ret < 0)
         return ret;
 
-    struct ngl_scene *scene = get_scene(filename, s.direct_rendering, s.hwaccel, s.mipmap);
+    struct ngl_scene *scene = get_scene(&s, filename);
     if (!scene)
         return -1;
 
