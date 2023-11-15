@@ -306,8 +306,10 @@ static const char *pgbar_frag =
     "    ngl_out_color = vec4(1.0) * alpha;"                                            "\n"
     "}";
 
-static struct ngl_node *add_progress_bar(struct player *p, struct ngl_scene *scene)
+static int add_progress_bar(struct player *p, struct ngl_scene *scene)
 {
+    int ret = 0;
+
     static const float bar_corner[3] = {-1.0f, -1.0f + 0.1f, 0.0f};
     static const float bar_width[3]  = { 2.0f,  0.0f, 0.0f};
     static const float bar_height[3] = { 0.0f,  2.0f * 0.01f, 0.0f}; // 1% of the height
@@ -329,7 +331,7 @@ static struct ngl_node *add_progress_bar(struct player *p, struct ngl_scene *sce
 
     if (!text || !quad || !program || !render || !time || !v_duration || !v_opacity ||
         !coord || !group) {
-        ngl_node_unrefp(&group);
+        ret = NGL_ERROR_MEMORY;
         goto end;
     }
 
@@ -362,11 +364,16 @@ static struct ngl_node *add_progress_bar(struct player *p, struct ngl_scene *sce
     ngl_node_param_set_f32(text, "fg_opacity", 0.f);
     ngl_node_param_set_rational(text, "aspect_ratio", scene->aspect_ratio[0], scene->aspect_ratio[1]);
 
+    ret = ngl_scene_init_from_node(scene, group);
+    if (ret < 0)
+        goto end;
+
     p->pgbar_opacity_node  = v_opacity;
     p->pgbar_duration_node = v_duration;
     p->pgbar_text_node     = text;
 
 end:
+    ngl_node_unrefp(&group);
     ngl_node_unrefp(&text);
     ngl_node_unrefp(&quad);
     ngl_node_unrefp(&program);
@@ -377,7 +384,7 @@ end:
     ngl_node_unrefp(&coord);
     ngl_node_unrefp(&gcfg);
 
-    return group;
+    return ret;
 }
 
 static int set_duration(struct player *p, double duration)
@@ -420,16 +427,11 @@ static int set_scene(struct player *p, struct ngl_scene *scene)
     int ret;
 
     if (p->enable_ui) {
-        struct ngl_node *new_root = add_progress_bar(p, scene);
-        if (!new_root)
-            return NGL_ERROR_MEMORY;
-        ret = ngl_scene_init_from_node(scene, new_root);
-        if (ret >= 0)
-            ret = ngl_set_scene(p->ngl, scene);
-        ngl_node_unrefp(&scene->root);
-    } else {
-        ret = ngl_set_scene(p->ngl, scene);
+        ret = add_progress_bar(p, scene);
+        if (ret < 0)
+            return ret;
     }
+    ret = ngl_set_scene(p->ngl, scene);
     if (ret < 0) {
         p->pgbar_opacity_node  = NULL;
         p->pgbar_duration_node = NULL;
