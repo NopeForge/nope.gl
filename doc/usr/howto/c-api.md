@@ -105,7 +105,7 @@ Following is a function returning basic scene rendering a video into a
 rectangle geometry:
 
 ```c
-static struct ngl_node *get_scene(const char *filename)
+static struct ngl_scene *get_scene(const char *filename)
 {
     static const float corner[3] = {-1.0, -1.0, 0.0};
     static const float width[3]  = { 2.0,  0.0, 0.0};
