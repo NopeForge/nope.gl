@@ -30,7 +30,7 @@
 #include "image.h"
 #include "nopegl.h"
 
-#define HWMAP_FLAG_FRAME_OWNER (1 << 0)
+#define HWMAP_FLAG_FRAME_OWNER (1U << 0)
 
 struct hwmap_params {
     const char *label;
@@ -66,7 +66,7 @@ struct hwmap {
 
 struct hwmap_class {
     const char *name;
-    int flags;
+    uint32_t flags;
     int hwformat;
     const int *layouts;
     size_t priv_size;
