@@ -532,6 +532,7 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
     int ret = 0;
     struct ngl_node *node = NULL;
     struct darray nodes_array;
+    struct ngl_scene_params params = ngl_scene_default_params(NULL);
 
     ngli_darray_init(&nodes_array, sizeof(struct ngl_node *), 0);
 
@@ -572,20 +573,20 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
         }
 
         if (!strcmp(key, "duration")) {
-            ret = parse_f64(value, &scene->duration);
+            ret = parse_f64(value, &params.duration);
             if (ret < 0) {
                 LOG(ERROR, "unable to parse duration \"%s\"", value);
                 goto end;
             }
         } else if (!strcmp(key, "aspect_ratio")) {
-            n = sscanf(value, "%d/%d", &scene->aspect_ratio[0], &scene->aspect_ratio[1]);
+            n = sscanf(value, "%d/%d", &params.aspect_ratio[0], &params.aspect_ratio[1]);
             if (n != 2) {
                 LOG(ERROR, "unable to parse aspect ratio \"%s\"", value);
                 ret = NGL_ERROR_INVALID_DATA;
                 goto end;
             }
         } else if (!strcmp(key, "framerate")) {
-            n = sscanf(value, "%d/%d", &scene->framerate[0], &scene->framerate[1]);
+            n = sscanf(value, "%d/%d", &params.framerate[0], &params.framerate[1]);
             if (n != 2) {
                 LOG(ERROR, "unable to parse framerate\"%s\"", value);
                 ret = NGL_ERROR_INVALID_DATA;
@@ -633,8 +634,10 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
         s += eol + 1;
     }
 
-    if (node)
-        ret = ngl_scene_init_from_node(scene, node);
+    if (node) {
+        params.root = node;
+        ret = ngl_scene_init(scene, &params);
+    }
 
     struct ngl_node **nodes = ngli_darray_data(&nodes_array);
     for (size_t i = 0; i < ngli_darray_count(&nodes_array); i++)

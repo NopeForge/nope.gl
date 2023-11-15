@@ -223,7 +223,7 @@ static void reset_scene(struct ngl_ctx *s, int action)
 {
     ngli_hud_freep(&s->hud);
     if (s->scene) {
-        ngli_node_detach_ctx(s->scene->root, s);
+        ngli_node_detach_ctx(s->scene->params.root, s);
         if (action == NGLI_ACTION_UNREF_SCENE)
             ngl_scene_freep(&s->scene);
     }
@@ -236,7 +236,7 @@ static struct ngl_scene *scene_copy(struct ngl_scene *s)
     if (!copy)
         return NULL;
     memcpy(copy, s, sizeof(*copy));
-    copy->root = ngl_node_ref(s->root);
+    copy->params.root = ngl_node_ref(s->params.root);
     return copy;
 }
 
@@ -253,15 +253,15 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
     s->rnode_pos->rendertarget_layout = *ngli_gpu_ctx_get_default_rendertarget_layout(s->gpu_ctx);
 
     if (scene) {
-        if (!scene->root) {
+        if (!scene->params.root) {
             LOG(ERROR, "specified scene doesn't contain a graph");
             ret = NGL_ERROR_INVALID_ARG;
             goto fail;
         }
 
-        int ret = ngli_node_attach_ctx(scene->root, s);
+        int ret = ngli_node_attach_ctx(scene->params.root, s);
         if (ret < 0) {
-            ngli_node_detach_ctx(scene->root, s);
+            ngli_node_detach_ctx(scene->params.root, s);
             return ret;
         }
         s->scene = scene_copy(scene);
@@ -417,7 +417,7 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
         return ngli_gpu_ctx_end_update(s->gpu_ctx, t);
     }
 
-    struct ngl_node *root = scene->root;
+    struct ngl_node *root = scene->params.root;
     LOG(DEBUG, "prepare scene %s @ t=%f", root->label, t);
 
     ret = ngli_node_honor_release_prefetch(root, t);
@@ -458,8 +458,8 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
 
     struct ngl_scene *scene = s->scene;
     if (scene) {
-        LOG(DEBUG, "draw scene %s @ t=%f", scene->root->label, t);
-        ngli_node_draw(scene->root);
+        LOG(DEBUG, "draw scene %s @ t=%f", scene->params.root->label, t);
+        ngli_node_draw(scene->params.root);
     }
 
     if (!s->render_pass_started) {

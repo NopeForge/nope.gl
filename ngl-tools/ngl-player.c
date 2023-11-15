@@ -64,10 +64,6 @@ static struct ngl_scene *get_scene(const struct ctx *s, const char *filename)
     if (!scene)
         return NULL;
 
-    scene->duration = s->media_info.duration;
-    scene->aspect_ratio[0] = s->media_info.width;
-    scene->aspect_ratio[1] = s->media_info.height;
-
     struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA);
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDERTEXTURE);
@@ -83,7 +79,11 @@ static struct ngl_scene *get_scene(const struct ctx *s, const char *filename)
         ngl_node_param_set_bool(texture, "direct_rendering", s->direct_rendering);
     ngl_node_param_set_node(render, "texture", texture);
 
-    if (ngl_scene_init_from_node(scene, render) < 0)
+    struct ngl_scene_params params = ngl_scene_default_params(render);
+    params.duration = s->media_info.duration;
+    params.aspect_ratio[0] = s->media_info.width;
+    params.aspect_ratio[1] = s->media_info.height;
+    if (ngl_scene_init(scene, &params) < 0)
         ngl_scene_freep(&scene);
 
     ngl_node_unrefp(&render);

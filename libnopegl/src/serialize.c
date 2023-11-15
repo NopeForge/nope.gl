@@ -501,13 +501,13 @@ char *ngli_scene_serialize(const struct ngl_scene *scene)
 
     /* Write metadata */
     ngli_bstr_printf(b, "# duration=");
-    print_f64(b, scene->duration);
+    print_f64(b, scene->params.duration);
     ngli_bstr_print(b, "\n");
-    ngli_bstr_printf(b, "# aspect_ratio=%d/%d\n", scene->aspect_ratio[0], scene->aspect_ratio[1]);
-    ngli_bstr_printf(b, "# framerate=%d/%d\n", scene->framerate[0], scene->framerate[1]);
+    ngli_bstr_printf(b, "# aspect_ratio=%d/%d\n", scene->params.aspect_ratio[0], scene->params.aspect_ratio[1]);
+    ngli_bstr_printf(b, "# framerate=%d/%d\n", scene->params.framerate[0], scene->params.framerate[1]);
 
     /* Write nodes (1 line = 1 node) */
-    if (serialize(nlist, b, scene->root) < 0)
+    if (serialize(nlist, b, scene->params.root) < 0)
         goto end;
     s = ngli_bstr_strdup(b);
 

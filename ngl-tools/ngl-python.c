@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
     if (!scene)
         return -1;
 
-    get_viewport(s.cfg.width, s.cfg.height, scene->aspect_ratio, s.cfg.viewport);
+    const struct ngl_scene_params *params = ngl_scene_get_params(scene);
+    get_viewport(s.cfg.width, s.cfg.height, params->aspect_ratio, s.cfg.viewport);
 
     struct player p;
     ret = player_init(&p, "ngl-python", scene, &s.cfg, s.player_ui);

@@ -21,32 +21,61 @@
 
 #include "nopegl.h"
 #include "internal.h"
+#include "log.h"
 #include "memory.h"
+#include "utils.h"
 
 struct ngl_scene *ngl_scene_create(void)
 {
     struct ngl_scene *s = ngli_calloc(1, sizeof(*s));
-    if (!s)
-        return NULL;
-    s->duration = 30.0;
-    s->aspect_ratio[0] = 1;
-    s->aspect_ratio[1] = 1;
-    s->framerate[0] = 60;
-    s->framerate[1] = 1;
     return s;
 }
 
-int ngl_scene_init_from_node(struct ngl_scene *s, struct ngl_node *node)
+struct ngl_scene_params ngl_scene_default_params(struct ngl_node *root)
 {
-    ngl_node_unrefp(&s->root);
-    s->root = ngl_node_ref(node);
+    const struct ngl_scene_params params = {
+        .root         = root,
+        .duration     = 30.0,
+        .framerate    = {60, 1},
+        .aspect_ratio = {1, 1},
+    };
+    return params;
+}
+
+int ngl_scene_init(struct ngl_scene *s, const struct ngl_scene_params *params)
+{
+    if (!params->root) {
+        LOG(ERROR, "cannot initialize a scene without root node");
+        return NGL_ERROR_INVALID_ARG;
+    }
+    if (params->duration < 0.0) {
+        LOG(ERROR, "invalid scene duration %g", params->duration);
+        return NGL_ERROR_INVALID_ARG;
+    }
+    if (params->framerate[0] <= 0 || params->framerate[1] <= 0) {
+        LOG(ERROR, "invalid framerate %d/%d", NGLI_ARG_VEC2(params->framerate));
+        return NGL_ERROR_INVALID_ARG;
+    }
+    if (params->aspect_ratio[0] <= 0 || params->aspect_ratio[1] <= 0) {
+        LOG(ERROR, "invalid aspect ratio %d:%d", NGLI_ARG_VEC2(params->aspect_ratio));
+        return NGL_ERROR_INVALID_ARG;
+    }
+
+    ngl_node_unrefp(&s->params.root);
+    s->params = *params;
+    s->params.root = ngl_node_ref(s->params.root);
     return 0;
 }
 
 int ngl_scene_init_from_str(struct ngl_scene *s, const char *str)
 {
-    ngl_node_unrefp(&s->root);
+    ngl_node_unrefp(&s->params.root);
     return ngli_scene_deserialize(s, str);
+}
+
+const struct ngl_scene_params *ngl_scene_get_params(const struct ngl_scene *s)
+{
+    return &s->params;
 }
 
 char *ngl_scene_serialize(const struct ngl_scene *s)
@@ -64,6 +93,6 @@ void ngl_scene_freep(struct ngl_scene **sp)
     struct ngl_scene *s = *sp;
     if (!s)
         return;
-    ngl_node_unrefp(&s->root);
+    ngl_node_unrefp(&s->params.root);
     ngli_freep(sp);
 }

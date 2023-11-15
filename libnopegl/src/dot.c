@@ -432,7 +432,7 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
 
 char *ngli_scene_dot(const struct ngl_scene *scene)
 {
-    if (!scene || !scene->root)
+    if (!scene || !scene->params.root)
         return NULL;
 
     char *graph = NULL;
@@ -450,7 +450,7 @@ char *ngli_scene_dot(const struct ngl_scene *scene)
                     "    node [style=filled,%s];\n",
                     font_settings, font_settings);
 
-    const struct ngl_node *node = scene->root;
+    const struct ngl_node *node = scene->params.root;
     print_all_decls(b, node, decls);
     print_all_links(b, node, links);
 
