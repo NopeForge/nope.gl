@@ -25,6 +25,8 @@
 #include "memory.h"
 #include "utils.h"
 
+NGLI_RC_CHECK_STRUCT(ngl_scene);
+
 static void detach_root(struct ngl_scene *s)
 {
     ngl_node_unrefp(&s->params.root);
@@ -36,9 +38,21 @@ static int attach_root(struct ngl_scene *s, struct ngl_node *node)
     return 0;
 }
 
+static void scene_freep(struct ngl_scene **sp)
+{
+    struct ngl_scene *s = *sp;
+    if (!s)
+        return;
+    detach_root(s);
+    ngli_freep(sp);
+}
+
 struct ngl_scene *ngl_scene_create(void)
 {
     struct ngl_scene *s = ngli_calloc(1, sizeof(*s));
+    if (!s)
+        return NULL;
+    s->rc = NGLI_RC_CREATE(scene_freep);
     return s;
 }
 
@@ -58,6 +72,7 @@ struct ngl_scene *ngli_scene_dup(struct ngl_scene *s)
     struct ngl_scene *copy = ngli_memdup(s, sizeof(*s));
     if (!copy)
         return NULL;
+    copy->rc = NGLI_RC_CREATE(scene_freep);
     attach_root(copy, s->params.root);
     return copy;
 }
@@ -112,6 +127,5 @@ void ngl_scene_freep(struct ngl_scene **sp)
     struct ngl_scene *s = *sp;
     if (!s)
         return;
-    detach_root(s);
-    ngli_freep(sp);
+    NGLI_RC_UNREFP(sp);
 }

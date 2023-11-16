@@ -59,6 +59,7 @@
 #include "rnode.h"
 #include "rtt.h"
 #include "texture.h"
+#include "utils.h"
 
 struct node_class;
 
@@ -173,6 +174,7 @@ struct ngl_node {
 };
 
 struct ngl_scene {
+    struct ngli_rc rc;
     struct ngl_scene_params params;
 };
 
