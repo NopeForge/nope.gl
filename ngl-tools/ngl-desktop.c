@@ -263,47 +263,33 @@ static int handle_tag_reconfigure(const uint8_t *data, int size)
     return 0;
 }
 
-static const char *get_backend_str(int backend)
-{
-    static const char * const backend_map[] = {
-        [NGL_BACKEND_OPENGL]   = "opengl",
-        [NGL_BACKEND_OPENGLES] = "opengles",
-        [NGL_BACKEND_VULKAN]   = "vulkan",
-    };
-
-    if (backend < 0 || backend >= ARRAY_NB(backend_map))
-        return NULL;
-    const char *backend_str = backend_map[backend];
-    if (!backend_str)
-        return NULL;
-
-    return backend_str;
-}
-
 static int handle_tag_info(const uint8_t *data, int size, int fd, struct ctx *s)
 {
     if (size != 0)
         return NGL_ERROR_INVALID_DATA;
-    /* Note: we use the player ngl_config and not the local config because the
-     * former contains the backend in use after the configure call */
-    const struct ngl_config *cfg = &s->p.ngl_config;
-    const char *backend_str = get_backend_str(cfg->backend);
-    if (!backend_str)
-        return NGL_ERROR_BUG;
+
+    struct ngl_backend backend = {0};
+    int ret = ngl_get_backend(s->p.ngl, &backend);
+    if (ret < 0)
+        goto end;
 
 #ifdef _WIN32
     const char *sysname = "Windows";
 #else
     struct utsname name;
-    int ret = uname(&name);
+    ret = uname(&name);
     if (ret < 0)
-        return NGL_ERROR_GENERIC;
+        goto end;
     const char *sysname = name.sysname;
 #endif
 
     char info[256];
-    snprintf(info, sizeof(info), "backend=%s\nsystem=%s\n", backend_str, sysname);
-    return ipc_pkt_add_rtag_info(s->send_pkt, info);
+    snprintf(info, sizeof(info), "backend=%s\nsystem=%s\n", backend.string_id, sysname);
+    ret = ipc_pkt_add_rtag_info(s->send_pkt, info);
+
+end:
+    ngl_reset_backend(&backend);
+    return ret;
 }
 
 static int handle_commands(struct ctx *s, int fd)
@@ -616,14 +602,15 @@ static int setup_paths(struct ctx *s)
 
 static int update_window_title(const struct ctx *s)
 {
-    const struct ngl_config *cfg = &s->p.ngl_config;
-    const char *backend_str = get_backend_str(cfg->backend);
-    if (!backend_str)
-        return NGL_ERROR_BUG;
+    struct ngl_backend backend;
+    int ret = ngl_get_backend(s->p.ngl, &backend);
+    if (ret < 0)
+        return ret;
 
     char title[256];
-    snprintf(title, sizeof(title), "ngl-desktop %s:%s [%s]", s->host, s->port, backend_str);
+    snprintf(title, sizeof(title), "ngl-desktop %s:%s [%s]", s->host, s->port, backend.name);
     SDL_SetWindowTitle(s->p.window, title);
+    ngl_reset_backend(&backend);
     return 0;
 }
 
