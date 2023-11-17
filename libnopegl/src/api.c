@@ -259,7 +259,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
             goto fail;
         }
 
-        int ret = ngli_node_attach_ctx(scene->params.root, s);
+        ret = ngli_node_attach_ctx(scene->params.root, s);
         if (ret < 0) {
             ngli_node_detach_ctx(scene->params.root, s);
             return ret;
@@ -279,7 +279,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
             goto fail;
         }
 
-        int ret = ngli_hud_init(s->hud);
+        ret = ngli_hud_init(s->hud);
         if (ret < 0)
             goto fail;
     }
