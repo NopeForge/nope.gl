@@ -378,7 +378,7 @@ static VkResult create_pipeline(struct pipeline *s)
     } else {
         ngli_assert(0);
     }
-    return VK_SUCCESS;
+    return res;
 }
 
 struct pipeline *ngli_pipeline_vk_create(struct gpu_ctx *gpu_ctx)
