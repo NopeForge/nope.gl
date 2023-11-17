@@ -157,6 +157,7 @@ NGL_API const struct ngl_scene_params *ngl_scene_get_params(const struct ngl_sce
 /**
  * De-serialize a scene from a string.
  *
+ * @param s   pointer to the scene
  * @param str string in nope.gl serialized format.
  *
  * Must be destroyed using ngl_node_unrefp().
@@ -170,6 +171,8 @@ NGL_API int ngl_scene_init_from_str(struct ngl_scene *s, const char *str);
  *
  * Must be destroyed using free().
  *
+ * @param scene pointer to the scene
+ *
  * @return an allocated string in nope.gl format or NULL on error
  */
 NGL_API char *ngl_scene_serialize(const struct ngl_scene *scene);
@@ -178,6 +181,8 @@ NGL_API char *ngl_scene_serialize(const struct ngl_scene *scene);
  * Serialize scene in Graphviz format (.dot).
  *
  * Must be destroyed using free().
+ *
+ * @param scene pointer to the scene
  *
  * @return an allocated string in dot format or NULL on error
  *
@@ -531,6 +536,7 @@ struct ngl_livectl {
  * to do so, the user has to set its live_id parameter to an arbitrary string
  * that must be unique to the scene.
  *
+ * @param scene        pointer to the scene
  * @param nb_livectlsp a pointer to an integer set to the number of live
  *                     controls available
  * @param livectlsp    a pointer to an array of ngl_livectl structures. The
@@ -776,6 +782,7 @@ NGL_API void ngl_reset_backend(struct ngl_backend *backend);
  *
  * This function must be called on the UI/main thread on iOS/macOS.
  *
+ * @param s pointer to the configured nope.gl context
  * @param width new width of the swap chain buffers
  * @param height new height of the swap chain buffers
  * @param viewport new viewport of the current render target,
@@ -839,6 +846,8 @@ NGL_API int ngl_draw(struct ngl_ctx *s, double t);
  * specified time. Non active nodes will be grayed.
  *
  * Must be destroyed using free().
+ *
+ * @param s pointer to the configured nope.gl context
  *
  * @return an allocated string in dot format or NULL on error
  *
