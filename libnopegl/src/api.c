@@ -254,11 +254,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
             ngli_node_detach_ctx(scene->params.root, s);
             return ret;
         }
-        s->scene = ngli_scene_dup(scene);
-        if (!s->scene) {
-            ret = NGL_ERROR_MEMORY;
-            goto fail;
-        }
+        s->scene = ngli_scene_ref(scene);
     }
 
     const struct ngl_config *config = &s->config;
