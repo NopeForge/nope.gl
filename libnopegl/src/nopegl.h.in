@@ -171,24 +171,24 @@ NGL_API int ngl_scene_init_from_str(struct ngl_scene *s, const char *str);
  *
  * Must be destroyed using free().
  *
- * @param scene pointer to the scene
+ * @param s pointer to the scene
  *
  * @return an allocated string in nope.gl format or NULL on error
  */
-NGL_API char *ngl_scene_serialize(const struct ngl_scene *scene);
+NGL_API char *ngl_scene_serialize(const struct ngl_scene *s);
 
 /**
  * Serialize scene in Graphviz format (.dot).
  *
  * Must be destroyed using free().
  *
- * @param scene pointer to the scene
+ * @param s pointer to the scene
  *
  * @return an allocated string in dot format or NULL on error
  *
  * @see ngl_dot()
  */
-NGL_API char *ngl_scene_dot(const struct ngl_scene *scene);
+NGL_API char *ngl_scene_dot(const struct ngl_scene *s);
 
 /**
  * Destroy a scene object. The passed pointer will also be set to NULL.
