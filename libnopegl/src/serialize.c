@@ -486,9 +486,9 @@ static int serialize(struct hmap *nlist,
     return register_node(nlist, node);
 }
 
-char *ngli_scene_serialize(const struct ngl_scene *scene)
+char *ngli_scene_serialize(const struct ngl_scene *s)
 {
-    char *s = NULL;
+    char *str = NULL;
     struct hmap *nlist = ngli_hmap_create();
     struct bstr *b = ngli_bstr_create();
     if (!nlist || !b)
@@ -501,18 +501,18 @@ char *ngli_scene_serialize(const struct ngl_scene *scene)
 
     /* Write metadata */
     ngli_bstr_printf(b, "# duration=");
-    print_f64(b, scene->params.duration);
+    print_f64(b, s->params.duration);
     ngli_bstr_print(b, "\n");
-    ngli_bstr_printf(b, "# aspect_ratio=%d/%d\n", scene->params.aspect_ratio[0], scene->params.aspect_ratio[1]);
-    ngli_bstr_printf(b, "# framerate=%d/%d\n", scene->params.framerate[0], scene->params.framerate[1]);
+    ngli_bstr_printf(b, "# aspect_ratio=%d/%d\n", s->params.aspect_ratio[0], s->params.aspect_ratio[1]);
+    ngli_bstr_printf(b, "# framerate=%d/%d\n", s->params.framerate[0], s->params.framerate[1]);
 
     /* Write nodes (1 line = 1 node) */
-    if (serialize(nlist, b, scene->params.root) < 0)
+    if (serialize(nlist, b, s->params.root) < 0)
         goto end;
-    s = ngli_bstr_strdup(b);
+    str = ngli_bstr_strdup(b);
 
 end:
     ngli_hmap_freep(&nlist);
     ngli_bstr_freep(&b);
-    return s;
+    return str;
 }

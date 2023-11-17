@@ -527,7 +527,7 @@ static int set_node_params(struct darray *nodes_array, char *str,
     return 0;
 }
 
-int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
+int ngli_scene_deserialize(struct ngl_scene *s, const char *str)
 {
     int ret = 0;
     struct ngl_node *node = NULL;
@@ -536,16 +536,16 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
 
     ngli_darray_init(&nodes_array, sizeof(struct ngl_node *), 0);
 
-    char *s = ngli_strdup(str);
-    if (!s)
+    char *dupstr = ngli_strdup(str);
+    if (!dupstr)
         return NGL_ERROR_MEMORY;
 
-    char *sstart = s;
-    char *send = s + strlen(s);
+    char *sstart = dupstr;
+    char *send = dupstr + strlen(dupstr);
 
     /* Parse header */
     int major, minor, micro;
-    int n = sscanf(s, "# Nope.GL v%d.%d.%d", &major, &minor, &micro);
+    int n = sscanf(dupstr, "# Nope.GL v%d.%d.%d", &major, &minor, &micro);
     if (n != 3) {
         LOG(ERROR, "invalid serialized scene");
         ret = NGL_ERROR_INVALID_DATA;
@@ -558,16 +558,16 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
         ret = NGL_ERROR_INVALID_DATA;
         goto end;
     }
-    s += strcspn(s, "\n");
-    if (*s == '\n')
-        s++;
+    dupstr += strcspn(dupstr, "\n");
+    if (*dupstr == '\n')
+        dupstr++;
 
     /* Parse metadata: lines following "# key=value" */
-    while (*s == '#') {
+    while (*dupstr == '#') {
         char key[64], value[64];
-        n = sscanf(s, "# %63[^=]=%63[^\n]", key, value);
+        n = sscanf(dupstr, "# %63[^=]=%63[^\n]", key, value);
         if (n != 2) {
-            LOG(ERROR, "unable to parse metadata line \"%s\"", s);
+            LOG(ERROR, "unable to parse metadata line \"%s\"", dupstr);
             ret = NGL_ERROR_INVALID_DATA;
             goto end;
         }
@@ -596,17 +596,17 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
             LOG(WARNING, "unrecognized metadata key \"%s\"", key);
         }
 
-        s += strcspn(s, "\n");
-        if (*s == '\n')
-            s++;
+        dupstr += strcspn(dupstr, "\n");
+        if (*dupstr == '\n')
+            dupstr++;
     }
 
     /* Parse nodes (1 line = 1 node) */
-    while (s < send - 4) {
-        const int type = NGLI_FOURCC(s[0], s[1], s[2], s[3]);
-        s += 4;
-        if (*s == ' ')
-            s++;
+    while (dupstr < send - 4) {
+        const int type = NGLI_FOURCC(dupstr[0], dupstr[1], dupstr[2], dupstr[3]);
+        dupstr += 4;
+        if (*dupstr == ' ')
+            dupstr++;
 
         node = ngl_node_create(type);
         if (!node) {
@@ -622,21 +622,21 @@ int ngli_scene_deserialize(struct ngl_scene *scene, const char *str)
             break;
         }
 
-        size_t eol = strcspn(s, "\n");
-        s[eol] = 0;
+        size_t eol = strcspn(dupstr, "\n");
+        dupstr[eol] = 0;
 
-        int ret = set_node_params(&nodes_array, s, node);
+        int ret = set_node_params(&nodes_array, dupstr, node);
         if (ret < 0) {
             node = NULL;
             break;
         }
 
-        s += eol + 1;
+        dupstr += eol + 1;
     }
 
     if (node) {
         params.root = node;
-        ret = ngl_scene_init(scene, &params);
+        ret = ngl_scene_init(s, &params);
     }
 
     struct ngl_node **nodes = ngli_darray_data(&nodes_array);

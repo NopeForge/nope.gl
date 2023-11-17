@@ -684,9 +684,9 @@ struct node_class {
 };
 
 /* Internal scene API */
-int ngli_scene_deserialize(struct ngl_scene *scene, const char *str);
-char *ngli_scene_serialize(const struct ngl_scene *scene);
-char *ngli_scene_dot(const struct ngl_scene *scene);
+int ngli_scene_deserialize(struct ngl_scene *s, const char *str);
+char *ngli_scene_serialize(const struct ngl_scene *s);
+char *ngli_scene_dot(const struct ngl_scene *s);
 
 void ngli_node_print_specs(void);
 
