@@ -686,7 +686,7 @@ struct node_class {
 };
 
 /* Internal scene API */
-struct ngl_scene *ngli_scene_dup(struct ngl_scene *s);
+struct ngl_scene *ngli_scene_ref(struct ngl_scene *s);
 int ngli_scene_deserialize(struct ngl_scene *s, const char *str);
 char *ngli_scene_serialize(const struct ngl_scene *s);
 char *ngli_scene_dot(const struct ngl_scene *s);
