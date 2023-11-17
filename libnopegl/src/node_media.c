@@ -290,6 +290,14 @@ static const char * const pix_fmt_names[] = {
     [NMD_PIXFMT_YUV444P10LE] = "yuv444p10le",
 };
 
+static const char *get_pix_fmt_name(int pix_fmt)
+{
+    if (pix_fmt < 0 || pix_fmt >= NGLI_ARRAY_NB(pix_fmt_names))
+        return NULL;
+
+    return pix_fmt_names[pix_fmt];
+}
+
 static int media_update(struct ngl_node *node, double t)
 {
     struct media_priv *s = node->priv_data;
@@ -316,9 +324,7 @@ static int media_update(struct ngl_node *node, double t)
     TRACE("get frame from %s at t=%g", node->label, media_time);
     struct nmd_frame *frame = nmd_get_frame(s->player, media_time);
     if (frame) {
-        const char *pix_fmt_str = frame->pix_fmt >= 0 &&
-                                  frame->pix_fmt < NGLI_ARRAY_NB(pix_fmt_names) ? pix_fmt_names[frame->pix_fmt]
-                                                                                : NULL;
+        const char *pix_fmt_str = get_pix_fmt_name(frame->pix_fmt);
         if (o->audio_tex) {
             if (frame->pix_fmt != NMD_SMPFMT_FLT) {
                 LOG(ERROR, "unexpected %s (%d) nope.media frame",
