@@ -351,7 +351,7 @@ static int build_glyph_index(struct text *text, struct hmap *glyph_index, const 
                 continue;
 
             int32_t shape_id;
-            int ret = ngli_distmap_add_shape(s->distmap, shape_w, shape_h, path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id);
+            ret = ngli_distmap_add_shape(s->distmap, shape_w, shape_h, path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id);
             if (ret < 0)
                 goto end;
 
