@@ -53,6 +53,15 @@ struct ngl_scene_params ngl_scene_default_params(struct ngl_node *root)
     return params;
 }
 
+struct ngl_scene *ngli_scene_dup(struct ngl_scene *s)
+{
+    struct ngl_scene *copy = ngli_memdup(s, sizeof(*s));
+    if (!copy)
+        return NULL;
+    attach_root(copy, s->params.root);
+    return copy;
+}
+
 int ngl_scene_init(struct ngl_scene *s, const struct ngl_scene_params *params)
 {
     if (!params->root) {

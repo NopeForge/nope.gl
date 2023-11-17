@@ -230,16 +230,6 @@ static void reset_scene(struct ngl_ctx *s, int action)
     ngli_rnode_reset(&s->rnode);
 }
 
-static struct ngl_scene *scene_copy(struct ngl_scene *s)
-{
-    struct ngl_scene *copy = ngli_calloc(1, sizeof(*copy));
-    if (!copy)
-        return NULL;
-    memcpy(copy, s, sizeof(*copy));
-    copy->params.root = ngl_node_ref(s->params.root);
-    return copy;
-}
-
 int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 {
     int ret = 0;
@@ -264,7 +254,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
             ngli_node_detach_ctx(scene->params.root, s);
             return ret;
         }
-        s->scene = scene_copy(scene);
+        s->scene = ngli_scene_dup(scene);
         if (!s->scene) {
             ret = NGL_ERROR_MEMORY;
             goto fail;
