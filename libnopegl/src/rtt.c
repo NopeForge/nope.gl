@@ -34,6 +34,8 @@ struct rtt_ctx {
     struct ngl_ctx *ctx;
     struct rtt_params params;
 
+    struct texture *color;
+
     struct rendertarget *rt;
     struct rendertarget *rt_resume;
     struct rendertarget *available_rendertargets[2];
@@ -220,6 +222,39 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
     return 0;
 }
 
+int ngli_rtt_from_texture_params(struct rtt_ctx *s, const struct texture_params *params)
+{
+    struct ngl_ctx *ctx = s->ctx;
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+
+    s->color = ngli_texture_create(gpu_ctx);
+    if (!s->color)
+        return NGL_ERROR_MEMORY;
+
+    int ret = ngli_texture_init(s->color, params);
+    if (ret < 0)
+        return ret;
+
+    const struct rtt_params rtt_params = (struct rtt_params) {
+        .width = params->width,
+        .height = params->height,
+        .nb_colors = 1,
+        .colors[0] = {
+            .attachment = s->color,
+            .load_op = NGLI_LOAD_OP_CLEAR,
+            .store_op = NGLI_STORE_OP_STORE,
+        },
+    };
+
+    return ngli_rtt_init(s, &rtt_params);
+}
+
+struct texture *ngli_rtt_get_texture(struct rtt_ctx *s, size_t index)
+{
+    ngli_assert(index < s->params.nb_colors);
+    return s->params.colors[index].attachment;
+}
+
 void ngli_rtt_begin(struct rtt_ctx *s)
 {
     struct ngl_ctx *ctx = s->ctx;
@@ -295,6 +330,7 @@ void ngli_rtt_freep(struct rtt_ctx **sp)
         ngli_texture_freep(&s->ms_colors[i]);
     s->nb_ms_colors = 0;
     ngli_texture_freep(&s->ms_depth);
+    ngli_texture_freep(&s->color);
 
     ngli_freep(sp);
 }
