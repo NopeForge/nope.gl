@@ -24,17 +24,21 @@
 
 #include "rnode.h"
 
+static void reset_child(void *user_arg, void *data)
+{
+    struct rnode *child = data;
+    ngli_rnode_reset(child);
+}
+
 void ngli_rnode_init(struct rnode *s)
 {
     memset(s, 0, sizeof(*s));
     ngli_darray_init(&s->children, sizeof(*s), 0);
+    ngli_darray_set_free_func(&s->children, reset_child, NULL);
 }
 
 void ngli_rnode_reset(struct rnode *s)
 {
-    struct rnode *children = ngli_darray_data(&s->children);
-    for (size_t i = 0; i < ngli_darray_count(&s->children); i++)
-        ngli_rnode_reset(&children[i]);
     ngli_darray_reset(&s->children);
     memset(s, 0, sizeof(*s));
 }
