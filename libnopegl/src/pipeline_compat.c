@@ -317,10 +317,14 @@ int ngli_pipeline_compat_update_dynamic_offsets(struct pipeline_compat *s, const
     return 0;
 }
 
-void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const struct pgcraft_texture_info *info)
+void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index, const struct image *image)
 {
+    if (index == -1)
+        return;
+
+    ngli_assert(index >= 0 && index < s->compat_info->nb_texture_infos);
+    const struct pgcraft_texture_info *info = &s->compat_info->texture_infos[index];
     const struct pgcraft_texture_info_field *fields = info->fields;
-    const struct image *image = info->image;
 
     ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
     ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);

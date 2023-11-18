@@ -89,7 +89,7 @@ struct resource_map {
 };
 
 struct texture_map {
-    const struct pgcraft_texture_info *info;
+    const struct image *image;
     size_t image_rev;
 };
 
@@ -975,10 +975,9 @@ static int renderdisplace_prepare(struct ngl_node *node)
         return ret;
 
     ngli_darray_init(&desc->textures_map, sizeof(struct texture_map), 0);
-    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
-    const struct pgcraft_texture_info *infos = ngli_darray_data(texture_infos_array);
-    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
-        const struct texture_map map = {.info = &infos[i], .image_rev = SIZE_MAX};
+    const struct pgcraft_compat_info *info = ngli_pgcraft_get_compat_info(desc->crafter);
+    for (size_t i = 0; i < info->nb_texture_infos; i++) {
+        const struct texture_map map = {.image = info->images[i], .image_rev = SIZE_MAX};
         if (!ngli_darray_push(&desc->textures_map, &map))
             return NGL_ERROR_MEMORY;
     }
@@ -1245,10 +1244,9 @@ static int rendertexture_prepare(struct ngl_node *node)
         return ret;
 
     ngli_darray_init(&desc->textures_map, sizeof(struct texture_map), 0);
-    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
-    const struct pgcraft_texture_info *infos = ngli_darray_data(texture_infos_array);
-    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
-        const struct texture_map map = {.info = &infos[i], .image_rev = SIZE_MAX};
+    const struct pgcraft_compat_info *info = ngli_pgcraft_get_compat_info(desc->crafter);
+    for (size_t i = 0; i < info->nb_texture_infos; i++) {
+        const struct texture_map map = {.image = info->images[i], .image_rev = SIZE_MAX};
         if (!ngli_darray_push(&desc->textures_map, &map))
             return NGL_ERROR_MEMORY;
     }
@@ -1345,10 +1343,9 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
     if (node->cls->id == NGL_NODE_RENDERTEXTURE || node->cls->id == NGL_NODE_RENDERDISPLACE) {
         struct texture_map *texture_map = ngli_darray_data(&desc->textures_map);
         for (size_t i = 0; i < ngli_darray_count(&desc->textures_map); i++) {
-            const struct pgcraft_texture_info *info = texture_map[i].info;
-            if (texture_map[i].image_rev != info->image->rev) {
-                ngli_pipeline_compat_update_texture_info(pl_compat, info);
-                texture_map[i].image_rev = info->image->rev;
+            if (texture_map[i].image_rev != texture_map[i].image->rev) {
+                ngli_pipeline_compat_update_image(pl_compat, (int32_t)i, texture_map[i].image);
+                texture_map[i].image_rev = texture_map[i].image->rev;
             }
         }
     }

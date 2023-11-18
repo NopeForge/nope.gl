@@ -69,6 +69,7 @@ struct pgcraft {
     struct ngl_ctx *ctx;
 
     struct darray texture_infos; // pgcraft_texture_info
+    struct darray images; // image pointer
     struct pgcraft_compat_info compat_info;
 
     struct bstr *shaders[NGLI_PROGRAM_SHADER_NB];
@@ -424,15 +425,15 @@ static int prepare_texture_infos(struct pgcraft *s, const struct pgcraft_params 
         if (!ngli_darray_push(&s->symbols, texture->name))
             return NGL_ERROR_MEMORY;
 
-        struct pgcraft_texture_info info = {
-            .id        = ngli_darray_count(&s->symbols) - 1,
-            .image     = texture->image,
-        };
+        struct pgcraft_texture_info info = {.id = ngli_darray_count(&s->symbols) - 1};
         int ret = prepare_texture_info_fields(s, params, graphics, texture, &info);
         if (ret < 0)
             return ret;
 
         if (!ngli_darray_push(&s->texture_infos, &info))
+            return NGL_ERROR_MEMORY;
+
+        if (!ngli_darray_push(&s->images, &texture->image))
             return NGL_ERROR_MEMORY;
     }
     return 0;
@@ -1415,6 +1416,7 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
     setup_glsl_info(s);
 
     ngli_darray_init(&s->texture_infos, sizeof(struct pgcraft_texture_info), 0);
+    ngli_darray_init(&s->images, sizeof(struct image *), 0);
 
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     for (size_t i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
@@ -1512,6 +1514,10 @@ int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params)
     if (ret < 0)
         return ret;
 
+    s->compat_info.texture_infos    = ngli_darray_data(&s->texture_infos);
+    s->compat_info.images           = ngli_darray_data(&s->images);
+    s->compat_info.nb_texture_infos = ngli_darray_count(&s->texture_infos);
+
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
     struct ngl_ctx *ctx = s->ctx;
     struct ngl_config *config = &ctx->config;
@@ -1546,10 +1552,6 @@ int32_t ngli_pgcraft_get_block_index(const struct pgcraft *s, const char *name, 
             return i;
     }
     return -1;
-}
-const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s)
-{
-    return &s->texture_infos;
 }
 
 int32_t ngli_pgcraft_get_image_index(const struct pgcraft *s, const char *name)
@@ -1636,6 +1638,7 @@ void ngli_pgcraft_freep(struct pgcraft **sp)
 
     ngli_darray_reset(&s->textures);
     ngli_darray_reset(&s->texture_infos);
+    ngli_darray_reset(&s->images);
     ngli_darray_reset(&s->vert_out_vars);
 
     struct pgcraft_compat_info *compat_info = &s->compat_info;
