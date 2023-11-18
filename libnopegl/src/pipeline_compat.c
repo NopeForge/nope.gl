@@ -472,7 +472,7 @@ static int prepare_bindgroup(struct pipeline_compat *s)
     return 0;
 }
 
-void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances)
+static int prepare_pipeline(struct pipeline_compat *s)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
 
@@ -480,6 +480,17 @@ void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int n
        unmap_buffers(s);
 
     int ret = prepare_bindgroup(s);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances)
+{
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+
+    int ret = prepare_pipeline(s);
     if (ret < 0)
         return;
 
@@ -494,10 +505,7 @@ void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct b
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
 
-    if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
-       unmap_buffers(s);
-
-    int ret = prepare_bindgroup(s);
+    int ret = prepare_pipeline(s);
     if (ret < 0)
         return;
 
@@ -513,10 +521,7 @@ void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
 
-    if (!(gpu_ctx->features & NGLI_FEATURE_BUFFER_MAP_PERSISTENT))
-       unmap_buffers(s);
-
-    int ret = prepare_bindgroup(s);
+    int ret = prepare_pipeline(s);
     if (ret < 0)
         return;
 
