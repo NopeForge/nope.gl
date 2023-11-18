@@ -148,7 +148,6 @@ struct pgcraft_texture_info_field {
 
 struct pgcraft_texture_info {
     size_t id;
-    const struct image *image;
     struct pgcraft_texture_info_field fields[NGLI_INFO_FIELD_NB];
 };
 
@@ -167,6 +166,10 @@ struct pgcraft_compat_info {
     struct block ublocks[NGLI_PROGRAM_SHADER_NB];
     int32_t ubindings[NGLI_PROGRAM_SHADER_NB];
     int32_t uindices[NGLI_PROGRAM_SHADER_NB];
+
+    const struct pgcraft_texture_info *texture_infos;
+    const struct image **images;
+    size_t nb_texture_infos;
 };
 
 struct pgcraft_params {
@@ -198,7 +201,6 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx);
 int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params);
 int32_t ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);
 int32_t ngli_pgcraft_get_block_index(const struct pgcraft *s, const char *name, int stage);
-const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s);
 int32_t ngli_pgcraft_get_image_index(const struct pgcraft *s, const char *name);
 const struct pgcraft_compat_info *ngli_pgcraft_get_compat_info(const struct pgcraft *s);
 const char *ngli_pgcraft_get_symbol_name(const struct pgcraft *s, size_t id);

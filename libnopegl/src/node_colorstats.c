@@ -77,8 +77,8 @@ struct colorstats_priv {
         struct pipeline_compat *pipeline_compat;
         uint32_t wg_count;
         int32_t block_index;
-        const struct pgcraft_texture_info *texture_info;
-        size_t texture_image_rev;
+        const struct image *image;
+        size_t image_rev;
     } waveform;
 
     /* Summary-scale compute */
@@ -169,9 +169,8 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
     if (ret < 0)
         return ret;
 
-    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(s->waveform.crafter);
-    s->waveform.texture_info = ngli_darray_get(texture_infos_array, 0);
-    s->waveform.texture_image_rev = SIZE_MAX;
+    s->waveform.image = &texture_priv->image;
+    s->waveform.image_rev = SIZE_MAX;
 
     s->waveform.block_index = ngli_pgcraft_get_block_index(s->waveform.crafter, block->name, block->stage);
 
@@ -401,13 +400,10 @@ static void colorstats_draw(struct ngl_node *node)
     ngli_pipeline_compat_dispatch(s->init.pipeline_compat, s->init.wg_count, 1, 1);
 
     /* Waveform */
-    const struct image *image = s->waveform.texture_info->image;
-    ngli_assert(image);
-    if (s->waveform.texture_image_rev != image->rev) {
-        ngli_pipeline_compat_update_texture_info(s->waveform.pipeline_compat, s->waveform.texture_info);
-        s->waveform.texture_image_rev = image->rev;
+    if (s->waveform.image_rev != s->waveform.image->rev) {
+        ngli_pipeline_compat_update_image(s->waveform.pipeline_compat, 0, s->waveform.image);
+        s->waveform.image_rev = s->waveform.image->rev;
     }
-
     ngli_pipeline_compat_dispatch(s->waveform.pipeline_compat, s->waveform.wg_count, 1, 1);
 
     /* Summary-scale */

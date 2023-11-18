@@ -60,7 +60,7 @@ int ngli_pipeline_compat_update_vertex_buffer(struct pipeline_compat *s, int32_t
 int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index, const void *value);
 int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t index, const void *value, size_t count);
 int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture);
-void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const struct pgcraft_texture_info *info);
+void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index, const struct image *image);
 int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
 int ngli_pipeline_compat_update_dynamic_offsets(struct pipeline_compat *s, const uint32_t *offsets, size_t nb_offsets);
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances);
