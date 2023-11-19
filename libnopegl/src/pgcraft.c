@@ -421,7 +421,11 @@ static int prepare_texture_infos(struct pgcraft *s, const struct pgcraft_params 
         if (!ngli_darray_push(&s->textures, &params->textures[i]))
             return NGL_ERROR_MEMORY;
 
+        if (!ngli_darray_push(&s->symbols, texture->name))
+            return NGL_ERROR_MEMORY;
+
         struct pgcraft_texture_info info = {
+            .id        = ngli_darray_count(&s->symbols) - 1,
             .image     = texture->image,
         };
         int ret = prepare_texture_info_fields(s, params, graphics, texture, &info);
