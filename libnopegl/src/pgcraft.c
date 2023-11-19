@@ -1552,6 +1552,19 @@ const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s)
     return &s->texture_infos;
 }
 
+int32_t ngli_pgcraft_get_image_index(const struct pgcraft *s, const char *name)
+{
+    const struct darray *array = &s->texture_infos;
+    const struct pgcraft_texture_info *infos = ngli_darray_data(array);
+    for (int32_t i = 0; i < (int32_t)ngli_darray_count(array); i++) {
+        const struct pgcraft_texture_info *info = &infos[i];
+        const char *desc_name = ngli_pgcraft_get_symbol_name(s, info->id);
+        if (!strcmp(desc_name, name))
+            return i;
+    }
+    return -1;
+}
+
 const struct pgcraft_compat_info *ngli_pgcraft_get_compat_info(const struct pgcraft *s)
 {
     return &s->compat_info;
