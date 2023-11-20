@@ -345,6 +345,8 @@ static int rtt_resize(struct ngl_node *node)
 
     struct texture *textures[NGLI_MAX_COLOR_ATTACHMENTS] = {NULL};
     struct texture *depth_texture = NULL;
+    struct rtt_ctx *rtt_ctx = NULL;
+
     for (size_t i = 0; i < o->nb_color_textures; i++) {
         textures[i] = ngli_texture_create(ctx->gpu_ctx);
         if (!textures[i]) {
@@ -379,7 +381,7 @@ static int rtt_resize(struct ngl_node *node)
             goto fail;
     }
 
-    struct rtt_ctx *rtt_ctx = ngli_rtt_create(ctx);
+    rtt_ctx = ngli_rtt_create(ctx);
     if (!rtt_ctx) {
         ret = NGL_ERROR_MEMORY;
         goto fail;
