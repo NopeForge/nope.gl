@@ -291,21 +291,6 @@ static int node_init(struct ngl_node *node)
     return 0;
 }
 
-static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx);
-
-struct ctx_pair {
-    struct ngl_ctx *ctx;
-    struct ngl_ctx *pctx;
-};
-
-static int node_set_children_ctx(void *user_arg, struct ngl_node *parent, struct ngl_node *node)
-{
-    struct ctx_pair *pair = user_arg;
-    struct ngl_ctx *ctx = pair->ctx;
-    struct ngl_ctx *pctx = pair->pctx;
-    return node_set_ctx(node, ctx, pctx);
-}
-
 static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx)
 {
     int ret;
@@ -329,10 +314,13 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_c
         ngli_assert(node->ctx_refcount >= 0);
     }
 
-    struct ctx_pair pair = {.ctx=ctx, .pctx=pctx};
-    ret = ngli_node_children_apply_func(node_set_children_ctx, &pair, node);
-    if (ret < 0)
-        return ret;
+    struct ngl_node **children = ngli_darray_data(&node->children);
+    for (size_t i = 0; i < ngli_darray_count(&node->children); i++) {
+        struct ngl_node *child = children[i];
+        ret = node_set_ctx(child, ctx, pctx);
+        if (ret < 0)
+            return ret;
+    }
 
     if (ctx) {
         node->ctx = ctx;
