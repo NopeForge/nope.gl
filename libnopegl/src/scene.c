@@ -304,29 +304,28 @@ static const struct livectl *get_internal_livectl(const struct ngl_node *node)
     return ctl;
 }
 
-static int find_livectls(struct hmap *hm, struct ngl_node *node)
+static int find_livectls(struct ngl_scene *scene, struct hmap *hm)
 {
-    if (node->cls->flags & NGLI_NODE_FLAG_LIVECTL) {
-        const struct livectl *ref_ctl = get_internal_livectl(node);
-        if (ref_ctl->id) {
-            const struct ngl_node *ctl_node = ngli_hmap_get_str(hm, ref_ctl->id);
-            if (ctl_node) {
-                if (ctl_node != node) {
-                    LOG(ERROR, "duplicated live control with name \"%s\"", ref_ctl->id);
-                    return NGL_ERROR_INVALID_USAGE;
-                }
-                return 0;
-            }
-            int ret = ngli_hmap_set_str(hm, ref_ctl->id, (void *)node);
-            if (ret < 0)
-                return ret;
-        }
-    }
+    const struct ngl_node **nodes = ngli_darray_data(&scene->nodes);
+    for (size_t i = 0; i < ngli_darray_count(&scene->nodes); i++) {
+        const struct ngl_node *node = nodes[i];
+        if (!(node->cls->flags & NGLI_NODE_FLAG_LIVECTL))
+            continue;
 
-    struct ngl_node **children = ngli_darray_data(&node->children);
-    for (size_t i = 0; i < ngli_darray_count(&node->children); i++) {
-        struct ngl_node *child = children[i];
-        int ret = find_livectls(hm, child);
+        const struct livectl *ref_ctl = get_internal_livectl(node);
+        if (!ref_ctl->id)
+            continue;
+
+        const struct ngl_node *ctl_node = ngli_hmap_get_str(hm, ref_ctl->id);
+        if (ctl_node) {
+            if (ctl_node != node) {
+                LOG(ERROR, "duplicated live control with name \"%s\"", ref_ctl->id);
+                return NGL_ERROR_INVALID_USAGE;
+            }
+            ngli_assert(0); // scene->nodes is a set so each node is supposed to be present only once
+        }
+
+        int ret = ngli_hmap_set_str(hm, ref_ctl->id, (void *)node);
         if (ret < 0)
             return ret;
     }
@@ -347,7 +346,7 @@ int ngl_livectls_get(struct ngl_scene *scene, size_t *nb_livectlsp, struct ngl_l
     if (!livectls_index)
         return NGL_ERROR_MEMORY;
 
-    int ret = find_livectls(livectls_index, scene->params.root);
+    int ret = find_livectls(scene, livectls_index);
     if (ret < 0)
         goto end;
 
