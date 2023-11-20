@@ -249,6 +249,12 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
             goto fail;
         }
 
+        if (scene->params.root->ctx) {
+            LOG(ERROR, "the specified scene is already associated with a rendering context");
+            ret = NGL_ERROR_INVALID_USAGE;
+            goto fail;
+        }
+
         ret = ngli_node_attach_ctx(scene->params.root, s);
         if (ret < 0) {
             ngli_node_detach_ctx(scene->params.root, s);

@@ -317,12 +317,7 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_c
      */
     ngli_assert(!ctx || ctx == pctx);
 
-    if (ctx) {
-        if (node->ctx && node->ctx != ctx) {
-            LOG(ERROR, "\"%s\" is associated with another rendering context", node->label);
-            return NGL_ERROR_INVALID_USAGE;
-        }
-    } else {
+    if (!ctx) {
         if (node->state > STATE_UNINITIALIZED) {
             if (node->ctx != pctx)
                 return 0;
