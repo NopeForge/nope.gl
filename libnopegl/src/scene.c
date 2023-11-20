@@ -287,6 +287,9 @@ int ngl_livectls_get(struct ngl_scene *scene, size_t *nb_livectlsp, struct ngl_l
     *livectlsp = NULL;
     *nb_livectlsp = 0;
 
+    if (!scene->params.root)
+        return 0;
+
     struct hmap *livectls_index = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!livectls_index)
         return NGL_ERROR_MEMORY;
