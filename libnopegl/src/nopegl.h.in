@@ -138,6 +138,9 @@ NGL_API struct ngl_scene *ngl_scene_create(void);
  * The reference counter of the root node will be incremented for the scene
  * lifetime, or until another scene replaces it.
  *
+ * This function is re-entrant as long as the scene currently held is not
+ * associated with a rendering context.
+ *
  * @param s      pointer to the scene to initialize
  * @param params pointer to the scene parameters
  *
@@ -158,6 +161,9 @@ NGL_API const struct ngl_scene_params *ngl_scene_get_params(const struct ngl_sce
 
 /**
  * De-serialize a scene from a string.
+ *
+ * This function is re-entrant as long as the scene currently held is not
+ * associated with a rendering context.
  *
  * @param s   pointer to the scene
  * @param str string in nope.gl serialized format.

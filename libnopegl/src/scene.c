@@ -41,6 +41,8 @@ static int reset_nodes(void *user_arg, struct ngl_node *parent, struct ngl_node 
     if (node->scene != s)
         return 0;
 
+    ngli_assert(!node->ctx);
+
     int ret = ngli_node_children_apply_func(reset_nodes, s, node);
     ngli_assert(ret == 0);
 
@@ -141,6 +143,11 @@ int ngl_scene_init(struct ngl_scene *s, const struct ngl_scene_params *params)
     if (params->aspect_ratio[0] <= 0 || params->aspect_ratio[1] <= 0) {
         LOG(ERROR, "invalid aspect ratio %d:%d", NGLI_ARG_VEC2(params->aspect_ratio));
         return NGL_ERROR_INVALID_ARG;
+    }
+
+    if (s->params.root && s->params.root->ctx) {
+        LOG(ERROR, "the node graph currently held within the scene is associated with a rendering context");
+        return NGL_ERROR_INVALID_USAGE;
     }
 
     detach_root(s);
