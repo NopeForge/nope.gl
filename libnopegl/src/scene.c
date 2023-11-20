@@ -97,7 +97,6 @@ int ngl_scene_init(struct ngl_scene *s, const struct ngl_scene_params *params)
 
 int ngl_scene_init_from_str(struct ngl_scene *s, const char *str)
 {
-    detach_root(s);
     return ngli_scene_deserialize(s, str);
 }
 
