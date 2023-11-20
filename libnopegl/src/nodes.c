@@ -180,8 +180,6 @@ static void node_uninit(struct ngl_node *node)
         return;
 
     ngli_assert(node->ctx);
-    ngli_darray_reset(&node->children);
-    ngli_darray_reset(&node->parents);
     node_release(node);
 
     if (node->cls->uninit) {
@@ -244,15 +242,6 @@ int ngli_node_children_apply_func(ngli_children_func_type func, void *user_arg, 
     return 0;
 }
 
-static int track_children(void *user_arg, struct ngl_node *parent, struct ngl_node *node)
-{
-    if (!ngli_darray_push(&parent->children, &node))
-        return NGL_ERROR_MEMORY;
-    if (!ngli_darray_push(&node->parents, &parent))
-        return NGL_ERROR_MEMORY;
-    return 0;
-}
-
 static int check_params_sanity(struct ngl_node *node)
 {
     const uint8_t *base_ptr = node->opts;
@@ -281,16 +270,6 @@ static int node_init(struct ngl_node *node)
     int ret = check_params_sanity(node);
     if (ret < 0)
         return ret;
-
-    ngli_darray_init(&node->children, sizeof(struct ngl_node *), 0);
-    ngli_darray_init(&node->parents, sizeof(struct ngl_node *), 0);
-
-    ret = ngli_node_children_apply_func(track_children, NULL, node);
-    if (ret < 0) {
-        node->state = STATE_INIT_FAILED;
-        node_uninit(node);
-        return ret;
-    }
 
     ngli_assert(node->ctx);
     if (node->cls->init) {
