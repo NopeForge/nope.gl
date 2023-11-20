@@ -251,10 +251,8 @@ static const struct livectl *get_internal_livectl(const struct ngl_node *node)
     return ctl;
 }
 
-static int find_livectls(void *user_arg, struct ngl_node *parent, struct ngl_node *node)
+static int find_livectls(struct hmap *hm, struct ngl_node *node)
 {
-    struct hmap *hm = user_arg;
-
     if (node->cls->flags & NGLI_NODE_FLAG_LIVECTL) {
         const struct livectl *ref_ctl = get_internal_livectl(node);
         if (ref_ctl->id) {
@@ -272,7 +270,15 @@ static int find_livectls(void *user_arg, struct ngl_node *parent, struct ngl_nod
         }
     }
 
-    return children_apply_func(find_livectls, hm, node);
+    struct ngl_node **children = ngli_darray_data(&node->children);
+    for (size_t i = 0; i < ngli_darray_count(&node->children); i++) {
+        struct ngl_node *child = children[i];
+        int ret = find_livectls(hm, child);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
 }
 
 int ngl_livectls_get(struct ngl_scene *scene, size_t *nb_livectlsp, struct ngl_livectl **livectlsp)
@@ -285,7 +291,7 @@ int ngl_livectls_get(struct ngl_scene *scene, size_t *nb_livectlsp, struct ngl_l
     if (!livectls_index)
         return NGL_ERROR_MEMORY;
 
-    int ret = find_livectls(livectls_index, NULL, scene->params.root);
+    int ret = find_livectls(livectls_index, scene->params.root);
     if (ret < 0)
         goto end;
 
