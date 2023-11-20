@@ -709,9 +709,6 @@ int ngli_node_children_apply_func(ngli_children_func_type func, void *user_arg, 
 int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 
-int ngli_node_livectls_get(const struct ngl_scene *scene, size_t *nb_livectlsp, struct ngl_livectl **livectlsp);
-void ngli_node_livectls_freep(struct ngl_livectl **livectlsp);
-
 char *ngli_node_default_label(const char *class_name);
 int ngli_is_default_label(const char *class_name, const char *str);
 const struct node_param *ngli_node_param_find(const struct ngl_node *node, const char *key,
