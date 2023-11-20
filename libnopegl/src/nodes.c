@@ -191,57 +191,6 @@ static void node_uninit(struct ngl_node *node)
     node->visit_time = -1.;
 }
 
-/*
- * Apply a function on all children by walking through them. This is useful when
- * node->children is not yet initialized (or confirmed to be complete yet).
- */
-int ngli_node_children_apply_func(ngli_children_func_type func, void *user_arg, struct ngl_node *node)
-{
-    uint8_t *base_ptr = node->opts;
-    const struct node_param *par = node->cls->params;
-
-    if (!par)
-        return 0;
-
-    while (par->key) {
-        uint8_t *parp = base_ptr + par->offset;
-
-        if (par->type == NGLI_PARAM_TYPE_NODE || (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)) {
-            struct ngl_node *child = *(struct ngl_node **)parp;
-            if (child) {
-                int ret = func(user_arg, node, child);
-                if (ret < 0)
-                    return ret;
-            }
-        } else if (par->type == NGLI_PARAM_TYPE_NODELIST) {
-            uint8_t *elems_p = parp;
-            uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
-            struct ngl_node **elems = *(struct ngl_node ***)elems_p;
-            const size_t nb_elems = *(size_t *)nb_elems_p;
-            for (size_t i = 0; i < nb_elems; i++) {
-                struct ngl_node *child = elems[i];
-                int ret = func(user_arg, node, child);
-                if (ret < 0)
-                    return ret;
-            }
-        } else if (par->type == NGLI_PARAM_TYPE_NODEDICT) {
-            struct hmap *hmap = *(struct hmap **)parp;
-            if (hmap) {
-                const struct hmap_entry *entry = NULL;
-                while ((entry = ngli_hmap_next(hmap, entry))) {
-                    struct ngl_node *child = entry->data;
-                    int ret = func(user_arg, node, child);
-                    if (ret < 0)
-                        return ret;
-                }
-            }
-        }
-        par++;
-    }
-
-    return 0;
-}
-
 static int check_params_sanity(struct ngl_node *node)
 {
     const uint8_t *base_ptr = node->opts;

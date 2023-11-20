@@ -703,9 +703,6 @@ void *ngli_node_get_data_ptr(struct ngl_node *var_node, void *data_fallback);
 int ngli_prepare_draw(struct ngl_ctx *s, double t);
 void ngli_node_draw(struct ngl_node *node);
 
-typedef int (*ngli_children_func_type)(void *user_arg, struct ngl_node *parent, struct ngl_node *node);
-int ngli_node_children_apply_func(ngli_children_func_type func, void *user_arg, struct ngl_node *node);
-
 int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 
