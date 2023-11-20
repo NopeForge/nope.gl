@@ -187,6 +187,7 @@ struct ngl_node {
 struct ngl_scene {
     struct ngli_rc rc;
     struct ngl_scene_params params;
+    struct darray nodes; // set of all the nodes in the graph
 };
 
 #define TRANSFORM_TYPES_LIST (const uint32_t[]){NGL_NODE_ROTATE,    \

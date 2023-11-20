@@ -21,6 +21,7 @@
 
 #include <string.h>
 
+#include "hmap.h"
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
@@ -114,6 +115,8 @@ static void detach_root(struct ngl_scene *s)
     if (!s->params.root)
         return;
 
+    ngli_darray_reset(&s->nodes);
+
     int ret = reset_nodes(s, NULL, s->params.root);
     ngli_assert(ret == 0);
 
@@ -150,11 +153,61 @@ static int setup_nodes(void *user_arg, struct ngl_node *parent, struct ngl_node 
     return 0;
 }
 
+static int track_nodes(struct hmap *nodes_set, struct ngl_node *node)
+{
+    const uint64_t key = (uint64_t)(uintptr_t)node;
+    if (!ngli_hmap_get_u64(nodes_set, key)) {
+        int ret = ngli_hmap_set_u64(nodes_set, key, node);
+        if (ret < 0)
+            return ret;
+    }
+
+    struct darray *children_array = &node->children;
+    struct ngl_node **children = ngli_darray_data(children_array);
+    for (size_t i = 0; i < ngli_darray_count(children_array); i++) {
+        int ret = track_nodes(nodes_set, children[i]);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
+}
+
+static int build_nodes_set(struct ngl_scene *s)
+{
+    struct hmap *nodes_set = ngli_hmap_create(NGLI_HMAP_TYPE_U64);
+    if (!nodes_set)
+        return NGL_ERROR_MEMORY;
+
+    int ret = track_nodes(nodes_set, s->params.root);
+    if (ret < 0)
+        goto end;
+
+    // Transfer the nodes set to a flat darray set of nodes
+    ngli_darray_init(&s->nodes, sizeof(struct ngl_node *), 0);
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(nodes_set, entry))) {
+        const struct ngl_node *node = entry->data;
+        if (!ngli_darray_push(&s->nodes, &node)) {
+            ret = NGL_ERROR_MEMORY;
+            goto end;
+        }
+    }
+
+end:
+    ngli_hmap_freep(&nodes_set);
+    return ret;
+}
+
 static int attach_root(struct ngl_scene *s, struct ngl_node *node)
 {
     s->params.root = ngl_node_ref(node);
 
     int ret = setup_nodes(s, NULL, s->params.root);
+    if (ret < 0)
+        return ret;
+
+    ret = build_nodes_set(s);
     if (ret < 0)
         return ret;
 
