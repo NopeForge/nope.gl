@@ -476,15 +476,17 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
 
 int ngli_ctx_dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg)
 {
+    int ret = 0;
     pthread_mutex_lock(&s->lock);
     s->cmd_func = cmd_func;
     s->cmd_arg = arg;
     pthread_cond_signal(&s->cond_wkr);
     while (s->cmd_func)
         pthread_cond_wait(&s->cond_ctl, &s->lock);
+    ret = s->cmd_ret;
     pthread_mutex_unlock(&s->lock);
 
-    return s->cmd_ret;
+    return ret;
 }
 
 static void *worker_thread(void *arg)
