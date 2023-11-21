@@ -353,7 +353,7 @@ static int track_children_per_types(struct hmap *map, struct ngl_node *node, uin
         int ret = snprintf(key, sizeof(key), "%p", node);
         if (ret < 0)
             return ret;
-        ret = ngli_hmap_set(map, key, node);
+        ret = ngli_hmap_set_str(map, key, node);
         if (ret < 0)
             return ret;
     }
@@ -375,7 +375,7 @@ static int make_nodes_set(struct ngl_scene *scene, struct darray *nodes_list, co
         return 0;
 
     /* construct a set of the nodes of a given type(s) */
-    struct hmap *nodes_set = ngli_hmap_create();
+    struct hmap *nodes_set = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!nodes_set)
         return NGL_ERROR_MEMORY;
     for (size_t n = 0; node_types[n] != NGLI_NODE_NONE; n++) {

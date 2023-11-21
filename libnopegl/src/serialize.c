@@ -48,7 +48,7 @@ static int register_node(struct hmap *nlist,
     char *val = ngli_asprintf("%zx", ngli_hmap_count(nlist));
     if (!val)
         return NGL_ERROR_MEMORY;
-    ret = ngli_hmap_set(nlist, key, val);
+    ret = ngli_hmap_set_str(nlist, key, val);
     if (ret < 0)
         ngli_free(val);
     return ret;
@@ -58,7 +58,7 @@ static int get_node_id(const struct hmap *nlist, const struct ngl_node *node)
 {
     char key[32];
     (void)snprintf(key, sizeof(key), "%p", node);
-    const char *val = ngli_hmap_get(nlist, key);
+    const char *val = ngli_hmap_get_str(nlist, key);
     return val ? (int)strtol(val, NULL, 16) : -1;
 }
 
@@ -116,7 +116,7 @@ static int hmap_to_sorted_items(struct darray *items_array, struct hmap *hm)
 {
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(hm, entry))) {
-        struct item item = {.key = entry->key, .data = entry->data};
+        struct item item = {.key = entry->key.str, .data = entry->data};
         if (!ngli_darray_push(items_array, &item))
             return NGL_ERROR_MEMORY;
     }
@@ -489,7 +489,7 @@ static int serialize(struct hmap *nlist,
 char *ngli_scene_serialize(const struct ngl_scene *s)
 {
     char *str = NULL;
-    struct hmap *nlist = ngli_hmap_create();
+    struct hmap *nlist = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     struct bstr *b = ngli_bstr_create();
     if (!nlist || !b)
         goto end;

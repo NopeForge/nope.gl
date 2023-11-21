@@ -94,7 +94,7 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
 
     const struct pass_params *params = &s->params;
     if (params->properties) {
-        struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
+        struct ngl_node *resprops_node = ngli_hmap_get_str(params->properties, name);
         if (resprops_node) {
             const struct resourceprops_opts *resprops = resprops_node->opts;
             crafter_uniform.precision = resprops->precision;
@@ -165,7 +165,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
 
     const struct pass_params *params = &s->params;
     if (params->properties) {
-        const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
+        const struct ngl_node *resprops_node = ngli_hmap_get_str(params->properties, name);
         if (resprops_node) {
             const struct resourceprops_opts *resprops = resprops_node->opts;
             if (resprops->as_image) {
@@ -227,7 +227,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     int writable = 0;
     const struct pass_params *params = &s->params;
     if (params->properties) {
-        const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
+        const struct ngl_node *resprops_node = ngli_hmap_get_str(params->properties, name);
         if (resprops_node) {
             const struct resourceprops_opts *resprops = resprops_node->opts;
             if (resprops->writable)
@@ -281,20 +281,20 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
         if (per_instance) {
             if (buffer->layout.count != s->params.nb_instances) {
                 LOG(ERROR, "attribute buffer %s count (%zu) does not match instance count (%d)",
-                    entry->key, buffer->layout.count, s->params.nb_instances);
+                    entry->key.str, buffer->layout.count, s->params.nb_instances);
                 return NGL_ERROR_INVALID_ARG;
             }
         } else {
             if (geometry->indices_buffer) {
                 if (max_indices >= buffer->layout.count) {
                     LOG(ERROR, "indices buffer contains values exceeding attribute buffer %s count (%" PRId64 " >= %zu)",
-                        entry->key, max_indices, buffer->layout.count);
+                        entry->key.str, max_indices, buffer->layout.count);
                     return NGL_ERROR_INVALID_ARG;
                 }
             } else {
                 if (buffer->layout.count != nb_vertices) {
                     LOG(ERROR, "attribute buffer %s count (%zu) does not match vertices count (%zu)",
-                        entry->key, buffer->layout.count, nb_vertices);
+                        entry->key.str, buffer->layout.count, nb_vertices);
                     return NGL_ERROR_INVALID_ARG;
                 }
             }
@@ -320,7 +320,7 @@ static int register_attribute_from_buffer(struct pass *s, const char *name,
 
     const struct pass_params *params = &s->params;
     if (params->properties) {
-        const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
+        const struct ngl_node *resprops_node = ngli_hmap_get_str(params->properties, name);
         if (resprops_node) {
             const struct resourceprops_opts *resprops = resprops_node->opts;
             crafter_attribute.precision = resprops->precision;
@@ -355,7 +355,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
 
     const struct pass_params *params = &s->params;
     if (params->properties) {
-        const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
+        const struct ngl_node *resprops_node = ngli_hmap_get_str(params->properties, name);
         if (resprops_node) {
             const struct resourceprops_opts *resprops = resprops_node->opts;
             crafter_attribute.precision = resprops->precision;
@@ -391,7 +391,7 @@ static int register_resources(struct pass *s, const struct hmap *resources, int 
 
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(resources, entry))) {
-        int ret = register_resource(s, entry->key, entry->data, stage);
+        int ret = register_resource(s, entry->key.str, entry->data, stage);
         if (ret < 0)
             return ret;
     }
@@ -432,7 +432,7 @@ static int pass_graphics_init(struct pass *s)
     if (params->attributes) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(params->attributes, entry))) {
-            int ret = register_attribute(s, entry->key, entry->data, 0);
+            int ret = register_attribute(s, entry->key.str, entry->data, 0);
             if (ret < 0)
                 return ret;
         }
@@ -441,7 +441,7 @@ static int pass_graphics_init(struct pass *s)
     if (params->instance_attributes) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(params->instance_attributes, entry))) {
-            int ret = register_attribute(s, entry->key, entry->data, 1);
+            int ret = register_attribute(s, entry->key.str, entry->data, 1);
             if (ret < 0)
                 return ret;
         }
@@ -514,7 +514,7 @@ static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
         const char *name = ngli_pgcraft_get_symbol_name(desc->crafter, entry->id);
         const int32_t index = ngli_pgcraft_get_block_index(desc->crafter, name, entry->stage);
 
-        const struct ngl_node *node = ngli_hmap_get(resources, name);
+        const struct ngl_node *node = ngli_hmap_get_str(resources, name);
         if (!node)
             continue;
 

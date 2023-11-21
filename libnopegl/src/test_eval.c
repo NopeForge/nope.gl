@@ -168,14 +168,14 @@ end:
 int main(int ac, char **av)
 {
 
-    struct hmap *vars = ngli_hmap_create();
+    struct hmap *vars = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!vars)
         return 1;
 
     int ret;
-    if ((ret = ngli_hmap_set(vars, "x", (void *)&vars_data[0])) < 0 ||
-        (ret = ngli_hmap_set(vars, "y", (void *)&vars_data[1])) < 0 ||
-        (ret = ngli_hmap_set(vars, "z", (void *)&vars_data[2])) < 0)
+    if ((ret = ngli_hmap_set_str(vars, "x", (void *)&vars_data[0])) < 0 ||
+        (ret = ngli_hmap_set_str(vars, "y", (void *)&vars_data[1])) < 0 ||
+        (ret = ngli_hmap_set_str(vars, "z", (void *)&vars_data[2])) < 0)
         goto end;
 
     size_t failed = 0;

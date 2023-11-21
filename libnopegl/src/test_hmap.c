@@ -30,8 +30,8 @@
     printf(__VA_ARGS__);                                        \
     const struct hmap_entry *e = NULL;                          \
     while ((e = ngli_hmap_next(hm, e)))                         \
-        printf("  %08X %s: %s\n", ngli_crc32(e->key),           \
-               e->key, (const char *)e->data);                  \
+        printf("  %08X %s: %s\n", ngli_crc32(e->key.str),       \
+               e->key.str, (const char *)e->data);              \
     printf("\n");                                               \
 } while (0)
 
@@ -70,7 +70,7 @@ static void check_order(const struct hmap *hm)
     size_t last_index = SIZE_MAX;
     const struct hmap_entry *e = NULL;
     while ((e = ngli_hmap_next(hm, e))) {
-        const size_t index = get_key_index(e->key);
+        const size_t index = get_key_index(e->key.str);
         ngli_assert(last_index == SIZE_MAX || index > last_index);
         last_index = index;
     }
@@ -78,12 +78,12 @@ static void check_order(const struct hmap *hm)
 
 static int test_bucket_delete_reuse(void)
 {
-    struct hmap *hm = ngli_hmap_create();
+    struct hmap *hm = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!hm)
         return -1;
-    ngli_hmap_set(hm, "foo", "bar");
-    ngli_hmap_set(hm, "foo", NULL);
-    ngli_hmap_set(hm, "foo", "bar");
+    ngli_hmap_set_str(hm, "foo", "bar");
+    ngli_hmap_set_str(hm, "foo", NULL);
+    ngli_hmap_set_str(hm, "foo", "bar");
     ngli_hmap_freep(&hm);
     return 0;
 }
@@ -97,7 +97,7 @@ int main(void)
         return 1;
 
     for (int custom_alloc = 0; custom_alloc <= 1; custom_alloc++) {
-        struct hmap *hm = ngli_hmap_create();
+        struct hmap *hm = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
 
         if (custom_alloc)
             ngli_hmap_set_free_func(hm, free_func, NULL);
@@ -105,8 +105,8 @@ int main(void)
         /* Test addition */
         for (size_t i = 0; i < NGLI_ARRAY_NB(kvs); i++) {
             void *data = custom_alloc ? ngli_strdup(kvs[i].val) : (void*)kvs[i].val;
-            ngli_assert(ngli_hmap_set(hm, kvs[i].key, data) >= 0);
-            const char *val = ngli_hmap_get(hm, kvs[i].key);
+            ngli_assert(ngli_hmap_set_str(hm, kvs[i].key, data) >= 0);
+            const char *val = ngli_hmap_get_str(hm, kvs[i].key);
             ngli_assert(val);
             ngli_assert(!strcmp(val, kvs[i].val));
             check_order(hm);
@@ -120,8 +120,8 @@ int main(void)
             /* Test replace */
             if (i & 1) {
                 void *data = custom_alloc ? ngli_strdup(RSTR) : RSTR;
-                ngli_assert(ngli_hmap_set(hm, kvs[i].key, data) == 0);
-                const char *val = ngli_hmap_get(hm, kvs[i].key);
+                ngli_assert(ngli_hmap_set_str(hm, kvs[i].key, data) == 0);
+                const char *val = ngli_hmap_get_str(hm, kvs[i].key);
                 ngli_assert(val);
                 ngli_assert(strcmp(val, RSTR) == 0);
                 PRINT_HMAP("replace %s:\n", kvs[i].key);
@@ -129,8 +129,8 @@ int main(void)
             }
 
             /* Test delete */
-            ngli_assert(ngli_hmap_set(hm, kvs[i].key, NULL) == 1);
-            ngli_assert(ngli_hmap_set(hm, kvs[i].key, NULL) == 0);
+            ngli_assert(ngli_hmap_set_str(hm, kvs[i].key, NULL) == 1);
+            ngli_assert(ngli_hmap_set_str(hm, kvs[i].key, NULL) == 0);
             PRINT_HMAP("drop %s (%zu remaining):\n", kvs[i].key, ngli_hmap_count(hm));
             check_order(hm);
         }

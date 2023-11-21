@@ -41,8 +41,8 @@ static void reset_cached_frag_map(void *user_arg, void *data)
 int ngli_pgcache_init(struct pgcache *s, struct gpu_ctx *gpu_ctx)
 {
     s->gpu_ctx = gpu_ctx;
-    s->graphics_cache = ngli_hmap_create();
-    s->compute_cache = ngli_hmap_create();
+    s->graphics_cache = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
+    s->compute_cache = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!s->graphics_cache || !s->compute_cache)
         return NGL_ERROR_MEMORY;
     ngli_hmap_set_free_func(s->graphics_cache, reset_cached_frag_map, s);
@@ -56,7 +56,7 @@ static int query_cache(struct pgcache *s, struct program **dstp,
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
 
-    struct program *cached_program = ngli_hmap_get(cache, cache_key);
+    struct program *cached_program = ngli_hmap_get_str(cache, cache_key);
     if (cached_program) {
         /* make sure the cached program has not been reset by the user */
         ngli_assert(cached_program->gpu_ctx);
@@ -76,7 +76,7 @@ static int query_cache(struct pgcache *s, struct program **dstp,
         return ret;
     }
 
-    ret = ngli_hmap_set(cache, cache_key, new_program);
+    ret = ngli_hmap_set_str(cache, cache_key, new_program);
     if (ret < 0) {
         ngli_program_freep(&new_program);
         return ret;
@@ -93,14 +93,14 @@ int ngli_pgcache_get_graphics_program(struct pgcache *s, struct program **dstp, 
      * do is basically graphics_cache[vert][frag] to obtain the program. If the
      * 2nd hmap is not yet allocated, we do create a new one here.
      */
-    struct hmap *frag_map = ngli_hmap_get(s->graphics_cache, params->vertex);
+    struct hmap *frag_map = ngli_hmap_get_str(s->graphics_cache, params->vertex);
     if (!frag_map) {
-        frag_map = ngli_hmap_create();
+        frag_map = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
         if (!frag_map)
             return NGL_ERROR_MEMORY;
         ngli_hmap_set_free_func(frag_map, reset_cached_program, s);
 
-        int ret = ngli_hmap_set(s->graphics_cache, params->vertex, frag_map);
+        int ret = ngli_hmap_set_str(s->graphics_cache, params->vertex, frag_map);
         if (ret < 0) {
             ngli_hmap_freep(&frag_map);
             return NGL_ERROR_MEMORY;

@@ -216,7 +216,7 @@ static int text_builtin_init(struct text *text)
 
     char atlas_uid[32];
     snprintf(atlas_uid, sizeof(atlas_uid), "%d", size);
-    struct text_builtin_atlas *atlas = ngli_hmap_get(text->ctx->text_builtin_atlasses, atlas_uid);
+    struct text_builtin_atlas *atlas = ngli_hmap_get_str(text->ctx->text_builtin_atlasses, atlas_uid);
     if (!atlas) {
         atlas = ngli_calloc(1, sizeof(*atlas));
         if (!atlas)
@@ -228,7 +228,7 @@ static int text_builtin_init(struct text *text)
             return ret;
         }
 
-        ret = ngli_hmap_set(text->ctx->text_builtin_atlasses, atlas_uid, atlas);
+        ret = ngli_hmap_set_str(text->ctx->text_builtin_atlasses, atlas_uid, atlas);
         if (ret < 0) {
             ngli_free_text_builtin_atlas(NULL, atlas);
             return ret;

@@ -91,7 +91,7 @@ static struct program_variable_info *program_variable_info_create()
 
 static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
 {
-    struct hmap *umap = ngli_hmap_create();
+    struct hmap *umap = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!umap)
         return NULL;
     ngli_hmap_set_free_func(umap, free_pinfo, NULL);
@@ -123,7 +123,7 @@ static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
         LOG(DEBUG, "uniform[%d/%d]: %s location:%d binding=%d",
             i + 1, nb_active_uniforms, name, info->location, info->binding);
 
-        int ret = ngli_hmap_set(umap, name, info);
+        int ret = ngli_hmap_set_str(umap, name, info);
         if (ret < 0) {
             free_pinfo(NULL, info);
             ngli_hmap_freep(&umap);
@@ -136,7 +136,7 @@ static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
 
 static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
 {
-    struct hmap *amap = ngli_hmap_create();
+    struct hmap *amap = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!amap)
         return NULL;
     ngli_hmap_set_free_func(amap, free_pinfo, NULL);
@@ -158,7 +158,7 @@ static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
         LOG(DEBUG, "attribute[%d/%d]: %s location:%d",
             i + 1, nb_active_attributes, name, info->location);
 
-        int ret = ngli_hmap_set(amap, name, info);
+        int ret = ngli_hmap_set_str(amap, name, info);
         if (ret < 0) {
             free_pinfo(NULL, info);
             ngli_hmap_freep(&amap);
@@ -171,7 +171,7 @@ static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
 
 static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid)
 {
-    struct hmap *bmap = ngli_hmap_create();
+    struct hmap *bmap = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!bmap)
         return NULL;
     ngli_hmap_set_free_func(bmap, free_pinfo, NULL);
@@ -198,7 +198,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         LOG(DEBUG, "ubo[%d/%d]: %s binding:%d size:%d",
             i + 1, nb_active_uniform_buffers, name, info->binding, block_size);
 
-        int ret = ngli_hmap_set(bmap, name, info);
+        int ret = ngli_hmap_set_str(bmap, name, info);
         if (ret < 0) {
             free_pinfo(NULL, info);
             ngli_hmap_freep(&bmap);
@@ -231,7 +231,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         LOG(DEBUG, "ssbo[%d/%d]: %s binding:%d",
             i + 1, nb_active_buffers, name, info->binding);
 
-        int ret = ngli_hmap_set(bmap, name, info);
+        int ret = ngli_hmap_set_str(bmap, name, info);
         if (ret < 0) {
             free_pinfo(NULL, info);
             ngli_hmap_freep(&bmap);

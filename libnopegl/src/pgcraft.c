@@ -1169,7 +1169,7 @@ static int filter_pipeline_elems(struct pgcraft *s,
                 LOG(ERROR, "block name \"%s\" is too long", name);
                 return NGL_ERROR_MEMORY;
             }
-            const struct program_variable_info *info = ngli_hmap_get(info_map, resource_name);
+            const struct program_variable_info *info = ngli_hmap_get_str(info_map, resource_name);
             if (!info)
                 continue;
         }
@@ -1201,7 +1201,7 @@ static int filter_pipeline_vertex_buffers(struct pgcraft *s)
         for (size_t j = 0; j < layout->nb_attributes; j++) {
             const struct vertex_attribute *attribute = &layout->attributes[j];
             const char *attribute_name = ngli_pgcraft_get_symbol_name(s, attribute->id);
-            if (s->program->attributes && !ngli_hmap_get(s->program->attributes, attribute_name))
+            if (s->program->attributes && !ngli_hmap_get_str(s->program->attributes, attribute_name))
                 continue;
             filtered_layout.attributes[filtered_layout.nb_attributes++] = *attribute;
         }

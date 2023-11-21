@@ -307,7 +307,7 @@ static int build_glyph_index(struct text *text, struct hmap *glyph_index, const 
              */
             const hb_codepoint_t glyph_id = glyph_infos[j].codepoint;
             const char glyph_uid[] = GLYPH_UID_STRING(run->face_id, glyph_id);
-            if (ngli_hmap_get(glyph_index, glyph_uid))
+            if (ngli_hmap_get_str(glyph_index, glyph_uid))
                 continue;
 
             /*
@@ -368,7 +368,7 @@ static int build_glyph_index(struct text *text, struct hmap *glyph_index, const 
             glyph->bearing_x = (int32_t)ft_ctx.cbox.xMin;
             glyph->bearing_y = (int32_t)ft_ctx.cbox.yMin;
 
-            ret = ngli_hmap_set(glyph_index, glyph_uid, glyph);
+            ret = ngli_hmap_set_str(glyph_index, glyph_uid, glyph);
             if (ret < 0) {
                 free_glyph(NULL, glyph);
                 goto end;
@@ -749,7 +749,7 @@ static int register_chars(struct text *text, const char *str, struct darray *cha
 
             const hb_codepoint_t glyph_id = run->glyph_infos[j].codepoint;
             const char glyph_uid[] = GLYPH_UID_STRING(run->face_id, glyph_id);
-            const struct glyph *glyph = ngli_hmap_get(glyph_index, glyph_uid);
+            const struct glyph *glyph = ngli_hmap_get_str(glyph_index, glyph_uid);
             if (glyph) {
                 chr.tags |= NGLI_TEXT_CHAR_TAG_GLYPH;
                 chr.x = x_cur + glyph->bearing_x + pos->x_offset;
@@ -794,7 +794,7 @@ static int text_external_set_string(struct text *text, const char *str, struct d
     if (ret < 0)
         goto end;
 
-    glyph_index = ngli_hmap_create();
+    glyph_index = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!glyph_index) {
         ret = NGL_ERROR_MEMORY;
         goto end;
