@@ -103,42 +103,9 @@ ApplicationWindow {
         errorText.text = error;
     }
 
-    Popup {
-        id: aboutPopup
-        modal: true
-        padding: 20
-        anchors.centerIn: parent
-        implicitWidth: 640
-        implicitHeight: 480
+    AboutPopup { id: aboutPopup }
 
-        contentItem: ColumnLayout {
-            spacing: 20
-            TextArea {
-                id: aboutContent
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                readOnly: true
-                wrapMode: TextEdit.Wrap
-                textFormat: TextEdit.MarkdownText
-                onLinkActivated: (link) => Qt.openUrlExternally(link)
-
-                // Background is specified because of https://bugreports.qt.io/browse/QTBUG-105858
-                background: Rectangle { radius: 2; color: "white"; border.color: "#aaa" }
-
-                HoverHandler {
-                    enabled: parent.hoveredLink
-                    cursorShape: Qt.PointingHandCursor
-                }
-            }
-            Button {
-                text: "OK"
-                onClicked: aboutPopup.visible = false
-                Layout.alignment: Qt.AlignHCenter
-            }
-        }
-    }
-
-    function set_about_content(text) { aboutContent.text = text; }
+    function set_about_content(text) { aboutPopup.set_about_content(text); }
 
     FileDialog {
         id: scriptDialog
