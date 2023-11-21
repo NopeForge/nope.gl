@@ -49,6 +49,7 @@ class _Diff:
         app_window.showCompChanged.connect(self._show_comp_changed)
         app_window.premultipliedChanged.connect(self._premultiplied_changed)
         app_window.setFile.connect(self._set_file_refresh)
+        app_window.set_about_content(qml.get_about_content("Diff"))
         self._app_window = app_window
 
         player = app_window.findChild(QObject, "player")
