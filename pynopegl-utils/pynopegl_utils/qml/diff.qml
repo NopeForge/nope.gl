@@ -26,8 +26,8 @@ import QtQuick.Layouts
 
 ApplicationWindow {
     visible: true
-    minimumWidth: 640
-    minimumHeight: 480
+    minimumWidth: 1280
+    minimumHeight: 800
 
     property string filename0
     property string filename1
