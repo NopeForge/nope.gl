@@ -38,36 +38,11 @@ from PySide6.QtCore import QObject, QUrl, Slot
 
 import pynopegl as ngl
 
-_LICENSE_APACHE = "https://github.com/NopeForge/nope.gl/blob/main/LICENSE"
-_NOTICE = "https://github.com/NopeForge/nope.gl/blob/main/NOTICE"
-_NOPE_FORGE = "https://www.nopeforge.org"
-_NOPE_MEDIA = "https://github.com/NopeForge/nope.media"
-_ABOUT_POPUP_CONTENT = dedent(
-    f"""\
-    # About
-
-    The Nope viewer is part of the [Nope Forge]({_NOPE_FORGE}) project and
-    is licensed under the [Apache License, Version 2.0]({_LICENSE_APACHE}).
-
-    See the [NOTICE]({_NOTICE}) file for more information.
-
+_ABOUT_EXTRA_TEXT = dedent(
+    """\
     What you create with this software is your sole property. All your artwork
     is free for you to use as you like. That means that the Nope Viewer can be
     used commercially, for any purpose. There are no restrictions whatsoever.
-
-    This software also relies on [nope.media]({_NOPE_MEDIA}), which is under
-    LGPL v2.1.
-
-    Finally, it depends on the following third-party libraries:
-    - [FFmpeg](https://www.ffmpeg.org): LGPL v2.1 / GPL v3
-    - [Harfbuzz](https://harfbuzz.github.io): MIT
-    - [FreeType](https://freetype.org): FTL / GPL v2
-    - [FriBidi](https://github.com/fribidi/fribidi): LGPL v2.1
-    - [Qt6](https://www.qt.io): GPL v3
-    - [MoltenVK](https://github.com/KhronosGroup/MoltenVK): Apache v2
-    - [Pillow](https://python-pillow.org): BSD
-    - [python-watchdog](https://github.com/gorakhargosh/watchdog): Apache v2
-    - [python-packaging](https://github.com/pypa/packaging): Apache v2
     """
 )
 
@@ -143,7 +118,7 @@ class _Viewer:
         export_samples = self._config.get("export_samples")
         export_samples_index = choices["export_samples"].index(export_samples)
 
-        app_window.set_about_content(_ABOUT_POPUP_CONTENT)
+        app_window.set_about_content(qml.get_about_content("Viewer", _ABOUT_EXTRA_TEXT))
 
         try:
             ret = subprocess.run(
