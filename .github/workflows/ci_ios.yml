@@ -18,7 +18,7 @@ jobs:
       matrix:
         arch: [x86_64, arm64]
         ffmpeg_version: [5.0.1]
-        nopemd_version: [11.0.1]
+        nopemd_version: [11.1.1]
 
     steps:
     - uses: actions/checkout@v3
