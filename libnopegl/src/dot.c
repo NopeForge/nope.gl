@@ -36,13 +36,10 @@ extern const struct node_param ngli_base_node_params[];
 
 static int visited(struct hmap *ptr_set, const void *id)
 {
-    char key[32];
-    int ret = snprintf(key, sizeof(key), "%p", id);
-    if (ret < 0)
-        return ret;
-    if (ngli_hmap_get_str(ptr_set, key))
+    const uint64_t key = (uint64_t)(uintptr_t)id;
+    if (ngli_hmap_get_u64(ptr_set, key))
         return 1;
-    return ngli_hmap_set_str(ptr_set, key, "");
+    return ngli_hmap_set_u64(ptr_set, key, "");
 }
 
 static unsigned get_hue(const char *name)
@@ -436,8 +433,8 @@ char *ngli_scene_dot(const struct ngl_scene *s)
         return NULL;
 
     char *graph = NULL;
-    struct hmap *decls = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
-    struct hmap *links = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
+    struct hmap *decls = ngli_hmap_create(NGLI_HMAP_TYPE_U64);
+    struct hmap *links = ngli_hmap_create(NGLI_HMAP_TYPE_U64);
     struct bstr *b = ngli_bstr_create();
     if (!decls || !links || !b)
         goto end;
