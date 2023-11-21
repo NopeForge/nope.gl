@@ -22,6 +22,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Moving the split position in `ngl-diff`
 - Crash in the hwconv module when direct rendering is not possible/enabled
 - Export to output files containing spaces in their path on Windows
+- Crash when decoding videos on Android with the OpenGLES backend
 
 ### Changed
 - `ngl.get_backends()` and `ngl.probe_backends()` were mistakenly inverted in

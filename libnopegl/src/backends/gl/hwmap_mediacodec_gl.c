@@ -169,6 +169,8 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct nmd_frame *frame
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
+    ngli_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
+
     int ret = nmd_mc_frame_render_and_releasep(&frame);
     if (ret < 0)
         return ret;
@@ -221,8 +223,6 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct nmd_frame *frame
 
     ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, id);
     ngli_glEGLImageTargetTexture2DOES(gl, GL_TEXTURE_EXTERNAL_OES, mc->egl_image);
-
-    ngli_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
 
     return 0;
 }
