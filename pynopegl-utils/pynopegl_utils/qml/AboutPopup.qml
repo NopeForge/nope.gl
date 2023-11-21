@@ -33,21 +33,23 @@ Popup {
 
     contentItem: ColumnLayout {
         spacing: 20
-        TextArea {
-            id: aboutContent
+        ScrollView {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            readOnly: true
-            wrapMode: TextEdit.Wrap
-            textFormat: TextEdit.MarkdownText
-            onLinkActivated: (link) => Qt.openUrlExternally(link)
+            TextArea {
+                id: aboutContent
+                readOnly: true
+                wrapMode: TextEdit.Wrap
+                textFormat: TextEdit.MarkdownText
+                onLinkActivated: (link) => Qt.openUrlExternally(link)
 
-            // Background is specified because of https://bugreports.qt.io/browse/QTBUG-105858
-            background: Rectangle { radius: 2; color: "white"; border.color: "#aaa" }
+                // Background is specified because of https://bugreports.qt.io/browse/QTBUG-105858
+                background: Rectangle { radius: 2; color: "white"; border.color: "#aaa" }
 
-            HoverHandler {
-                enabled: parent.hoveredLink
-                cursorShape: Qt.PointingHandCursor
+                HoverHandler {
+                    enabled: parent.hoveredLink
+                    cursorShape: Qt.PointingHandCursor
+                }
             }
         }
         Button {
