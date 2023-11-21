@@ -320,7 +320,7 @@ static void shuffle(uint64_t *rng_state, size_t *positions, size_t n)
 {
     for (size_t i = 0; i < n - 1; i++) {
         const size_t r = i + (size_t)prng64_next(rng_state) % (n - i);
-        NGLI_SWAP(size_t, positions[i], positions[r]);
+        NGLI_SWAP(positions[i], positions[r]);
     }
 }
 

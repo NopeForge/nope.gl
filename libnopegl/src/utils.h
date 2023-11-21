@@ -76,7 +76,7 @@
 } while (0)                                                             \
 
 #define NGLI_ARRAY_NB(x) (sizeof(x)/sizeof(*(x)))
-#define NGLI_SWAP(type, a, b) do { type tmp_swap = b; b = a; a = tmp_swap; } while (0)
+#define NGLI_SWAP(a, b) do { __typeof__(a) tmp_swap = b; b = a; a = tmp_swap; } while (0)
 
 #define NGLI_ALIGN(v, a) (((v) + (a) - 1) & ~((a) - 1))
 #define NGLI_ALIGN_VAL 16
