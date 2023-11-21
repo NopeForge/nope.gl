@@ -144,7 +144,7 @@ static int register_component_names(struct hmap *vars, const char *base_name, si
                 LOG(ERROR, "resource name \"%s\" is too long", base_name);
                 return NGL_ERROR_LIMIT_EXCEEDED;
             }
-            int ret = ngli_hmap_set(vars, name, ptr + i);
+            int ret = ngli_hmap_set_str(vars, name, ptr + i);
             if (ret < 0)
                 return ret;
         }
@@ -158,7 +158,7 @@ static int eval_init(struct ngl_node *node)
     struct eval_priv *s = node->priv_data;
     const struct eval_opts *o = node->opts;
 
-    s->vars = ngli_hmap_create();
+    s->vars = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!s->vars)
         return NGL_ERROR_MEMORY;
 
@@ -169,13 +169,13 @@ static int eval_init(struct ngl_node *node)
             struct variable_info *var = res->priv_data;
             int ret;
             if (var->data_type == NGLI_TYPE_F32) {
-                ret = ngli_hmap_set(s->vars, entry->key, var->data);
+                ret = ngli_hmap_set_str(s->vars, entry->key.str, var->data);
             } else if (var->data_type == NGLI_TYPE_VEC2) {
-                ret = register_component_names(s->vars, entry->key, 2, var->data);
+                ret = register_component_names(s->vars, entry->key.str, 2, var->data);
             } else if (var->data_type == NGLI_TYPE_VEC3) {
-                ret = register_component_names(s->vars, entry->key, 3, var->data);
+                ret = register_component_names(s->vars, entry->key.str, 3, var->data);
             } else if (var->data_type == NGLI_TYPE_VEC4) {
-                ret = register_component_names(s->vars, entry->key, 4, var->data);
+                ret = register_component_names(s->vars, entry->key.str, 4, var->data);
             } else {
                 ngli_assert(0);
             }

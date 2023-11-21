@@ -40,9 +40,9 @@ static int visited(struct hmap *ptr_set, const void *id)
     int ret = snprintf(key, sizeof(key), "%p", id);
     if (ret < 0)
         return ret;
-    if (ngli_hmap_get(ptr_set, key))
+    if (ngli_hmap_get_str(ptr_set, key))
         return 1;
-    return ngli_hmap_set(ptr_set, key, "");
+    return ngli_hmap_set_str(ptr_set, key, "");
 }
 
 static unsigned get_hue(const char *name)
@@ -224,7 +224,7 @@ static void print_dict_packed_decls(struct bstr *b, const char *key,
         const struct ngl_node *node = entry->data;
         char *info_str = node->cls->info_str ? node->cls->info_str(node) : NULL;
         ngli_bstr_printf(b, "<tr><td align=\"left\">%s</td><td align=\"left\">%s</td></tr>",
-                         entry->key, info_str ? info_str : "?");
+                         entry->key.str, info_str ? info_str : "?");
         ngli_free(info_str);
     }
     table_footer(b);
@@ -375,7 +375,7 @@ static void print_nodedict_links(struct bstr *b, const struct ngl_node *node,
     ngli_bstr_print(b, "<tr>");
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(hmap, entry)))
-        ngli_bstr_printf(b, "<td port=\"%s\">%s</td>", entry->key, entry->key);
+        ngli_bstr_printf(b, "<td port=\"%s\">%s</td>", entry->key.str, entry->key.str);
     ngli_bstr_print(b, "</tr>");
     table_footer(b);
 
@@ -388,7 +388,7 @@ static void print_nodedict_links(struct bstr *b, const struct ngl_node *node,
     while ((entry = ngli_hmap_next(hmap, entry))) {
         const struct ngl_node *child = entry->data;
         ngli_bstr_printf(b, "    %s_%p_%s:%s -> %s_%p\n",
-                         node->cls->name, node, p->key, entry->key, child->cls->name, child);
+                         node->cls->name, node, p->key, entry->key.str, child->cls->name, child);
         print_all_links(b, child, links);
     }
 }
@@ -436,8 +436,8 @@ char *ngli_scene_dot(const struct ngl_scene *s)
         return NULL;
 
     char *graph = NULL;
-    struct hmap *decls = ngli_hmap_create();
-    struct hmap *links = ngli_hmap_create();
+    struct hmap *decls = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
+    struct hmap *links = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     struct bstr *b = ngli_bstr_create();
     if (!decls || !links || !b)
         goto end;

@@ -50,7 +50,7 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
                 continue;
             name = attribute_name;
             ngli_glBindAttribLocation(gl, s_priv->id, attribute->location, attribute_name);
-            struct program_variable_info *info = ngli_hmap_get(s->attributes, attribute_name);
+            struct program_variable_info *info = ngli_hmap_get_str(s->attributes, attribute_name);
             if (info && info->location != attribute->location) {
                 info->location = attribute->location;
                 need_relink = 1;
@@ -75,7 +75,7 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
         }
         const GLuint block_index = ngli_glGetUniformBlockIndex(gl, s_priv->id, block_name);
         ngli_glUniformBlockBinding(gl, s_priv->id, block_index, entry->binding);
-        struct program_variable_info *info = ngli_hmap_get(s->buffer_blocks, block_name);
+        struct program_variable_info *info = ngli_hmap_get_str(s->buffer_blocks, block_name);
         if (info)
             info->binding = entry->binding;
     }
@@ -87,7 +87,7 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
         const char *texture_name = ngli_pgcraft_get_symbol_name(crafter, entry->id);
         const GLint location = ngli_glGetUniformLocation(gl, s_priv->id, texture_name);
         ngli_glUniform1i(gl, location, entry->binding);
-        struct program_variable_info *info = ngli_hmap_get(s->uniforms, texture_name);
+        struct program_variable_info *info = ngli_hmap_get_str(s->uniforms, texture_name);
         if (info)
             info->binding = entry->binding;
     }

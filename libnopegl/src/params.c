@@ -410,13 +410,13 @@ int ngli_params_set_dict(uint8_t *dstp, const struct node_param *par, const char
     LOG(VERBOSE, "set %s to (%s,%p)", par->key, name, node);
     struct hmap **hmapp = (struct hmap **)dstp;
     if (!*hmapp) {
-        *hmapp = ngli_hmap_create();
+        *hmapp = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
         if (!*hmapp)
             return NGL_ERROR_MEMORY;
         ngli_hmap_set_free_func(*hmapp, node_hmap_free, NULL);
     }
 
-    ret = ngli_hmap_set(*hmapp, name, node);
+    ret = ngli_hmap_set_str(*hmapp, name, node);
     if (ret < 0)
         return ret;
     if (node)

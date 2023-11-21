@@ -328,7 +328,7 @@ static int find_livectls(const struct ngl_node *node, struct hmap *hm)
     if (node->cls->flags & NGLI_NODE_FLAG_LIVECTL) {
         const struct livectl *ref_ctl = get_internal_livectl(node);
         if (ref_ctl->id) {
-            const struct ngl_node *ctl_node = ngli_hmap_get(hm, ref_ctl->id);
+            const struct ngl_node *ctl_node = ngli_hmap_get_str(hm, ref_ctl->id);
             if (ctl_node) {
                 if (ctl_node != node) {
                     LOG(ERROR, "duplicated live control with name \"%s\"", ref_ctl->id);
@@ -336,7 +336,7 @@ static int find_livectls(const struct ngl_node *node, struct hmap *hm)
                 }
                 return 0;
             }
-            int ret = ngli_hmap_set(hm, ref_ctl->id, (void *)node);
+            int ret = ngli_hmap_set_str(hm, ref_ctl->id, (void *)node);
             if (ret < 0)
                 return ret;
         }
@@ -388,7 +388,7 @@ int ngli_node_livectls_get(const struct ngl_scene *scene, size_t *nb_livectlsp, 
     *livectlsp = NULL;
     *nb_livectlsp = 0;
 
-    struct hmap *livectls_index = ngli_hmap_create();
+    struct hmap *livectls_index = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!livectls_index)
         return NGL_ERROR_MEMORY;
 

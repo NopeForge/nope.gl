@@ -213,7 +213,7 @@ static int print_choices(void)
 {
     printf("  \"choices\": {\n");
 
-    struct hmap *choices_map = ngli_hmap_create();
+    struct hmap *choices_map = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!choices_map)
         return -1;
 
@@ -226,14 +226,14 @@ static int print_choices(void)
             const struct node_param *p = &c->params[j];
             if (!p->choices)
                 continue;
-            void *mapped_choices = ngli_hmap_get(choices_map, p->choices->name);
+            void *mapped_choices = ngli_hmap_get_str(choices_map, p->choices->name);
             if (mapped_choices) {
                 ngli_assert(mapped_choices == p->choices);
             } else {
                 if (ngli_hmap_count(choices_map))
                     printf(",\n");
                 print_constants(p->choices);
-                ngli_hmap_set(choices_map, p->choices->name, (void *)p->choices);
+                ngli_hmap_set_str(choices_map, p->choices->name, (void *)p->choices);
 
             }
         }
@@ -347,7 +347,7 @@ static int print_nodes(void)
     printf("  \"nodes\": {\n");
     print_node_params("_Node", ngli_base_node_params, NULL);
 
-    struct hmap *params_map = ngli_hmap_create();
+    struct hmap *params_map = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!params_map)
         return -1;
 
@@ -361,7 +361,7 @@ static int print_nodes(void)
             goto end;
 
         if (c->params_id) {
-            void *mapped_param = ngli_hmap_get(params_map, c->params_id);
+            void *mapped_param = ngli_hmap_get_str(params_map, c->params_id);
             char *pname = ngli_asprintf("_%s", c->params_id);
             if (!pname) {
                 ngli_free(pname);
@@ -373,7 +373,7 @@ static int print_nodes(void)
             } else {
                 printf(",\n");
                 print_node_params(pname, p, c->file);
-                ngli_hmap_set(params_map, c->params_id, (void *)p);
+                ngli_hmap_set_str(params_map, c->params_id, (void *)p);
             }
             printf(",\n");
             printf("    \"%s\": \"%s\"", c->name, pname);

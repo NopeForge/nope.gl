@@ -326,7 +326,7 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
     if (ret < 0)
         goto fail;
 
-    s->text_builtin_atlasses = ngli_hmap_create();
+    s->text_builtin_atlasses = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!s->text_builtin_atlasses) {
         ret = NGL_ERROR_MEMORY;
         goto fail;
