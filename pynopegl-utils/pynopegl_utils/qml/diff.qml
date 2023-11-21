@@ -65,6 +65,10 @@ ApplicationWindow {
             mediaDialog1.currentFolder = directory;
     }
 
+    AboutPopup { id: aboutPopup }
+
+    function set_about_content(text) { aboutPopup.set_about_content(text); }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 5
@@ -97,8 +101,6 @@ ApplicationWindow {
                 onMoved: thresholdMoved(value)
             }
 
-            Item { Layout.fillWidth: true } /* spacer */
-
             component ColorCompButton: Button {
                 required property int index
 
@@ -121,6 +123,13 @@ ApplicationWindow {
                 text: "Premultiplied"
                 checked: false
                 onClicked: premultipliedChanged(checked)
+            }
+
+            Item { Layout.fillWidth: true } /* spacer */
+
+            Button {
+                text: "About"
+                onClicked: aboutPopup.open()
             }
         }
 
