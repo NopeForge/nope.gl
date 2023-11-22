@@ -95,7 +95,7 @@ static struct ngl_node *node_create(const struct node_class *cls)
 
 #define DEF_NAME_CHR(c) (((c) >= 'A' && (c) <= 'Z') ? (c) ^ 0x20 : (c))
 
-char *ngli_node_default_label(const char *class_name)
+static char *node_default_label(const char *class_name)
 {
     char *label = ngli_strdup(class_name);
     if (!label)
@@ -149,7 +149,7 @@ struct ngl_node *ngl_node_create(uint32_t type)
         return NULL;
     }
 
-    node->label = ngli_node_default_label(node->cls->name);
+    node->label = node_default_label(node->cls->name);
     if (!node->label) {
         ngl_node_unrefp(&node);
         return NULL;
