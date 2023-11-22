@@ -194,7 +194,7 @@ static const struct node_param filtersaturation_params[] = {
 #define filtersrgb2linear_params NULL
 
 static int register_resource(struct darray *resources, const char *name,
-                             struct ngl_node *pnode, void *data, int data_type)
+                             const struct ngl_node *pnode, void *data, int data_type)
 {
     struct pgcraft_uniform res = {
         .type  = data_type,
