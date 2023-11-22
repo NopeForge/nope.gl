@@ -747,6 +747,10 @@ static int param_add(struct ngl_node *node, const char *key, size_t nb_elems, vo
 int ngl_node_param_add_nodes(struct ngl_node *node, const char *key,
                              size_t nb_nodes, struct ngl_node **nodes)
 {
+    if (node->scene) {
+        LOG(ERROR, "the nodes graph cannot be extended after being associated with a scene");
+        return NGL_ERROR_INVALID_USAGE;
+    }
     return param_add(node, key, nb_nodes, nodes);
 }
 
@@ -879,6 +883,10 @@ int ngl_node_param_set_node(struct ngl_node *node, const char *key, struct ngl_n
         LOG(ERROR, "%s.%s node can not be live changed", node->label, key);
         return NGL_ERROR_INVALID_USAGE;
     }
+    if (node->scene) {
+        LOG(ERROR, "the structure of the graph cannot be changed after being associated with a scene");
+        return NGL_ERROR_INVALID_USAGE;
+    }
     FORWARD_TO_PARAM(node, value);
 }
 
@@ -934,6 +942,10 @@ int ngl_node_param_set_vec4(struct ngl_node *node, const char *key, const float 
 
 int ngl_node_param_set_dict(struct ngl_node *node, const char *key, const char *name, struct ngl_node *value)
 {
+    if (node->scene) {
+        LOG(ERROR, "the nodes graph cannot be extended after being associated with a scene");
+        return NGL_ERROR_INVALID_USAGE;
+    }
     FORWARD_TO_PARAM(dict, name, value);
 }
 

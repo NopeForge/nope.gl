@@ -53,6 +53,7 @@ foreach backend : backends
     'ctx_ownership',
     'scene_context_transfer',
     'scene_lifetime',
+    'scene_mutate',
     'scene_ownership',
     'scene_resilience',
     'capture_buffer_lifetime',
