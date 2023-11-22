@@ -477,7 +477,7 @@ int ngli_node_update_children(struct ngl_node *node, double t)
     return 0;
 }
 
-void *ngli_node_get_data_ptr(struct ngl_node *var_node, void *data_fallback)
+void *ngli_node_get_data_ptr(const struct ngl_node *var_node, void *data_fallback)
 {
     if (!var_node)
         return data_fallback;
