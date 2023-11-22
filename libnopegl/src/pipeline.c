@@ -35,7 +35,7 @@ int ngli_pipeline_graphics_copy(struct pipeline_graphics *dst, const struct pipe
     dst->topology = src->topology;
     dst->state    = src->state;
     dst->rt_layout  = src->rt_layout;
-    NGLI_ARRAY_MEMDUP(dst->vertex_state, src->vertex_state, buffers);
+    NGLI_ARRAY_MEMDUP(&dst->vertex_state, &src->vertex_state, buffers);
 
     return 0;
 }

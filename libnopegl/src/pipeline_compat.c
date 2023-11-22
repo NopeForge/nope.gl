@@ -224,13 +224,13 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
 
     s->program = params->program;
 
-    NGLI_ARRAY_MEMDUP(s->bindgroup_layout_params, params->layout, textures);
-    NGLI_ARRAY_MEMDUP(s->bindgroup_layout_params, params->layout, buffers);
+    NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_params, &params->layout, textures);
+    NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_params, &params->layout, buffers);
 
     const struct pipeline_compat_resources *resources = &params->resources;
-    NGLI_ARRAY_MEMDUP(*s, *resources, vertex_buffers);
-    NGLI_ARRAY_MEMDUP(*s, *resources, buffers);
-    NGLI_ARRAY_MEMDUP(*s, *resources, textures);
+    NGLI_ARRAY_MEMDUP(s, resources, vertex_buffers);
+    NGLI_ARRAY_MEMDUP(s, resources, buffers);
+    NGLI_ARRAY_MEMDUP(s, resources, textures);
 
     s->compat_info = params->compat_info;
     ret = init_blocks_buffers(s, params);
