@@ -61,8 +61,8 @@ void ngli_hmap_set_free_func(struct hmap *hm, ngli_user_free_func_type user_free
     hm->user_arg = user_arg;
 }
 
-#define NO_REF (struct hmap_ref){.bucket_id = -1}
-#define HAS_REF(ref) ((ref).bucket_id != -1)
+#define NO_REF (struct hmap_ref){.bucket_id = SIZE_MAX}
+#define HAS_REF(ref) ((ref).bucket_id != SIZE_MAX)
 
 static uint32_t key_hash_str(union hmap_key x) { return ngli_crc32(x.str); }
 static uint32_t key_hash_u64(union hmap_key x) { return ngli_crc32_mem(x.u8_8, sizeof(x.u8_8)); }
@@ -118,13 +118,13 @@ static struct hmap_ref ref_from_entry(const struct hmap *hm, const struct hmap_e
         return NO_REF;
     struct hmap_ref ref = {
         .bucket_id = entry->bucket_id,
-        .entry_id  = (int)(entry - hm->buckets[entry->bucket_id].entries),
+        .entry_id  = (size_t)(entry - hm->buckets[entry->bucket_id].entries),
     };
     return ref;
 }
 
 static struct hmap_entry *fixed_entry_from_ref(const struct hmap *hm, struct hmap_ref ref,
-                                               struct hmap_ref removed, int current_id)
+                                               struct hmap_ref removed, size_t current_id)
 {
     if (!HAS_REF(ref))
         return NULL;
@@ -144,7 +144,7 @@ static struct hmap_entry *fixed_entry_from_ref(const struct hmap *hm, struct hma
          * complementary reference.
          */
         && current_id < ref.entry_id - 1;
-    const int entry_id = ref.entry_id - need_fix;
+    const size_t entry_id = ref.entry_id - (size_t)need_fix;
     return &hm->buckets[ref.bucket_id].entries[entry_id];
 }
 
@@ -160,7 +160,7 @@ static struct hmap_entry *fixed_entry_from_ref(const struct hmap *hm, struct hma
  */
 static void fix_refs(struct hmap *hm, struct bucket *b, struct hmap_ref removed)
 {
-    for (int i = removed.entry_id; i < b->nb_entries; i++) {
+    for (size_t i = removed.entry_id; i < b->nb_entries; i++) {
         struct hmap_entry *e = &b->entries[i];
         struct hmap_entry *prev = fixed_entry_from_ref(hm, e->prev, removed, i);
         struct hmap_entry *next = fixed_entry_from_ref(hm, e->next, removed, i);
@@ -171,7 +171,7 @@ static void fix_refs(struct hmap *hm, struct bucket *b, struct hmap_ref removed)
     }
 }
 
-static int add_entry(struct hmap *hm, struct bucket *b, union hmap_key key, void *data, int id)
+static int add_entry(struct hmap *hm, struct bucket *b, union hmap_key key, void *data, size_t id)
 {
     struct hmap_entry *entries = ngli_realloc(b->entries, b->nb_entries + 1, sizeof(*b->entries));
     if (!entries)
@@ -205,12 +205,12 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
         return NGL_ERROR_INVALID_ARG;
 
     const uint32_t hash = hm->key_funcs.hash(key);
-    int id = hash & hm->mask;
+    size_t id = (size_t)hash & hm->mask;
     struct bucket *b = &hm->buckets[id];
 
     /* Delete */
     if (!data) {
-        for (int i = 0; i < b->nb_entries; i++) {
+        for (size_t i = 0; i < b->nb_entries; i++) {
             struct hmap_entry *e = &b->entries[i];
             if (!hm->key_funcs.cmp(e->key, key)) {
 
@@ -248,7 +248,7 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
     }
 
     /* Replace */
-    for (int i = 0; i < b->nb_entries; i++) {
+    for (size_t i = 0; i < b->nb_entries; i++) {
         struct hmap_entry *e = &b->entries[i];
         if (!hm->key_funcs.cmp(e->key, key)) {
             if (hm->user_free_func)
@@ -285,13 +285,13 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
                 /* Transfer all entries to the new map */
                 const struct hmap_entry *e = NULL;
                 while ((e = ngli_hmap_next(&old_hm, e))) {
-                    const int new_id = hm->key_funcs.hash(e->key) & hm->mask;
+                    const size_t new_id = (size_t)hm->key_funcs.hash(e->key) & hm->mask;
                     struct bucket *b = &hm->buckets[new_id];
                     int ret = add_entry(hm, b, e->key, e->data, new_id);
                     if (ret < 0) {
                         /* Unable to allocate more, ngli_free the incomplete buckets
                          * and restore the previous hashmap state */
-                        for (int j = 0; j < hm->size; j++)
+                        for (size_t j = 0; j < hm->size; j++)
                             ngli_free(hm->buckets[j].entries);
                         ngli_free(hm->buckets);
                         *hm = old_hm;
@@ -300,7 +300,7 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
                 }
 
                 /* Destroy previous indexes in the old buckets */
-                for (int j = 0; j < old_hm.size; j++) {
+                for (size_t j = 0; j < old_hm.size; j++) {
                     struct bucket *b = &old_hm.buckets[j];
                     ngli_free(b->entries);
                     old_hm.count -= b->nb_entries;
@@ -352,10 +352,10 @@ struct hmap_entry *ngli_hmap_next(const struct hmap *hm,
 
 static void *hmap_get(const struct hmap *hm, union hmap_key key)
 {
-    const int id = hm->key_funcs.hash(key) & hm->mask;
+    const size_t id = (size_t)hm->key_funcs.hash(key) & hm->mask;
     const struct bucket *b = &hm->buckets[id];
 
-    for (int i = 0; i < b->nb_entries; i++) {
+    for (size_t i = 0; i < b->nb_entries; i++) {
         struct hmap_entry *e = &b->entries[i];
         if (!hm->key_funcs.cmp(e->key, key))
             return e->data;
@@ -385,9 +385,9 @@ void ngli_hmap_freep(struct hmap **hmp)
         return;
 
     if (hm->count) {
-        for (int j = 0; j < hm->size; j++) {
+        for (size_t j = 0; j < hm->size; j++) {
             struct bucket *b = &hm->buckets[j];
-            for (int i = 0; i < b->nb_entries; i++) {
+            for (size_t i = 0; i < b->nb_entries; i++) {
                 struct hmap_entry *e = &b->entries[i];
                 hm->key_funcs.free(e->key);
                 if (hm->user_free_func)

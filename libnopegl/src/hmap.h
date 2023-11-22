@@ -34,8 +34,8 @@
 struct hmap;
 
 struct hmap_ref { /* internal entry reference */
-    int bucket_id;
-    int entry_id;
+    size_t bucket_id;
+    size_t entry_id;
 };
 
 union hmap_key {
@@ -47,7 +47,7 @@ union hmap_key {
 struct hmap_entry {
     union hmap_key key;
     void *data;
-    int bucket_id;
+    size_t bucket_id;
     struct hmap_ref prev;
     struct hmap_ref next;
 };
