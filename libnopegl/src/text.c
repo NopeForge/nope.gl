@@ -347,6 +347,18 @@ static int build_effects_segmentation(struct text *s)
             ngli_assert(0);
         }
 
+        /*
+         * This is not supposed to happen because of various early check making
+         * sure there are characters printable and thus imply at least one
+         * segment with all targets. This is not an assert due to the relatively
+         * low confidence with regards to Unicode and fonts expectations in
+         * general.
+         */
+        if (effect->total_segments == 0) {
+            LOG(ERROR, "text segmentation failed, no segment found");
+            return NGL_ERROR_BUG;
+        }
+
         if (effect_opts->random) {
             /* Build a shuffle map associating a position with another one */
             size_t *shuffle_map = ngli_calloc(effect->total_segments, sizeof(*shuffle_map));
