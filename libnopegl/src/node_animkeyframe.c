@@ -370,7 +370,7 @@ static const struct {
 static int check_offsets(double x0, double x1)
 {
     if (x0 >= x1 || x0 < 0.0 || x1 > 1.0) {
-        LOG(ERROR, "Truncation offsets must met the following requirements: 0 <= off0 < off1 <= 1");
+        LOG(ERROR, "truncation offsets must met the following requirements: 0 <= off0 < off1 <= 1");
         return NGL_ERROR_INVALID_ARG;
     }
     return 0;
@@ -379,7 +379,7 @@ static int check_offsets(double x0, double x1)
 static int check_boundaries(double y0, double y1)
 {
     if (y0 == y1) {
-        LOG(ERROR, "Boundaries (as defined by the offsets) can not be identical");
+        LOG(ERROR, "boundaries (as defined by the offsets) can not be identical");
         return NGL_ERROR_UNSUPPORTED;
     }
     return 0;
