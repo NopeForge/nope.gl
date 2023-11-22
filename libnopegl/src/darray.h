@@ -27,6 +27,8 @@
 
 #include "utils.h"
 
+#define NGLI_DARRAY_FLAG_ALIGNED (1U << 0)
+
 struct darray {
     uint8_t *data;
     size_t count;
@@ -38,7 +40,7 @@ struct darray {
     void (*release)(void *ptr);
 };
 
-void ngli_darray_init(struct darray *darray, size_t element_size, int aligned);
+void ngli_darray_init(struct darray *darray, size_t element_size, uint32_t flags);
 void ngli_darray_set_free_func(struct darray *darray, ngli_user_free_func_type user_free_func, void *user_arg);
 void *ngli_darray_push(struct darray *darray, const void *element);
 void *ngli_darray_pop(struct darray *darray);

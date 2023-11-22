@@ -73,7 +73,7 @@ static int gridlayout_init(struct ngl_node *node)
 
     ngli_assert((int32_t)n <= rows * cols);
 
-    ngli_darray_init(&s->matrices, sizeof(float[4 * 4]), 1);
+    ngli_darray_init(&s->matrices, sizeof(float[4 * 4]), NGLI_DARRAY_FLAG_ALIGNED);
 
     const float scale_x = 1.f / (float)cols;
     const float scale_y = 1.f / (float)rows;
