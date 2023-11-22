@@ -137,7 +137,7 @@ struct ngl_node;
 
 struct node_param {
     const char *key;
-    int type;
+    int type; // NGLI_PARAM_TYPE_*
     size_t offset;
     union {
         int32_t i32;
