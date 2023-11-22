@@ -180,6 +180,21 @@ def api_scene_lifetime():
     del ctx
 
 
+def api_scene_mutate():
+    """Test if the scene association is prevent graph structure changes"""
+    hook = ngl.Group()
+    eval = ngl.EvalVec3()
+    render = ngl.RenderColor(color=eval)
+    root = ngl.Group(children=[hook])
+    assert hook.add_children(render) == 0
+    scene = ngl.Scene.from_params(root)
+    assert hook.add_children(ngl.RenderColor()) != 0
+    assert render.set_opacity(0.5) == 0  # we can change a direct value...
+    assert render.set_opacity(ngl.UniformFloat()) != 0  # ...but we can't change the structure
+    assert eval.update_resources(t=ngl.Time()) != 0
+    del scene
+
+
 def api_scene_ownership():
     """Test if part of a graph is shared between 2 different scenes"""
     shared_geometry = ngl.Quad()
@@ -347,12 +362,7 @@ def api_denied_node_live_change(width=320, height=240):
     assert root.set_vector(1, 2, 3) == 0
     assert root.set_vector(ngl.UniformVec3(value=(3, 2, 1))) != 0
 
-    # Check that we can do the change after a reset of the context
-    assert ctx.set_scene(None) == 0
-    assert root.set_vector(ngl.UniformVec3(value=(4, 5, 6))) == 0
-
     # Check that we can not live unplug a node from a live changeable parameter
-    assert ctx.set_scene(scene) == 0
     assert root.set_vector(ngl.UniformVec3(value=(7, 8, 9))) != 0
 
 
