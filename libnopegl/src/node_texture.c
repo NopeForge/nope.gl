@@ -625,7 +625,7 @@ static int texture2d_init(struct ngl_node *node)
     if (data_src && data_src->cls->id == NGL_NODE_MEDIA) {
         struct media_priv *media_priv = data_src->priv_data;
         if (media_priv->nb_parents++ > 0) {
-            LOG(ERROR, "A media node (label=%s) can not be shared, "
+            LOG(ERROR, "a media node (label=%s) can not be shared, "
                 "the Texture should be shared instead", data_src->label);
             return NGL_ERROR_INVALID_USAGE;
         }
