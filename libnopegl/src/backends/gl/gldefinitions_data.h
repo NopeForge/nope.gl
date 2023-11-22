@@ -3,15 +3,16 @@
 /* WARNING: this file must only be included once */
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include "glcontext.h"
 
-#define M (1 << 0)
+#define M (1U << 0)
 
 static const struct gldefinition {
     const char *name;
     size_t offset;
-    int flags;
+    uint32_t flags;
 } gldefinitions[] = {
     {"glActiveTexture", offsetof(struct glfunctions, ActiveTexture), M},
     {"glAttachShader", offsetof(struct glfunctions, AttachShader), M},
