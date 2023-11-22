@@ -635,8 +635,8 @@ struct ngl_ctx *ngl_create(void)
         return NULL;
     }
 
-    ngli_darray_init(&s->modelview_matrix_stack, 4 * 4 * sizeof(float), 1);
-    ngli_darray_init(&s->projection_matrix_stack, 4 * 4 * sizeof(float), 1);
+    ngli_darray_init(&s->modelview_matrix_stack, 4 * 4 * sizeof(float), NGLI_DARRAY_FLAG_ALIGNED);
+    ngli_darray_init(&s->projection_matrix_stack, 4 * 4 * sizeof(float), NGLI_DARRAY_FLAG_ALIGNED);
     ngli_darray_init(&s->activitycheck_nodes, sizeof(struct ngl_node *), 0);
 
     static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
