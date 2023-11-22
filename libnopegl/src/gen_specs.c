@@ -356,7 +356,7 @@ static int print_nodes(void)
         const struct node_class *c = node_classes[i];
         const struct node_param *p = &c->params[0];
 
-        int ret = check_node_params(c);
+        ret = check_node_params(c);
         if (ret < 0)
             goto end;
 
