@@ -72,6 +72,13 @@ void ngli_darray_init(struct darray *darray, size_t element_size, uint32_t flags
     darray->user_free_func = NULL;
     darray->user_arg = NULL;
     if (flags & NGLI_DARRAY_FLAG_ALIGNED) {
+        /*
+         * If this is not true only the first element would be aligned. We
+         * unfortunately can't force an aligned element size because the user
+         * wouldn't be able to step by the sizeof of the element anymore.
+         */
+        ngli_assert(element_size == NGLI_ALIGN(element_size, NGLI_ALIGN_VAL));
+
         darray->reserve = reserve_aligned;
         darray->release = ngli_free_aligned;
     } else {
