@@ -500,7 +500,10 @@ static int rtt_resize(struct ngl_node *node)
     if (s->params.width == width && s->params.height == height)
         return 0;
 
-    struct texture *texture = ngli_texture_create(ctx->gpu_ctx);
+    struct texture *texture = NULL;
+    struct rtt_ctx *rtt_ctx = NULL;
+
+    texture = ngli_texture_create(ctx->gpu_ctx);
     if (!texture) {
         ret = NGL_ERROR_MEMORY;
         goto fail;
@@ -514,7 +517,7 @@ static int rtt_resize(struct ngl_node *node)
     if (ret < 0)
         goto fail;
 
-    struct rtt_ctx *rtt_ctx = ngli_rtt_create(ctx);
+    rtt_ctx = ngli_rtt_create(ctx);
     if (!rtt_ctx) {
         ret = NGL_ERROR_MEMORY;
         goto fail;
