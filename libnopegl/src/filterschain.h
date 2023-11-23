@@ -28,10 +28,10 @@ struct filterschain;
 
 /* We can not use the #include mechanism from glsl2c.py because a helper can
  * appear in several filters */
-#define NGLI_FILTER_HELPER_MISC_UTILS  (1 << 0)
-#define NGLI_FILTER_HELPER_SRGB2LINEAR (1 << 1)
-#define NGLI_FILTER_HELPER_LINEAR2SRGB (1 << 2)
-#define NGLI_FILTER_HELPER_NOISE       (1 << 3)
+#define NGLI_FILTER_HELPER_MISC_UTILS  (1U << 0)
+#define NGLI_FILTER_HELPER_SRGB2LINEAR (1U << 1)
+#define NGLI_FILTER_HELPER_LINEAR2SRGB (1U << 2)
+#define NGLI_FILTER_HELPER_NOISE       (1U << 3)
 
 struct filter {
     const char *name;
