@@ -177,10 +177,8 @@ static int get_mipmap_levels(const struct texture *s)
     const struct texture_params *params = &s->params;
 
     int mipmap_levels = 1;
-    if (params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE) {
-        while ((params->width | params->height) >> mipmap_levels)
-            mipmap_levels += 1;
-    }
+    if (params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE)
+        mipmap_levels = ngli_log2(params->width | params->height | 1);
     return mipmap_levels;
 }
 
