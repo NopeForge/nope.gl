@@ -19,6 +19,8 @@
 # under the License.
 #
 
+import math
+
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.toolbox.colors import COLORS
 
@@ -130,6 +132,45 @@ def filter_opacity(_):
 @ngl.scene()
 def filter_saturation(_):
     return _base_scene(ngl.FilterSaturation(1.5))
+
+
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@ngl.scene()
+def filter_selector_light(_):
+    return _base_scene(
+        ngl.FilterSelector(
+            range=(0.41, 0.5),
+            component="lightness",
+            drop_mode="inside",
+            output_mode="colorholes",
+        )
+    )
+
+
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@ngl.scene()
+def filter_selector_chroma(_):
+    return _base_scene(
+        ngl.FilterSelector(
+            range=(0.06, 0.1),
+            component="chroma",
+            drop_mode="outside",
+            smoothedges=True,
+        )
+    )
+
+
+@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@ngl.scene()
+def filter_selector_hue(_):
+    return _base_scene(
+        ngl.FilterSelector(
+            range=(-0.1 * math.tau, 0.45 * math.tau),
+            component="hue",
+            drop_mode="outside",
+            output_mode="binary",
+        )
+    )
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)

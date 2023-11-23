@@ -89,6 +89,7 @@
     action(NGL_NODE_FILTEROPACITY,          ngli_filteropacity_class)           \
     action(NGL_NODE_FILTERPREMULT,          ngli_filterpremult_class)           \
     action(NGL_NODE_FILTERSATURATION,       ngli_filtersaturation_class)        \
+    action(NGL_NODE_FILTERSELECTOR,         ngli_filterselector_class)         \
     action(NGL_NODE_FILTERSRGB2LINEAR,      ngli_filtersrgb2linear_class)       \
     action(NGL_NODE_FASTGAUSSIANBLUR,       ngli_fgblur_class)                  \
     action(NGL_NODE_GAUSSIANBLUR,           ngli_gblur_class)                   \

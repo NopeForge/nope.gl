@@ -312,6 +312,40 @@
         "desc": "standard uniform block memory layout 430"
       }
     ],
+    "selector_component": [
+      {
+        "name": "lightness",
+        "desc": "lightness component from OkLCH (within [0,1])"
+      },
+      {
+        "name": "chroma",
+        "desc": "chroma component from OkLCH (infinite upper boundary, but in practice within [0,0.4])"
+      },
+      {
+        "name": "hue",
+        "desc": "hue component from OkLCH (circular value in radian)"
+      }
+    ],
+    "selector_drop": [
+      {
+        "name": "outside",
+        "desc": "drop if value is outside the range"
+      },
+      {
+        "name": "inside",
+        "desc": "drop if value is inside the range"
+      }
+    ],
+    "selector_output": [
+      {
+        "name": "colorholes",
+        "desc": "replace the selected colors with `(0,0,0,0)`"
+      },
+      {
+        "name": "binary",
+        "desc": "same as `colorholes` but non-selected colors become `(1,1,1,1)`"
+      }
+    ],
     "topology": [
       {
         "name": "point_list",
@@ -1809,6 +1843,49 @@
         }
       ]
     },
+    "FilterSelector": {
+      "file": "src/node_filters.c",
+      "params": [
+        {
+          "name": "range",
+          "type": "vec2",
+          "default": [0.000000,1.000000],
+          "flags": ["live", "node"],
+          "desc": "values within this range are selected"
+        },
+        {
+          "name": "component",
+          "type": "select",
+          "default": "lightness",
+          "choices": "selector_component",
+          "flags": [],
+          "desc": "reference component for the selector comparison"
+        },
+        {
+          "name": "drop_mode",
+          "type": "select",
+          "default": "outside",
+          "choices": "selector_drop",
+          "flags": [],
+          "desc": "define how to interpret the `range` selector"
+        },
+        {
+          "name": "output_mode",
+          "type": "select",
+          "default": "colorholes",
+          "choices": "selector_output",
+          "flags": [],
+          "desc": "define the output color"
+        },
+        {
+          "name": "smoothedges",
+          "type": "bool",
+          "default": 0,
+          "flags": ["live", "node"],
+          "desc": "make edges less sharp"
+        }
+      ]
+    },
     "FilterSRGB2Linear": {
       "file": "src/node_filters.c",
       "params": [
@@ -2690,7 +2767,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -2731,7 +2808,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -2815,7 +2892,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -2905,7 +2982,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -2947,7 +3024,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -3031,7 +3108,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -3154,7 +3231,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }
@@ -3242,7 +3319,7 @@
         {
           "name": "filters",
           "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
           "flags": [],
           "desc": "filter chain to apply on top of this source"
         }

@@ -42,6 +42,7 @@
 #include "filter_opacity.h"
 #include "filter_premult.h"
 #include "filter_saturation.h"
+#include "filter_selector.h"
 #include "filter_srgb2linear.h"
 
 struct filteralpha_opts {
@@ -112,6 +113,20 @@ struct filtersaturation_priv {
     struct filter filter;
 };
 
+struct filterselector_opts {
+    struct ngl_node *range_node;
+    float range[2];
+    int component;
+    int drop_mode;
+    int output_mode;
+    struct ngl_node *smoothedges_node;
+    int smoothedges;
+};
+
+struct filterselector_priv {
+    struct filter filter;
+};
+
 struct filtersrgb2linear_priv {
     struct filter filter;
 };
@@ -127,6 +142,7 @@ NGLI_STATIC_ASSERT(filter_on_top_of_linear2srgb_priv,   offsetof(struct filterli
 NGLI_STATIC_ASSERT(filter_on_top_of_opacity_priv,       offsetof(struct filteropacity_priv,       filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_premult_priv,       offsetof(struct filterpremult_priv,       filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_saturation_priv,    offsetof(struct filtersaturation_priv,    filter) == 0);
+NGLI_STATIC_ASSERT(filter_on_top_of_selector_priv,      offsetof(struct filterselector_priv,      filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_srgb2linear_priv,   offsetof(struct filtersrgb2linear_priv,   filter) == 0);
 
 #define OFFSET(x) offsetof(struct filteralpha_opts, x)
@@ -187,6 +203,71 @@ static const struct node_param filtersaturation_params[] = {
     {"saturation", NGLI_PARAM_TYPE_F32, OFFSET(saturation_node), {.f32=1.f},
                    .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                    .desc=NGLI_DOCSTRING("saturation")},
+    {NULL}
+};
+#undef OFFSET
+
+enum { /* values are explicit to help shader readibility */
+    SELECTOR_COMPONENT_LIGHTNESS = 0,
+    SELECTOR_COMPONENT_CHROMA    = 1,
+    SELECTOR_COMPONENT_HUE       = 2,
+};
+
+static const struct param_choices selector_component_choices = {
+    .name = "selector_component",
+    .consts = {
+        {"lightness", SELECTOR_COMPONENT_LIGHTNESS, .desc=NGLI_DOCSTRING("lightness component from OkLCH (within [0,1])")},
+        {"chroma",    SELECTOR_COMPONENT_CHROMA,    .desc=NGLI_DOCSTRING("chroma component from OkLCH (infinite upper boundary, but in practice within [0,0.4])")},
+        {"hue",       SELECTOR_COMPONENT_HUE,       .desc=NGLI_DOCSTRING("hue component from OkLCH (circular value in radian)")},
+        {NULL}
+    }
+};
+
+enum { /* values are explicit to help shader readibility */
+    SELECTOR_DROP_OUTSIDE = 0,
+    SELECTOR_DROP_INSIDE  = 1,
+};
+
+static const struct param_choices selector_drop_choices = {
+    .name = "selector_drop",
+    .consts = {
+        {"outside", SELECTOR_DROP_OUTSIDE, .desc=NGLI_DOCSTRING("drop if value is outside the range")},
+        {"inside",  SELECTOR_DROP_INSIDE,  .desc=NGLI_DOCSTRING("drop if value is inside the range")},
+        {NULL}
+    }
+};
+
+enum { /* values are explicit to help shader readibility */
+    SELECTOR_OUTPUT_COLORHOLES = 0,
+    SELECTOR_OUTPUT_BINARY     = 1,
+};
+
+static const struct param_choices selector_output_choices = {
+    .name = "selector_output",
+    .consts = {
+        {"colorholes", SELECTOR_OUTPUT_COLORHOLES, .desc=NGLI_DOCSTRING("replace the selected colors with `(0,0,0,0)`")},
+        {"binary",     SELECTOR_OUTPUT_BINARY,     .desc=NGLI_DOCSTRING("same as `colorholes` but non-selected colors become `(1,1,1,1)`")},
+        {NULL}
+    }
+};
+
+#define OFFSET(x) offsetof(struct filterselector_opts, x)
+static const struct node_param filterselector_params[] = {
+    {"range",        NGLI_PARAM_TYPE_VEC2, OFFSET(range_node), {.vec={0.f, 1.f}},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
+                     .desc=NGLI_DOCSTRING("values within this range are selected")},
+    {"component",    NGLI_PARAM_TYPE_SELECT, OFFSET(component), {.i32=SELECTOR_COMPONENT_LIGHTNESS},
+                     .choices=&selector_component_choices,
+                     .desc=NGLI_DOCSTRING("reference component for the selector comparison")},
+    {"drop_mode",    NGLI_PARAM_TYPE_SELECT, OFFSET(drop_mode), {.i32=SELECTOR_DROP_OUTSIDE},
+                     .choices=&selector_drop_choices,
+                     .desc=NGLI_DOCSTRING("define how to interpret the `range` selector")},
+    {"output_mode",  NGLI_PARAM_TYPE_SELECT, OFFSET(output_mode), {.i32=SELECTOR_OUTPUT_COLORHOLES},
+                     .choices=&selector_output_choices,
+                     .desc=NGLI_DOCSTRING("define the output color")},
+    {"smoothedges",  NGLI_PARAM_TYPE_BOOL, OFFSET(smoothedges_node), {.i32=0},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
+                     .desc=NGLI_DOCSTRING("make edges less sharp")},
     {NULL}
 };
 #undef OFFSET
@@ -405,6 +486,25 @@ static int filtersaturation_init(struct ngl_node *node)
     return register_resource(&s->filter.resources, "saturation", o->saturation_node, &o->saturation, NGLI_TYPE_F32);
 }
 
+static int filterselector_init(struct ngl_node *node)
+{
+    int ret = filter_init(node);
+    if (ret < 0)
+        return ret;
+    struct filterselector_priv *s = node->priv_data;
+    struct filterselector_opts *o = node->opts;
+    s->filter.name = "selector";
+    s->filter.code = filter_selector_glsl;
+    s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_SRGB | NGLI_FILTER_HELPER_OKLAB;
+    if ((ret = register_resource(&s->filter.resources, "range", o->range_node, &o->range, NGLI_TYPE_VEC2)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "component", NULL, &o->component, NGLI_TYPE_I32)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "drop_mode", NULL, &o->drop_mode, NGLI_TYPE_I32)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "output_mode", NULL, &o->output_mode, NGLI_TYPE_I32)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "smoothedges", o->smoothedges_node, &o->smoothedges, NGLI_TYPE_I32)) < 0)
+        return ret;
+    return 0;
+}
+
 static int filtersrgb2linear_init(struct ngl_node *node)
 {
     int ret = filter_init(node);
@@ -463,4 +563,5 @@ DECLARE_FILTER(linear2srgb,  NGL_NODE_FILTERLINEAR2SRGB,  0,                    
 DECLARE_FILTER(opacity,      NGL_NODE_FILTEROPACITY,      sizeof(struct filteropacity_opts),    "FilterOpacity")
 DECLARE_FILTER(premult,      NGL_NODE_FILTERPREMULT,      0,                                    "FilterPremult")
 DECLARE_FILTER(saturation,   NGL_NODE_FILTERSATURATION,   sizeof(struct filtersaturation_opts), "FilterSaturation")
+DECLARE_FILTER(selector,     NGL_NODE_FILTERSELECTOR,     sizeof(struct filterselector_opts),   "FilterSelector")
 DECLARE_FILTER(srgb2linear,  NGL_NODE_FILTERSRGB2LINEAR,  0,                                    "FilterSRGB2Linear")

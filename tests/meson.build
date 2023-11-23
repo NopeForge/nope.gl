@@ -208,6 +208,9 @@ foreach backend : backends
     'gamma_correct',
     'inversealpha',
     'opacity',
+    'selector_light',
+    'selector_chroma',
+    'selector_hue',
     'saturation',
   ]
 
