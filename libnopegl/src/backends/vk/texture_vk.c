@@ -227,10 +227,7 @@ static VkFormatFeatureFlags get_vk_texture_format_features(const struct texture_
 
 static int get_mipmap_levels(int32_t width, int32_t height)
 {
-    int mipmap_levels = 1;
-    while ((width | height) >> mipmap_levels)
-        mipmap_levels++;
-    return mipmap_levels;
+    return ngli_log2(width | height | 1);
 }
 
 static int init_fields(struct texture *s, const struct texture_params *params)
