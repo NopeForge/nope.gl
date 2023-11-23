@@ -685,6 +685,7 @@ shaders = {
   'filter_opacity.glsl': 'filter_opacity.h',
   'filter_premult.glsl': 'filter_premult.h',
   'filter_saturation.glsl': 'filter_saturation.h',
+  'filter_selector.glsl': 'filter_selector.h',
   'filter_srgb2linear.glsl': 'filter_srgb2linear.h',
   'hdr_hlg2sdr.frag': 'hdr_hlg2sdr_frag.h',
   'hdr_pq2sdr.frag': 'hdr_pq2sdr_frag.h',

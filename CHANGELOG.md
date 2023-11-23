@@ -25,6 +25,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   providing a resolution independent blurriness parameter
 - `forward_transforms` parameter to the `Texture` and `RenderToTexture` nodes
   to enable forwarding of the camera/model transformations
+- `Selector` filter to select colors according to their lightness, chroma or hue
 
 ### Fixed
 - Moving the split position in `ngl-diff`

@@ -74,6 +74,7 @@
                                               NGL_NODE_FILTEROPACITY,        \
                                               NGL_NODE_FILTERPREMULT,        \
                                               NGL_NODE_FILTERSATURATION,     \
+                                              NGL_NODE_FILTERSELECTOR,       \
                                               NGL_NODE_FILTERSRGB2LINEAR,    \
                                               NGLI_NODE_NONE}
 
