@@ -76,6 +76,18 @@ foreach builtin : builtins
 endforeach
 conf_data.set10('HAVE_BUILTIN_OVERFLOW', has_builtin_overflow)
 
+mandatory_builtins = []
+if cc.get_id() != 'msvc'
+  mandatory_builtins += [
+    '__builtin_clz',
+  ]
+endif
+foreach builtin : mandatory_builtins
+  if not cc.has_function(builtin)
+    error('Builtin @0@ is not available'.format(builtin))
+  endif
+endforeach
+
 install_rpath = get_option('rpath') ? get_option('prefix') / get_option('libdir') : ''
 
 debug_opts = get_option('debug_opts')

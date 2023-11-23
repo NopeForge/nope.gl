@@ -27,6 +27,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
+
 #include "config.h"
 
 #include "nopegl.h"
@@ -157,5 +161,28 @@ int ngli_get_filesize(const char *name, int64_t *size);
 char *ngli_numbered_lines(const char *s);
 int ngli_config_copy(struct ngl_config *dst, const struct ngl_config *src);
 void ngli_config_reset(struct ngl_config *config);
+
+/*
+ * Returns the number of leading 0-bits in x, starting at the most significant
+ * bit position. If x is 0, the result is undefined.
+ */
+static inline uint32_t ngli_clz(uint32_t x)
+{
+#ifdef _MSC_VER
+    unsigned long ret;
+    _BitScanReverse(&ret, x);
+    return 31 - ret;
+#else
+    return __builtin_clz(x);
+#endif
+}
+
+/*
+ * Return the base-2 logarithm of x. If x is 0, the result is undefined.
+ */
+static inline uint32_t ngli_log2(uint32_t x)
+{
+    return 31 - ngli_clz(x);
+}
 
 #endif /* UTILS_H */
