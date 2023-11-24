@@ -124,6 +124,8 @@ cdef extern from "nopegl.h":
     ngl_scene *ngl_scene_create()
     int ngl_scene_init(ngl_scene *s, const ngl_scene_params *params)
     const ngl_scene_params *ngl_scene_get_params(const ngl_scene *s)
+    int ngl_scene_get_filepaths(ngl_scene *s, char ***filepathsp, size_t *nb_filepathsp)
+    int ngl_scene_update_filepath(ngl_scene *s, size_t index, const char *filepath)
     int ngl_scene_init_from_str(ngl_scene *s, const char *str)
     char *ngl_scene_serialize(const ngl_scene *scene)
     char *ngl_scene_dot(const ngl_scene *scene)
@@ -568,6 +570,9 @@ cdef class Scene:
     def dot(self):
         return _ret_pystr(ngl_scene_dot(self.ctx))
 
+    def update_filepath(self, size_t index, const char *filepath):
+        return ngl_scene_update_filepath(self.ctx, index, filepath)
+
     @property
     def duration(self):
         assert self.ctx != NULL, "Scene not initialized"
@@ -585,6 +590,15 @@ cdef class Scene:
         assert self.ctx != NULL, "Scene not initialized"
         cdef const ngl_scene_params *params = ngl_scene_get_params(self.ctx);
         return (params.aspect_ratio[0], params.aspect_ratio[1])
+
+    @property
+    def files(self):
+        cdef char **filepaths
+        cdef size_t nb_filepaths
+        cdef int ret = ngl_scene_get_filepaths(self.ctx, &filepaths, &nb_filepaths)
+        if ret < 0:
+            raise Exception("unable to get filepaths")
+        return [<bytes>filepaths[i] for i in range(nb_filepaths)]
 
     @property
     def cptr(self):

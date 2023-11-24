@@ -56,6 +56,7 @@ foreach backend : backends
     'scene_mutate',
     'scene_ownership',
     'scene_resilience',
+    'scene_files',
     'capture_buffer_lifetime',
     'hud',
     'hud_csv',
