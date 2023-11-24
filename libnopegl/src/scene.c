@@ -21,6 +21,7 @@
 
 #include <string.h>
 
+#include "darray.h"
 #include "hmap.h"
 #include "internal.h"
 #include "log.h"
@@ -117,6 +118,9 @@ static void detach_root(struct ngl_scene *s)
 
     ngli_darray_reset(&s->nodes);
 
+    ngli_darray_reset(&s->files);
+    ngli_darray_reset(&s->files_par);
+
     int ret = reset_nodes(s, NULL, s->params.root);
     ngli_assert(ret == 0);
 
@@ -199,6 +203,38 @@ end:
     return ret;
 }
 
+static int track_files(struct ngl_scene *s)
+{
+    ngli_darray_init(&s->files, sizeof(char *), 0);
+    ngli_darray_init(&s->files_par, sizeof(uint8_t *), 0);
+
+    const struct ngl_node **nodes = ngli_darray_data(&s->nodes);
+    for (size_t i = 0; i < ngli_darray_count(&s->nodes); i++) {
+        const struct ngl_node *node = nodes[i];
+        const uint8_t *base_ptr = node->opts;
+
+        const struct node_param *params = node->cls->params;
+        if (!params)
+            continue;
+
+        for (size_t j = 0; params[j].key; j++) {
+            const struct node_param *par = &params[j];
+            const uint8_t *parp = base_ptr + par->offset;
+            if (par->flags & NGLI_PARAM_FLAG_FILEPATH) {
+                const char *str = *(char **)parp;
+                if (!str)
+                    continue;
+                if (!ngli_darray_push(&s->files, &str))
+                    return NGL_ERROR_MEMORY;
+                if (!ngli_darray_push(&s->files_par, &parp))
+                    return NGL_ERROR_MEMORY;
+            }
+        }
+    }
+
+    return 0;
+}
+
 static int attach_root(struct ngl_scene *s, struct ngl_node *node)
 {
     s->params.root = ngl_node_ref(node);
@@ -210,6 +246,49 @@ static int attach_root(struct ngl_scene *s, struct ngl_node *node)
     ret = build_nodes_set(s);
     if (ret < 0)
         return ret;
+
+    ret = track_files(s);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+int ngl_scene_get_filepaths(struct ngl_scene *s, char ***filepathsp, size_t *nb_filepathsp)
+{
+    *filepathsp = NULL;
+    *nb_filepathsp = 0;
+
+    if (!s->params.root)
+        return NGL_ERROR_INVALID_USAGE;
+
+    *filepathsp = ngli_darray_data(&s->files);
+    *nb_filepathsp = ngli_darray_count(&s->files);
+    return 0;
+}
+
+int ngl_scene_update_filepath(struct ngl_scene *s, size_t index, const char *filepath)
+{
+    if (s->params.root->ctx) {
+        LOG(ERROR, "the file paths cannot be updated when a rendering context is associated with the scene");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    if (index >= ngli_darray_count(&s->files))
+        return NGL_ERROR_INVALID_ARG;
+
+    /* Update the node parameter with the new value */
+    char *new_str = ngli_strdup(filepath);
+    if (!new_str)
+        return NGL_ERROR_MEMORY;
+    uint8_t *parp = ngli_darray_get(&s->files_par, index);
+    char **dstp = *(char ***)parp;
+    ngli_freep(dstp);
+    *dstp = new_str;
+
+    /* Update the file reference */
+    char **filep = ngli_darray_get(&s->files, index);
+    *filep = new_str;
 
     return 0;
 }

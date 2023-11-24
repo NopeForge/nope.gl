@@ -244,6 +244,10 @@ class Scene(_ngl.Scene):
     def dot(self) -> bytes:
         return super().dot()
 
+    @property
+    def files(self) -> List[str]:
+        return [f.decode("utf-8") for f in super().files]
+
 
 class Context(_ngl.Context):
     def configure(self, config: Config) -> int:

@@ -30,7 +30,7 @@ import tempfile
 from collections import namedtuple
 from pathlib import Path
 
-from pynopegl_utils.misc import get_backend
+from pynopegl_utils.misc import get_backend, load_media
 from pynopegl_utils.toolbox.grid import autogrid_simple
 
 import pynopegl as ngl
@@ -231,6 +231,29 @@ def api_scene_resilience():
     assert ctx.draw(0) == 0
     del scene0
     del ctx
+
+
+def api_scene_files():
+    # Store abstract file references in the graph
+    root = ngl.Group(
+        children=[
+            ngl.Texture2D(data_src=ngl.Media(filename="cat")),
+            ngl.Texture2D(data_src=ngl.BufferByte(filename="hamster")),
+        ]
+    )
+    scene = ngl.Scene.from_params(root)
+
+    assert scene.files == ["cat", "hamster"]
+
+    cfg = ngl.SceneCfg()
+
+    # Replace the simple filename strings with their corresponding actual file paths
+    for i, filepath in enumerate(scene.files):
+        new_filepath = load_media(cfg, filepath).filename
+        scene.update_filepath(i, new_filepath)
+
+    # Query again the files and check if they've been updated
+    assert all(Path(filepath).exists() for filepath in scene.files)
 
 
 def api_capture_buffer_lifetime(width=1024, height=1024):

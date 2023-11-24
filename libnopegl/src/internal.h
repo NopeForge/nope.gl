@@ -188,6 +188,8 @@ struct ngl_scene {
     struct ngli_rc rc;
     struct ngl_scene_params params;
     struct darray nodes; // set of all the nodes in the graph
+    struct darray files; // files path strings (array of char *)
+    struct darray files_par; // file based parameters pointers (array of uint8_t *)
 };
 
 #define TRANSFORM_TYPES_LIST (const uint32_t[]){NGL_NODE_ROTATE,    \

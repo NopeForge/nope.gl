@@ -159,6 +159,40 @@ NGL_API int ngl_scene_init(struct ngl_scene *s, const struct ngl_scene_params *p
  */
 NGL_API const struct ngl_scene_params *ngl_scene_get_params(const struct ngl_scene *s);
 
+/*
+ * Get the list of file paths referenced in the scene graph.
+ *
+ * @param s             pointer to the scene
+ * @param filepathsp    a pointer that will be set to an array of file paths.
+ *                      The array is held by the scene, so it must not be freed,
+ *                      and it cannot outlive the scene. The array pointer will
+ *                      not change with calls to ngl_scene_update_filepath(),
+ *                      but the string pointers within that array will
+ * @param nb_filepathsp a pointer to a counter that will be set to the number of
+ *                      file paths
+ *
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
+ */
+NGL_API int ngl_scene_get_filepaths(struct ngl_scene *s, char ***filepathsp, size_t *nb_filepathsp);
+
+/*
+ * Change one of the external file path reference.
+ *
+ * This function cannot be called when a rendering context is associated with
+ * the scene.
+ *
+ * @warning Calling this function changes the string pointer held within the
+ *          filepaths array returned by ngl_scene_get_filepaths() (but not the
+ *          array pointer itself)
+ *
+ * @param s             pointer to the scene
+ * @param index         index of the file in the file paths array (see ngl_scene_get_filepaths())
+ * @param filepath      new filepath
+ *
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
+ */
+NGL_API int ngl_scene_update_filepath(struct ngl_scene *s, size_t index, const char *filepath);
+
 /**
  * De-serialize a scene from a string.
  *
