@@ -38,6 +38,11 @@
 #include "android_imagereader.h"
 #endif
 
+#if HAVE_TEXT_LIBRARIES
+#include <ft2build.h>
+#include FT_OUTLINE_H
+#endif
+
 #include "animation.h"
 #include "block.h"
 #include "drawutils.h"
@@ -114,6 +119,9 @@ struct ngl_ctx {
     struct darray activitycheck_nodes;
 
     struct hmap *text_builtin_atlasses; // struct text_builtin_atlas
+#if HAVE_TEXT_LIBRARIES
+    FT_Library ft_library;
+#endif
 
     struct pgcache pgcache;
 #if defined(HAVE_VAAPI)
