@@ -39,7 +39,6 @@
 #include <sys/types.h>
 
 #include "gpu_ctx.h"
-#include "hmap.h"
 #include "memory.h"
 #include "nopegl.h"
 #include "internal.h"
@@ -346,57 +345,24 @@ static int widget_latency_init(struct hud *s, struct widget *widget)
     return 0;
 }
 
-static int track_children_per_types(struct hmap *map, struct ngl_node *node, uint32_t node_type)
-{
-    if (node->cls->id == node_type) {
-        char key[32];
-        int ret = snprintf(key, sizeof(key), "%p", node);
-        if (ret < 0)
-            return ret;
-        ret = ngli_hmap_set_str(map, key, node);
-        if (ret < 0)
-            return ret;
-    }
-
-    struct darray *children_array = &node->children;
-    struct ngl_node **children = ngli_darray_data(children_array);
-    for (size_t i = 0; i < ngli_darray_count(children_array); i++) {
-        int ret = track_children_per_types(map, children[i], node_type);
-        if (ret < 0)
-            return ret;
-    }
-
-    return 0;
-}
-
 static int make_nodes_set(struct ngl_scene *scene, struct darray *nodes_list, const uint32_t *node_types)
 {
     if (!scene)
         return 0;
 
-    /* construct a set of the nodes of a given type(s) */
-    struct hmap *nodes_set = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
-    if (!nodes_set)
-        return NGL_ERROR_MEMORY;
-    for (size_t n = 0; node_types[n] != NGLI_NODE_NONE; n++) {
-        int ret = track_children_per_types(nodes_set, scene->params.root, node_types[n]);
-        if (ret < 0) {
-            ngli_hmap_freep(&nodes_set);
-            return ret;
-        }
-    }
-
-    /* transfer the set content to a list of elements */
     ngli_darray_init(nodes_list, sizeof(struct ngl_node *), 0);
-    const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(nodes_set, entry))) {
-        if (!ngli_darray_push(nodes_list, &entry->data)) {
-            ngli_hmap_freep(&nodes_set);
-            return NGL_ERROR_MEMORY;
+    for (size_t n = 0; node_types[n] != NGLI_NODE_NONE; n++) {
+        const uint32_t node_type = node_types[n];
+        const struct ngl_node **nodes = ngli_darray_data(&scene->nodes);
+        for (size_t i = 0; i < ngli_darray_count(&scene->nodes); i++) {
+            const struct ngl_node *node = nodes[i];
+            if (node->cls->id != node_type)
+                continue;
+            if (!ngli_darray_push(nodes_list, &node))
+                return NGL_ERROR_MEMORY;
         }
     }
 
-    ngli_hmap_freep(&nodes_set);
     return 0;
 }
 
