@@ -75,7 +75,8 @@ struct text_effects_defaults {
 };
 
 struct text_config {
-    char *font_files;
+    struct ngl_node **font_faces;
+    size_t nb_font_faces;
     int32_t pt_size;
     int32_t dpi;
     int32_t padding;

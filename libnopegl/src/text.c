@@ -129,7 +129,7 @@ int ngli_text_init(struct text *s, const struct text_config *cfg)
     if (!s->effects)
         return NGL_ERROR_MEMORY;
 
-    s->cls = cfg->font_files ? &ngli_text_external : &ngli_text_builtin;
+    s->cls = cfg->font_faces ? &ngli_text_external : &ngli_text_builtin;
     if (s->cls->priv_size) {
         s->priv_data = ngli_calloc(1, s->cls->priv_size);
         if (!s->priv_data)

@@ -92,6 +92,7 @@
     action(NGL_NODE_FILTERSELECTOR,         ngli_filterselector_class)         \
     action(NGL_NODE_FILTERSRGB2LINEAR,      ngli_filtersrgb2linear_class)       \
     action(NGL_NODE_FASTGAUSSIANBLUR,       ngli_fgblur_class)                  \
+    action(NGL_NODE_FONTFACE,               ngli_fontface_class)                \
     action(NGL_NODE_GAUSSIANBLUR,           ngli_gblur_class)                   \
     action(NGL_NODE_GEOMETRY,               ngli_geometry_class)                \
     action(NGL_NODE_GRAPHICCONFIG,          ngli_graphicconfig_class)           \

@@ -292,7 +292,7 @@ def api_hud_csv(width=16, height=16):
     assert time_column == ["0.000000", "0.150000", "0.300000", "0.450000", "1.000000"], time_column
 
 
-def _api_text_live_change(width=320, height=240, font_files=None):
+def _api_text_live_change(width=320, height=240, font_faces=None):
     import zlib
 
     ctx = ngl.Context()
@@ -308,7 +308,7 @@ def _api_text_live_change(width=320, height=240, font_files=None):
     text_strings = ["foo", "", "foobar", "world", "hello\nworld", "\n\n", "last"]
 
     # Exercise the diamond-form/prepare mechanism
-    text_node = ngl.Text(font_files=font_files)
+    text_node = ngl.Text(font_faces=font_faces)
     root = autogrid_simple([text_node] * 4)
     scene = ngl.Scene.from_params(root)
     assert ctx.set_scene(scene) == 0
@@ -328,8 +328,8 @@ def api_text_live_change():
 
 
 def api_text_live_change_with_font():
-    font_files = Path(__file__).resolve().parent / "assets" / "fonts" / "Quicksand-Medium.ttf"
-    return _api_text_live_change(font_files=font_files.as_posix())
+    font_faces = Path(__file__).resolve().parent / "assets" / "fonts" / "Quicksand-Medium.ttf"
+    return _api_text_live_change(font_faces=[ngl.FontFace(font_faces.as_posix())])
 
 
 def _ret_to_fourcc(ret):

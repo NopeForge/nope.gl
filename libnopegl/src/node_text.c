@@ -90,7 +90,8 @@ struct text_opts {
     float box_corner[3];
     float box_width[3];
     float box_height[3];
-    char *font_files;
+    struct ngl_node **font_faces;
+    size_t nb_font_faces;
     int32_t padding;
     int32_t pt_size;
     int32_t dpi;
@@ -203,8 +204,9 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("box width vector")},
     {"box_height",   NGLI_PARAM_TYPE_VEC3, OFFSET(box_height), {.vec={0.0, 2.0, 0.0}},
                      .desc=NGLI_DOCSTRING("box height vector")},
-    {"font_files",    NGLI_PARAM_TYPE_STR, OFFSET(font_files),
-                     .desc=NGLI_DOCSTRING("paths to font files (use ',' or ';' to separate paths, require build with external text libraries)")},
+    {"font_faces",   NGLI_PARAM_TYPE_NODELIST, OFFSET(font_faces),
+                     .node_types=(const uint32_t[]){NGL_NODE_FONTFACE, NGLI_NODE_NONE},
+                     .desc=NGLI_DOCSTRING("font faces in order of preferences (require build with external text libraries)")},
     {"padding",      NGLI_PARAM_TYPE_I32, OFFSET(padding), {.i32=4},
                      .desc=NGLI_DOCSTRING("padding around the text, in point units")},
     {"pt_size",      NGLI_PARAM_TYPE_I32, OFFSET(pt_size), {.i32=54},
@@ -491,7 +493,8 @@ static int text_init(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
 
     const struct text_config config = {
-        .font_files = o->font_files,
+        .font_faces = o->font_faces,
+        .nb_font_faces = o->nb_font_faces,
         .pt_size = o->pt_size,
         .dpi = o->dpi,
         .padding = o->padding,

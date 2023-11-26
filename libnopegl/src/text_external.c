@@ -128,7 +128,6 @@ static void free_hb_font(void *user_arg, void *data)
 
 static int text_external_init(struct text *text)
 {
-    int ret = 0;
     struct text_external *s = text->priv_data;
 
     ngli_darray_init(&s->ft_faces, sizeof(FT_Face), 0);
@@ -137,28 +136,15 @@ static int text_external_init(struct text *text)
     ngli_darray_set_free_func(&s->ft_faces, free_ft_face, NULL);
     ngli_darray_set_free_func(&s->hb_fonts, free_hb_font, NULL);
 
-    /* Duplicate the font files specifications so that we can inject '\0' into it */
-    char *font_files = ngli_strdup(text->config.font_files);
-    if (!font_files)
-        return NGL_ERROR_MEMORY;
-
-    /* Split string to load every specified fonts individually */
-    char *next = font_files;
-    for (;;) {
-        const size_t len = strcspn(next, ";,");
-        const int last = next[len] == 0;
-        next[len] = 0;
-        ret = load_font(text, next);
+    for (size_t i = 0; i < text->config.nb_font_faces; i++) {
+        const struct ngl_node *face_node = text->config.font_faces[i];
+        const struct fontface_opts *face_opts = face_node->opts;
+        int ret = load_font(text, face_opts->path);
         if (ret < 0)
-            goto end;
-        if (last)
-            break;
-        next += len + 1;
+            return ret;
     }
 
-end:
-    ngli_freep(&font_files);
-    return ret;
+    return 0;
 }
 
 struct glyph {
@@ -839,8 +825,7 @@ static int text_external_dummy_set_string(struct text *s, const char *str, struc
 
 static int text_external_dummy_init(struct text *s)
 {
-    LOG(ERROR, "nope.gl is not compiled with text libraries support");
-    return NGL_ERROR_UNSUPPORTED;
+    return NGL_ERROR_BUG;
 }
 
 const struct text_cls ngli_text_external = {

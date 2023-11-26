@@ -199,6 +199,7 @@ lib_src = files(
   'src/node_computeprogram.c',
   'src/node_fgblur.c',
   'src/node_filters.c',
+  'src/node_fontface.c',
   'src/node_gblur.c',
   'src/node_geometry.c',
   'src/node_graphicconfig.c',
