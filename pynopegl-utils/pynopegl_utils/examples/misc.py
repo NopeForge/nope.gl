@@ -19,7 +19,6 @@ def lut3d(cfg: ngl.SceneCfg, xsplit=0.3, trilinear=True):
     # Generated with `ffmpeg -f lavfi -i haldclutsrc=6,curves=vintage,format=rgba
     # -f rawvideo -frames:v 1 lut3d.raw`
     lut3d_filename = op.join(op.dirname(__file__), "data", "lut3d.raw")
-    cfg.files.append(lut3d_filename)
     lut3d_buf = ngl.BufferUBVec4(filename=lut3d_filename)
     lut3d_tex = ngl.Texture3D(data_src=lut3d_buf, width=level2, height=level2, depth=level2)
     lut3d_tex.set_min_filter("linear" if trilinear else "nearest")
