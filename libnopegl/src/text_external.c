@@ -32,6 +32,7 @@
 #include "darray.h"
 #include "distmap.h"
 #include "hmap.h"
+#include "internal.h"
 #include "log.h"
 #include "memory.h"
 #include "nopegl.h"
@@ -41,7 +42,6 @@
 
 #if HAVE_TEXT_LIBRARIES
 struct text_external {
-    FT_Library ft_library;
     struct darray ft_faces; // FT_Face (hidden pointer)
     struct darray hb_fonts; // hb_font_t*
     struct distmap *distmap;
@@ -60,7 +60,7 @@ static int load_font(struct text *text, const char *font_file)
     FT_Face ft_face = NULL;
     hb_font_t *hb_font = NULL;
 
-    FT_Error ft_error = FT_New_Face(s->ft_library, font_file, 0, &ft_face);
+    FT_Error ft_error = FT_New_Face(text->ctx->ft_library, font_file, 0, &ft_face);
     if (ft_error) {
         LOG(ERROR, "unable to initialize FreeType with font %s", font_file);
         return NGL_ERROR_EXTERNAL;
@@ -136,12 +136,6 @@ static int text_external_init(struct text *text)
 
     ngli_darray_set_free_func(&s->ft_faces, free_ft_face, NULL);
     ngli_darray_set_free_func(&s->hb_fonts, free_hb_font, NULL);
-
-    FT_Error ft_error = FT_Init_FreeType(&s->ft_library);
-    if (ft_error) {
-        LOG(ERROR, "unable to initialize FreeType");
-        return NGL_ERROR_EXTERNAL;
-    }
 
     /* Duplicate the font files specifications so that we can inject '\0' into it */
     char *font_files = ngli_strdup(text->config.font_files);
@@ -825,9 +819,6 @@ static void text_external_reset(struct text *text)
 
     ngli_darray_reset(&s->hb_fonts);
     ngli_darray_reset(&s->ft_faces);
-
-    FT_Done_FreeType(s->ft_library);
-
     ngli_distmap_freep(&s->distmap);
 }
 
