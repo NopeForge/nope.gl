@@ -72,7 +72,7 @@ def scope_colorstats(cfg):
         """
     )
 
-    media = load_media(cfg, "cat")
+    media = load_media("cat")
 
     # The selected test media has a lot of black so we zoom into the histogram
     # to have a relevant output
@@ -93,7 +93,7 @@ def _get_histogram_func(mode):
     @test_fingerprint(keyframes=5, tolerance=5)
     @ngl.scene()
     def scene_func(cfg):
-        media = load_media(cfg, "mire")
+        media = load_media("mire")
         cfg.duration = media.duration
         cfg.aspect_ratio = (media.width, media.height)
         return ngl.RenderHistogram(stats=_get_colorstats(media), mode=mode)
@@ -110,7 +110,7 @@ def _get_waveform_func(mode):
     @test_fingerprint(keyframes=5, tolerance=3)
     @ngl.scene()
     def scene_func(cfg):
-        media = load_media(cfg, "mire")
+        media = load_media("mire")
         cfg.duration = media.duration
         cfg.aspect_ratio = (media.width, media.height)
         return ngl.RenderWaveform(stats=_get_colorstats(media), mode=mode)
@@ -128,7 +128,7 @@ scope_render_waveform_parade = _get_waveform_func("parade")
 def scope_rtt(cfg):
     """This test makes sure the texture is analyzed after the RTT has written into it"""
 
-    media = load_media(cfg, "mire")
+    media = load_media("mire")
     cfg.duration = media.duration
     cfg.aspect_ratio = (media.width, media.height)
 

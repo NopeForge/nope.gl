@@ -70,7 +70,7 @@ def obj(cfg: ngl.SceneCfg, model=None):
     normals = ngl.BufferVec3(data=normals_data)
 
     q = ngl.Geometry(vertices, texcoords, normals)
-    media = load_media(cfg, "mire")
+    media = load_media("mire")
     m = ngl.Media(media.filename)
     t = ngl.Texture2D(data_src=m)
     p = ngl.Program(vertex=get_shader("tex-tint-normals.vert"), fragment=get_shader("tex-tint-normals.frag"))

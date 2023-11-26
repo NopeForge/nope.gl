@@ -99,7 +99,7 @@ def texture_data_seek_timeranges(cfg: ngl.SceneCfg, w=4, h=5):
 @test_fingerprint(keyframes=5)
 @ngl.scene()
 def texture_displacement(cfg: ngl.SceneCfg):
-    m0 = load_media(cfg, "mire")
+    m0 = load_media("mire")
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
     m = ngl.Media(m0.filename)

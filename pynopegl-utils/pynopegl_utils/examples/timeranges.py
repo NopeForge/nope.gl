@@ -19,8 +19,8 @@ def parallel_playback(cfg: ngl.SceneCfg, fast=True, segment_time=2.0, constraine
     textures only when needed to be displayed, causing potential seek in the
     underlying media, and thus undesired delays.
     """
-    media1 = load_media(cfg, "mire")
-    media2 = load_media(cfg, "mire")
+    media1 = load_media("mire")
+    media2 = load_media("mire")
     m1 = ngl.Media(media1.filename, label="media #1")
     m2 = ngl.Media(media2.filename, label="media #2")
 
@@ -77,8 +77,8 @@ def simple_transition(cfg: ngl.SceneCfg, transition_start=2, transition_duration
     p1_2 = ngl.Program(vertex=vertex, fragment=fragment)
     p1_2.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_tex1_coord=ngl.IOVec2())
 
-    media1 = load_media(cfg, "mire")
-    media2 = load_media(cfg, "cat")
+    media1 = load_media("mire")
+    media2 = load_media("cat")
     m1 = ngl.Media(media1.filename, label="media #1")
     m2 = ngl.Media(media2.filename, label="media #2")
 

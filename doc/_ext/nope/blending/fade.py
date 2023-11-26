@@ -5,8 +5,8 @@ import pynopegl as ngl
 
 @ngl.scene()
 def fade(cfg: ngl.SceneCfg):
-    image0 = load_media(cfg, "rooster")
-    image1 = load_media(cfg, "panda")
+    image0 = load_media("rooster")
+    image1 = load_media("panda")
 
     cfg.aspect_ratio = image0.width, image0.height
     cfg.duration = 4

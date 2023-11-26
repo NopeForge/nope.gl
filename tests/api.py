@@ -245,11 +245,9 @@ def api_scene_files():
 
     assert scene.files == ["cat", "hamster"]
 
-    cfg = ngl.SceneCfg()
-
     # Replace the simple filename strings with their corresponding actual file paths
     for i, filepath in enumerate(scene.files):
-        new_filepath = load_media(cfg, filepath).filename
+        new_filepath = load_media(filepath).filename
         scene.update_filepath(i, new_filepath)
 
     # Query again the files and check if they've been updated
