@@ -14,7 +14,7 @@ def media_time_remapping(cfg: ngl.SceneCfg):
     ]
 
     # Basic media playback tree
-    media = load_media(cfg, "mire")
+    media = load_media("mire")
     m = ngl.Media(media.filename, time_anim=ngl.AnimatedTime(animkf))
     t = ngl.Texture2D(data_src=m)
     r = ngl.RenderTexture(t)

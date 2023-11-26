@@ -5,7 +5,7 @@ import pynopegl as ngl
 
 @ngl.scene()
 def image(cfg: ngl.SceneCfg):
-    image = load_media(cfg, "rooster")  # Replace "rooster" with a path to your image
+    image = load_media("rooster")  # Replace "rooster" with a path to your image
 
     cfg.aspect_ratio = image.width, image.height
 

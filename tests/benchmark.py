@@ -126,7 +126,7 @@ def _get_random_texture(cfg: ngl.SceneCfg, rng):
     texture = cfg.texture_cache.get(
         media_uid,
         ngl.Texture2D(
-            data_src=ngl.Media(load_media(cfg, media_uid).filename),
+            data_src=ngl.Media(load_media(media_uid).filename),
             min_filter="nearest",
             mag_filter="nearest",
         ),

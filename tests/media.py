@@ -32,7 +32,7 @@ import pynopegl as ngl
 
 
 def _get_time_scene(cfg: ngl.SceneCfg):
-    m0 = load_media(cfg, "mire")
+    m0 = load_media("mire")
 
     media_seek = 10
     noop_duration = 2
@@ -66,7 +66,7 @@ def _get_time_scene(cfg: ngl.SceneCfg):
 @test_fingerprint(width=320, height=240, keyframes=3, tolerance=1)
 @ngl.scene()
 def media_flat_remap(cfg: ngl.SceneCfg):
-    m0 = load_media(cfg, "mire")
+    m0 = load_media("mire")
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
@@ -96,7 +96,7 @@ def media_phases_resources(cfg: ngl.SceneCfg):
 @test_cuepoints(points={"X": (0, -0.625)}, keyframes=1, tolerance=1)
 @ngl.scene()
 def media_clamp(cfg: ngl.SceneCfg):
-    m0 = load_media(cfg, "mire")
+    m0 = load_media("mire")
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
@@ -108,7 +108,7 @@ def media_clamp(cfg: ngl.SceneCfg):
 @test_cuepoints(points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, keyframes=5, tolerance=1)
 @ngl.scene()
 def media_exposed_time(cfg: ngl.SceneCfg):
-    m0 = load_media(cfg, "mire")
+    m0 = load_media("mire")
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
@@ -149,7 +149,7 @@ def media_queue(cfg: ngl.SceneCfg, overlap_time=7.0, dim=3):
 
     nb_medias = dim * dim
 
-    medias = [load_media(cfg, m).filename for m in ("mire", "cat", "rooster", "panda")]
+    medias = [load_media(m).filename for m in ("mire", "cat", "rooster", "panda")]
 
     queued_medias = []
     for video_id in range(nb_medias):
@@ -175,7 +175,7 @@ def media_queue(cfg: ngl.SceneCfg, overlap_time=7.0, dim=3):
 @test_fingerprint(width=320, height=240, keyframes=20, tolerance=1)
 @ngl.scene()
 def media_timeranges_rtt(cfg: ngl.SceneCfg):
-    m0 = load_media(cfg, "mire")
+    m0 = load_media("mire")
     cfg.duration = d = 10
     cfg.aspect_ratio = (m0.width, m0.height)
 
