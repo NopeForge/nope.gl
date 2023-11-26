@@ -320,7 +320,6 @@ class SceneCfg:
     backend: Backend = Backend.AUTO
     samples: int = 0
     system: str = platform.system()
-    files: List[str] = field(default_factory=list)
     clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
     caps: Optional[Mapping[Cap, int]] = None
 
@@ -342,7 +341,6 @@ class SceneInfo:
     backend: Backend
     samples: int
     clear_color: Tuple[float, float, float, float]
-    files: List[str]
 
 
 def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str] = None):
@@ -379,7 +377,6 @@ def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str]
                 backend=scene_cfg.backend,
                 samples=scene_cfg.samples,
                 clear_color=scene_cfg.clear_color,
-                files=scene_cfg.files,
             )
 
         # Construct widgets specs
