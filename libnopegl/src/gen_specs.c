@@ -288,6 +288,11 @@ static int check_node_params(const struct node_class *cls)
     if (!par)
         return 0;
 
+    if (cls->params && !cls->opts_size) {
+        fprintf(stderr, "node type %s has parameters but no opts_size is specified\n", cls->name);
+        return NGL_ERROR_BUG;
+    }
+
     while (par->key) {
         if ((par->flags & NGLI_PARAM_FLAG_NON_NULL) && !pointer_based_parameter(par)) {
             fprintf(stderr, "parameter %s.%s has a non-applicable non-null flag\n", cls->name, par->key);
