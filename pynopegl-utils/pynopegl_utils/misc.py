@@ -103,7 +103,6 @@ def load_media(cfg: ngl.SceneCfg, file: str):
     if db_file:
         file = op.join(op.dirname(__file__), "assets", db_file)
     media = MediaInfo.from_filename(file)
-    cfg.files.append(media.filename)  # Register the file for hooks
     return media
 
 

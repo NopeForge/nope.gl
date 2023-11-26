@@ -176,16 +176,6 @@ class _SceneChangeWorker(QtCore.QObject):
             self._scene_change = (scene_id, session)
         self._process.emit()
 
-    @staticmethod
-    def _filename_escape(filename):
-        s = ""
-        for cval in filename.encode("utf-8"):
-            if cval >= ord("!") and cval <= ord("~") and cval != ord("%"):
-                s += chr(cval)
-            else:
-                s += "%%%02x" % (cval & 0xFF)
-        return s
-
     @QtCore.Slot()
     def _run(self):
         scene_change = None
@@ -207,23 +197,22 @@ class _SceneChangeWorker(QtCore.QObject):
             self.error.emit(session_id, "Error getting scene")
             return
 
+        scene = scene_info.scene
         try:
             # The serialized scene is associated with a bunch of assets which we
             # need to sync. Similarly, the remote assets directory might be
             # different from the one in local, so we need to fix up the scene
             # appropriately.
-            serialized_scene = scene_info.scene.serialize().decode("ascii")
-            filelist = scene_info.files
-            for i, localfile in enumerate(filelist, 1):
-                self.uploadingFile.emit(session_id, i, len(filelist), localfile)
+            filelist = scene.files
+            for i, localfile in enumerate(filelist):
+                self.uploadingFile.emit(session_id, i + 1, len(filelist), localfile)
                 try:
                     remotefile = self._hooks_caller.sync_file(session_id, localfile)
                 except Exception as e:
                     self.error.emit(session_id, "Error while uploading %s: %s" % (localfile, str(e)))
                     return
-                serialized_scene = serialized_scene.replace(
-                    self._filename_escape(localfile), self._filename_escape(remotefile)
-                )
+                scene.update_filepath(i, remotefile)
+            serialized_scene = scene.serialize().decode("ascii")
 
             # The serialized scene is then stored in a file which is then
             # communicated with additional parameters to the user
