@@ -1973,6 +1973,17 @@
         }
       ]
     },
+    "FontFace": {
+      "file": "src/node_fontface.c",
+      "params": [
+        {
+          "name": "path",
+          "type": "str",
+          "flags": ["nonull"],
+          "desc": "path to the font file"
+        }
+      ]
+    },
     "GaussianBlur": {
       "file": "src/node_gblur.c",
       "params": [
@@ -3628,10 +3639,11 @@
           "desc": "box height vector"
         },
         {
-          "name": "font_files",
-          "type": "str",
+          "name": "font_faces",
+          "type": "node_list",
+          "node_types": ["FontFace"],
           "flags": [],
-          "desc": "paths to font files (use ',' or ';' to separate paths, require build with external text libraries)"
+          "desc": "font faces in order of preferences (require build with external text libraries)"
         },
         {
           "name": "padding",

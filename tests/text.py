@@ -114,7 +114,7 @@ def text_arabic_shaping(cfg: ngl.SceneCfg):
     """Advanced shaping that typically relies on the positioning of the diacritics"""
     return ngl.Text(
         text="رَسْميّ",
-        font_files=_ARABIC_FONT.as_posix(),
+        font_faces=[ngl.FontFace(_ARABIC_FONT.as_posix())],
         aspect_ratio=cfg.aspect_ratio,
     )
 
@@ -126,7 +126,7 @@ def text_bidi_arabic_english(cfg: ngl.SceneCfg):
         text="هذا مزيج من English و نص عربي",
         # The Latin font is placed first so the fallback is actually tested (the
         # Arabic font contains Latin letters)
-        font_files=",".join(p.as_posix() for p in [_LATIN_FONT, _ARABIC_FONT]),
+        font_faces=[ngl.FontFace(p.as_posix()) for p in [_LATIN_FONT, _ARABIC_FONT]],
         aspect_ratio=cfg.aspect_ratio,
     )
 
@@ -138,7 +138,7 @@ def text_vertical_japanese(cfg: ngl.SceneCfg):
         # "Only kana, because that's a small font" (this is not a haiku)
         text="かなだけ、\nちいさいのフォント\nだから。",
         writing_mode="vertical-rl",
-        font_files=_JAPANESE_FONT.as_posix(),
+        font_faces=[ngl.FontFace(_JAPANESE_FONT.as_posix())],
         aspect_ratio=cfg.aspect_ratio,
     )
 

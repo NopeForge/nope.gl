@@ -475,6 +475,10 @@ enum {
     NGLI_TEXT_EFFECT_TEXT,
 };
 
+struct fontface_opts {
+    char *path;
+};
+
 struct texteffect_opts {
     double start_time;
     double end_time;
