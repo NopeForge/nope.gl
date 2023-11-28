@@ -3196,6 +3196,13 @@
           "default": [0.000000,0.000000,0.000000,0.000000],
           "flags": [],
           "desc": "color used to clear the `color_texture`"
+        },
+        {
+          "name": "forward_transforms",
+          "type": "bool",
+          "default": 0,
+          "flags": [],
+          "desc": "enable forwarding of camera/model transformations"
         }
       ]
     },
@@ -3778,6 +3785,13 @@
           "default": [0.000000,0.000000,0.000000,0.000000],
           "flags": [],
           "desc": "color used to clear the texture when used as an implicit render target"
+        },
+        {
+          "name": "forward_transforms",
+          "type": "bool",
+          "default": 0,
+          "flags": [],
+          "desc": "enable forwarding of camera/model transformations when used as an implicit render target"
         }
       ]
     },

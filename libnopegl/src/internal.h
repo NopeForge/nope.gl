@@ -101,6 +101,8 @@ struct ngl_ctx {
     struct rendertarget *available_rendertargets[2];
     struct rendertarget *current_rendertarget;
     int render_pass_started;
+    float default_modelview_matrix[16];
+    float default_projection_matrix[16];
     struct darray modelview_matrix_stack;
     struct darray projection_matrix_stack;
 
@@ -298,6 +300,7 @@ struct texture_opts {
     int direct_rendering;
     int clamp_video;
     float clear_color[4];
+    int forward_transforms;
 };
 
 struct texture_priv {

@@ -43,6 +43,7 @@ struct rtt_opts {
     struct ngl_node *depth_texture;
     int32_t samples;
     float clear_color[4];
+    int forward_transforms;
 };
 
 struct rtt_priv {
@@ -72,6 +73,8 @@ static const struct node_param rtt_params[] = {
                       .desc=NGLI_DOCSTRING("number of samples used for multisampling anti-aliasing")},
     {"clear_color",   NGLI_PARAM_TYPE_VEC4, OFFSET(clear_color),
                       .desc=NGLI_DOCSTRING("color used to clear the `color_texture`")},
+    {"forward_transforms", NGLI_PARAM_TYPE_BOOL, OFFSET(forward_transforms), {.i32=0},
+                           .desc=NGLI_DOCSTRING("enable forwarding of camera/model transformations")},
     {NULL}
 };
 
@@ -442,6 +445,7 @@ fail:
 
 static void rtt_draw(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
     struct rtt_priv *s = node->priv_data;
     const struct rtt_opts *o = node->opts;
 
@@ -451,9 +455,20 @@ static void rtt_draw(struct ngl_node *node)
             return;
     }
 
+    if (!o->forward_transforms) {
+        if (!ngli_darray_push(&ctx->modelview_matrix_stack, ctx->default_modelview_matrix) ||
+            !ngli_darray_push(&ctx->projection_matrix_stack, ctx->default_projection_matrix))
+            return;
+    }
+
     ngli_rtt_begin(s->rtt_ctx);
     ngli_node_draw(o->child);
     ngli_rtt_end(s->rtt_ctx);
+
+    if (!o->forward_transforms) {
+        ngli_darray_pop(&ctx->modelview_matrix_stack);
+        ngli_darray_pop(&ctx->projection_matrix_stack);
+    }
 }
 
 static void rtt_release(struct ngl_node *node)

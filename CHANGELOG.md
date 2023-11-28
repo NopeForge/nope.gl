@@ -23,6 +23,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `FastGaussianBlur` node to apply a post processing gaussian blur effect to a
   scene that is suitable for real time rendering on mobile devices as well as
   providing a resolution independent blurriness parameter
+- `forward_transforms` parameter to the `Texture` and `RenderToTexture` nodes
+  to enable forwarding of the camera/model transformations
 
 ### Fixed
 - Moving the split position in `ngl-diff`
@@ -41,6 +43,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   `ngl_scene_init()` with the associated `ngl_scene_params` structure
 - the `ngl_scene` structure is now private; its parameters can now be obtained
   using `ngl_scene_get_params()`
+- the `Texture` and `RenderToTexture` nodes no longer forward the camera/model
+  transformations by default
 
 ### Removed
 - `%s_dimensions` uniform for 2D array and 3D images/textures, users must use
