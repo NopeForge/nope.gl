@@ -194,6 +194,8 @@ static const struct node_param texture2d_params[] = {
                     .desc=NGLI_DOCSTRING("clamp ngl_texvideo() output to [0;1]")},
     {"clear_color", NGLI_PARAM_TYPE_VEC4, OFFSET(clear_color),
                     .desc=NGLI_DOCSTRING("color used to clear the texture when used as an implicit render target")},
+    {"forward_transforms", NGLI_PARAM_TYPE_BOOL, OFFSET(forward_transforms), {.i32=0},
+                           .desc=NGLI_DOCSTRING("enable forwarding of camera/model transformations when used as an implicit render target")},
     {NULL}
 };
 
@@ -556,6 +558,7 @@ fail:
 
 static void texture_draw(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
     struct texture_priv *s = node->priv_data;
     struct texture_opts *o = node->opts;
 
@@ -568,9 +571,20 @@ static void texture_draw(struct ngl_node *node)
             return;
     }
 
+    if (!o->forward_transforms) {
+        if (!ngli_darray_push(&ctx->modelview_matrix_stack, ctx->default_modelview_matrix) ||
+            !ngli_darray_push(&ctx->projection_matrix_stack, ctx->default_projection_matrix))
+            return;
+    }
+
     ngli_rtt_begin(s->rtt_ctx);
     ngli_node_draw(o->data_src);
     ngli_rtt_end(s->rtt_ctx);
+
+    if (!o->forward_transforms) {
+        ngli_darray_pop(&ctx->modelview_matrix_stack);
+        ngli_darray_pop(&ctx->projection_matrix_stack);
+    }
 }
 
 static void texture_release(struct ngl_node *node)

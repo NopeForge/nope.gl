@@ -354,6 +354,8 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
 
     NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;
     ngli_gpu_ctx_transform_projection_matrix(s->gpu_ctx, matrix);
+    memcpy(s->default_projection_matrix, matrix, sizeof(matrix));
+
     ngli_darray_clear(&s->projection_matrix_stack);
     if (!ngli_darray_push(&s->projection_matrix_stack, matrix)) {
         ret = NGL_ERROR_MEMORY;
@@ -640,6 +642,9 @@ struct ngl_ctx *ngl_create(void)
     ngli_darray_init(&s->activitycheck_nodes, sizeof(struct ngl_node *), 0);
 
     static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
+    memcpy(s->default_modelview_matrix, id_matrix, sizeof(id_matrix));
+    memcpy(s->default_projection_matrix, id_matrix, sizeof(id_matrix));
+
     if (!ngli_darray_push(&s->modelview_matrix_stack, id_matrix) ||
         !ngli_darray_push(&s->projection_matrix_stack, id_matrix))
         goto fail;
