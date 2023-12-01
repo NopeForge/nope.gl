@@ -15,6 +15,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `ngl_get_viewport()` to get the viewport currently in use by the rendering
   context
 - `FontFace.index` parameter to select a different face in the font file
+- `RadialBlur` node to apply a post processing radial blur effect to a scene
 
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node
