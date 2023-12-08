@@ -394,8 +394,10 @@ static int resize(struct ngl_node *node)
     int32_t mip_height = height;
     for (size_t i = 0; i < MAX_MIP_LEVELS; i++) {
         mips[i] = ngli_rtt_create(ctx);
-        if (!mips[i])
-            return NGL_ERROR_MEMORY;
+        if (!mips[i]) {
+            ret = NGL_ERROR_MEMORY;
+            goto fail;
+        }
 
         texture_params.width = mip_width;
         texture_params.height = mip_height;
