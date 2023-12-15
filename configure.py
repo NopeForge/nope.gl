@@ -45,7 +45,7 @@ _ROOTDIR = op.abspath(op.dirname(__file__))
 _SYSTEM = "MinGW" if sysconfig.get_platform().startswith("mingw") else platform.system()
 _RENDERDOC_ID = f"renderdoc_{_SYSTEM}"
 _EXTERNAL_DEPS = dict(
-    ffmpeg=dict(
+    ffmpeg_Windows=dict(
         version="6.0",
         url="https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2023-03-31-12-50/ffmpeg-n@VERSION@-11-g3980415627-win64-gpl-shared-@VERSION@.zip",
         dst_file="ffmpeg-@VERSION@.zip",
@@ -69,13 +69,13 @@ _EXTERNAL_DEPS = dict(
         dst_file="opengl-registry-@VERSION@.zip",
         sha256="8e6efa8d9ec5ef1b2c735b2fc2afdfed210a3a5aa01c48e572326914e27bb221",
     ),
-    sdl2=dict(
+    sdl2_Windows=dict(
         version="2.26.5",
         url="https://github.com/libsdl-org/SDL/releases/download/release-@VERSION@/SDL2-devel-@VERSION@-VC.zip",
         dst_file="SDL2-@VERSION@.zip",
         sha256="446cf6277ff0dd4211e6dc19c1b9015210a72758f53f5034c7e4d6b60e540ecf",
     ),
-    glslang=dict(
+    glslang_Windows=dict(
         # Use the legacy master-tot Windows build until the main-tot one is
         # fixed, or until the glslang project provides Windows builds for their
         # stable releases
@@ -125,9 +125,9 @@ def _get_external_deps(args):
         deps.append("pkgconf")
         deps.append("egl_registry")
         deps.append("opengl_registry")
-        deps.append("ffmpeg")
-        deps.append("sdl2")
-        deps.append("glslang")
+        deps.append("ffmpeg_Windows")
+        deps.append("sdl2_Windows")
+        deps.append("glslang_Windows")
         deps.append("freetype")
         deps.append("harfbuzz")
         deps.append("fribidi")
@@ -329,7 +329,7 @@ def _ffmpeg_install(cfg):
     )
     cmds = []
     for src, dst in dirs:
-        src = op.join(cfg.externals["ffmpeg"], src, "*")
+        src = op.join(cfg.externals["ffmpeg_Windows"], src, "*")
         dst = op.join(cfg.prefix, dst)
         cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
     return cmds
@@ -344,12 +344,12 @@ def _sdl2_install(cfg):
     )
     cmds = []
     for d in dirs:
-        src = op.join(cfg.externals["sdl2"], d, "*")
+        src = op.join(cfg.externals["sdl2_Windows"], d, "*")
         dst = op.join(cfg.prefix, d)
         os.makedirs(dst, exist_ok=True)
         cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
 
-    src = op.join(cfg.externals["sdl2"], "lib", "x64", "SDL2.dll")
+    src = op.join(cfg.externals["sdl2_Windows"], "lib", "x64", "SDL2.dll")
     dst = op.join(cfg.prefix, "Scripts")
     cmds.append(_cmd_join("xcopy", src, dst, "/y"))
 
@@ -365,7 +365,7 @@ def _glslang_install(cfg):
     )
     cmds = []
     for src, dst in dirs:
-        src = op.join(cfg.externals["glslang"], src, "*")
+        src = op.join(cfg.externals["glslang_Windows"], src, "*")
         dst = op.join(cfg.prefix, dst)
         cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
 
