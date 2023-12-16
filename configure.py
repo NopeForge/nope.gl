@@ -698,17 +698,42 @@ def _get_make_vars(cfg):
     return ret
 
 
+def _add_prerequisite(cfg, block, dep):
+    if isinstance(block.prerequisites, list):
+        block.prerequisites.append(dep)
+    elif isinstance(block.prerequisites, dict):
+        if _SYSTEM in block.prerequisites:
+            block.prerequisites[_SYSTEM].append(dep)
+        else:
+            block.prerequisites[_SYSTEM] = [dep]
+    else:
+        assert block.prerequisites is None
+
+
+def _get_prerequisites(cfg, block):
+    prereqs = []
+    if isinstance(block.prerequisites, list):
+        prereqs = block.prerequisites
+    elif isinstance(block.prerequisites, dict):
+        if _SYSTEM in block.prerequisites:
+            prereqs = block.prerequisites[_SYSTEM]
+    else:
+        assert block.prerequisites is None
+    return prereqs
+
+
 def _get_makefile_rec(cfg, blocks, declared):
     ret = ""
     for block in blocks:
         if block.name in declared:
             continue
         declared |= {block.name}
-        req_names = " ".join(r.name for r in block.prerequisites)
+        prereqs = _get_prerequisites(cfg, block)
+        req_names = " ".join(r.name for r in prereqs)
         req = f" {req_names}" if req_names else ""
         commands = "\n".join("\t" + cmd for cmd in block(cfg))
         ret += f"{block.name}:{req}\n{commands}\n"
-        ret += _get_makefile_rec(cfg, block.prerequisites, declared)
+        ret += _get_makefile_rec(cfg, prereqs, declared)
     return ret
 
 
@@ -782,7 +807,7 @@ class _Config:
             _nopegl_setup.prerequisites.append(_harfbuzz_install)
             _nopegl_setup.prerequisites.append(_fribidi_install)
             if "gpu_capture" in args.debug_opts:
-                _nopegl_setup.prerequisites.append(_renderdoc_install)
+                _add_prerequisite(self, _nopegl_setup, _renderdoc_install)
 
     def get_env(self):
         sep = ":" if _SYSTEM == "MinGW" else os.pathsep
