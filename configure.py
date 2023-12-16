@@ -42,10 +42,86 @@ import zipfile
 from multiprocessing import Pool
 from subprocess import run
 
+_CPU_FAMILY_MAP = dict(
+    arm="arm",
+    aarch64="arm",
+    x86_64="x86",
+)
+
+_ANDROID_VERSION = 28
+
+_ANDROID_COMPILER_MAP = dict(
+    arm=f"armv7a-linux-androideabi{_ANDROID_VERSION}",
+    aarch64=f"aarch64-linux-android{_ANDROID_VERSION}",
+    x86_64=f"x86_64-linux-android{_ANDROID_VERSION}",
+)
+
+_ANDROID_ABI_MAP = dict(
+    arm="armeabi-v7a",
+    aarch64="arm64-v8a",
+    x86_64="x86_64",
+)
+
+_ANDROID_BUILD_MAP = dict(
+    Linux="linux-x86_64",
+    Darwin="darwin-x86_64",
+    Windows="windows-x86_64",
+)
+
+_ANDROID_CROSS_FILE_TPL = textwrap.dedent(
+    """\
+    [constants]
+    ndk_home = '{ndk_home}'
+    toolchain = ndk_home / 'toolchains/llvm/prebuilt/{ndk_build}/bin'
+    [binaries]
+    c = toolchain / '{compiler}-clang'
+    cpp = toolchain / '{compiler}-clang++'
+    strip = toolchain / 'llvm-strip'
+    ar = toolchain / 'llvm-ar'
+    pkgconfig = 'pkg-config'
+    [host_machine]
+    system = 'android'
+    cpu_family = '{cpu_family}'
+    cpu = '{cpu}'
+    endian = 'little'
+    """
+)
+
+
+def _get_android_cross_file_path(cfg):
+    return op.join(cfg.prefix, f"meson-android-{cfg.args.host_arch}.ini")
+
+
+def _gen_android_cross_file(cfg):
+    cross_file = _ANDROID_CROSS_FILE_TPL.format(
+        ndk_home=cfg.android_ndk_home,
+        ndk_build=cfg.android_ndk_build,
+        compiler=cfg.android_compiler,
+        cpu_family=cfg.cpu_family,
+        cpu=cfg.cpu,
+    )
+    cross_file_path = _get_android_cross_file_path(cfg)
+    os.makedirs(op.dirname(cross_file_path), exist_ok=True)
+    with open(cross_file_path, "w") as fp:
+        fp.write(cross_file)
+
+
 _ROOTDIR = op.abspath(op.dirname(__file__))
 _SYSTEM = "MinGW" if sysconfig.get_platform().startswith("mingw") else platform.system()
 _RENDERDOC_ID = f"renderdoc_{_SYSTEM}"
 _EXTERNAL_DEPS = dict(
+    boringssl=dict(
+        version="7a81362",
+        url="https://codeload.github.com/google/boringssl/zip/@VERSION@",
+        dst_file="boringssl-@VERSION@.zip",
+        sha256="1e311f2328e721bb1317b39178ea540eb43588d311051300cc9ce35e9ee64990",
+    ),
+    ffmpeg=dict(
+        version="6.1",
+        url="https://ffmpeg.org/releases/ffmpeg-@VERSION@.tar.xz",
+        dst_file="ffmpeg-@VERSION@.tar.xz",
+        sha256="488c76e57dd9b3bee901f71d5c95eaf1db4a5a31fe46a28654e837144207c270",
+    ),
     ffmpeg_Windows=dict(
         version="6.0",
         url="https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2023-03-31-12-50/ffmpeg-n@VERSION@-11-g3980415627-win64-gpl-shared-@VERSION@.zip",
@@ -75,6 +151,12 @@ _EXTERNAL_DEPS = dict(
         url="https://github.com/libsdl-org/SDL/releases/download/release-@VERSION@/SDL2-devel-@VERSION@-VC.zip",
         dst_file="SDL2-@VERSION@.zip",
         sha256="446cf6277ff0dd4211e6dc19c1b9015210a72758f53f5034c7e4d6b60e540ecf",
+    ),
+    glslang=dict(
+        version="13.1.1",
+        dst_file="glslang-@VERSION@.tar.gz",
+        url="https://github.com/KhronosGroup/glslang/archive/refs/tags/@VERSION@.tar.gz",
+        sha256="1c4d0a5a38c8aaf89a2d7e6093be734320599f5a6775b2726beeb05b0c054e66",
     ),
     glslang_Windows=dict(
         # Use the legacy master-tot Windows build until the main-tot one is
@@ -128,7 +210,14 @@ def _get_external_deps(args):
     deps = ["nopemd"]
 
     host, _ = _get_host(args)
-    if host == "Windows":
+    if host == "Android":
+        deps.append("boringssl")
+        deps.append("ffmpeg")
+        deps.append("glslang")
+        deps.append("freetype")
+        deps.append("harfbuzz")
+        deps.append("fribidi")
+    elif host == "Windows":
         deps.append("pkgconf")
         deps.append("egl_registry")
         deps.append("opengl_registry")
@@ -353,19 +442,202 @@ def _opengl_registry_install(cfg):
     return cmds
 
 
-@_block("ffmpeg-install", [])
-def _ffmpeg_install(cfg):
-    dirs = (
-        ("bin", "Scripts"),
-        ("lib", "Lib"),
-        ("include", "Include"),
-    )
-    cmds = []
-    for src, dst in dirs:
-        src = op.join(cfg.externals["ffmpeg_Windows"], src, "*")
-        dst = op.join(cfg.prefix, dst)
-        cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
+@_block("boringssl-setup", [])
+def _boringssl_setup(cfg):
+    if cfg.host == "Android":
+        build_type = "Debug" if cfg.args.buildtype == "debug" else "Release"
+        cmds = [
+            _cmd_join(
+                "cmake",
+                "-GNinja",
+                f"-DCMAKE_BUILD_TYPE={build_type}",
+                f"-DCMAKE_TOOLCHAIN_FILE={cfg.android_cmake_toolchain}",
+                "-DANDROID_STL=c++_shared",
+                "-DANDROID_TOOLCHAIN=clang",
+                f"-DANDROID_PLATFORM=android-{_ANDROID_VERSION}",
+                f"-DANDROID_ABI={cfg.android_abi}",
+                f"-DCMAKE_INSTALL_PREFIX={cfg.prefix}",
+                "-DBUILD_SHARED_LIBS=OFF",
+                "-S",
+                cfg.externals["boringssl"],
+                "-B",
+                _get_builddir(cfg, "boringssl"),
+            ),
+        ]
+        return cmds
+    else:
+        return []
+
+
+@_block("boringssl-install", [_boringssl_setup])
+def _boringssl_install(cfg):
+    builddir = _get_builddir(cfg, "boringssl")
+    cmds = [
+        _cmd_join("cmake", "--build", builddir, "--target", "crypto", "--target", "ssl", "--target", "bssl"),
+        _cmd_join("cmake", "--install", builddir),
+    ]
     return cmds
+
+
+@_block("ffmpeg-setup", {"Android": [_boringssl_install]})
+def _ffmpeg_setup(cfg):
+    if cfg.host == "Android":
+        muxers = [
+            "gif",
+            "image2",
+            "ipod",
+            "mov",
+            "mp4",
+        ]
+        parsers = [
+            "aac",
+            "av1",
+            "flac",
+            "h264",
+            "hevc",
+            "mjpeg",
+            "png",
+            "vp8",
+            "vp9",
+        ]
+        bsfs = [
+            "aac_adtstoasc",
+            "extract_extradata",
+            "h264_mp4toannexb",
+            "hevc_mp4toannexb",
+            "vp9_superframe",
+        ]
+        protocols = [
+            "fd",
+            "file",
+            "http",
+            "https",
+            "pipe",
+        ]
+        filters = [
+            "aformat",
+            "aresample",
+            "asetnsamples",
+            "asettb",
+            "copy",
+            "format",
+            "fps",
+            "hflip",
+            "palettegen",
+            "paletteuse",
+            "scale",
+            "settb",
+            "transpose",
+            "vflip",
+        ]
+        demuxers = [
+            "aac",
+            "aiff",
+            "avi",
+            "flac",
+            "gif",
+            "image2",
+            "image_jpeg_pipe",
+            "image_pgm_pipe",
+            "image_png_pipe",
+            "image_webp_pipe",
+            "matroska",
+            "mov",
+            "mp3",
+            "mp4",
+            "mpegts",
+            "ogg",
+            "rawvideo",
+            "wav",
+        ]
+        decoders = [
+            "aac",
+            "alac",
+            "amrnb",
+            "av1_mediacodec",
+            "flac",
+            "gif",
+            "h264_mediacodec",
+            "hevc_mediacodec",
+            "mjpeg",
+            "mp3",
+            "opus",
+            "pcm_s16be",
+            "pcm_s16le",
+            "pcm_s24be",
+            "pcm_s24le",
+            "png",
+            "rawvideo",
+            "vorbis",
+            "vp8",
+            "vp8_mediacodec",
+            "vp9_mediacodec",
+            "webp",
+        ]
+        encoders = ["mjpeg", "png", "aac"]
+        builddir = _get_builddir(cfg, "ffmpeg")
+        os.makedirs(builddir, exist_ok=True)
+        extra_include_dir = op.join(cfg.prefix, "include")
+        extra_library_dir = op.join(cfg.prefix, "lib")
+        return [
+            f"cd {builddir} && "
+            + _cmd_join(
+                op.join(cfg.externals["ffmpeg"], "configure"),
+                "--disable-everything",
+                "--disable-doc",
+                "--disable-static",
+                "--disable-autodetect",
+                "--disable-programs",
+                "--enable-shared",
+                "--enable-cross-compile",
+                "--enable-jni",
+                "--enable-mediacodec",
+                "--enable-hwaccels",
+                "--enable-avdevice",
+                "--enable-swresample",
+                "--enable-zlib",
+                "--enable-openssl",
+                "--enable-filter=%s" % ",".join(filters),
+                "--enable-bsf=%s" % ",".join(bsfs),
+                "--enable-encoder=%s" % ",".join(encoders),
+                "--enable-demuxer=%s" % ",".join(demuxers),
+                "--enable-decoder=%s" % ",".join(decoders),
+                "--enable-parser=%s" % ",".join(parsers),
+                "--enable-muxer=%s" % ",".join(muxers),
+                "--enable-protocol=%s" % ",".join(protocols),
+                f"--arch={cfg.host_arch}",
+                "--target-os=android",
+                f"--cross-prefix={cfg.android_ndk_bin}{op.sep}llvm-",
+                f"--cc={cfg.android_ndk_bin}{os.sep}{cfg.android_compiler}-clang",
+                f"--extra-cflags=-I{extra_include_dir}",
+                f"--extra-ldflags=-L{extra_library_dir}",
+                f"--prefix={cfg.prefix}",
+            ),
+        ]
+    return []
+
+
+@_block("ffmpeg-install", [_ffmpeg_setup])
+def _ffmpeg_install(cfg):
+    if cfg.host == "Windows":
+        dirs = (
+            ("bin", "Scripts"),
+            ("lib", "Lib"),
+            ("include", "Include"),
+        )
+        cmds = []
+        for src, dst in dirs:
+            src = op.join(cfg.externals["ffmpeg_Windows"], src, "*")
+            dst = op.join(cfg.prefix, dst)
+            cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
+        return cmds
+    elif cfg.host == "Android":
+        builddir = _get_builddir(cfg, "ffmpeg")
+        cmds = [
+            f"cd {builddir} && " + _cmd_join("make", f"-j{os.cpu_count()}"),
+            f"cd {builddir} && " + _cmd_join("make", "install"),
+        ]
+        return cmds
 
 
 @_block("sdl2-install", [])
@@ -389,25 +661,62 @@ def _sdl2_install(cfg):
     return cmds
 
 
-@_block("glslang-install", [])
-def _glslang_install(cfg):
-    dirs = (
-        ("lib", "Lib"),
-        ("include", "Include"),
-        ("bin", "Scripts"),
-    )
-    cmds = []
-    for src, dst in dirs:
-        src = op.join(cfg.externals["glslang_Windows"], src, "*")
-        dst = op.join(cfg.prefix, dst)
-        cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
+@_block("glslang-setup", [])
+def _glslang_setup(cfg):
+    if cfg.host == "Android":
+        build_type = "Debug" if cfg.args.buildtype == "debug" else "Release"
+        cmds = [
+            _cmd_join(
+                "cmake",
+                "-GNinja",
+                f"-DCMAKE_BUILD_TYPE={build_type}",
+                f"-DCMAKE_TOOLCHAIN_FILE={cfg.android_cmake_toolchain}",
+                "-DANDROID_STL=c++_shared",
+                "-DANDROID_TOOLCHAIN=clang",
+                f"-DANDROID_PLATFORM=android-{_ANDROID_VERSION}",
+                f"-DANDROID_ABI={cfg.android_abi}",
+                f"-DCMAKE_INSTALL_PREFIX={cfg.prefix}",
+                "-DBUILD_SHARED_LIBS=OFF",
+                "-DBUILD_EXTERNAL=OFF",
+                "-DENABLE_OPT=OFF",
+                "-S",
+                cfg.externals["glslang"],
+                "-B",
+                _get_builddir(cfg, "glslang"),
+            ),
+        ]
+        return cmds
+    else:
+        return []
 
-    return cmds
+
+@_block("glslang-install", [_glslang_setup])
+def _glslang_install(cfg):
+    if cfg.host == "Android":
+        builddir = _get_builddir(cfg, "glslang")
+        cmds = [
+            _cmd_join("cmake", "--build", builddir),
+            _cmd_join("cmake", "--install", builddir),
+        ]
+        return cmds
+    elif cfg.host == "Windows":
+        dirs = (
+            ("lib", "Lib"),
+            ("include", "Include"),
+            ("bin", "Scripts"),
+        )
+        cmds = []
+        for src, dst in dirs:
+            src = op.join(cfg.externals["glslang_Windows"], src, "*")
+            dst = op.join(cfg.prefix, dst)
+            cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
+        return cmds
 
 
 @_block(
     "nopemd-setup",
     {
+        "Android": [_ffmpeg_install],
         "Windows": [_pkgconf_install, _ffmpeg_install, _sdl2_install],
     },
 )
@@ -463,6 +772,13 @@ def _fribidi_install(cfg):
 @_block(
     "nopegl-setup",
     {
+        "Android": [
+            _nopemd_install,
+            _glslang_install,
+            _freetype_install,
+            _harfbuzz_install,
+            _fribidi_install,
+        ],
         "Local": [_nopemd_install],
         "Windows": [
             _nopemd_install,
@@ -491,7 +807,11 @@ def _nopegl_setup(cfg):
 
     extra_library_dirs = []
     extra_include_dirs = []
-    if cfg.host == "Windows":
+    if cfg.host == "Android":
+        extra_library_dirs += [op.join(cfg.prefix, "lib")]
+        extra_include_dirs += [op.join(cfg.prefix, "include")]
+
+    elif cfg.host == "Windows":
         extra_library_dirs += [op.join(cfg.prefix, "Lib")]
         extra_include_dirs += [op.join(cfg.prefix, "Include")]
 
@@ -593,7 +913,13 @@ def _nopegl_updateglwrappers(cfg):
     return _nopegl_run_target_cmd(cfg, "updateglwrappers")
 
 
-@_block("all", [_ngl_tools_install, _pynopegl_utils_install])
+@_block(
+    "all",
+    {
+        "Local": [_ngl_tools_install, _pynopegl_utils_install],
+        "Android": [_nopegl_install],
+    },
+)
 def _all(cfg):
     echo = ["", "Build completed.", "", "You can now enter the venv with:"]
     if cfg.host == "Windows":
@@ -727,6 +1053,9 @@ def _get_make_vars(cfg):
         # Workaround Debian/Ubuntu bug; see https://github.com/mesonbuild/meson/issues/5925
         meson_setup += ["--libdir=lib"]
 
+    if cfg.host == "Android":
+        meson_setup += ["--cross-file=" + _get_android_cross_file_path(cfg)]
+
     ret = dict(
         PYTHON=python,
         PIP=_cmd_join(python, "-m", "pip"),
@@ -846,12 +1175,32 @@ class _Config:
 
         if _is_local(self.host):
             self.prefix = self.venv_path
+        elif self.host == "Android":
+            self.android_abi = _ANDROID_ABI_MAP[args.host_arch]
+            self.prefix = op.join(op.abspath(self.host), self.android_abi)
         else:
             assert False
 
         self.bin_path = op.join(self.prefix, _get_bin_dir(self.host))
         self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
         self.externals = externals
+
+        self.cpu = args.host_arch
+        self.cpu_family = _CPU_FAMILY_MAP[args.host_arch]
+
+        if args.host == "Android":
+            self.android_ndk_home = os.getenv("ANDROID_NDK_HOME")
+            if not self.android_ndk_home:
+                raise Exception("ANDROID_NDK_HOME is not set")
+
+            self.android_abi = _ANDROID_ABI_MAP[args.host_arch]
+            self.android_compiler = _ANDROID_COMPILER_MAP[args.host_arch]
+            self.android_ndk_build = _ANDROID_BUILD_MAP[_SYSTEM]
+
+            self.android_ndk_bin = op.join(
+                self.android_ndk_home, "toolchains", "llvm", "prebuilt", self.android_ndk_build, "bin"
+            )
+            self.android_cmake_toolchain = op.join(self.android_ndk_home, "build", "cmake", "android.toolchain.cmake")
 
         if self.host == "Windows":
             if "gpu_capture" in args.debug_opts:
@@ -862,7 +1211,10 @@ class _Config:
         env = {}
         env["PATH"] = sep.join((self.venv_bin_path, "$(PATH)"))
         env["PKG_CONFIG_PATH"] = self.pkg_config_path
-        if self.host == "Windows":
+        if self.host == "Android":
+            env["PKG_CONFIG_LIBDIR"] = self.pkg_config_path
+            env["CMAKE_PREFIX_PATH"] = op.join(self.prefix, "lib", "cmake")
+        elif self.host == "Windows":
             env["PKG_CONFIG_ALLOW_SYSTEM_LIBS"] = "1"
             env["PKG_CONFIG_ALLOW_SYSTEM_CFLAGS"] = "1"
             env["CMAKE_PREFIX_PATH"] = op.join(self.prefix, "cmake")
@@ -870,6 +1222,11 @@ class _Config:
             # See https://setuptools.pypa.io/en/latest/deprecated/distutils-legacy.html
             env["SETUPTOOLS_USE_DISTUTILS"] = "stdlib"
         return env
+
+
+def _build_env_cross_file(cfg):
+    if cfg.args.host == "Android":
+        _gen_android_cross_file(cfg)
 
 
 def _build_env_scripts(cfg):
@@ -937,10 +1294,10 @@ def _run():
         action=argparse.BooleanOptionalAction,
         help="Only download the external dependencies",
     )
-    parser.add_argument("--host", choices=(), default=None, help="Cross compilation host machine")
+    parser.add_argument("--host", choices=("Android",), default=None, help="Cross compilation host machine")
     parser.add_argument(
         "--host-arch",
-        choices=("arm", "aarch64", "x86_64"),
+        choices=_CPU_FAMILY_MAP.keys(),
         default="aarch64",
         help="Cross compilation host machine architecture",
     )
@@ -952,6 +1309,9 @@ def _run():
     externals = _fetch_externals(args)
     if args.download_only:
         return
+
+    if args.host == "Android" and _SYSTEM not in {"Linux", "Darwin"}:
+        raise NotImplementedError(f"Android cross-build is not supported on {_SYSTEM}")
 
     _build_venv(args)
 
@@ -985,6 +1345,7 @@ def _run():
     with open(dst_makefile, "w") as f:
         f.write(makefile)
 
+    _build_env_cross_file(cfg)
     _build_env_scripts(cfg)
 
 
