@@ -372,7 +372,12 @@ def _glslang_install(cfg):
     return cmds
 
 
-@_block("nopemd-setup")
+@_block(
+    "nopemd-setup",
+    {
+        "Windows": [_pkgconf_install, _ffmpeg_install, _sdl2_install],
+    },
+)
 def _nopemd_setup(cfg):
     builddir = op.join("external", "nopemd", "builddir")
     return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(cfg.externals["nopemd"], builddir)]
@@ -389,7 +394,7 @@ def _renderdoc_install(cfg):
     return [f"copy {renderdoc_dll} {cfg.bin_path}"]
 
 
-@_block("freetype-setup", [_pkgconf_install])
+@_block("freetype-setup", {"Windows": [_pkgconf_install]})
 def _freetype_setup(cfg):
     builddir = op.join("external", "freetype", "builddir")
     return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["freetype"], builddir)]
@@ -411,7 +416,7 @@ def _harfbuzz_install(cfg):
     return _meson_compile_install_cmd(cfg, "harfbuzz", external=True)
 
 
-@_block("fribidi-setup", [_pkgconf_install])
+@_block("fribidi-setup", {"Windows": [_pkgconf_install]})
 def _fribidi_setup(cfg):
     builddir = op.join("external", "fribidi", "builddir")
     return ["$(MESON_SETUP) " + _cmd_join("-Ddocs=false", cfg.externals["fribidi"], builddir)]
@@ -422,7 +427,24 @@ def _fribidi_install(cfg):
     return _meson_compile_install_cmd(cfg, "fribidi", external=True)
 
 
-@_block("nopegl-setup", [_nopemd_install])
+@_block(
+    "nopegl-setup",
+    {
+        "Linux": [_nopemd_install],
+        "Darwin": [_nopemd_install],
+        "MinGW": [_nopemd_install],
+        "Windows": [
+            _nopemd_install,
+            _sdl2_install,
+            _egl_registry_install,
+            _opengl_registry_install,
+            _glslang_install,
+            _freetype_install,
+            _harfbuzz_install,
+            _fribidi_install,
+        ],
+    },
+)
 def _nopegl_setup(cfg):
     nopegl_opts = []
     if cfg.args.debug_opts:
@@ -797,15 +819,6 @@ class _Config:
         self.externals = externals
 
         if _SYSTEM == "Windows":
-            _nopemd_setup.prerequisites.append(_pkgconf_install)
-            _nopemd_setup.prerequisites.append(_egl_registry_install)
-            _nopemd_setup.prerequisites.append(_opengl_registry_install)
-            _nopemd_setup.prerequisites.append(_ffmpeg_install)
-            _nopemd_setup.prerequisites.append(_sdl2_install)
-            _nopegl_setup.prerequisites.append(_glslang_install)
-            _nopegl_setup.prerequisites.append(_freetype_install)
-            _nopegl_setup.prerequisites.append(_harfbuzz_install)
-            _nopegl_setup.prerequisites.append(_fribidi_install)
             if "gpu_capture" in args.debug_opts:
                 _add_prerequisite(self, _nopegl_setup, _renderdoc_install)
 
