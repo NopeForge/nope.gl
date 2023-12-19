@@ -389,6 +389,39 @@ def _renderdoc_install(cfg):
     return [f"copy {renderdoc_dll} {cfg.bin_path}"]
 
 
+@_block("freetype-setup", [_pkgconf_install])
+def _freetype_setup(cfg):
+    builddir = op.join("external", "freetype", "builddir")
+    return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["freetype"], builddir)]
+
+
+@_block("freetype-install", [_freetype_setup])
+def _freetype_install(cfg):
+    return _meson_compile_install_cmd(cfg, "freetype", external=True)
+
+
+@_block("harfbuzz-setup", [_freetype_install])
+def _harfbuzz_setup(cfg):
+    builddir = op.join("external", "harfbuzz", "builddir")
+    return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["harfbuzz"], builddir)]
+
+
+@_block("harfbuzz-install", [_harfbuzz_setup])
+def _harfbuzz_install(cfg):
+    return _meson_compile_install_cmd(cfg, "harfbuzz", external=True)
+
+
+@_block("fribidi-setup", [_pkgconf_install])
+def _fribidi_setup(cfg):
+    builddir = op.join("external", "fribidi", "builddir")
+    return ["$(MESON_SETUP) " + _cmd_join("-Ddocs=false", cfg.externals["fribidi"], builddir)]
+
+
+@_block("fribidi-install", [_fribidi_setup])
+def _fribidi_install(cfg):
+    return _meson_compile_install_cmd(cfg, "fribidi", external=True)
+
+
 @_block("nopegl-setup", [_nopemd_install])
 def _nopegl_setup(cfg):
     nopegl_opts = []
@@ -478,39 +511,6 @@ def _ngl_tools_setup(cfg):
 @_block("ngl-tools-install", [_ngl_tools_setup])
 def _ngl_tools_install(cfg):
     return _meson_compile_install_cmd(cfg, "ngl-tools")
-
-
-@_block("freetype-setup", [_pkgconf_install])
-def _freetype_setup(cfg):
-    builddir = op.join("external", "freetype", "builddir")
-    return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["freetype"], builddir)]
-
-
-@_block("freetype-install", [_freetype_setup])
-def _freetype_install(cfg):
-    return _meson_compile_install_cmd(cfg, "freetype", external=True)
-
-
-@_block("harfbuzz-setup", [_freetype_install])
-def _harfbuzz_setup(cfg):
-    builddir = op.join("external", "harfbuzz", "builddir")
-    return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["harfbuzz"], builddir)]
-
-
-@_block("harfbuzz-install", [_harfbuzz_setup])
-def _harfbuzz_install(cfg):
-    return _meson_compile_install_cmd(cfg, "harfbuzz", external=True)
-
-
-@_block("fribidi-setup", [_pkgconf_install])
-def _fribidi_setup(cfg):
-    builddir = op.join("external", "fribidi", "builddir")
-    return ["$(MESON_SETUP) " + _cmd_join("-Ddocs=false", cfg.externals["fribidi"], builddir)]
-
-
-@_block("fribidi-install", [_fribidi_setup])
-def _fribidi_install(cfg):
-    return _meson_compile_install_cmd(cfg, "fribidi", external=True)
 
 
 @_block("ngl-tools-install-nosetup", [_nopegl_install_nosetup])
