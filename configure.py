@@ -269,8 +269,8 @@ def _block(name, prerequisites=None):
     return real_decorator
 
 
-def _meson_compile_install_cmd(component, external=False):
-    builddir = op.join("external", component, "builddir") if external else op.join("builddir", component)
+def _meson_compile_install_cmd(cfg, component, external=False):
+    builddir = op.join(cfg.externals[component], "builddir") if external else op.join("builddir", component)
     return ["$(MESON) " + _cmd_join(action, "-C", builddir) for action in ("compile", "install")]
 
 
@@ -282,7 +282,7 @@ def _pkgconf_setup(cfg):
 
 @_block("pkgconf-install", [_pkgconf_setup])
 def _pkgconf_install(cfg):
-    ret = _meson_compile_install_cmd("pkgconf", external=True)
+    ret = _meson_compile_install_cmd(cfg, "pkgconf", external=True)
     pkgconf_exe = op.join(cfg.bin_path, "pkgconf.exe")
     pkgconfig_exe = op.join(cfg.bin_path, "pkg-config.exe")
     return ret + [f"copy {pkgconf_exe} {pkgconfig_exe}"]
@@ -380,7 +380,7 @@ def _nopemd_setup(cfg):
 
 @_block("nopemd-install", [_nopemd_setup])
 def _nopemd_install(cfg):
-    return _meson_compile_install_cmd("nopemd", external=True)
+    return _meson_compile_install_cmd(cfg, "nopemd", external=True)
 
 
 @_block("renderdoc-install")
@@ -428,12 +428,12 @@ def _nopegl_setup(cfg):
 
 @_block("nopegl-install", [_nopegl_setup])
 def _nopegl_install(cfg):
-    return _meson_compile_install_cmd("libnopegl")
+    return _meson_compile_install_cmd(cfg, "libnopegl")
 
 
 @_block("nopegl-install-nosetup")
 def _nopegl_install_nosetup(cfg):
-    return _meson_compile_install_cmd("libnopegl")
+    return _meson_compile_install_cmd(cfg, "libnopegl")
 
 
 @_block("pynopegl-deps-install", [_nopegl_install])
@@ -477,7 +477,7 @@ def _ngl_tools_setup(cfg):
 
 @_block("ngl-tools-install", [_ngl_tools_setup])
 def _ngl_tools_install(cfg):
-    return _meson_compile_install_cmd("ngl-tools")
+    return _meson_compile_install_cmd(cfg, "ngl-tools")
 
 
 @_block("freetype-setup", [_pkgconf_install])
@@ -488,7 +488,7 @@ def _freetype_setup(cfg):
 
 @_block("freetype-install", [_freetype_setup])
 def _freetype_install(cfg):
-    return _meson_compile_install_cmd("freetype", external=True)
+    return _meson_compile_install_cmd(cfg, "freetype", external=True)
 
 
 @_block("harfbuzz-setup", [_freetype_install])
@@ -499,7 +499,7 @@ def _harfbuzz_setup(cfg):
 
 @_block("harfbuzz-install", [_harfbuzz_setup])
 def _harfbuzz_install(cfg):
-    return _meson_compile_install_cmd("harfbuzz", external=True)
+    return _meson_compile_install_cmd(cfg, "harfbuzz", external=True)
 
 
 @_block("fribidi-setup", [_pkgconf_install])
@@ -510,12 +510,12 @@ def _fribidi_setup(cfg):
 
 @_block("fribidi-install", [_fribidi_setup])
 def _fribidi_install(cfg):
-    return _meson_compile_install_cmd("fribidi", external=True)
+    return _meson_compile_install_cmd(cfg, "fribidi", external=True)
 
 
 @_block("ngl-tools-install-nosetup", [_nopegl_install_nosetup])
 def _ngl_tools_install_nosetup(cfg):
-    return _meson_compile_install_cmd("ngl-tools")
+    return _meson_compile_install_cmd(cfg, "ngl-tools")
 
 
 def _nopegl_run_target_cmd(cfg, target):
