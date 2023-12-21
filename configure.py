@@ -809,11 +809,15 @@ def _build_venv(args):
     _EnvBuilder().create(args.venv_path)
 
 
+def _get_bin_dir(system):
+    return "Scripts" if system == "Windows" else "bin"
+
+
 class _Config:
     def __init__(self, args, externals):
         self.args = args
         self.prefix = op.abspath(args.venv_path)
-        self.bin_name = "Scripts" if _SYSTEM == "Windows" else "bin"
+        self.bin_name = _get_bin_dir(_SYSTEM)
         self.bin_path = op.join(self.prefix, self.bin_name)
         self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
         self.externals = externals
