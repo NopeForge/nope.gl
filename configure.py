@@ -22,6 +22,7 @@
 #
 
 import argparse
+import functools
 import glob
 import hashlib
 import logging
@@ -119,9 +120,15 @@ _EXTERNAL_DEPS = dict(
 )
 
 
+def _is_local(system):
+    return system in {"Linux", "MinGW", "Darwin", "Windows"}
+
+
 def _get_external_deps(args):
     deps = ["nopemd"]
-    if _SYSTEM == "Windows":
+
+    host, _ = _get_host(args)
+    if host == "Windows":
         deps.append("pkgconf")
         deps.append("egl_registry")
         deps.append("opengl_registry")
@@ -131,9 +138,10 @@ def _get_external_deps(args):
         deps.append("freetype")
         deps.append("harfbuzz")
         deps.append("fribidi")
+
     if "gpu_capture" in args.debug_opts:
-        if _SYSTEM not in {"Windows", "Linux"}:
-            raise Exception(f"Renderdoc is not supported on {_SYSTEM}")
+        if host not in {"Windows", "Linux"}:
+            raise Exception(f"Renderdoc is not supported on {host}")
         deps.append(_RENDERDOC_ID)
     return {dep: _EXTERNAL_DEPS[dep] for dep in deps}
 
@@ -191,7 +199,15 @@ def _rmtree(path, ignore_errors=False, onerror=None):
         shutil.rmtree(path, ignore_errors, onerror=onerror)
 
 
-def _download_extract(dep_item):
+def _get_external_dir(args):
+    host, host_arch = _get_host(args)
+    if _is_local(host):
+        return op.join(_ROOTDIR, "external")
+    else:
+        return op.join(_ROOTDIR, "external", host, host_arch)
+
+
+def _download_extract(args, dep_item):
     logging.basicConfig(level="INFO")  # Needed for every process on Windows
 
     name, dep = dep_item
@@ -201,7 +217,7 @@ def _download_extract(dep_item):
     chksum = dep["sha256"]
     dst_file = dep.get("dst_file", op.basename(url)).replace("@VERSION@", version)
     dst_dir = dep.get("dst_dir", "").replace("@VERSION@", version)
-    dst_base = op.join(_ROOTDIR, "external")
+    dst_base = _get_external_dir(args)
     dst_path = op.join(dst_base, dst_file)
     os.makedirs(dst_base, exist_ok=True)
 
@@ -254,10 +270,17 @@ def _download_extract(dep_item):
     return name, target
 
 
+def _get_host(args):
+    if args.host:
+        return (args.host, args.host_arch)
+    else:
+        return (_SYSTEM, platform.machine())
+
+
 def _fetch_externals(args):
     dependencies = _get_external_deps(args)
     with Pool() as p:
-        return dict(p.map(_download_extract, dependencies.items()))
+        return dict(p.map(functools.partial(_download_extract, args), dependencies.items()))
 
 
 def _block(name, prerequisites=None):
@@ -273,7 +296,10 @@ def _get_builddir(cfg, component):
     if component in cfg.externals:
         return op.join(cfg.externals[component], "builddir")
 
-    return op.join("builddir", component)
+    if _is_local(cfg.host):
+        return op.join("builddir", component)
+    else:
+        return op.join("builddir", cfg.host, cfg.host_arch, component)
 
 
 def _meson_compile_install_cmd(cfg, component):
@@ -437,9 +463,7 @@ def _fribidi_install(cfg):
 @_block(
     "nopegl-setup",
     {
-        "Linux": [_nopemd_install],
-        "Darwin": [_nopemd_install],
-        "MinGW": [_nopemd_install],
+        "Local": [_nopemd_install],
         "Windows": [
             _nopemd_install,
             _sdl2_install,
@@ -467,11 +491,11 @@ def _nopegl_setup(cfg):
 
     extra_library_dirs = []
     extra_include_dirs = []
-    if _SYSTEM == "Windows":
+    if cfg.host == "Windows":
         extra_library_dirs += [op.join(cfg.prefix, "Lib")]
         extra_include_dirs += [op.join(cfg.prefix, "Include")]
 
-    elif _SYSTEM == "Darwin":
+    elif cfg.host == "Darwin":
         prefix = _get_brew_prefix()
         if prefix:
             extra_library_dirs += [op.join(prefix, "lib")]
@@ -506,7 +530,7 @@ def _pynopegl_deps_install(cfg):
 @_block("pynopegl-install", [_pynopegl_deps_install])
 def _pynopegl_install(cfg):
     ret = ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join(".", "pynopegl"))]
-    if _SYSTEM != "Windows":
+    if cfg.host != "Windows":
         rpath = op.join(cfg.prefix, "lib")
         ldflags = f"-Wl,-rpath,{rpath}"
         ret[0] = f"LDFLAGS={ldflags} {ret[0]}"
@@ -522,7 +546,7 @@ def _pynopegl_utils_deps_install(cfg):
     # - Pillow fails to find zlib (required to be installed by the user outside the
     #   Python virtual env)
     #
-    if _SYSTEM == "MinGW":
+    if cfg.host == "MinGW":
         return ["@"]  # noop
     return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "pynopegl-utils", "requirements.txt"))]
 
@@ -572,7 +596,7 @@ def _nopegl_updateglwrappers(cfg):
 @_block("all", [_ngl_tools_install, _pynopegl_utils_install])
 def _all(cfg):
     echo = ["", "Build completed.", "", "You can now enter the venv with:"]
-    if _SYSTEM == "Windows":
+    if cfg.host == "Windows":
         echo.append(op.join(cfg.venv_bin_path, "ngli-activate.ps1"))
         return [f"@echo.{e}" for e in echo]
     else:
@@ -694,10 +718,10 @@ def _get_make_vars(cfg):
     ]
     if cfg.args.coverage:
         meson_setup += ["-Db_coverage=true"]
-    if _SYSTEM != "MinGW" and "debug" not in cfg.args.buildtype:
+    if cfg.host != "MinGW" and "debug" not in cfg.args.buildtype:
         meson_setup += ["-Db_lto=true"]
 
-    if _SYSTEM == "Windows":
+    if cfg.host == "Windows":
         meson_setup += ["--bindir=Scripts", "--libdir=Lib", "--includedir=Include"]
     elif op.isfile("/etc/debian_version"):
         # Workaround Debian/Ubuntu bug; see https://github.com/mesonbuild/meson/issues/5925
@@ -734,8 +758,10 @@ def _get_prerequisites(cfg, block):
     if isinstance(block.prerequisites, list):
         prereqs = block.prerequisites
     elif isinstance(block.prerequisites, dict):
-        if _SYSTEM in block.prerequisites:
-            prereqs = block.prerequisites[_SYSTEM]
+        if cfg.host in block.prerequisites:
+            prereqs = block.prerequisites[cfg.host]
+        elif _is_local(cfg.host) and "Local" in block.prerequisites:
+            prereqs = block.prerequisites["Local"]
     else:
         assert block.prerequisites is None
     return prereqs
@@ -813,14 +839,21 @@ def _get_bin_dir(system):
 class _Config:
     def __init__(self, args, externals):
         self.args = args
+        self.host, self.host_arch = _get_host(args)
+
         self.venv_path = op.abspath(args.venv_path)
         self.venv_bin_path = op.join(self.venv_path, _get_bin_dir(_SYSTEM))
-        self.prefix = self.venv_path
-        self.bin_path = op.join(self.prefix, _get_bin_dir(_SYSTEM))
+
+        if _is_local(self.host):
+            self.prefix = self.venv_path
+        else:
+            assert False
+
+        self.bin_path = op.join(self.prefix, _get_bin_dir(self.host))
         self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
         self.externals = externals
 
-        if _SYSTEM == "Windows":
+        if self.host == "Windows":
             if "gpu_capture" in args.debug_opts:
                 _add_prerequisite(self, _nopegl_setup, _renderdoc_install)
 
@@ -829,11 +862,11 @@ class _Config:
         env = {}
         env["PATH"] = sep.join((self.venv_bin_path, "$(PATH)"))
         env["PKG_CONFIG_PATH"] = self.pkg_config_path
-        if _SYSTEM == "Windows":
+        if self.host == "Windows":
             env["PKG_CONFIG_ALLOW_SYSTEM_LIBS"] = "1"
             env["PKG_CONFIG_ALLOW_SYSTEM_CFLAGS"] = "1"
             env["CMAKE_PREFIX_PATH"] = op.join(self.prefix, "cmake")
-        elif _SYSTEM == "MinGW":
+        elif self.host == "MinGW":
             # See https://setuptools.pypa.io/en/latest/deprecated/distutils-legacy.html
             env["SETUPTOOLS_USE_DISTUTILS"] = "stdlib"
         return env
@@ -904,6 +937,13 @@ def _run():
         action=argparse.BooleanOptionalAction,
         help="Only download the external dependencies",
     )
+    parser.add_argument("--host", choices=(), default=None, help="Cross compilation host machine")
+    parser.add_argument(
+        "--host-arch",
+        choices=("arm", "aarch64", "x86_64"),
+        default="aarch64",
+        help="Cross compilation host machine architecture",
+    )
 
     args = parser.parse_args()
 
@@ -919,18 +959,27 @@ def _run():
 
     blocks = [
         _all,
-        _tests,
         _clean,
-        _nopegl_updatedoc,
-        _nopegl_updatespecs,
-        _nopegl_updateglwrappers,
-        _ngl_tools_install_nosetup,
-        _htmldoc,
     ]
+
+    if _is_local(cfg.host):
+        blocks += [
+            _tests,
+            _nopegl_updatedoc,
+            _nopegl_updatespecs,
+            _nopegl_updateglwrappers,
+            _ngl_tools_install_nosetup,
+            _htmldoc,
+        ]
+
     if args.coverage:
         blocks += [_coverage_html, _coverage_xml]
 
     dst_makefile = op.join(_ROOTDIR, "Makefile")
+    if args.host:
+        dst_makefile += f".{args.host}"
+        if args.host_arch:
+            dst_makefile += f".{args.host_arch}"
     logging.info("writing %s", dst_makefile)
     makefile = _get_makefile(cfg, blocks)
     with open(dst_makefile, "w") as f:
