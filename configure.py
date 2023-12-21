@@ -554,7 +554,7 @@ def _nopegl_run_target_cmd(cfg, target):
 @_block("nopegl-updatedoc", [_nopegl_install])
 def _nopegl_updatedoc(cfg):
     gen_doc = op.join("scripts", "gen-doc.py")
-    specs_path = op.join(cfg.args.venv_path, "share", "nopegl", "nodes.specs")
+    specs_path = op.join(cfg.venv_path, "share", "nopegl", "nodes.specs")
     output_path = op.join("doc", "usr", "ref", "libnopegl.md")
     return ["$(PYTHON) " + _cmd_join(gen_doc, specs_path, output_path)]
 
@@ -813,7 +813,8 @@ def _get_bin_dir(system):
 class _Config:
     def __init__(self, args, externals):
         self.args = args
-        self.prefix = op.abspath(args.venv_path)
+        self.venv_path = op.abspath(args.venv_path)
+        self.prefix = self.venv_path
         self.bin_path = op.join(self.prefix, _get_bin_dir(_SYSTEM))
         self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
         self.externals = externals
