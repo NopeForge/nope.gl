@@ -573,10 +573,10 @@ def _nopegl_updateglwrappers(cfg):
 def _all(cfg):
     echo = ["", "Build completed.", "", "You can now enter the venv with:"]
     if _SYSTEM == "Windows":
-        echo.append(op.join(cfg.bin_path, "ngli-activate.ps1"))
+        echo.append(op.join(cfg.venv_bin_path, "ngli-activate.ps1"))
         return [f"@echo.{e}" for e in echo]
     else:
-        echo.append(" " * 4 + ". " + op.join(cfg.bin_path, "ngli-activate"))
+        echo.append(" " * 4 + ". " + op.join(cfg.venv_bin_path, "ngli-activate"))
         return [f'@echo "    {e}"' for e in echo]
 
 
@@ -670,7 +670,7 @@ def _get_make_vars(cfg):
 
     # We don't want Python to fallback on one found in the PATH so we explicit
     # it to the one in the venv.
-    python = op.join(cfg.bin_path, "python")
+    python = op.join(cfg.venv_bin_path, "python")
 
     #
     # MAKEFLAGS= is a workaround (not working on Windows due to incompatible Make
@@ -814,6 +814,7 @@ class _Config:
     def __init__(self, args, externals):
         self.args = args
         self.venv_path = op.abspath(args.venv_path)
+        self.venv_bin_path = op.join(self.venv_path, _get_bin_dir(_SYSTEM))
         self.prefix = self.venv_path
         self.bin_path = op.join(self.prefix, _get_bin_dir(_SYSTEM))
         self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
@@ -826,7 +827,7 @@ class _Config:
     def get_env(self):
         sep = ":" if _SYSTEM == "MinGW" else os.pathsep
         env = {}
-        env["PATH"] = sep.join((self.bin_path, "$(PATH)"))
+        env["PATH"] = sep.join((self.venv_bin_path, "$(PATH)"))
         env["PKG_CONFIG_PATH"] = self.pkg_config_path
         if _SYSTEM == "Windows":
             env["PKG_CONFIG_ALLOW_SYSTEM_LIBS"] = "1"
@@ -840,7 +841,7 @@ class _Config:
 
 def _build_env_scripts(cfg):
     if _SYSTEM == "Windows":
-        activate_path = os.path.join(cfg.bin_path, "Activate.ps1")
+        activate_path = os.path.join(cfg.venv_bin_path, "Activate.ps1")
         ngl_activate_ps1 = textwrap.dedent(
             f"""\
             function global:ngli_deactivate() {{
@@ -852,15 +853,15 @@ def _build_env_scripts(cfg):
             }}
 
             . {activate_path}
-            $Env:NGL_DLL_DIRS="{cfg.bin_path}"
+            $Env:NGL_DLL_DIRS="{cfg.venv_bin_path}"
             """
         )
-        with open(op.join(cfg.bin_path, "ngli-activate.ps1"), "w") as fp:
+        with open(op.join(cfg.venv_bin_path, "ngli-activate.ps1"), "w") as fp:
             fp.write(ngl_activate_ps1)
 
         return
 
-    activate_path = os.path.join(cfg.bin_path, "activate")
+    activate_path = os.path.join(cfg.venv_bin_path, "activate")
     ngl_activate = textwrap.dedent(
         f"""\
         ngli_deactivate() {{
@@ -870,10 +871,10 @@ def _build_env_scripts(cfg):
         }}
 
         . {activate_path}
-        export NGL_DLL_DIRS="{cfg.bin_path}"
+        export NGL_DLL_DIRS="{cfg.venv_bin_path}"
         """
     )
-    with open(op.join(cfg.bin_path, "ngli-activate"), "w") as fp:
+    with open(op.join(cfg.venv_bin_path, "ngli-activate"), "w") as fp:
         fp.write(ngl_activate)
 
 
