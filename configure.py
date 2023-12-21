@@ -814,8 +814,7 @@ class _Config:
     def __init__(self, args, externals):
         self.args = args
         self.prefix = op.abspath(args.venv_path)
-        self.bin_name = _get_bin_dir(_SYSTEM)
-        self.bin_path = op.join(self.prefix, self.bin_name)
+        self.bin_path = op.join(self.prefix, _get_bin_dir(_SYSTEM))
         self.pkg_config_path = op.join(self.prefix, "lib", "pkgconfig")
         self.externals = externals
 
