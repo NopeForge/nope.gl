@@ -879,7 +879,6 @@ def _build_env_scripts(cfg):
 
 
 def _run():
-    default_build_backend = "ninja" if _SYSTEM != "Windows" else "vs"
     parser = argparse.ArgumentParser(
         description="Create and manage a standalone nope.gl virtual environement",
     )
@@ -899,9 +898,7 @@ def _run():
         choices=("gl", "vk", "mem", "scene", "gpu_capture"),
         help="Debug options",
     )
-    parser.add_argument(
-        "--build-backend", choices=("ninja", "vs"), default=default_build_backend, help="Build backend to use"
-    )
+    parser.add_argument("--build-backend", choices=("ninja", "vs"), default="ninja", help="Build backend to use")
     parser.add_argument(
         "--download-only",
         action=argparse.BooleanOptionalAction,
