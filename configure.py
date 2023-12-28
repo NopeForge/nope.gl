@@ -269,20 +269,27 @@ def _block(name, prerequisites=None):
     return real_decorator
 
 
-def _meson_compile_install_cmd(cfg, component, external=False):
-    builddir = op.join(cfg.externals[component], "builddir") if external else op.join("builddir", component)
+def _get_builddir(cfg, component):
+    if component in cfg.externals:
+        return op.join(cfg.externals[component], "builddir")
+
+    return op.join("builddir", component)
+
+
+def _meson_compile_install_cmd(cfg, component):
+    builddir = _get_builddir(cfg, component)
     return ["$(MESON) " + _cmd_join(action, "-C", builddir) for action in ("compile", "install")]
 
 
 @_block("pkgconf-setup")
 def _pkgconf_setup(cfg):
-    builddir = op.join("external", "pkgconf", "builddir")
+    builddir = _get_builddir(cfg, "pkgconf")
     return ["$(MESON_SETUP) " + _cmd_join("-Dtests=disabled", cfg.externals["pkgconf"], builddir)]
 
 
 @_block("pkgconf-install", [_pkgconf_setup])
 def _pkgconf_install(cfg):
-    ret = _meson_compile_install_cmd(cfg, "pkgconf", external=True)
+    ret = _meson_compile_install_cmd(cfg, "pkgconf")
     pkgconf_exe = op.join(cfg.bin_path, "pkgconf.exe")
     pkgconfig_exe = op.join(cfg.bin_path, "pkg-config.exe")
     return ret + [f"copy {pkgconf_exe} {pkgconfig_exe}"]
@@ -379,13 +386,13 @@ def _glslang_install(cfg):
     },
 )
 def _nopemd_setup(cfg):
-    builddir = op.join("external", "nopemd", "builddir")
+    builddir = _get_builddir(cfg, "nopemd")
     return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(cfg.externals["nopemd"], builddir)]
 
 
 @_block("nopemd-install", [_nopemd_setup])
 def _nopemd_install(cfg):
-    return _meson_compile_install_cmd(cfg, "nopemd", external=True)
+    return _meson_compile_install_cmd(cfg, "nopemd")
 
 
 @_block("renderdoc-install")
@@ -396,35 +403,35 @@ def _renderdoc_install(cfg):
 
 @_block("freetype-setup", {"Windows": [_pkgconf_install]})
 def _freetype_setup(cfg):
-    builddir = op.join("external", "freetype", "builddir")
+    builddir = _get_builddir(cfg, "freetype")
     return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["freetype"], builddir)]
 
 
 @_block("freetype-install", [_freetype_setup])
 def _freetype_install(cfg):
-    return _meson_compile_install_cmd(cfg, "freetype", external=True)
+    return _meson_compile_install_cmd(cfg, "freetype")
 
 
 @_block("harfbuzz-setup", [_freetype_install])
 def _harfbuzz_setup(cfg):
-    builddir = op.join("external", "harfbuzz", "builddir")
+    builddir = _get_builddir(cfg, "harfbuzz")
     return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["harfbuzz"], builddir)]
 
 
 @_block("harfbuzz-install", [_harfbuzz_setup])
 def _harfbuzz_install(cfg):
-    return _meson_compile_install_cmd(cfg, "harfbuzz", external=True)
+    return _meson_compile_install_cmd(cfg, "harfbuzz")
 
 
 @_block("fribidi-setup", {"Windows": [_pkgconf_install]})
 def _fribidi_setup(cfg):
-    builddir = op.join("external", "fribidi", "builddir")
+    builddir = _get_builddir(cfg, "fribidi")
     return ["$(MESON_SETUP) " + _cmd_join("-Ddocs=false", cfg.externals["fribidi"], builddir)]
 
 
 @_block("fribidi-install", [_fribidi_setup])
 def _fribidi_install(cfg):
-    return _meson_compile_install_cmd(cfg, "fribidi", external=True)
+    return _meson_compile_install_cmd(cfg, "fribidi")
 
 
 @_block(
@@ -478,7 +485,7 @@ def _nopegl_setup(cfg):
         opts = ",".join(extra_include_dirs)
         nopegl_opts += [f"-Dextra_include_dirs={opts}"]
 
-    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(*nopegl_opts, "libnopegl", op.join("builddir", "libnopegl"))]
+    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(*nopegl_opts, "libnopegl", _get_builddir(cfg, "libnopegl"))]
 
 
 @_block("nopegl-install", [_nopegl_setup])
@@ -527,7 +534,7 @@ def _pynopegl_utils_install(cfg):
 
 @_block("ngl-tools-setup", [_nopegl_install])
 def _ngl_tools_setup(cfg):
-    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join("ngl-tools", op.join("builddir", "ngl-tools"))]
+    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join("ngl-tools", _get_builddir(cfg, "ngl-tools"))]
 
 
 @_block("ngl-tools-install", [_ngl_tools_setup])
@@ -541,8 +548,7 @@ def _ngl_tools_install_nosetup(cfg):
 
 
 def _nopegl_run_target_cmd(cfg, target):
-    builddir = op.join("builddir", "libnopegl")
-    return ["$(MESON) " + _cmd_join("compile", "-C", builddir, target)]
+    return ["$(MESON) " + _cmd_join("compile", "-C", _get_builddir(cfg, "libnopegl"), target)]
 
 
 @_block("nopegl-updatedoc", [_nopegl_install])
@@ -576,12 +582,12 @@ def _all(cfg):
 
 @_block("tests-setup", [_ngl_tools_install, _pynopegl_utils_install])
 def _tests_setup(cfg):
-    return ["$(MESON_SETUP_TESTS) " + _cmd_join("tests", op.join("builddir", "tests"))]
+    return ["$(MESON_SETUP_TESTS) " + _cmd_join("tests", _get_builddir(cfg, "tests"))]
 
 
 @_block("nopegl-tests", [_nopegl_install])
 def _nopegl_tests(cfg):
-    return ["$(MESON) " + _cmd_join("test", "-C", op.join("builddir", "libnopegl"))]
+    return ["$(MESON) " + _cmd_join("test", "-C", _get_builddir(cfg, "libnopegl"))]
 
 
 def _rm(f):
@@ -610,23 +616,14 @@ def _clean_py(cfg):
 
 @_block("clean", [_clean_py])
 def _clean(cfg):
-    return [
-        _rd(op.join("builddir", "doc")),
-        _rd(op.join("builddir", "libnopegl")),
-        _rd(op.join("builddir", "ngl-tools")),
-        _rd(op.join("builddir", "tests")),
-        _rd(op.join("external", "pkgconf", "builddir")),
-        _rd(op.join("external", "nopemd", "builddir")),
-        _rd(op.join("external", "freetype", "builddir")),
-        _rd(op.join("external", "harfbuzz", "builddir")),
-        _rd(op.join("external", "fribidi", "builddir")),
-    ]
+    deps = ["doc", "libnopegl", "ngl-tools", "tests"] + list(cfg.externals.keys())
+    return [_rd(_get_builddir(cfg, dep)) for dep in deps]
 
 
 def _coverage(cfg, output):
     # We don't use `meson coverage` here because of
     # https://github.com/mesonbuild/meson/issues/7895
-    return [_cmd_join("ninja", "-C", op.join("builddir", "libnopegl"), f"coverage-{output}")]
+    return [_cmd_join("ninja", "-C", _get_builddir(cfg, "libnopegl"), f"coverage-{output}")]
 
 
 @_block("coverage-html")
@@ -641,7 +638,7 @@ def _coverage_xml(cfg):
 
 @_block("tests", [_nopegl_tests, _tests_setup])
 def _tests(cfg):
-    return ["$(MESON) " + _cmd_join("test", "-C", op.join("builddir", "tests"))]
+    return ["$(MESON) " + _cmd_join("test", "-C", _get_builddir(cfg, "tests"))]
 
 
 @_block("htmldoc-deps-install")
@@ -651,7 +648,7 @@ def _htmldoc_deps_install(cfg):
 
 @_block("htmldoc", [_nopegl_updatedoc, _htmldoc_deps_install])
 def _htmldoc(cfg):
-    return [_cmd_join("sphinx-build", "-W", "doc", op.join("builddir", "doc"))]
+    return [_cmd_join("sphinx-build", "-W", "doc", _get_builddir(cfg, "doc"))]
 
 
 def _quote(s):
