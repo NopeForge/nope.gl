@@ -441,7 +441,7 @@ def _freetype_install(cfg):
 @_block("harfbuzz-setup", [_freetype_install])
 def _harfbuzz_setup(cfg):
     builddir = _get_builddir(cfg, "harfbuzz")
-    return ["$(MESON_SETUP) " + _cmd_join(cfg.externals["harfbuzz"], builddir)]
+    return ["$(MESON_SETUP) -Dtests=disabled " + _cmd_join(cfg.externals["harfbuzz"], builddir)]
 
 
 @_block("harfbuzz-install", [_harfbuzz_setup])
