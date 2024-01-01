@@ -17,9 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x86_64, arm, aarch64]
-        ffmpeg_version: [5.0.1]
-        glslang_version: [11.9.0]
-        nopemd_version: [11.1.1]
 
     steps:
     - uses: actions/checkout@v3
@@ -28,81 +25,10 @@ jobs:
       run: |
         sudo apt -y update
         sudo apt -y install ninja-build nasm
-        pip install --user meson
 
-    - name: Get ffmpeg source code
+    - name: Build
       run: |
-        wget https://ffmpeg.org/releases/ffmpeg-${{ matrix.ffmpeg_version }}.tar.xz
-        tar -xf ffmpeg-${{ matrix.ffmpeg_version }}.tar.xz
-
-    - name: Compile ffmpeg source with the ndk toolchain for Android & install it to a specific directory
-      run: |
-        cd ffmpeg-${{ matrix.ffmpeg_version }}
-        android_suffix="android"
-        compiler=${{ matrix.arch }}
-
-        if [ ${{ matrix.arch }} == "arm" ]; then
-          android_suffix="androideabi"
-          compiler="armv7a"
-        fi
-
-        NDK_BIN_PATH=/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/bin
-        ./configure \
-        --disable-everything --disable-doc --disable-static --disable-autodetect --disable-programs \
-        --enable-shared --enable-cross-compile --enable-jni --enable-mediacodec --enable-hwaccels  \
-        --enable-avdevice --enable-swresample --enable-rdft \
-        --arch=${{ matrix.arch }} --target-os=android \
-        --cross-prefix=$NDK_BIN_PATH/llvm- \
-        --cc=$NDK_BIN_PATH/${compiler}-linux-${android_suffix}28-clang \
-        --prefix=$HOME/ngl-env-${{ matrix.arch }}
-        make install -j$(($(nproc)+1))
-
-    - name: Build nope.media for Android & reshape files tree
-      run: |
-        curl -sL https://github.com/NopeForge/nope.media/archive/refs/tags/v${{ matrix.nopemd_version }}.tar.gz -o nope.media.tgz
-        tar xf nope.media.tgz
-        cd nope.media-${{ matrix.nopemd_version }}
-        PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
-        meson setup --prefix $HOME/ngl-env-${{ matrix.arch }} --cross-file ../.github/meson-android-${{ matrix.arch }}.ini builddir
-        meson compile -C builddir
-        meson install -C builddir
-
-    - name: Build glslang lib for Android
-      run: |
-        abi_arm="armeabi-v7a"
-        abi_aarch64="arm64-v8a"
-        abi_x86_64="x86_64"
-        abi=$abi_${{ matrix.arch }}
-        wget https://github.com/KhronosGroup/glslang/archive/refs/tags/${{ matrix.glslang_version }}.tar.gz
-        tar xf ${{ matrix.glslang_version }}.tar.gz
-        cd glslang-${{ matrix.glslang_version }}
-        cmake \
-            -GNinja \
-            -DCMAKE_TOOLCHAIN_FILE=/usr/local/lib/android/sdk/ndk/26.1.10909125/build/cmake/android.toolchain.cmake \
-            -DANDROID_STL=c++_shared \
-            -DANDROID_TOOLCHAIN=clang \
-            -DANDROID_PLATFORM=android-28 \
-            -DANDROID_ABI=$abi \
-            -DCMAKE_INSTALL_PREFIX=$HOME/ngl-env-${{ matrix.arch }} \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DBUILD_EXTERNAL=OFF
-        cmake --build .
-        cmake --install .
-
-    - name: Build nopegl lib for Android
-      run: |
-        cd libnopegl
-        PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
-        meson setup builddir \
-            --cross-file ../.github/meson-android-${{ matrix.arch }}.ini \
-            -Dextra_library_dirs=$HOME/ngl-env-${{ matrix.arch }}/lib \
-            -Dextra_include_dirs=$HOME/ngl-env-${{ matrix.arch }}/include
-        meson compile -C builddir
-        meson test -C builddir
-
-    - name: Upload Logs
-      if: ${{ always() }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: android-logs
-        path: libnopegl/builddir/meson-logs/testlog.txt
+        ./configure.py --buildtype debug --debug-opts gl vk --host Android --host-arch ${{ matrix.arch }}
+        make -f Makefile.Android.${{ matrix.arch }}
+        . venv/bin/ngli-activate
+        meson test -C builddir/Android/${{ matrix.arch }}/libnopegl
