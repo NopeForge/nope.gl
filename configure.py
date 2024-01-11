@@ -117,10 +117,10 @@ _EXTERNAL_DEPS = dict(
         sha256="1e311f2328e721bb1317b39178ea540eb43588d311051300cc9ce35e9ee64990",
     ),
     ffmpeg=dict(
-        version="6.1",
+        version="6.1.1",
         url="https://ffmpeg.org/releases/ffmpeg-@VERSION@.tar.xz",
         dst_file="ffmpeg-@VERSION@.tar.xz",
-        sha256="488c76e57dd9b3bee901f71d5c95eaf1db4a5a31fe46a28654e837144207c270",
+        sha256="8684f4b00f94b85461884c3719382f1261f0d9eb3d59640a1f4ac0873616f968",
     ),
     ffmpeg_Windows=dict(
         version="6.0",
