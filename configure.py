@@ -123,10 +123,10 @@ _EXTERNAL_DEPS = dict(
         sha256="8684f4b00f94b85461884c3719382f1261f0d9eb3d59640a1f4ac0873616f968",
     ),
     ffmpeg_Windows=dict(
-        version="6.0",
-        url="https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2023-03-31-12-50/ffmpeg-n@VERSION@-11-g3980415627-win64-gpl-shared-@VERSION@.zip",
+        version="6.1.1",
+        url="https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2023-12-31-12-55/ffmpeg-n@VERSION@-win64-gpl-shared-6.1.zip",
         dst_file="ffmpeg-@VERSION@.zip",
-        sha256="13c3c2f0203136eff24bd15c1ee22c0b523efdc0ace59ef5e1f8abfcecf8c7df",
+        sha256="684191528ab9ccddd616d9b47ad1c17d6a20c3c3ffacfba19db6c8a4d43e0eab",
     ),
     nopemd=dict(
         version="11.1.1",
