@@ -37,3 +37,18 @@ vec3 ngli_linear2srgb(vec3 color)
         step(vec3(0.0031308), color)
     );
 }
+
+vec3 ngli_srgbmix(vec3 c0, vec3 c1, float v)
+{
+    vec3 rgb = mix(ngli_srgb2linear(c0), ngli_srgb2linear(c1), v);
+    return ngli_linear2srgb(rgb);
+}
+
+vec4 ngli_srgbmix(vec4 c0, vec4 c1, float v)
+{
+    vec4 rgba = mix(
+        vec4(ngli_srgb2linear(c0.rgb), c0.a),
+        vec4(ngli_srgb2linear(c1.rgb), c1.a),
+    v);
+    return vec4(ngli_linear2srgb(rgba.rgb), rgba.a);
+}
