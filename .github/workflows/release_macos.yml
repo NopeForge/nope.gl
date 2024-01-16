@@ -17,7 +17,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        brew install ffmpeg python3 curl pkg-config nasm create-dmg
+        brew install ffmpeg freetype fribidi harfbuzz python3 curl pkg-config nasm create-dmg
 
     - name: Setup venv
       run: |
