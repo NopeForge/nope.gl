@@ -11,10 +11,6 @@ jobs:
     permissions:
       contents: write
     runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        ffmpeg_version: [5.0.1]
 
     steps:
     - uses: actions/checkout@v3
