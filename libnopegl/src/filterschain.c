@@ -30,6 +30,7 @@
 /* Shader helpers */
 #include "helper_misc_utils_glsl.h"
 #include "helper_noise_glsl.h"
+#include "helper_oklab_glsl.h"
 #include "helper_srgb_glsl.h"
 
 struct filterschain {
@@ -91,6 +92,7 @@ static const struct {
 } helpers_mask_code[] = {
     {NGLI_FILTER_HELPER_MISC_UTILS, &helper_misc_utils_glsl},
     {NGLI_FILTER_HELPER_NOISE, &helper_noise_glsl},
+    {NGLI_FILTER_HELPER_OKLAB, &helper_oklab_glsl},
     {NGLI_FILTER_HELPER_SRGB, &helper_srgb_glsl},
 };
 

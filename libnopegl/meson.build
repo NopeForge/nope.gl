@@ -690,6 +690,7 @@ shaders = {
   'hdr_pq2sdr.frag': 'hdr_pq2sdr_frag.h',
   'helper_misc_utils.glsl': 'helper_misc_utils_glsl.h',
   'helper_noise.glsl': 'helper_noise_glsl.h',
+  'helper_oklab.glsl': 'helper_oklab_glsl.h',
   'helper_srgb.glsl': 'helper_srgb_glsl.h',
   'hwconv.frag': 'hwconv_frag.h',
   'hwconv.vert': 'hwconv_vert.h',
