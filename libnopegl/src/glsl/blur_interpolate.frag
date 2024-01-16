@@ -20,8 +20,7 @@
  * under the License.
  */
 
-#include helper_linear2srgb.glsl
-#include helper_srgb2linear.glsl
+#include helper_srgb.glsl
 
 void main()
 {
