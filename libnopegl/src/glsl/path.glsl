@@ -22,12 +22,9 @@
 
 #include helper_misc_utils.glsl
 
-/* Anti-aliasing approximation */
-float linear_aa_approx(float x) { return ngli_sat(x / fwidth(x) + 0.5); }
-
 float border(float d, float blur)
 {
-    return blur > 0.0 ? ngli_linearstep(-blur, blur, d) : linear_aa_approx(d);
+    return blur > 0.0 ? ngli_linearstep(-blur, blur, d) : ngli_aa(d);
 }
 
 /*
