@@ -25,9 +25,6 @@
 void main()
 {
     highp vec4 c0 = texture(tex0, tex_coord);
-    c0 = vec4(ngli_srgb2linear(c0.rgb), c0.a);
     highp vec4 c1 = texture(tex1, tex_coord);
-    c1 = vec4(ngli_srgb2linear(c1.rgb), c1.a);
-    vec4 color = mix(c0, c1, interpolate.lod);
-    ngl_out_color = vec4(ngli_linear2srgb(color.rgb), color.a);
+    ngl_out_color = ngli_srgbmix(c0, c1, interpolate.lod);
 }
