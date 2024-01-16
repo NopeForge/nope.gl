@@ -43,6 +43,6 @@ vec4 source_gradient()
 
     float a = mix(opacity0, opacity1, t);
     if (linear)
-        return vec4(ngli_linear2srgb(mix(ngli_srgb2linear(c0), ngli_srgb2linear(c1), t)), a);
+        return vec4(ngli_srgbmix(c0, c1, t), a);
     return vec4(mix(c0, c1, t), a);
 }
