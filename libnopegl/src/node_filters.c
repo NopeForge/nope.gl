@@ -401,7 +401,7 @@ static int filtersaturation_init(struct ngl_node *node)
     struct filtersaturation_opts *o = node->opts;
     s->filter.name = "saturation";
     s->filter.code = filter_saturation_glsl;
-    s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS;
+    s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_SRGB;
     return register_resource(&s->filter.resources, "saturation", o->saturation_node, &o->saturation, NGLI_TYPE_F32);
 }
 

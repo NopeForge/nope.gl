@@ -23,6 +23,6 @@
 vec4 filter_saturation(vec4 color, vec2 coords, float saturation)
 {
     vec3 gray = vec3(dot(ngli_luma_weights, color.rgb));
-    color.rgb = ngli_sat(mix(gray, color.rgb, saturation));
+    color.rgb = ngli_sat(ngli_srgbmix(gray, color.rgb, saturation));
     return color;
 }
