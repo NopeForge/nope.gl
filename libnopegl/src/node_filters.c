@@ -241,7 +241,7 @@ static int filtercolormap_init(struct ngl_node *node)
     }
 
     s->filter.name = "colormap";
-    s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_LINEAR2SRGB | NGLI_FILTER_HELPER_SRGB2LINEAR;
+    s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_SRGB;
 
     /* Craft the shader dynamically according to the number of color keys */
     struct bstr *str = ngli_bstr_create();
@@ -365,7 +365,7 @@ static int filterlinear2srgb_init(struct ngl_node *node)
     struct filterlinear2srgb_priv *s = node->priv_data;
     s->filter.name = "linear2srgb";
     s->filter.code = filter_linear2srgb_glsl;
-    s->filter.helpers = NGLI_FILTER_HELPER_LINEAR2SRGB;
+    s->filter.helpers = NGLI_FILTER_HELPER_SRGB;
     return 0;
 }
 
@@ -413,7 +413,7 @@ static int filtersrgb2linear_init(struct ngl_node *node)
     struct filtersrgb2linear_priv *s = node->priv_data;
     s->filter.name = "srgb2linear";
     s->filter.code = filter_srgb2linear_glsl;
-    s->filter.helpers = NGLI_FILTER_HELPER_SRGB2LINEAR;
+    s->filter.helpers = NGLI_FILTER_HELPER_SRGB;
     return 0;
 }
 

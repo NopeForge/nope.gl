@@ -28,10 +28,9 @@
 #include "pgcraft.h"
 
 /* Shader helpers */
-#include "helper_linear2srgb_glsl.h"
 #include "helper_misc_utils_glsl.h"
 #include "helper_noise_glsl.h"
-#include "helper_srgb2linear_glsl.h"
+#include "helper_srgb_glsl.h"
 
 struct filterschain {
     struct darray filters; // struct filter *
@@ -92,8 +91,7 @@ static const struct {
 } helpers_mask_code[] = {
     {NGLI_FILTER_HELPER_MISC_UTILS, &helper_misc_utils_glsl},
     {NGLI_FILTER_HELPER_NOISE, &helper_noise_glsl},
-    {NGLI_FILTER_HELPER_LINEAR2SRGB, &helper_linear2srgb_glsl},
-    {NGLI_FILTER_HELPER_SRGB2LINEAR, &helper_srgb2linear_glsl},
+    {NGLI_FILTER_HELPER_SRGB, &helper_srgb_glsl},
 };
 
 char *ngli_filterschain_get_combination(struct filterschain *s)

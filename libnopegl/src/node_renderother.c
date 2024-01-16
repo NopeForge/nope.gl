@@ -685,7 +685,7 @@ static int rendergradient_init(struct ngl_node *node)
 {
     struct rendergradient_priv *s = node->priv_data;
     struct rendergradient_opts *o = node->opts;
-    s->common.helpers = NGLI_FILTER_HELPER_LINEAR2SRGB | NGLI_FILTER_HELPER_SRGB2LINEAR;
+    s->common.helpers = NGLI_FILTER_HELPER_SRGB;
     return init(node, &s->common, &o->common, "source_gradient", source_gradient_frag);
 }
 
@@ -693,7 +693,7 @@ static int rendergradient4_init(struct ngl_node *node)
 {
     struct rendergradient4_priv *s = node->priv_data;
     struct rendergradient4_opts *o = node->opts;
-    s->common.helpers = NGLI_FILTER_HELPER_LINEAR2SRGB | NGLI_FILTER_HELPER_SRGB2LINEAR;
+    s->common.helpers = NGLI_FILTER_HELPER_SRGB;
     return init(node, &s->common, &o->common, "source_gradient4", source_gradient4_frag);
 }
 

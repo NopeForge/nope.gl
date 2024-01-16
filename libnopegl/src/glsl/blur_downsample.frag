@@ -20,8 +20,7 @@
  * under the License.
  */
 
-#include helper_linear2srgb.glsl
-#include helper_srgb2linear.glsl
+#include helper_srgb.glsl
 
 const vec3 offsets_weights[5] = vec3[](
     vec3(0.0,  0.0,  0.5),
