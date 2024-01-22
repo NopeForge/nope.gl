@@ -555,6 +555,8 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
       #   libOGLCompiler.a, libGenericCodeGen.a, libSPVRemapper.a, libSPIRV.a
       #   libSPIRV-Tools-opt.a (optional), libSPIRV-Tools.a (optional) are
       #   installed.
+      # - Since glslang 14.0.0, the legacy HLSL and OGLCompiler libraries have
+      #   been removed
       # The following list declares the glslang libraries that we need to check
       # and link against in the right order (to allow static linking). Some
       # libraries are marked as non-required because they might be present or
@@ -564,7 +566,7 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
         {'name': 'glslang-default-resource-limits', 'required': true},
         {'name': 'MachineIndependent',              'required': false},
         {'name': 'OSDependent',                     'required': false},
-        {'name': 'HLSL',                            'required': true},
+        {'name': 'HLSL',                            'required': false},
         {'name': 'OGLCompiler',                     'required': false},
         {'name': 'GenericCodeGen',                  'required': false},
         {'name': 'SPVRemapper',                     'required': true},
