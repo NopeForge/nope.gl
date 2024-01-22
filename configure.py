@@ -32,6 +32,7 @@ import platform
 import shlex
 import shutil
 import stat
+import subprocess
 import sysconfig
 import tarfile
 import textwrap
@@ -100,6 +101,60 @@ def _gen_android_cross_file(cfg):
         cpu=cfg.cpu,
     )
     cross_file_path = _get_android_cross_file_path(cfg)
+    os.makedirs(op.dirname(cross_file_path), exist_ok=True)
+    with open(cross_file_path, "w") as fp:
+        fp.write(cross_file)
+
+
+_IOS_ABI_MAP = dict(
+    aarch64="arm64",
+    x86_64="x86_64",
+)
+
+
+_IOS_CROSS_FILE_TPL = textwrap.dedent(
+    """\
+    [constants]
+    root = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer'
+    sysroot = root / 'SDKs/iPhoneOS.sdk'
+    [built-in options]
+    c_args = ['-arch', '{abi}', '-isysroot', sysroot]
+    c_link_args = ['-arch', '{abi}', '-isysroot', sysroot]
+    objc_args = ['-arch', '{abi}', '-isysroot', sysroot]
+    objc_link_args = ['-arch', '{abi}', '-isysroot', sysroot]
+    cpp_args = ['-arch', '{abi}', '-isysroot', sysroot]
+    cpp_link_args = ['-arch', '{abi}', '-isysroot', sysroot]
+    objcpp_args = ['-arch', '{abi}', '-isysroot', sysroot]
+    objcpp_link_args = ['-arch', '{abi}', '-isysroot', sysroot]
+    [properties]
+    root = root
+    [binaries]
+    c = 'clang'
+    cpp = 'clang++'
+    objc = 'clang'
+    strip = 'strip'
+    pkg-config = 'pkg-config'
+    [host_machine]
+    system = 'darwin'
+    subsystem = 'ios'
+    cpu_family = '{cpu_family}'
+    cpu = '{cpu}'
+    endian = 'little'
+    """
+)
+
+
+def _get_ios_cross_file_path(cfg):
+    return op.join(cfg.prefix, f"meson-ios-{cfg.args.host_arch}.ini")
+
+
+def _gen_ios_cross_file(cfg):
+    cross_file = _IOS_CROSS_FILE_TPL.format(
+        abi=cfg.ios_abi,
+        cpu_family=cfg.cpu_family,
+        cpu=cfg.cpu,
+    )
+    cross_file_path = _get_ios_cross_file_path(cfg)
     os.makedirs(op.dirname(cross_file_path), exist_ok=True)
     with open(cross_file_path, "w") as fp:
         fp.write(cross_file)
@@ -206,6 +261,11 @@ _EXTERNAL_DEPS = dict(
         url="https://github.com/fribidi/fribidi/archive/refs/tags/v@VERSION@.tar.gz",
         sha256="f24e8e381bcf76533ae56bd776196f3a0369ec28e9c0fdb6edd163277e008314",
     ),
+    moltenvk_iOS=dict(
+        version="1.2.8",
+        url="https://github.com/KhronosGroup/MoltenVK/releases/download/v1.2.8/MoltenVK-ios.tar",
+        sha256="778980f84f1afe7f5058df469fe9715d767a9891afb5497dd90ff29a7fa384a1",
+    ),
 )
 
 
@@ -220,6 +280,14 @@ def _get_external_deps(args):
     if host == "Android":
         deps.append("boringssl")
         deps.append("ffmpeg")
+        deps.append("glslang")
+        deps.append("freetype")
+        deps.append("harfbuzz")
+        deps.append("fribidi")
+    elif host == "iOS":
+        deps.append("boringssl")
+        deps.append("ffmpeg")
+        deps.append("moltenvk_iOS")
         deps.append("glslang")
         deps.append("freetype")
         deps.append("harfbuzz")
@@ -461,29 +529,34 @@ def _opengl_registry_install(cfg):
 
 @_block("boringssl-setup", [])
 def _boringssl_setup(cfg):
+    build_type = "Debug" if cfg.args.buildtype == "debug" else "Release"
+    cmake_args = [
+        "cmake",
+        "-GNinja",
+        f"-DCMAKE_BUILD_TYPE={build_type}",
+        f"-DCMAKE_INSTALL_PREFIX={cfg.prefix}",
+        "-DBUILD_SHARED_LIBS=OFF",
+        "-S",
+        cfg.externals["boringssl"],
+        "-B",
+        _get_builddir(cfg, "boringssl"),
+    ]
     if cfg.host == "Android":
-        build_type = "Debug" if cfg.args.buildtype == "debug" else "Release"
-        cmds = [
-            _cmd_join(
-                "cmake",
-                "-GNinja",
-                f"-DCMAKE_BUILD_TYPE={build_type}",
-                f"-DCMAKE_TOOLCHAIN_FILE={cfg.android_cmake_toolchain}",
-                "-DANDROID_STL=c++_shared",
-                "-DANDROID_TOOLCHAIN=clang",
-                f"-DANDROID_PLATFORM=android-{_ANDROID_VERSION}",
-                f"-DANDROID_ABI={cfg.android_abi}",
-                f"-DCMAKE_INSTALL_PREFIX={cfg.prefix}",
-                "-DBUILD_SHARED_LIBS=OFF",
-                "-S",
-                cfg.externals["boringssl"],
-                "-B",
-                _get_builddir(cfg, "boringssl"),
-            ),
+        cmake_args += [
+            f"-DCMAKE_TOOLCHAIN_FILE={cfg.android_cmake_toolchain}",
+            "-DANDROID_STL=c++_shared",
+            "-DANDROID_TOOLCHAIN=clang",
+            f"-DANDROID_PLATFORM=android-{_ANDROID_VERSION}",
+            f"-DANDROID_ABI={cfg.android_abi}",
         ]
-        return cmds
-    else:
-        return []
+    elif cfg.host == "iOS":
+        cmake_args += [
+            f"-DCMAKE_OSX_SYSROOT=iphoneos",
+            f"-DCMAKE_OSX_ARCHITECTURES={cfg.ios_abi}",
+        ]
+    return [
+        _cmd_join(*cmake_args),
+    ]
 
 
 @_block("boringssl-install", [_boringssl_setup])
@@ -496,148 +569,164 @@ def _boringssl_install(cfg):
     return cmds
 
 
-@_block("ffmpeg-setup", {"Android": [_boringssl_install]})
+@_block("ffmpeg-setup", {"Android": [_boringssl_install], "iOS": [_boringssl_install]})
 def _ffmpeg_setup(cfg):
+    muxers = [
+        "gif",
+        "image2",
+        "ipod",
+        "mov",
+        "mp4",
+    ]
+    parsers = [
+        "aac",
+        "av1",
+        "flac",
+        "h264",
+        "hevc",
+        "mjpeg",
+        "png",
+        "vp8",
+        "vp9",
+    ]
+    bsfs = [
+        "aac_adtstoasc",
+        "extract_extradata",
+        "h264_mp4toannexb",
+        "hevc_mp4toannexb",
+        "vp9_superframe",
+    ]
+    protocols = [
+        "fd",
+        "file",
+        "http",
+        "https",
+        "pipe",
+    ]
+    filters = [
+        "aformat",
+        "aresample",
+        "asetnsamples",
+        "asettb",
+        "copy",
+        "format",
+        "fps",
+        "hflip",
+        "palettegen",
+        "paletteuse",
+        "scale",
+        "settb",
+        "transpose",
+        "vflip",
+    ]
+    demuxers = [
+        "aac",
+        "aiff",
+        "avi",
+        "flac",
+        "gif",
+        "image2",
+        "image_jpeg_pipe",
+        "image_pgm_pipe",
+        "image_png_pipe",
+        "image_webp_pipe",
+        "matroska",
+        "mov",
+        "mp3",
+        "mp4",
+        "mpegts",
+        "ogg",
+        "rawvideo",
+        "wav",
+    ]
+    decoders = [
+        "aac",
+        "alac",
+        "amrnb",
+        "flac",
+        "gif",
+        "mjpeg",
+        "mp3",
+        "opus",
+        "pcm_s16be",
+        "pcm_s16le",
+        "pcm_s24be",
+        "pcm_s24le",
+        "png",
+        "rawvideo",
+        "vorbis",
+        "vp8",
+        "webp",
+    ]
+    encoders = ["mjpeg", "png", "aac"]
+    builddir = _get_builddir(cfg, "ffmpeg")
+    os.makedirs(builddir, exist_ok=True)
+    extra_include_dir = op.join(cfg.prefix, "include")
+    extra_library_dir = op.join(cfg.prefix, "lib")
+    extra_cflags = ""
+    extra_ldflags = ""
+    extra_libs = "-lstdc++"  # Required by BoringSSL
+    extra_args = []
     if cfg.host == "Android":
-        muxers = [
-            "gif",
-            "image2",
-            "ipod",
-            "mov",
-            "mp4",
-        ]
-        parsers = [
-            "aac",
-            "av1",
-            "flac",
-            "h264",
-            "hevc",
-            "mjpeg",
-            "png",
-            "vp8",
-            "vp9",
-        ]
-        bsfs = [
-            "aac_adtstoasc",
-            "extract_extradata",
-            "h264_mp4toannexb",
-            "hevc_mp4toannexb",
-            "vp9_superframe",
-        ]
-        protocols = [
-            "fd",
-            "file",
-            "http",
-            "https",
-            "pipe",
-            "android_content",
-        ]
-        filters = [
-            "aformat",
-            "aresample",
-            "asetnsamples",
-            "asettb",
-            "copy",
-            "format",
-            "fps",
-            "hflip",
-            "palettegen",
-            "paletteuse",
-            "scale",
-            "settb",
-            "transpose",
-            "vflip",
-        ]
-        demuxers = [
-            "aac",
-            "aiff",
-            "avi",
-            "flac",
-            "gif",
-            "image2",
-            "image_jpeg_pipe",
-            "image_pgm_pipe",
-            "image_png_pipe",
-            "image_webp_pipe",
-            "matroska",
-            "mov",
-            "mp3",
-            "mp4",
-            "mpegts",
-            "ogg",
-            "rawvideo",
-            "wav",
-        ]
-        decoders = [
-            "aac",
-            "alac",
-            "amrnb",
+        decoders += [
             "av1_mediacodec",
-            "flac",
-            "gif",
             "h264_mediacodec",
             "hevc_mediacodec",
-            "mjpeg",
-            "mp3",
-            "opus",
-            "pcm_s16be",
-            "pcm_s16le",
-            "pcm_s24be",
-            "pcm_s24le",
-            "png",
-            "rawvideo",
-            "vorbis",
-            "vp8",
             "vp8_mediacodec",
             "vp9_mediacodec",
-            "webp",
         ]
-        encoders = ["mjpeg", "png", "aac"]
-        builddir = _get_builddir(cfg, "ffmpeg")
-        os.makedirs(builddir, exist_ok=True)
-        extra_include_dir = op.join(cfg.prefix, "include")
-        extra_library_dir = op.join(cfg.prefix, "lib")
-        extra_libs = "-lstdc++"  # Required by BoringSSL
-        return [
-            f"cd {builddir} && "
-            + _cmd_join(
-                op.join(cfg.externals["ffmpeg"], "configure"),
-                "--disable-everything",
-                "--disable-doc",
-                "--disable-static",
-                "--disable-autodetect",
-                "--disable-programs",
-                "--enable-shared",
-                "--enable-cross-compile",
-                "--enable-jni",
-                "--enable-mediacodec",
-                "--enable-hwaccels",
-                "--enable-avdevice",
-                "--enable-swresample",
-                "--enable-zlib",
-                "--enable-openssl",
-                "--enable-filter=%s" % ",".join(filters),
-                "--enable-bsf=%s" % ",".join(bsfs),
-                "--enable-encoder=%s" % ",".join(encoders),
-                "--enable-demuxer=%s" % ",".join(demuxers),
-                "--enable-decoder=%s" % ",".join(decoders),
-                "--enable-parser=%s" % ",".join(parsers),
-                "--enable-muxer=%s" % ",".join(muxers),
-                "--enable-protocol=%s" % ",".join(protocols),
-                f"--arch={cfg.host_arch}",
-                "--target-os=android",
-                f"--cross-prefix={cfg.android_ndk_bin}{op.sep}llvm-",
-                f"--cc={cfg.android_ndk_bin}{os.sep}{cfg.android_compiler}-clang",
-                f"--extra-cflags=-I{extra_include_dir}",
-                f"--extra-ldflags=-L{extra_library_dir}",
-                f"--extra-libs={extra_libs}",
-                f"--prefix={cfg.prefix}",
-            ),
+        protocols += ["android_content"]
+        extra_args += [
+            "--enable-jni",
+            "--enable-mediacodec",
+            "--target-os=android",
+            f"--cross-prefix={cfg.android_ndk_bin}{op.sep}llvm-",
+            f"--cc={cfg.android_ndk_bin}{os.sep}{cfg.android_compiler}-clang",
         ]
-    return []
+    elif cfg.host == "iOS":
+        extra_cflags += f"-arch {cfg.ios_abi} -mios-version-min={cfg.ios_version}"
+        extra_ldflags += f"-arch {cfg.ios_abi} -mios-version-min={cfg.ios_version}"
+        extra_args += [
+            "--enable-videotoolbox",
+            "--target-os=darwin",
+            f"--sysroot={cfg.ios_sdk}",
+        ]
+
+    return [
+        f"cd {builddir} && "
+        + _cmd_join(
+            op.join(cfg.externals["ffmpeg"], "configure"),
+            "--disable-everything",
+            "--disable-doc",
+            "--disable-static",
+            "--disable-autodetect",
+            "--disable-programs",
+            "--enable-shared",
+            "--enable-cross-compile",
+            "--enable-hwaccels",
+            "--enable-avdevice",
+            "--enable-swresample",
+            "--enable-zlib",
+            "--enable-openssl",
+            "--enable-filter=%s" % ",".join(filters),
+            "--enable-bsf=%s" % ",".join(bsfs),
+            "--enable-encoder=%s" % ",".join(encoders),
+            "--enable-demuxer=%s" % ",".join(demuxers),
+            "--enable-decoder=%s" % ",".join(decoders),
+            "--enable-parser=%s" % ",".join(parsers),
+            "--enable-muxer=%s" % ",".join(muxers),
+            "--enable-protocol=%s" % ",".join(protocols),
+            f"--arch={cfg.host_arch}",
+            f"--extra-cflags=-I{extra_include_dir} {extra_cflags}",
+            f"--extra-ldflags=-L{extra_library_dir} {extra_ldflags}",
+            f"--extra-libs={extra_libs}",
+            f"--prefix={cfg.prefix}",
+            *extra_args,
+        ),
+    ]
 
 
-@_block("ffmpeg-install", [_ffmpeg_setup])
+@_block("ffmpeg-install", {"Android": [_ffmpeg_setup], "iOS": [_ffmpeg_setup]})
 def _ffmpeg_install(cfg):
     if cfg.host == "Windows":
         dirs = (
@@ -651,7 +740,7 @@ def _ffmpeg_install(cfg):
             dst = op.join(cfg.prefix, dst)
             cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
         return cmds
-    elif cfg.host == "Android":
+    elif cfg.host in ["Android", "iOS"]:
         builddir = _get_builddir(cfg, "ffmpeg")
         cmds = [
             f"cd {builddir} && " + _cmd_join("make", f"-j{os.cpu_count()}"),
@@ -681,38 +770,58 @@ def _sdl2_install(cfg):
     return cmds
 
 
+@_block("moltenvk-install", [])
+def _moltenvk_install(cfg):
+    resources = (
+        (op.join("static", "MoltenVK.xcframework", "ios-arm64", "libMoltenVK.a"), "lib"),
+        (op.join("include", "."), "include"),
+    )
+    cmds = []
+    for src_path, dst_path in resources:
+        src = op.join(cfg.externals["moltenvk_iOS"], "MoltenVK", src_path)
+        dst = op.join(cfg.prefix, dst_path)
+        os.makedirs(dst, exist_ok=True)
+        cmds.append(_cmd_join("cp", "-R", src, dst))
+    return cmds
+
+
 @_block("glslang-setup", [])
 def _glslang_setup(cfg):
+    build_type = "Debug" if cfg.args.buildtype == "debug" else "Release"
+    cmake_args = [
+        "cmake",
+        "-GNinja",
+        f"-DCMAKE_BUILD_TYPE={build_type}",
+        f"-DCMAKE_INSTALL_PREFIX={cfg.prefix}",
+        "-DBUILD_SHARED_LIBS=OFF",
+        "-DBUILD_EXTERNAL=OFF",
+        "-DENABLE_OPT=OFF",
+        "-S",
+        cfg.externals["glslang"],
+        "-B",
+        _get_builddir(cfg, "glslang"),
+    ]
     if cfg.host == "Android":
-        build_type = "Debug" if cfg.args.buildtype == "debug" else "Release"
-        cmds = [
-            _cmd_join(
-                "cmake",
-                "-GNinja",
-                f"-DCMAKE_BUILD_TYPE={build_type}",
-                f"-DCMAKE_TOOLCHAIN_FILE={cfg.android_cmake_toolchain}",
-                "-DANDROID_STL=c++_shared",
-                "-DANDROID_TOOLCHAIN=clang",
-                f"-DANDROID_PLATFORM=android-{_ANDROID_VERSION}",
-                f"-DANDROID_ABI={cfg.android_abi}",
-                f"-DCMAKE_INSTALL_PREFIX={cfg.prefix}",
-                "-DBUILD_SHARED_LIBS=OFF",
-                "-DBUILD_EXTERNAL=OFF",
-                "-DENABLE_OPT=OFF",
-                "-S",
-                cfg.externals["glslang"],
-                "-B",
-                _get_builddir(cfg, "glslang"),
-            ),
+        cmake_args += [
+            f"-DCMAKE_TOOLCHAIN_FILE={cfg.android_cmake_toolchain}",
+            "-DANDROID_STL=c++_shared",
+            "-DANDROID_TOOLCHAIN=clang",
+            f"-DANDROID_PLATFORM=android-{_ANDROID_VERSION}",
+            f"-DANDROID_ABI={cfg.android_abi}",
         ]
-        return cmds
-    else:
-        return []
+    elif cfg.host == "iOS":
+        cmake_args += [
+            f"-DCMAKE_OSX_SYSROOT=iphoneos",
+            f"-DCMAKE_OSX_ARCHITECTURES={cfg.ios_abi}",
+        ]
+    return [
+        _cmd_join(*cmake_args),
+    ]
 
 
-@_block("glslang-install", [_glslang_setup])
+@_block("glslang-install", {"Android": [_glslang_setup], "iOS": [_glslang_setup]})
 def _glslang_install(cfg):
-    if cfg.host == "Android":
+    if cfg.host in ["Android", "iOS"]:
         builddir = _get_builddir(cfg, "glslang")
         cmds = [
             _cmd_join("cmake", "--build", builddir),
@@ -737,6 +846,7 @@ def _glslang_install(cfg):
     "nopemd-setup",
     {
         "Android": [_ffmpeg_install],
+        "iOS": [_ffmpeg_install],
         "Windows": [_pkgconf_install, _ffmpeg_install, _sdl2_install],
     },
 )
@@ -799,6 +909,14 @@ def _fribidi_install(cfg):
             _harfbuzz_install,
             _fribidi_install,
         ],
+        "iOS": [
+            _nopemd_install,
+            _moltenvk_install,
+            _glslang_install,
+            _freetype_install,
+            _harfbuzz_install,
+            _fribidi_install,
+        ],
         "Local": [_nopemd_install],
         "Windows": [
             _nopemd_install,
@@ -828,6 +946,10 @@ def _nopegl_setup(cfg):
     extra_library_dirs = []
     extra_include_dirs = []
     if cfg.host == "Android":
+        extra_library_dirs += [op.join(cfg.prefix, "lib")]
+        extra_include_dirs += [op.join(cfg.prefix, "include")]
+
+    elif cfg.host == "iOS":
         extra_library_dirs += [op.join(cfg.prefix, "lib")]
         extra_include_dirs += [op.join(cfg.prefix, "include")]
 
@@ -938,6 +1060,7 @@ def _nopegl_updateglwrappers(cfg):
     {
         "Local": [_ngl_tools_install, _pynopegl_utils_install],
         "Android": [_nopegl_install],
+        "iOS": [_nopegl_install],
     },
 )
 def _all(cfg):
@@ -1075,6 +1198,8 @@ def _get_make_vars(cfg):
 
     if cfg.host == "Android":
         meson_setup += ["--cross-file=" + _get_android_cross_file_path(cfg)]
+    elif cfg.host == "iOS":
+        meson_setup += ["--cross-file=" + _get_ios_cross_file_path(cfg)]
 
     ret = dict(
         PYTHON=python,
@@ -1198,6 +1323,22 @@ class _Config:
         elif self.host == "Android":
             self.android_abi = _ANDROID_ABI_MAP[args.host_arch]
             self.prefix = op.join(op.abspath(self.host), self.android_abi)
+        elif self.host == "iOS":
+            self.ios_abi = _IOS_ABI_MAP[args.host_arch]
+            self.ios_platform = "iphoneos"
+            self.ios_version = subprocess.run(
+                ["xcrun", "--sdk", f"{self.ios_platform}", "--show-sdk-version"],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.strip()
+            self.ios_sdk = subprocess.run(
+                ["xcrun", "--sdk", f"{self.ios_platform}", "--show-sdk-path"],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.strip()
+            self.prefix = op.join(op.abspath(self.host), self.host_arch)
         else:
             assert False
 
@@ -1234,6 +1375,9 @@ class _Config:
         if self.host == "Android":
             env["PKG_CONFIG_LIBDIR"] = self.pkg_config_path
             env["CMAKE_PREFIX_PATH"] = op.join(self.prefix, "lib", "cmake")
+        if self.host == "iOS":
+            env["PKG_CONFIG_LIBDIR"] = self.pkg_config_path
+            env["CMAKE_PREFIX_PATH"] = op.join(self.prefix, "lib", "cmake")
         elif self.host == "Windows":
             env["PKG_CONFIG_ALLOW_SYSTEM_LIBS"] = "1"
             env["PKG_CONFIG_ALLOW_SYSTEM_CFLAGS"] = "1"
@@ -1247,6 +1391,8 @@ class _Config:
 def _build_env_cross_file(cfg):
     if cfg.args.host == "Android":
         _gen_android_cross_file(cfg)
+    elif cfg.args.host == "iOS":
+        _gen_ios_cross_file(cfg)
 
 
 def _build_env_scripts(cfg):
@@ -1314,7 +1460,7 @@ def _run():
         action=argparse.BooleanOptionalAction,
         help="Only download the external dependencies",
     )
-    parser.add_argument("--host", choices=("Android",), default=None, help="Cross compilation host machine")
+    parser.add_argument("--host", choices=("Android", "iOS"), default=None, help="Cross compilation host machine")
     parser.add_argument(
         "--host-arch",
         choices=_CPU_FAMILIES,
@@ -1332,6 +1478,8 @@ def _run():
 
     if args.host == "Android" and _SYSTEM not in {"Linux", "Darwin"}:
         raise NotImplementedError(f"Android cross-build is not supported on {_SYSTEM}")
+    elif args.host == "iOS" and _SYSTEM not in {"Darwin"}:
+        raise NotImplementedError(f"iOS cross-build is not supported on {_SYSTEM}")
 
     _build_venv(args)
 
