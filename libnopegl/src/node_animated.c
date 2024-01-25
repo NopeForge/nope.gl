@@ -36,6 +36,8 @@ static const struct node_param animatedtime_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEFLOAT, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("time key frames to interpolate from")},
+    {"time_offset", NGLI_PARAM_TYPE_F64, OFFSET(time_offset),
+                    .desc=NGLI_DOCSTRING("apply a time offset before evaluating the animation")},
     {NULL}
 };
 
@@ -43,6 +45,8 @@ static const struct node_param animatedfloat_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEFLOAT, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("float key frames to interpolate from")},
+    {"time_offset", NGLI_PARAM_TYPE_F64, OFFSET(time_offset),
+                    .desc=NGLI_DOCSTRING("apply a time offset before evaluating the animation")},
     {NULL}
 };
 
@@ -50,6 +54,8 @@ static const struct node_param animatedvec2_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEVEC2, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("vec2 key frames to interpolate from")},
+    {"time_offset", NGLI_PARAM_TYPE_F64, OFFSET(time_offset),
+                    .desc=NGLI_DOCSTRING("apply a time offset before evaluating the animation")},
     {NULL}
 };
 
@@ -57,6 +63,8 @@ static const struct node_param animatedvec3_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEVEC3, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("vec3 key frames to interpolate from")},
+    {"time_offset", NGLI_PARAM_TYPE_F64, OFFSET(time_offset),
+                    .desc=NGLI_DOCSTRING("apply a time offset before evaluating the animation")},
     {NULL}
 };
 
@@ -64,6 +72,8 @@ static const struct node_param animatedvec4_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const uint32_t[]){NGL_NODE_ANIMKEYFRAMEVEC4, NGLI_NODE_NONE},
                   .desc=NGLI_DOCSTRING("vec4 key frames to interpolate from")},
+    {"time_offset", NGLI_PARAM_TYPE_F64, OFFSET(time_offset),
+                    .desc=NGLI_DOCSTRING("apply a time offset before evaluating the animation")},
     {NULL}
 };
 
@@ -73,6 +83,8 @@ static const struct node_param animatedquat_params[] = {
                   .desc=NGLI_DOCSTRING("quaternion key frames to interpolate from")},
     {"as_mat4",   NGLI_PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i32=0},
                   .desc=NGLI_DOCSTRING("exposed as a 4x4 rotation matrix in the program")},
+    {"time_offset", NGLI_PARAM_TYPE_F64, OFFSET(time_offset),
+                    .desc=NGLI_DOCSTRING("apply a time offset before evaluating the animation")},
     {NULL}
 };
 
@@ -84,6 +96,8 @@ static const struct node_param animatedpath_params[] = {
                   .node_types=(const uint32_t[]){NGL_NODE_PATH, NGL_NODE_SMOOTHPATH, NGLI_NODE_NONE},
                   .flags=NGLI_PARAM_FLAG_NON_NULL,
                   .desc=NGLI_DOCSTRING("path to follow")},
+    {"time_offset", NGLI_PARAM_TYPE_F64, OFFSET(time_offset),
+                    .desc=NGLI_DOCSTRING("apply a time offset before evaluating the animation")},
     {NULL}
 };
 
@@ -94,6 +108,8 @@ static const struct node_param animatedcolor_params[] = {
     {"space",     NGLI_PARAM_TYPE_SELECT, OFFSET(space), {.i32=NGLI_COLORCONV_SPACE_SRGB},
                   .choices=&ngli_colorconv_colorspace_choices,
                   .desc=NGLI_DOCSTRING("color space defining how to interpret `value`")},
+    {"time_offset", NGLI_PARAM_TYPE_F64, OFFSET(time_offset),
+                    .desc=NGLI_DOCSTRING("apply a time offset before evaluating the animation")},
     {NULL}
 };
 
@@ -318,7 +334,7 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
         }
     }
 
-    return ngli_animation_evaluate(&s->anim_eval, dst, t);
+    return ngli_animation_evaluate(&s->anim_eval, dst, t - o->time_offset);
 }
 
 static int animation_init(struct ngl_node *node)
@@ -404,7 +420,8 @@ static int animatedpath_init(struct ngl_node *node)
 static int animation_update(struct ngl_node *node, double t)
 {
     struct animated_priv *s = node->priv_data;
-    return ngli_animation_evaluate(&s->anim, s->var.data, t);
+    const struct variable_opts *o = node->opts;
+    return ngli_animation_evaluate(&s->anim, s->var.data, t - o->time_offset);
 }
 
 #define animatedtime_update  animation_update
@@ -419,7 +436,7 @@ static int animatedquat_update(struct ngl_node *node, double t)
 {
     struct animated_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
-    int ret = ngli_animation_evaluate(&s->anim, s->vector, t);
+    int ret = ngli_animation_evaluate(&s->anim, s->vector, t - o->time_offset);
     if (ret < 0)
         return ret;
     if (o->as_mat4)

@@ -471,6 +471,7 @@ foreach backend : backends
     'rotate_quat_animated',
     'path',
     'smoothpath',
+    'shared_anim',
   ]
 
   tests_userlive = [

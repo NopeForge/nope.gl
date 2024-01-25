@@ -166,7 +166,7 @@ int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t)
         }
     }
 
-    return ngli_animation_derivate(&s->anim_eval, dst, t);
+    return ngli_animation_derivate(&s->anim_eval, dst, t - anim->time_offset);
 }
 
 static int velocity_init(struct ngl_node *node)
@@ -184,7 +184,9 @@ static int velocity_init(struct ngl_node *node)
 static int velocity_update(struct ngl_node *node, double t)
 {
     struct velocity_priv *s = node->priv_data;
-    return ngli_animation_derivate(&s->anim, s->var.data, t);
+    const struct velocity_opts *o = node->opts;
+    const struct variable_opts *anim = o->anim_node->opts;
+    return ngli_animation_derivate(&s->anim, s->var.data, t - anim->time_offset);
 }
 
 #define DEFINE_VELOCITY_CLASS(class_id, class_name, type, dtype, count)         \

@@ -26,6 +26,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `forward_transforms` parameter to the `Texture` and `RenderToTexture` nodes
   to enable forwarding of the camera/model transformations
 - `Selector` filter to select colors according to their lightness, chroma or hue
+- `AnimKeyFrame*` nodes can now be reused at a different time using the
+  `Animated*.time_offset` parameter
 
 ### Fixed
 - Moving the split position in `ngl-diff`

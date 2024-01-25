@@ -353,3 +353,27 @@ def transform_smoothpath(cfg: ngl.SceneCfg):
     ]
 
     return ngl.Translate(shape, vector=ngl.AnimatedPath(anim_kf, path))
+
+
+@test_fingerprint(keyframes=15, tolerance=1)
+@ngl.scene()
+def transform_shared_anim(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+    cfg.duration = 6
+
+    # Duplicate the same shape at different positions
+    shape = ngl.RenderColor(geometry=ngl.Circle(radius=1 / 3, npoints=5))
+    shape0 = ngl.Translate(shape, vector=(-0.5, 0.5, 0))
+    shape1 = ngl.Translate(shape, vector=(-0.5, -0.5, 0))
+
+    # Same animation, reused at different times
+    anim_d = cfg.duration * 2 / 3
+    anim_kf = [
+        ngl.AnimKeyFrameVec3(0, (0, 0, 0)),
+        ngl.AnimKeyFrameVec3(anim_d / 2, (1, 0, 0), "exp_out"),
+        ngl.AnimKeyFrameVec3(anim_d, (0, 0, 0), "back_in"),
+    ]
+    anim0 = ngl.Translate(shape0, vector=ngl.AnimatedVec3(anim_kf))
+    anim1 = ngl.Translate(shape1, vector=ngl.AnimatedVec3(anim_kf, time_offset=cfg.duration * 1 / 3))
+
+    return ngl.Group(children=[anim0, anim1])

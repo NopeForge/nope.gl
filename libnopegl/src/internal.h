@@ -240,6 +240,8 @@ struct variable_opts {
         int as_mat4; /* UniformQuat and AnimatedQuat only */
         int space; /* UniformColor and AnimatedColor only */
     };
+
+    double time_offset;
 };
 
 struct variable_info {
