@@ -1051,6 +1051,13 @@
           "choices": "colorspace",
           "flags": [],
           "desc": "color space defining how to interpret `value`"
+        },
+        {
+          "name": "time_offset",
+          "type": "f64",
+          "default": 0.000000,
+          "flags": [],
+          "desc": "apply a time offset before evaluating the animation"
         }
       ]
     },
@@ -1070,6 +1077,13 @@
           "node_types": ["Path", "SmoothPath"],
           "flags": ["nonull"],
           "desc": "path to follow"
+        },
+        {
+          "name": "time_offset",
+          "type": "f64",
+          "default": 0.000000,
+          "flags": [],
+          "desc": "apply a time offset before evaluating the animation"
         }
       ]
     },
@@ -1082,6 +1096,13 @@
           "node_types": ["AnimKeyFrameFloat"],
           "flags": [],
           "desc": "time key frames to interpolate from"
+        },
+        {
+          "name": "time_offset",
+          "type": "f64",
+          "default": 0.000000,
+          "flags": [],
+          "desc": "apply a time offset before evaluating the animation"
         }
       ]
     },
@@ -1094,6 +1115,13 @@
           "node_types": ["AnimKeyFrameFloat"],
           "flags": [],
           "desc": "float key frames to interpolate from"
+        },
+        {
+          "name": "time_offset",
+          "type": "f64",
+          "default": 0.000000,
+          "flags": [],
+          "desc": "apply a time offset before evaluating the animation"
         }
       ]
     },
@@ -1106,6 +1134,13 @@
           "node_types": ["AnimKeyFrameVec2"],
           "flags": [],
           "desc": "vec2 key frames to interpolate from"
+        },
+        {
+          "name": "time_offset",
+          "type": "f64",
+          "default": 0.000000,
+          "flags": [],
+          "desc": "apply a time offset before evaluating the animation"
         }
       ]
     },
@@ -1118,6 +1153,13 @@
           "node_types": ["AnimKeyFrameVec3"],
           "flags": [],
           "desc": "vec3 key frames to interpolate from"
+        },
+        {
+          "name": "time_offset",
+          "type": "f64",
+          "default": 0.000000,
+          "flags": [],
+          "desc": "apply a time offset before evaluating the animation"
         }
       ]
     },
@@ -1130,6 +1172,13 @@
           "node_types": ["AnimKeyFrameVec4"],
           "flags": [],
           "desc": "vec4 key frames to interpolate from"
+        },
+        {
+          "name": "time_offset",
+          "type": "f64",
+          "default": 0.000000,
+          "flags": [],
+          "desc": "apply a time offset before evaluating the animation"
         }
       ]
     },
@@ -1149,6 +1198,13 @@
           "default": 0,
           "flags": [],
           "desc": "exposed as a 4x4 rotation matrix in the program"
+        },
+        {
+          "name": "time_offset",
+          "type": "f64",
+          "default": 0.000000,
+          "flags": [],
+          "desc": "apply a time offset before evaluating the animation"
         }
       ]
     },
