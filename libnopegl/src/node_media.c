@@ -233,33 +233,15 @@ static int media_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
+    s->android_imagereader = ngli_android_imagereader_create(android_ctx, 1, 1,
+                                                             NGLI_ANDROID_IMAGE_FORMAT_PRIVATE, 2);
+    if (!s->android_imagereader)
+        return NGL_ERROR_MEMORY;
+
     void *android_surface = NULL;
-    if (android_ctx->has_native_imagereader_api) {
-        s->android_imagereader = ngli_android_imagereader_create(android_ctx, 1, 1,
-                                                                 NGLI_ANDROID_IMAGE_FORMAT_PRIVATE, 2);
-        if (!s->android_imagereader)
-            return NGL_ERROR_MEMORY;
-
-        int ret = ngli_android_imagereader_get_window(s->android_imagereader, &android_surface);
-        if (ret < 0)
-            return ret;
-    } else if (android_ctx->has_surface_texture_api) {
-        s->android_handlerthread = ngli_android_handlerthread_new();
-        if (!s->android_handlerthread)
-            return NGL_ERROR_MEMORY;
-
-        void *handler = ngli_android_handlerthread_get_native_handler(s->android_handlerthread);
-        if (!handler)
-            return NGL_ERROR_EXTERNAL;
-
-        s->android_surface = ngli_android_surface_new(0, handler);
-        if (!s->android_surface)
-            return NGL_ERROR_MEMORY;
-
-        android_surface = ngli_android_surface_get_surface(s->android_surface);
-        if (!android_surface)
-            return NGL_ERROR_EXTERNAL;
-    }
+    int ret = ngli_android_imagereader_get_window(s->android_imagereader, &android_surface);
+    if (ret < 0)
+        return ret;
 
     nmd_set_option(s->player, "opaque", &android_surface);
 #elif defined(HAVE_VAAPI)
@@ -362,14 +344,7 @@ static void media_uninit(struct ngl_node *node)
     nmd_freep(&s->player);
 
 #if defined(TARGET_ANDROID)
-    struct ngl_ctx *ctx = node->ctx;
-    struct android_ctx *android_ctx = &ctx->android_ctx;
-    if (android_ctx->has_native_imagereader_api) {
-        ngli_android_imagereader_freep(&s->android_imagereader);
-    } else if (android_ctx->has_surface_texture_api) {
-        ngli_android_surface_free(&s->android_surface);
-        ngli_android_handlerthread_free(&s->android_handlerthread);
-    }
+    ngli_android_imagereader_freep(&s->android_imagereader);
 #endif
 }
 

@@ -289,10 +289,6 @@ hosts_cfg = {
       'src/jni_utils.c',
       'src/android_ctx.c',
       'src/android_utils.c',
-      'src/android_looper.c',
-      'src/android_surface.c',
-      'src/android_handler.c',
-      'src/android_handlerthread.c',
       'src/android_imagereader.c',
     ),
   },
@@ -820,7 +816,6 @@ copyfile = find_program('scripts/copyfile.py')
 specs_filename = 'nodes.specs'
 dest_datadir = get_option('datadir') / 'nopegl'
 install_data(files(specs_filename), install_dir: dest_datadir)
-install_data(files('src/android/java/OnFrameAvailableListener.java'), install_dir: dest_datadir / 'java/org/nopegl')
 
 # XXX: should we use an intermediate static_library() to share the objects
 # between the library and these tools?

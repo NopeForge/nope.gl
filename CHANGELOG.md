@@ -17,6 +17,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node
   list which accepts `FontFace` nodes instead
 
+### Removed
+- Support for Android < 9.0
+
 ## [2024.0] [libnopegl 0.11.0] - 2024-02-02
 ### Added
 - `ngl.SceneCfg` now includes the backend capabilities

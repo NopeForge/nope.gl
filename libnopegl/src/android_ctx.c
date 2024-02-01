@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Nope Forge
  * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -139,9 +140,10 @@ int ngli_android_ctx_init(struct gpu_ctx *gpu_ctx, struct android_ctx *s)
         return ret;
     }
 
-    const struct ngl_config *config = &gpu_ctx->config;
-    s->has_surface_texture_api = config->backend == NGL_BACKEND_OPENGLES;
-    s->has_native_imagereader_api = has_native_imagereader_api_support(gpu_ctx);
+    if (!has_native_imagereader_api_support(gpu_ctx)) {
+        LOG(ERROR, "device is missing required functions/extensions available since Android 9.0");
+        return NGL_ERROR_UNSUPPORTED;
+    }
 
     return 0;
 }

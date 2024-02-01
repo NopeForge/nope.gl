@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Nope Forge
  * Copyright 2020-2022 GoPro Inc.
  * Copyright 2010 The Android Open Source Project
  *
@@ -138,9 +139,6 @@ static void on_buffer_available(void *context, AImageReader *reader)
 
 struct android_imagereader *ngli_android_imagereader_create(struct android_ctx *android_ctx, int32_t width, int32_t height, int format, int max_images)
 {
-    if (!android_ctx->has_native_imagereader_api)
-        return NULL;
-
     struct android_imagereader *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;

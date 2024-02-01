@@ -42,7 +42,6 @@ struct hwmap_params {
     int texture_wrap_t;
     int texture_usage;
 #if defined(TARGET_ANDROID)
-    struct android_surface *android_surface;
     struct android_imagereader *android_imagereader;
 #endif
 };

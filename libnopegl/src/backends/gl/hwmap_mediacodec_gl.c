@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,7 +28,6 @@
 #include <android/hardware_buffer_jni.h>
 
 #include "android_imagereader.h"
-#include "android_surface.h"
 #include "egl.h"
 #include "format.h"
 #include "gpu_ctx_gl.h"
@@ -72,7 +72,6 @@ static int support_direct_rendering(struct hwmap *hwmap)
 static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct android_ctx *android_ctx = &ctx->android_ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
@@ -127,39 +126,10 @@ static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
 
     hwmap->require_hwconv = !support_direct_rendering(hwmap);
 
-    if (!android_ctx->has_native_imagereader_api) {
-        struct texture_gl *texture_gl = (struct texture_gl *)mc->texture;
-        ret = ngli_android_surface_attach_to_gl_context(params->android_surface, texture_gl->id);
-        if (ret < 0)
-            return ret;
-    }
-
     return 0;
 }
 
-static int mc_map_frame_surfacetexture(struct hwmap *hwmap, struct nmd_frame *frame)
-{
-    const struct hwmap_params *params = &hwmap->params;
-    struct hwmap_mc *mc = hwmap->hwmap_priv_data;
-
-    ngli_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
-
-    NGLI_ALIGNED_MAT(flip_matrix) = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f,-1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-    };
-
-    float *matrix = hwmap->mapped_image.coordinates_matrix;
-    ngli_android_surface_render_frame(params->android_surface, &frame, matrix);
-    ngli_mat4_mul(matrix, matrix, flip_matrix);
-
-
-    return 0;
-}
-
-static int mc_map_frame_imagereader(struct hwmap *hwmap, struct nmd_frame *frame)
+static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
@@ -227,21 +197,9 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct nmd_frame *frame
     return 0;
 }
 
-static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
-{
-    struct ngl_ctx *ctx = hwmap->ctx;
-    struct android_ctx *android_ctx = &ctx->android_ctx;
-
-    if (android_ctx->has_native_imagereader_api)
-        return mc_map_frame_imagereader(hwmap, frame);
-
-    return mc_map_frame_surfacetexture(hwmap, frame);
-}
-
 static void mc_uninit(struct hwmap *hwmap)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct android_ctx *android_ctx = &ctx->android_ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
@@ -250,13 +208,8 @@ static void mc_uninit(struct hwmap *hwmap)
     ngli_texture_freep(&mc->texture);
     ngli_glDeleteTextures(gl, 1, &mc->gl_texture);
 
-    if (android_ctx->has_native_imagereader_api) {
-        ngli_eglDestroyImageKHR(gl, mc->egl_image);
-        ngli_android_image_freep(&mc->android_image);
-    } else {
-        const struct hwmap_params *params = &hwmap->params;
-        ngli_android_surface_detach_from_gl_context(params->android_surface);
-    }
+    ngli_eglDestroyImageKHR(gl, mc->egl_image);
+    ngli_android_image_freep(&mc->android_image);
 }
 
 const struct hwmap_class ngli_hwmap_mc_gl_class = {
