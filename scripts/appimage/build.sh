@@ -8,6 +8,21 @@ if [ ! -f "configure.py" ]; then
     exit 1
 fi
 
+target=$1
+target_exec=
+case "$target" in
+    "nope-diff")
+        target_exec="ngl-diff"
+        ;;
+    "nope-viewer")
+        target_exec="ngl-viewer"
+        ;;
+    *)
+        echo "usage: $0 {nope-viewer,nope-diff}"
+        exit 1
+        ;;
+esac
+
 # Check if repository is in a clean state
 git diff-index --quiet HEAD
 [ -f Makefile ] && exit 1
@@ -82,12 +97,14 @@ $python -m pip uninstall -y cython
 curl -sL https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -o linuxdeploy
 chmod +x linuxdeploy
 
+sed "s/@TOOL@/$target_exec/g" "$resources_dir/AppRun.in" > "$resources_dir/AppRun"
+
 LD_LIBRARY_PATH="$appdir/usr/lib/" ./linuxdeploy \
     --appdir "$appdir" \
     --output appimage \
     --custom-apprun "$resources_dir/AppRun" \
-    --desktop-file "$resources_dir/nope-viewer.desktop" \
-    --icon-file "$resources_dir/nope-viewer.png" \
+    --desktop-file "$resources_dir/$target.desktop" \
+    --icon-file "$resources_dir/$target.png" \
     --executable "$python" \
     --executable "$appdir/usr/bin/ffmpeg" \
     --executable "$appdir/usr/bin/ffprobe" \
