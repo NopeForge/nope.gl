@@ -29,14 +29,9 @@
 #include <nopemd.h>
 
 #if defined(TARGET_ANDROID)
-#include "android_handlerthread.h"
-#include "android_surface.h"
 #include "android_imagereader.h"
 
 struct android_surface_compat {
-    struct android_ctx *android_ctx;
-    struct android_surface *surface;
-    struct android_handlerthread *handlerthread;
     struct android_imagereader *imagereader;
     void *surface_handle;
 };
