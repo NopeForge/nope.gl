@@ -11,6 +11,14 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - tool: nope-viewer
+            tool_fullname: NopeViewer
+          - tool: nope-diff
+            tool_fullname: NopeDiff
 
     steps:
     - uses: actions/checkout@v3
@@ -33,12 +41,12 @@ jobs:
 
     - name: Build
       run: |
-        scripts/appimage/build.sh
+        scripts/appimage/build.sh ${{ matrix.tool }}
 
     - name: Upload AppImage
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        output_file="appimage/NopeViewer-$(cat VERSION)-x86_64.AppImage"
-        mv appimage/NopeViewer-x86_64.AppImage $output_file
+        output_file="appimage/${{ matrix.tool_fullname }}-$(cat VERSION)-x86_64.AppImage"
+        mv appimage/${{ matrix.tool_fullname }}-x86_64.AppImage $output_file
         gh release upload v$(cat VERSION) $output_file
