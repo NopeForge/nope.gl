@@ -180,48 +180,21 @@ static const char *get_default_vt_pix_fmts(int backend)
 #if defined(TARGET_ANDROID)
 static int init_android_surface(struct android_ctx *ctx, struct android_surface_compat *surface)
 {
-    surface->android_ctx = ctx;
+    surface->imagereader = ngli_android_imagereader_create(ctx, 1, 1,
+                                                           NGLI_ANDROID_IMAGE_FORMAT_PRIVATE, 2);
+    if (!surface->imagereader)
+        return NGL_ERROR_MEMORY;
 
-    if (ctx->has_native_imagereader_api) {
-        surface->imagereader = ngli_android_imagereader_create(ctx, 1, 1,
-                                                               NGLI_ANDROID_IMAGE_FORMAT_PRIVATE, 2);
-        if (!surface->imagereader)
-            return NGL_ERROR_MEMORY;
-
-        int ret = ngli_android_imagereader_get_window(surface->imagereader, &surface->surface_handle);
-        if (ret < 0)
-            return ret;
-    } else if (ctx->has_surface_texture_api) {
-        surface->handlerthread = ngli_android_handlerthread_new();
-        if (!surface->handlerthread)
-            return NGL_ERROR_MEMORY;
-
-        void *handler = ngli_android_handlerthread_get_native_handler(surface->handlerthread);
-        if (!handler)
-            return NGL_ERROR_EXTERNAL;
-
-        surface->surface = ngli_android_surface_new(0, handler);
-        if (!surface->surface)
-            return NGL_ERROR_MEMORY;
-
-        surface->surface_handle = ngli_android_surface_get_surface(surface->surface);
-        if (!surface->surface_handle)
-            return NGL_ERROR_EXTERNAL;
-    }
+    int ret = ngli_android_imagereader_get_window(surface->imagereader, &surface->surface_handle);
+    if (ret < 0)
+        return ret;
 
     return 0;
 }
 
 static void reset_android_surface(struct android_surface_compat *surface)
 {
-    struct android_ctx *ctx = surface->android_ctx;
-
-    if (ctx->has_native_imagereader_api) {
-        ngli_android_imagereader_freep(&surface->imagereader);
-    } else if (ctx->has_surface_texture_api) {
-        ngli_android_surface_free(&surface->surface);
-        ngli_android_handlerthread_free(&surface->handlerthread);
-    }
+    ngli_android_imagereader_freep(&surface->imagereader);
 
     memset(surface, 0, sizeof(*surface));
 }
