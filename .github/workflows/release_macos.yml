@@ -11,6 +11,14 @@ jobs:
     permissions:
       contents: write
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - tool: nope-viewer
+            tool_fullname: NopeViewer
+          - tool: nope-diff
+            tool_fullname: NopeDiff
 
     steps:
     - uses: actions/checkout@v3
@@ -38,14 +46,14 @@ jobs:
             --add-binary "$(which ffprobe):bin" \
             --add-binary "$libarchive:." \
             --windowed \
-            -i scripts/pyinstaller/nope-viewer.icns \
-            scripts/pyinstaller/nope-viewer.py
-        create-dmg nope-viewer.dmg dist/nope-viewer.app
+            -i scripts/pyinstaller/${{ matrix.tool }}.icns \
+            scripts/pyinstaller/${{ matrix.tool }}.py
+        create-dmg ${{ matrix.tool }}.dmg dist/${{ matrix.tool }}.app
 
     - name: Upload DMG
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        output_file="NopeViewer-$(cat VERSION)-x86_64.dmg"
-        mv nope-viewer.dmg $output_file
+        output_file="${{ matrix.tool_fullname }}-$(cat VERSION)-x86_64.dmg"
+        mv ${{ matrix.tool }}.dmg $output_file
         gh release upload v$(cat VERSION) $output_file
