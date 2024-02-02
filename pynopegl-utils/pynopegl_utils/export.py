@@ -23,6 +23,7 @@
 #
 
 import os
+import os.path as op
 import platform
 import subprocess
 import sys
@@ -99,15 +100,19 @@ ENCODE_PROFILES = dict(
 def export_workers(scene_info: ngl.SceneInfo, filename: str, resolution: str, profile_id: str):
     profile = ENCODE_PROFILES[profile_id]
     if profile.format == "gif":
-        with tempfile.NamedTemporaryFile(prefix="palette-", suffix=".png") as palette:
+        # tempfile.NamedTemporaryFile has limitations on Windows, see
+        # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
+        with tempfile.TemporaryDirectory(prefix="Nope_") as td:
+            palette_name = op.join(td, "palette.png")
+
             # pass 1
             extra_enc_args = ["-vf", "palettegen", "-update", "1", "-frames:v", "1", "-c:v", "png", "-f", "image2"]
-            export = _export_worker(scene_info, palette.name, resolution, extra_enc_args)
+            export = _export_worker(scene_info, palette_name, resolution, extra_enc_args)
             for progress in export:
                 yield progress / 2
 
             # pass 2
-            extra_enc_args = ["-i", palette.name, "-lavfi", "paletteuse", "-c:v", profile.encoder, "-f", profile.format]
+            extra_enc_args = ["-i", palette_name, "-lavfi", "paletteuse", "-c:v", profile.encoder, "-f", profile.format]
             export = _export_worker(scene_info, filename, resolution, extra_enc_args)
             for progress in export:
                 yield 50 + progress / 2
