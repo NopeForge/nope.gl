@@ -25,11 +25,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        brew install ffmpeg freetype fribidi harfbuzz python3 curl pkg-config nasm create-dmg
+        brew install ffmpeg freetype fribidi harfbuzz python@3.11 curl pkg-config nasm create-dmg
 
     - name: Setup venv
       run: |
-        ./configure.py
+        $(brew --prefix)/opt/python@3.11/libexec/bin/python configure.py
 
     - name: Build
       run: |
