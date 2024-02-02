@@ -45,8 +45,6 @@ def texteffect_color(cfg: ngl.SceneCfg):
         ]
         effects.append(
             ngl.TextEffect(
-                start=0,
-                end=cfg.duration,
                 start_pos=i / n,
                 end_pos=(i + 1) / n,
                 overlap=0.7,
@@ -70,8 +68,6 @@ def texteffect_opacity(cfg: ngl.SceneCfg):
     ]
     effects = [
         ngl.TextEffect(
-            start=0,
-            end=cfg.duration,
             overlap=0.8,
             target="line",
             opacity=ngl.AnimatedFloat(animkf),
@@ -117,8 +113,8 @@ def texteffect_chars_space_nospace(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameColor(1, (1, 1, 1)),
     ]
 
-    effects0 = [ngl.TextEffect(start=0, end=cfg.duration, target="char", color=ngl.AnimatedColor(animkf))]
-    effects1 = [ngl.TextEffect(start=0, end=cfg.duration, target="char_nospace", color=ngl.AnimatedColor(animkf))]
+    effects0 = [ngl.TextEffect(target="char", color=ngl.AnimatedColor(animkf))]
+    effects1 = [ngl.TextEffect(target="char_nospace", color=ngl.AnimatedColor(animkf))]
     return ngl.Group(
         children=[
             ngl.Text(
@@ -148,7 +144,7 @@ def texteffect_blur(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameFloat(1 / 2, 0.1),
         ngl.AnimKeyFrameFloat(1, 0),
     ]
-    effects = [ngl.TextEffect(start=0, end=cfg.duration, blur=ngl.AnimatedFloat(animkf))]
+    effects = [ngl.TextEffect(blur=ngl.AnimatedFloat(animkf))]
     return ngl.Text("B", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
@@ -161,7 +157,7 @@ def texteffect_blur_outline(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameFloat(1 / 2, 0.1),
         ngl.AnimKeyFrameFloat(1, 0),
     ]
-    effects = [ngl.TextEffect(start=0, end=cfg.duration, blur=ngl.AnimatedFloat(animkf), outline=0.01)]
+    effects = [ngl.TextEffect(blur=ngl.AnimatedFloat(animkf), outline=0.01)]
     return ngl.Text("b", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
@@ -174,7 +170,7 @@ def texteffect_glow(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameFloat(1 / 2, 0.2),
         ngl.AnimKeyFrameFloat(1, 0),
     ]
-    effects = [ngl.TextEffect(start=0, end=cfg.duration, glow=ngl.AnimatedFloat(animkf), glow_color=(1, 0, 0))]
+    effects = [ngl.TextEffect(glow=ngl.AnimatedFloat(animkf), glow_color=(1, 0, 0))]
     return ngl.Text("G", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
@@ -187,5 +183,5 @@ def texteffect_glow_outline(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameFloat(1 / 2, 0.2),
         ngl.AnimKeyFrameFloat(1, 0),
     ]
-    effects = [ngl.TextEffect(start=0, end=cfg.duration, glow=ngl.AnimatedFloat(animkf), outline=0.01)]
+    effects = [ngl.TextEffect(glow=ngl.AnimatedFloat(animkf), outline=0.01)]
     return ngl.Text("g", effects=effects, aspect_ratio=cfg.aspect_ratio)
