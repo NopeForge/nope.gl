@@ -15,8 +15,10 @@ git diff-index --quiet HEAD
 
 ./configure.py --download-only
 
-pip install --user ninja meson
-export PATH="$HOME/.local/bin:$PATH"
+python -m venv tmp-venv
+. tmp-venv/bin/activate
+
+pip install ninja meson
 
 here="$(pwd)"
 appimagedir="$here/appimage"
