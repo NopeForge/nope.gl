@@ -41,8 +41,8 @@ static const struct param_choices target_choices = {
 static const struct node_param texteffect_params[] = {
     {"start",        NGLI_PARAM_TYPE_F64, OFFSET(start_time), {.f64=0.0},
                      .desc=NGLI_DOCSTRING("absolute start time of the effect")},
-    {"end",          NGLI_PARAM_TYPE_F64, OFFSET(end_time), {.f64=5.0},
-                     .desc=NGLI_DOCSTRING("absolute end time of the effect")},
+    {"end",          NGLI_PARAM_TYPE_F64, OFFSET(end_time), {.f64=-1.0},
+                     .desc=NGLI_DOCSTRING("absolute end time of the effect, negative for scene duration")},
     {"target",       NGLI_PARAM_TYPE_SELECT, OFFSET(target), {.i32=NGLI_TEXT_EFFECT_TEXT},
                      .choices=&target_choices,
                      .desc=NGLI_DOCSTRING("segmentation target of the effect")},
@@ -97,7 +97,7 @@ static int texteffect_init(struct ngl_node *node)
 {
     const struct texteffect_opts *o = node->opts;
 
-    if (o->start_time >= o->end_time) {
+    if (o->end_time >= 0.0 && o->start_time >= o->end_time) {
         LOG(ERROR, "end time must be strictly superior to start time");
         return NGL_ERROR_INVALID_ARG;
     }

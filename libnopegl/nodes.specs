@@ -3722,9 +3722,9 @@
         {
           "name": "end",
           "type": "f64",
-          "default": 5.000000,
+          "default": -1.000000,
           "flags": [],
-          "desc": "absolute end time of the effect"
+          "desc": "absolute end time of the effect, negative for scene duration"
         },
         {
           "name": "target",
