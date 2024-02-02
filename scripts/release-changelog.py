@@ -24,7 +24,6 @@ try:
     output_lines.append(next(iter_lines))
 except StopIteration:
     print(f"Version {version} not found in the changelog", file=sys.stderr)
-    sys.exit(1)
 
 output_lines += itertools.takewhile(lambda line: not line.startswith(f"## ["), iter_lines)
 
