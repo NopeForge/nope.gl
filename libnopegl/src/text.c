@@ -560,11 +560,12 @@ int ngli_text_set_time(struct text *s, double t)
         struct ngl_node *effect_node = s->config.effect_nodes[i];
         struct texteffect_opts *effect_opts = effect_node->opts;
 
-        if (t < effect_opts->start_time || t > effect_opts->end_time)
+        const double end_time = effect_opts->end_time < 0.0 ? s->ctx->scene->params.duration : effect_opts->end_time;
+        if (t < effect_opts->start_time || t > end_time)
             continue;
 
         /* Remap scene time to effect time */
-        const double effect_t = NGLI_LINEAR_NORM(effect_opts->start_time, effect_opts->end_time, t);
+        const double effect_t = NGLI_LINEAR_NORM(effect_opts->start_time, end_time, t);
 
         /* Update the range-selector nodes using the effect time */
         int ret;

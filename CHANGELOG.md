@@ -28,6 +28,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `Selector` filter to select colors according to their lightness, chroma or hue
 - `AnimKeyFrame*` nodes can now be reused at a different time using the
   `Animated*.time_offset` parameter
+- `TextEffect.end_time` now automatically uses the scene duration when
+  unspecified
 
 ### Fixed
 - Moving the split position in `ngl-diff`
