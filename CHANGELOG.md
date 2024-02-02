@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+
+## [2024.0] [libnopegl 0.11.0] - 2024-02-02
 ### Added
 - `ngl.SceneCfg` now includes the backend capabilities
 - `%s_coord_matrix` uniform is now exposed for 2D array and 3D textures
