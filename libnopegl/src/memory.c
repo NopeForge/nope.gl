@@ -21,10 +21,6 @@
 
 #include "config.h"
 
-#ifndef TARGET_MINGW_W64
-#define _POSIX_C_SOURCE 200809L // posix_memalign()
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -84,14 +80,11 @@ void *ngli_malloc_aligned(size_t size)
     if (failure_requested())
         return NULL;
 
-    void *ptr;
-#ifdef TARGET_WINDOWS
-    ptr = _aligned_malloc(size, NGLI_ALIGN_VAL);
+#ifdef _WIN32
+    return _aligned_malloc(size, NGLI_ALIGN_VAL);
 #else
-    if (posix_memalign(&ptr, NGLI_ALIGN_VAL, size))
-        ptr = NULL;
+    return aligned_alloc(NGLI_ALIGN_VAL, size);
 #endif
-    return ptr;
 }
 
 void *ngli_realloc(void *ptr, size_t n, size_t size)
@@ -121,7 +114,7 @@ void ngli_freep(void *ptr)
 
 void ngli_free_aligned(void *ptr)
 {
-#ifdef TARGET_WINDOWS
+#ifdef _WIN32
     _aligned_free(ptr);
 #else
     free(ptr);

@@ -59,7 +59,7 @@
     }                                                   \
 } while (0)
 
-#define NGLI_STATIC_ASSERT(id, c) typedef char ngli_checking_##id[(c) ? 1 : -1]
+#define NGLI_STATIC_ASSERT(id, c) _Static_assert(c, #id)
 
 #define NGLI_FIELD_SIZEOF(name, field) (sizeof(((name *)0)->field))
 
@@ -85,11 +85,7 @@
 #define NGLI_ALIGN(v, a) (((v) + (a) - 1) & ~((a) - 1))
 #define NGLI_ALIGN_VAL 16
 
-#if defined(_WIN32) && !defined(TARGET_MINGW_W64)
-#define NGLI_ATTR_ALIGNED __declspec(align(NGLI_ALIGN_VAL))
-#else
-#define NGLI_ATTR_ALIGNED __attribute__ ((aligned (NGLI_ALIGN_VAL)))
-#endif
+#define NGLI_ATTR_ALIGNED _Alignas(NGLI_ALIGN_VAL)
 
 #define NGLI_ALIGNED_VEC(vname) float NGLI_ATTR_ALIGNED vname[4]
 #define NGLI_ALIGNED_MAT(mname) float NGLI_ATTR_ALIGNED mname[4*4]
