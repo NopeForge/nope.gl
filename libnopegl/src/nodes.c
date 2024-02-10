@@ -593,6 +593,9 @@ static int node_param_is_value_allowed(struct ngl_node *node, const char *key,
 
 static int node_param_update(struct ngl_node *node, const struct node_param *par)
 {
+    if (node->scene && par->flags & NGLI_PARAM_FLAG_FILEPATH)
+        ngli_scene_update_filepath_ref(node, par);
+
     if (!node->ctx)
         return 0;
 

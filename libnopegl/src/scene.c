@@ -267,6 +267,28 @@ int ngl_scene_get_filepaths(struct ngl_scene *s, char ***filepathsp, size_t *nb_
     return 0;
 }
 
+static void update_filepath_ref(struct ngl_scene *s, size_t index, const char *str)
+{
+    const char **filep = ngli_darray_get(&s->files, index);
+    *filep = str;
+}
+
+void ngli_scene_update_filepath_ref(struct ngl_node *node, const struct node_param *par)
+{
+    struct ngl_scene *s = node->scene;
+    const uint8_t **pars = ngli_darray_data(&s->files_par);
+    for (size_t i = 0; i < ngli_darray_count(&s->files_par); i++) {
+        const uint8_t *base_ptr = node->opts;
+        const uint8_t *parp = base_ptr + par->offset;
+        if (pars[i] == parp) {
+            char *str = *(char **)parp;
+            update_filepath_ref(s, i, str);
+            return;
+        }
+    }
+    ngli_assert(0);
+}
+
 int ngl_scene_update_filepath(struct ngl_scene *s, size_t index, const char *filepath)
 {
     if (s->params.root->ctx) {
@@ -286,9 +308,7 @@ int ngl_scene_update_filepath(struct ngl_scene *s, size_t index, const char *fil
     ngli_freep(dstp);
     *dstp = new_str;
 
-    /* Update the file reference */
-    char **filep = ngli_darray_get(&s->files, index);
-    *filep = new_str;
+    update_filepath_ref(s, index, new_str);
 
     return 0;
 }

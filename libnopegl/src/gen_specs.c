@@ -347,10 +347,6 @@ static int check_node_params(const struct node_class *cls)
                 fprintf(stderr, "filepath parameter %s.%s must be a string\n", cls->name, par->key);
                 return NGL_ERROR_BUG;
             }
-            if (par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE) {
-                fprintf(stderr, "filepath parameter %s.%s cannot be live-changeable\n", cls->name, par->key);
-                return NGL_ERROR_BUG;
-            }
         }
 
         par++;
