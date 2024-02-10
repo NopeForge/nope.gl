@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 This is used to define Aberth-Ehrlich constants in distmap.frag
