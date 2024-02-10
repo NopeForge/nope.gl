@@ -125,7 +125,7 @@ endif
 # out-of-tree builds.
 # Adjusted from https://github.com/mesonbuild/meson/issues/7485
 trim_prefix = run_command([
-  find_program('python'), '-c', 'import sys,os;print(os.path.relpath(*sys.argv[1:3]))',
+  find_program('python3'), '-c', 'import sys,os;print(os.path.relpath(*sys.argv[1:3]))',
   meson.current_source_dir(),
   meson.project_build_root(),
 ], check: true).stdout().strip()
