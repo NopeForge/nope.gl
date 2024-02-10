@@ -710,6 +710,7 @@ struct node_class {
 int ngli_scene_deserialize(struct ngl_scene *s, const char *str);
 char *ngli_scene_serialize(const struct ngl_scene *s);
 char *ngli_scene_dot(const struct ngl_scene *s);
+void ngli_scene_update_filepath_ref(struct ngl_node *node, const struct node_param *par);
 
 void ngli_node_print_specs(void);
 
