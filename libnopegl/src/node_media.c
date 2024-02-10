@@ -79,10 +79,13 @@ static const struct param_choices nopemd_hwaccel_choices = {
     }
 };
 
+static int filename_changed(struct ngl_node *node);
+
 #define OFFSET(x) offsetof(struct media_opts, x)
 static const struct node_param media_params[] = {
     {"filename", NGLI_PARAM_TYPE_STR, OFFSET(filename), {.str=NULL},
-                 .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_FILEPATH,
+                 .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_FILEPATH | NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=filename_changed,
                  .desc=NGLI_DOCSTRING("path to input media file")},
     {"nopemd_min_level", NGLI_PARAM_TYPE_SELECT, OFFSET(nopemd_min_level), {.i32=NMD_LOG_WARNING},
                          .choices=&nopemd_log_level_choices,
@@ -272,6 +275,7 @@ static int media_prefetch(struct ngl_node *node)
 {
     struct media_priv *s = node->priv_data;
     nmd_start(s->player);
+    s->prefetched = 1;
     return 0;
 }
 
@@ -349,6 +353,7 @@ static void media_release(struct ngl_node *node)
     struct media_priv *s = node->priv_data;
     nmd_frame_releasep(&s->frame);
     nmd_stop(s->player);
+    s->prefetched = 0;
 }
 
 static void media_uninit(struct ngl_node *node)
@@ -366,6 +371,27 @@ static void media_uninit(struct ngl_node *node)
         ngli_android_handlerthread_free(&s->android_handlerthread);
     }
 #endif
+}
+
+static int filename_changed(struct ngl_node *node)
+{
+    struct media_priv *s = node->priv_data;
+    const int prefetched = s->prefetched;
+
+    if (prefetched)
+        media_release(node);
+    media_uninit(node);
+
+    int ret = media_init(node);
+    if (ret < 0)
+        return ret;
+    if (prefetched) {
+        ret = media_prefetch(node);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
 }
 
 const struct node_class ngli_media_class = {

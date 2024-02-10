@@ -235,13 +235,17 @@ def api_scene_resilience():
 
 def api_scene_files():
     # Store abstract file references in the graph
+    media = ngl.Media(filename="nope")
     root = ngl.Group(
         children=[
-            ngl.Texture2D(data_src=ngl.Media(filename="cat")),
+            ngl.Texture2D(data_src=media),
             ngl.Texture2D(data_src=ngl.BufferByte(filename="hamster")),
         ]
     )
     scene = ngl.Scene.from_params(root)
+
+    # Update the ref after the node has been associated with its scene
+    media.set_filename("cat")
 
     assert scene.files == ["cat", "hamster"]
 
@@ -252,6 +256,25 @@ def api_scene_files():
 
     # Query again the files and check if they've been updated
     assert all(Path(filepath).exists() for filepath in scene.files)
+
+    # Associate with the context
+    ctx = ngl.Context()
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
+    assert ret == 0
+    assert ctx.set_scene(scene) == 0
+    assert ctx.draw(0) == 0
+
+    # Change one path using live controls
+    new_ref = "cat was here"
+    media.set_filename(new_ref)
+
+    # Check if the change is effective back in the scene
+    assert any(filepath == new_ref for filepath in scene.files)
+
+    # Detach the context and check if the change is still persistent like other live controls
+    ctx.set_scene(None)
+    del ctx
+    assert any(filepath == new_ref for filepath in scene.files)
 
 
 def api_capture_buffer_lifetime(width=1024, height=1024):

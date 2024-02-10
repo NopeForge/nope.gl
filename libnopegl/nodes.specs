@@ -2417,7 +2417,7 @@
         {
           "name": "filename",
           "type": "str",
-          "flags": ["nonull", "filepath"],
+          "flags": ["live", "nonull", "filepath"],
           "desc": "path to input media file"
         },
         {

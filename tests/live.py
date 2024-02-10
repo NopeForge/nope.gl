@@ -21,6 +21,7 @@
 
 import textwrap
 
+from pynopegl_utils.misc import load_media
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.data import (
     LAYOUTS,
@@ -109,6 +110,38 @@ def _get_live_shared_uniform_function(layout=None):
 live_shared_uniform = _get_live_shared_uniform_function(None)
 live_shared_uniform_std140 = _get_live_shared_uniform_function("std140")
 live_shared_uniform_std430 = _get_live_shared_uniform_function("std430")
+
+
+def _get_media_change_function():
+    media0 = ngl.Media(filename=load_media("mire").filename)
+    media1 = ngl.Media(filename=load_media("rooster").filename)
+
+    def _change_media(t_id: int):
+        if t_id == 1:
+            media0.set_filename(load_media("cat").filename)
+            media1.set_filename(load_media("panda").filename)
+
+    @test_cuepoints(
+        points=dict(x=(0, 0)),
+        tolerance=1,
+        exercise_serialization=False,
+        keyframes_callback=_change_media,
+        keyframes=[0.0, 0.0, 12.0],
+    )
+    @ngl.scene()
+    def live_media_change_func(cfg: ngl.SceneCfg):
+        # Build a scene with 2 successive media displayed, 10 seconds each
+        return ngl.Group(
+            children=[
+                ngl.TimeRangeFilter(child=ngl.RenderTexture(ngl.Texture2D(data_src=media0)), start=0, end=10),
+                ngl.TimeRangeFilter(child=ngl.RenderTexture(ngl.Texture2D(data_src=media1)), start=10, end=20),
+            ]
+        )
+
+    return live_media_change_func
+
+
+live_media_change = _get_media_change_function()
 
 
 def _get_live_spec():
