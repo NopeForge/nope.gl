@@ -229,7 +229,9 @@ foreach backend : backends
     'trf_single_mat4',
   ]
 
-  tests_live = []
+  tests_live = [
+    'media_change',
+  ]
   foreach test_name : live_names
     tests_live += test_name + '_uniform'
   endforeach
