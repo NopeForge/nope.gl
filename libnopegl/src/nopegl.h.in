@@ -345,6 +345,7 @@ NGL_API void ngl_scene_unrefp(struct ngl_scene **sp);
 #define NGL_NODE_GRAPHICCONFIG          NGLI_FOURCC('G','r','C','f')
 #define NGL_NODE_GRIDLAYOUT             NGLI_FOURCC('G','r','d','L')
 #define NGL_NODE_GROUP                  NGLI_FOURCC('G','r','p',' ')
+#define NGL_NODE_HEXAGONALBLUR          NGLI_FOURCC('H','G','B','l')
 #define NGL_NODE_IDENTITY               NGLI_FOURCC('I','d',' ',' ')
 #define NGL_NODE_IOINT                  NGLI_FOURCC('I','O','i','1')
 #define NGL_NODE_IOIVEC2                NGLI_FOURCC('I','O','i','2')

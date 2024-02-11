@@ -92,6 +92,8 @@ foreach backend : backends
   tests_blur = [
     'gaussian',
     'fast_gaussian',
+    'hexagonal',
+    'hexagonal_with_map',
   ]
 
   tests_color = [

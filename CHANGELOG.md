@@ -18,6 +18,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `DrawTexture.texture` now accepts transformation nodes before the texture node
   to serve as a reframing mechanism (the transforms are applied to the texture
   coordinates in a centered `[-1,1]` space with `(-1,-1)` in the bottom left)
+- `HexagonalBlur` node to apply a post processing hexagonal bokeh blur effect to a
+  scene
 
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node
