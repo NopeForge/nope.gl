@@ -2881,6 +2881,39 @@
         }
       ]
     },
+    "HexagonalBlur": {
+      "file": "src/node_hblur.c",
+      "params": [
+        {
+          "name": "source",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": ["nonull"],
+          "desc": "source to use for the blur"
+        },
+        {
+          "name": "destination",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": ["nonull"],
+          "desc": "destination to use for the blur"
+        },
+        {
+          "name": "amount",
+          "type": "f32",
+          "default": 0.000000,
+          "flags": ["node"],
+          "desc": "amount of bluriness in the range [0,1]"
+        },
+        {
+          "name": "map",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": [],
+          "desc": "blur map providing the CoC (circle of confusion) for each pixels"
+        }
+      ]
+    },
     "Identity": {
       "file": "src/node_identity.c",
       "params": [
