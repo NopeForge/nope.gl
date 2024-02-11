@@ -54,6 +54,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        output_file="${{ matrix.tool_fullname }}-$(cat VERSION)-x86_64.dmg"
+        output_file="${{ matrix.tool_fullname }}-${{ github.ref_name }}-x86_64.dmg"
         mv ${{ matrix.tool }}.dmg $output_file
-        gh release upload v$(cat VERSION) $output_file
+        gh release upload ${{ github.ref_name }} $output_file
