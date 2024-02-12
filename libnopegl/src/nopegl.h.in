@@ -687,8 +687,6 @@ struct ngl_config {
 
     int32_t height; /* Graphic context height, mandatory for offscreen rendering */
 
-    int32_t viewport[4]; /* Viewport defined as x, y, width and height */
-
     int32_t samples;     /* Number of samples used for multisample anti-aliasing */
 
     int set_surface_pts; /* Whether pts should be set to the surface or not (Android only).
@@ -854,12 +852,9 @@ NGL_API int ngl_get_viewport(struct ngl_ctx *s, int32_t *viewport);
  * @param s pointer to the configured nope.gl context
  * @param width new width of the swap chain buffers
  * @param height new height of the swap chain buffers
- * @param viewport new viewport of the current render target,
- *                 a NULL pointer will make the new viewport match the
- *                 dimensions of the swap chain buffers
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
-NGL_API int ngl_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport);
+NGL_API int ngl_resize(struct ngl_ctx *s, int32_t width, int32_t height);
 
 /**
  * Set a new buffer for offscreen capture.

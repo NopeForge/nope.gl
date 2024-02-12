@@ -18,6 +18,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node
   list which accepts `FontFace` nodes instead
+- The `ngl_config` structure and the `ngl_resize()` function do not have a
+  `viewport` anymore; it is now automatically calculated internally according to
+  the selected resolution and the scene aspect ratio
 
 ## [2024.0] [libnopegl 0.11.0] - 2024-02-02
 ### Added

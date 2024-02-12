@@ -147,7 +147,6 @@ cdef extern from "nopegl.h":
         int  offscreen
         int32_t width
         int32_t height
-        int32_t viewport[4]
         int32_t samples
         int  set_surface_pts
         float clear_color[4]
@@ -181,7 +180,7 @@ cdef extern from "nopegl.h":
     int ngl_configure(ngl_ctx *s, ngl_config *config)
     int ngl_get_backend(ngl_ctx *s, ngl_backend *backend)
     void ngl_reset_backend(ngl_backend *backend)
-    int ngl_resize(ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
+    int ngl_resize(ngl_ctx *s, int32_t width, int32_t height)
     int ngl_get_viewport(ngl_ctx *s, int32_t *viewport)
     int ngl_set_capture_buffer(ngl_ctx *s, void *capture_buffer)
     int ngl_set_scene(ngl_ctx *s, ngl_scene *scene)
@@ -641,7 +640,6 @@ cdef class Config:
         offscreen,
         width,
         height,
-        viewport,
         samples,
         set_surface_pts,
         clear_color,
@@ -665,8 +663,6 @@ cdef class Config:
         self.config.offscreen = offscreen
         self.config.width = width
         self.config.height = height
-        for i in range(4):
-            self.config.viewport[i] = viewport[i]
         self.config.samples = samples
         self.config.set_surface_pts = set_surface_pts
         for i in range(4):
@@ -721,13 +717,8 @@ cdef class Context:
         ngl_reset_backend(&backend)
         return py_backend
 
-    def resize(self, width, height, viewport=None):
-        if viewport is None:
-            return ngl_resize(self.ctx, width, height, NULL)
-        cdef int32_t c_viewport[4]
-        for i in range(4):
-            c_viewport[i] = viewport[i]
-        return ngl_resize(self.ctx, width, height, c_viewport)
+    def resize(self, width, height):
+        return ngl_resize(self.ctx, width, height)
 
     def get_viewport(self):
         cdef int32_t vp[4]

@@ -31,8 +31,6 @@ import tempfile
 from dataclasses import dataclass
 from typing import List, Optional
 
-from pynopegl_utils.misc import get_viewport
-
 import pynopegl as ngl
 
 RESOLUTIONS = {
@@ -183,7 +181,6 @@ def _export_worker(
             offscreen=True,
             width=width,
             height=height,
-            viewport=get_viewport(width, height, scene.aspect_ratio),
             samples=samples,
             clear_color=scene_info.clear_color,
             capture_buffer=capture_buffer,

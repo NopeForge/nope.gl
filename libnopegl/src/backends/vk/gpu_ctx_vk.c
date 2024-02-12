@@ -963,7 +963,7 @@ static int vk_init(struct gpu_ctx *s)
         s_priv->default_rt_layout.depth_stencil.resolve = 0;
     }
 
-    const struct viewport viewport = {NGLI_ARG_VEC4(config->viewport)};
+    const struct viewport viewport = {0, 0, config->width, config->height};
     set_viewport_and_scissor(s, config->width, config->height, &viewport);
 
     return 0;
