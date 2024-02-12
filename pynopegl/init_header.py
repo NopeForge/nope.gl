@@ -117,7 +117,6 @@ class Config(_ngl.Config):
         offscreen: bool = False,
         width: int = 0,
         height: int = 0,
-        viewport: Tuple[int, int, int, int] = (0, 0, 0, 0),
         samples: int = 0,
         set_surface_pts: bool = False,
         clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0),
@@ -140,7 +139,6 @@ class Config(_ngl.Config):
             offscreen,
             width,
             height,
-            viewport,
             samples,
             set_surface_pts,
             clear_color,
@@ -261,13 +259,8 @@ class Context(_ngl.Context):
         backend = super().get_backend()
         return _pythonize_backend(backend)
 
-    def resize(
-        self,
-        width: int,
-        height: int,
-        viewport: Optional[Tuple[int, int, int, int]] = None,
-    ) -> int:
-        return super().resize(width, height, viewport)
+    def resize(self, width: int, height: int) -> int:
+        return super().resize(width, height)
 
     @property
     def viewport(self) -> Tuple[int, int, int, int]:

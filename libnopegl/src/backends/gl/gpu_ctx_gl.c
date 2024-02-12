@@ -540,13 +540,8 @@ static int gl_init(struct gpu_ctx *s)
 
     ngli_glstate_reset(gl, &s_priv->glstate);
 
-    const struct viewport vp = {NGLI_ARG_VEC4(config->viewport)};
-    if (ngli_viewport_is_valid(&vp)) {
-        ngli_gpu_ctx_set_viewport(s, &vp);
-    } else {
-        const struct viewport default_vp = {0, 0, config->width, config->height};
-        ngli_gpu_ctx_set_viewport(s, &default_vp);
-    }
+    const struct viewport default_vp = {0, 0, config->width, config->height};
+    ngli_gpu_ctx_set_viewport(s, &default_vp);
 
     const struct scissor scissor = {0, 0, config->width, config->height};
     ngli_gpu_ctx_set_scissor(s, &scissor);

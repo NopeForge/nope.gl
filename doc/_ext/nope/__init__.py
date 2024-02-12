@@ -30,7 +30,6 @@ from typing import Any
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from pynopegl_utils.misc import get_viewport
 from sphinx.application import Sphinx
 from sphinx.config import Config
 from sphinx.util.docutils import SphinxDirective
@@ -146,7 +145,6 @@ class _Nope(SphinxDirective):
                 offscreen=True,
                 width=width,
                 height=height,
-                viewport=get_viewport(width, height, scene.aspect_ratio),
                 samples=cfg.samples,
                 capture_buffer=capture_buffer,
             )

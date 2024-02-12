@@ -95,18 +95,6 @@ int64_t clipi64(int64_t v, int64_t min, int64_t max)
     return v;
 }
 
-void get_viewport(int32_t width, int32_t height, const int32_t *aspect_ratio, int32_t *vp)
-{
-    vp[2] = width;
-    vp[3] = width * aspect_ratio[1] / aspect_ratio[0];
-    if (vp[3] > height) {
-        vp[3] = height;
-        vp[2] = height * aspect_ratio[0] / aspect_ratio[1];
-    }
-    vp[0] = (width  - vp[2]) / 2;
-    vp[1] = (height - vp[3]) / 2;
-}
-
 #define BUF_SIZE 1024
 
 char *get_text_file_content(const char *filename)

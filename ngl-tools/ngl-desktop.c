@@ -652,9 +652,6 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-    const struct ngl_scene_params *params = ngl_scene_get_params(scene);
-    get_viewport(s.cfg.width, s.cfg.height, params->aspect_ratio, s.cfg.viewport);
-
     if ((ret = setup_paths(&s)) < 0 ||
         (ret = setup_network(&s)) < 0 ||
         (ret = create_session_file(&s)) < 0 ||

@@ -86,9 +86,6 @@ static int screenshot(struct player *p)
         return -1;
 
     config->offscreen = 1;
-    config->width = config->viewport[2];
-    config->height = config->viewport[3];
-    memset(config->viewport, 0, sizeof(config->viewport));
     config->capture_buffer = capture_buffer;
 
     int ret = ngl_configure(p->ngl, config);
@@ -258,10 +255,9 @@ static int key_callback(struct player *p, SDL_KeyboardEvent *event)
 
 static void size_callback(struct player *p, int32_t width, int32_t height)
 {
-    get_viewport(width, height, p->aspect, p->ngl_config.viewport);
     p->ngl_config.width = width;
     p->ngl_config.height = height;
-    ngl_resize(p->ngl, width, height, p->ngl_config.viewport);
+    ngl_resize(p->ngl, width, height);
 }
 
 static void seek_event(struct player *p, int x)
@@ -486,17 +482,8 @@ int player_init(struct player *p, const char *win_title, struct ngl_scene *scene
 
     p->ngl_config = *cfg;
 
-    p->aspect[0] = cfg->viewport[2];
-    p->aspect[1] = cfg->viewport[3];
-    if (!p->aspect[0] || !p->aspect[1]) {
-        p->aspect[0] = cfg->width;
-        p->aspect[1] = cfg->height;
-
-        p->ngl_config.viewport[0] = 0;
-        p->ngl_config.viewport[1] = 0;
-        p->ngl_config.viewport[2] = cfg->width;
-        p->ngl_config.viewport[3] = cfg->height;
-    }
+    p->aspect[0] = params->aspect_ratio[0];
+    p->aspect[1] = params->aspect_ratio[1];
 
     static const int refresh_rate[2] = {1, 60};
     p->ngl_config.hud_refresh_rate[0] = refresh_rate[0];
