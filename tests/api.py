@@ -652,3 +652,17 @@ def api_get_backend():
     assert backend["is_default"] == True
     assert backend["caps"]
     pprint.pprint(backend)
+
+
+def api_viewport():
+    ctx = ngl.Context()
+    ret = ctx.configure(ngl.Config(offscreen=True, width=640, height=480, backend=_backend))
+    assert ret == 0
+    assert ctx.viewport == (0, 0, 640, 480)
+
+    scene = ngl.Scene.from_params(ngl.Group(), aspect_ratio=(8, 9))
+    ctx.set_scene(scene)
+    assert ctx.viewport == (107, 0, 426, 480)
+
+    ctx.set_scene(None)
+    assert ctx.viewport == (0, 0, 640, 480)
