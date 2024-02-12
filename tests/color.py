@@ -29,6 +29,7 @@ def _get_anim_color_scene_func(c0, c1, space):
     @test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=1)
     @ngl.scene()
     def scene_func(cfg: ngl.SceneCfg):
+        cfg.aspect_ratio = (1, 1)
         cfg.duration = 5
         color_animkf = [
             # Start at t=1 and end 1s earlier so that it tests the underflow
@@ -45,7 +46,8 @@ def _get_anim_color_scene_func(c0, c1, space):
 def _get_static_color_scene_func(c, space):
     @test_cuepoints(points={"c": (0, 0)}, keyframes=1, tolerance=1)
     @ngl.scene()
-    def scene_func(_):
+    def scene_func(cfg: ngl.SceneCfg):
+        cfg.aspect_ratio = (1, 1)
         return ngl.RenderColor(color=ngl.UniformColor(c, space=space))
 
     return scene_func
@@ -63,6 +65,7 @@ color_static_hsv = _get_static_color_scene_func((0.3, 0.7, 0.6), "hsv")
 @test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=0)
 @ngl.scene()
 def color_negative_values_srgb(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     cfg.duration = 5
     kfs = (
         # The elastic_in easing has the special property to undershoot under 0

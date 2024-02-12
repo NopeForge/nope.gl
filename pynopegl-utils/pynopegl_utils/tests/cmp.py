@@ -22,6 +22,7 @@
 import difflib
 import os
 import os.path as op
+from fractions import Fraction
 from typing import Any, Callable, Generator, Optional, Sequence, Tuple, Union
 
 from pynopegl_utils.misc import get_backend, get_nopegl_tempdir
@@ -120,6 +121,8 @@ class CompareSceneBase(CompareBase):
         scene_info = self._scene_func(cfg, **self._scene_kwargs)
         scene = scene_info.scene
         duration = scene.duration
+
+        assert Fraction(*scene.aspect_ratio) == Fraction(width, height)
 
         if isinstance(self._keyframes, int):
             timescale = duration / self._keyframes

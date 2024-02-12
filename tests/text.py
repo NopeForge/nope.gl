@@ -32,86 +32,88 @@ _JAPANESE_FONT = _FONT_DIR / "TsukimiRounded-Regular.ttf"
 _LATIN_FONT = _FONT_DIR / "Quicksand-Medium.ttf"
 
 
-def _text(**params):
+def _text(cfg: ngl.SceneCfg, **params):
+    cfg.aspect_ratio = (1, 1)
     return ngl.Text("This\nis\nnope.gl", font_scale=0.7, padding=8, **params)
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_colors(_):
-    return _text(fg_color=COLORS.rose, bg_color=COLORS.cgreen, bg_opacity=1)
+def text_colors(cfg: ngl.SceneCfg):
+    return _text(cfg, fg_color=COLORS.rose, bg_color=COLORS.cgreen, bg_opacity=1)
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_align_cc(_):
-    return _text(valign="center", halign="center")
+def text_align_cc(cfg: ngl.SceneCfg):
+    return _text(cfg, valign="center", halign="center")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_align_cr(_):
-    return _text(valign="center", halign="right")
+def text_align_cr(cfg: ngl.SceneCfg):
+    return _text(cfg, valign="center", halign="right")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_align_cl(_):
-    return _text(valign="center", halign="left")
+def text_align_cl(cfg: ngl.SceneCfg):
+    return _text(cfg, valign="center", halign="left")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_align_bc(_):
-    return _text(valign="bottom", halign="center")
+def text_align_bc(cfg: ngl.SceneCfg):
+    return _text(cfg, valign="bottom", halign="center")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_align_br(_):
-    return _text(valign="bottom", halign="right")
+def text_align_br(cfg: ngl.SceneCfg):
+    return _text(cfg, valign="bottom", halign="right")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_align_bl(_):
-    return _text(valign="bottom", halign="left")
+def text_align_bl(cfg: ngl.SceneCfg):
+    return _text(cfg, valign="bottom", halign="left")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_align_tc(_):
-    return _text(valign="top", halign="center")
+def text_align_tc(cfg: ngl.SceneCfg):
+    return _text(cfg, valign="top", halign="center")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_align_tr(_):
-    return _text(valign="top", halign="right")
+def text_align_tr(cfg: ngl.SceneCfg):
+    return _text(cfg, valign="top", halign="right")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_align_tl(_):
-    return _text(valign="top", halign="left")
+def text_align_tl(cfg: ngl.SceneCfg):
+    return _text(cfg, valign="top", halign="left")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_vertical_rl(_):
-    return _text(writing_mode="vertical-rl")
+def text_vertical_rl(cfg: ngl.SceneCfg):
+    return _text(cfg, writing_mode="vertical-rl")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=320, tolerance=1)
 @ngl.scene()
-def text_vertical_lr(_):
-    return _text(writing_mode="vertical-lr")
+def text_vertical_lr(cfg: ngl.SceneCfg):
+    return _text(cfg, writing_mode="vertical-lr")
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=240, tolerance=1)
 @ngl.scene()
 def text_arabic_shaping(cfg: ngl.SceneCfg):
     """Advanced shaping that typically relies on the positioning of the diacritics"""
+    cfg.aspect_ratio = (4, 3)
     return ngl.Text(
         text="رَسْميّ",
         font_faces=[ngl.FontFace(_ARABIC_FONT.as_posix())],
@@ -119,9 +121,10 @@ def text_arabic_shaping(cfg: ngl.SceneCfg):
     )
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=320, height=240, tolerance=1)
 @ngl.scene()
 def text_bidi_arabic_english(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (4, 3)
     return ngl.Text(
         text="هذا مزيج من English و نص عربي",
         # The Latin font is placed first so the fallback is actually tested (the
@@ -131,9 +134,10 @@ def text_bidi_arabic_english(cfg: ngl.SceneCfg):
     )
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=480, height=640, tolerance=1)
 @ngl.scene()
 def text_vertical_japanese(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (3, 4)
     return ngl.Text(
         # "Only kana, because that's a small font" (this is not a haiku)
         text="かなだけ、\nちいさいのフォント\nだから。",

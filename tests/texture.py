@@ -52,17 +52,18 @@ def _render_buffer(cfg: ngl.SceneCfg, w, h):
     return render
 
 
-@test_fingerprint()
+@test_fingerprint(width=128, height=128)
 @ngl.scene(controls=dict(w=ngl.scene.Range(range=[1, 128]), h=ngl.scene.Range(range=[1, 128])))
 def texture_data(cfg: ngl.SceneCfg, w=4, h=5):
     cfg.aspect_ratio = (1, 1)
     return _render_buffer(cfg, w, h)
 
 
-@test_fingerprint()
+@test_fingerprint(width=128, height=128)
 @ngl.scene(controls=dict(dim=ngl.scene.Range(range=[1, 100])))
 def texture_data_animated(cfg: ngl.SceneCfg, dim=8):
     cfg.duration = 3.0
+    cfg.aspect_ratio = (1, 1)
     nb_kf = int(cfg.duration)
     buffers = [get_random_color_buffer(cfg.rng, dim) for _ in range(nb_kf)]
     random_animkf = []
@@ -80,7 +81,7 @@ def texture_data_animated(cfg: ngl.SceneCfg, dim=8):
     return ngl.RenderTexture(random_tex)
 
 
-@test_fingerprint()
+@test_fingerprint(width=128, height=128)
 @ngl.scene(controls=dict(h=ngl.scene.Range(range=[1, 32])))
 def texture_data_unaligned_row(cfg: ngl.SceneCfg, h=32):
     """Tests upload of buffers with rows that are not 4-byte aligned"""
@@ -88,7 +89,7 @@ def texture_data_unaligned_row(cfg: ngl.SceneCfg, h=32):
     return _render_buffer(cfg, 1, h)
 
 
-@test_fingerprint(keyframes=(0, 1, 0))
+@test_fingerprint(width=128, height=128, keyframes=(0, 1, 0))
 @ngl.scene(controls=dict(w=ngl.scene.Range(range=[1, 128]), h=ngl.scene.Range(range=[1, 128])))
 def texture_data_seek_timeranges(cfg: ngl.SceneCfg, w=4, h=5):
     cfg.aspect_ratio = (1, 1)
@@ -96,7 +97,7 @@ def texture_data_seek_timeranges(cfg: ngl.SceneCfg, w=4, h=5):
     return ngl.TimeRangeFilter(_render_buffer(cfg, w, h), end=1)
 
 
-@test_fingerprint(keyframes=5)
+@test_fingerprint(width=1280, height=960, keyframes=5)
 @ngl.scene()
 def texture_displacement(cfg: ngl.SceneCfg):
     m0 = load_media("mire")
@@ -196,7 +197,8 @@ void main()
 """
 
 
-def _get_texture_cubemap_from_mrt_scene(samples=0):
+def _get_texture_cubemap_from_mrt_scene(cfg: ngl.SceneCfg, samples=0):
+    cfg.aspect_ratio = (1, 1)
     program = ngl.Program(vertex=_RENDER_TO_CUBEMAP_VERT, fragment=_RENDER_TO_CUBEMAP_FRAG, nb_frag_output=6)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
@@ -212,7 +214,8 @@ def _get_texture_cubemap_from_mrt_scene(samples=0):
     return ngl.Group(children=(rtt, render))
 
 
-def _get_texture_cubemap_from_mrt_scene_2_pass(samples=0):
+def _get_texture_cubemap_from_mrt_scene_2_pass(cfg: ngl.SceneCfg, samples=0):
+    cfg.aspect_ratio = (1, 1)
     group = ngl.Group()
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     cube = ngl.TextureCube(size=64, min_filter="linear", mag_filter="linear")
@@ -255,9 +258,10 @@ def _get_texture_cubemap(mipmap_filter="none"):
     return cube
 
 
-@test_fingerprint()
+@test_fingerprint(width=800, height=800)
 @ngl.scene()
-def texture_cubemap(_):
+def texture_cubemap(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     cube = _get_texture_cubemap()
     program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_FRAG)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
@@ -275,9 +279,10 @@ void main()
 """
 
 
-@test_fingerprint(tolerance=1)
+@test_fingerprint(width=800, height=800, tolerance=1)
 @ngl.scene()
-def texture_cubemap_mipmap(_):
+def texture_cubemap_mipmap(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     cube = _get_texture_cubemap(mipmap_filter="nearest")
     program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_LOD_FRAG)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
@@ -287,33 +292,35 @@ def texture_cubemap_mipmap(_):
     return render
 
 
-@test_fingerprint()
+@test_fingerprint(width=800, height=800)
 @ngl.scene()
-def texture_cubemap_from_mrt(_):
-    return _get_texture_cubemap_from_mrt_scene()
+def texture_cubemap_from_mrt(cfg: ngl.SceneCfg):
+    return _get_texture_cubemap_from_mrt_scene(cfg)
 
 
-@test_fingerprint()
+@test_fingerprint(width=800, height=800)
 @ngl.scene()
-def texture_cubemap_from_mrt_msaa(_):
-    return _get_texture_cubemap_from_mrt_scene(4)
+def texture_cubemap_from_mrt_msaa(cfg: ngl.SceneCfg):
+    return _get_texture_cubemap_from_mrt_scene(cfg, 4)
 
 
-@test_fingerprint()
+@test_fingerprint(width=800, height=800)
 @ngl.scene()
-def texture_cubemap_from_mrt_2_pass(_):
-    return _get_texture_cubemap_from_mrt_scene_2_pass()
+def texture_cubemap_from_mrt_2_pass(cfg: ngl.SceneCfg):
+    return _get_texture_cubemap_from_mrt_scene_2_pass(cfg)
 
 
-@test_fingerprint()
+@test_fingerprint(width=800, height=800)
 @ngl.scene()
-def texture_cubemap_from_mrt_2_pass_msaa(_):
-    return _get_texture_cubemap_from_mrt_scene_2_pass(4)
+def texture_cubemap_from_mrt_2_pass_msaa(cfg: ngl.SceneCfg):
+    return _get_texture_cubemap_from_mrt_scene_2_pass(cfg, 4)
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-1, -1), "top-right": (1, 1)}, tolerance=1)
 @ngl.scene()
-def texture_clear_and_scissor(_):
+def texture_clear_and_scissor(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+
     render = ngl.RenderColor(COLORS.white)
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask="")
 
@@ -379,9 +386,10 @@ def _get_texture_2d_array(cfg: ngl.SceneCfg, mipmap_filter="none"):
     return texture
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene()
 def texture_2d_array(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     texture = _get_texture_2d_array(cfg)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_FRAG)
@@ -401,9 +409,10 @@ void main()
 """
 
 
-@test_fingerprint(tolerance=4)
+@test_fingerprint(width=1280, height=720, tolerance=4)
 @ngl.scene()
 def texture_2d_array_mipmap(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (16, 9)
     texture = _get_texture_2d_array(cfg, mipmap_filter="nearest")
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_LOD_FRAG)
@@ -442,7 +451,9 @@ def _get_texture_2d_array_from_mrt_cuepoints():
     return {f"{x}": (c(x), 0.5) for x in range(_STEPS)}
 
 
-def _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, samples=0):
+def _get_texture_2d_array_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0):
+    cfg.aspect_ratio = (1, 1)
+
     depth = 3
     program = ngl.Program(
         vertex=_RENDER_TO_TEXTURE2D_ARRAY_VERT, fragment=_RENDER_TO_TEXTURE2D_ARRAY_FRAG, nb_frag_output=depth
@@ -497,9 +508,11 @@ void main()
 """
 
 
-@test_fingerprint()
+@test_fingerprint(width=400, height=400)
 @ngl.scene()
 def texture_3d(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+
     width, height, depth = 9, 9, 3
     n = width * height
     data = array.array("B")
@@ -556,7 +569,8 @@ def _get_texture_3d_from_mrt_cuepoints():
     return {f"{x}": (c(x), 0.5) for x in range(_STEPS)}
 
 
-def _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, samples=0):
+def _get_texture_3d_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0):
+    cfg.aspect_ratio = (1, 1)
     depth = 3
     program = ngl.Program(vertex=_RENDER_TO_TEXTURE3D_VERT, fragment=_RENDER_TO_TEXTURE3D_FRAG, nb_frag_output=depth)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())

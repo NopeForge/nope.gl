@@ -108,7 +108,7 @@ def _get_compositing_scene(cfg: ngl.SceneCfg, op, show_label=False):
 
 
 def _get_compositing_func(op):
-    @test_fingerprint(keyframes=10, tolerance=1)
+    @test_fingerprint(width=320, height=320, keyframes=10, tolerance=1)
     @ngl.scene()
     def scene_func(cfg: ngl.SceneCfg):
         return _get_compositing_scene(cfg, op)

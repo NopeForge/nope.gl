@@ -38,7 +38,7 @@ def _get_colorstats(media):
     )
 
 
-@test_fingerprint(keyframes=5, tolerance=3)
+@test_fingerprint(width=480, height=480, keyframes=5, tolerance=3)
 @ngl.scene()
 def scope_colorstats(cfg):
     vert = textwrap.dedent(
@@ -79,7 +79,7 @@ def scope_colorstats(cfg):
     uzoom = ngl.UniformFloat(50)
 
     cfg.duration = media.duration
-    cfg.aspect_ratio = (media.width, media.height)
+    cfg.aspect_ratio = (1, 1)
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=vert, fragment=frag)
@@ -90,7 +90,7 @@ def scope_colorstats(cfg):
 
 
 def _get_histogram_func(mode):
-    @test_fingerprint(keyframes=5, tolerance=5)
+    @test_fingerprint(width=1280, height=960, keyframes=5, tolerance=5)
     @ngl.scene()
     def scene_func(cfg):
         media = load_media("mire")
@@ -107,7 +107,7 @@ scope_render_histogram_parade = _get_histogram_func("parade")
 
 
 def _get_waveform_func(mode):
-    @test_fingerprint(keyframes=5, tolerance=3)
+    @test_fingerprint(width=1280, height=960, keyframes=5, tolerance=3)
     @ngl.scene()
     def scene_func(cfg):
         media = load_media("mire")
@@ -123,7 +123,7 @@ scope_render_waveform_mixed = _get_waveform_func("mixed")
 scope_render_waveform_parade = _get_waveform_func("parade")
 
 
-@test_fingerprint(keyframes=5, tolerance=3)
+@test_fingerprint(width=1280, height=960, keyframes=5, tolerance=3)
 @ngl.scene()
 def scope_rtt(cfg):
     """This test makes sure the texture is analyzed after the RTT has written into it"""
