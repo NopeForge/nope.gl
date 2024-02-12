@@ -129,6 +129,8 @@ def _get_data_function(spec, category, field_type, layout):
     fields = match_fields(spec, category, field_type)
 
     @test_cuepoints(
+        width=128,
+        height=128,
         points=get_data_debug_positions(fields),
         keyframes=keyframes,
         tolerance=1,
@@ -241,7 +243,13 @@ def _get_data_streamed_buffer_function(scale, single):
     size = 2 if single else 4
     keyframes = 4
 
-    @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(size), keyframes=keyframes, tolerance=1)
+    @test_cuepoints(
+        width=128,
+        height=128,
+        points=_get_data_streamed_buffer_cuepoints(size),
+        keyframes=keyframes,
+        tolerance=1,
+    )
     @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
     def scene_func(cfg: ngl.SceneCfg, show_dbg_points=False):
         return _get_data_streamed_buffer_vec4_scene(cfg, size, keyframes, scale, single, show_dbg_points)
@@ -255,7 +263,7 @@ data_streamed_buffer_vec4 = _get_data_streamed_buffer_function(1, False)
 data_streamed_buffer_vec4_time_anim = _get_data_streamed_buffer_function(2, False)
 
 
-@test_cuepoints(points={"c": (0, 0)}, tolerance=1)
+@test_cuepoints(width=128, height=128, points={"c": (0, 0)}, tolerance=1)
 @ngl.scene()
 def data_integer_iovars(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -284,7 +292,7 @@ def data_integer_iovars(cfg: ngl.SceneCfg):
     return render
 
 
-@test_cuepoints(points={"c": (0, 0)}, tolerance=1)
+@test_cuepoints(width=128, height=128, points={"c": (0, 0)}, tolerance=1)
 @ngl.scene()
 def data_mat_iovars(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -362,7 +370,7 @@ def data_noise_wiggle(cfg: ngl.SceneCfg):
     return ngl.Translate(render, vector=translate)
 
 
-@test_cuepoints(points={"c": (0, 0)}, keyframes=10, tolerance=1)
+@test_cuepoints(width=128, height=128, points={"c": (0, 0)}, keyframes=10, tolerance=1)
 @ngl.scene()
 def data_eval(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -459,13 +467,13 @@ def _data_vertex_and_fragment_blocks(cfg: ngl.SceneCfg, layout):
     return render
 
 
-@test_cuepoints(points={"c": (0, 0)}, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points={"c": (0, 0)}, keyframes=1, tolerance=1)
 @ngl.scene()
 def data_vertex_and_fragment_blocks(cfg: ngl.SceneCfg):
     return _data_vertex_and_fragment_blocks(cfg, "std140")
 
 
-@test_cuepoints(points={"c": (0, 0)}, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points={"c": (0, 0)}, keyframes=1, tolerance=1)
 @ngl.scene()
 def data_vertex_and_fragment_blocks_std430(cfg: ngl.SceneCfg):
     return _data_vertex_and_fragment_blocks(cfg, "std430")

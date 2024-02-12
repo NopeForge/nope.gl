@@ -40,13 +40,19 @@ def _base_scene(cfg: ngl.SceneCfg, *filters):
     )
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_alpha(cfg: ngl.SceneCfg):
     return _base_scene(cfg, ngl.FilterAlpha(0.4321))
 
 
-@test_cuepoints(points={f"x{i}": (i / (5 - 1) * 2 - 1, 0) for i in range(5)}, keyframes=10, tolerance=1)
+@test_cuepoints(
+    width=128,
+    height=128,
+    points={f"x{i}": (i / (5 - 1) * 2 - 1, 0) for i in range(5)},
+    keyframes=10,
+    tolerance=1,
+)
 @ngl.scene()
 def filter_colormap(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -106,37 +112,37 @@ def filter_colormap(cfg: ngl.SceneCfg):
     return ngl.Group(children=[bg, remapped])
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_contrast(cfg: ngl.SceneCfg):
     return _base_scene(cfg, ngl.FilterContrast(1.2, pivot=0.3))
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_exposure(cfg: ngl.SceneCfg):
     return _base_scene(cfg, ngl.FilterExposure(0.7))
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_inversealpha(cfg: ngl.SceneCfg):
     return _base_scene(cfg, ngl.FilterInverseAlpha())
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_opacity(cfg: ngl.SceneCfg):
     return _base_scene(cfg, ngl.FilterOpacity(0.4321))
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_saturation(cfg: ngl.SceneCfg):
     return _base_scene(cfg, ngl.FilterSaturation(1.5))
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_selector_light(cfg: ngl.SceneCfg):
     return _base_scene(
@@ -150,7 +156,7 @@ def filter_selector_light(cfg: ngl.SceneCfg):
     )
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_selector_chroma(cfg: ngl.SceneCfg):
     return _base_scene(
@@ -164,7 +170,7 @@ def filter_selector_chroma(cfg: ngl.SceneCfg):
     )
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_selector_hue(cfg: ngl.SceneCfg):
     return _base_scene(
@@ -178,7 +184,7 @@ def filter_selector_hue(cfg: ngl.SceneCfg):
     )
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_composition_colors(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -192,7 +198,7 @@ def filter_composition_colors(cfg: ngl.SceneCfg):
     )
 
 
-@test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
 def filter_composition_alpha(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)

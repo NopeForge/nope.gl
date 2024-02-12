@@ -88,6 +88,8 @@ def _get_live_shared_uniform_function(layout=None):
         color.set_value(*data[t_id])
 
     @test_cuepoints(
+        width=128,
+        height=128,
         points=_SHARED_UNIFORM_CUEPOINTS,
         keyframes=len(data),
         keyframes_callback=keyframes_callback,
@@ -122,6 +124,8 @@ def _get_media_change_function():
             media1.set_filename(load_media("panda").filename)
 
     @test_cuepoints(
+        width=128,
+        height=128,
         points=dict(x=(0, 0)),
         tolerance=1,
         exercise_serialization=False,
@@ -239,6 +243,8 @@ def _get_live_function(spec, category, field_type, layout):
             field["node"].set_value(*v)
 
     @test_cuepoints(
+        width=128,
+        height=128,
         points=get_data_debug_positions(fields),
         keyframes=len(data_src) + 1,
         keyframes_callback=keyframes_callback,
@@ -270,6 +276,8 @@ def _get_live_trf_function(spec, category, field_type, layout):
         livechange_funcs[t_id]()
 
     @test_cuepoints(
+        width=128,
+        height=128,
         points=get_data_debug_positions(fields),
         keyframes=len(livechange_funcs),
         keyframes_callback=keyframes_callback,

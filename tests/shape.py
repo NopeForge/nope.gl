@@ -33,7 +33,12 @@ from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 import pynopegl as ngl
 
 
-@test_cuepoints(points=dict(bl=(-1, -1), br=(1, -1), tr=(1, 1), tl=(-1, 1), c=(0, 0)), tolerance=5)
+@test_cuepoints(
+    width=128,
+    height=128,
+    points=dict(bl=(-1, -1), br=(1, -1), tr=(1, 1), tl=(-1, 1), c=(0, 0)),
+    tolerance=5,
+)
 @ngl.scene()
 def shape_precision_iovar(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
