@@ -395,6 +395,14 @@ int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int3
     return ngli_gpu_ctx_resize(s->gpu_ctx, width, height, viewport);
 }
 
+int ngli_ctx_get_viewport(struct ngl_ctx *s, int32_t *viewport)
+{
+    struct viewport vp = ngli_gpu_ctx_get_viewport(s->gpu_ctx);
+    const int32_t vp_i32[] = {vp.x, vp.y, vp.width, vp.height};
+    memcpy(viewport, vp_i32, sizeof(vp_i32));
+    return 0;
+}
+
 int ngli_ctx_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 {
     struct ngl_config *config = &s->config;
@@ -751,6 +759,16 @@ int ngl_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *
     }
 
     return s->api_impl->resize(s, width, height, viewport);
+}
+
+int ngl_get_viewport(struct ngl_ctx *s, int32_t *viewport)
+{
+    if (!s->configured) {
+        LOG(ERROR, "context must be configured to get the viewport");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    return s->api_impl->get_viewport(s, viewport);
 }
 
 int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)

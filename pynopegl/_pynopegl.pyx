@@ -182,6 +182,7 @@ cdef extern from "nopegl.h":
     int ngl_get_backend(ngl_ctx *s, ngl_backend *backend)
     void ngl_reset_backend(ngl_backend *backend)
     int ngl_resize(ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
+    int ngl_get_viewport(ngl_ctx *s, int32_t *viewport)
     int ngl_set_capture_buffer(ngl_ctx *s, void *capture_buffer)
     int ngl_set_scene(ngl_ctx *s, ngl_scene *scene)
     int ngl_draw(ngl_ctx *s, double t) nogil
@@ -727,6 +728,13 @@ cdef class Context:
         for i in range(4):
             c_viewport[i] = viewport[i]
         return ngl_resize(self.ctx, width, height, c_viewport)
+
+    def get_viewport(self):
+        cdef int32_t vp[4]
+        cdef int ret = ngl_get_viewport(self.ctx, vp)
+        if ret < 0:
+            raise Exception("Error getting the viewport")
+        return tuple(v for v in vp)
 
     def set_capture_buffer(self, capture_buffer):
         self.capture_buffer = capture_buffer
