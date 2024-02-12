@@ -55,7 +55,7 @@ struct gpu_ctx_class {
 
     struct gpu_ctx *(*create)(const struct ngl_config *config);
     int (*init)(struct gpu_ctx *s);
-    int (*resize)(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport);
+    int (*resize)(struct gpu_ctx *s, int32_t width, int32_t height);
     int (*set_capture_buffer)(struct gpu_ctx *s, void *capture_buffer);
     int (*begin_update)(struct gpu_ctx *s, double t);
     int (*end_update)(struct gpu_ctx *s, double t);
@@ -157,7 +157,7 @@ struct gpu_ctx {
 
 struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config);
 int ngli_gpu_ctx_init(struct gpu_ctx *s);
-int ngli_gpu_ctx_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport);
+int ngli_gpu_ctx_resize(struct gpu_ctx *s, int32_t width, int32_t height);
 int ngli_gpu_ctx_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer);
 int ngli_gpu_ctx_begin_update(struct gpu_ctx *s, double t);
 int ngli_gpu_ctx_end_update(struct gpu_ctx *s, double t);
