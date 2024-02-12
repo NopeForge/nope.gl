@@ -65,7 +65,7 @@ def _render_shape(geometry, color):
     return ngl.RenderColor(color, geometry=geometry)
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene(controls=dict(sz=ngl.scene.Range(range=[0.1, 2], unit_base=100), color=ngl.scene.Color()))
 def shape_triangle(cfg: ngl.SceneCfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
@@ -74,7 +74,7 @@ def shape_triangle(cfg: ngl.SceneCfg, sz=1, color=COLORS.orange):
     return _render_shape(geometry, color)
 
 
-@test_fingerprint(samples=4)
+@test_fingerprint(width=320, height=320, samples=4)
 @ngl.scene(controls=dict(sz=ngl.scene.Range(range=[0.1, 2], unit_base=100), color=ngl.scene.Color()))
 def shape_triangle_msaa(cfg: ngl.SceneCfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
@@ -83,7 +83,7 @@ def shape_triangle_msaa(cfg: ngl.SceneCfg, sz=1, color=COLORS.orange):
     return _render_shape(geometry, color)
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene(
     controls=dict(
         corner=ngl.scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
@@ -100,7 +100,7 @@ def shape_quad(
     return _render_shape(geometry, color)
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene(controls=dict(radius=ngl.scene.Range(range=[0.1, 2], unit_base=100), color=ngl.scene.Color()))
 def shape_circle(cfg: ngl.SceneCfg, radius=0.5, color=COLORS.azure):
     cfg.aspect_ratio = (1, 1)
@@ -166,31 +166,31 @@ def _shape_geometry(cfg: ngl.SceneCfg, set_normals=False, set_indices=False):
     return ngl.Rotate(render, 45, axis=(1, 1, 1))
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene()
 def shape_geometry(cfg: ngl.SceneCfg):
     return _shape_geometry(cfg, set_normals=False, set_indices=False)
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene()
 def shape_geometry_normals(cfg: ngl.SceneCfg):
     return _shape_geometry(cfg, set_normals=True, set_indices=False)
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene()
 def shape_geometry_indices(cfg: ngl.SceneCfg):
     return _shape_geometry(cfg, set_normals=False, set_indices=True)
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene()
 def shape_geometry_normals_indices(cfg: ngl.SceneCfg):
     return _shape_geometry(cfg, set_normals=True, set_indices=True)
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene()
 def shape_geometry_with_renderother(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -218,9 +218,10 @@ def shape_geometry_with_renderother(cfg: ngl.SceneCfg):
     return ngl.RenderColor(geometry=geometry)
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene()
-def shape_diamond_colormask(_):
+def shape_diamond_colormask(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     color_write_masks = ("r+g+b+a", "r+g+a", "g+b+a", "r+b+a")
     geometry = ngl.Circle(npoints=5)
     render = ngl.RenderColor(COLORS.white, geometry=geometry)
@@ -234,9 +235,10 @@ def _get_morphing_coordinates(rng, n, x_off, y_off):
     return coords
 
 
-@test_fingerprint(keyframes=8, tolerance=1)
+@test_fingerprint(width=320, height=320, keyframes=8, tolerance=1)
 @ngl.scene(controls=dict(n=ngl.scene.Range(range=[2, 50])))
 def shape_morphing(cfg: ngl.SceneCfg, n=6):
+    cfg.aspect_ratio = (1, 1)
     cfg.duration = 5.0
     vertices_tl = _get_morphing_coordinates(cfg.rng, n, -1, 0)
     vertices_tr = _get_morphing_coordinates(cfg.rng, n, 0, 0)
@@ -259,9 +261,10 @@ def shape_morphing(cfg: ngl.SceneCfg, n=6):
 
 
 def _get_cropboard_function(set_indices=False):
-    @test_fingerprint(keyframes=10, tolerance=1)
+    @test_fingerprint(width=800, height=800, keyframes=10, tolerance=1)
     @ngl.scene(controls=dict(dim_clr=ngl.scene.Range(range=[1, 50]), dim_cut=ngl.scene.Range(range=[1, 50])))
     def cropboard(cfg: ngl.SceneCfg, dim_clr=3, dim_cut=9):
+        cfg.aspect_ratio = (1, 1)
         cfg.duration = 5.0 + 1.0
 
         nb_kf = 2
@@ -370,7 +373,7 @@ void main()
 """
 
 
-@test_fingerprint()
+@test_fingerprint(width=320, height=320)
 @ngl.scene()
 def shape_triangles_mat4_attribute(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -420,7 +423,7 @@ def _get_shape_scene(cfg: ngl.SceneCfg, shape, cull_mode):
 
 
 def _get_shape_function(shape, cull_mode):
-    @test_fingerprint()
+    @test_fingerprint(width=320, height=320)
     @ngl.scene()
     def shape_function(cfg: ngl.SceneCfg):
         return _get_shape_scene(cfg, shape, cull_mode)

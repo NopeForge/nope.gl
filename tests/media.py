@@ -79,13 +79,20 @@ def media_flat_remap(cfg: ngl.SceneCfg):
     return ngl.RenderTexture(t)
 
 
-@test_cuepoints(points={"X": (0, -0.625)}, keyframes=15, clear_color=list(COLORS.violet) + [1], tolerance=1)
+@test_cuepoints(
+    width=320,
+    height=240,
+    points={"X": (0, -0.625)},
+    keyframes=15,
+    clear_color=list(COLORS.violet) + [1],
+    tolerance=1,
+)
 @ngl.scene()
 def media_phases_display(cfg: ngl.SceneCfg):
     return _get_time_scene(cfg)
 
 
-@test_resources(keyframes=15)
+@test_resources(width=320, height=240, keyframes=15)
 @ngl.scene()
 def media_phases_resources(cfg: ngl.SceneCfg):
     return _get_time_scene(cfg)
@@ -93,7 +100,7 @@ def media_phases_resources(cfg: ngl.SceneCfg):
 
 # Note: the following test only makes sure the clamping code shader compiles,
 # not check for an actual overflow
-@test_cuepoints(points={"X": (0, -0.625)}, keyframes=1, tolerance=1)
+@test_cuepoints(width=320, height=240, points={"X": (0, -0.625)}, keyframes=1, tolerance=1)
 @ngl.scene()
 def media_clamp(cfg: ngl.SceneCfg):
     m0 = load_media("mire")
@@ -105,7 +112,7 @@ def media_clamp(cfg: ngl.SceneCfg):
     return ngl.RenderTexture(texture)
 
 
-@test_cuepoints(points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, keyframes=5, tolerance=1)
+@test_cuepoints(width=320, height=240, points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, keyframes=5, tolerance=1)
 @ngl.scene()
 def media_exposed_time(cfg: ngl.SceneCfg):
     m0 = load_media("mire")

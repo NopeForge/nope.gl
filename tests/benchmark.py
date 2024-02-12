@@ -340,7 +340,6 @@ def _get_random_layer(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes, layer=4):
 
 def _get_scene(cfg: ngl.SceneCfg, seed=0, enable_computes=True):
     cfg.duration = 30
-    cfg.aspect_ratio = (16, 9)
     rng = cfg.rng
     rng.seed(seed)
     cfg.texture_cache = {}
@@ -376,28 +375,33 @@ def _get_scene(cfg: ngl.SceneCfg, seed=0, enable_computes=True):
 @ngl.scene(controls=dict(seed=ngl.scene.Range(range=[0, 1000]), enable_computes=ngl.scene.Bool()))
 def benchmark_test(cfg: ngl.SceneCfg, seed=82, enable_computes=True):
     """Function to be used for manual testing"""
+    cfg.aspect_ratio = (16, 9)
     return _get_scene(cfg, seed, enable_computes)
 
 
 @test_fingerprint(width=1920, height=1080, keyframes=120, tolerance=4)
 @ngl.scene()
 def benchmark_fingerprint_with_compute(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (16, 9)
     return _get_scene(cfg, seed=0, enable_computes=True)
 
 
 @test_fingerprint(width=1920, height=1080, keyframes=120, tolerance=4)
 @ngl.scene()
 def benchmark_fingerprint_without_compute(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (16, 9)
     return _get_scene(cfg, seed=1, enable_computes=False)
 
 
-@test_resources(keyframes=60)
+@test_resources(width=320, height=240, keyframes=60)
 @ngl.scene()
 def benchmark_resources_with_compute(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (4, 3)
     return _get_scene(cfg, seed=2, enable_computes=True)
 
 
-@test_resources(keyframes=60)
+@test_resources(width=320, height=240, keyframes=60)
 @ngl.scene()
 def benchmark_resources_without_compute(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (4, 3)
     return _get_scene(cfg, seed=3, enable_computes=False)

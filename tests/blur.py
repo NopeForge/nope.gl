@@ -46,7 +46,7 @@ def blur_gaussian(cfg: ngl.SceneCfg):
     return ngl.Group(children=(blur, ngl.RenderTexture(blurred_texture)))
 
 
-@test_fingerprint(keyframes=10, tolerance=5)
+@test_fingerprint(width=800, height=800, keyframes=10, tolerance=5)
 @ngl.scene()
 def blur_fast_gaussian(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)

@@ -24,10 +24,11 @@ from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 import pynopegl as ngl
 
 
-@test_fingerprint(keyframes=10, tolerance=1)
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
 @ngl.scene()
 def texteffect_color(cfg: ngl.SceneCfg):
     cfg.duration = 3
+    cfg.aspect_ratio = (16, 9)
 
     text = "Rainbow"
     n = len(text)
@@ -56,10 +57,11 @@ def texteffect_color(cfg: ngl.SceneCfg):
     return ngl.Text(text=text, effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
-@test_fingerprint(keyframes=10, tolerance=1)
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
 @ngl.scene()
 def texteffect_opacity(cfg: ngl.SceneCfg):
     cfg.duration = 3
+    cfg.aspect_ratio = (16, 9)
 
     animkf = [
         ngl.AnimKeyFrameFloat(0, 1),
@@ -77,10 +79,11 @@ def texteffect_opacity(cfg: ngl.SceneCfg):
     return ngl.Text("Ghost\nin the\nText", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
-@test_fingerprint(keyframes=10, tolerance=1)
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
 @ngl.scene()
 def texteffect_transform(cfg: ngl.SceneCfg):
     cfg.duration = 3
+    cfg.aspect_ratio = (16, 9)
 
     animkf = [
         ngl.AnimKeyFrameVec3(0, (0.0, 1.5, 0.0)),
@@ -102,10 +105,11 @@ def texteffect_transform(cfg: ngl.SceneCfg):
     return ngl.Text("Drop me down", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
-@test_fingerprint(keyframes=10, tolerance=1)
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
 @ngl.scene()
 def texteffect_chars_space_nospace(cfg: ngl.SceneCfg):
     cfg.duration = 5
+    cfg.aspect_ratio = (16, 9)
 
     animkf = [
         ngl.AnimKeyFrameColor(0, (1, 1, 1)),
@@ -135,10 +139,11 @@ def texteffect_chars_space_nospace(cfg: ngl.SceneCfg):
     )
 
 
-@test_fingerprint(keyframes=10, tolerance=1)
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
 @ngl.scene()
 def texteffect_blur(cfg: ngl.SceneCfg):
     cfg.duration = 5
+    cfg.aspect_ratio = (16, 9)
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
         ngl.AnimKeyFrameFloat(1 / 2, 0.1),
@@ -148,10 +153,11 @@ def texteffect_blur(cfg: ngl.SceneCfg):
     return ngl.Text("B", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
-@test_fingerprint(keyframes=10, tolerance=1)
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
 @ngl.scene()
 def texteffect_blur_outline(cfg: ngl.SceneCfg):
     cfg.duration = 5
+    cfg.aspect_ratio = (16, 9)
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
         ngl.AnimKeyFrameFloat(1 / 2, 0.1),
@@ -161,10 +167,11 @@ def texteffect_blur_outline(cfg: ngl.SceneCfg):
     return ngl.Text("b", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
-@test_fingerprint(keyframes=10, tolerance=1)
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
 @ngl.scene()
 def texteffect_glow(cfg: ngl.SceneCfg):
     cfg.duration = 5
+    cfg.aspect_ratio = (16, 9)
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
         ngl.AnimKeyFrameFloat(1 / 2, 0.2),
@@ -174,10 +181,11 @@ def texteffect_glow(cfg: ngl.SceneCfg):
     return ngl.Text("G", effects=effects, aspect_ratio=cfg.aspect_ratio)
 
 
-@test_fingerprint(keyframes=10, tolerance=2)
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=2)
 @ngl.scene()
 def texteffect_glow_outline(cfg: ngl.SceneCfg):
     cfg.duration = 5
+    cfg.aspect_ratio = (16, 9)
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
         ngl.AnimKeyFrameFloat(1 / 2, 0.2),

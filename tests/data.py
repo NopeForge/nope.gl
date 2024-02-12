@@ -318,7 +318,7 @@ def data_mat_iovars(cfg: ngl.SceneCfg):
     return render
 
 
-@test_fingerprint(keyframes=10, tolerance=1)
+@test_fingerprint(width=512, height=512, keyframes=10, tolerance=1)
 @ngl.scene()
 def data_noise_time(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
@@ -349,7 +349,7 @@ def data_noise_time(cfg: ngl.SceneCfg):
     return render
 
 
-@test_fingerprint(keyframes=30, tolerance=1)
+@test_fingerprint(width=512, height=512, keyframes=30, tolerance=1)
 @ngl.scene()
 def data_noise_wiggle(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)

@@ -45,7 +45,7 @@ _COLS = (
 
 class _CompareResources(CompareSceneBase):
     def __init__(self, scene_func, columns: Sequence[str] = _COLS, **kwargs):
-        super().__init__(scene_func, width=320, height=240, **kwargs)
+        super().__init__(scene_func, **kwargs)
 
         # We can't use NamedTemporaryFile because we may not be able to open it
         # twice on some systems

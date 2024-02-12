@@ -32,7 +32,9 @@ def _render_quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0), color=(1
 
 @test_fingerprint(width=16, height=16, keyframes=2, tolerance=1)
 @ngl.scene()
-def depth_stencil_depth(_):
+def depth_stencil_depth(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+
     group = ngl.Group()
 
     count = 4
@@ -64,7 +66,9 @@ def depth_stencil_depth(_):
 
 @test_fingerprint(width=16, height=16, keyframes=2, tolerance=1)
 @ngl.scene()
-def depth_stencil_stencil(_):
+def depth_stencil_stencil(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+
     group = ngl.Group()
 
     count = 4

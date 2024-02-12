@@ -29,7 +29,8 @@ import pynopegl as ngl
 _CUEPOINTS = dict(c=(0, 0), bl=(-0.5, -0.5), br=(0.5, -0.5), tr=(0.5, 0.5), tl=(-0.5, 0.5))
 
 
-def _base_scene(*filters):
+def _base_scene(cfg: ngl.SceneCfg, *filters):
+    cfg.aspect_ratio = (1, 1)
     return ngl.RenderGradient4(
         opacity_tl=0.3,
         opacity_tr=0.4,
@@ -41,13 +42,14 @@ def _base_scene(*filters):
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_alpha(_):
-    return _base_scene(ngl.FilterAlpha(0.4321))
+def filter_alpha(cfg: ngl.SceneCfg):
+    return _base_scene(cfg, ngl.FilterAlpha(0.4321))
 
 
 @test_cuepoints(points={f"x{i}": (i / (5 - 1) * 2 - 1, 0) for i in range(5)}, keyframes=10, tolerance=1)
 @ngl.scene()
 def filter_colormap(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     cfg.duration = 5.0
     d = cfg.duration
 
@@ -106,76 +108,80 @@ def filter_colormap(cfg: ngl.SceneCfg):
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_contrast(_):
-    return _base_scene(ngl.FilterContrast(1.2, pivot=0.3))
+def filter_contrast(cfg: ngl.SceneCfg):
+    return _base_scene(cfg, ngl.FilterContrast(1.2, pivot=0.3))
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_exposure(_):
-    return _base_scene(ngl.FilterExposure(0.7))
+def filter_exposure(cfg: ngl.SceneCfg):
+    return _base_scene(cfg, ngl.FilterExposure(0.7))
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_inversealpha(_):
-    return _base_scene(ngl.FilterInverseAlpha())
+def filter_inversealpha(cfg: ngl.SceneCfg):
+    return _base_scene(cfg, ngl.FilterInverseAlpha())
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_opacity(_):
-    return _base_scene(ngl.FilterOpacity(0.4321))
+def filter_opacity(cfg: ngl.SceneCfg):
+    return _base_scene(cfg, ngl.FilterOpacity(0.4321))
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_saturation(_):
-    return _base_scene(ngl.FilterSaturation(1.5))
+def filter_saturation(cfg: ngl.SceneCfg):
+    return _base_scene(cfg, ngl.FilterSaturation(1.5))
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_selector_light(_):
+def filter_selector_light(cfg: ngl.SceneCfg):
     return _base_scene(
+        cfg,
         ngl.FilterSelector(
             range=(0.41, 0.5),
             component="lightness",
             drop_mode="inside",
             output_mode="colorholes",
-        )
+        ),
     )
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_selector_chroma(_):
+def filter_selector_chroma(cfg: ngl.SceneCfg):
     return _base_scene(
+        cfg,
         ngl.FilterSelector(
             range=(0.06, 0.1),
             component="chroma",
             drop_mode="outside",
             smoothedges=True,
-        )
+        ),
     )
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_selector_hue(_):
+def filter_selector_hue(cfg: ngl.SceneCfg):
     return _base_scene(
+        cfg,
         ngl.FilterSelector(
             range=(-0.1 * math.tau, 0.45 * math.tau),
             component="hue",
             drop_mode="outside",
             output_mode="binary",
-        )
+        ),
     )
 
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_composition_colors(_):
+def filter_composition_colors(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     return ngl.RenderGradient4(
         filters=(
             ngl.FilterExposure(exposure=0.9),
@@ -188,7 +194,8 @@ def filter_composition_colors(_):
 
 @test_cuepoints(points=_CUEPOINTS, keyframes=1, tolerance=1)
 @ngl.scene()
-def filter_composition_alpha(_):
+def filter_composition_alpha(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     return ngl.RenderGradient(
         color0=(1, 0.5, 0),
         color1=(0, 1, 0.5),
@@ -207,8 +214,9 @@ def filter_composition_alpha(_):
 
 @test_cuepoints(points=_CUEPOINTS, width=320, height=240, keyframes=1, tolerance=1)
 @ngl.scene(controls=dict(linear=ngl.scene.Bool()))
-def filter_gamma_correct(_, linear=True):
+def filter_gamma_correct(cfg: ngl.SceneCfg, linear=True):
     """This test operates a gamma correct blending (the blending happens in linear space)"""
+    cfg.aspect_ratio = (4, 3)
 
     # Hue colors rotated clockwise
     dst = ngl.RenderGradient4(

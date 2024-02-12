@@ -130,6 +130,7 @@ def _get_media_change_function():
     )
     @ngl.scene()
     def live_media_change_func(cfg: ngl.SceneCfg):
+        cfg.aspect_ratio = (1, 1)
         # Build a scene with 2 successive media displayed, 10 seconds each
         return ngl.Group(
             children=[

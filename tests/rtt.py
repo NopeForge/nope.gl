@@ -229,7 +229,9 @@ for name, params in _rtt_tests.items():
     globals()["rtt_" + name] = _get_rtt_function(**params)
 
 
-def _rtt_load_attachment():
+def _rtt_load_attachment(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+
     background = ngl.RenderColor(COLORS.white)
     render = ngl.RenderColor(COLORS.orange)
 
@@ -247,20 +249,20 @@ def _rtt_load_attachment():
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @ngl.scene()
-def rtt_load_attachment(_):
-    return _rtt_load_attachment()
+def rtt_load_attachment(cfg: ngl.SceneCfg):
+    return _rtt_load_attachment(cfg)
 
 
 @test_cuepoints(
     samples=4, width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1
 )
 @ngl.scene()
-def rtt_load_attachment_msaa(_):
-    return _rtt_load_attachment()
+def rtt_load_attachment_msaa(cfg: ngl.SceneCfg):
+    return _rtt_load_attachment(cfg)
 
 
-def _rtt_load_attachment_nested(samples=0):
-    scene = _rtt_load_attachment()
+def _rtt_load_attachment_nested(cfg: ngl.SceneCfg, samples=0):
+    scene = _rtt_load_attachment(cfg)
 
     texture = ngl.Texture2D(width=16, height=16, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(scene, [texture], samples=samples)
@@ -272,14 +274,14 @@ def _rtt_load_attachment_nested(samples=0):
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @ngl.scene()
-def rtt_load_attachment_nested(_):
-    return _rtt_load_attachment_nested()
+def rtt_load_attachment_nested(cfg: ngl.SceneCfg):
+    return _rtt_load_attachment_nested(cfg)
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @ngl.scene()
-def rtt_load_attachment_nested_msaa(_):
-    return _rtt_load_attachment_nested(4)
+def rtt_load_attachment_nested_msaa(cfg: ngl.SceneCfg):
+    return _rtt_load_attachment_nested(cfg, 4)
 
 
 @test_fingerprint(width=512, height=512, keyframes=10, tolerance=3)

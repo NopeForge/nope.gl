@@ -57,9 +57,10 @@ void main()
 """
 
 
-@test_fingerprint(keyframes=10, tolerance=1)
+@test_fingerprint(width=800, height=800, keyframes=10, tolerance=1)
 @ngl.scene()
 def compute_particles(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     cfg.duration = 10
     workgroups = (2, 1, 4)
     local_size = (4, 4, 1)
@@ -306,13 +307,13 @@ def _compute_animation(cfg: ngl.SceneCfg, animate_pre_render=True):
     return ngl.Group(children=children)
 
 
-@test_fingerprint(keyframes=5, tolerance=1)
+@test_fingerprint(width=800, height=800, keyframes=5, tolerance=1)
 @ngl.scene()
 def compute_animation(cfg: ngl.SceneCfg):
     return _compute_animation(cfg)
 
 
-@test_fingerprint(keyframes=5, tolerance=1)
+@test_fingerprint(width=800, height=800, keyframes=5, tolerance=1)
 @ngl.scene()
 def compute_animation_post_render(cfg: ngl.SceneCfg):
     return _compute_animation(cfg, False)
@@ -336,6 +337,7 @@ void main()
 @test_cuepoints(points=_get_compute_histogram_cuepoints(), tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def compute_image_load_store(cfg: ngl.SceneCfg, show_dbg_points=False):
+    cfg.aspect_ratio = (1, 1)
     size = _N
     texture_data = ngl.BufferFloat(data=array.array("f", [x / (size**2) for x in range(size**2)]))
     texture_r = ngl.Texture2D(
@@ -429,6 +431,7 @@ def _get_image_layered_load_store_cuepoints():
 
 
 def _get_compute_image_layered_load_store_scene(cfg: ngl.SceneCfg, texture_cls, show_dbg_points=False):
+    cfg.aspect_ratio = (1, 1)
     size = _N
     texture = texture_cls(
         format="r32_sfloat",
@@ -553,9 +556,10 @@ void main()
 """
 
 
-@test_fingerprint()
+@test_fingerprint(width=128, height=128)
 @ngl.scene()
 def compute_image_cube_load_store(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
     size = _N
     texture = ngl.TextureCube(format="r32g32b32a32_sfloat", size=size, min_filter="nearest", mag_filter="nearest")
     program_store = ngl.ComputeProgram(_IMAGE_CUBE_STORE_COMPUTE, workgroup_size=(size, size, 6))
