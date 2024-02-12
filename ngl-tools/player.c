@@ -266,7 +266,8 @@ static void size_callback(struct player *p, int32_t width, int32_t height)
 
 static void seek_event(struct player *p, int x)
 {
-    const int32_t *vp = p->ngl_config.viewport;
+    int32_t vp[4];
+    ngl_get_viewport(p->ngl, vp);
     const int pos = clipi32(x - vp[0], 0, vp[2]);
     const int64_t seek_at64 = p->duration * pos / vp[2];
     p->lasthover = gettime_relative();
