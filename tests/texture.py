@@ -477,13 +477,13 @@ def _get_texture_2d_array_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, sam
     return group
 
 
-@test_cuepoints(points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_2d_array_from_mrt(cfg: ngl.SceneCfg, show_dbg_points=False):
     return _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points)
 
 
-@test_cuepoints(points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_2d_array_from_mrt_msaa(cfg: ngl.SceneCfg, show_dbg_points=False):
     return _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, 4)
@@ -592,13 +592,13 @@ def _get_texture_3d_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0
     return group
 
 
-@test_cuepoints(points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_3d_from_mrt(cfg: ngl.SceneCfg, show_dbg_points=False):
     return _get_texture_3d_from_mrt_scene(cfg, show_dbg_points)
 
 
-@test_cuepoints(points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_3d_from_mrt_msaa(cfg: ngl.SceneCfg, show_dbg_points=False):
     return _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, 4)
@@ -631,7 +631,7 @@ def _get_texture_mipmap_cuepoints():
     return {f"{x}{y}": (c(x), c(y)) for y in range(_N) for x in range(_N)}
 
 
-@test_cuepoints(points=_get_texture_mipmap_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_get_texture_mipmap_cuepoints(), tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_mipmap(cfg: ngl.SceneCfg, show_dbg_points=False):
     cfg.aspect_ratio = (1, 1)

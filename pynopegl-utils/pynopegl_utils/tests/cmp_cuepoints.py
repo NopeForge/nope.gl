@@ -33,8 +33,8 @@ class _CompareCuePoints(CompareSceneBase):
         self,
         scene_func,
         points: Mapping[str, Tuple[float, float]],
-        width: int = 128,
-        height: int = 128,
+        width: int,
+        height: int,
         tolerance: int = 0,
         **kwargs,
     ):

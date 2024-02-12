@@ -210,7 +210,7 @@ def _debug_overlay(cfg: ngl.SceneCfg, scene, grid_names, show_dbg_points=False, 
 _TEST_SETTINGS = dict(show_dbg_points=False, show_labels=False, clear_color=list(COLORS.azure) + [1], tolerance=1)
 
 
-@test_cuepoints(points=_get_dbg_positions(_NB_BLENDINGS), **_TEST_SETTINGS)
+@test_cuepoints(width=128, height=128, points=_get_dbg_positions(_NB_BLENDINGS), **_TEST_SETTINGS)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool(), show_labels=ngl.scene.Bool()))
 def blending_all_diamond(cfg: ngl.SceneCfg, show_dbg_points=True, show_labels=True):
     scenes = _get_blending_scenes(cfg)
@@ -218,7 +218,13 @@ def blending_all_diamond(cfg: ngl.SceneCfg, show_dbg_points=True, show_labels=Tr
     return _debug_overlay(cfg, scene, _BLENDINGS, show_dbg_points, show_labels)
 
 
-@test_cuepoints(points=_get_dbg_positions(_NB_BLENDINGS), keyframes=_NB_BLENDINGS + 1, **_TEST_SETTINGS)
+@test_cuepoints(
+    width=128,
+    height=128,
+    points=_get_dbg_positions(_NB_BLENDINGS),
+    keyframes=_NB_BLENDINGS + 1,
+    **_TEST_SETTINGS,
+)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool(), show_labels=ngl.scene.Bool()))
 def blending_all_timed_diamond(cfg: ngl.SceneCfg, show_dbg_points=True, show_labels=True):
     scenes = _get_blending_scenes(cfg)
@@ -227,7 +233,7 @@ def blending_all_timed_diamond(cfg: ngl.SceneCfg, show_dbg_points=True, show_lab
 
 
 def _get_blending_function(bname, bcolor, **bparams):
-    @test_cuepoints(points=_get_dbg_positions(), **_TEST_SETTINGS)
+    @test_cuepoints(width=128, height=128, points=_get_dbg_positions(), **_TEST_SETTINGS)
     @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool(), show_labels=ngl.scene.Bool()))
     def scene_func(cfg: ngl.SceneCfg, show_dbg_points=True, show_labels=True):
         scene = _get_blending_scene(cfg, bname, bcolor, **bparams)
