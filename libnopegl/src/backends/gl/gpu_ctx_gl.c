@@ -549,7 +549,7 @@ static int gl_init(struct gpu_ctx *s)
     return 0;
 }
 
-static int gl_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
+static int gl_resize(struct gpu_ctx *s, int32_t width, int32_t height)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
@@ -586,13 +586,8 @@ static int gl_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int
         rt_gl->id = rt_load_gl->id = ngli_glcontext_get_default_framebuffer(gl);
     }
 
-    const struct viewport vp = {NGLI_ARG_VEC4(viewport)};
-    if (ngli_viewport_is_valid(&vp)) {
-        ngli_gpu_ctx_set_viewport(s, &vp);
-    } else {
-        const struct viewport default_vp = {0, 0, width, height};
-        ngli_gpu_ctx_set_viewport(s, &default_vp);
-    }
+    const struct viewport viewport = {0, 0, width, height};
+    ngli_gpu_ctx_set_viewport(s, &viewport);
 
     const struct scissor scissor = {0, 0, width, height};
     ngli_gpu_ctx_set_scissor(s, &scissor);

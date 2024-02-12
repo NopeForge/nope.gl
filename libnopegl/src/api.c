@@ -418,9 +418,14 @@ fail:
 
 int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height)
 {
+    int ret = ngli_gpu_ctx_resize(s->gpu_ctx, width, height);
+    if (ret < 0)
+        return ret;
+
     struct viewport vp = compute_scene_viewport(s->scene, width, height);
-    const int32_t vp_i32[] = {vp.x, vp.y, vp.width, vp.height};
-    return ngli_gpu_ctx_resize(s->gpu_ctx, width, height, vp_i32);
+    ngli_gpu_ctx_set_viewport(s->gpu_ctx, &vp);
+
+    return 0;
 }
 
 int ngli_ctx_get_viewport(struct ngl_ctx *s, int32_t *viewport)

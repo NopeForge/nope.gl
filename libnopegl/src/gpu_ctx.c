@@ -105,10 +105,10 @@ int ngli_gpu_ctx_init(struct gpu_ctx *s)
     return 0;
 }
 
-int ngli_gpu_ctx_resize(struct gpu_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
+int ngli_gpu_ctx_resize(struct gpu_ctx *s, int32_t width, int32_t height)
 {
     const struct gpu_ctx_class *cls = s->cls;
-    return cls->resize(s, width, height, viewport);
+    return cls->resize(s, width, height);
 }
 
 int ngli_gpu_ctx_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
