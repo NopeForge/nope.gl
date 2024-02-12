@@ -1277,6 +1277,13 @@ static const struct rendertarget_layout *vk_get_default_rendertarget_layout(stru
     return &s_priv->default_rt_layout;
 }
 
+static void vk_get_default_rendertarget_size(struct gpu_ctx *s, int32_t *width, int32_t *height)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    *width = s_priv->width;
+    *height = s_priv->height;
+}
+
 static void vk_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
@@ -1470,6 +1477,7 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
 
     .get_default_rendertarget           = vk_get_default_rendertarget,
     .get_default_rendertarget_layout    = vk_get_default_rendertarget_layout,
+    .get_default_rendertarget_size      = vk_get_default_rendertarget_size,
 
     .begin_render_pass                  = vk_begin_render_pass,
     .end_render_pass                    = vk_end_render_pass,

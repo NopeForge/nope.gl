@@ -71,6 +71,7 @@ struct gpu_ctx_class {
 
     struct rendertarget *(*get_default_rendertarget)(struct gpu_ctx *s, int load_op);
     const struct rendertarget_layout *(*get_default_rendertarget_layout)(struct gpu_ctx *s);
+    void (*get_default_rendertarget_size)(struct gpu_ctx *s, int32_t *width, int32_t *height);
 
     void (*begin_render_pass)(struct gpu_ctx *s, struct rendertarget *rt);
     void (*end_render_pass)(struct gpu_ctx *s);
@@ -172,6 +173,7 @@ void ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(struct gpu_ctx *s, float *dst)
 
 struct rendertarget *ngli_gpu_ctx_get_default_rendertarget(struct gpu_ctx *s, int load_op);
 const struct rendertarget_layout *ngli_gpu_ctx_get_default_rendertarget_layout(struct gpu_ctx *s);
+void ngli_gpu_ctx_get_default_rendertarget_size(struct gpu_ctx *s, int32_t *width, int32_t *height);
 
 void ngli_gpu_ctx_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt);
 void ngli_gpu_ctx_end_render_pass(struct gpu_ctx *s);
