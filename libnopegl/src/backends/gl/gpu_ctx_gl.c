@@ -927,6 +927,12 @@ static const struct rendertarget_layout *gl_get_default_rendertarget_layout(stru
     return &s_priv->default_rt_layout;
 }
 
+static void gl_get_default_rendertarget_size(struct gpu_ctx *s, int32_t *width, int32_t *height)
+{
+    *width = s->config.width;
+    *height = s->config.height;
+}
+
 static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 {
     ngli_rendertarget_gl_begin_pass(rt);
@@ -1015,6 +1021,7 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
                                                                                  \
     .get_default_rendertarget           = gl_get_default_rendertarget,           \
     .get_default_rendertarget_layout    = gl_get_default_rendertarget_layout,    \
+    .get_default_rendertarget_size      = gl_get_default_rendertarget_size,      \
                                                                                  \
     .begin_render_pass                  = gl_begin_render_pass,                  \
     .end_render_pass                    = gl_end_render_pass,                    \

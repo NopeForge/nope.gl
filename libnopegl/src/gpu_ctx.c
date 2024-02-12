@@ -203,6 +203,11 @@ const struct rendertarget_layout *ngli_gpu_ctx_get_default_rendertarget_layout(s
     return s->cls->get_default_rendertarget_layout(s);
 }
 
+void ngli_gpu_ctx_get_default_rendertarget_size(struct gpu_ctx *s, int32_t *width, int32_t *height)
+{
+    s->cls->get_default_rendertarget_size(s, width, height);
+}
+
 void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const struct viewport *viewport)
 {
     s->viewport = *viewport;
