@@ -73,8 +73,8 @@ class CompareSceneBase(CompareBase):
     def __init__(
         self,
         scene_func: Callable[..., ngl.SceneInfo],
-        width: int = 1280,
-        height: int = 800,
+        width: int,
+        height: int,
         keyframes: Union[int, Sequence[float]] = 1,  # either a number of keyframes or a sequence of absolute times
         keyframes_callback=None,
         clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0),
