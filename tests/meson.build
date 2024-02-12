@@ -72,6 +72,7 @@ foreach backend : backends
     'probing',
     'caps',
     'get_backend',
+    'viewport',
   ]
   if has_text_libraries
     tests_api += 'text_live_change_with_font'
