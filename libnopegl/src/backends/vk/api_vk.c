@@ -24,6 +24,7 @@
 const struct api_impl api_vk = {
     .configure          = ngli_ctx_configure,
     .resize             = ngli_ctx_resize,
+    .get_viewport       = ngli_ctx_get_viewport,
     .set_capture_buffer = ngli_ctx_set_capture_buffer,
     .set_scene          = ngli_ctx_set_scene,
     .prepare_draw       = ngli_ctx_prepare_draw,

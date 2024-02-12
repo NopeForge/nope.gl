@@ -12,6 +12,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `ngl_scene_get_filepaths()` and `ngl_scene_update_filepath()` to introspect
   and manipulate the filepath based parameters in the scene graph
 - Live change support for `Media.filename`
+- `ngl_get_viewport()` to get the viewport currently in use by the rendering
+  context
 
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node

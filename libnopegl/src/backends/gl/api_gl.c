@@ -80,6 +80,12 @@ static int cmd_resize(struct ngl_ctx *s, void *arg)
     return ngli_ctx_resize(s, params->width, params->height, params->viewport);
 }
 
+static int cmd_get_viewport(struct ngl_ctx *s, void *arg)
+{
+    int32_t *viewport = arg;
+    return ngli_ctx_get_viewport(s, viewport);
+}
+
 static int gl_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
 {
     const struct ngl_config *config = &s->config;
@@ -106,9 +112,19 @@ static int gl_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int
     return ngli_ctx_dispatch_cmd(s, cmd_resize, &params);
 }
 
+static int gl_get_viewport(struct ngl_ctx *s, int32_t *viewport)
+{
+    return ngli_ctx_dispatch_cmd(s, cmd_get_viewport, viewport);
+}
+
 static int glw_resize(struct ngl_ctx *s, int32_t width, int32_t height, const int32_t *viewport)
 {
     return ngli_ctx_resize(s, width, height, viewport);
+}
+
+static int glw_get_viewport(struct ngl_ctx *s, int32_t *viewport)
+{
+    return ngli_ctx_get_viewport(s, viewport);
 }
 
 static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
@@ -238,6 +254,11 @@ static int glv_resize(struct ngl_ctx *s, int32_t width, int32_t height, const in
     return is_glw(&s->config) ? glw_resize(s, width, height, viewport) : gl_resize(s, width, height, viewport);
 }
 
+static int glv_get_viewport(struct ngl_ctx *s, int32_t *viewport)
+{
+    return is_glw(&s->config) ? glw_get_viewport(s, viewport) : gl_get_viewport(s, viewport);
+}
+
 static int glv_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 {
     return is_glw(&s->config) ? glw_set_capture_buffer(s, capture_buffer) : gl_set_capture_buffer(s, capture_buffer);
@@ -271,6 +292,7 @@ static int glv_wrap_framebuffer(struct ngl_ctx *s, uint32_t framebuffer)
 const struct api_impl api_gl = {
     .configure           = glv_configure,
     .resize              = glv_resize,
+    .get_viewport        = glv_get_viewport,
     .set_capture_buffer  = glv_set_capture_buffer,
     .set_scene           = glv_set_scene,
     .prepare_draw        = glv_prepare_draw,

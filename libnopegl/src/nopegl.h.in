@@ -837,6 +837,16 @@ NGL_API int ngl_get_backend(struct ngl_ctx *s, struct ngl_backend *backend);
 NGL_API void ngl_reset_backend(struct ngl_backend *backend);
 
 /**
+ * Get the viewport currently in use by the rendering context
+ *
+ * @param s        pointer to a nope.gl context
+ * @param viewport 4 32-bit integers respectively for x, y, width and height
+ *
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
+ */
+NGL_API int ngl_get_viewport(struct ngl_ctx *s, int32_t *viewport);
+
+/**
  * Update the swap chain buffers size.
  *
  * This function must be called on the UI/main thread on iOS/macOS.

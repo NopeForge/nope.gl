@@ -269,6 +269,10 @@ class Context(_ngl.Context):
     ) -> int:
         return super().resize(width, height, viewport)
 
+    @property
+    def viewport(self) -> Tuple[int, int, int, int]:
+        return super().get_viewport()
+
     def set_capture_buffer(self, capture_buffer: Optional[bytearray]) -> int:
         return super().set_capture_buffer(capture_buffer)
 
