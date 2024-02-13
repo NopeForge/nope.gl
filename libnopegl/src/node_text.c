@@ -332,12 +332,12 @@ static int refresh_geometry(struct ngl_node *node)
         float chr_width[3], chr_height[3];
 
         /* character dimension and position */
-        ngli_vec3_scale(chr_width, width, chr->w);
-        ngli_vec3_scale(chr_height, height, chr->h);
+        ngli_vec3_scale(chr_width, width, chr->geom.w);
+        ngli_vec3_scale(chr_height, height, chr->geom.h);
         const float chr_corner[3] = {
-            corner[0] + width[0] * chr->x + height[0] * chr->y,
-            corner[1] + width[1] * chr->x + height[1] * chr->y,
-            corner[2] + width[2] * chr->x + height[2] * chr->y,
+            corner[0] + width[0] * chr->geom.x + height[0] * chr->geom.y,
+            corner[1] + width[1] * chr->geom.x + height[1] * chr->geom.y,
+            corner[2] + width[2] * chr->geom.x + height[2] * chr->geom.y,
         };
 
         /* deduce character transform from chr_{width,height,corner} */

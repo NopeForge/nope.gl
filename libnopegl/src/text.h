@@ -25,6 +25,7 @@
 #include "darray.h"
 #include "nopegl.h"
 #include "texture.h"
+#include "utils.h"
 
 #define NGLI_I32_TO_I26D6(x) ((x) * (1 << 6))     // convert i32 to 26.6 fixed point
 #define NGLI_I26D6_TO_F32(x) ((float)(x) / 64.f)  // convert 26.6 fixed point to f32
@@ -64,7 +65,7 @@ struct char_info_internal {
 
 /* Exposed by the text API */
 struct char_info {
-    float x, y, w, h;       // geometry position
+    struct ngli_box geom;   // geometry position
     float atlas_coords[4];  // texture position
 };
 

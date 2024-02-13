@@ -481,13 +481,15 @@ int ngli_text_set_string(struct text *s, const char *str)
         const float nh = h * chr_internal->scale[1];
         const float offx = (w - nw) / 2.f;
         const float offy = (h - nh) / 2.f;
-        const float xywh[] = {x + offx, y + offy, nw, nh};
+        const struct ngli_box xywh = {x + offx, y + offy, nw, nh};
 
         const struct char_info chr = {
-            .x = xywh[0] / (float)s->width,
-            .y = xywh[1] / (float)s->height,
-            .w = xywh[2] / (float)s->width,
-            .h = xywh[3] / (float)s->height,
+            .geom = {
+                .x = xywh.x / (float)s->width,
+                .y = xywh.y / (float)s->height,
+                .w = xywh.w / (float)s->width,
+                .h = xywh.h / (float)s->height,
+            },
             .atlas_coords = {
                 (float)chr_internal->atlas_coords[0] / (float)s->atlas_texture->params.width,
                 (float)chr_internal->atlas_coords[1] / (float)s->atlas_texture->params.height,
