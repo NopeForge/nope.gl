@@ -3199,6 +3199,13 @@
           "desc": "path to draw"
         },
         {
+          "name": "box",
+          "type": "vec4",
+          "default": [-1.000000,-1.000000,2.000000,2.000000],
+          "flags": [],
+          "desc": "geometry box relative to screen (x, y, width, height)"
+        },
+        {
           "name": "viewbox",
           "type": "vec4",
           "default": [-1.000000,-1.000000,2.000000,2.000000],

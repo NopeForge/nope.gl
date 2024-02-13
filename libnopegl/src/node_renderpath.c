@@ -62,6 +62,7 @@ struct pipeline_desc {
 
 struct renderpath_opts {
     struct ngl_node *path_node;
+    float box[4];
     float viewbox[4];
     int32_t pt_size;
     int32_t dpi;
@@ -98,6 +99,8 @@ static const struct node_param renderpath_params[] = {
                      .node_types=(const uint32_t[]){NGL_NODE_PATH, NGL_NODE_SMOOTHPATH, NGLI_NODE_NONE},
                      .flags=NGLI_PARAM_FLAG_NON_NULL,
                      .desc=NGLI_DOCSTRING("path to draw")},
+    {"box",          NGLI_PARAM_TYPE_VEC4, OFFSET(box), {.vec={-1.f, -1.f, 2.f, 2.f}},
+                     .desc=NGLI_DOCSTRING("geometry box relative to screen (x, y, width, height)")},
     {"viewbox",      NGLI_PARAM_TYPE_VEC4, OFFSET(viewbox), {.vec={-1.f, -1.f, 2.f, 2.f}},
                      .desc=NGLI_DOCSTRING("vector space for interpreting the path (x, y, width, height)")},
     {"pt_size",      NGLI_PARAM_TYPE_I32, OFFSET(pt_size), {.i32=54},
@@ -200,19 +203,15 @@ static int renderpath_init(struct ngl_node *node)
     ngli_assert(!memcmp(scale_fill, scale_outline, sizeof(scale_fill)));
 
     /* Geometry scale up */
-    // TODO: allow at least a quad geometry (need to identify its gravity center for the scaling anchor)
-    const float x = -1.f;
-    const float y = -1.f;
-    const float w = 2.f;
-    const float h = 2.f;
-    const float nw = w * scale_fill[0];
-    const float nh = h * scale_fill[1];
-    const float offx = (w - nw) / 2.f;
-    const float offy = (h - nh) / 2.f;
+    const struct ngli_box box = {NGLI_ARG_VEC4(o->box)};
+    const float nw = box.w * scale_fill[0];
+    const float nh = box.h * scale_fill[1];
+    const float offx = (box.w - nw) / 2.f;
+    const float offy = (box.h - nh) / 2.f;
     const NGLI_ALIGNED_MAT(ref) = {
         nw, 0, 0, 0,
         0, nh, 0, 0,
-        x+offx, y+offy, 0, 0,
+        box.x+offx, box.y+offy, 0, 0,
         0, 0, 0, 1,
     };
     memcpy(s->transform, ref, sizeof(s->transform));
