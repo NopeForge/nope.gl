@@ -166,7 +166,7 @@ def path_pie_slice(cfg: ngl.SceneCfg):
     ]
 
     path = ngl.Path(keyframes)
-    return ngl.RenderPath(path, viewbox=(0.2, 0.2, 0.4, 0.4))
+    return ngl.RenderPath(path, box=(-1.5, -1, 3.5, 2), viewbox=(0.2, 0.2, 0.4, 0.4))
 
 
 def _get_overlap_shape0():
