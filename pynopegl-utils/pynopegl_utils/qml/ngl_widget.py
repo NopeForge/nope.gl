@@ -131,7 +131,7 @@ class _NopeGLRenderer(QQuickFramebufferObject.Renderer):
 
         w, h = self._fbo.width(), self._fbo.height()
         self._context.gl_wrap_framebuffer(self._fbo.handle())
-        self._context.resize(w, h, (0, 0, w, h))
+        self._context.resize(w, h)
 
         livectls.apply_changes(list(self._livectls_changes.values()))
         self._livectls_changes = {}
