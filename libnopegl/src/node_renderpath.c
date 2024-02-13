@@ -160,15 +160,12 @@ static int renderpath_init(struct ngl_node *node)
      * to the desired resolution.
      */
     const float res = (float)o->pt_size * (float)o->dpi / 72.f;
-    const float vb_x = o->viewbox[0];
-    const float vb_y = o->viewbox[1];
-    const float vb_w = o->viewbox[2];
-    const float vb_h = o->viewbox[3];
+    const struct ngli_box vb = {NGLI_ARG_VEC4(o->viewbox)};
     const NGLI_ALIGNED_MAT(path_transform) = {
-        res/vb_w, 0.f, 0.f, 0.f,
-        0.f, res/vb_h, 0.f, 0.f,
+        res/vb.w, 0.f, 0.f, 0.f,
+        0.f, res/vb.h, 0.f, 0.f,
         0.f, 0.f, 1.f, 0.f,
-        -vb_x/vb_w*res, -vb_y/vb_h*res, 0.f, 1.f,
+        -vb.x/vb.w*res, -vb.y/vb.h*res, 0.f, 1.f,
     };
     ngli_path_transform(s->path, path_transform);
 
