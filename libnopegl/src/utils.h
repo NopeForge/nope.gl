@@ -128,6 +128,10 @@
                          NGLI_ARG_VEC4((v)+4*2),    \
                          NGLI_ARG_VEC4((v)+4*3)
 
+struct ngli_box {
+    float x, y, w, h;
+};
+
 #define NGLI_HAS_ALL_FLAGS(a, b) (((a) & (b)) == (b))
 
 typedef void (*ngli_freep_func)(void **sp);
