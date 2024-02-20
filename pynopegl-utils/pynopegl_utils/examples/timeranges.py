@@ -31,8 +31,7 @@ def parallel_playback(cfg: ngl.SceneCfg, fast=True, segment_time=2.0, constraine
     render2 = ngl.RenderTexture(t2)
 
     text_settings = {
-        "box_corner": (-1, 1 - 0.2, 0),
-        "box_height": (0, 0.2, 0),
+        "box": (-1, 1 - 0.2, 2.0, 0.2),
         "aspect_ratio": cfg.aspect_ratio,
     }
     render1 = ngl.Group(children=(render1, ngl.Text("media #1", **text_settings)))

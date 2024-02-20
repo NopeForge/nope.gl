@@ -98,9 +98,7 @@ def _get_compositing_scene(cfg: ngl.SceneCfg, op, show_label=False):
             fg_color=COLORS.black,
             bg_color=(0.8, 0.8, 0.8),
             bg_opacity=1,
-            box_corner=(label_pad / 2 - 1, 1 - label_h - label_pad / 2, 0),
-            box_width=(2 - label_pad, 0, 0),
-            box_height=(0, label_h, 0),
+            box=(label_pad / 2 - 1, 1 - label_h - label_pad / 2, 2 - label_pad, label_h),
         )
         ret.add_children(label)
 

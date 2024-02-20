@@ -312,9 +312,7 @@ static int add_progress_bar(struct player *p, struct ngl_scene *scene)
     static const float bar_width[3]  = { 2.0f,  0.0f, 0.0f};
     static const float bar_height[3] = { 0.0f,  2.0f * 0.01f, 0.0f}; // 1% of the height
 
-    static const float text_corner[3] = {-1.0f, -1.0f, 0.0f};
-    static const float text_width[3]  = { 2.0f,  0.0f, 0.0f};
-    static const float text_height[3] = { 0.0f,  2.0f * 0.05f, 0.0f}; // 5% of the height
+    static const float text_box[4] = {-1.0f, -1.0f, 2.0f, 2.0f * 0.05f}; // 5% of the height
 
     struct ngl_node *text       = ngl_node_create(NGL_NODE_TEXT);
     struct ngl_node *quad       = ngl_node_create(NGL_NODE_QUAD);
@@ -356,9 +354,7 @@ static int add_progress_bar(struct player *p, struct ngl_scene *scene)
 
     ngl_node_param_add_nodes(group, "children", ARRAY_NB(children), children);
 
-    ngl_node_param_set_vec3(text, "box_corner", text_corner);
-    ngl_node_param_set_vec3(text, "box_width", text_width);
-    ngl_node_param_set_vec3(text, "box_height", text_height);
+    ngl_node_param_set_vec4(text, "box", text_box);
     ngl_node_param_set_f32(text, "bg_opacity", 0.f);
     ngl_node_param_set_f32(text, "fg_opacity", 0.f);
     ngl_node_param_set_rational(text, "aspect_ratio", params->aspect_ratio[0], params->aspect_ratio[1]);
