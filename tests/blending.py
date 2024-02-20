@@ -183,9 +183,7 @@ def _debug_overlay(cfg: ngl.SceneCfg, scene, grid_names, show_dbg_points=False, 
                 fg_color=COLORS.white,
                 bg_opacity=1,
                 valign="top",
-                box_width=(2.0, 0, 0),
-                box_height=(0, text_height, 0),
-                box_corner=(-1, 1.0 - text_height, 0),
+                box=(-1.0, 1.0 - text_height, 2.0, text_height),
             )
             text = ag.place_node(text, (col, row))
             text_group.add_children(text)

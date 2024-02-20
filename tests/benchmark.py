@@ -150,9 +150,7 @@ def _get_random_text(rng):
         Yip-yip! Nyaa~ Oulala Hehehe Puni-puni Tutuluu~ Gaoo~ Unchi! Maho?
     """
     return ngl.Text(
-        box_width=(1, 0, 0),
-        box_height=(0, 1, 0),
-        box_corner=(-0.5, -0.5, 0),
+        box=(-0.5, -0.5, 1.0, 1.0),
         text=rng.choice(words.split()),
         fg_color=_get_random_color(rng),
         fg_opacity=_get_random_opacity(rng),

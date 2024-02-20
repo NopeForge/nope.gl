@@ -22,6 +22,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - The `ngl_config` structure and the `ngl_resize()` function do not have a
   `viewport` anymore; it is now automatically calculated internally according to
   the selected resolution and the scene aspect ratio
+- `Text.box_{corner,width,height}` are replaced with a 4 component long
+  `Text.box` parameter; if 3D positioning is required, traditional transform
+  nodes can be used
 
 ## [2024.0] [libnopegl 0.11.0] - 2024-02-02
 ### Added

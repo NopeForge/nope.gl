@@ -3632,25 +3632,11 @@
           "desc": "background text opacity"
         },
         {
-          "name": "box_corner",
-          "type": "vec3",
-          "default": [-1.000000,-1.000000,0.000000],
+          "name": "box",
+          "type": "vec4",
+          "default": [-1.000000,-1.000000,2.000000,2.000000],
           "flags": [],
-          "desc": "origin coordinates of `box_width` and `box_height` vectors"
-        },
-        {
-          "name": "box_width",
-          "type": "vec3",
-          "default": [2.000000,0.000000,0.000000],
-          "flags": [],
-          "desc": "box width vector"
-        },
-        {
-          "name": "box_height",
-          "type": "vec3",
-          "default": [0.000000,2.000000,0.000000],
-          "flags": [],
-          "desc": "box height vector"
+          "desc": "geometry box relative to screen (x, y, width, height)"
         },
         {
           "name": "font_faces",

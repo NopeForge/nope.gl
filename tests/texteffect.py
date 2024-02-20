@@ -125,15 +125,13 @@ def texteffect_chars_space_nospace(cfg: ngl.SceneCfg):
                 "AB CDE  F",
                 effects=effects0,
                 aspect_ratio=cfg.aspect_ratio,
-                box_corner=(-1, 0, 0),
-                box_height=(0, 1, 0),
+                box=(-1, 0, 2, 1),
             ),
             ngl.Text(
                 "AB CDE  F",
                 effects=effects1,
                 aspect_ratio=cfg.aspect_ratio,
-                box_corner=(-1, -1, 0),
-                box_height=(0, 1, 0),
+                box=(-1, -1, 2, 1),
             ),
         ]
     )

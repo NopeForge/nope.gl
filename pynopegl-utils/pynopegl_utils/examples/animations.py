@@ -48,9 +48,7 @@ def _get_easing_node(cfg: ngl.SceneCfg, easing, curve_zoom, color_program, nb_po
         fg_color=color[:3],
         padding=3,
         bg_opacity=1,
-        box_corner=(-width / 2.0, height / 2.0 - text_height, 0),
-        box_width=(width, 0, 0),
-        box_height=(0, text_height, 0),
+        box=(-width / 2.0, height / 2.0 - text_height, width, text_height),
         label="%s legend" % easing,
     )
 

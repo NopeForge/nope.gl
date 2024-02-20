@@ -87,9 +87,7 @@ struct text_opts {
     float fg_opacity;
     float bg_color[3];
     float bg_opacity;
-    float box_corner[3];
-    float box_width[3];
-    float box_height[3];
+    float box[4];
     struct ngl_node **font_faces;
     size_t nb_font_faces;
     int32_t padding;
@@ -198,12 +196,8 @@ static const struct node_param text_params[] = {
     {"bg_opacity",   NGLI_PARAM_TYPE_F32, OFFSET(bg_opacity), {.f32=.8f},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                      .desc=NGLI_DOCSTRING("background text opacity")},
-    {"box_corner",   NGLI_PARAM_TYPE_VEC3, OFFSET(box_corner), {.vec={-1.0, -1.0, 0.0}},
-                     .desc=NGLI_DOCSTRING("origin coordinates of `box_width` and `box_height` vectors")},
-    {"box_width",    NGLI_PARAM_TYPE_VEC3, OFFSET(box_width), {.vec={2.0, 0.0, 0.0}},
-                     .desc=NGLI_DOCSTRING("box width vector")},
-    {"box_height",   NGLI_PARAM_TYPE_VEC3, OFFSET(box_height), {.vec={0.0, 2.0, 0.0}},
-                     .desc=NGLI_DOCSTRING("box height vector")},
+    {"box",          NGLI_PARAM_TYPE_VEC4, OFFSET(box), {.vec={-1.f, -1.f, 2.f, 2.f}},
+                     .desc=NGLI_DOCSTRING("geometry box relative to screen (x, y, width, height)")},
     {"font_faces",   NGLI_PARAM_TYPE_NODELIST, OFFSET(font_faces),
                      .node_types=(const uint32_t[]){NGL_NODE_FONTFACE, NGLI_NODE_NONE},
                      .desc=NGLI_DOCSTRING("font faces in order of preferences (require build with external text libraries)")},
@@ -236,10 +230,6 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("box aspect ratio")},
     {NULL}
 };
-
-#define BC(index) o->box_corner[index]
-#define BW(index) o->box_width[index]
-#define BH(index) o->box_height[index]
 
 static void destroy_characters_resources(struct text_priv *s)
 {
@@ -277,24 +267,23 @@ static int refresh_geometry(struct ngl_node *node)
     }
 
     /* Text/Box ratio */
-    const float box_width_len  = ngli_vec3_length(o->box_width);
-    const float box_height_len = ngli_vec3_length(o->box_height);
+    const struct ngli_box box = {NGLI_ARG_VEC4(o->box)};
     static const int32_t default_ar[2] = {1, 1};
     const int32_t *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
-    const float box_ratio = (float)ar[0] * box_width_len / ((float)ar[1] * box_height_len);
+    const float box_ratio = (float)ar[0] * box.w / ((float)ar[1] * box.h);
     const float text_ratio = (float)text->width / (float)text->height;
 
     /* Apply aspect ratio and font scaling */
-    float width[3];
-    float height[3];
+    float width  = box.w * o->font_scale;
+    float height = box.h * o->font_scale;
     if (o->scale_mode == SCALE_MODE_FIXED) {
         const float tw = (float)text->width / (float)s->viewport.width;
         const float th = (float)text->height / (float)s->viewport.height;
-        const float rw = tw / box_width_len;
-        const float rh = th / box_height_len;
+        const float rw = tw / box.w;
+        const float rh = th / box.h;
 
-        ngli_vec3_scale(width, o->box_width, rw * o->font_scale);
-        ngli_vec3_scale(height, o->box_height, rh * o->font_scale);
+        width *= rw;
+        height *= rh;
     } else {
         float ratio_w, ratio_h;
         if (text_ratio < box_ratio) {
@@ -305,13 +294,13 @@ static int refresh_geometry(struct ngl_node *node)
             ratio_h = box_ratio / text_ratio;
         }
 
-        ngli_vec3_scale(width, o->box_width, ratio_w * o->font_scale);
-        ngli_vec3_scale(height, o->box_height, ratio_h * o->font_scale);
+        width *= ratio_w;
+        height *= ratio_h;
     }
 
     /* Adjust text position according to alignment settings */
-    const float align_padw[3] = NGLI_VEC3_SUB(o->box_width, width);
-    const float align_padh[3] = NGLI_VEC3_SUB(o->box_height, height);
+    const float align_padw = box.w - width;
+    const float align_padh = box.h - height;
 
     const float spx = (o->halign == NGLI_TEXT_HALIGN_CENTER ? .5f :
                        o->halign == NGLI_TEXT_HALIGN_RIGHT  ? 1.f :
@@ -320,31 +309,24 @@ static int refresh_geometry(struct ngl_node *node)
                        o->valign == NGLI_TEXT_VALIGN_TOP    ? 1.f :
                        0.f);
 
-    const float corner[3] = {
-        BC(0) + align_padw[0] * spx + align_padh[0] * spy,
-        BC(1) + align_padw[1] * spx + align_padh[1] * spy,
-        BC(2) + align_padw[2] * spx + align_padh[2] * spy,
-    };
+    const float corner_x = box.x + align_padw * spx;
+    const float corner_y = box.y + align_padh * spy;
 
     const struct char_info *chars = ngli_darray_data(&text->chars);
     for (size_t n = 0; n < text_nbchr; n++) {
         const struct char_info *chr = &chars[n];
-        float chr_width[3], chr_height[3];
 
         /* character dimension and position */
-        ngli_vec3_scale(chr_width, width, chr->geom.w);
-        ngli_vec3_scale(chr_height, height, chr->geom.h);
-        const float chr_corner[3] = {
-            corner[0] + width[0] * chr->geom.x + height[0] * chr->geom.y,
-            corner[1] + width[1] * chr->geom.x + height[1] * chr->geom.y,
-            corner[2] + width[2] * chr->geom.x + height[2] * chr->geom.y,
-        };
+        const float chr_width  = width  * chr->geom.w;
+        const float chr_height = height * chr->geom.h;
+        const float chr_corner_x = corner_x + width  * chr->geom.x;
+        const float chr_corner_y = corner_y + height * chr->geom.y;
 
         /* deduce character transform from chr_{width,height,corner} */
         const NGLI_ALIGNED_MAT(transform) = {
-             chr_width[0],  chr_width[1],  chr_width[2], 0,
-            chr_height[0], chr_height[1], chr_height[2], 0,
-            chr_corner[0], chr_corner[1], chr_corner[2], 0,
+                chr_width,             0,             0, 0,
+                        0,    chr_height,             0, 0,
+             chr_corner_x,  chr_corner_y,             0, 0,
                         0,             0,             0, 1,
         };
         memcpy(transforms + 4 * 4 * n, transform, sizeof(transform));
@@ -462,11 +444,12 @@ static int init_bounding_box_geometry(struct ngl_node *node)
     struct text_priv *s = node->priv_data;
     const struct text_opts *o = node->opts;
 
+    const struct ngli_box box = {NGLI_ARG_VEC4(o->box)};
     const float vertices[] = {
-        BC(0),                 BC(1),                 BC(2),
-        BC(0) + BW(0),         BC(1) + BW(1),         BC(2) + BW(2),
-        BC(0) + BH(0),         BC(1) + BH(1),         BC(2) + BH(2),
-        BC(0) + BH(0) + BW(0), BC(1) + BH(1) + BW(1), BC(2) + BH(2) + BW(2),
+        box.x,         box.y,         0,
+        box.x + box.w, box.y,         0,
+        box.x,         box.y + box.h, 0,
+        box.x + box.w, box.y + box.h, 0,
     };
 
     s->bg_vertices = ngli_buffer_create(gpu_ctx);
