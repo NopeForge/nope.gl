@@ -869,6 +869,7 @@ static int rendercolor_prepare(struct ngl_node *node)
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="aspect",            .type=NGLI_TYPE_F32,   .stage=NGLI_PROGRAM_SHADER_FRAG},
         {.name="color",             .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
         {.name="opacity",           .type=NGLI_TYPE_F32,   .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
     };
@@ -910,6 +911,7 @@ static int renderdisplace_prepare(struct ngl_node *node)
     static const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="aspect",            .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG},
     };
 
     struct render_common *c = &s->common;
@@ -1039,6 +1041,7 @@ static int rendergradient4_prepare(struct ngl_node *node)
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="aspect",            .type=NGLI_TYPE_F32,   .stage=NGLI_PROGRAM_SHADER_FRAG},
         {.name="color_tl",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tl_node, o->color_tl)},
         {.name="color_tr",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tr_node, o->color_tr)},
         {.name="color_br",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_br_node, o->color_br)},
@@ -1085,6 +1088,7 @@ static int renderhistogram_prepare(struct ngl_node *node)
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="aspect",            .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG},
         {.name="mode",              .type=NGLI_TYPE_I32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->mode},
     };
 
@@ -1146,6 +1150,7 @@ static int rendernoise_prepare(struct ngl_node *node)
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="aspect",            .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG},
         {.name="type",              .type=NGLI_TYPE_I32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->type},
         {.name="amplitude",         .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->amplitude_node, &o->amplitude)},
         {.name="octaves",           .type=NGLI_TYPE_U32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->octaves},
@@ -1193,6 +1198,7 @@ static int rendertexture_prepare(struct ngl_node *node)
     static const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="aspect",            .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG},
     };
 
     struct render_common *c = &s->common;
@@ -1262,6 +1268,7 @@ static int renderwaveform_prepare(struct ngl_node *node)
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="aspect",            .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG},
         {.name="mode",              .type=NGLI_TYPE_I32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->mode},
     };
 
