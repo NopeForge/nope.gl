@@ -155,7 +155,6 @@ def _get_random_text(cfg: ngl.SceneCfg, rng):
         fg_color=_get_random_color(rng),
         fg_opacity=_get_random_opacity(rng),
         bg_opacity=0,
-        aspect_ratio=cfg.aspect_ratio,
     )
 
 
