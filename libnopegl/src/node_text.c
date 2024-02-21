@@ -268,7 +268,8 @@ static int refresh_geometry(struct ngl_node *node)
 
     /* Text/Box ratio */
     const struct ngli_box box = {NGLI_ARG_VEC4(o->box)};
-    static const int32_t default_ar[2] = {1, 1};
+    const struct viewport viewport = ngli_gpu_ctx_get_viewport(ctx->gpu_ctx);
+    const int32_t default_ar[2] = {viewport.width, viewport.height};
     const int32_t *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
     const float box_ratio = (float)ar[0] * box.w / ((float)ar[1] * box.h);
     const float text_ratio = (float)text->width / (float)text->height;
