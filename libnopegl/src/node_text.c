@@ -99,7 +99,6 @@ struct text_opts {
     size_t nb_effect_nodes;
     int valign, halign;
     int writing_mode;
-    int32_t aspect_ratio[2];
 };
 
 struct text_priv {
@@ -224,10 +223,6 @@ static const struct node_param text_params[] = {
     {"writing_mode", NGLI_PARAM_TYPE_SELECT, OFFSET(writing_mode), {.i32=NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB},
                      .choices=&writing_mode_choices,
                      .desc=NGLI_DOCSTRING("direction flow per character and line")},
-    {"aspect_ratio", NGLI_PARAM_TYPE_RATIONAL, OFFSET(aspect_ratio),
-                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
-                     .update_func=set_live_changed,
-                     .desc=NGLI_DOCSTRING("box aspect ratio")},
     {NULL}
 };
 
@@ -269,8 +264,7 @@ static int refresh_geometry(struct ngl_node *node)
     /* Text/Box ratio */
     const struct ngli_box box = {NGLI_ARG_VEC4(o->box)};
     const struct viewport viewport = ngli_gpu_ctx_get_viewport(ctx->gpu_ctx);
-    const int32_t default_ar[2] = {viewport.width, viewport.height};
-    const int32_t *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
+    const int32_t ar[] = {viewport.width, viewport.height};
     const float box_ratio = (float)ar[0] * box.w / ((float)ar[1] * box.h);
     const float text_ratio = (float)text->width / (float)text->height;
 

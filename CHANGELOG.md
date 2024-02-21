@@ -26,6 +26,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   `Text.box` parameter; if 3D positioning is required, traditional transform
   nodes can be used
 
+### Removed
+- `Text.aspect_ratio`, it now matches the viewport aspect ratio
+
 ## [2024.0] [libnopegl 0.11.0] - 2024-02-02
 ### Added
 - `ngl.SceneCfg` now includes the backend capabilities
