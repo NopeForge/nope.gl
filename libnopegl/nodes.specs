@@ -3711,13 +3711,6 @@
           "choices": "writing_mode",
           "flags": [],
           "desc": "direction flow per character and line"
-        },
-        {
-          "name": "aspect_ratio",
-          "type": "rational",
-          "default": [0,0],
-          "flags": ["live"],
-          "desc": "box aspect ratio"
         }
       ]
     },
