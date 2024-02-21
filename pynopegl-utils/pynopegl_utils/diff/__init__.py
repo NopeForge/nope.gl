@@ -218,7 +218,6 @@ class _Diff:
             fg_opacity=1,
             bg_color=(0.15, 0.15, 0.15),
             bg_opacity=1,
-            aspect_ratio=ar,
             padding=54,
         )
         return ngl.Scene.from_params(root, aspect_ratio=ar)

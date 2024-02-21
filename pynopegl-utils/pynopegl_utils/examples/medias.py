@@ -62,7 +62,7 @@ def time_remapping(cfg: ngl.SceneCfg):
     base_string = "media time: {:2g} to {:2g}\nscene time: {:2g} to {:2g}\ntime range: {:2g} to {:2g}".format(
         media_seek, media_seek + playback_duration, play_start, play_stop, range_start, range_stop
     )
-    text = ngl.Text(base_string, box=(-1, 1 - 0.3, 2.0, 0.3), aspect_ratio=cfg.aspect_ratio, halign="left")
+    text = ngl.Text(base_string, box=(-1, 1 - 0.3, 2.0, 0.3), halign="left")
 
     group = ngl.Group()
     group.add_children(rf, text)
@@ -77,9 +77,7 @@ def time_remapping(cfg: ngl.SceneCfg):
     )
 
     for i, (description, start_time, end_time) in enumerate(steps):
-        text = ngl.Text(
-            f"{start_time:g} to {end_time:g}: {description}", aspect_ratio=cfg.aspect_ratio, box=(-1.0, -1.0, 2.0, 0.2)
-        )
+        text = ngl.Text(f"{start_time:g} to {end_time:g}: {description}", box=(-1.0, -1.0, 2.0, 0.2))
         text_rf = ngl.TimeRangeFilter(text, start_time, end_time, label="text-step-%d" % i)
         group.add_children(text_rf)
 

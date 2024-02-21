@@ -52,7 +52,6 @@ def demo(cfg: ngl.SceneCfg, shape="square"):
         bg_color=(0, 0, 0),
         bg_opacity=0,
         box=(-0.5, -0.5, 1.0, 1.0),
-        aspect_ratio=cfg.aspect_ratio,
         live_id="text",
     )
     scene = ngl.Group(children=(gradient, text))
