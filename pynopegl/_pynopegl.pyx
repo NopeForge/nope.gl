@@ -547,7 +547,7 @@ cdef class Scene:
             params.framerate[1] = framerate[1]
         cdef int ret = ngl_scene_init(scenep, &params)
         if ret < 0:
-            raise MemoryError()
+            raise Exception("unable to initialize scene")
         scene.root = root
         return scene
 
@@ -558,7 +558,7 @@ cdef class Scene:
         cdef ngl_scene *scenep = <ngl_scene *>sptr
         cdef int ret = ngl_scene_init_from_str(scenep, s)
         if ret < 0:
-            raise MemoryError()
+            raise Exception("unable to initialize scene from string")
         cdef const ngl_scene_params *params = ngl_scene_get_params(scenep);
         # FIXME: this is limited because the node won't even have set_label()
         scene.root = _Node(ctx=<uintptr_t>params.root)
