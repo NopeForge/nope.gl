@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright 2023 Clément Bœsch <u pkh.me>
-# Copyright 2023 Nope Project
+# Copyright 2023 Nope Forge
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
