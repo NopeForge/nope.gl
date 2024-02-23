@@ -571,7 +571,9 @@ cdef class Scene:
         return _ret_pystr(ngl_scene_dot(self.ctx))
 
     def update_filepath(self, size_t index, const char *filepath):
-        return ngl_scene_update_filepath(self.ctx, index, filepath)
+        cdef int ret = ngl_scene_update_filepath(self.ctx, index, filepath)
+        if ret < 0:
+            raise Exception(f'unable to update filepath at index {index} with "{filepath}"')
 
     @property
     def duration(self):
