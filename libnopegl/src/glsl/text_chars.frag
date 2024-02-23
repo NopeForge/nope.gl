@@ -25,7 +25,7 @@
 void main()
 {
     /*
-     * uv is a normalized [0;1] quad coordinate which we map to the atlas
+     * uv is a normalized [0,1] quad coordinate which we map to the atlas
      * element coordinate boundaries
      */
     vec2 chr_uv = mix(coords.xy, coords.zw, uv);

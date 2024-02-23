@@ -28,7 +28,7 @@ vec4 filter_selector(vec4 color, vec2 coords, vec2 range, int component, int dro
 
     bool within; // whether we are within the range or not
     if (component == 2) {
-        // If we selected the hue, bring both value and reference in the same [0;𝜏] range
+        // If we selected the hue, bring both value and reference in the same [0,𝜏] range
         range = mod(range, ngli_tau);
         value = mod(value, ngli_tau);
         if (range.x > range.y) {

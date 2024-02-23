@@ -61,7 +61,7 @@ static uint32_t hash(uint32_t x)
 }
 
 /*
- * Return a random single-precision float between [0;1)
+ * Return a random single-precision float between [0,1)
  * Derived from http://prng.di.unimi.it/
  */
 static float u32tof32(uint32_t x)
@@ -70,7 +70,7 @@ static float u32tof32(uint32_t x)
     return u.f - 1.f;
 }
 
-/* Gradient noise, returns a value in [-.5;.5) */
+/* Gradient noise, returns a value in [-.5,.5) */
 static float noise(const struct noise *s, float t)
 {
     const float i = floorf(t);  // integer part (lattice point)
@@ -79,8 +79,8 @@ static float noise(const struct noise *s, float t)
 
     /*
      * The random values correspond to the random slopes found at the 2 lattice
-     * points surrounding our current point; they are between [0;1) so we
-     * rescale them to [-1;1), which is equivalent to a tilt between [-π/4;π/4)
+     * points surrounding our current point; they are between [0,1) so we
+     * rescale them to [-1,1), which is equivalent to a tilt between [-π/4,π/4)
      */
     const float s0 = u32tof32(hash(x))     * 2.f - 1.f;
     const float s1 = u32tof32(hash(x + 1)) * 2.f - 1.f;

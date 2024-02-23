@@ -35,7 +35,7 @@ vec4 color_diff(vec4 c0, vec4 c1)
     vec4 diff2 = diff * diff * vec4(show_r, show_g, show_b, show_a); // filtered squared difference
     float sum = diff2.r + diff2.g + diff2.b + diff2.a;
     float err = sqrt(sum / n);
-    float amp = (err - threshold) / (1 - threshold); // remap err from [0;1] to [thres;1]
+    float amp = (err - threshold) / (1 - threshold); // remap err from [0,1] to [thres,1]
     float amount = pow(amp, 1.0 / 3.0); // power 1/3 to boost the differences of the small amplitude
     vec3 grad = lin_mix(lin_mix(cmap0, cmap1, amount), lin_mix(cmap1, cmap2, amount), amount);
 

@@ -59,7 +59,7 @@ component of the 3+ dimensional input resources identified by "foo".
 | `isinf(x)`          | `1` if `x` is infinite, `0` otherwise                                          |
 | `isnan(x)`          | `1` if `x` is not a number (`NaN`), `0` otherwise                              |
 | `isnormal(x)`       | `1` if `x` is normal, `0` otherwise                                            |
-| `linear(a,b,x)`     | linearly remap `x` in range `[a;b]` to `[0;1]`                                 |
+| `linear(a,b,x)`     | linearly remap `x` in range `[a,b]` to `[0,1]`                                 |
 | `linear2srgb(x)`    | convert `x` from linear to sRGB (see also `srgb2linear(x)`)                    |
 | `linearstep(a,b,x)` | saturated version of `linear()` (equivalent to `sat(linear(a,b,x))`)           |
 | `log(x)`            | natural logarithm of `x` (see `e`), also called "ln" in math terminology       |
@@ -69,7 +69,7 @@ component of the 3+ dimensional input resources identified by "foo".
 | `luma(r,g,b)`       | gamma encoded luma Y' of the R'G'B' value, as defined by BT.709                |
 | `max(a,b)`          | maximum value between `a` and `b`                                              |
 | `min(a,b)`          | minimum value between `a` and `b`                                              |
-| `mix(a,b,x)`        | linearly remap `x` in range `[0;1]` to `[a;b]`                                 |
+| `mix(a,b,x)`        | linearly remap `x` in range `[0,1]` to `[a,b]`                                 |
 | `mla(a,b,c)`        | multiply-add in one operation (`a*b + c`)                                      |
 | `mod_e(a,b)`        | euclidean modulo: `a - b*sign(b)*floor(a/abs(b))`                              |
 | `mod_f(a,b)`        | floored modulo: `a - b*floor(a/b)`                                             |

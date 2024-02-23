@@ -29,7 +29,7 @@
 static const struct node_param colorkey_params[] = {
     {"position", NGLI_PARAM_TYPE_F32, OFFSET(position_node), {.f32=0.f},
                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
-                .desc=NGLI_DOCSTRING("position of the gradient point on the axis (within [0;1])")},
+                .desc=NGLI_DOCSTRING("position of the gradient point on the axis (within [0,1])")},
     {"color",   NGLI_PARAM_TYPE_VEC3, OFFSET(color_node), {.vec={1.f, 1.f, 1.f}},
                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                 .desc=NGLI_DOCSTRING("color at this specific position")},

@@ -552,7 +552,7 @@ int ngli_path_init(struct path *s, int32_t precision)
  * defined by 2 consecutive points in the `values` array, with `values`
  * composed of monotonically increasing values.
  *
- * The range of the returned index is within [0;nb_values-2].
+ * The range of the returned index is within [0,nb_values-2].
  *
  * Example:
  *   values:  2 3 5 8 9
@@ -593,7 +593,7 @@ static int get_vector_id(const float *values, int nb_values, int *cache, float v
     return ret;
 }
 
-/* Remap x from [c;d] to [a;b] */
+/* Remap x from [c,d] to [a,b] */
 static float remap(float a, float b, float c, float d, float x)
 {
     const float ratio = NGLI_LINEAR_NORM(c, d, x);
