@@ -32,9 +32,10 @@ from pynopegl_utils import qml
 from pynopegl_utils.com import query_scene
 from pynopegl_utils.export import export_workers
 from pynopegl_utils.qml import livectls, params, uielements
+from pynopegl_utils.qml.player import NGLPlayer
 from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.viewer.config import ENCODE_PROFILES, Config
-from PySide6.QtCore import QObject, QUrl, Slot
+from PySide6.QtCore import QUrl, Slot
 
 import pynopegl as ngl
 
@@ -48,7 +49,7 @@ _ABOUT_EXTRA_TEXT = dedent(
 
 
 class _Viewer:
-    def __init__(self, app, qml_engine, ngl_widget, args):
+    def __init__(self, app, qml_engine, args):
         self._app = app
         self._qml_engine = qml_engine
         app_window = qml_engine.rootObjects()[0]
@@ -95,11 +96,8 @@ class _Viewer:
         self._livectls_model = uielements.Model()
         self._livectls_model.dataChanged.connect(self._livectl_data_changed)
 
-        self._ngl_widget = ngl_widget
-        self._ngl_widget.livectls_changed.connect(self._livectls_model.reset_data_model)
-
-        self._player = app_window.findChild(QObject, "player")
-        self._player.timeChanged.connect(ngl_widget.set_time)
+        self._player = NGLPlayer(app_window, qml_engine)
+        self._player.set_callbacks(livectls_changed=self._livectls_model.reset_data_model)
 
         framerate_names = ["%.5g FPS" % (fps[0] / fps[1]) for fps in choices["framerate"]]
         framerate = self._config.get("framerate")
@@ -194,7 +192,7 @@ class _Viewer:
     @Slot(int)
     def _select_scene(self, index: int):
         if index < 0 or index >= len(self._scene_data):
-            self._ngl_widget.stop()
+            self._player.stop()
             return
 
         scene_data = self._scene_data[index]
@@ -315,7 +313,7 @@ class _Viewer:
             else:
                 self._window.finish_export()
 
-            self._ngl_widget.set_scene(scene)
+            self._player.set_scene(scene)
 
         except Exception as e:
             self._window.abort_export(str(e))
@@ -398,11 +396,7 @@ class _Viewer:
         # it instead.
         scene_data["live"] = {}
 
-        self._ngl_widget.set_scene(scene)
-
-        self._player.setProperty("duration", scene.duration)
-        self._player.setProperty("framerate", list(scene.framerate))
-        self._player.setProperty("aspect", list(scene.aspect_ratio))
+        self._player.set_scene(scene)
 
     @Slot()
     def _params_data_changed(self, top_left, bottom_right):
@@ -415,19 +409,18 @@ class _Viewer:
 
         for row in range(top_left.row(), bottom_right.row() + 1):
             data = self._livectls_model.get_row(row)
-            self._ngl_widget.livectls_changes[data["label"]] = data
+            self._player.change_live_data(data["label"], data)
 
             # We do not store the associated node because we want to keep this
             # data context agnostic
             scene_data["live"][data["label"]] = data["val"]
-        self._ngl_widget.update()
+        self._player.update()
 
 
 def run():
     qml_file = (Path(qml.__file__).resolve().parent / "viewer.qml").as_posix()
     app, engine = qml.create_app_engine(sys.argv, qml_file)
-    ngl_widget = qml.create_ngl_widget(engine)
-    viewer = _Viewer(app, engine, ngl_widget, sys.argv)
+    viewer = _Viewer(app, engine, sys.argv)
     ret = app.exec()
     del viewer
     sys.exit(ret)
