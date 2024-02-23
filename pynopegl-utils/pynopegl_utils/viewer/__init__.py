@@ -118,7 +118,7 @@ class _Viewer:
         app_window.set_about_content(qml.get_about_content("Viewer", _ABOUT_EXTRA_TEXT))
 
         try:
-            ret = subprocess.run(
+            subprocess.run(
                 ["ffmpeg", "-version"],
                 check=True,
                 stdout=subprocess.DEVNULL,
