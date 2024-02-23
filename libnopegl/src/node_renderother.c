@@ -448,7 +448,7 @@ static const struct node_param rendernoise_params[] = {
                     .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
                     .desc=NGLI_DOCSTRING("by how much it oscillates")},
     {"octaves",     NGLI_PARAM_TYPE_U32, OFFSET(octaves), {.u32=3},
-                    .desc=NGLI_DOCSTRING("number of accumulated noise layers (controls the level of details), must in [1;8]")},
+                    .desc=NGLI_DOCSTRING("number of accumulated noise layers (controls the level of details), must in [1,8]")},
     {"lacunarity",  NGLI_PARAM_TYPE_F32, OFFSET(lacunarity_node), {.f32=2.f},
                     .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
                     .desc=NGLI_DOCSTRING("frequency multiplier per octave")},
@@ -715,7 +715,7 @@ static int rendernoise_init(struct ngl_node *node)
     struct rendernoise_priv *s = node->priv_data;
     struct rendernoise_opts *o = node->opts;
     if (o->octaves < 1 || o->octaves > 8) {
-        LOG(ERROR, "octaves must be in [1;8]");
+        LOG(ERROR, "octaves must be in [1,8]");
         return NGL_ERROR_INVALID_ARG;
     }
 

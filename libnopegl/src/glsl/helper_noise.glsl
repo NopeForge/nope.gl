@@ -22,7 +22,7 @@
  */
 
 /*
- * Return a random single-precision float between [0;1)
+ * Return a random single-precision float between [0,1)
  * Derived from http://prng.di.unimi.it/
  */
 highp float u32tof32(highp uint x)
@@ -61,7 +61,7 @@ highp float random(highp uvec3 x)
 
 highp vec2 random2(highp uvec3 x)
 {
-    /* Generate 2 random floats in [0;1] using 16-bit of information for each */
+    /* Generate 2 random floats in [0,1] using 16-bit of information for each */
     uint h = hash(x);
     float r0 = u32tof32(0x00010001U * (h      & 0xffffU));
     float r1 = u32tof32(0x00010001U * (h>>16  & 0xffffU));
@@ -150,7 +150,7 @@ float noise_blocky(vec3 t, uint seed)
 
     float res = bicubic(y0, y1, y2, y3, evolution_f);
 
-    /* Scale noise from the [0;1] range to [-1;1] */
+    /* Scale noise from the [0,1] range to [-1,1] */
     return res * 2.0 - 1.0;
 }
 

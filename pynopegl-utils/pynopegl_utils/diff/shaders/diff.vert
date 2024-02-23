@@ -24,7 +24,7 @@ void main()
     ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
     uv = ngl_uvcoord;
 
-    /* Re-center space from UV in [0;1] to geometric [-1;1] (+ y-axis flip) */
+    /* Re-center space from UV in [0,1] to geometric [-1,1] (+ y-axis flip) */
     vec2 st = vec2(uv.x, 1.0 - uv.y) * 2.0 - 1.0;
 
     /*
@@ -36,7 +36,7 @@ void main()
     vec2 off = -reframing_off * scale;
     st = st * scale + off;
 
-    /* Restore space to [0;1] (+ y-axis flip) */
+    /* Restore space to [0,1] (+ y-axis flip) */
     st = vec2(st.x + 1.0, 1.0 - st.y) / 2.0;
 
     tex0_coord = (tex0_coord_matrix * vec4(st, 0.0, 1.0)).xy;

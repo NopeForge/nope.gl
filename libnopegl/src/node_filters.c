@@ -345,7 +345,7 @@ static int filtercolormap_init(struct ngl_node *node)
     /* Convert input color to grayscale to obtain the interpolation index */
     ngli_bstr_print(str, I "float t = dot(color.rgb, ngli_luma_weights);\n\n");
 
-    /* Switch colors to linear space and saturate pos within [0;1] */
+    /* Switch colors to linear space and saturate pos within [0,1] */
     for (size_t i = 0; i < o->nb_colorkeys; i++) {
         ngli_bstr_printf(str, I "pos%zu = ngli_sat(pos%zu);\n", i, i);
         ngli_bstr_printf(str, I "color%zu = ngli_srgb2linear(color%zu);\n", i, i);

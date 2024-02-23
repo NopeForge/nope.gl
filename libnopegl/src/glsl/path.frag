@@ -24,7 +24,7 @@
 void main()
 {
     /*
-     * uv_* are normalized [0;1] quad coordinate which we map to the atlas
+     * uv_* are normalized [0,1] quad coordinate which we map to the atlas
      * element coordinate boundaries
      */
     vec2 uv_fill    = mix(coords_fill.xy, coords_fill.zw, uv);

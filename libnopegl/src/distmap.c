@@ -534,7 +534,7 @@ int ngli_distmap_finalize(struct distmap *s)
 
     /*
      * We normalize the coordinates with regards to the container shape so that
-     * distances are within [0;1] while remaining proportionnal against each
+     * distances are within [0,1] while remaining proportionnal against each
      * others. This help making effects consistent accross all shapes.
      */
     normalize_coordinates(s);

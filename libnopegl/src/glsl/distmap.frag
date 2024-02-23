@@ -92,7 +92,7 @@ vec3 stitch_3_roots(int topology, vec3 roots, float a, float b, float c)
 
     /*
      * Got 3 roots but expected only 1. Likely scenario: the roots are outside
-     * the [0;1] range, but we can't just exclude outside the boundaries due to
+     * the [0,1] range, but we can't just exclude outside the boundaries due to
      * float inaccuracies.
      */
     float da = 3.0 * a, db = 2.0 * b, dc = c;

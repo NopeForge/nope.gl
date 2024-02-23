@@ -112,7 +112,7 @@ struct text_effects_pointers {
 
 struct effect_segmentation {
     size_t *positions;     // character index (in chars darray) to position in "target unit" (char, word, ...)
-    size_t total_segments; // total number of segment: all values in positions are between [0;total_segments-1]
+    size_t total_segments; // total number of segment: all values in positions are between [0,total_segments-1]
 };
 
 struct text {

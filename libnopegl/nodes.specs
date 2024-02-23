@@ -1724,7 +1724,7 @@
           "type": "f32",
           "default": 0.000000,
           "flags": ["live", "node"],
-          "desc": "position of the gradient point on the axis (within [0;1])"
+          "desc": "position of the gradient point on the axis (within [0,1])"
         },
         {
           "name": "color",
@@ -3127,7 +3127,7 @@
           "type": "u32",
           "default": 3,
           "flags": [],
-          "desc": "number of accumulated noise layers (controls the level of details), must in [1;8]"
+          "desc": "number of accumulated noise layers (controls the level of details), must in [1,8]"
         },
         {
           "name": "lacunarity",
@@ -3929,7 +3929,7 @@
           "type": "bool",
           "default": 0,
           "flags": [],
-          "desc": "clamp ngl_texvideo() output to [0;1]"
+          "desc": "clamp ngl_texvideo() output to [0,1]"
         },
         {
           "name": "clear_color",

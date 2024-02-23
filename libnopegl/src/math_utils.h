@@ -37,11 +37,11 @@
 #define NGLI_DEG2RAD(x) ((x) * (TAU_F32 / 360.f))
 #define NGLI_CEIL_RSHIFT(a, b) -((-(a)) >> (b))
 
-/* Map a normalized value to [a;b] range */
+/* Map a normalized value to [a,b] range */
 #define NGLI_MIX_F32(a, b, x) ((a)*(1.f-(x)) + (b)*(x))
 #define NGLI_MIX_F64(a, b, x) ((a)*(1.0-(x)) + (b)*(x))
 
-/* Map a value in [a;b] range to a normalized value */
+/* Map a value in [a,b] range to a normalized value */
 #define NGLI_LINEAR_NORM(a, b, x) (((x) - (a)) / ((b) - (a)))
 
 #define NGLI_VEC2_ADD(a, b) {(a)[0] + (b)[0], (a)[1] + (b)[1]}

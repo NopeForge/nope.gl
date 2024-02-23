@@ -40,7 +40,7 @@ class _CompareCuePoints(CompareSceneBase):
     ):
         """
         points: dictionary associating point names with their 2D coordinates
-                within [-1;1] space
+                within [-1,1] space
         """
         super().__init__(scene_func, width=width, height=height, **kwargs)
         self._points = points

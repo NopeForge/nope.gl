@@ -191,7 +191,7 @@ static const struct node_param texture2d_params[] = {
     {"direct_rendering", NGLI_PARAM_TYPE_BOOL, OFFSET(direct_rendering), {.i32=1},
                          .desc=NGLI_DOCSTRING("whether direct rendering is allowed or not for media playback")},
     {"clamp_video", NGLI_PARAM_TYPE_BOOL, OFFSET(clamp_video), {.i32=0},
-                    .desc=NGLI_DOCSTRING("clamp ngl_texvideo() output to [0;1]")},
+                    .desc=NGLI_DOCSTRING("clamp ngl_texvideo() output to [0,1]")},
     {"clear_color", NGLI_PARAM_TYPE_VEC4, OFFSET(clear_color),
                     .desc=NGLI_DOCSTRING("color used to clear the texture when used as an implicit render target")},
     {"forward_transforms", NGLI_PARAM_TYPE_BOOL, OFFSET(forward_transforms), {.i32=0},

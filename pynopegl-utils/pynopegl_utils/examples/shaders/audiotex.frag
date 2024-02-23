@@ -1,7 +1,7 @@
 float wave(float amp, float y, float yoff)
 {
-    float s = (amp + 1.0) / 2.0; // [-1;1] -> [0;1]
-    float v = yoff + s/4.0;         // [0;1] -> [off;off+0.25]
+    float s = (amp + 1.0) / 2.0; // [-1,1] -> [0,1]
+    float v = yoff + s/4.0;      // [0,1] -> [off,off+0.25]
     return smoothstep(v-0.005, v, y)
          - smoothstep(v, v+0.005, y);
 }
@@ -9,7 +9,7 @@ float wave(float amp, float y, float yoff)
 float freq(float power, float y, float yoff)
 {
     float p = sqrt(power);
-    float v = clamp(p, 0.0, 1.0) / 4.0; // [0;+oo] -> [0;0.25]
+    float v = clamp(p, 0.0, 1.0) / 4.0; // [0,+oo] -> [0,0.25]
     float a = yoff + 0.25;
     float b = a - v;
     return step(y, a) * (1.0 - step(y, b)); // y <= a && y > b
