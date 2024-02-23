@@ -143,7 +143,7 @@ def _get_random_rendertexture(cfg: ngl.SceneCfg, rng):
     )
 
 
-def _get_random_text(rng):
+def _get_random_text(cfg: ngl.SceneCfg, rng):
     words = """
         Broccoli Cabbage Mushroom Cucumber Kombu Potato Celery Lettuce Garlic
         Pumpkin Leek Bulbasaur Monkey Goose Axolotl Capybara Wombat Kakapo
@@ -155,6 +155,7 @@ def _get_random_text(rng):
         fg_color=_get_random_color(rng),
         fg_opacity=_get_random_opacity(rng),
         bg_opacity=0,
+        aspect_ratio=cfg.aspect_ratio,
     )
 
 
@@ -246,7 +247,7 @@ def _get_random_render(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes):
         blending="src_over",
     )
     texture = lambda rng: _get_random_rendertexture(cfg, rng)
-    text = lambda rng: _get_random_text(rng)
+    text = lambda rng: _get_random_text(cfg, rng)
     compute = lambda rng: _get_random_compute(cfg, rng, t0, t1)
     render_funcs = [
         color,
