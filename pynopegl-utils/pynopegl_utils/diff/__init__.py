@@ -24,7 +24,7 @@ import os.path as op
 import pkgutil
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 from pynopegl_utils import qml
 from pynopegl_utils.misc import MediaInfo
@@ -232,16 +232,16 @@ class _Diff:
         self,
         media0: MediaInfo,
         media1: MediaInfo,
-        diff_mode,
-        vertical_split,
-        threshold,
-        show_r,
-        show_g,
-        show_b,
-        show_a,
-        premultiplied,
-        split=(0.5, 0.5),
-    ):
+        diff_mode: bool,
+        vertical_split: bool,
+        threshold: float,
+        show_r: bool,
+        show_g: bool,
+        show_b: bool,
+        show_a: bool,
+        premultiplied: bool,
+        split: Tuple[float, float] = (0.5, 0.5),
+    ) -> ngl.Scene:
         width = max(media0.width, media1.width)
         height = max(media0.height, media1.height)
         duration = max(media0.duration, media1.duration)
