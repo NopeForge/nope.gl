@@ -20,13 +20,12 @@
 # under the License.
 #
 
-import platform
 import subprocess
 import sys
 from fractions import Fraction
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from pynopegl_utils import qml
 from pynopegl_utils.com import query_scene

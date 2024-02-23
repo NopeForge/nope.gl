@@ -27,7 +27,6 @@ import subprocess
 import tempfile
 from dataclasses import dataclass
 from fractions import Fraction
-from typing import Tuple
 
 import pynopegl as ngl
 

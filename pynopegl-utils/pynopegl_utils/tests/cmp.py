@@ -23,7 +23,7 @@ import difflib
 import os
 import os.path as op
 from fractions import Fraction
-from typing import Any, Callable, Generator, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Generator, Sequence, Tuple, Union
 
 from pynopegl_utils.misc import get_backend, get_nopegl_tempdir
 

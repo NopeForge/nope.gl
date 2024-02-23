@@ -1,5 +1,4 @@
 import array
-import colorsys
 import math
 import os.path as op
 
