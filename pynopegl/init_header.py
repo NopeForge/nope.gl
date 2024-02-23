@@ -233,11 +233,11 @@ class Scene(_ngl.Scene):
         duration: Optional[float] = None,
         framerate: Optional[Tuple[int, int]] = None,
         aspect_ratio: Optional[Tuple[int, int]] = None,
-    ):
+    ) -> "Scene":
         return super().from_params(root, duration, framerate, aspect_ratio)
 
     @classmethod
-    def from_string(cls, s: Union[str, bytes]):
+    def from_string(cls, s: Union[str, bytes]) -> "Scene":
         return super().from_string(s)
 
     def serialize(self) -> bytes:
@@ -245,6 +245,21 @@ class Scene(_ngl.Scene):
 
     def dot(self) -> bytes:
         return super().dot()
+
+    def update_filepath(self, index: int, filepath: str):
+        super().update_filepath(index, filepath)
+
+    @property
+    def duration(self) -> float:
+        return super().duration
+
+    @property
+    def framerate(self) -> Tuple[int, int]:
+        return super().framerate
+
+    @property
+    def aspect_ratio(self) -> Tuple[int, int]:
+        return super().aspect_ratio
 
     @property
     def files(self) -> List[str]:
