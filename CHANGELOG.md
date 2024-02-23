@@ -14,6 +14,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Live change support for `Media.filename`
 - `ngl_get_viewport()` to get the viewport currently in use by the rendering
   context
+- `FontFace.index` parameter to select a different face in the font file
 
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node
