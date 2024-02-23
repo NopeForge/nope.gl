@@ -483,6 +483,7 @@ enum {
 
 struct fontface_opts {
     char *path;
+    int32_t index;
 };
 
 struct texteffect_opts {

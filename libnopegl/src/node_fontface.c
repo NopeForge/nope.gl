@@ -29,12 +29,19 @@ static const struct node_param fontface_params[] = {
     {"path",  NGLI_PARAM_TYPE_STR, OFFSET(path),
               .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_FILEPATH,
               .desc=NGLI_DOCSTRING("path to the font file")},
+    {"index", NGLI_PARAM_TYPE_I32, OFFSET(index),
+              .desc=NGLI_DOCSTRING("index of the face in the font file")},
     {NULL}
 };
 
 #if HAVE_TEXT_LIBRARIES
 static int fontface_init(struct ngl_node *node)
 {
+    const struct fontface_opts *o = node->opts;
+    if (o->index < 0 || o->index > 0xffff) {
+        LOG(ERROR, "invalid index %d, must be within [0,0xffff]", o->index);
+        return NGL_ERROR_INVALID_ARG;
+    }
     return 0;
 }
 #else

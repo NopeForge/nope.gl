@@ -47,7 +47,7 @@ struct text_external {
     struct distmap *distmap;
 };
 
-static int load_font(struct text *text, const char *font_file)
+static int load_font(struct text *text, const char *font_file, int32_t face_index)
 {
     struct text_external *s = text->priv_data;
 
@@ -60,9 +60,9 @@ static int load_font(struct text *text, const char *font_file)
     FT_Face ft_face = NULL;
     hb_font_t *hb_font = NULL;
 
-    FT_Error ft_error = FT_New_Face(text->ctx->ft_library, font_file, 0, &ft_face);
+    FT_Error ft_error = FT_New_Face(text->ctx->ft_library, font_file, face_index, &ft_face);
     if (ft_error) {
-        LOG(ERROR, "unable to initialize FreeType with font %s", font_file);
+        LOG(ERROR, "unable to initialize FreeType with font %s face %d", font_file, face_index);
         return NGL_ERROR_EXTERNAL;
     }
 
@@ -139,7 +139,7 @@ static int text_external_init(struct text *text)
     for (size_t i = 0; i < text->config.nb_font_faces; i++) {
         const struct ngl_node *face_node = text->config.font_faces[i];
         const struct fontface_opts *face_opts = face_node->opts;
-        int ret = load_font(text, face_opts->path);
+        int ret = load_font(text, face_opts->path, face_opts->index);
         if (ret < 0)
             return ret;
     }

@@ -1981,6 +1981,13 @@
           "type": "str",
           "flags": ["nonull", "filepath"],
           "desc": "path to the font file"
+        },
+        {
+          "name": "index",
+          "type": "i32",
+          "default": 0,
+          "flags": [],
+          "desc": "index of the face in the font file"
         }
       ]
     },
