@@ -28,19 +28,17 @@ from typing import Optional, Tuple
 
 from pynopegl_utils import qml
 from pynopegl_utils.misc import MediaInfo
-from PySide6.QtCore import QObject, QUrl, Slot
+from pynopegl_utils.qml.player import NGLPlayer
+from PySide6.QtCore import QUrl, Slot
 
 import pynopegl as ngl
 
 
 class _Diff:
-    def __init__(self, qml_engine, ngl_widget, args):
+    def __init__(self, qml_engine, args):
         self._livectls = {}
         self._reframing_scale = 1
         self._reframing_off = (0, 0)
-
-        ngl_widget.livectls_changed.connect(self._livectls_changed)
-        self._ngl_widget = ngl_widget
 
         app_window = qml_engine.rootObjects()[0]
         app_window.diffModeToggled.connect(self._diff_mode_toggled)
@@ -52,12 +50,13 @@ class _Diff:
         app_window.set_about_content(qml.get_about_content("Diff"))
         self._app_window = app_window
 
-        player = app_window.findChild(QObject, "player")
-        player.timeChanged.connect(ngl_widget.set_time)
-        player.mouseDown.connect(self._mouse_down)
-        player.zoom.connect(self._zoom)
-        player.pan.connect(self._pan)
-        self._player = player
+        self._player = NGLPlayer(app_window, qml_engine)
+        self._player.set_callbacks(
+            livectls_changed=self._livectls_changed,
+            mouse_down=self._mouse_down,
+            zoom=self._zoom,
+            pan=self._pan,
+        )
 
         self._media0: Optional[MediaInfo] = None
         self._media1: Optional[MediaInfo] = None
@@ -116,7 +115,7 @@ class _Diff:
                 premultiplied=self._app_window.get_premultiplied(),
             )
 
-        self._ngl_widget.set_scene(scene)
+        self._player.set_scene(scene)
 
         for i, media in enumerate((media0, media1)):
             if media is None:
@@ -129,10 +128,6 @@ class _Diff:
             self._app_window.setProperty(f"duration{i}", media.duration)
             self._app_window.setProperty(f"avg_frame_rate{i}", float(media.avg_frame_rate))
 
-        self._player.setProperty("duration", scene.duration)
-        self._player.setProperty("framerate", list(scene.framerate))
-        self._player.setProperty("aspect", list(scene.aspect_ratio))
-
     @Slot(object)
     def _livectls_changed(self, data):
         self._livectls = {v["label"]: v for v in data}
@@ -142,8 +137,8 @@ class _Diff:
             return
         data = self._livectls[key]
         data["val"] = val
-        self._ngl_widget.livectls_changes[key] = data
-        self._ngl_widget.update()
+        self._player.change_live_data(key, data)
+        self._player.update()
 
     @Slot(bool)
     def _diff_mode_toggled(self, checked):
@@ -299,8 +294,7 @@ class _Diff:
 def run():
     qml_file = op.join(op.dirname(qml.__file__), "diff.qml")
     app, engine = qml.create_app_engine(sys.argv, qml_file)
-    ngl_widget = qml.create_ngl_widget(engine)
-    diff = _Diff(engine, ngl_widget, sys.argv)
+    diff = _Diff(engine, sys.argv)
     ret = app.exec()
     del diff
     sys.exit(ret)
