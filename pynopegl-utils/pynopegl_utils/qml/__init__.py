@@ -21,14 +21,12 @@
 
 import locale
 import os
-import os.path as op
 import platform
 from textwrap import dedent
 
-from pynopegl_utils.qml import ngl_widget  # noqa: register NopeGLWidget as a QML element
-from PySide6.QtCore import QObject, QUrl
+from PySide6.QtCore import QUrl
 from PySide6.QtGui import QGuiApplication, QSurfaceFormat
-from PySide6.QtQml import QQmlApplicationEngine, QQmlComponent
+from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuick import QQuickWindow, QSGRendererInterface
 
 
@@ -58,21 +56,6 @@ def create_app_engine(argv, qml_file):
     locale.setlocale(locale.LC_ALL, "C")
 
     return app, engine
-
-
-def create_ngl_widget(engine):
-    # Dynamically create an instance of the rendering widget
-    widget_url = QUrl.fromLocalFile(op.join(op.dirname(__file__), "NopeGLWidget.qml"))
-    component = QQmlComponent(engine)
-    component.loadUrl(widget_url)
-    widget = component.create()
-
-    # Inject it live into its placeholder
-    app_window = engine.rootObjects()[0]
-    placeholder = app_window.findChild(QObject, "ngl_widget_placeholder")
-    widget.setParentItem(placeholder)
-
-    return widget
 
 
 def uri_to_path(uri: str) -> str:

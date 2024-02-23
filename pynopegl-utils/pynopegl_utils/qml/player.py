@@ -20,15 +20,29 @@
 # under the License.
 #
 
-from pynopegl_utils import qml
-from PySide6.QtCore import QObject
+import os.path as op
+
+from pynopegl_utils.qml import ngl_widget  # noqa: register NopeGLWidget as a QML element
+from PySide6.QtCore import QObject, QUrl
+from PySide6.QtQml import QQmlComponent
 
 import pynopegl as ngl
 
 
 class NGLPlayer:
     def __init__(self, app_window, qml_engine):
-        self._ngl_widget = qml.create_ngl_widget(qml_engine)
+        # Dynamically create an instance of the rendering widget
+        widget_url = QUrl.fromLocalFile(op.join(op.dirname(__file__), "NopeGLWidget.qml"))
+        component = QQmlComponent(qml_engine)
+        component.loadUrl(widget_url)
+        widget = component.create()
+
+        # Inject it live into its placeholder
+        app_window = qml_engine.rootObjects()[0]
+        placeholder = app_window.findChild(QObject, "ngl_widget_placeholder")
+        widget.setParentItem(placeholder)
+
+        self._ngl_widget = widget
         self._qml_player = app_window.findChild(QObject, "player")
         self._qml_player.timeChanged.connect(self._ngl_widget.set_time)
 
