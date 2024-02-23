@@ -24,7 +24,7 @@ import json
 import os
 import os.path as op
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Tuple
 
 from pynopegl_utils.export import ENCODE_PROFILES, RESOLUTIONS
 from PySide6 import QtCore
