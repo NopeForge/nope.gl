@@ -104,10 +104,6 @@ def simple_transition(cfg: ngl.SceneCfg, transition_start=2, transition_duration
     render1_2.update_frag_resources(tex0=t1, tex1=t2)
     render1_2.update_frag_resources(delta=delta)
 
-    rr1 = []
-    rr2 = []
-    rr1_2 = []
-
     transition_end = transition_start + transition_duration
 
     rf1 = ngl.TimeRangeFilter(render1, start=0, end=transition_start)
