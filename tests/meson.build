@@ -385,6 +385,7 @@ foreach backend : backends
     'vertical_rl',
     'vertical_lr',
     'fixed',
+    'animated',
   ]
   if has_text_libraries
     tests_text += [
