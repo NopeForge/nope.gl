@@ -1,0 +1,33 @@
+From 88634bc78f09bb3a91f67b343d9842857001611a Mon Sep 17 00:00:00 2001
+From: Matthieu Bouron <matthieu.bouron@gmail.com>
+Date: Tue, 13 Feb 2024 11:03:22 +0100
+Subject: [PATCH 3/6] avcodec/jni: use size_t to store structure offsets
+
+---
+ libavcodec/ffjni.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/libavcodec/ffjni.h b/libavcodec/ffjni.h
+index 6027bac0ab..d5894609ed 100644
+--- a/libavcodec/ffjni.h
++++ b/libavcodec/ffjni.h
+@@ -24,6 +24,7 @@
+ #define AVCODEC_FFJNI_H
+ 
+ #include <jni.h>
++#include <stdlib.h>
+ 
+ /*
+  * Attach permanently a JNI environment to the current thread and retrieve it.
+@@ -105,7 +106,7 @@ struct FFJniField {
+     const char *method;
+     const char *signature;
+     enum FFJniFieldType type;
+-    int offset;
++    size_t offset;
+     int mandatory;
+ 
+ };
+-- 
+2.44.0
+

@@ -121,6 +121,14 @@ _EXTERNAL_DEPS = dict(
         url="https://ffmpeg.org/releases/ffmpeg-@VERSION@.tar.xz",
         dst_file="ffmpeg-@VERSION@.tar.xz",
         sha256="8684f4b00f94b85461884c3719382f1261f0d9eb3d59640a1f4ac0873616f968",
+        patches=[
+            "0001-avcodec-add-av_jni_-get-set-_android_app_ctx-helper.patch",
+            "0002-avformat-add-Android-content-resolver-protocol-suppo.patch",
+            "0003-avcodec-jni-use-size_t-to-store-structure-offsets.patch",
+            "0004-avcodec-jni-remove-unnecessary-NULL-checks-before-ca.patch",
+            "0005-avcodec-mediacodec_wrapper-use-an-OFFSET-macro-where.patch",
+            "0006-avcodec-mediacodec_wrapper-remove-unnecessary-NULL-c.patch",
+        ],
     ),
     ffmpeg_Windows=dict(
         version="6.1.1",
@@ -523,6 +531,7 @@ def _ffmpeg_setup(cfg):
             "http",
             "https",
             "pipe",
+            "android_content",
         ]
         filters = [
             "aformat",
