@@ -317,6 +317,7 @@ def _download_extract(args, dep_item):
         assert _file_chk(dst_path, chksum)
 
     # Extract
+    extracted = False
     if tarfile.is_tarfile(dst_path):
         with tarfile.open(dst_path) as tar:
             dirs = {f.name for f in tar.getmembers() if f.isdir()}
@@ -324,6 +325,7 @@ def _download_extract(args, dep_item):
             if not op.exists(extract_dir):
                 logging.info("extracting %s", dst_file)
                 tar.extractall(op.join(dst_base, dst_dir))
+                extracted = True
 
     elif zipfile.is_zipfile(dst_path):
         with zipfile.ZipFile(dst_path) as zip_:
@@ -332,8 +334,16 @@ def _download_extract(args, dep_item):
             if not op.exists(extract_dir):
                 logging.info("extracting %s", dst_file)
                 zip_.extractall(op.join(dst_base, dst_dir))
+                extracted = True
     else:
         assert False
+
+    # Patch
+    if extracted:
+        patch_basedir = op.join(_ROOTDIR, "patches", name)
+        for patch in dep.get("patches", []):
+            patch_path = op.join(patch_basedir, patch)
+            run(["patch", "-p1", "-i", patch_path], cwd=extract_dir)
 
     # Remove previous link if needed
     target = op.join(dst_base, name)
