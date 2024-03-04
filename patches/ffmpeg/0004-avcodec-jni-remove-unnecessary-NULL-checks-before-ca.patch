@@ -1,0 +1,39 @@
+From 5d922cd049658f72fe4420530ea3b394720fabbe Mon Sep 17 00:00:00 2001
+From: Matthieu Bouron <matthieu.bouron@gmail.com>
+Date: Tue, 13 Feb 2024 11:05:45 +0100
+Subject: [PATCH 4/6] avcodec/jni: remove unnecessary NULL checks before
+ calling DeleteLocalRef()
+
+Delete{Global,Local}Ref() already handle NULL.
+---
+ libavcodec/ffjni.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
+
+diff --git a/libavcodec/ffjni.c b/libavcodec/ffjni.c
+index e3cf24d3e2..69d9a9faa3 100644
+--- a/libavcodec/ffjni.c
++++ b/libavcodec/ffjni.c
+@@ -236,17 +236,9 @@ done:
+     av_free(name);
+     av_free(message);
+ 
+-    if (class_class) {
+-        (*env)->DeleteLocalRef(env, class_class);
+-    }
+-
+-    if (exception_class) {
+-        (*env)->DeleteLocalRef(env, exception_class);
+-    }
+-
+-    if (string) {
+-        (*env)->DeleteLocalRef(env, string);
+-    }
++    (*env)->DeleteLocalRef(env, class_class);
++    (*env)->DeleteLocalRef(env, exception_class);
++    (*env)->DeleteLocalRef(env, string);
+ 
+     return ret;
+ }
+-- 
+2.44.0
+
