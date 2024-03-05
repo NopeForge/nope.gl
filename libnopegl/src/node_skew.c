@@ -113,6 +113,7 @@ NGLI_STATIC_ASSERT(trf_on_top_of_skew, offsetof(struct skew_priv, trf) == 0);
 
 const struct node_class ngli_skew_class = {
     .id        = NGL_NODE_SKEW,
+    .category  = NGLI_NODE_CATEGORY_TRANSFORM,
     .name      = "Skew",
     .init      = skew_init,
     .update    = skew_update,

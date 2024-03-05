@@ -110,6 +110,7 @@ NGLI_STATIC_ASSERT(trf_on_top_of_rotate, offsetof(struct rotate_priv, trf) == 0)
 
 const struct node_class ngli_rotate_class = {
     .id        = NGL_NODE_ROTATE,
+    .category  = NGLI_NODE_CATEGORY_TRANSFORM,
     .name      = "Rotate",
     .init      = rotate_init,
     .update    = rotate_update,
