@@ -194,15 +194,6 @@ struct ngl_scene {
     struct darray files_par; // file based parameters pointers (array of uint8_t *)
 };
 
-#define TRANSFORM_TYPES_LIST (const uint32_t[]){NGL_NODE_ROTATE,    \
-                                                NGL_NODE_ROTATEQUAT,\
-                                                NGL_NODE_TRANSFORM, \
-                                                NGL_NODE_TRANSLATE, \
-                                                NGL_NODE_SCALE,     \
-                                                NGL_NODE_SKEW,      \
-                                                NGL_NODE_IDENTITY,  \
-                                                NGLI_NODE_NONE}
-
 /* helper structure to specify the content (or a slice) of a buffer */
 struct buffer_layout {
     int type;       // any of NGLI_TYPE_*
