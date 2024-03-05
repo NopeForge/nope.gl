@@ -191,34 +191,10 @@ static void node_uninit(struct ngl_node *node)
     node->visit_time = -1.;
 }
 
-static int check_params_sanity(struct ngl_node *node)
-{
-    const uint8_t *base_ptr = node->opts;
-    const struct node_param *par = node->cls->params;
-
-    if (!par)
-        return 0;
-
-    while (par->key) {
-        const void *p = base_ptr + par->offset;
-        if ((par->flags & NGLI_PARAM_FLAG_NON_NULL) && !*(uint8_t **)p) {
-            LOG(ERROR, "%s: %s parameter can not be null", node->label, par->key);
-            return NGL_ERROR_INVALID_ARG;
-        }
-        par++;
-    }
-
-    return 0;
-}
-
 static int node_init(struct ngl_node *node)
 {
     if (node->state != STATE_UNINITIALIZED)
         return 0;
-
-    int ret = check_params_sanity(node);
-    if (ret < 0)
-        return ret;
 
     ngli_assert(node->ctx);
     if (node->cls->init) {
