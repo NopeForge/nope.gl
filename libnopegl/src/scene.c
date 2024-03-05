@@ -235,6 +235,31 @@ static int track_files(struct ngl_scene *s)
     return 0;
 }
 
+static int check_nodes_params_sanity(const struct darray *nodes_array)
+{
+    const struct ngl_node **nodes = ngli_darray_data(nodes_array);
+    for (size_t i = 0; i < ngli_darray_count(nodes_array); i++) {
+        const struct ngl_node *node = nodes[i];
+
+        const uint8_t *base_ptr = node->opts;
+        const struct node_param *par = node->cls->params;
+
+        if (!par)
+            return 0;
+
+        while (par->key) {
+            const void *p = base_ptr + par->offset;
+            if ((par->flags & NGLI_PARAM_FLAG_NON_NULL) && !*(uint8_t **)p) {
+                LOG(ERROR, "%s: %s parameter can not be null", node->label, par->key);
+                return NGL_ERROR_INVALID_ARG;
+            }
+            par++;
+        }
+    }
+
+    return 0;
+}
+
 static int attach_root(struct ngl_scene *s, struct ngl_node *node)
 {
     s->params.root = ngl_node_ref(node);
@@ -244,6 +269,10 @@ static int attach_root(struct ngl_scene *s, struct ngl_node *node)
         return ret;
 
     ret = build_nodes_set(s);
+    if (ret < 0)
+        return ret;
+
+    ret = check_nodes_params_sanity(&s->nodes);
     if (ret < 0)
         return ret;
 
