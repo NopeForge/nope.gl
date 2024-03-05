@@ -99,6 +99,7 @@ NGLI_STATIC_ASSERT(trf_on_top_of_rotatequat, offsetof(struct rotatequat_priv, tr
 
 const struct node_class ngli_rotatequat_class = {
     .id        = NGL_NODE_ROTATEQUAT,
+    .category  = NGLI_NODE_CATEGORY_TRANSFORM,
     .name      = "RotateQuat",
     .init      = rotatequat_init,
     .update    = rotatequat_update,
