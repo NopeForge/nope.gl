@@ -56,7 +56,7 @@ int ngli_transform_chain_check(const struct ngl_node *node)
 void ngli_transform_chain_compute(const struct ngl_node *node, float *matrix)
 {
     NGLI_ALIGNED_MAT(tmp) = NGLI_MAT4_IDENTITY;
-    while (node && node->cls->id != NGL_NODE_IDENTITY) {
+    while (node && node->cls->category == NGLI_NODE_CATEGORY_TRANSFORM) {
         const struct transform *transform = node->priv_data;
         ngli_mat4_mul(tmp, tmp, transform->matrix);
         node = transform->child;
