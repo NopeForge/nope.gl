@@ -666,3 +666,14 @@ def api_viewport():
 
     ctx.set_scene(None)
     assert ctx.viewport == (0, 0, 640, 480)
+
+
+def api_transform_chain_check():
+    invalid_chain = ngl.Translate(ngl.Rotate(ngl.Skew()))
+    root = ngl.Camera(eye_transform=invalid_chain)
+    try:
+        ngl.Scene.from_params(root)
+    except Exception:
+        pass
+    else:
+        assert False
