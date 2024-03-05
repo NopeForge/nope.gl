@@ -294,6 +294,14 @@ static int check_node_params(const struct node_class *cls)
         return NGL_ERROR_BUG;
     }
 
+    if (cls->category == NGLI_NODE_CATEGORY_TRANSFORM) {
+        if (strcmp(par->key, "child") ||
+            !(par->flags & NGLI_PARAM_FLAG_NON_NULL)) {
+            fprintf(stderr, "transform nodes are expected to have a non-null child as first parameter");
+            return NGL_ERROR_BUG;
+        }
+    }
+
     while (par->key) {
         if ((par->flags & NGLI_PARAM_FLAG_NON_NULL) && !pointer_based_parameter(par)) {
             fprintf(stderr, "parameter %s.%s has a non-applicable non-null flag\n", cls->name, par->key);
