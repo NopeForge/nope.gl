@@ -25,28 +25,26 @@
 #include "math_utils.h"
 #include "transforms.h"
 
+static const struct ngl_node *get_leaf_node(const struct ngl_node *node)
+{
+    while (node && node->cls->category == NGLI_NODE_CATEGORY_TRANSFORM) {
+        const struct transform *transform = node->priv_data;
+        node = transform->child;
+    }
+    return node;
+}
+
 int ngli_transform_chain_check(const struct ngl_node *node)
 {
-    while (node) {
-        const uint32_t id = node->cls->id;
-        switch (id) {
-            case NGL_NODE_ROTATE:
-            case NGL_NODE_ROTATEQUAT:
-            case NGL_NODE_SCALE:
-            case NGL_NODE_SKEW:
-            case NGL_NODE_TRANSFORM:
-            case NGL_NODE_TRANSLATE: {
-                const struct transform *trf = node->priv_data;
-                node = trf->child;
-                break;
-            }
-            case NGL_NODE_IDENTITY:
-                return 0;
-            default:
-                LOG(ERROR, "%s (%s) is not an allowed type for a transformation chain",
-                    node->label, node->cls->name);
-                return NGL_ERROR_INVALID_USAGE;
-        }
+    const struct ngl_node *leaf = get_leaf_node(node);
+
+    if (!leaf)
+        return 0;
+
+    if (leaf->cls->id != NGL_NODE_IDENTITY) {
+        LOG(ERROR, "%s (%s) is not an allowed type for a transformation chain",
+            node->label, node->cls->name);
+        return NGL_ERROR_INVALID_USAGE;
     }
 
     return 0;
