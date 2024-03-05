@@ -36,10 +36,13 @@ static const struct ngl_node *get_leaf_node(const struct ngl_node *node)
 
 int ngli_transform_chain_check(const struct ngl_node *node)
 {
+    if (!node) // it is ok for the transform chain not to be set
+        return 0;
+
     const struct ngl_node *leaf = get_leaf_node(node);
 
-    if (!leaf)
-        return 0;
+    // All transform nodes are expected to have a non-null child parameter
+    ngli_assert(leaf);
 
     if (leaf->cls->id != NGL_NODE_IDENTITY) {
         LOG(ERROR, "%s (%s) is not an allowed type for a transformation chain",
