@@ -112,6 +112,7 @@ ColumnLayout {
             height: Math.min(parent.width * aspect[1] / aspect[0], parent.height)
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
+            color: "black"
 
             MouseArea {
                 property real px: 0
