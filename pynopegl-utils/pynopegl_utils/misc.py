@@ -87,6 +87,7 @@ _MEDIA_FILES_DB = dict(
     hamster="OpenMoji-1F439-Hamster.png",
     rooster="Unsplash-Michael_Anfang-Rooster-cropped.jpg",
     panda="Unsplash-Romane_Gautun-Red_Panda-cropped.jpg",
+    city="Unsplash-Andreas-Rasmussen-white-and-black-kanji-lantern.jpg",
 )
 
 
