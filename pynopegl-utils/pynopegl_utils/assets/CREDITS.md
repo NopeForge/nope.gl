@@ -31,6 +31,14 @@ Cropped from original picture by Romane Gautun:
 
 License: [Unsplash](https://unsplash.com/license)
 
+## `Unsplash-Andreas-Rasmussen-white-and-black-kanji-lantern.jpg`
+
+Re-encoded from original picture by Andreas Rasmussen:
+- https://unsplash.com/photos/white-and-black-kanji-lantern-aDvDvH428RQ
+- https://unsplash.com/@andreasdress
+
+License: [Unsplash](https://unsplash.com/license)
+
 ## `OpenMoji-1F342-Fallen_Leaf.png`
 
 OpenMoji project: https://openmoji.org/
