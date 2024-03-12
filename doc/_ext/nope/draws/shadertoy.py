@@ -29,7 +29,7 @@ def shadertoy(cfg: ngl.SceneCfg):
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))  # Full-screen quad
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(uv=ngl.IOVec2())  # Specify the transfer of information between the 2 stages
-    render = ngl.Render(quad, program)
+    draw = ngl.Draw(quad, program)
 
-    render.update_frag_resources(t=ngl.Time())
-    return render
+    draw.update_frag_resources(t=ngl.Time())
+    return draw

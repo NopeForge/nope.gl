@@ -28,14 +28,14 @@ def palette_strip(cfg: ngl.SceneCfg):
         c_nodes.append(c_node)
         l_nodes.append(l_node)
 
-    # Grid positioning of RenderColor nodes using GridLayout
+    # Grid positioning of DrawColor nodes using GridLayout
     c_nodes = [c0_node] + c_nodes + [c1_node]
     l_nodes = [l0_node] + l_nodes + [l1_node]
-    c_nodes = [ngl.RenderColor(node) for node in c_nodes]
-    l_nodes = [ngl.RenderColor(node) for node in l_nodes]
+    c_nodes = [ngl.DrawColor(node) for node in c_nodes]
+    l_nodes = [ngl.DrawColor(node) for node in l_nodes]
     empty = ngl.Identity()
     cells = [empty] * (cols + 1) + c_nodes + [empty] * (cols + 2) + l_nodes
     strips = ngl.GridLayout(cells, size=(cols, rows))
 
-    bg = ngl.RenderColor(color=(0.2, 0.2, 0.2))  # A gray background
+    bg = ngl.DrawColor(color=(0.2, 0.2, 0.2))  # A gray background
     return ngl.Group(children=[bg, strips])

@@ -43,17 +43,17 @@ def py_bindings_allow_node():
 def py_bindings_dict():
     foo = ngl.UniformVec3(value=(1, 2, 3), label="foo-node")
     assert foo.set_value(3, 2, 1) == 0
-    render = ngl.Render(vert_resources=dict(foo=foo))
+    draw = ngl.Draw(vert_resources=dict(foo=foo))
 
-    assert render.set_label("r") == 0
+    assert draw.set_label("r") == 0
     # Delete the previous entry and add another
-    ret = render.update_vert_resources(
+    ret = draw.update_vert_resources(
         foo=None,
         bar=ngl.UniformFloat(value=4, label="bar-node"),
     )
     assert ret == 0
     # Update by using a dict
-    ret = render.update_vert_resources(
+    ret = draw.update_vert_resources(
         dict(
             foo=ngl.UniformVec2(),
             bar=ngl.EvalFloat(),

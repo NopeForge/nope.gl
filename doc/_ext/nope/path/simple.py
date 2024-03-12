@@ -14,4 +14,4 @@ def simple(cfg: ngl.SceneCfg):
         ),
     ]
     path = ngl.Path(keyframes)
-    return ngl.RenderPath(path)
+    return ngl.DrawPath(path)

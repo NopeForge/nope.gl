@@ -80,18 +80,18 @@ def _get_blending_base_objects():
     positions = _equilateral_triangle_coords(_CIRCLE_RADIUS * 2.0 / 3.0)
     colored_circles = ngl.Group(label="colored circles")
     for position, color in zip(positions, _CIRCLES_COLORS):
-        render = ngl.RenderColor(color, geometry=circle)
-        render = ngl.Translate(render, position + (0.0,))
-        colored_circles.add_children(render)
+        draw = ngl.DrawColor(color, geometry=circle)
+        draw = ngl.Translate(draw, position + (0.0,))
+        colored_circles.add_children(draw)
     return colored_circles, circle, positions
 
 
 def _get_background_circles(circle, positions, bcolor):
     blend_bg = ngl.Group()
-    render = ngl.RenderColor(bcolor, geometry=circle)
+    draw = ngl.DrawColor(bcolor, geometry=circle)
     for position in positions:
-        trender = ngl.Translate(render, position + (0.0,))
-        blend_bg.add_children(trender)
+        tdraw = ngl.Translate(draw, position + (0.0,))
+        blend_bg.add_children(tdraw)
     return blend_bg
 
 
@@ -155,7 +155,7 @@ def _get_blending_scenes(cfg: ngl.SceneCfg):
 
     # WARNING: it is important to keep the creation of these base objects
     # outside of the loop below to test the diamond tree infrastructure
-    # (multiple pipelines for one render).
+    # (multiple pipelines for one draw).
     colored_circles, circle, positions = _get_blending_base_objects()
 
     scenes = []

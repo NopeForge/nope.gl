@@ -120,7 +120,7 @@ foreach backend : backends
   if has_compute
     tests_compute += [
       'animation',
-      'animation_post_render',
+      'animation_post_draw',
       'histogram',
       'image_load_store',
       'image_2d_array_load_store',
@@ -333,12 +333,12 @@ foreach backend : backends
   if has_compute
     tests_scope += [
       'colorstats',
-      'render_histogram_luma_only',
-      'render_histogram_mixed',
-      'render_histogram_parade',
-      'render_waveform_luma_only',
-      'render_waveform_mixed',
-      'render_waveform_parade',
+      'draw_histogram_luma_only',
+      'draw_histogram_mixed',
+      'draw_histogram_parade',
+      'draw_waveform_luma_only',
+      'draw_waveform_mixed',
+      'draw_waveform_parade',
       'rtt',
     ]
   endif
@@ -359,7 +359,7 @@ foreach backend : backends
     'geometry_normals',
     'geometry_indices',
     'geometry_normals_indices',
-    'geometry_with_renderother',
+    'geometry_with_drawother',
     'morphing',
     'cropboard',
     'cropboard_indices',

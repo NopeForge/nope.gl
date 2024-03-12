@@ -75,12 +75,12 @@ def obj(cfg: ngl.SceneCfg, model=None):
     t = ngl.Texture2D(data_src=m)
     p = ngl.Program(vertex=get_shader("tex-tint-normals.vert"), fragment=get_shader("tex-tint-normals.frag"))
     p.update_vert_out_vars(var_normal=ngl.IOVec3(), var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(q, p)
-    render.update_frag_resources(tex0=t)
-    render = ngl.GraphicConfig(render, depth_test=True)
+    draw = ngl.Draw(q, p)
+    draw.update_frag_resources(tex0=t)
+    draw = ngl.GraphicConfig(draw, depth_test=True)
 
     animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * 2)]
-    rot = ngl.Rotate(render, label="roty", axis=(0, 1, 0), angle=ngl.AnimatedFloat(animkf))
+    rot = ngl.Rotate(draw, label="roty", axis=(0, 1, 0), angle=ngl.AnimatedFloat(animkf))
 
     camera = ngl.Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)
@@ -130,7 +130,7 @@ def stl(cfg: ngl.SceneCfg, stl=None, scale=0.8):
     g = ngl.Geometry(vertices=vertices, normals=normals)
     p = ngl.Program(vertex=get_shader("colored-normals.vert"), fragment=get_shader("colored-normals.frag"))
     p.update_vert_out_vars(var_normal=ngl.IOVec3(), var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    solid = ngl.Render(g, p, label=solid_label)
+    solid = ngl.Draw(g, p, label=solid_label)
     solid = ngl.GraphicConfig(solid, depth_test=True)
 
     solid = ngl.Scale(solid, (scale, scale, scale))

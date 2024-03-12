@@ -317,7 +317,7 @@ static int add_progress_bar(struct player *p, struct ngl_scene *scene)
     struct ngl_node *text       = ngl_node_create(NGL_NODE_TEXT);
     struct ngl_node *quad       = ngl_node_create(NGL_NODE_QUAD);
     struct ngl_node *program    = ngl_node_create(NGL_NODE_PROGRAM);
-    struct ngl_node *render     = ngl_node_create(NGL_NODE_RENDER);
+    struct ngl_node *draw       = ngl_node_create(NGL_NODE_DRAW);
     struct ngl_node *time       = ngl_node_create(NGL_NODE_TIME);
     struct ngl_node *v_duration = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
     struct ngl_node *v_opacity  = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
@@ -325,14 +325,14 @@ static int add_progress_bar(struct player *p, struct ngl_scene *scene)
     struct ngl_node *gcfg       = ngl_node_create(NGL_NODE_GRAPHICCONFIG);
     struct ngl_node *group      = ngl_node_create(NGL_NODE_GROUP);
 
-    if (!text || !quad || !program || !render || !time || !v_duration || !v_opacity ||
+    if (!text || !quad || !program || !draw || !time || !v_duration || !v_opacity ||
         !coord || !group) {
         ret = NGL_ERROR_MEMORY;
         goto end;
     }
 
     const struct ngl_scene_params *params = ngl_scene_get_params(scene);
-    struct ngl_node *children[] = {params->root, render, text};
+    struct ngl_node *children[] = {params->root, draw, text};
 
     ngl_node_param_set_vec3(quad, "corner", bar_corner);
     ngl_node_param_set_vec3(quad, "width",  bar_width);
@@ -345,12 +345,12 @@ static int add_progress_bar(struct player *p, struct ngl_scene *scene)
     ngl_node_param_set_f32(v_duration, "value", (float)p->duration_f);
     ngl_node_param_set_f32(v_opacity,  "value", 0.f);
 
-    ngl_node_param_set_node(render, "geometry", quad);
-    ngl_node_param_set_node(render, "program", program);
-    ngl_node_param_set_dict(render, "frag_resources", "time",     time);
-    ngl_node_param_set_dict(render, "frag_resources", "duration", v_duration);
-    ngl_node_param_set_dict(render, "frag_resources", "opacity",  v_opacity);
-    ngl_node_param_set_select(render, "blending", "src_over");
+    ngl_node_param_set_node(draw, "geometry", quad);
+    ngl_node_param_set_node(draw, "program", program);
+    ngl_node_param_set_dict(draw, "frag_resources", "time",     time);
+    ngl_node_param_set_dict(draw, "frag_resources", "duration", v_duration);
+    ngl_node_param_set_dict(draw, "frag_resources", "opacity",  v_opacity);
+    ngl_node_param_set_select(draw, "blending", "src_over");
 
     ngl_node_param_add_nodes(group, "children", ARRAY_NB(children), children);
 
@@ -374,7 +374,7 @@ end:
     ngl_node_unrefp(&text);
     ngl_node_unrefp(&quad);
     ngl_node_unrefp(&program);
-    ngl_node_unrefp(&render);
+    ngl_node_unrefp(&draw);
     ngl_node_unrefp(&time);
     ngl_node_unrefp(&v_duration);
     ngl_node_unrefp(&v_opacity);

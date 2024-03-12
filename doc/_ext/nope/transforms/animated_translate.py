@@ -12,5 +12,5 @@ def animated_translate(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameVec3(cfg.duration, (-1 / 3, 0, 0)),
     ]
 
-    scene = ngl.RenderColor(geometry=ngl.Circle(0.5))
+    scene = ngl.DrawColor(geometry=ngl.Circle(0.5))
     return ngl.Translate(scene, vector=ngl.AnimatedVec3(animkf))

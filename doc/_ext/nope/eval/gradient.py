@@ -19,16 +19,16 @@ def gradient(cfg: ngl.SceneCfg, mode="ramp"):
     pt0_color = ngl.EvalVec3("1-c.r", "1-c.g", "1-c.b", resources=dict(c=c0_node))
     pt1_color = ngl.EvalVec3("1-c.r", "1-c.g", "1-c.b", resources=dict(c=c1_node))
     geom = ngl.Circle(radius=0.05, npoints=16)
-    p0 = ngl.RenderColor(color=pt0_color, geometry=geom)
-    p1 = ngl.RenderColor(color=pt1_color, geometry=geom)
+    p0 = ngl.DrawColor(color=pt0_color, geometry=geom)
+    p1 = ngl.DrawColor(color=pt1_color, geometry=geom)
     p0 = ngl.Scale(p0, factors=(1 / cfg.aspect_ratio_float, 1, 1))
     p1 = ngl.Scale(p1, factors=(1 / cfg.aspect_ratio_float, 1, 1))
     p0 = ngl.Translate(p0, vector=pos0)
     p1 = ngl.Translate(p1, vector=pos1)
 
-    # Convert the position to 2D points to make them usable in RenderGradient
+    # Convert the position to 2D points to make them usable in DrawGradient
     pos0_2d = ngl.EvalVec2("p.x/2+.5", ".5-p.y/2", resources=dict(p=pos0))
     pos1_2d = ngl.EvalVec2("p.x/2+.5", ".5-p.y/2", resources=dict(p=pos1))
-    grad = ngl.RenderGradient(pos0=pos0_2d, pos1=pos1_2d, mode=mode, color0=c0_node, color1=c1_node)
+    grad = ngl.DrawGradient(pos0=pos0_2d, pos1=pos1_2d, mode=mode, color0=c0_node, color1=c1_node)
 
     return ngl.Group(children=(grad, p0, p1))

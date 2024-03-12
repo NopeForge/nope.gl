@@ -312,6 +312,82 @@
         "desc": "standard uniform block memory layout 430"
       }
     ],
+    "blend_preset": [
+      {
+        "name": "default",
+        "desc": "unchanged current graphics state"
+      },
+      {
+        "name": "src_over",
+        "desc": "this node over destination"
+      },
+      {
+        "name": "dst_over",
+        "desc": "destination over this node"
+      },
+      {
+        "name": "src_out",
+        "desc": "subtract destination from this node"
+      },
+      {
+        "name": "dst_out",
+        "desc": "subtract this node from destination"
+      },
+      {
+        "name": "src_in",
+        "desc": "keep only the part of this node overlapping with destination"
+      },
+      {
+        "name": "dst_in",
+        "desc": "keep only the part of destination overlapping with this node"
+      },
+      {
+        "name": "src_atop",
+        "desc": "union of `src_in` and `dst_out`"
+      },
+      {
+        "name": "dst_atop",
+        "desc": "union of `src_out` and `dst_in`"
+      },
+      {
+        "name": "xor",
+        "desc": "exclusive or between this node and the destination"
+      }
+    ],
+    "gradient_mode": [
+      {
+        "name": "ramp",
+        "desc": "straight line gradient, uniform perpendicularly to the line between the points"
+      },
+      {
+        "name": "radial",
+        "desc": "distance between the points spread circularly"
+      }
+    ],
+    "scope_mode": [
+      {
+        "name": "mixed",
+        "desc": "R, G and B channels overlap on each others"
+      },
+      {
+        "name": "parade",
+        "desc": "split R, G and B channels"
+      },
+      {
+        "name": "luma_only",
+        "desc": "only the luma channel"
+      }
+    ],
+    "noise_type": [
+      {
+        "name": "blocky",
+        "desc": "blocky noise"
+      },
+      {
+        "name": "perlin",
+        "desc": "perlin noise"
+      }
+    ],
     "selector_component": [
       {
         "name": "lightness",
@@ -614,82 +690,6 @@
       {
         "name": "quintic",
         "desc": "quintic curve, f(t)=6t⁵-15t⁴+10t³"
-      }
-    ],
-    "blend_preset": [
-      {
-        "name": "default",
-        "desc": "unchanged current graphics state"
-      },
-      {
-        "name": "src_over",
-        "desc": "this node over destination"
-      },
-      {
-        "name": "dst_over",
-        "desc": "destination over this node"
-      },
-      {
-        "name": "src_out",
-        "desc": "subtract destination from this node"
-      },
-      {
-        "name": "dst_out",
-        "desc": "subtract this node from destination"
-      },
-      {
-        "name": "src_in",
-        "desc": "keep only the part of this node overlapping with destination"
-      },
-      {
-        "name": "dst_in",
-        "desc": "keep only the part of destination overlapping with this node"
-      },
-      {
-        "name": "src_atop",
-        "desc": "union of `src_in` and `dst_out`"
-      },
-      {
-        "name": "dst_atop",
-        "desc": "union of `src_out` and `dst_in`"
-      },
-      {
-        "name": "xor",
-        "desc": "exclusive or between this node and the destination"
-      }
-    ],
-    "gradient_mode": [
-      {
-        "name": "ramp",
-        "desc": "straight line gradient, uniform perpendicularly to the line between the points"
-      },
-      {
-        "name": "radial",
-        "desc": "distance between the points spread circularly"
-      }
-    ],
-    "scope_mode": [
-      {
-        "name": "mixed",
-        "desc": "R, G and B channels overlap on each others"
-      },
-      {
-        "name": "parade",
-        "desc": "split R, G and B channels"
-      },
-      {
-        "name": "luma_only",
-        "desc": "only the luma channel"
-      }
-    ],
-    "noise_type": [
-      {
-        "name": "blocky",
-        "desc": "blocky noise"
-      },
-      {
-        "name": "perlin",
-        "desc": "perlin noise"
       }
     ],
     "scale_mode": [
@@ -1805,6 +1805,622 @@
         }
       ]
     },
+    "Draw": {
+      "file": "src/node_draw.c",
+      "params": [
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": ["nonull"],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "program",
+          "type": "node",
+          "node_types": ["Program"],
+          "flags": ["nonull"],
+          "desc": "program to be executed"
+        },
+        {
+          "name": "vert_resources",
+          "type": "node_dict",
+          "node_types": ["Texture2D", "Texture2DArray", "Texture3D", "TextureCube", "Block", "ColorStats", "BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "NoiseFloat", "NoiseVec2", "NoiseVec3", "NoiseVec4", "EvalFloat", "EvalVec2", "EvalVec3", "EvalVec4", "StreamedBufferInt", "StreamedBufferIVec2", "StreamedBufferIVec3", "StreamedBufferIVec4", "StreamedBufferUInt", "StreamedBufferUIVec2", "StreamedBufferUIVec3", "StreamedBufferUIVec4", "StreamedBufferFloat", "StreamedBufferVec2", "StreamedBufferVec3", "StreamedBufferVec4", "UniformBool", "UniformFloat", "UniformVec2", "UniformVec3", "UniformVec4", "UniformColor", "UniformQuat", "UniformInt", "UniformIVec2", "UniformIVec3", "UniformIVec4", "UniformUInt", "UniformUIVec2", "UniformUIVec3", "UniformUIVec4", "UniformMat4", "AnimatedFloat", "AnimatedVec2", "AnimatedVec3", "AnimatedVec4", "AnimatedQuat", "AnimatedColor", "StreamedInt", "StreamedIVec2", "StreamedIVec3", "StreamedIVec4", "StreamedUInt", "StreamedUIVec2", "StreamedUIVec3", "StreamedUIVec4", "StreamedFloat", "StreamedVec2", "StreamedVec3", "StreamedVec4", "StreamedMat4", "Time", "VelocityFloat", "VelocityVec2", "VelocityVec3", "VelocityVec4"],
+          "flags": [],
+          "desc": "resources made accessible to the vertex stage of the `program`"
+        },
+        {
+          "name": "frag_resources",
+          "type": "node_dict",
+          "node_types": ["Texture2D", "Texture2DArray", "Texture3D", "TextureCube", "Block", "ColorStats", "BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "NoiseFloat", "NoiseVec2", "NoiseVec3", "NoiseVec4", "EvalFloat", "EvalVec2", "EvalVec3", "EvalVec4", "StreamedBufferInt", "StreamedBufferIVec2", "StreamedBufferIVec3", "StreamedBufferIVec4", "StreamedBufferUInt", "StreamedBufferUIVec2", "StreamedBufferUIVec3", "StreamedBufferUIVec4", "StreamedBufferFloat", "StreamedBufferVec2", "StreamedBufferVec3", "StreamedBufferVec4", "UniformBool", "UniformFloat", "UniformVec2", "UniformVec3", "UniformVec4", "UniformColor", "UniformQuat", "UniformInt", "UniformIVec2", "UniformIVec3", "UniformIVec4", "UniformUInt", "UniformUIVec2", "UniformUIVec3", "UniformUIVec4", "UniformMat4", "AnimatedFloat", "AnimatedVec2", "AnimatedVec3", "AnimatedVec4", "AnimatedQuat", "AnimatedColor", "StreamedInt", "StreamedIVec2", "StreamedIVec3", "StreamedIVec4", "StreamedUInt", "StreamedUIVec2", "StreamedUIVec3", "StreamedUIVec4", "StreamedFloat", "StreamedVec2", "StreamedVec3", "StreamedVec4", "StreamedMat4", "Time", "VelocityFloat", "VelocityVec2", "VelocityVec3", "VelocityVec4"],
+          "flags": [],
+          "desc": "resources made accessible to the fragment stage of the `program`"
+        },
+        {
+          "name": "attributes",
+          "type": "node_dict",
+          "node_types": ["BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "BufferMat4"],
+          "flags": [],
+          "desc": "extra vertex attributes made accessible to the `program`"
+        },
+        {
+          "name": "instance_attributes",
+          "type": "node_dict",
+          "node_types": ["BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "BufferMat4"],
+          "flags": [],
+          "desc": "per instance extra vertex attributes made accessible to the `program`"
+        },
+        {
+          "name": "nb_instances",
+          "type": "i32",
+          "default": 1,
+          "flags": [],
+          "desc": "number of instances to draw"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blended together"
+        }
+      ]
+    },
+    "DrawColor": {
+      "file": "src/node_drawother.c",
+      "params": [
+        {
+          "name": "color",
+          "type": "vec3",
+          "default": [1.000000,1.000000,1.000000],
+          "flags": ["live", "node"],
+          "desc": "color of the shape"
+        },
+        {
+          "name": "opacity",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["live", "node"],
+          "desc": "opacity of the color"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
+    "DrawDisplace": {
+      "file": "src/node_drawother.c",
+      "params": [
+        {
+          "name": "source",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": ["nonull"],
+          "desc": "source texture to displace"
+        },
+        {
+          "name": "displacement",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": ["nonull"],
+          "desc": "displacement vectors stored in a texture"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
+    "DrawGradient": {
+      "file": "src/node_drawother.c",
+      "params": [
+        {
+          "name": "color0",
+          "type": "vec3",
+          "default": [0.000000,0.000000,0.000000],
+          "flags": ["live", "node"],
+          "desc": "color of the first point"
+        },
+        {
+          "name": "color1",
+          "type": "vec3",
+          "default": [1.000000,1.000000,1.000000],
+          "flags": ["live", "node"],
+          "desc": "color of the second point"
+        },
+        {
+          "name": "opacity0",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["live", "node"],
+          "desc": "opacity of the first color"
+        },
+        {
+          "name": "opacity1",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["live", "node"],
+          "desc": "opacity of the second color"
+        },
+        {
+          "name": "pos0",
+          "type": "vec2",
+          "default": [0.000000,0.500000],
+          "flags": ["live", "node"],
+          "desc": "position of the first point (in UV coordinates)"
+        },
+        {
+          "name": "pos1",
+          "type": "vec2",
+          "default": [1.000000,0.500000],
+          "flags": ["live", "node"],
+          "desc": "position of the second point (in UV coordinates)"
+        },
+        {
+          "name": "mode",
+          "type": "select",
+          "default": "ramp",
+          "choices": "gradient_mode",
+          "flags": [],
+          "desc": "mode of interpolation between the two points"
+        },
+        {
+          "name": "linear",
+          "type": "bool",
+          "default": 1,
+          "flags": ["live", "node"],
+          "desc": "interpolate colors linearly"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
+    "DrawGradient4": {
+      "file": "src/node_drawother.c",
+      "params": [
+        {
+          "name": "color_tl",
+          "type": "vec3",
+          "default": [1.000000,0.500000,0.000000],
+          "flags": ["live", "node"],
+          "desc": "top-left color"
+        },
+        {
+          "name": "color_tr",
+          "type": "vec3",
+          "default": [0.000000,1.000000,0.000000],
+          "flags": ["live", "node"],
+          "desc": "top-right color"
+        },
+        {
+          "name": "color_br",
+          "type": "vec3",
+          "default": [0.000000,0.500000,1.000000],
+          "flags": ["live", "node"],
+          "desc": "bottom-right color"
+        },
+        {
+          "name": "color_bl",
+          "type": "vec3",
+          "default": [1.000000,0.000000,1.000000],
+          "flags": ["live", "node"],
+          "desc": "bottom-left color"
+        },
+        {
+          "name": "opacity_tl",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["live", "node"],
+          "desc": "opacity of the top-left color"
+        },
+        {
+          "name": "opacity_tr",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["live", "node"],
+          "desc": "opacity of the top-right color"
+        },
+        {
+          "name": "opacity_br",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["live", "node"],
+          "desc": "opacity of the bottom-right color"
+        },
+        {
+          "name": "opacity_bl",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["live", "node"],
+          "desc": "opacity of the bottol-left color"
+        },
+        {
+          "name": "linear",
+          "type": "bool",
+          "default": 1,
+          "flags": ["live", "node"],
+          "desc": "interpolate colors linearly"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
+    "DrawHistogram": {
+      "file": "src/node_drawother.c",
+      "params": [
+        {
+          "name": "stats",
+          "type": "node",
+          "node_types": ["ColorStats"],
+          "flags": ["nonull"],
+          "desc": "texture to render"
+        },
+        {
+          "name": "mode",
+          "type": "select",
+          "default": "mixed",
+          "choices": "scope_mode",
+          "flags": [],
+          "desc": "define how to represent the data"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
+    "DrawNoise": {
+      "file": "src/node_drawother.c",
+      "params": [
+        {
+          "name": "type",
+          "type": "select",
+          "default": "blocky",
+          "choices": "noise_type",
+          "flags": [],
+          "desc": "noise type"
+        },
+        {
+          "name": "amplitude",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["node"],
+          "desc": "by how much it oscillates"
+        },
+        {
+          "name": "octaves",
+          "type": "u32",
+          "default": 3,
+          "flags": [],
+          "desc": "number of accumulated noise layers (controls the level of details), must in [1,8]"
+        },
+        {
+          "name": "lacunarity",
+          "type": "f32",
+          "default": 2.000000,
+          "flags": ["node"],
+          "desc": "frequency multiplier per octave"
+        },
+        {
+          "name": "gain",
+          "type": "f32",
+          "default": 0.500000,
+          "flags": ["node"],
+          "desc": "amplitude multiplier per octave (also known as persistence)"
+        },
+        {
+          "name": "seed",
+          "type": "u32",
+          "default": 0,
+          "flags": ["node"],
+          "desc": "random base seed"
+        },
+        {
+          "name": "scale",
+          "type": "vec2",
+          "default": [32.000000,32.000000],
+          "flags": ["node"],
+          "desc": "size of the grid in lattice units"
+        },
+        {
+          "name": "evolution",
+          "type": "f32",
+          "default": 0.000000,
+          "flags": ["node"],
+          "desc": "evolution of the 3rd non-spatial dimension, time if unspecified"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
+    "DrawPath": {
+      "file": "src/node_drawpath.c",
+      "params": [
+        {
+          "name": "path",
+          "type": "node",
+          "node_types": ["Path", "SmoothPath"],
+          "flags": ["nonull"],
+          "desc": "path to draw"
+        },
+        {
+          "name": "box",
+          "type": "vec4",
+          "default": [-1.000000,-1.000000,2.000000,2.000000],
+          "flags": [],
+          "desc": "geometry box relative to screen (x, y, width, height)"
+        },
+        {
+          "name": "viewbox",
+          "type": "vec4",
+          "default": [-1.000000,-1.000000,2.000000,2.000000],
+          "flags": [],
+          "desc": "vector space for interpreting the path (x, y, width, height)"
+        },
+        {
+          "name": "pt_size",
+          "type": "i32",
+          "default": 54,
+          "flags": [],
+          "desc": "size in point (nominal size, 1pt = 1/72 inch)"
+        },
+        {
+          "name": "dpi",
+          "type": "i32",
+          "default": 300,
+          "flags": [],
+          "desc": "resolution (dot per inch)"
+        },
+        {
+          "name": "aspect_ratio",
+          "type": "ivec2",
+          "default": [1,1],
+          "flags": [],
+          "desc": "aspect ratio"
+        },
+        {
+          "name": "color",
+          "type": "vec3",
+          "default": [1.000000,1.000000,1.000000],
+          "flags": ["live", "node"],
+          "desc": "path fill color"
+        },
+        {
+          "name": "opacity",
+          "type": "f32",
+          "default": 1.000000,
+          "flags": ["live", "node"],
+          "desc": "path fill opacity"
+        },
+        {
+          "name": "outline",
+          "type": "f32",
+          "default": 0.005000,
+          "flags": ["live", "node"],
+          "desc": "path outline width"
+        },
+        {
+          "name": "outline_color",
+          "type": "vec3",
+          "default": [1.000000,0.700000,0.000000],
+          "flags": ["live", "node"],
+          "desc": "path outline color"
+        },
+        {
+          "name": "glow",
+          "type": "f32",
+          "default": 0.000000,
+          "flags": ["live", "node"],
+          "desc": "path glow width"
+        },
+        {
+          "name": "glow_color",
+          "type": "vec3",
+          "default": [1.000000,1.000000,1.000000],
+          "flags": ["live", "node"],
+          "desc": "path glow color"
+        },
+        {
+          "name": "blur",
+          "type": "f32",
+          "default": 0.000000,
+          "flags": ["live", "node"],
+          "desc": "path blur"
+        }
+      ]
+    },
+    "DrawTexture": {
+      "file": "src/node_drawother.c",
+      "params": [
+        {
+          "name": "texture",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": ["nonull"],
+          "desc": "texture to render"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
+    "DrawWaveform": {
+      "file": "src/node_drawother.c",
+      "params": [
+        {
+          "name": "stats",
+          "type": "node",
+          "node_types": ["ColorStats"],
+          "flags": ["nonull"],
+          "desc": "texture to render"
+        },
+        {
+          "name": "mode",
+          "type": "select",
+          "default": "mixed",
+          "choices": "scope_mode",
+          "flags": [],
+          "desc": "define how to represent the data"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
     "FilterAlpha": {
       "file": "src/node_filters.c",
       "params": [
@@ -2744,580 +3360,6 @@
         }
       ]
     },
-    "Render": {
-      "file": "src/node_render.c",
-      "params": [
-        {
-          "name": "geometry",
-          "type": "node",
-          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
-          "flags": ["nonull"],
-          "desc": "geometry to be rasterized"
-        },
-        {
-          "name": "program",
-          "type": "node",
-          "node_types": ["Program"],
-          "flags": ["nonull"],
-          "desc": "program to be executed"
-        },
-        {
-          "name": "vert_resources",
-          "type": "node_dict",
-          "node_types": ["Texture2D", "Texture2DArray", "Texture3D", "TextureCube", "Block", "ColorStats", "BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "NoiseFloat", "NoiseVec2", "NoiseVec3", "NoiseVec4", "EvalFloat", "EvalVec2", "EvalVec3", "EvalVec4", "StreamedBufferInt", "StreamedBufferIVec2", "StreamedBufferIVec3", "StreamedBufferIVec4", "StreamedBufferUInt", "StreamedBufferUIVec2", "StreamedBufferUIVec3", "StreamedBufferUIVec4", "StreamedBufferFloat", "StreamedBufferVec2", "StreamedBufferVec3", "StreamedBufferVec4", "UniformBool", "UniformFloat", "UniformVec2", "UniformVec3", "UniformVec4", "UniformColor", "UniformQuat", "UniformInt", "UniformIVec2", "UniformIVec3", "UniformIVec4", "UniformUInt", "UniformUIVec2", "UniformUIVec3", "UniformUIVec4", "UniformMat4", "AnimatedFloat", "AnimatedVec2", "AnimatedVec3", "AnimatedVec4", "AnimatedQuat", "AnimatedColor", "StreamedInt", "StreamedIVec2", "StreamedIVec3", "StreamedIVec4", "StreamedUInt", "StreamedUIVec2", "StreamedUIVec3", "StreamedUIVec4", "StreamedFloat", "StreamedVec2", "StreamedVec3", "StreamedVec4", "StreamedMat4", "Time", "VelocityFloat", "VelocityVec2", "VelocityVec3", "VelocityVec4"],
-          "flags": [],
-          "desc": "resources made accessible to the vertex stage of the `program`"
-        },
-        {
-          "name": "frag_resources",
-          "type": "node_dict",
-          "node_types": ["Texture2D", "Texture2DArray", "Texture3D", "TextureCube", "Block", "ColorStats", "BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "NoiseFloat", "NoiseVec2", "NoiseVec3", "NoiseVec4", "EvalFloat", "EvalVec2", "EvalVec3", "EvalVec4", "StreamedBufferInt", "StreamedBufferIVec2", "StreamedBufferIVec3", "StreamedBufferIVec4", "StreamedBufferUInt", "StreamedBufferUIVec2", "StreamedBufferUIVec3", "StreamedBufferUIVec4", "StreamedBufferFloat", "StreamedBufferVec2", "StreamedBufferVec3", "StreamedBufferVec4", "UniformBool", "UniformFloat", "UniformVec2", "UniformVec3", "UniformVec4", "UniformColor", "UniformQuat", "UniformInt", "UniformIVec2", "UniformIVec3", "UniformIVec4", "UniformUInt", "UniformUIVec2", "UniformUIVec3", "UniformUIVec4", "UniformMat4", "AnimatedFloat", "AnimatedVec2", "AnimatedVec3", "AnimatedVec4", "AnimatedQuat", "AnimatedColor", "StreamedInt", "StreamedIVec2", "StreamedIVec3", "StreamedIVec4", "StreamedUInt", "StreamedUIVec2", "StreamedUIVec3", "StreamedUIVec4", "StreamedFloat", "StreamedVec2", "StreamedVec3", "StreamedVec4", "StreamedMat4", "Time", "VelocityFloat", "VelocityVec2", "VelocityVec3", "VelocityVec4"],
-          "flags": [],
-          "desc": "resources made accessible to the fragment stage of the `program`"
-        },
-        {
-          "name": "attributes",
-          "type": "node_dict",
-          "node_types": ["BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "BufferMat4"],
-          "flags": [],
-          "desc": "extra vertex attributes made accessible to the `program`"
-        },
-        {
-          "name": "instance_attributes",
-          "type": "node_dict",
-          "node_types": ["BufferFloat", "BufferVec2", "BufferVec3", "BufferVec4", "BufferMat4"],
-          "flags": [],
-          "desc": "per instance extra vertex attributes made accessible to the `program`"
-        },
-        {
-          "name": "nb_instances",
-          "type": "i32",
-          "default": 1,
-          "flags": [],
-          "desc": "number of instances to draw"
-        },
-        {
-          "name": "blending",
-          "type": "select",
-          "default": "default",
-          "choices": "blend_preset",
-          "flags": [],
-          "desc": "define how this node and the current frame buffer are blended together"
-        }
-      ]
-    },
-    "RenderColor": {
-      "file": "src/node_renderother.c",
-      "params": [
-        {
-          "name": "color",
-          "type": "vec3",
-          "default": [1.000000,1.000000,1.000000],
-          "flags": ["live", "node"],
-          "desc": "color of the shape"
-        },
-        {
-          "name": "opacity",
-          "type": "f32",
-          "default": 1.000000,
-          "flags": ["live", "node"],
-          "desc": "opacity of the color"
-        },
-        {
-          "name": "blending",
-          "type": "select",
-          "default": "default",
-          "choices": "blend_preset",
-          "flags": [],
-          "desc": "define how this node and the current frame buffer are blending together"
-        },
-        {
-          "name": "geometry",
-          "type": "node",
-          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
-          "flags": [],
-          "desc": "geometry to be rasterized"
-        },
-        {
-          "name": "filters",
-          "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
-          "flags": [],
-          "desc": "filter chain to apply on top of this source"
-        }
-      ]
-    },
-    "RenderDisplace": {
-      "file": "src/node_renderother.c",
-      "params": [
-        {
-          "name": "source",
-          "type": "node",
-          "node_types": ["Texture2D"],
-          "flags": ["nonull"],
-          "desc": "source texture to displace"
-        },
-        {
-          "name": "displacement",
-          "type": "node",
-          "node_types": ["Texture2D"],
-          "flags": ["nonull"],
-          "desc": "displacement vectors stored in a texture"
-        },
-        {
-          "name": "blending",
-          "type": "select",
-          "default": "default",
-          "choices": "blend_preset",
-          "flags": [],
-          "desc": "define how this node and the current frame buffer are blending together"
-        },
-        {
-          "name": "geometry",
-          "type": "node",
-          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
-          "flags": [],
-          "desc": "geometry to be rasterized"
-        },
-        {
-          "name": "filters",
-          "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
-          "flags": [],
-          "desc": "filter chain to apply on top of this source"
-        }
-      ]
-    },
-    "RenderGradient": {
-      "file": "src/node_renderother.c",
-      "params": [
-        {
-          "name": "color0",
-          "type": "vec3",
-          "default": [0.000000,0.000000,0.000000],
-          "flags": ["live", "node"],
-          "desc": "color of the first point"
-        },
-        {
-          "name": "color1",
-          "type": "vec3",
-          "default": [1.000000,1.000000,1.000000],
-          "flags": ["live", "node"],
-          "desc": "color of the second point"
-        },
-        {
-          "name": "opacity0",
-          "type": "f32",
-          "default": 1.000000,
-          "flags": ["live", "node"],
-          "desc": "opacity of the first color"
-        },
-        {
-          "name": "opacity1",
-          "type": "f32",
-          "default": 1.000000,
-          "flags": ["live", "node"],
-          "desc": "opacity of the second color"
-        },
-        {
-          "name": "pos0",
-          "type": "vec2",
-          "default": [0.000000,0.500000],
-          "flags": ["live", "node"],
-          "desc": "position of the first point (in UV coordinates)"
-        },
-        {
-          "name": "pos1",
-          "type": "vec2",
-          "default": [1.000000,0.500000],
-          "flags": ["live", "node"],
-          "desc": "position of the second point (in UV coordinates)"
-        },
-        {
-          "name": "mode",
-          "type": "select",
-          "default": "ramp",
-          "choices": "gradient_mode",
-          "flags": [],
-          "desc": "mode of interpolation between the two points"
-        },
-        {
-          "name": "linear",
-          "type": "bool",
-          "default": 1,
-          "flags": ["live", "node"],
-          "desc": "interpolate colors linearly"
-        },
-        {
-          "name": "blending",
-          "type": "select",
-          "default": "default",
-          "choices": "blend_preset",
-          "flags": [],
-          "desc": "define how this node and the current frame buffer are blending together"
-        },
-        {
-          "name": "geometry",
-          "type": "node",
-          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
-          "flags": [],
-          "desc": "geometry to be rasterized"
-        },
-        {
-          "name": "filters",
-          "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
-          "flags": [],
-          "desc": "filter chain to apply on top of this source"
-        }
-      ]
-    },
-    "RenderGradient4": {
-      "file": "src/node_renderother.c",
-      "params": [
-        {
-          "name": "color_tl",
-          "type": "vec3",
-          "default": [1.000000,0.500000,0.000000],
-          "flags": ["live", "node"],
-          "desc": "top-left color"
-        },
-        {
-          "name": "color_tr",
-          "type": "vec3",
-          "default": [0.000000,1.000000,0.000000],
-          "flags": ["live", "node"],
-          "desc": "top-right color"
-        },
-        {
-          "name": "color_br",
-          "type": "vec3",
-          "default": [0.000000,0.500000,1.000000],
-          "flags": ["live", "node"],
-          "desc": "bottom-right color"
-        },
-        {
-          "name": "color_bl",
-          "type": "vec3",
-          "default": [1.000000,0.000000,1.000000],
-          "flags": ["live", "node"],
-          "desc": "bottom-left color"
-        },
-        {
-          "name": "opacity_tl",
-          "type": "f32",
-          "default": 1.000000,
-          "flags": ["live", "node"],
-          "desc": "opacity of the top-left color"
-        },
-        {
-          "name": "opacity_tr",
-          "type": "f32",
-          "default": 1.000000,
-          "flags": ["live", "node"],
-          "desc": "opacity of the top-right color"
-        },
-        {
-          "name": "opacity_br",
-          "type": "f32",
-          "default": 1.000000,
-          "flags": ["live", "node"],
-          "desc": "opacity of the bottom-right color"
-        },
-        {
-          "name": "opacity_bl",
-          "type": "f32",
-          "default": 1.000000,
-          "flags": ["live", "node"],
-          "desc": "opacity of the bottol-left color"
-        },
-        {
-          "name": "linear",
-          "type": "bool",
-          "default": 1,
-          "flags": ["live", "node"],
-          "desc": "interpolate colors linearly"
-        },
-        {
-          "name": "blending",
-          "type": "select",
-          "default": "default",
-          "choices": "blend_preset",
-          "flags": [],
-          "desc": "define how this node and the current frame buffer are blending together"
-        },
-        {
-          "name": "geometry",
-          "type": "node",
-          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
-          "flags": [],
-          "desc": "geometry to be rasterized"
-        },
-        {
-          "name": "filters",
-          "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
-          "flags": [],
-          "desc": "filter chain to apply on top of this source"
-        }
-      ]
-    },
-    "RenderHistogram": {
-      "file": "src/node_renderother.c",
-      "params": [
-        {
-          "name": "stats",
-          "type": "node",
-          "node_types": ["ColorStats"],
-          "flags": ["nonull"],
-          "desc": "texture to render"
-        },
-        {
-          "name": "mode",
-          "type": "select",
-          "default": "mixed",
-          "choices": "scope_mode",
-          "flags": [],
-          "desc": "define how to represent the data"
-        },
-        {
-          "name": "blending",
-          "type": "select",
-          "default": "default",
-          "choices": "blend_preset",
-          "flags": [],
-          "desc": "define how this node and the current frame buffer are blending together"
-        },
-        {
-          "name": "geometry",
-          "type": "node",
-          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
-          "flags": [],
-          "desc": "geometry to be rasterized"
-        },
-        {
-          "name": "filters",
-          "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
-          "flags": [],
-          "desc": "filter chain to apply on top of this source"
-        }
-      ]
-    },
-    "RenderNoise": {
-      "file": "src/node_renderother.c",
-      "params": [
-        {
-          "name": "type",
-          "type": "select",
-          "default": "blocky",
-          "choices": "noise_type",
-          "flags": [],
-          "desc": "noise type"
-        },
-        {
-          "name": "amplitude",
-          "type": "f32",
-          "default": 1.000000,
-          "flags": ["node"],
-          "desc": "by how much it oscillates"
-        },
-        {
-          "name": "octaves",
-          "type": "u32",
-          "default": 3,
-          "flags": [],
-          "desc": "number of accumulated noise layers (controls the level of details), must in [1,8]"
-        },
-        {
-          "name": "lacunarity",
-          "type": "f32",
-          "default": 2.000000,
-          "flags": ["node"],
-          "desc": "frequency multiplier per octave"
-        },
-        {
-          "name": "gain",
-          "type": "f32",
-          "default": 0.500000,
-          "flags": ["node"],
-          "desc": "amplitude multiplier per octave (also known as persistence)"
-        },
-        {
-          "name": "seed",
-          "type": "u32",
-          "default": 0,
-          "flags": ["node"],
-          "desc": "random base seed"
-        },
-        {
-          "name": "scale",
-          "type": "vec2",
-          "default": [32.000000,32.000000],
-          "flags": ["node"],
-          "desc": "size of the grid in lattice units"
-        },
-        {
-          "name": "evolution",
-          "type": "f32",
-          "default": 0.000000,
-          "flags": ["node"],
-          "desc": "evolution of the 3rd non-spatial dimension, time if unspecified"
-        },
-        {
-          "name": "blending",
-          "type": "select",
-          "default": "default",
-          "choices": "blend_preset",
-          "flags": [],
-          "desc": "define how this node and the current frame buffer are blending together"
-        },
-        {
-          "name": "geometry",
-          "type": "node",
-          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
-          "flags": [],
-          "desc": "geometry to be rasterized"
-        },
-        {
-          "name": "filters",
-          "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
-          "flags": [],
-          "desc": "filter chain to apply on top of this source"
-        }
-      ]
-    },
-    "RenderPath": {
-      "file": "src/node_renderpath.c",
-      "params": [
-        {
-          "name": "path",
-          "type": "node",
-          "node_types": ["Path", "SmoothPath"],
-          "flags": ["nonull"],
-          "desc": "path to draw"
-        },
-        {
-          "name": "box",
-          "type": "vec4",
-          "default": [-1.000000,-1.000000,2.000000,2.000000],
-          "flags": [],
-          "desc": "geometry box relative to screen (x, y, width, height)"
-        },
-        {
-          "name": "viewbox",
-          "type": "vec4",
-          "default": [-1.000000,-1.000000,2.000000,2.000000],
-          "flags": [],
-          "desc": "vector space for interpreting the path (x, y, width, height)"
-        },
-        {
-          "name": "pt_size",
-          "type": "i32",
-          "default": 54,
-          "flags": [],
-          "desc": "size in point (nominal size, 1pt = 1/72 inch)"
-        },
-        {
-          "name": "dpi",
-          "type": "i32",
-          "default": 300,
-          "flags": [],
-          "desc": "resolution (dot per inch)"
-        },
-        {
-          "name": "aspect_ratio",
-          "type": "ivec2",
-          "default": [1,1],
-          "flags": [],
-          "desc": "aspect ratio"
-        },
-        {
-          "name": "color",
-          "type": "vec3",
-          "default": [1.000000,1.000000,1.000000],
-          "flags": ["live", "node"],
-          "desc": "path fill color"
-        },
-        {
-          "name": "opacity",
-          "type": "f32",
-          "default": 1.000000,
-          "flags": ["live", "node"],
-          "desc": "path fill opacity"
-        },
-        {
-          "name": "outline",
-          "type": "f32",
-          "default": 0.005000,
-          "flags": ["live", "node"],
-          "desc": "path outline width"
-        },
-        {
-          "name": "outline_color",
-          "type": "vec3",
-          "default": [1.000000,0.700000,0.000000],
-          "flags": ["live", "node"],
-          "desc": "path outline color"
-        },
-        {
-          "name": "glow",
-          "type": "f32",
-          "default": 0.000000,
-          "flags": ["live", "node"],
-          "desc": "path glow width"
-        },
-        {
-          "name": "glow_color",
-          "type": "vec3",
-          "default": [1.000000,1.000000,1.000000],
-          "flags": ["live", "node"],
-          "desc": "path glow color"
-        },
-        {
-          "name": "blur",
-          "type": "f32",
-          "default": 0.000000,
-          "flags": ["live", "node"],
-          "desc": "path blur"
-        }
-      ]
-    },
-    "RenderTexture": {
-      "file": "src/node_renderother.c",
-      "params": [
-        {
-          "name": "texture",
-          "type": "node",
-          "node_types": ["Texture2D"],
-          "flags": ["nonull"],
-          "desc": "texture to render"
-        },
-        {
-          "name": "blending",
-          "type": "select",
-          "default": "default",
-          "choices": "blend_preset",
-          "flags": [],
-          "desc": "define how this node and the current frame buffer are blending together"
-        },
-        {
-          "name": "geometry",
-          "type": "node",
-          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
-          "flags": [],
-          "desc": "geometry to be rasterized"
-        },
-        {
-          "name": "filters",
-          "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
-          "flags": [],
-          "desc": "filter chain to apply on top of this source"
-        }
-      ]
-    },
     "RenderToTexture": {
       "file": "src/node_rtt.c",
       "params": [
@@ -3361,48 +3403,6 @@
           "default": 0,
           "flags": [],
           "desc": "enable forwarding of camera/model transformations"
-        }
-      ]
-    },
-    "RenderWaveform": {
-      "file": "src/node_renderother.c",
-      "params": [
-        {
-          "name": "stats",
-          "type": "node",
-          "node_types": ["ColorStats"],
-          "flags": ["nonull"],
-          "desc": "texture to render"
-        },
-        {
-          "name": "mode",
-          "type": "select",
-          "default": "mixed",
-          "choices": "scope_mode",
-          "flags": [],
-          "desc": "define how to represent the data"
-        },
-        {
-          "name": "blending",
-          "type": "select",
-          "default": "default",
-          "choices": "blend_preset",
-          "flags": [],
-          "desc": "define how this node and the current frame buffer are blending together"
-        },
-        {
-          "name": "geometry",
-          "type": "node",
-          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
-          "flags": [],
-          "desc": "geometry to be rasterized"
-        },
-        {
-          "name": "filters",
-          "type": "node_list",
-          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
-          "flags": [],
-          "desc": "filter chain to apply on top of this source"
         }
       ]
     },

@@ -5,7 +5,7 @@
 Scopes refers to a set of nodes:
 - [ColorStats] doing the color analysis of a given textures and storing it into
   a data block
-- [RenderWaveform] and [RenderHistogram] reading this data block and
+- [DrawWaveform] and [DrawHistogram] reading this data block and
   representing this data in a fancy way
 
 This document explains how to work with them, and in particular how to exploit
@@ -28,7 +28,7 @@ So while effort has been made such that [ColorStats] runs as fast as possible
 and on all backends, your mileage may vary.
 
 
-## RenderHistogram
+## DrawHistogram
 
 The histogram (bottom-right in the screenshot) is a 2-dimensional
 representation of the distribution of color in the input texture:
@@ -42,7 +42,7 @@ Display the histogram of a media
 ```
 
 
-## RenderWaveform
+## DrawWaveform
 
 The waveform spectrum (top-right and bottom-left in the screenshot) is a
 3-dimensional representation of the distribution of color in the input texture:
@@ -50,11 +50,11 @@ The waveform spectrum (top-right and bottom-left in the screenshot) is a
   mini-histogram of the same column of pixels on the input texture
 - the y-axis represents the intensity of the color: absence of light on the
   bottom maximum light on the top; it is equivalent to the y-axis in
-  [RenderHistogram]
+  [DrawHistogram]
 - the z-axis represents how much of each intensity is present, and is
   communicated using the color intensity where black means 0 intensity and
   white the maximum intensity; it is an alternative representation of the
-  y-axis in [RenderHistogram]
+  y-axis in [DrawHistogram]
 
 A simple way of understanding the representation is to consider that every
 column of pixels is like looking at an histogram from above (a peak in the
@@ -69,8 +69,8 @@ Display the waveform spectrum of a media
 ## ColorStats
 
 The [ColorStats] interface is essentially the same as a [Block]. This means
-that in addition of being read by [RenderHistogram] and [RenderWaveform], it
-can be attached to [Render] vertex or fragment resources, or [Compute]
+that in addition of being read by [DrawHistogram] and [DrawWaveform], it
+can be attached to [Draw] vertex or fragment resources, or [Compute]
 resources, and read in the corresponding shaders.
 
 The following fields are accessible from the shader:
@@ -92,9 +92,9 @@ Additional details:
 
 
 [ColorStats]: /usr/ref/libnopegl.md#colorstats
-[RenderWaveform]: /usr/ref/libnopegl.md#renderwaveform
-[RenderHistogram]: /usr/ref/libnopegl.md#renderhistogram
+[DrawWaveform]: /usr/ref/libnopegl.md#drawwaveform
+[DrawHistogram]: /usr/ref/libnopegl.md#drawhistogram
 [Block]: /usr/ref/libnopegl.md#block
-[Render]: /usr/ref/libnopegl.md#render
+[Draw]: /usr/ref/libnopegl.md#draw
 [Compute]: /usr/ref/libnopegl.md#compute
 [nope.demos]: https://github.com/NopeForge/nope.demos

@@ -66,7 +66,7 @@ static struct ngl_scene *get_scene(const struct ctx *s, const char *filename)
 
     struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA);
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);
-    struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDERTEXTURE);
+    struct ngl_node *draw    = ngl_node_create(NGL_NODE_DRAWTEXTURE);
 
     ngl_node_param_set_str(media, "filename", filename);
     ngl_node_param_set_select(media, "hwaccel", s->hwaccel ? "auto" : "disabled");
@@ -77,16 +77,16 @@ static struct ngl_scene *get_scene(const struct ctx *s, const char *filename)
         ngl_node_param_set_select(texture, "mipmap_filter", "linear");
     if (s->direct_rendering != -1)
         ngl_node_param_set_bool(texture, "direct_rendering", s->direct_rendering);
-    ngl_node_param_set_node(render, "texture", texture);
+    ngl_node_param_set_node(draw, "texture", texture);
 
-    struct ngl_scene_params params = ngl_scene_default_params(render);
+    struct ngl_scene_params params = ngl_scene_default_params(draw);
     params.duration = s->media_info.duration;
     params.aspect_ratio[0] = s->media_info.width;
     params.aspect_ratio[1] = s->media_info.height;
     if (ngl_scene_init(scene, &params) < 0)
         ngl_scene_unrefp(&scene);
 
-    ngl_node_unrefp(&render);
+    ngl_node_unrefp(&draw);
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);
 

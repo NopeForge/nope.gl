@@ -23,6 +23,6 @@ def animated(cfg: ngl.SceneCfg):
     color0 = ngl.AnimatedColor(keyframes=color0_animkf)
     color1 = ngl.AnimatedColor(keyframes=color1_animkf)
 
-    bg = ngl.RenderGradient(color0=color0, color1=color1)
+    bg = ngl.DrawGradient(color0=color0, color1=color1)
     fg = ngl.Text("Hello World!", bg_opacity=0)
     return ngl.Group(children=[bg, fg])

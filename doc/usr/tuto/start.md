@@ -41,7 +41,7 @@ the preview.
 
 To add a background to our scene, we need to create a composition where we first
 draw that background, then our text. For the background, we can pick one of the
-proposition from the [renders howtos]. For the composition itself, we can rely
+proposition from the [draws howtos]. For the composition itself, we can rely
 on the [Group] node to split the graph in two branches:
 
 ```{nope} starter.bg_fg_composition
@@ -57,7 +57,7 @@ play with that value (somewhere between 0 and 1) to see how it impacts the scene
 ## Animating values
 
 In many cases, node parameters that accept constant values also accept nodes.
-We can see that it's the case with [RenderGradient] parameters (look for the
+We can see that it's the case with [DrawGradient] parameters (look for the
 `node` flag), and notably `color1` and `color2` we're currently using in our
 scene. Accepting nodes means we could animate these parameters:
 
@@ -73,7 +73,7 @@ but you can customize that. More specifically, try to change the `easing`
 parameter of the [AnimkeyFrameColor] nodes (but the first one) to adjust the
 rhythm of the scene.
 
-You may also have noticed in the [RenderGradient] documentation that the
+You may also have noticed in the [DrawGradient] documentation that the
 positions of the gradients could be changed. You could try to do that with the
 help of an [AnimatedVec2] and [AnimKeyFrameVec2].
 
@@ -120,11 +120,11 @@ Finally, in every situation, you will feel the need to check out the [reference
 documentation][refdoc] for austere but exhaustive information, and in
 particular, [all the node definitions][ref-libnopegl].
 
-[renders howtos]: /usr/howto/renders.md
+[draws howtos]: /usr/howto/draws.md
 [transforms howtos]: /usr/howto/transforms.md
 [Text]: /usr/ref/libnopegl.md#text
 [Group]: /usr/ref/libnopegl.md#group
-[RenderGradient]: /usr/ref/libnopegl.md#rendergradient
+[DrawGradient]: /usr/ref/libnopegl.md#drawgradient
 [AnimKeyFrameColor]: /usr/ref/libnopegl.md#animkeyframecolor
 [AnimatedVec2]: /usr/ref/libnopegl.md#animatedvec2
 [AnimKeyFrameVec2]: /usr/ref/libnopegl.md#animkeyframevec2

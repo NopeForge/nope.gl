@@ -13,4 +13,4 @@ def video(cfg: ngl.SceneCfg):
     # Warning: the Texture can be shared, but not the Media
     media = ngl.Media(video.filename)
     tex = ngl.Texture2D(data_src=media)
-    return ngl.RenderTexture(tex)
+    return ngl.DrawTexture(tex)

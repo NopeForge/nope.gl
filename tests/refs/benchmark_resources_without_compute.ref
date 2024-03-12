@@ -1,4 +1,4 @@
-Textures memory,Buffers count,Buffers total,Blocks count,Blocks total,Medias count,Medias total,Textures count,Textures total,Computes,GraphicCfgs,Renders,RTTs
+Textures memory,Buffers count,Buffers total,Blocks count,Blocks total,Medias count,Medias total,Textures count,Textures total,Computes,GraphicCfgs,Draws,RTTs
 166744,0,0,0,0,2,6,7,36,0,0,14,4
 520400,0,0,0,0,2,6,8,36,0,0,28,8
 520400,0,0,0,0,3,6,9,36,0,0,34,8

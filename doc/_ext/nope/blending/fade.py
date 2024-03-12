@@ -12,10 +12,10 @@ def fade(cfg: ngl.SceneCfg):
     cfg.duration = 4
 
     bg_tex = ngl.Texture2D(data_src=ngl.Media(image0.filename))
-    bg = ngl.RenderTexture(bg_tex)
+    bg = ngl.DrawTexture(bg_tex)
 
     fg_tex = ngl.Texture2D(data_src=ngl.Media(image1.filename))
-    fg = ngl.RenderTexture(fg_tex)
+    fg = ngl.DrawTexture(fg_tex)
     fg.set_blending("src_over")
 
     animkf = [

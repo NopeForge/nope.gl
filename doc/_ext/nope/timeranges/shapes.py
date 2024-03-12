@@ -7,7 +7,7 @@ def shapes(cfg: ngl.SceneCfg):
     cfg.duration = 6.0
 
     # Draw the same shape 3 times in a different place
-    shape = ngl.Scale(ngl.RenderColor(), factors=(1 / 6, 1 / 6, 1))
+    shape = ngl.Scale(ngl.DrawColor(), factors=(1 / 6, 1 / 6, 1))
     shape_x3 = [ngl.Translate(shape, (x, 0, 0)) for x in (-0.5, 0, 0.5)]
 
     # Define a different time range for each branch

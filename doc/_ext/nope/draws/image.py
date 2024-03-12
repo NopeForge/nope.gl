@@ -12,4 +12,4 @@ def image(cfg: ngl.SceneCfg):
     # Warning: the texture can be shared, but not the media
     media = ngl.Media(image.filename)
     tex = ngl.Texture2D(data_src=media)
-    return ngl.RenderTexture(tex)
+    return ngl.DrawTexture(tex)

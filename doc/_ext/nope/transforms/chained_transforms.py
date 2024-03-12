@@ -12,7 +12,7 @@ def chained_transforms(cfg: ngl.SceneCfg):
     step = 360 / n
 
     shape = ngl.Circle(radius=radius, npoints=128)
-    render = ngl.RenderColor(geometry=shape)
+    draw = ngl.DrawColor(geometry=shape)
 
     for i in range(n):
         mid_time = cfg.duration / 2.0
@@ -32,7 +32,7 @@ def chained_transforms(cfg: ngl.SceneCfg):
             ngl.AnimKeyFrameFloat(end_time, 0, "exp_in"),
         ]
 
-        tnode = render
+        tnode = draw
         tnode = ngl.Scale(tnode, factors=ngl.AnimatedVec3(scale_animkf))
         tnode = ngl.Translate(tnode, vector=(1 - radius, 0, 0))
         tnode = ngl.Rotate(tnode, angle=ngl.AnimatedFloat(rotate_animkf))

@@ -1,7 +1,7 @@
 # Animating and displaying paths
 
 The [Path] node can be used to build animations along complex shapes and can
-be displayed with the help of [RenderPath]. It take various `PathKey*` nodes as
+be displayed with the help of [DrawPath]. It take various `PathKey*` nodes as
 input to describe the path itself.
 
 Rendering a path with a single cubic curve looks like this:
@@ -37,8 +37,8 @@ While a path can be rendered, it can also be used to animate elements:
 Animation of an element along a path
 ```
 
-Finally, [RenderPath] has a bunch of effects such as glowing, and like any other
-render it can be transformed at will:
+Finally, [DrawPath] has a bunch of effects such as glowing, and like any other
+drawing nodes it can be transformed at will:
 
 ```{nope} path.effects
 :export_type: video
@@ -51,4 +51,4 @@ need to be specified (with two extra controls at the extremities).
 
 [Path]: /usr/ref/libnopegl.md#path
 [SmoothPath]: /usr/ref/libnopegl.md#smoothpath
-[RenderPath]: /usr/ref/libnopegl.md#renderpath
+[DrawPath]: /usr/ref/libnopegl.md#drawpath

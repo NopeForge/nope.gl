@@ -21,4 +21,4 @@ def geometry(cfg: ngl.SceneCfg):
         topology="triangle_strip",
     )
 
-    return ngl.RenderColor(geometry=geometry)
+    return ngl.DrawColor(geometry=geometry)

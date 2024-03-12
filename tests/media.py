@@ -56,7 +56,7 @@ def _get_time_scene(cfg: ngl.SceneCfg):
 
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
     t = ngl.Texture2D(data_src=m, min_filter="nearest", mag_filter="nearest")
-    r = ngl.RenderTexture(t)
+    r = ngl.DrawTexture(t)
 
     rf = ngl.TimeRangeFilter(r, range_start, range_stop, prefetch_time=prefetch_duration)
 
@@ -76,7 +76,7 @@ def media_flat_remap(cfg: ngl.SceneCfg):
 
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
     t = ngl.Texture2D(data_src=m, min_filter="nearest", mag_filter="nearest")
-    return ngl.RenderTexture(t)
+    return ngl.DrawTexture(t)
 
 
 @test_cuepoints(
@@ -109,7 +109,7 @@ def media_clamp(cfg: ngl.SceneCfg):
 
     media = ngl.Media(m0.filename)
     texture = ngl.Texture2D(data_src=media, clamp_video=True, min_filter="nearest", mag_filter="nearest")
-    return ngl.RenderTexture(texture)
+    return ngl.DrawTexture(texture)
 
 
 @test_cuepoints(width=320, height=240, points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, keyframes=5, tolerance=1)
@@ -143,9 +143,9 @@ def media_exposed_time(cfg: ngl.SceneCfg):
     texture = ngl.Texture2D(data_src=media, min_filter="nearest", mag_filter="nearest")
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(uv=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture, duration=ngl.UniformFloat(cfg.duration))
-    return render
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=texture, duration=ngl.UniformFloat(cfg.duration))
+    return draw
 
 
 @test_fingerprint(width=1024, height=1024, keyframes=30, tolerance=2)
@@ -170,9 +170,9 @@ def media_queue(cfg: ngl.SceneCfg, overlap_time=7.0, dim=3):
         media = ngl.Media(medias[video_id % len(medias)], time_anim=ngl.AnimatedTime(animkf))
 
         texture = ngl.Texture2D(data_src=media, min_filter="linear", mag_filter="linear")
-        render = ngl.RenderTexture(texture)
+        draw = ngl.DrawTexture(texture)
 
-        rf = ngl.TimeRangeFilter(render, start, end)
+        rf = ngl.TimeRangeFilter(draw, start, end)
 
         queued_medias.append(rf)
 
@@ -191,23 +191,23 @@ def media_timeranges_rtt(cfg: ngl.SceneCfg):
     texture = ngl.Texture2D(data_src=media, min_filter="nearest", mag_filter="nearest")
 
     # Diamond tree on the same media texture
-    render0 = ngl.RenderTexture(texture, label="leaf 0")
-    render1 = ngl.RenderTexture(texture, label="leaf 1")
+    draw0 = ngl.DrawTexture(texture, label="leaf 0")
+    draw1 = ngl.DrawTexture(texture, label="leaf 1")
 
     # Create intermediate RTT "proxy" to exercise prefetch/release at this
     # level as well
     dst_tex0 = ngl.Texture2D(width=m0.width, height=m0.height, min_filter="nearest", mag_filter="nearest")
     dst_tex1 = ngl.Texture2D(width=m0.width, height=m0.height, min_filter="nearest", mag_filter="nearest")
-    rtt0 = ngl.RenderToTexture(render0, [dst_tex0])
-    rtt1 = ngl.RenderToTexture(render1, [dst_tex1])
+    rtt0 = ngl.RenderToTexture(draw0, [dst_tex0])
+    rtt1 = ngl.RenderToTexture(draw1, [dst_tex1])
 
     # Render the 2 RTTs vertically split (one half content each)
     quad0 = ngl.Quad((-1, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(0, 0), uv_width=(0.5, 0))
     quad1 = ngl.Quad((0, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(0.5, 0), uv_width=(0.5, 0))
-    rtt_render0 = ngl.RenderTexture(dst_tex0, geometry=quad0, label="render RTT 0")
-    rtt_render1 = ngl.RenderTexture(dst_tex1, geometry=quad1, label="render RTT 1")
-    proxy0 = ngl.Group(children=(rtt0, rtt_render0), label="proxy 0")
-    proxy1 = ngl.Group(children=(rtt1, rtt_render1), label="proxy 1")
+    rtt_draw0 = ngl.DrawTexture(dst_tex0, geometry=quad0, label="draw RTT 0")
+    rtt_draw1 = ngl.DrawTexture(dst_tex1, geometry=quad1, label="draw RTT 1")
+    proxy0 = ngl.Group(children=(rtt0, rtt_draw0), label="proxy 0")
+    proxy1 = ngl.Group(children=(rtt1, rtt_draw1), label="proxy 1")
 
     # We want to make sure the idle times are enough to exercise the
     # prefetch/release mechanism

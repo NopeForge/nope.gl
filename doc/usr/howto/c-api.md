@@ -93,7 +93,7 @@ The most straightforward method though, is to craft a scene directly using the
 C API.
 
 In this section, we will assume that you are familiar with the Python binding
-and how a basic `Render` node works. If not, you are encouraged to check out
+and how a basic `Draw` node works. If not, you are encouraged to check out
 the [starter tutorial][tuto-start] before reading any further.
 
 [tuto-start]: /usr/tuto/start.md
@@ -119,7 +119,7 @@ static struct ngl_scene *get_scene(const char *filename)
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD);
     struct ngl_node *program = ngl_node_create(NGL_NODE_PROGRAM);
-    struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER);
+    struct ngl_node *draw    = ngl_node_create(NGL_NODE_DRAW);
 
     ngl_node_param_set_str(media, "filename", filename);
     ngl_node_param_set_data(texture, "data_src", media);
@@ -128,18 +128,18 @@ static struct ngl_scene *get_scene(const char *filename)
     ngl_node_param_set_vec3(quad, "height", height);
     ngl_node_param_set_str(program, "vertex", vertex);
     ngl_node_param_set_str(program, "fragment", fragment);
-    ngl_node_param_set_node(render, "geometry", quad);
-    ngl_node_param_set_node(render, "program", program);
-    ngl_node_param_set_dict(render, "textures", "tex0", texture);
+    ngl_node_param_set_node(draw, "geometry", quad);
+    ngl_node_param_set_node(draw, "program", program);
+    ngl_node_param_set_dict(draw, "textures", "tex0", texture);
 
-    const struct ngl_scene_params params = ngl_scene_default_params(render);
+    const struct ngl_scene_params params = ngl_scene_default_params(draw);
     ngl_scene_init(scene, &params);
 
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);
     ngl_node_unrefp(&quad);
     ngl_node_unrefp(&program);
-    ngl_node_unrefp(&render);
+    ngl_node_unrefp(&draw);
 
     return scene;
 }

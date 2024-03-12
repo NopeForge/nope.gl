@@ -25,6 +25,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `Text.box_{corner,width,height}` are replaced with a 4 component long
   `Text.box` parameter; if 3D positioning is required, traditional transform
   nodes can be used
+- `Render*` nodes are renamed to `Draw*`
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio

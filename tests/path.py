@@ -40,7 +40,7 @@ def _shape_variant_0(cfg: ngl.SceneCfg, *kfs):
         ]
     )
     path = ngl.Path(keyframes)
-    return ngl.RenderPath(path, viewbox=(-1, -1, 2, 1))
+    return ngl.DrawPath(path, viewbox=(-1, -1, 2, 1))
 
 
 @test_fingerprint(width=640, height=640)
@@ -131,7 +131,7 @@ def path_parabola(cfg: ngl.SceneCfg):
         ngl.PathKeyLine(to=orig),
     ]
     path = ngl.Path(keyframes)
-    return ngl.RenderPath(path, viewbox=(-1, -1, 2, 1))
+    return ngl.DrawPath(path, viewbox=(-1, -1, 2, 1))
 
 
 @test_fingerprint(width=640, height=640)
@@ -151,7 +151,7 @@ def path_flip_t(cfg: ngl.SceneCfg, x_base=-0.5, y_base=-0.5):
     ]
 
     path = ngl.Path(keyframes)
-    return ngl.RenderPath(path)
+    return ngl.DrawPath(path)
 
 
 @test_fingerprint(width=640, height=640)
@@ -166,7 +166,7 @@ def path_pie_slice(cfg: ngl.SceneCfg):
     ]
 
     path = ngl.Path(keyframes)
-    return ngl.RenderPath(path, box=(-1.5, -1, 3.5, 2), viewbox=(0.2, 0.2, 0.4, 0.4))
+    return ngl.DrawPath(path, box=(-1.5, -1, 3.5, 2), viewbox=(0.2, 0.2, 0.4, 0.4))
 
 
 def _get_overlap_shape0():
@@ -197,7 +197,7 @@ def path_overlap_add(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     keyframes = _get_overlap_shape0() + _get_overlap_shape1(clockwise=True)
     path = ngl.Path(keyframes)
-    return ngl.RenderPath(path, viewbox=(0, 0, 10, 10))
+    return ngl.DrawPath(path, viewbox=(0, 0, 10, 10))
 
 
 @test_fingerprint(width=640, height=640)
@@ -206,4 +206,4 @@ def path_overlap_xor(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     keyframes = _get_overlap_shape0() + _get_overlap_shape1(clockwise=False)
     path = ngl.Path(keyframes)
-    return ngl.RenderPath(path, viewbox=(0, 0, 10, 10))
+    return ngl.DrawPath(path, viewbox=(0, 0, 10, 10))

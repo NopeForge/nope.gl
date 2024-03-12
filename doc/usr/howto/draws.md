@@ -1,31 +1,31 @@
-# Displaying content using Render nodes
+# Displaying content using drawing nodes
 
-`Render*` nodes can be used to display all kind of content: solid colors,
+`Draw*` nodes can be used to display all kind of content: solid colors,
 gradients, multimedia files, ...
 
-```{nope} renders.gradient
+```{nope} draws.gradient
 :export_type: image
 A simple horizontal gradient from teal to orange
 ```
 
-```{nope} renders.image
+```{nope} draws.image
 :export_type: image
-Render an image
+Draw an image
 ```
 
-```{nope} renders.video
+```{nope} draws.video
 :export_type: video
-Render a video
+Draw a video
 ```
 
-```{nope} renders.noise
+```{nope} draws.noise
 :export_type: video
-Render an animated fractal noise
+Draw an animated fractal noise
 ```
 
-## Render with custom shaders
+## Draw with custom shaders
 
-It is also possible to create a custom shader using the [Render] node and get a
+It is also possible to create a custom shader using the [Draw] node and get a
 similar experience to [shadertoy](https://www.shadertoy.com).
 
 In the following scene, even if the shaders are loaded from an external file
@@ -37,10 +37,10 @@ To do texture picking, add the `Texture2D` to the `frag_resources`, and use
 `ngl_texvideo()` in the shader. See [this shaders explanation section][shadertex]
 for more information.
 
-```{nope} renders.shadertoy
+```{nope} draws.shadertoy
 :export_type: video
 Custom shader development environment
 ```
 
-[Render]: /usr/ref/libnopegl.md#render
+[Draw]: /usr/ref/libnopegl.md#draw
 [shadertex]: /usr/expl/shaders.md#textures

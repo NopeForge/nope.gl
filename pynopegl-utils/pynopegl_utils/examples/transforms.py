@@ -14,7 +14,7 @@ def animated_uniform(cfg: ngl.SceneCfg):
     t = ngl.Texture2D(data_src=m)
     p = ngl.Program(vertex=get_shader("texture.vert"), fragment=get_shader("matrix-transform.frag"))
     p.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    ts = ngl.Render(q, p)
+    ts = ngl.Draw(q, p)
     ts.update_frag_resources(tex0=t)
 
     scale_animkf = [
@@ -41,7 +41,7 @@ def animated_camera(cfg: ngl.SceneCfg, rotate=True):
     media = load_media("mire")
     m = ngl.Media(media.filename)
     t = ngl.Texture2D(data_src=m)
-    node = ngl.RenderTexture(t, geometry=q)
+    node = ngl.DrawTexture(t, geometry=q)
     g.add_children(node)
 
     translate = ngl.Translate(node, vector=(-0.6, 0.8, -1))

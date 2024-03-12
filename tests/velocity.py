@@ -53,11 +53,11 @@ def velocity_triangle_rotate(cfg: ngl.SceneCfg):
     )
 
     p0, p1, p2 = equilateral_triangle_coords(2.0)
-    triangle = ngl.RenderColor(COLORS.white, geometry=ngl.Triangle(p0, p1, p2))
+    triangle = ngl.DrawColor(COLORS.white, geometry=ngl.Triangle(p0, p1, p2))
     triangle = ngl.Rotate(triangle, angle=anim)
 
     prog_c = ngl.Program(vertex=get_shader("color.vert"), fragment=frag)
-    circle = ngl.Render(ngl.Circle(radius=1.0, npoints=128), prog_c)
+    circle = ngl.Draw(ngl.Circle(radius=1.0, npoints=128), prog_c)
     circle.update_frag_resources(velocity=velocity)
     return ngl.Group(children=(circle, triangle))
 
@@ -93,7 +93,7 @@ def velocity_circle_distort_2d(cfg: ngl.SceneCfg):
 
     geom = ngl.Circle(radius=0.2, npoints=128)
     prog = ngl.Program(vertex=vert, fragment=get_shader("color.frag"))
-    shape = ngl.Render(geom, prog)
+    shape = ngl.Draw(geom, prog)
     shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white), opacity=ngl.UniformFloat(1))
     shape.update_vert_resources(velocity=velocity, translate=anim)
     return shape
@@ -129,7 +129,7 @@ def velocity_circle_distort_3d(cfg: ngl.SceneCfg):
 
     geom = ngl.Circle(radius=0.2, npoints=128)
     prog = ngl.Program(vertex=vert, fragment=get_shader("color.frag"))
-    shape = ngl.Render(geom, prog)
+    shape = ngl.Draw(geom, prog)
     shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white), opacity=ngl.UniformFloat(1))
     shape.update_vert_resources(velocity=velocity)
     return ngl.Translate(shape, vector=anim)

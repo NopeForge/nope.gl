@@ -80,6 +80,16 @@
     action(NGL_NODE_COLORSTATS,             ngli_colorstats_class)              \
     action(NGL_NODE_COMPUTE,                ngli_compute_class)                 \
     action(NGL_NODE_COMPUTEPROGRAM,         ngli_computeprogram_class)          \
+    action(NGL_NODE_DRAW,                   ngli_draw_class)                    \
+    action(NGL_NODE_DRAWCOLOR,              ngli_drawcolor_class)               \
+    action(NGL_NODE_DRAWDISPLACE,           ngli_drawdisplace_class)            \
+    action(NGL_NODE_DRAWGRADIENT,           ngli_drawgradient_class)            \
+    action(NGL_NODE_DRAWGRADIENT4,          ngli_drawgradient4_class)           \
+    action(NGL_NODE_DRAWHISTOGRAM,          ngli_drawhistogram_class)           \
+    action(NGL_NODE_DRAWNOISE,              ngli_drawnoise_class)               \
+    action(NGL_NODE_DRAWPATH,               ngli_drawpath_class)                \
+    action(NGL_NODE_DRAWTEXTURE,            ngli_drawtexture_class)             \
+    action(NGL_NODE_DRAWWAVEFORM,           ngli_drawwaveform_class)            \
     action(NGL_NODE_FILTERALPHA,            ngli_filteralpha_class)             \
     action(NGL_NODE_FILTERCOLORMAP,         ngli_filtercolormap_class)          \
     action(NGL_NODE_FILTERCONTRAST,         ngli_filtercontrast_class)          \
@@ -131,17 +141,7 @@
     action(NGL_NODE_PATHKEYMOVE,            ngli_pathkeymove_class)             \
     action(NGL_NODE_PROGRAM,                ngli_program_class)                 \
     action(NGL_NODE_QUAD,                   ngli_quad_class)                    \
-    action(NGL_NODE_RENDER,                 ngli_render_class)                  \
-    action(NGL_NODE_RENDERCOLOR,            ngli_rendercolor_class)             \
-    action(NGL_NODE_RENDERDISPLACE,         ngli_renderdisplace_class)          \
-    action(NGL_NODE_RENDERGRADIENT,         ngli_rendergradient_class)          \
-    action(NGL_NODE_RENDERGRADIENT4,        ngli_rendergradient4_class)         \
-    action(NGL_NODE_RENDERHISTOGRAM,        ngli_renderhistogram_class)         \
-    action(NGL_NODE_RENDERNOISE,            ngli_rendernoise_class)             \
-    action(NGL_NODE_RENDERPATH,             ngli_renderpath_class)              \
-    action(NGL_NODE_RENDERTEXTURE,          ngli_rendertexture_class)           \
     action(NGL_NODE_RENDERTOTEXTURE,        ngli_rtt_class)                     \
-    action(NGL_NODE_RENDERWAVEFORM,         ngli_renderwaveform_class)          \
     action(NGL_NODE_RESOURCEPROPS,          ngli_resourceprops_class)           \
     action(NGL_NODE_ROTATE,                 ngli_rotate_class)                  \
     action(NGL_NODE_ROTATEQUAT,             ngli_rotatequat_class)              \

@@ -34,7 +34,7 @@
 #include "topology.h"
 #include "utils.h"
 
-struct render_opts {
+struct draw_opts {
     struct ngl_node *geometry;
     struct ngl_node *program;
     struct hmap *vert_resources;
@@ -45,7 +45,7 @@ struct render_opts {
     int blending;
 };
 
-struct render_priv {
+struct draw_priv {
     struct pass pass;
 };
 
@@ -137,7 +137,7 @@ struct render_priv {
                                                NGL_NODE_TRIANGLE,        \
                                                NGLI_NODE_NONE}
 
-#define OFFSET(x) offsetof(struct render_opts, x)
+#define OFFSET(x) offsetof(struct draw_opts, x)
 static const struct node_param render_params[] = {
     {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(geometry), .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .node_types=GEOMETRY_TYPES_LIST,
@@ -169,8 +169,8 @@ static const struct node_param render_params[] = {
 static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct render_priv *s = node->priv_data;
-    const struct render_opts *o = node->opts;
+    struct draw_priv *s = node->priv_data;
+    const struct draw_opts *o = node->opts;
 
     const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     const struct gpu_limits *limits = &gpu_ctx->limits;
@@ -211,7 +211,7 @@ static int render_init(struct ngl_node *node)
 
 static int render_prepare(struct ngl_node *node)
 {
-    struct render_priv *s = node->priv_data;
+    struct draw_priv *s = node->priv_data;
 
     int ret = ngli_node_prepare_children(node);
     if (ret < 0)
@@ -222,27 +222,27 @@ static int render_prepare(struct ngl_node *node)
 
 static void render_uninit(struct ngl_node *node)
 {
-    struct render_priv *s = node->priv_data;
+    struct draw_priv *s = node->priv_data;
     ngli_pass_uninit(&s->pass);
 }
 
 static void render_draw(struct ngl_node *node)
 {
-    struct render_priv *s = node->priv_data;
+    struct draw_priv *s = node->priv_data;
     ngli_pass_exec(&s->pass);
 }
 
-const struct node_class ngli_render_class = {
-    .id        = NGL_NODE_RENDER,
-    .category  = NGLI_NODE_CATEGORY_RENDER,
-    .name      = "Render",
+const struct node_class ngli_draw_class = {
+    .id        = NGL_NODE_DRAW,
+    .category  = NGLI_NODE_CATEGORY_DRAW,
+    .name      = "Draw",
     .init      = render_init,
     .prepare   = render_prepare,
     .uninit    = render_uninit,
     .update    = ngli_node_update_children,
     .draw      = render_draw,
-    .opts_size = sizeof(struct render_opts),
-    .priv_size = sizeof(struct render_priv),
+    .opts_size = sizeof(struct draw_opts),
+    .priv_size = sizeof(struct draw_priv),
     .params    = render_params,
     .file      = __FILE__,
 };

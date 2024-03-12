@@ -62,12 +62,12 @@ def shape_precision_iovar(cfg: ngl.SceneCfg):
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(color=ngl.IOVec4(precision_out="high", precision_in="low"))
     geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
-    scene = ngl.Render(geometry, program)
+    scene = ngl.Draw(geometry, program)
     return scene
 
 
-def _render_shape(geometry, color):
-    return ngl.RenderColor(color, geometry=geometry)
+def _draw_shape(geometry, color):
+    return ngl.DrawColor(color, geometry=geometry)
 
 
 @test_fingerprint(width=320, height=320)
@@ -76,7 +76,7 @@ def shape_triangle(cfg: ngl.SceneCfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
     geometry = ngl.Triangle(p0, p1, p2)
-    return _render_shape(geometry, color)
+    return _draw_shape(geometry, color)
 
 
 @test_fingerprint(width=320, height=320, samples=4)
@@ -85,7 +85,7 @@ def shape_triangle_msaa(cfg: ngl.SceneCfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
     geometry = ngl.Triangle(p0, p1, p2)
-    return _render_shape(geometry, color)
+    return _draw_shape(geometry, color)
 
 
 @test_fingerprint(width=320, height=320)
@@ -102,7 +102,7 @@ def shape_quad(
 ):
     cfg.aspect_ratio = (1, 1)
     geometry = ngl.Quad(corner, width, height)
-    return _render_shape(geometry, color)
+    return _draw_shape(geometry, color)
 
 
 @test_fingerprint(width=320, height=320)
@@ -110,7 +110,7 @@ def shape_quad(
 def shape_circle(cfg: ngl.SceneCfg, radius=0.5, color=COLORS.azure):
     cfg.aspect_ratio = (1, 1)
     geometry = ngl.Circle(radius, npoints=64)
-    return _render_shape(geometry, color)
+    return _draw_shape(geometry, color)
 
 
 def _shape_geometry(cfg: ngl.SceneCfg, set_normals=False, set_indices=False):
@@ -157,18 +157,18 @@ def _shape_geometry(cfg: ngl.SceneCfg, set_normals=False, set_indices=False):
         geometry.set_normals(normals_buffer)
         prog = ngl.Program(vertex=get_shader("colored-normals.vert"), fragment=get_shader("colored-normals.frag"))
         prog.update_vert_out_vars(var_normal=ngl.IOVec3())
-        render = ngl.Render(geometry, prog)
+        draw = ngl.Draw(geometry, prog)
     else:
         prog = ngl.Program(vertex=get_shader("color.vert"), fragment=get_shader("color.frag"))
-        render = ngl.Render(geometry, prog)
-        render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.magenta), opacity=ngl.UniformFloat(1))
+        draw = ngl.Draw(geometry, prog)
+        draw.update_frag_resources(color=ngl.UniformVec3(value=COLORS.magenta), opacity=ngl.UniformFloat(1))
 
     if set_indices:
         indices = array.array("H", list(range(3 * 6)))
         indices_buffer = ngl.BufferUShort(data=indices)
         geometry.set_indices(indices_buffer)
 
-    return ngl.Rotate(render, 45, axis=(1, 1, 1))
+    return ngl.Rotate(draw, 45, axis=(1, 1, 1))
 
 
 @test_fingerprint(width=320, height=320)
@@ -197,7 +197,7 @@ def shape_geometry_normals_indices(cfg: ngl.SceneCfg):
 
 @test_fingerprint(width=320, height=320)
 @ngl.scene()
-def shape_geometry_with_renderother(cfg: ngl.SceneCfg):
+def shape_geometry_with_drawother(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     vertices_data = array.array("f")
@@ -220,7 +220,7 @@ def shape_geometry_with_renderother(cfg: ngl.SceneCfg):
         topology="triangle_list",
     )
 
-    return ngl.RenderColor(geometry=geometry)
+    return ngl.DrawColor(geometry=geometry)
 
 
 @test_fingerprint(width=320, height=320)
@@ -229,8 +229,8 @@ def shape_diamond_colormask(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     color_write_masks = ("r+g+b+a", "r+g+a", "g+b+a", "r+b+a")
     geometry = ngl.Circle(npoints=5)
-    render = ngl.RenderColor(COLORS.white, geometry=geometry)
-    scenes = [ngl.GraphicConfig(render, color_write_mask=cwm) for cwm in color_write_masks]
+    draw = ngl.DrawColor(COLORS.white, geometry=geometry)
+    scenes = [ngl.GraphicConfig(draw, color_write_mask=cwm) for cwm in color_write_masks]
     return autogrid_simple(scenes)
 
 
@@ -260,9 +260,9 @@ def shape_morphing(cfg: ngl.SceneCfg, n=6):
     geom = ngl.Geometry(vertices)
     geom.set_topology("triangle_strip")
     p = ngl.Program(vertex=get_shader("color.vert"), fragment=get_shader("color.frag"))
-    render = ngl.Render(geom, p)
-    render.update_frag_resources(color=ngl.UniformVec3(COLORS.cyan), opacity=ngl.UniformFloat(1))
-    return render
+    draw = ngl.Draw(geom, p)
+    draw.update_frag_resources(color=ngl.UniformVec3(COLORS.cyan), opacity=ngl.UniformFloat(1))
+    return draw
 
 
 def _get_cropboard_function(set_indices=False):
@@ -352,16 +352,16 @@ def _get_cropboard_function(set_indices=False):
         utime_animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration - 1.0, 1)]
         utime = ngl.AnimatedFloat(utime_animkf)
 
-        render = ngl.Render(q, p, nb_instances=dim_cut**2)
-        render.update_frag_resources(tex0=random_tex)
-        render.update_vert_resources(time=utime)
-        render.update_instance_attributes(
+        draw = ngl.Draw(q, p, nb_instances=dim_cut**2)
+        draw.update_frag_resources(tex0=random_tex)
+        draw.update_vert_resources(time=utime)
+        draw.update_instance_attributes(
             uv_offset=ngl.BufferVec2(data=uv_offset_buffer),
             translate_a=ngl.BufferVec2(data=translate_a_buffer),
             translate_b=ngl.BufferVec2(data=translate_b_buffer),
         )
 
-        return render
+        return draw
 
     return cropboard
 
@@ -407,10 +407,10 @@ def shape_triangles_mat4_attribute(cfg: ngl.SceneCfg):
         vertex=TRIANGLES_MAT4_ATTRIBUTE_VERT,
         fragment=get_shader("color.frag"),
     )
-    render = ngl.Render(geometry, program, nb_instances=2)
-    render.update_instance_attributes(matrix=matrices)
-    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.orange), opacity=ngl.UniformFloat(1))
-    return render
+    draw = ngl.Draw(geometry, program, nb_instances=2)
+    draw.update_instance_attributes(matrix=matrices)
+    draw.update_frag_resources(color=ngl.UniformVec3(value=COLORS.orange), opacity=ngl.UniformFloat(1))
+    return draw
 
 
 def _get_shape_scene(cfg: ngl.SceneCfg, shape, cull_mode):
@@ -423,7 +423,7 @@ def _get_shape_scene(cfg: ngl.SceneCfg, shape, cull_mode):
     )
     geometry = geometry_cls[shape]()
 
-    node = _render_shape(geometry, COLORS.sgreen)
+    node = _draw_shape(geometry, COLORS.sgreen)
     return ngl.GraphicConfig(node, cull_mode=cull_mode)
 
 

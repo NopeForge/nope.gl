@@ -17,7 +17,7 @@ def playback_speed(cfg: ngl.SceneCfg, speed=1.0):
     time_animkf = [ngl.AnimKeyFrameFloat(0, initial_seek), ngl.AnimKeyFrameFloat(cfg.duration, media_duration)]
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(time_animkf))
     t = ngl.Texture2D(data_src=m)
-    return ngl.RenderTexture(t, geometry=q)
+    return ngl.DrawTexture(t, geometry=q)
 
 
 @ngl.scene()
@@ -55,7 +55,7 @@ def time_remapping(cfg: ngl.SceneCfg):
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
     m.set_nopemd_min_level("verbose")
     t = ngl.Texture2D(data_src=m)
-    r = ngl.RenderTexture(t)
+    r = ngl.DrawTexture(t)
 
     rf = ngl.TimeRangeFilter(r, range_start, range_stop, prefetch_time=prefetch_duration)
 

@@ -30,7 +30,7 @@ import pynopegl as ngl
 
 def _transform_shape(w=0.75, h=0.45):
     geometry = ngl.Quad(corner=(-w / 2.0, -h / 2.0, 0), width=(w, 0, 0), height=(0, h, 0))
-    return ngl.RenderColor(COLORS.rose, geometry=geometry)
+    return ngl.DrawColor(COLORS.rose, geometry=geometry)
 
 
 @test_fingerprint(width=320, height=320)
@@ -68,7 +68,7 @@ def transform_animated_camera(cfg: ngl.SceneCfg):
 
     quad = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     for color, vector in elems:
-        node = ngl.RenderColor(color, geometry=quad)
+        node = ngl.DrawColor(color, geometry=quad)
         if vector:
             node = ngl.Translate(node, vector=vector)
         g.add_children(node)
@@ -103,7 +103,7 @@ def transform_eye_camera(cfg: ngl.SceneCfg):
     cfg.duration = 3.0
     cfg.aspect_ratio = (1, 1)
 
-    node = ngl.RenderGradient4(geometry=ngl.Circle(radius=0.7, npoints=128))
+    node = ngl.DrawGradient4(geometry=ngl.Circle(radius=0.7, npoints=128))
     animkf = [
         ngl.AnimKeyFrameVec3(0, (0, -0.5, 0)),
         ngl.AnimKeyFrameVec3(cfg.duration / 2, (0, 1, 0)),
@@ -363,7 +363,7 @@ def transform_shared_anim(cfg: ngl.SceneCfg):
     cfg.duration = 6
 
     # Duplicate the same shape at different positions
-    shape = ngl.RenderColor(geometry=ngl.Circle(radius=1 / 3, npoints=5))
+    shape = ngl.DrawColor(geometry=ngl.Circle(radius=1 / 3, npoints=5))
     shape0 = ngl.Translate(shape, vector=(-0.5, 0.5, 0))
     shape1 = ngl.Translate(shape, vector=(-0.5, -0.5, 0))
 

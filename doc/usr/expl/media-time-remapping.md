@@ -53,17 +53,17 @@ to define the active range of the media. This is controlled through
 [TimeRangeFilter] nodes.
 
 The time range filters will allow the prefetch and release mechanisms of the
-sub-tree (in our case, it will typically be a [Render] using a [Media] node as
+sub-tree (in our case, it will typically be a [Draw] using a [Media] node as
 `data_src`).
 
 The typical use case for a video showing up randomly in a demo is to define a
 single time ranges, such as:
 
 ```python
-timefilter = ngl.TimeRangeFilter(my_render, start=2, end=9)
+timefilter = ngl.TimeRangeFilter(draw, start=2, end=9)
 ```
 
-In this case, `my_render` will be visible between `t=2` (included) and `t=9`
+In this case, `draw` will be visible between `t=2` (included) and `t=9`
 (excluded).
 
 
@@ -93,7 +93,7 @@ Coupled with hardware acceleration, these two main mechanism help getting great
 performances at a minimal memory cost.
 
 
-[Render]: /usr/ref/libnopegl.md#render
+[Draw]: /usr/ref/libnopegl.md#draw
 [Media]: /usr/ref/libnopegl.md#media
 [TimeRangeFilter]: /usr/ref/libnopegl.md#timerangefilter
 [AnimatedFloat]: /usr/ref/libnopegl.md#animatedfloat

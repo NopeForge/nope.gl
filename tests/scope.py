@@ -84,9 +84,9 @@ def scope_colorstats(cfg):
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(uv=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(stats=_get_colorstats(media), zoom=uzoom)
-    return render
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(stats=_get_colorstats(media), zoom=uzoom)
+    return draw
 
 
 def _get_histogram_func(mode):
@@ -96,14 +96,14 @@ def _get_histogram_func(mode):
         media = load_media("mire")
         cfg.duration = media.duration
         cfg.aspect_ratio = (media.width, media.height)
-        return ngl.RenderHistogram(stats=_get_colorstats(media), mode=mode)
+        return ngl.DrawHistogram(stats=_get_colorstats(media), mode=mode)
 
     return scene_func
 
 
-scope_render_histogram_luma_only = _get_histogram_func("luma_only")
-scope_render_histogram_mixed = _get_histogram_func("mixed")
-scope_render_histogram_parade = _get_histogram_func("parade")
+scope_draw_histogram_luma_only = _get_histogram_func("luma_only")
+scope_draw_histogram_mixed = _get_histogram_func("mixed")
+scope_draw_histogram_parade = _get_histogram_func("parade")
 
 
 def _get_waveform_func(mode):
@@ -113,14 +113,14 @@ def _get_waveform_func(mode):
         media = load_media("mire")
         cfg.duration = media.duration
         cfg.aspect_ratio = (media.width, media.height)
-        return ngl.RenderWaveform(stats=_get_colorstats(media), mode=mode)
+        return ngl.DrawWaveform(stats=_get_colorstats(media), mode=mode)
 
     return scene_func
 
 
-scope_render_waveform_luma_only = _get_waveform_func("luma_only")
-scope_render_waveform_mixed = _get_waveform_func("mixed")
-scope_render_waveform_parade = _get_waveform_func("parade")
+scope_draw_waveform_luma_only = _get_waveform_func("luma_only")
+scope_draw_waveform_mixed = _get_waveform_func("mixed")
+scope_draw_waveform_parade = _get_waveform_func("parade")
 
 
 @test_fingerprint(width=1280, height=960, keyframes=5, tolerance=3)
@@ -134,9 +134,9 @@ def scope_rtt(cfg):
 
     # Proxy scene
     src_texture = ngl.Texture2D(data_src=ngl.Media(media.filename), min_filter="nearest", mag_filter="nearest")
-    scene = ngl.RenderTexture(src_texture)
+    scene = ngl.DrawTexture(src_texture)
     dst_texture = ngl.Texture2D(width=media.width, height=media.height, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(scene, color_textures=[dst_texture])
 
-    scope = ngl.RenderWaveform(stats=ngl.ColorStats(dst_texture))
+    scope = ngl.DrawWaveform(stats=ngl.ColorStats(dst_texture))
     return ngl.Group(children=(rtt, scope))

@@ -517,7 +517,7 @@ enum {
     NGLI_NODE_CATEGORY_BUFFER,
     NGLI_NODE_CATEGORY_BLOCK,
     NGLI_NODE_CATEGORY_IO,
-    NGLI_NODE_CATEGORY_RENDER, /* node executes a graphics pipeline */
+    NGLI_NODE_CATEGORY_DRAW, /* node executes a graphics pipeline */
     NGLI_NODE_CATEGORY_TRANSFORM,
 };
 

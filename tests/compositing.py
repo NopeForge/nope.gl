@@ -78,13 +78,13 @@ def _get_compositing_scene(cfg: ngl.SceneCfg, op, show_label=False):
     A_off = ngl.AnimatedVec2(A_off_kf)
     B_off = ngl.AnimatedVec2(B_off_kf)
 
-    A = ngl.Render(quad, prog, label="A")
+    A = ngl.Draw(quad, prog, label="A")
     A.update_frag_resources(color=ngl.UniformVec3(value=COLORS.azure), off=A_off)
 
-    B = ngl.Render(quad, prog, label="B", blending=op)
+    B = ngl.Draw(quad, prog, label="B", blending=op)
     B.update_frag_resources(color=ngl.UniformVec3(value=COLORS.orange), off=B_off)
 
-    bg = ngl.RenderColor(blending="dst_over")
+    bg = ngl.DrawColor(blending="dst_over")
 
     # draw A in current FBO, then draw B with the current operator, and
     # then result goes over the white background

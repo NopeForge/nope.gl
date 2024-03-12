@@ -135,8 +135,8 @@ def _get_random_texture(cfg: ngl.SceneCfg, rng):
     return texture
 
 
-def _get_random_rendertexture(cfg: ngl.SceneCfg, rng):
-    return ngl.RenderTexture(
+def _get_random_drawtexture(cfg: ngl.SceneCfg, rng):
+    return ngl.DrawTexture(
         texture=_get_random_texture(cfg, rng),
         geometry=_get_random_geometry(rng),
         blending="src_over",
@@ -219,22 +219,22 @@ def _get_random_compute(cfg: ngl.SceneCfg, rng, t0, t1):
     geometry = _get_random_geometry(rng)
     program = ngl.Program(vertex=vertex_shader, fragment=get_shader("texture.frag"))
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(geometry, program, nb_instances=count, blending="src_over")
-    render.update_frag_resources(tex0=_get_random_texture(cfg, rng))
-    render.update_vert_resources(pos=pos)
-    render = ngl.Scale(render, factors=(0.5, 0.5, 0))
+    draw = ngl.Draw(geometry, program, nb_instances=count, blending="src_over")
+    draw.update_frag_resources(tex0=_get_random_texture(cfg, rng))
+    draw.update_vert_resources(pos=pos)
+    draw = ngl.Scale(draw, factors=(0.5, 0.5, 0))
 
-    return ngl.Group(children=(compute, render))
+    return ngl.Group(children=(compute, draw))
 
 
-def _get_random_render(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes):
-    color = lambda rng: ngl.RenderColor(
+def _get_random_draw(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes):
+    color = lambda rng: ngl.DrawColor(
         color=_get_random_animated_color(rng, t0, t1),
         opacity=_get_random_animated_opacity(rng, t0, t1),
         geometry=_get_random_geometry(rng),
         blending="src_over",
     )
-    gradient = lambda rng: ngl.RenderGradient(
+    gradient = lambda rng: ngl.DrawGradient(
         color0=_get_random_animated_color(rng, t0, t1),
         color1=_get_random_animated_color(rng, t0, t1),
         opacity0=_get_random_animated_opacity(rng, t0, t1),
@@ -245,18 +245,18 @@ def _get_random_render(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes):
         geometry=_get_random_geometry(rng),
         blending="src_over",
     )
-    texture = lambda rng: _get_random_rendertexture(cfg, rng)
+    texture = lambda rng: _get_random_drawtexture(cfg, rng)
     text = lambda rng: _get_random_text(cfg, rng)
     compute = lambda rng: _get_random_compute(cfg, rng, t0, t1)
-    render_funcs = [
+    draw_funcs = [
         color,
         gradient,
         text,
         texture,
     ]
     if enable_computes:
-        render_funcs.append(compute)
-    return rng.choice(render_funcs)(rng)
+        draw_funcs.append(compute)
+    return rng.choice(draw_funcs)(rng)
 
 
 def _get_random_transform(rng, t0, t1, child):
@@ -312,23 +312,23 @@ def _get_random_layer(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes, layer=4):
                 forward_transforms=True,
             )
             rtt.add_color_textures(rtt_tex)
-            rtt_render = ngl.RenderTexture(
+            rtt_draw = ngl.DrawTexture(
                 rtt_tex,
                 geometry=_get_random_geometry(rng),
                 blending="src_over",
             )
-            rtt_render = _get_random_transform(rng, t0, t1, rtt_render)
+            rtt_draw = _get_random_transform(rng, t0, t1, rtt_draw)
             t_start, t_end = _get_random_time_range(rng, t0, t1)
-            rtt_group = ngl.Group(children=(rtt, rtt_render))
+            rtt_group = ngl.Group(children=(rtt, rtt_draw))
             t_filter = ngl.TimeRangeFilter(rtt_group, t_start, t_end)
 
             # Draw both the children and the rendered texture
             child = ngl.Group(children=(t_filter, child))
 
         else:
-            # We are at a leaf (last layer) so we create a random render
+            # We are at a leaf (last layer) so we create a random draw
             t_start, t_end = _get_random_time_range(rng, t0, t1)
-            child = _get_random_render(cfg, rng, t_start, t_end, enable_computes)
+            child = _get_random_draw(cfg, rng, t_start, t_end, enable_computes)
             if rng.random() < 1 / 3:
                 child = _get_random_transform(rng, t_start, t_end, child)
             child = ngl.TimeRangeFilter(child, t_start, t_end)
@@ -345,7 +345,7 @@ def _get_scene(cfg: ngl.SceneCfg, seed=0, enable_computes=True):
     t0, t1 = 0, cfg.duration
 
     # Some discrete abstract background
-    bg = ngl.RenderGradient4(
+    bg = ngl.DrawGradient4(
         color_tl=_get_random_animated_color(rng, t0, t1),
         color_tr=_get_random_animated_color(rng, t0, t1),
         color_br=_get_random_animated_color(rng, t0, t1),
