@@ -15,7 +15,7 @@ def animated(cfg: ngl.SceneCfg):
     ]
 
     path = ngl.Path(keyframes)
-    heart = ngl.RenderPath(path, viewbox=(-5, -5, 10, 10), color=(0.8, 0.1, 0.1), outline=0.01, outline_color=(1, 1, 1))
+    heart = ngl.DrawPath(path, viewbox=(-5, -5, 10, 10), color=(0.8, 0.1, 0.1), outline=0.01, outline_color=(1, 1, 1))
 
     # This animation defines the speed at which the path is walked
     anim_kf = [

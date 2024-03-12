@@ -106,12 +106,12 @@ def compute_particles(cfg: ngl.SceneCfg):
 
     circle = ngl.Circle(radius=0.05)
     program = ngl.Program(vertex=_PARTICULES_VERT, fragment=get_shader("color.frag"))
-    render = ngl.Render(circle, program, nb_instances=nb_particles)
-    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.sgreen), opacity=ngl.UniformFloat(1))
-    render.update_vert_resources(data=opositions)
+    draw = ngl.Draw(circle, program, nb_instances=nb_particles)
+    draw.update_frag_resources(color=ngl.UniformVec3(value=COLORS.sgreen), opacity=ngl.UniformFloat(1))
+    draw.update_vert_resources(data=opositions)
 
     group = ngl.Group()
-    group.add_children(compute, render)
+    group.add_children(compute, draw)
     return group
 
 
@@ -244,10 +244,10 @@ def compute_histogram(cfg: ngl.SceneCfg, show_dbg_points=False):
         fragment=_RENDER_HISTOGRAM_FRAG % shader_params,
     )
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program, label="render_histogram")
-    render.update_frag_resources(hist=histogram_block)
+    draw = ngl.Draw(quad, program, label="draw_histogram")
+    draw.update_frag_resources(hist=histogram_block)
 
-    group = ngl.Group(children=(clear_histogram, exec_histogram, render))
+    group = ngl.Group(children=(clear_histogram, exec_histogram, draw))
     if show_dbg_points:
         cuepoints = _get_compute_histogram_cuepoints()
         group.add_children(get_debug_points(cfg, cuepoints))
@@ -263,7 +263,7 @@ void main()
 """
 
 
-def _compute_animation(cfg: ngl.SceneCfg, animate_pre_render=True):
+def _compute_animation(cfg: ngl.SceneCfg, animate_pre_draw=True):
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
     local_size = 2
@@ -300,10 +300,10 @@ def _compute_animation(cfg: ngl.SceneCfg, animate_pre_render=True):
     quad_buffer = ngl.BufferVec3(block=output_block, block_field="vertices")
     geometry = ngl.Geometry(quad_buffer, topology="triangle_strip")
     program = ngl.Program(vertex=get_shader("color.vert"), fragment=get_shader("color.frag"))
-    render = ngl.Render(geometry, program)
-    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.sgreen), opacity=ngl.UniformFloat(1))
+    draw = ngl.Draw(geometry, program)
+    draw.update_frag_resources(color=ngl.UniformVec3(value=COLORS.sgreen), opacity=ngl.UniformFloat(1))
 
-    children = (compute, render) if animate_pre_render else (render, compute)
+    children = (compute, draw) if animate_pre_draw else (draw, compute)
     return ngl.Group(children=children)
 
 
@@ -315,7 +315,7 @@ def compute_animation(cfg: ngl.SceneCfg):
 
 @test_fingerprint(width=800, height=800, keyframes=5, tolerance=1)
 @ngl.scene()
-def compute_animation_post_render(cfg: ngl.SceneCfg):
+def compute_animation_post_draw(cfg: ngl.SceneCfg):
     return _compute_animation(cfg, False)
 
 
@@ -386,8 +386,8 @@ def compute_image_load_store(cfg: ngl.SceneCfg, show_dbg_points=False):
         texture_r=texture_r, texture_g=texture_g, texture_b=texture_b, scale=scale, texture_rgba=texture_rgba
     )
 
-    render = ngl.RenderTexture(texture_rgba)
-    group = ngl.Group(children=(compute, render))
+    draw = ngl.DrawTexture(texture_rgba)
+    group = ngl.Group(children=(compute, draw))
 
     if show_dbg_points:
         cuepoints = _get_compute_histogram_cuepoints()
@@ -471,8 +471,8 @@ def _get_compute_image_layered_load_store_scene(cfg: ngl.SceneCfg, texture_cls, 
         scale=scale,
     )
 
-    render = ngl.RenderTexture(texture_rgba)
-    group = ngl.Group(children=(compute_store, compute_load_store, render))
+    draw = ngl.DrawTexture(texture_rgba)
+    group = ngl.Group(children=(compute_store, compute_load_store, draw))
 
     if show_dbg_points:
         cuepoints = _get_image_layered_load_store_cuepoints()
@@ -577,7 +577,7 @@ def compute_image_cube_load_store(cfg: ngl.SceneCfg):
     program.update_properties(
         texture=ngl.ResourceProps(as_image=True),
     )
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(texture=texture)
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(texture=texture)
 
-    return ngl.Group(children=(compute_store, render))
+    return ngl.Group(children=(compute_store, draw))

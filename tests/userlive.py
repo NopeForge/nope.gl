@@ -26,9 +26,9 @@ import pynopegl as ngl
 
 
 def _get_userlive_switch_func():
-    scene0 = ngl.RenderColor(COLORS.white, geometry=ngl.Circle())
-    scene1 = ngl.RenderColor(COLORS.red, geometry=ngl.Quad())
-    scene2 = ngl.RenderColor(COLORS.azure, geometry=ngl.Triangle())
+    scene0 = ngl.DrawColor(COLORS.white, geometry=ngl.Circle())
+    scene1 = ngl.DrawColor(COLORS.red, geometry=ngl.Quad())
+    scene2 = ngl.DrawColor(COLORS.azure, geometry=ngl.Triangle())
 
     switch0 = ngl.UserSwitch(ngl.Scale(scene0, factors=(1 / 3, 1 / 3, 1 / 3), anchor=(-1, 0, 0)))
     switch1 = ngl.UserSwitch(ngl.Scale(scene1, factors=(1 / 2, 1 / 2, 1 / 2)))
@@ -60,10 +60,10 @@ def _get_userlive_switch_func():
 
 
 def _get_userlive_select_func():
-    # We point on the same underlying render to test the different render paths
-    render = ngl.RenderColor(COLORS.white, opacity=0.5, geometry=ngl.Quad())
-    below = ngl.Translate(render, vector=(0.5 - 2 / 3, 0.5 - 1 / 3, 0))
-    above = ngl.Translate(render, vector=(0.5 - 1 / 3, 0.5 - 2 / 3, 0))
+    # We point on the same underlying draw to test the different draw paths
+    draw = ngl.DrawColor(COLORS.white, opacity=0.5, geometry=ngl.Quad())
+    below = ngl.Translate(draw, vector=(0.5 - 2 / 3, 0.5 - 1 / 3, 0))
+    above = ngl.Translate(draw, vector=(0.5 - 1 / 3, 0.5 - 2 / 3, 0))
 
     # Additive blending (for premultiplied values): lighten
     gc0 = ngl.GraphicConfig(

@@ -31,7 +31,7 @@ _CUEPOINTS = dict(c=(0, 0), bl=(-0.5, -0.5), br=(0.5, -0.5), tr=(0.5, 0.5), tl=(
 
 def _base_scene(cfg: ngl.SceneCfg, *filters):
     cfg.aspect_ratio = (1, 1)
-    return ngl.RenderGradient4(
+    return ngl.DrawGradient4(
         opacity_tl=0.3,
         opacity_tr=0.4,
         opacity_br=0.5,
@@ -90,8 +90,8 @@ def filter_colormap(cfg: ngl.SceneCfg):
     c1 = ngl.UniformColor(value=(0.3, 0.8, 0.3))
     c2 = ngl.UniformColor(value=(0.5, 0.5, 1))
 
-    bg = ngl.RenderColor(color=(1, 0.5, 1))
-    remapped = ngl.RenderGradient4(
+    bg = ngl.DrawColor(color=(1, 0.5, 1))
+    remapped = ngl.DrawGradient4(
         # Black to white grayscale from left to right
         color_tl=(0, 0, 0),
         color_bl=(0, 0, 0),
@@ -188,7 +188,7 @@ def filter_selector_hue(cfg: ngl.SceneCfg):
 @ngl.scene()
 def filter_composition_colors(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
-    return ngl.RenderGradient4(
+    return ngl.DrawGradient4(
         filters=(
             ngl.FilterExposure(exposure=0.9),
             ngl.FilterContrast(contrast=1.5),
@@ -202,7 +202,7 @@ def filter_composition_colors(cfg: ngl.SceneCfg):
 @ngl.scene()
 def filter_composition_alpha(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
-    return ngl.RenderGradient(
+    return ngl.DrawGradient(
         color0=(1, 0.5, 0),
         color1=(0, 1, 0.5),
         opacity0=0.8,
@@ -225,7 +225,7 @@ def filter_gamma_correct(cfg: ngl.SceneCfg, linear=True):
     cfg.aspect_ratio = (4, 3)
 
     # Hue colors rotated clockwise
-    dst = ngl.RenderGradient4(
+    dst = ngl.DrawGradient4(
         color_tl=COLORS.rose,
         color_tr=COLORS.blue,
         color_br=COLORS.sgreen,
@@ -233,7 +233,7 @@ def filter_gamma_correct(cfg: ngl.SceneCfg, linear=True):
     )
 
     # Hue colors rotated counter-clockwise started with another color
-    src = ngl.RenderGradient4(
+    src = ngl.DrawGradient4(
         color_tl=COLORS.orange,
         color_tr=COLORS.magenta,
         color_br=COLORS.azure,
@@ -254,13 +254,13 @@ def filter_gamma_correct(cfg: ngl.SceneCfg, linear=True):
     # Intermediate RTT so that we can gamma correct the result
     tex = ngl.Texture2D(width=320, height=240, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(blend, color_textures=[tex])
-    render = ngl.RenderTexture(tex)
+    draw = ngl.DrawTexture(tex)
 
     if linear:
         # The result of the combination is linear
         dst.add_filters(ngl.FilterSRGB2Linear())
         src.add_filters(ngl.FilterSRGB2Linear())
         # ...and we compress it back to sRGB
-        render.add_filters(ngl.FilterLinear2sRGB())
+        draw.add_filters(ngl.FilterLinear2sRGB())
 
-    return ngl.Group(children=(rtt, render))
+    return ngl.Group(children=(rtt, draw))

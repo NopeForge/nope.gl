@@ -40,7 +40,7 @@ _backend = get_backend(_backend_str) if _backend_str else ngl.Backend.AUTO
 
 
 def _get_scene():
-    return ngl.Scene.from_params(ngl.RenderColor(geometry=ngl.Quad()))
+    return ngl.Scene.from_params(ngl.DrawColor(geometry=ngl.Quad()))
 
 
 def api_backend():
@@ -184,13 +184,13 @@ def api_scene_mutate():
     """Test if the scene association is prevent graph structure changes"""
     hook = ngl.Group()
     eval = ngl.EvalVec3()
-    render = ngl.RenderColor(color=eval)
+    draw = ngl.DrawColor(color=eval)
     root = ngl.Group(children=[hook])
-    assert hook.add_children(render) == 0
+    assert hook.add_children(draw) == 0
     scene = ngl.Scene.from_params(root)
-    assert hook.add_children(ngl.RenderColor()) != 0
-    assert render.set_opacity(0.5) == 0  # we can change a direct value...
-    assert render.set_opacity(ngl.UniformFloat()) != 0  # ...but we can't change the structure
+    assert hook.add_children(ngl.DrawColor()) != 0
+    assert draw.set_opacity(0.5) == 0  # we can change a direct value...
+    assert draw.set_opacity(ngl.UniformFloat()) != 0  # ...but we can't change the structure
     assert eval.update_resources(t=ngl.Time()) != 0
     del scene
 
@@ -198,9 +198,9 @@ def api_scene_mutate():
 def api_scene_ownership():
     """Test if part of a graph is shared between 2 different scenes"""
     shared_geometry = ngl.Quad()
-    scene0 = ngl.Scene.from_params(ngl.RenderColor(geometry=shared_geometry))
+    scene0 = ngl.Scene.from_params(ngl.DrawColor(geometry=shared_geometry))
     try:
-        scene1 = ngl.Scene.from_params(ngl.RenderColor(geometry=shared_geometry))
+        scene1 = ngl.Scene.from_params(ngl.DrawColor(geometry=shared_geometry))
     except Exception:
         pass
     else:
@@ -212,7 +212,7 @@ def api_scene_ownership():
 def api_scene_resilience():
     """Similar to API the scene ownership test but make sure the API is error resilient"""
     shared_geometry = ngl.Quad()
-    scene0 = ngl.Scene.from_params(ngl.RenderColor(geometry=shared_geometry))
+    scene0 = ngl.Scene.from_params(ngl.DrawColor(geometry=shared_geometry))
 
     ctx = ngl.Context()
     ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
@@ -221,7 +221,7 @@ def api_scene_resilience():
     assert ctx.draw(0) == 0
 
     try:
-        scene1 = ngl.Scene.from_params(ngl.RenderColor(geometry=shared_geometry))
+        scene1 = ngl.Scene.from_params(ngl.DrawColor(geometry=shared_geometry))
     except Exception:
         pass
     else:
@@ -486,12 +486,12 @@ def api_reset_scene(width=320, height=240):
     ctx = ngl.Context()
     ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     assert ret == 0
-    render = _get_scene()
-    assert ctx.set_scene(render) == 0
+    draw = _get_scene()
+    assert ctx.set_scene(draw) == 0
     ctx.draw(0)
     assert ctx.set_scene(None) == 0
     ctx.draw(1)
-    assert ctx.set_scene(render) == 0
+    assert ctx.set_scene(draw) == 0
     ctx.draw(2)
     assert ctx.set_scene(None) == 0
     ctx.draw(3)
@@ -502,8 +502,8 @@ def api_shader_init_fail(width=320, height=240):
     ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     assert ret == 0
 
-    render = ngl.Render(ngl.Quad(), ngl.Program(vertex="<bug>", fragment="<bug>"))
-    scene = ngl.Scene.from_params(render)
+    draw = ngl.Draw(ngl.Quad(), ngl.Program(vertex="<bug>", fragment="<bug>"))
+    scene = ngl.Scene.from_params(draw)
 
     assert ctx.set_scene(scene) != 0
     assert ctx.set_scene(scene) != 0  # another try to make sure the state stays consistent
@@ -521,8 +521,8 @@ def _create_trf_scene(start, end, keep_active=False):
     texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     # A subgraph using a RTT will produce a clear crash if its draw is called without a prefetch
     rtt = ngl.RenderToTexture(ngl.Identity(), clear_color=(1.0, 0.0, 0.0, 1.0), color_textures=(texture,))
-    render = ngl.RenderTexture(texture=texture)
-    group = ngl.Group(children=(rtt, render))
+    draw = ngl.DrawTexture(texture=texture)
+    group = ngl.Group(children=(rtt, draw))
     trf = _create_trf(group, start, start + 1)
 
     trf_start = _create_trf(trf, start, start + 1)

@@ -19,4 +19,4 @@ def subpaths(cfg: ngl.SceneCfg):
     ]
 
     path = ngl.Path(keyframes)
-    return ngl.RenderPath(path, viewbox=(-5, -5, 10, 10), color=(0.8, 0.1, 0.1), outline_color=(1, 1, 1))
+    return ngl.DrawPath(path, viewbox=(-5, -5, 10, 10), color=(0.8, 0.1, 0.1), outline_color=(1, 1, 1))

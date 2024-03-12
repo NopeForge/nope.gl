@@ -27,24 +27,24 @@ def parallel_playback(cfg: ngl.SceneCfg, fast=True, segment_time=2.0, constraine
     t1 = ngl.Texture2D(data_src=m1, label="texture #1")
     t2 = ngl.Texture2D(data_src=m2, label="texture #2")
 
-    render1 = ngl.RenderTexture(t1)
-    render2 = ngl.RenderTexture(t2)
+    draw1 = ngl.DrawTexture(t1)
+    draw2 = ngl.DrawTexture(t2)
 
     text_settings = {
         "box": (-1, 1 - 0.2, 2.0, 0.2),
     }
-    render1 = ngl.Group(children=(render1, ngl.Text("media #1", **text_settings)))
-    render2 = ngl.Group(children=(render2, ngl.Text("media #2", **text_settings)))
+    draw1 = ngl.Group(children=(draw1, ngl.Text("media #1", **text_settings)))
+    draw2 = ngl.Group(children=(draw2, ngl.Text("media #2", **text_settings)))
 
     end_time = 0.0
     rr1 = []
     rr2 = []
     i = 0
     while end_time < cfg.duration:
-        (rr, render) = (rr2, render2) if i & 1 else (rr1, render1)
+        (rr, draw) = (rr2, draw2) if i & 1 else (rr1, draw1)
         start_time = i * segment_time
         end_time = (i + 1) * segment_time
-        tseg = ngl.TimeRangeFilter(render, start_time, end_time)
+        tseg = ngl.TimeRangeFilter(draw, start_time, end_time)
         if constrained_timeranges:
             tseg.set_prefetch_time(segment_time / 3)
         rr.append(tseg)
@@ -89,8 +89,8 @@ def simple_transition(cfg: ngl.SceneCfg, transition_start=2, transition_duration
     t1 = ngl.Texture2D(data_src=m1, label="texture #1")
     t2 = ngl.Texture2D(data_src=m2, label="texture #2")
 
-    render1 = ngl.RenderTexture(t1, label="render #1")
-    render2 = ngl.RenderTexture(t2, label="render #2")
+    draw1 = ngl.DrawTexture(t1, label="draw #1")
+    draw2 = ngl.DrawTexture(t2, label="draw #2")
 
     delta_animkf = [
         ngl.AnimKeyFrameFloat(transition_start, 1.0),
@@ -98,15 +98,15 @@ def simple_transition(cfg: ngl.SceneCfg, transition_start=2, transition_duration
     ]
     delta = ngl.AnimatedFloat(delta_animkf)
 
-    render1_2 = ngl.Render(q, p1_2, label="transition")
-    render1_2.update_frag_resources(tex0=t1, tex1=t2)
-    render1_2.update_frag_resources(delta=delta)
+    draw1_2 = ngl.Draw(q, p1_2, label="transition")
+    draw1_2.update_frag_resources(tex0=t1, tex1=t2)
+    draw1_2.update_frag_resources(delta=delta)
 
     transition_end = transition_start + transition_duration
 
-    rf1 = ngl.TimeRangeFilter(render1, start=0, end=transition_start)
-    rf2 = ngl.TimeRangeFilter(render2, start=transition_end, end=None)
-    rf1_2 = ngl.TimeRangeFilter(render1_2, start=transition_start, end=transition_end)
+    rf1 = ngl.TimeRangeFilter(draw1, start=0, end=transition_start)
+    rf2 = ngl.TimeRangeFilter(draw2, start=transition_end, end=None)
+    rf1_2 = ngl.TimeRangeFilter(draw1_2, start=transition_start, end=transition_end)
 
     g = ngl.Group()
     g.add_children(rf1, rf1_2, rf2)

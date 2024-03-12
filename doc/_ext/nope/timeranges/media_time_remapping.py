@@ -17,7 +17,7 @@ def media_time_remapping(cfg: ngl.SceneCfg):
     media = load_media("mire")
     m = ngl.Media(media.filename, time_anim=ngl.AnimatedTime(animkf))
     t = ngl.Texture2D(data_src=m)
-    r = ngl.RenderTexture(t)
+    r = ngl.DrawTexture(t)
 
     # Time range filter
     return ngl.TimeRangeFilter(r, start=2, end=9)

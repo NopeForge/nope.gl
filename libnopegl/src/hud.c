@@ -117,7 +117,7 @@ enum {
 enum {
     DRAWCALL_COMPUTES,
     DRAWCALL_GRAPHICCONFIGS,
-    DRAWCALL_RENDERS,
+    DRAWCALL_DRAWS,
     DRAWCALL_RTTS,
     NB_DRAWCALL
 };
@@ -234,17 +234,17 @@ static const struct drawcall_spec {
         .label="GraphicCfgs",
         .node_types=(const uint32_t[]){NGL_NODE_GRAPHICCONFIG, NGLI_NODE_NONE},
     },
-    [DRAWCALL_RENDERS] = {
-        .label="Renders",
+    [DRAWCALL_DRAWS] = {
+        .label="Draws",
         .node_types=(const uint32_t[]){
-            NGL_NODE_RENDER,
-            NGL_NODE_RENDERCOLOR,
-            NGL_NODE_RENDERGRADIENT,
-            NGL_NODE_RENDERGRADIENT4,
-            NGL_NODE_RENDERHISTOGRAM,
-            NGL_NODE_RENDERPATH,
-            NGL_NODE_RENDERTEXTURE,
-            NGL_NODE_RENDERWAVEFORM,
+            NGL_NODE_DRAW,
+            NGL_NODE_DRAWCOLOR,
+            NGL_NODE_DRAWGRADIENT,
+            NGL_NODE_DRAWGRADIENT4,
+            NGL_NODE_DRAWHISTOGRAM,
+            NGL_NODE_DRAWPATH,
+            NGL_NODE_DRAWTEXTURE,
+            NGL_NODE_DRAWWAVEFORM,
             NGLI_NODE_NONE
         },
     },

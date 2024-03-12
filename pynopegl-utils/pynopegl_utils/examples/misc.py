@@ -29,12 +29,12 @@ def lut3d(cfg: ngl.SceneCfg, xsplit=0.3, trilinear=True):
     video = ngl.Media(m0.filename)
     video_tex = ngl.Texture2D(data_src=video)
 
-    scene_tex = ngl.RenderTexture(video_tex)
+    scene_tex = ngl.DrawTexture(video_tex)
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     prog_lut = ngl.Program(fragment=get_shader("lut3d.frag"), vertex=get_shader("lut3d.vert"))
     prog_lut.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    scene_lut = ngl.Render(quad, prog_lut)
+    scene_lut = ngl.Draw(quad, prog_lut)
     scene_lut.update_frag_resources(tex0=video_tex, lut3d=lut3d_tex)
 
     return compare(cfg, scene_tex, scene_lut, xsplit)
@@ -53,7 +53,7 @@ def triangle(cfg: ngl.SceneCfg, size=4 / 3):
     triangle = ngl.Triangle(p0, p1, p2)
     p = ngl.Program(fragment=get_shader("color.frag"), vertex=get_shader("triangle.vert"))
     p.update_vert_out_vars(color=ngl.IOVec3())
-    node = ngl.Render(triangle, p)
+    node = ngl.Draw(triangle, p)
     node.update_attributes(edge_color=colors_buffer)
     node.update_frag_resources(opacity=ngl.UniformFloat(1))
     animkf = [
@@ -125,7 +125,7 @@ def particles(cfg: ngl.SceneCfg, particles=32):
         fragment=fragment_shader,
     )
     p.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    r = ngl.Render(quad, p, nb_instances=particles, blending="src_over")
+    r = ngl.Draw(quad, p, nb_instances=particles, blending="src_over")
     r.update_frag_resources(color=ngl.UniformVec3(value=(0, 0.6, 0.8)), opacity=ngl.UniformFloat(0.9))
     r.update_vert_resources(positions=opositions)
 
@@ -149,9 +149,9 @@ def blending_and_stencil(cfg: ngl.SceneCfg):
 
     main_group = ngl.Group()
 
-    render = ngl.RenderColor(color=(0.2, 0.6, 1), label="sky")
+    draw = ngl.DrawColor(color=(0.2, 0.6, 1), label="sky")
     config = ngl.GraphicConfig(
-        render,
+        draw,
         stencil_test=True,
         stencil_write_mask=0xFF,
         stencil_func="always",
@@ -163,9 +163,9 @@ def blending_and_stencil(cfg: ngl.SceneCfg):
     )
     main_group.add_children(config)
 
-    render = ngl.RenderColor(color=(1, 0.8, 0), geometry=circle, label="sun")
+    draw = ngl.DrawColor(color=(1, 0.8, 0), geometry=circle, label="sun")
 
-    scale = ngl.Scale(render, (0.15, 0.15, 0.0))
+    scale = ngl.Scale(draw, (0.15, 0.15, 0.0))
     translate = ngl.Translate(scale, (0.4, 0.3, 0))
     main_group.add_children(translate)
 
@@ -181,8 +181,8 @@ def blending_and_stencil(cfg: ngl.SceneCfg):
     ]
 
     for center in centers:
-        render = ngl.Render(circle, program, blending="src_over")
-        render.update_frag_resources(color=cloud_color, opacity=cloud_opacity)
+        draw = ngl.Draw(circle, program, blending="src_over")
+        draw.update_frag_resources(color=cloud_color, opacity=cloud_opacity)
 
         factor = cfg.rng.random() * 0.4 + center[2]
         keyframe = cfg.duration * (cfg.rng.random() * 0.4 + 0.2)
@@ -191,7 +191,7 @@ def blending_and_stencil(cfg: ngl.SceneCfg):
             ngl.AnimKeyFrameVec3(keyframe, (factor + 0.1, factor + 0.1, 0)),
             ngl.AnimKeyFrameVec3(cfg.duration, (factor, factor, 0)),
         )
-        scale = ngl.Scale(render, factors=ngl.AnimatedVec3(animkf))
+        scale = ngl.Scale(draw, factors=ngl.AnimatedVec3(animkf))
 
         translate = ngl.Translate(scale, vector=(center[0], center[1], 0))
         cloud_group.add_children(translate)
@@ -232,11 +232,11 @@ def _get_cube_quads():
 
 
 def _get_cube_side(texture, program, corner, width, height, color):
-    render = ngl.Render(ngl.Quad(corner, width, height), program)
-    render.update_frag_resources(tex0=texture)
-    render.update_frag_resources(blend_color=ngl.UniformVec3(value=color))
-    render.update_frag_resources(mix_factor=ngl.UniformFloat(value=0.2))
-    return render
+    draw = ngl.Draw(ngl.Quad(corner, width, height), program)
+    draw.update_frag_resources(tex0=texture)
+    draw.update_frag_resources(blend_color=ngl.UniformVec3(value=color))
+    draw.update_frag_resources(mix_factor=ngl.UniformFloat(value=0.2))
+    return draw
 
 
 @ngl.scene(controls=dict(display_depth_buffer=ngl.scene.Bool()))
@@ -291,12 +291,12 @@ def cube(cfg: ngl.SceneCfg, display_depth_buffer=False):
         rtt.set_depth_texture(depth_texture)
 
         quad = ngl.Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
-        render = ngl.RenderTexture(texture, geometry=quad)
-        group.add_children(rtt, render)
+        draw = ngl.DrawTexture(texture, geometry=quad)
+        group.add_children(rtt, draw)
 
         quad = ngl.Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
-        render = ngl.RenderTexture(depth_texture, geometry=quad)
-        group.add_children(rtt, render)
+        draw = ngl.DrawTexture(depth_texture, geometry=quad)
+        group.add_children(rtt, draw)
 
         return group
 
@@ -317,8 +317,8 @@ def quaternion(cfg: ngl.SceneCfg):
     ]
 
     quat = ngl.AnimatedQuat(quat_animkf, as_mat4=True)
-    render = ngl.RenderColor(color=(1.0, 1.0, 1.0))
-    transform = ngl.Transform(render, matrix=quat)
+    draw = ngl.DrawColor(color=(1.0, 1.0, 1.0))
+    transform = ngl.Transform(draw, matrix=quat)
 
     camera = ngl.Camera(transform)
     camera.set_eye(0.0, 0.0, 4.0)
@@ -380,20 +380,20 @@ def mountain(cfg: ngl.SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75)
         ]
         uyoffset = ngl.AnimatedFloat(uyoffset_animkf)
 
-        render = ngl.Render(quad, prog, blending="src_over")
-        render.update_frag_resources(tex0=random_tex)
-        render.update_frag_resources(dim=ngl.UniformInt(random_dim))
-        render.update_frag_resources(nb_layers=ngl.UniformInt(nb_layers))
-        render.update_frag_resources(time=utime)
-        render.update_frag_resources(lacunarity=ngl.UniformFloat(2.0))
-        render.update_frag_resources(gain=ngl.UniformFloat(0.5))
-        render.update_frag_resources(mcolor=ngl.UniformVec3(mcolor))
-        render.update_frag_resources(yoffset=uyoffset)
-        render.update_frag_resources(hscale=ngl.UniformFloat(hscale))
+        draw = ngl.Draw(quad, prog, blending="src_over")
+        draw.update_frag_resources(tex0=random_tex)
+        draw.update_frag_resources(dim=ngl.UniformInt(random_dim))
+        draw.update_frag_resources(nb_layers=ngl.UniformInt(nb_layers))
+        draw.update_frag_resources(time=utime)
+        draw.update_frag_resources(lacunarity=ngl.UniformFloat(2.0))
+        draw.update_frag_resources(gain=ngl.UniformFloat(0.5))
+        draw.update_frag_resources(mcolor=ngl.UniformVec3(mcolor))
+        draw.update_frag_resources(yoffset=uyoffset)
+        draw.update_frag_resources(hscale=ngl.UniformFloat(hscale))
 
-        mountains.append(render)
+        mountains.append(draw)
 
-    sky = ngl.RenderColor(white[:3])
+    sky = ngl.DrawColor(white[:3])
 
     group = ngl.Group(children=[sky] + mountains)
     return group
@@ -408,13 +408,13 @@ def smptebars_glitch(cfg: ngl.SceneCfg):
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=get_shader("smptebars.vert"), fragment=get_shader("smptebars.frag"))
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
+    draw = ngl.Draw(quad, program)
     freq = cfg.framerate[0] / cfg.framerate[1] + 1
-    render.update_frag_resources(
+    draw.update_frag_resources(
         active_noise=ngl.NoiseFloat(octaves=1),
         active_probability=ngl.UniformFloat(0.4),  # glitch 40% of the time
         uv_noise_0=ngl.NoiseVec2(amplitude=0.05, frequency=freq, seed=1000 + 0),
         uv_noise_1=ngl.NoiseVec2(amplitude=0.05, frequency=freq, seed=1000 + 0x7FFF),
         uv_noise_2=ngl.NoiseVec2(amplitude=0.05, frequency=freq, seed=1000 + 0xFFFF),
     )
-    return render
+    return draw

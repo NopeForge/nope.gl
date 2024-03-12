@@ -12,8 +12,8 @@ def _block(w, h, color, corner=None):
     block_height = (0, h, 0)
     block_corner = (-w / 2.0, -h / 2.0, 0) if corner is None else corner
     block_quad = ngl.Quad(corner=block_corner, width=block_width, height=block_height)
-    block_render = ngl.RenderColor(color=color, geometry=block_quad)
-    return block_render
+    block_draw = ngl.DrawColor(color=color, geometry=block_quad)
+    return block_draw
 
 
 def _easing_split(easing):
@@ -80,20 +80,20 @@ def _get_easing_node(cfg: ngl.SceneCfg, easing, curve_zoom, color_program, nb_po
         vertices_data.extend([x, y, 0])
     vertices = ngl.BufferVec3(data=vertices_data)
     geometry = ngl.Geometry(vertices, topology="line_strip")
-    curve = ngl.Render(geometry, color_program, label="%s curve" % easing)
+    curve = ngl.Draw(geometry, color_program, label="%s curve" % easing)
     curve.update_frag_resources(color=ucolor, opacity=ngl.UniformFloat(1))
 
     # Value cursor
     y = 2 / 3.0 * pad_height
     x = y * math.sqrt(3)
     cursor_geometry = ngl.Triangle((-x, y, 0), (0, 0, 0), (-x, -y, 0))
-    cursor = ngl.RenderColor(color[:3], geometry=cursor_geometry, label="%s cursor" % easing)
+    cursor = ngl.DrawColor(color[:3], geometry=cursor_geometry, label="%s cursor" % easing)
 
     # Horizontal value line
     hline_data = array.array("f", (0, 0, 0, graph_size, 0, 0))
     hline_vertices = ngl.BufferVec3(data=hline_data)
     hline_geometry = ngl.Geometry(hline_vertices, topology="line_strip")
-    hline = ngl.Render(hline_geometry, color_program, blending="src_over", label="%s value line" % easing)
+    hline = ngl.Draw(hline_geometry, color_program, blending="src_over", label="%s value line" % easing)
     hline.update_frag_resources(color=line_ucolor, opacity=ngl.UniformFloat(0.4))
 
     # Value animation (cursor + h-line)
@@ -110,7 +110,7 @@ def _get_easing_node(cfg: ngl.SceneCfg, easing, curve_zoom, color_program, nb_po
     vline_data = array.array("f", (0, 0, 0, 0, graph_size, 0))
     vline_vertices = ngl.BufferVec3(data=vline_data)
     vline_geometry = ngl.Geometry(vline_vertices, topology="line_strip")
-    vline = ngl.Render(vline_geometry, color_program, blending="src_over", label="%s time line" % easing)
+    vline = ngl.Draw(vline_geometry, color_program, blending="src_over", label="%s time line" % easing)
     vline.update_frag_resources(color=line_ucolor, opacity=ngl.UniformFloat(0.4))
 
     # Time animation (v-line only)

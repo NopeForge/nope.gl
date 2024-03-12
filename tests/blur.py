@@ -30,7 +30,7 @@ def blur_gaussian(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 10
 
-    noise = ngl.RenderNoise(type="blocky", octaves=3, scale=(9, 9))
+    noise = ngl.DrawNoise(type="blocky", octaves=3, scale=(9, 9))
     noise_texture = ngl.Texture2D(data_src=noise)
     blurred_texture = ngl.Texture2D()
     blur = ngl.GaussianBlur(
@@ -43,7 +43,7 @@ def blur_gaussian(cfg: ngl.SceneCfg):
             ]
         ),
     )
-    return ngl.Group(children=(blur, ngl.RenderTexture(blurred_texture)))
+    return ngl.Group(children=(blur, ngl.DrawTexture(blurred_texture)))
 
 
 @test_fingerprint(width=800, height=800, keyframes=10, tolerance=5)
@@ -52,7 +52,7 @@ def blur_fast_gaussian(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 10
 
-    noise = ngl.RenderNoise(type="blocky", octaves=3, scale=(9, 9))
+    noise = ngl.DrawNoise(type="blocky", octaves=3, scale=(9, 9))
     noise_texture = ngl.Texture2D(data_src=noise)
     blurred_texture = ngl.Texture2D()
     blur = ngl.FastGaussianBlur(
@@ -65,4 +65,4 @@ def blur_fast_gaussian(cfg: ngl.SceneCfg):
             ]
         ),
     )
-    return ngl.Group(children=(blur, ngl.RenderTexture(blurred_texture)))
+    return ngl.Group(children=(blur, ngl.DrawTexture(blurred_texture)))

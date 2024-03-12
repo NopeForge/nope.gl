@@ -11,10 +11,10 @@ def overlay(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = image.width, image.height
 
     bg_tex = ngl.Texture2D(data_src=ngl.Media(image.filename))
-    bg = ngl.RenderTexture(bg_tex)
+    bg = ngl.DrawTexture(bg_tex)
 
     fg_tex = ngl.Texture2D(data_src=ngl.Media(overlay.filename))
-    fg = ngl.RenderTexture(fg_tex)
+    fg = ngl.DrawTexture(fg_tex)
     fg.set_blending("src_over")
 
     fg.add_filters(

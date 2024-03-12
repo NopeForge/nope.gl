@@ -60,7 +60,7 @@ struct pipeline_desc {
     struct darray uniforms; // struct pgcraft_uniform
 };
 
-struct renderpath_opts {
+struct drawpath_opts {
     struct ngl_node *path_node;
     float box[4];
     float viewbox[4];
@@ -84,7 +84,7 @@ struct renderpath_opts {
     float blur;
 };
 
-struct renderpath_priv {
+struct drawpath_priv {
     struct distmap *distmap;
     struct path *path;
     struct darray pipeline_descs;
@@ -93,8 +93,8 @@ struct renderpath_priv {
     NGLI_ALIGNED_MAT(transform);
 };
 
-#define OFFSET(x) offsetof(struct renderpath_opts, x)
-static const struct node_param renderpath_params[] = {
+#define OFFSET(x) offsetof(struct drawpath_opts, x)
+static const struct node_param drawpath_params[] = {
     {"path",         NGLI_PARAM_TYPE_NODE, OFFSET(path_node),
                      .node_types=(const uint32_t[]){NGL_NODE_PATH, NGL_NODE_SMOOTHPATH, NGLI_NODE_NONE},
                      .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -133,10 +133,10 @@ static const struct node_param renderpath_params[] = {
     {NULL}
 };
 
-static int renderpath_init(struct ngl_node *node)
+static int drawpath_init(struct ngl_node *node)
 {
-    struct renderpath_priv *s = node->priv_data;
-    const struct renderpath_opts *o = node->opts;
+    struct drawpath_priv *s = node->priv_data;
+    const struct drawpath_opts *o = node->opts;
 
     ngli_darray_init(&s->pipeline_descs, sizeof(struct pipeline_desc), 0);
 
@@ -219,7 +219,7 @@ static int renderpath_init(struct ngl_node *node)
     return 0;
 }
 
-static int init_desc(struct ngl_node *node, struct renderpath_priv *s,
+static int init_desc(struct ngl_node *node, struct drawpath_priv *s,
                      const struct pgcraft_uniform *uniforms, size_t nb_uniforms)
 {
     struct rnode *rnode = node->ctx->rnode_pos;
@@ -242,7 +242,7 @@ static int init_desc(struct ngl_node *node, struct renderpath_priv *s,
     return 0;
 }
 
-// TODO factor out with renderother and pass
+// TODO factor out with drawother and pass
 static int build_uniforms_map(struct pipeline_desc *desc)
 {
     const struct pgcraft_uniform *uniforms = ngli_darray_data(&desc->uniforms);
@@ -269,7 +269,7 @@ static int build_uniforms_map(struct pipeline_desc *desc)
 }
 
 static int finalize_pipeline(struct ngl_node *node,
-                             struct renderpath_priv *s, const struct renderpath_opts *o,
+                             struct drawpath_priv *s, const struct drawpath_opts *o,
                              const struct pgcraft_params *crafter_params)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -327,11 +327,11 @@ static int finalize_pipeline(struct ngl_node *node,
     return 0;
 }
 
-static int renderpath_prepare(struct ngl_node *node)
+static int drawpath_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct renderpath_priv *s = node->priv_data;
-    struct renderpath_opts *o = node->opts;
+    struct drawpath_priv *s = node->priv_data;
+    struct drawpath_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -381,10 +381,10 @@ static int renderpath_prepare(struct ngl_node *node)
     return finalize_pipeline(node, s, o, &crafter_params);
 }
 
-static void renderpath_draw(struct ngl_node *node)
+static void drawpath_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct renderpath_priv *s = node->priv_data;
+    struct drawpath_priv *s = node->priv_data;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
     struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
     struct pipeline_compat *pl_compat = desc->pipeline_compat;
@@ -426,9 +426,9 @@ static void renderpath_draw(struct ngl_node *node)
     ngli_pipeline_compat_draw(desc->pipeline_compat, 4, 1);
 }
 
-static void renderpath_uninit(struct ngl_node *node)
+static void drawpath_uninit(struct ngl_node *node)
 {
-    struct renderpath_priv *s = node->priv_data;
+    struct drawpath_priv *s = node->priv_data;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
     for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
         struct pipeline_desc *desc = &descs[i];
@@ -442,16 +442,16 @@ static void renderpath_uninit(struct ngl_node *node)
     ngli_darray_reset(&s->pipeline_descs);
 }
 
-const struct node_class ngli_renderpath_class = {
-    .id        = NGL_NODE_RENDERPATH,
-    .name      = "RenderPath",
-    .init      = renderpath_init,
-    .prepare   = renderpath_prepare,
+const struct node_class ngli_drawpath_class = {
+    .id        = NGL_NODE_DRAWPATH,
+    .name      = "DrawPath",
+    .init      = drawpath_init,
+    .prepare   = drawpath_prepare,
     .update    = ngli_node_update_children,
-    .draw      = renderpath_draw,
-    .uninit    = renderpath_uninit,
-    .opts_size = sizeof(struct renderpath_opts),
-    .priv_size = sizeof(struct renderpath_priv),
-    .params    = renderpath_params,
+    .draw      = drawpath_draw,
+    .uninit    = drawpath_uninit,
+    .opts_size = sizeof(struct drawpath_opts),
+    .priv_size = sizeof(struct drawpath_priv),
+    .params    = drawpath_params,
     .file      = __FILE__,
 };

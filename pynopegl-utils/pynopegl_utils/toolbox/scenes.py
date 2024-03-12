@@ -30,7 +30,7 @@ def compare(cfg: ngl.SceneCfg, scene0: ngl.Node, scene1: ngl.Node, xsplit: float
     """
 
     # Fill the stencil buffer with 1's on the left side, and 0's on the right
-    scene_mask = ngl.RenderColor()
+    scene_mask = ngl.DrawColor()
     scene_mask = ngl.Scale(scene_mask, factors=(xsplit, 1, 1), anchor=(-1, 0, 0))
     scene_mask = ngl.GraphicConfig(
         scene_mask,

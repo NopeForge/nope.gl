@@ -38,7 +38,7 @@ def _get_anim_color_scene_func(c0, c1, space):
             ngl.AnimKeyFrameColor(cfg.duration - 1, c1),
         ]
         ucolor = ngl.AnimatedColor(color_animkf, space=space)
-        return ngl.RenderColor(ucolor)
+        return ngl.DrawColor(ucolor)
 
     return scene_func
 
@@ -48,7 +48,7 @@ def _get_static_color_scene_func(c, space):
     @ngl.scene()
     def scene_func(cfg: ngl.SceneCfg):
         cfg.aspect_ratio = (1, 1)
-        return ngl.RenderColor(color=ngl.UniformColor(c, space=space))
+        return ngl.DrawColor(color=ngl.UniformColor(c, space=space))
 
     return scene_func
 
@@ -74,4 +74,4 @@ def color_negative_values_srgb(cfg: ngl.SceneCfg):
     )
     color0 = ngl.AnimatedVec3(keyframes=kfs)
     color1 = ngl.UniformVec3(value=(-1.0, -1.0, 1.0))
-    return ngl.RenderGradient(color0=color0, color1=color1, linear=True)
+    return ngl.DrawGradient(color0=color0, color1=color1, linear=True)

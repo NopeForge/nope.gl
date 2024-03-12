@@ -4,10 +4,10 @@
 
 The [Noise*] nodes works like other `Uniform*` nodes: they produces a
 deterministic noisy signal which can be made available to the shader when
-attached to the associated [Render] or [Compute].
+attached to the associated [Draw] or [Compute].
 
 [Noise*]: /usr/ref/libnopegl.md#noise
-[Render]: /usr/ref/libnopegl.md#render
+[Draw]: /usr/ref/libnopegl.md#draw
 [Compute]: /usr/ref/libnopegl.md#compute
 
 In the case of the `NoiseFloat`, the shader obtains a `float` sample

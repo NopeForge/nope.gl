@@ -254,7 +254,7 @@ class _Diff:
             tex0_coord=ngl.IOVec2(),
             tex1_coord=ngl.IOVec2(),
         )
-        scene = ngl.Render(quad, prog)
+        scene = ngl.Draw(quad, prog)
         scene.update_frag_resources(
             tex0=ngl.Texture2D(data_src=ngl.Media(media0.filename), min_filter="nearest", mag_filter="nearest"),
             tex1=ngl.Texture2D(data_src=ngl.Media(media1.filename), min_filter="nearest", mag_filter="nearest"),

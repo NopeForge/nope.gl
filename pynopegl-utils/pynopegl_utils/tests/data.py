@@ -333,7 +333,7 @@ def get_field_scene(cfg: ngl.SceneCfg, spec, category, field_type, seed, debug_p
     program = ngl.Program(vertex=vertex, fragment=fragment)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program)
+    draw = ngl.Draw(quad, program)
 
     shuf_fields = [fields_info[pos] for pos in fields_pos]
     color_fields = [(f["name"], ngl.UniformVec3(f["color"], label=f["name"])) for f in fields_info]
@@ -345,18 +345,18 @@ def get_field_scene(cfg: ngl.SceneCfg, spec, category, field_type, seed, debug_p
         d = {}
         d.update(("color_" + n, u) for (n, u) in color_fields.items() if n in field_names)
         d.update(("field_" + n, u) for (n, u) in block_fields.items() if n in field_names)
-        render.update_frag_resources(**d)
+        draw.update_frag_resources(**d)
     else:
         color_fields = ngl.Block(fields=[f for _, f in color_fields], layout=layout, label="colors_block")
         block_fields = ngl.Block(fields=[f for _, f in block_fields], layout=layout, label="fields_block")
-        render.update_frag_resources(fields=block_fields, colors=color_fields)
+        draw.update_frag_resources(fields=block_fields, colors=color_fields)
 
-    render.update_frag_resources(nb_fields=ngl.UniformInt(len(fields)))
+    draw.update_frag_resources(nb_fields=ngl.UniformInt(len(fields)))
 
     if debug_positions:
         debug_points = get_data_debug_positions(fields)
         dbg_circles = get_debug_points(cfg, debug_points, text_size=(0.2, 0.1))
-        g = ngl.Group(children=(render, dbg_circles))
+        g = ngl.Group(children=(draw, dbg_circles))
         return g
 
-    return render
+    return draw

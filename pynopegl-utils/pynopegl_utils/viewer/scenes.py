@@ -38,7 +38,7 @@ def demo(cfg: ngl.SceneCfg, shape="square"):
         assert False
 
     ulinear = ngl.UniformBool(value=True, live_id="linear")
-    gradient = ngl.RenderGradient4(
+    gradient = ngl.DrawGradient4(
         color_tl=ngl.UniformColor(value=(1, 0.5, 0), live_id="top-left"),
         color_tr=ngl.UniformColor(value=(0, 1, 0), live_id="top-right"),
         color_br=ngl.UniformColor(value=(0, 0.5, 1), live_id="bottom-right"),

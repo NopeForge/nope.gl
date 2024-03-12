@@ -23,7 +23,7 @@ def timeranges(cfg: ngl.SceneCfg):
     color0 = ngl.AnimatedColor(keyframes=color0_animkf)
     color1 = ngl.AnimatedColor(keyframes=color1_animkf)
 
-    bg = ngl.RenderGradient(color0=color0, color1=color1)
+    bg = ngl.DrawGradient(color0=color0, color1=color1)
     fg = ngl.Text("Hello World!", bg_opacity=0)
 
     rotate_animkf = [
@@ -35,7 +35,7 @@ def timeranges(cfg: ngl.SceneCfg):
     scaled_fg = ngl.Scale(fg, factors=(0.7, 0.7, 0.7))
     rotated_fg = ngl.Rotate(scaled_fg, angle=ngl.AnimatedFloat(rotate_animkf))
 
-    shape = ngl.RenderColor(color=(0.3, 0.3, 0.3), geometry=ngl.Circle(npoints=5))
+    shape = ngl.DrawColor(color=(0.3, 0.3, 0.3), geometry=ngl.Circle(npoints=5))
     timed_shape = ngl.TimeRangeFilter(shape, start=1, end=2)
 
     return ngl.Group(children=[bg, timed_shape, rotated_fg])

@@ -12,5 +12,5 @@ def animated_scale(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameVec3(cfg.duration, (1 / 3, 1 / 3, 1 / 3)),
     ]
 
-    scene = ngl.RenderColor(geometry=ngl.Circle(0.5))
+    scene = ngl.DrawColor(geometry=ngl.Circle(0.5))
     return ngl.Scale(scene, factors=ngl.AnimatedVec3(animkf))

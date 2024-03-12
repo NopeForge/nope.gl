@@ -43,8 +43,8 @@ def _get_live_shared_uniform_scene(cfg: ngl.SceneCfg, color, debug_positions):
     group = ngl.Group()
     for i in range(2):
         quad = ngl.Quad((-1 + i, -1 + i, 0), (1, 0, 0), (0, 1, 0))
-        render = ngl.RenderColor(color, geometry=quad)
-        group.add_children(render)
+        draw = ngl.DrawColor(color, geometry=quad)
+        group.add_children(draw)
     if debug_positions:
         group.add_children(get_debug_points(cfg, _SHARED_UNIFORM_CUEPOINTS))
     return group
@@ -72,9 +72,9 @@ def _get_live_shared_uniform_with_block_scene(cfg: ngl.SceneCfg, color, layout, 
     for i in range(2):
         block = ngl.Block(fields=[color], layout=layout)
         quad = ngl.Quad((-1 + i, -1 + i, 0), (1, 0, 0), (0, 1, 0))
-        render = ngl.Render(quad, program)
-        render.update_frag_resources(data=block)
-        group.add_children(render)
+        draw = ngl.Draw(quad, program)
+        draw.update_frag_resources(data=block)
+        group.add_children(draw)
     if debug_positions:
         group.add_children(get_debug_points(cfg, _SHARED_UNIFORM_CUEPOINTS))
     return group
@@ -138,8 +138,8 @@ def _get_media_change_function():
         # Build a scene with 2 successive media displayed, 10 seconds each
         return ngl.Group(
             children=[
-                ngl.TimeRangeFilter(child=ngl.RenderTexture(ngl.Texture2D(data_src=media0)), start=0, end=10),
-                ngl.TimeRangeFilter(child=ngl.RenderTexture(ngl.Texture2D(data_src=media1)), start=10, end=20),
+                ngl.TimeRangeFilter(child=ngl.DrawTexture(ngl.Texture2D(data_src=media0)), start=0, end=10),
+                ngl.TimeRangeFilter(child=ngl.DrawTexture(ngl.Texture2D(data_src=media1)), start=10, end=20),
             ]
         )
 

@@ -129,7 +129,7 @@ struct render_common {
     struct darray draw_resources;
 };
 
-struct rendercolor_opts {
+struct drawcolor_opts {
     struct ngl_node *color_node;
     float color[3];
     struct ngl_node *opacity_node;
@@ -137,21 +137,21 @@ struct rendercolor_opts {
     struct render_common_opts common;
 };
 
-struct rendercolor_priv {
+struct drawcolor_priv {
     struct render_common common;
 };
 
-struct renderdisplace_opts {
+struct drawdisplace_opts {
     struct ngl_node *source_node;
     struct ngl_node *displacement_node;
     struct render_common_opts common;
 };
 
-struct renderdisplace_priv {
+struct drawdisplace_priv {
     struct render_common common;
 };
 
-struct rendergradient_opts {
+struct drawgradient_opts {
     struct ngl_node *color0_node;
     float color0[3];
     struct ngl_node *color1_node;
@@ -170,11 +170,11 @@ struct rendergradient_opts {
     struct render_common_opts common;
 };
 
-struct rendergradient_priv {
+struct drawgradient_priv {
     struct render_common common;
 };
 
-struct rendergradient4_opts {
+struct drawgradient4_opts {
     struct ngl_node *color_tl_node;
     float color_tl[3];
     struct ngl_node *color_tr_node;
@@ -196,30 +196,30 @@ struct rendergradient4_opts {
     struct render_common_opts common;
 };
 
-struct rendergradient4_priv {
+struct drawgradient4_priv {
     struct render_common common;
 };
 
-struct renderhistogram_opts {
+struct drawhistogram_opts {
     struct ngl_node *stats;
     int mode;
     struct render_common_opts common;
 };
 
-struct renderhistogram_priv {
+struct drawhistogram_priv {
     struct render_common common;
 };
 
-struct rendertexture_opts {
+struct drawtexture_opts {
     struct ngl_node *texture_node;
     struct render_common_opts common;
 };
 
-struct rendernoise_priv {
+struct drawnoise_priv {
     struct render_common common;
 };
 
-struct rendernoise_opts {
+struct drawnoise_opts {
     int type;
     struct ngl_node *amplitude_node;
     float amplitude;
@@ -237,23 +237,23 @@ struct rendernoise_opts {
     struct render_common_opts common;
 };
 
-struct rendertexture_priv {
+struct drawtexture_priv {
     struct render_common common;
 };
 
-struct renderwaveform_opts {
+struct drawwaveform_opts {
     struct ngl_node *stats;
     int mode;
     struct render_common_opts common;
 };
 
-struct renderwaveform_priv {
+struct drawwaveform_priv {
     struct render_common common;
 };
 
 
-#define OFFSET(x) offsetof(struct rendercolor_opts, x)
-static const struct node_param rendercolor_params[] = {
+#define OFFSET(x) offsetof(struct drawcolor_opts, x)
+static const struct node_param drawcolor_params[] = {
     {"color",    NGLI_PARAM_TYPE_VEC3, OFFSET(color_node), {.vec={1.f, 1.f, 1.f}},
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                  .desc=NGLI_DOCSTRING("color of the shape")},
@@ -273,8 +273,8 @@ static const struct node_param rendercolor_params[] = {
 };
 #undef OFFSET
 
-#define OFFSET(x) offsetof(struct renderdisplace_opts, x)
-static const struct node_param renderdisplace_params[] = {
+#define OFFSET(x) offsetof(struct drawdisplace_opts, x)
+static const struct node_param drawdisplace_params[] = {
     {"source",       NGLI_PARAM_TYPE_NODE, OFFSET(source_node),
                      .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                      .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -308,8 +308,8 @@ static const struct param_choices gradient_mode_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct rendergradient_opts, x)
-static const struct node_param rendergradient_params[] = {
+#define OFFSET(x) offsetof(struct drawgradient_opts, x)
+static const struct node_param drawgradient_params[] = {
     {"color0",   NGLI_PARAM_TYPE_VEC3, OFFSET(color0_node), {.vec={0.f, 0.f, 0.f}},
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                  .desc=NGLI_DOCSTRING("color of the first point")},
@@ -347,8 +347,8 @@ static const struct node_param rendergradient_params[] = {
 };
 #undef OFFSET
 
-#define OFFSET(x) offsetof(struct rendergradient4_opts, x)
-static const struct node_param rendergradient4_params[] = {
+#define OFFSET(x) offsetof(struct drawgradient4_opts, x)
+static const struct node_param drawgradient4_params[] = {
     {"color_tl",   NGLI_PARAM_TYPE_VEC3, OFFSET(color_tl_node), {.vec={1.f, .5f, 0.f}}, /* orange */
                    .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                    .desc=NGLI_DOCSTRING("top-left color")},
@@ -405,8 +405,8 @@ const struct param_choices scope_mode_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct renderhistogram_opts, x)
-static const struct node_param renderhistogram_params[] = {
+#define OFFSET(x) offsetof(struct drawhistogram_opts, x)
+static const struct node_param drawhistogram_params[] = {
     {"stats",    NGLI_PARAM_TYPE_NODE, OFFSET(stats),
                  .node_types=(const uint32_t[]){NGL_NODE_COLORSTATS, NGLI_NODE_NONE},
                  .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -439,8 +439,8 @@ const struct param_choices noise_type_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct rendernoise_opts, x)
-static const struct node_param rendernoise_params[] = {
+#define OFFSET(x) offsetof(struct drawnoise_opts, x)
+static const struct node_param drawnoise_params[] = {
     {"type",        NGLI_PARAM_TYPE_SELECT, OFFSET(type),
                     .choices=&noise_type_choices,
                     .desc=NGLI_DOCSTRING("noise type")},
@@ -477,8 +477,8 @@ static const struct node_param rendernoise_params[] = {
 };
 #undef OFFSET
 
-#define OFFSET(x) offsetof(struct rendertexture_opts, x)
-static const struct node_param rendertexture_params[] = {
+#define OFFSET(x) offsetof(struct drawtexture_opts, x)
+static const struct node_param drawtexture_params[] = {
     {"texture",  NGLI_PARAM_TYPE_NODE, OFFSET(texture_node),
                  .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                  .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -496,8 +496,8 @@ static const struct node_param rendertexture_params[] = {
 };
 #undef OFFSET
 
-#define OFFSET(x) offsetof(struct renderwaveform_opts, x)
-static const struct node_param renderwaveform_params[] = {
+#define OFFSET(x) offsetof(struct drawwaveform_opts, x)
+static const struct node_param drawwaveform_params[] = {
     {"stats",    NGLI_PARAM_TYPE_NODE, OFFSET(stats),
                  .node_types=(const uint32_t[]){NGL_NODE_COLORSTATS, NGLI_NODE_NONE},
                  .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -662,17 +662,17 @@ static int init(struct ngl_node *node,
     return combine_filters_code(s, o, base_name, base_fragment);
 }
 
-static int rendercolor_init(struct ngl_node *node)
+static int drawcolor_init(struct ngl_node *node)
 {
-    struct rendercolor_priv *s = node->priv_data;
-    struct rendercolor_opts *o = node->opts;
+    struct drawcolor_priv *s = node->priv_data;
+    struct drawcolor_opts *o = node->opts;
     return init(node, &s->common, &o->common, "source_color", source_color_frag);
 }
 
-static int renderdisplace_init(struct ngl_node *node)
+static int drawdisplace_init(struct ngl_node *node)
 {
-    struct renderdisplace_priv *s = node->priv_data;
-    struct renderdisplace_opts *o = node->opts;
+    struct drawdisplace_priv *s = node->priv_data;
+    struct drawdisplace_opts *o = node->opts;
 
     ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
     if (!ngli_darray_push(&s->common.draw_resources, &o->source_node) ||
@@ -682,26 +682,26 @@ static int renderdisplace_init(struct ngl_node *node)
     return init(node, &s->common, &o->common, "source_displace", source_displace_frag);
 }
 
-static int rendergradient_init(struct ngl_node *node)
+static int drawgradient_init(struct ngl_node *node)
 {
-    struct rendergradient_priv *s = node->priv_data;
-    struct rendergradient_opts *o = node->opts;
+    struct drawgradient_priv *s = node->priv_data;
+    struct drawgradient_opts *o = node->opts;
     s->common.helpers = NGLI_FILTER_HELPER_SRGB;
     return init(node, &s->common, &o->common, "source_gradient", source_gradient_frag);
 }
 
-static int rendergradient4_init(struct ngl_node *node)
+static int drawgradient4_init(struct ngl_node *node)
 {
-    struct rendergradient4_priv *s = node->priv_data;
-    struct rendergradient4_opts *o = node->opts;
+    struct drawgradient4_priv *s = node->priv_data;
+    struct drawgradient4_opts *o = node->opts;
     s->common.helpers = NGLI_FILTER_HELPER_SRGB;
     return init(node, &s->common, &o->common, "source_gradient4", source_gradient4_frag);
 }
 
-static int renderhistogram_init(struct ngl_node *node)
+static int drawhistogram_init(struct ngl_node *node)
 {
-    struct renderhistogram_priv *s = node->priv_data;
-    struct renderhistogram_opts *o = node->opts;
+    struct drawhistogram_priv *s = node->priv_data;
+    struct drawhistogram_opts *o = node->opts;
 
     ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
     if (!ngli_darray_push(&s->common.draw_resources, &o->stats))
@@ -710,10 +710,10 @@ static int renderhistogram_init(struct ngl_node *node)
     return init(node, &s->common, &o->common, "source_histogram", source_histogram_frag);
 }
 
-static int rendernoise_init(struct ngl_node *node)
+static int drawnoise_init(struct ngl_node *node)
 {
-    struct rendernoise_priv *s = node->priv_data;
-    struct rendernoise_opts *o = node->opts;
+    struct drawnoise_priv *s = node->priv_data;
+    struct drawnoise_opts *o = node->opts;
     if (o->octaves < 1 || o->octaves > 8) {
         LOG(ERROR, "octaves must be in [1,8]");
         return NGL_ERROR_INVALID_ARG;
@@ -723,10 +723,10 @@ static int rendernoise_init(struct ngl_node *node)
     return init(node, &s->common, &o->common, "source_noise", source_noise_frag);
 }
 
-static int rendertexture_init(struct ngl_node *node)
+static int drawtexture_init(struct ngl_node *node)
 {
-    struct rendertexture_priv *s = node->priv_data;
-    struct rendertexture_opts *o = node->opts;
+    struct drawtexture_priv *s = node->priv_data;
+    struct drawtexture_opts *o = node->opts;
 
     ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
     if (!ngli_darray_push(&s->common.draw_resources, &o->texture_node))
@@ -735,10 +735,10 @@ static int rendertexture_init(struct ngl_node *node)
     return init(node, &s->common, &o->common, "source_texture", source_texture_frag);
 }
 
-static int renderwaveform_init(struct ngl_node *node)
+static int drawwaveform_init(struct ngl_node *node)
 {
-    struct renderwaveform_priv *s = node->priv_data;
-    struct renderwaveform_opts *o = node->opts;
+    struct drawwaveform_priv *s = node->priv_data;
+    struct drawwaveform_opts *o = node->opts;
 
     ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
     if (!ngli_darray_push(&s->common.draw_resources, &o->stats))
@@ -862,10 +862,10 @@ static int finalize_pipeline(struct ngl_node *node,
     return 0;
 }
 
-static int rendercolor_prepare(struct ngl_node *node)
+static int drawcolor_prepare(struct ngl_node *node)
 {
-    struct rendercolor_priv *s = node->priv_data;
-    struct rendercolor_opts *o = node->opts;
+    struct drawcolor_priv *s = node->priv_data;
+    struct drawcolor_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -887,7 +887,7 @@ static int rendercolor_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nopegl/rendercolor",
+        .program_label    = "nopegl/drawcolor",
         .vert_base        = source_color_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -902,11 +902,11 @@ static int rendercolor_prepare(struct ngl_node *node)
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
-static int renderdisplace_prepare(struct ngl_node *node)
+static int drawdisplace_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct renderdisplace_priv *s = node->priv_data;
-    struct renderdisplace_opts *o = node->opts;
+    struct drawdisplace_priv *s = node->priv_data;
+    struct drawdisplace_opts *o = node->opts;
 
     static const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -959,7 +959,7 @@ static int renderdisplace_prepare(struct ngl_node *node)
     struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nopegl/renderdisplace",
+        .program_label    = "nopegl/drawdisplace",
         .vert_base        = source_displace_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -988,10 +988,10 @@ static int renderdisplace_prepare(struct ngl_node *node)
     return 0;
 }
 
-static int rendergradient_prepare(struct ngl_node *node)
+static int drawgradient_prepare(struct ngl_node *node)
 {
-    struct rendergradient_priv *s = node->priv_data;
-    struct rendergradient_opts *o = node->opts;
+    struct drawgradient_priv *s = node->priv_data;
+    struct drawgradient_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -1019,7 +1019,7 @@ static int rendergradient_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nopegl/rendergradient",
+        .program_label    = "nopegl/drawgradient",
         .vert_base        = source_gradient_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -1034,10 +1034,10 @@ static int rendergradient_prepare(struct ngl_node *node)
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
-static int rendergradient4_prepare(struct ngl_node *node)
+static int drawgradient4_prepare(struct ngl_node *node)
 {
-    struct rendergradient4_priv *s = node->priv_data;
-    struct rendergradient4_opts *o = node->opts;
+    struct drawgradient4_priv *s = node->priv_data;
+    struct drawgradient4_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -1066,7 +1066,7 @@ static int rendergradient4_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nopegl/rendergradient4",
+        .program_label    = "nopegl/drawgradient4",
         .vert_base        = source_gradient4_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -1081,10 +1081,10 @@ static int rendergradient4_prepare(struct ngl_node *node)
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
-static int renderhistogram_prepare(struct ngl_node *node)
+static int drawhistogram_prepare(struct ngl_node *node)
 {
-    struct renderhistogram_priv *s = node->priv_data;
-    struct renderhistogram_opts *o = node->opts;
+    struct drawhistogram_priv *s = node->priv_data;
+    struct drawhistogram_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -1113,7 +1113,7 @@ static int renderhistogram_prepare(struct ngl_node *node)
     struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nopegl/renderhistogram",
+        .program_label    = "nopegl/drawhistogram",
         .vert_base        = source_histogram_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -1141,11 +1141,11 @@ static int renderhistogram_prepare(struct ngl_node *node)
     return 0;
 }
 
-static int rendernoise_prepare(struct ngl_node *node)
+static int drawnoise_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct rendernoise_priv *s = node->priv_data;
-    struct rendernoise_opts *o = node->opts;
+    struct drawnoise_priv *s = node->priv_data;
+    struct drawnoise_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -1174,7 +1174,7 @@ static int rendernoise_prepare(struct ngl_node *node)
     struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nopegl/rendernoise",
+        .program_label    = "nopegl/drawnoise",
         .vert_base        = source_noise_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -1189,11 +1189,11 @@ static int rendernoise_prepare(struct ngl_node *node)
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
-static int rendertexture_prepare(struct ngl_node *node)
+static int drawtexture_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct rendertexture_priv *s = node->priv_data;
-    struct rendertexture_opts *o = node->opts;
+    struct drawtexture_priv *s = node->priv_data;
+    struct drawtexture_opts *o = node->opts;
 
     static const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -1232,7 +1232,7 @@ static int rendertexture_prepare(struct ngl_node *node)
     struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nopegl/rendertexture",
+        .program_label    = "nopegl/drawtexture",
         .vert_base        = source_texture_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -1261,10 +1261,10 @@ static int rendertexture_prepare(struct ngl_node *node)
     return 0;
 }
 
-static int renderwaveform_prepare(struct ngl_node *node)
+static int drawwaveform_prepare(struct ngl_node *node)
 {
-    struct renderwaveform_priv *s = node->priv_data;
-    struct renderwaveform_opts *o = node->opts;
+    struct drawwaveform_priv *s = node->priv_data;
+    struct drawwaveform_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -1293,7 +1293,7 @@ static int renderwaveform_prepare(struct ngl_node *node)
     struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
-        .program_label    = "nopegl/renderwaveform",
+        .program_label    = "nopegl/drawwaveform",
         .vert_base        = source_waveform_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -1321,7 +1321,7 @@ static int renderwaveform_prepare(struct ngl_node *node)
     return 0;
 }
 
-static void renderother_draw(struct ngl_node *node, struct render_common *s, const struct render_common_opts *o)
+static void drawother_draw(struct ngl_node *node, struct render_common *s, const struct render_common_opts *o)
 {
     struct ngl_node **draw_resources = ngli_darray_data(&s->draw_resources);
     for (size_t i = 0; i < ngli_darray_count(&s->draw_resources); i++)
@@ -1348,7 +1348,7 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
     for (size_t i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
         ngli_pipeline_compat_update_uniform(pl_compat, uniform_map[i].index, uniform_map[i].data);
 
-    if (node->cls->id == NGL_NODE_RENDERTEXTURE || node->cls->id == NGL_NODE_RENDERDISPLACE) {
+    if (node->cls->id == NGL_NODE_DRAWTEXTURE || node->cls->id == NGL_NODE_DRAWDISPLACE) {
         struct texture_map *texture_map = ngli_darray_data(&desc->textures_map);
         for (size_t i = 0; i < ngli_darray_count(&desc->textures_map); i++) {
             if (texture_map[i].image_rev != texture_map[i].image->rev) {
@@ -1376,7 +1376,7 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
     s->draw(s, desc->pipeline_compat);
 }
 
-static void renderother_uninit(struct ngl_node *node, struct render_common *s)
+static void drawother_uninit(struct ngl_node *node, struct render_common *s)
 {
     ngli_darray_reset(&s->pipeline_descs);
     ngli_freep(&s->combined_fragment);
@@ -1386,23 +1386,23 @@ static void renderother_uninit(struct ngl_node *node, struct render_common *s)
     ngli_darray_reset(&s->draw_resources);
 }
 
-#define DECLARE_RENDEROTHER(type, cls_id, cls_name) \
+#define DECLARE_DRAWOTHER(type, cls_id, cls_name)   \
 static void type##_draw(struct ngl_node *node)      \
 {                                                   \
     struct type##_priv *s = node->priv_data;        \
     const struct type##_opts *o = node->opts;       \
-    renderother_draw(node, &s->common, &o->common); \
+    drawother_draw(node, &s->common, &o->common);   \
 }                                                   \
                                                     \
 static void type##_uninit(struct ngl_node *node)    \
 {                                                   \
     struct type##_priv *s = node->priv_data;        \
-    renderother_uninit(node, &s->common);           \
+    drawother_uninit(node, &s->common);             \
 }                                                   \
                                                     \
 const struct node_class ngli_##type##_class = {     \
     .id        = cls_id,                            \
-    .category  = NGLI_NODE_CATEGORY_RENDER,         \
+    .category  = NGLI_NODE_CATEGORY_DRAW,           \
     .name      = cls_name,                          \
     .init      = type##_init,                       \
     .prepare   = type##_prepare,                    \
@@ -1415,11 +1415,11 @@ const struct node_class ngli_##type##_class = {     \
     .file      = __FILE__,                          \
 };
 
-DECLARE_RENDEROTHER(rendercolor,     NGL_NODE_RENDERCOLOR,     "RenderColor")
-DECLARE_RENDEROTHER(renderdisplace,  NGL_NODE_RENDERDISPLACE,  "RenderDisplace")
-DECLARE_RENDEROTHER(rendergradient,  NGL_NODE_RENDERGRADIENT,  "RenderGradient")
-DECLARE_RENDEROTHER(rendergradient4, NGL_NODE_RENDERGRADIENT4, "RenderGradient4")
-DECLARE_RENDEROTHER(renderhistogram, NGL_NODE_RENDERHISTOGRAM, "RenderHistogram")
-DECLARE_RENDEROTHER(rendernoise,     NGL_NODE_RENDERNOISE,     "RenderNoise")
-DECLARE_RENDEROTHER(rendertexture,   NGL_NODE_RENDERTEXTURE,   "RenderTexture")
-DECLARE_RENDEROTHER(renderwaveform,  NGL_NODE_RENDERWAVEFORM,  "RenderWaveform")
+DECLARE_DRAWOTHER(drawcolor,     NGL_NODE_DRAWCOLOR,     "DrawColor")
+DECLARE_DRAWOTHER(drawdisplace,  NGL_NODE_DRAWDISPLACE,  "DrawDisplace")
+DECLARE_DRAWOTHER(drawgradient,  NGL_NODE_DRAWGRADIENT,  "DrawGradient")
+DECLARE_DRAWOTHER(drawgradient4, NGL_NODE_DRAWGRADIENT4, "DrawGradient4")
+DECLARE_DRAWOTHER(drawhistogram, NGL_NODE_DRAWHISTOGRAM, "DrawHistogram")
+DECLARE_DRAWOTHER(drawnoise,     NGL_NODE_DRAWNOISE,     "DrawNoise")
+DECLARE_DRAWOTHER(drawtexture,   NGL_NODE_DRAWTEXTURE,   "DrawTexture")
+DECLARE_DRAWOTHER(drawwaveform,  NGL_NODE_DRAWWAVEFORM,  "DrawWaveform")

@@ -25,9 +25,9 @@ from pynopegl_utils.toolbox.colors import COLORS
 import pynopegl as ngl
 
 
-def _render_quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0), color=(1, 1, 1), opacity=1.0):
+def _draw_quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0), color=(1, 1, 1), opacity=1.0):
     quad = ngl.Quad(corner, width, height)
-    return ngl.RenderColor(color, opacity=opacity, geometry=quad, blending="src_over")
+    return ngl.DrawColor(color, opacity=opacity, geometry=quad, blending="src_over")
 
 
 @test_fingerprint(width=16, height=16, keyframes=2, tolerance=1)
@@ -41,9 +41,9 @@ def depth_stencil_depth(cfg: ngl.SceneCfg):
     for i in range(count):
         depth = (i + 1) / count
         corner = (-1 + (count - 1 - i) * 2 / count, -1, depth)
-        render = _render_quad(corner=corner, color=(depth, depth, depth))
+        draw = _draw_quad(corner=corner, color=(depth, depth, depth))
         graphicconfig = ngl.GraphicConfig(
-            render,
+            draw,
             depth_test=True,
             depth_func="lequal",
         )
@@ -52,9 +52,9 @@ def depth_stencil_depth(cfg: ngl.SceneCfg):
     for i, depth in enumerate((0.4, 0.6)):
         corner = (-1, -0.5 + 0.25 * i, depth)
         height = (0, 1 - 0.25 * i * 2, 0)
-        render = _render_quad(corner=corner, height=height, color=COLORS.red, opacity=0.5)
+        draw = _draw_quad(corner=corner, height=height, color=COLORS.red, opacity=0.5)
         graphicconfig = ngl.GraphicConfig(
-            render,
+            draw,
             depth_test=True,
             depth_func="less",
             depth_write_mask=False,
@@ -73,9 +73,9 @@ def depth_stencil_stencil(cfg: ngl.SceneCfg):
 
     count = 4
     for i in range(count):
-        render = _render_quad(corner=(-1 + (i * 2) / count, -1, 0), color=COLORS.black)
+        draw = _draw_quad(corner=(-1 + (i * 2) / count, -1, 0), color=COLORS.black)
         graphicconfig = ngl.GraphicConfig(
-            render,
+            draw,
             color_write_mask="",
             stencil_test=True,
             stencil_write_mask=0xFF,
@@ -88,9 +88,9 @@ def depth_stencil_stencil(cfg: ngl.SceneCfg):
         )
         group.add_children(graphicconfig)
 
-    render = _render_quad(color=COLORS.white)
+    draw = _draw_quad(color=COLORS.white)
     graphicconfig = ngl.GraphicConfig(
-        render,
+        draw,
         stencil_test=True,
         stencil_write_mask=0x0,
         stencil_func="equal",

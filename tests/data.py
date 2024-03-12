@@ -229,10 +229,10 @@ def _get_data_streamed_buffer_vec4_scene(cfg: ngl.SceneCfg, size, keyframes, sca
         fragment=_RENDER_STREAMEDBUFFER_FRAG % shader_params,
     )
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(streamed=streamed_block)
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(streamed=streamed_block)
 
-    group = ngl.Group(children=(render,))
+    group = ngl.Group(children=(draw,))
     if show_dbg_points:
         cuepoints = _get_data_streamed_buffer_cuepoints(size)
         group.add_children(get_debug_points(cfg, cuepoints))
@@ -287,9 +287,9 @@ def data_integer_iovars(cfg: ngl.SceneCfg):
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(var_color_u32=ngl.IOIVec4())
     geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
-    render = ngl.Render(geometry, program)
-    render.update_vert_resources(color_u32=ngl.UniformIVec4(value=(0x50, 0x80, 0xA0, 0xFF)))
-    return render
+    draw = ngl.Draw(geometry, program)
+    draw.update_vert_resources(color_u32=ngl.UniformIVec4(value=(0x50, 0x80, 0xA0, 0xFF)))
+    return draw
 
 
 @test_cuepoints(width=128, height=128, points={"c": (0, 0)}, tolerance=1)
@@ -322,8 +322,8 @@ def data_mat_iovars(cfg: ngl.SceneCfg):
         var_vec4=ngl.IOVec4(),
     )
     geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
-    render = ngl.Render(geometry, program)
-    return render
+    draw = ngl.Draw(geometry, program)
+    return draw
 
 
 @test_fingerprint(width=512, height=512, keyframes=10, tolerance=1)
@@ -351,10 +351,10 @@ def data_noise_time(cfg: ngl.SceneCfg):
 
     geometry = ngl.Circle(radius=0.25, npoints=6)
     program = ngl.Program(vertex=vert, fragment=frag)
-    render = ngl.Render(geometry, program)
-    render.update_vert_resources(t=ngl.Time(), signal=ngl.NoiseFloat(octaves=8))
-    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.white))
-    return render
+    draw = ngl.Draw(geometry, program)
+    draw.update_vert_resources(t=ngl.Time(), signal=ngl.NoiseFloat(octaves=8))
+    draw.update_frag_resources(color=ngl.UniformVec3(value=COLORS.white))
+    return draw
 
 
 @test_fingerprint(width=512, height=512, keyframes=30, tolerance=1)
@@ -364,10 +364,10 @@ def data_noise_wiggle(cfg: ngl.SceneCfg):
     cfg.duration = 3
 
     geometry = ngl.Circle(radius=0.25, npoints=6)
-    render = ngl.RenderColor(geometry=geometry)
+    draw = ngl.DrawColor(geometry=geometry)
     translate = ngl.EvalVec3("wiggle.x", "wiggle.y", "0")
     translate.update_resources(wiggle=ngl.NoiseVec2(octaves=8))
-    return ngl.Translate(render, vector=translate)
+    return ngl.Translate(draw, vector=translate)
 
 
 @test_cuepoints(width=128, height=128, points={"c": (0, 0)}, keyframes=10, tolerance=1)
@@ -410,10 +410,10 @@ def data_eval(cfg: ngl.SceneCfg):
     )
     program = ngl.Program(vertex=vert, fragment=frag)
     geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
-    render = ngl.Render(geometry, program)
-    render.update_frag_resources(color=color)
+    draw = ngl.Draw(geometry, program)
+    draw.update_frag_resources(color=color)
 
-    return render
+    return draw
 
 
 def _data_vertex_and_fragment_blocks(cfg: ngl.SceneCfg, layout):
@@ -460,11 +460,11 @@ def _data_vertex_and_fragment_blocks(cfg: ngl.SceneCfg, layout):
         var_src=ngl.IOVec4(),
     )
     geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
-    render = ngl.Render(geometry, program)
-    render.update_vert_resources(src=src)
-    render.update_frag_resources(dst=dst)
+    draw = ngl.Draw(geometry, program)
+    draw.update_vert_resources(src=src)
+    draw.update_frag_resources(dst=dst)
 
-    return render
+    return draw
 
 
 @test_cuepoints(width=128, height=128, points={"c": (0, 0)}, keyframes=1, tolerance=1)

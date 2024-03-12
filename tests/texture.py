@@ -40,23 +40,23 @@ void main()
 """
 
 
-def _render_buffer(cfg: ngl.SceneCfg, w, h):
+def _draw_buffer(cfg: ngl.SceneCfg, w, h):
     n = w * h
     data = array.array("B", [i * 255 // n for i in range(n)])
     buf = ngl.BufferUByte(data=data)
     texture = ngl.Texture2D(width=w, height=h, data_src=buf, min_filter="nearest", mag_filter="nearest")
     program = ngl.Program(vertex=get_shader("texture.vert"), fragment=_RENDER_BUFFER_FRAG)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(ngl.Quad(), program)
-    render.update_frag_resources(tex0=texture)
-    return render
+    draw = ngl.Draw(ngl.Quad(), program)
+    draw.update_frag_resources(tex0=texture)
+    return draw
 
 
 @test_fingerprint(width=128, height=128)
 @ngl.scene(controls=dict(w=ngl.scene.Range(range=[1, 128]), h=ngl.scene.Range(range=[1, 128])))
 def texture_data(cfg: ngl.SceneCfg, w=4, h=5):
     cfg.aspect_ratio = (1, 1)
-    return _render_buffer(cfg, w, h)
+    return _draw_buffer(cfg, w, h)
 
 
 @test_fingerprint(width=128, height=128)
@@ -78,7 +78,7 @@ def texture_data_animated(cfg: ngl.SceneCfg, dim=8):
         min_filter="nearest",
         mag_filter="nearest",
     )
-    return ngl.RenderTexture(random_tex)
+    return ngl.DrawTexture(random_tex)
 
 
 @test_fingerprint(width=128, height=128)
@@ -86,7 +86,7 @@ def texture_data_animated(cfg: ngl.SceneCfg, dim=8):
 def texture_data_unaligned_row(cfg: ngl.SceneCfg, h=32):
     """Tests upload of buffers with rows that are not 4-byte aligned"""
     cfg.aspect_ratio = (1, 1)
-    return _render_buffer(cfg, 1, h)
+    return _draw_buffer(cfg, 1, h)
 
 
 @test_fingerprint(width=128, height=128, keyframes=(0, 1, 0))
@@ -94,7 +94,7 @@ def texture_data_unaligned_row(cfg: ngl.SceneCfg, h=32):
 def texture_data_seek_timeranges(cfg: ngl.SceneCfg, w=4, h=5):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 1
-    return ngl.TimeRangeFilter(_render_buffer(cfg, w, h), end=1)
+    return ngl.TimeRangeFilter(_draw_buffer(cfg, w, h), end=1)
 
 
 @test_fingerprint(width=1280, height=960, keyframes=5)
@@ -128,15 +128,15 @@ def texture_displacement(cfg: ngl.SceneCfg):
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p = ngl.Program(vertex=vert, fragment=frag)
     p.update_vert_out_vars(uv=ngl.IOVec2())
-    displace_render = ngl.Render(q, p)
-    displace_render.update_frag_resources(t=ngl.Time())
+    displace_draw = ngl.Draw(q, p)
+    displace_draw.update_frag_resources(t=ngl.Time())
 
     displace_tex = ngl.Texture2D(width=m0.width, height=m0.height, min_filter="nearest", mag_filter="nearest")
-    rtt = ngl.RenderToTexture(displace_render)
+    rtt = ngl.RenderToTexture(displace_draw)
     rtt.add_color_textures(displace_tex)
 
-    render = ngl.RenderDisplace(source_tex, displace_tex)
-    return ngl.Group(children=[rtt, render])
+    draw = ngl.DrawDisplace(source_tex, displace_tex)
+    return ngl.Group(children=[rtt, draw])
 
 
 _RENDER_TO_CUBEMAP_VERT = """
@@ -202,16 +202,16 @@ def _get_texture_cubemap_from_mrt_scene(cfg: ngl.SceneCfg, samples=0):
     program = ngl.Program(vertex=_RENDER_TO_CUBEMAP_VERT, fragment=_RENDER_TO_CUBEMAP_FRAG, nb_frag_output=6)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program)
+    draw = ngl.Draw(quad, program)
     cube = ngl.TextureCube(size=64, min_filter="linear", mag_filter="linear")
-    rtt = ngl.RenderToTexture(render, [cube], samples=samples)
+    rtt = ngl.RenderToTexture(draw, [cube], samples=samples)
 
     program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_FRAG)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=cube)
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=cube)
 
-    return ngl.Group(children=(rtt, render))
+    return ngl.Group(children=(rtt, draw))
 
 
 def _get_texture_cubemap_from_mrt_scene_2_pass(cfg: ngl.SceneCfg, samples=0):
@@ -224,17 +224,17 @@ def _get_texture_cubemap_from_mrt_scene_2_pass(cfg: ngl.SceneCfg, samples=0):
     for layer_count, fragment in ((2, _RENDER_TO_CUBEMAP_1_FRAG), (4, _RENDER_TO_CUBEMAP_2_FRAG)):
         program = ngl.Program(vertex=_RENDER_TO_CUBEMAP_VERT, fragment=fragment, nb_frag_output=layer_count)
         program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
-        render = ngl.Render(quad, program)
+        draw = ngl.Draw(quad, program)
         color_textures = [ngl.TextureView(cube, layer) for layer in range(layer_base, layer_base + layer_count)]
-        rtt = ngl.RenderToTexture(render, color_textures, samples=samples)
+        rtt = ngl.RenderToTexture(draw, color_textures, samples=samples)
         group.add_children(rtt)
         layer_base += layer_count
 
     program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_FRAG)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=cube)
-    group.add_children(render)
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=cube)
+    group.add_children(draw)
 
     return group
 
@@ -266,9 +266,9 @@ def texture_cubemap(cfg: ngl.SceneCfg):
     program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_FRAG)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=cube)
-    return render
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=cube)
+    return draw
 
 
 _RENDER_CUBEMAP_LOD_FRAG = """
@@ -287,9 +287,9 @@ def texture_cubemap_mipmap(cfg: ngl.SceneCfg):
     program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_LOD_FRAG)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=cube)
-    return render
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=cube)
+    return draw
 
 
 @test_fingerprint(width=800, height=800)
@@ -321,14 +321,14 @@ def texture_cubemap_from_mrt_2_pass_msaa(cfg: ngl.SceneCfg):
 def texture_clear_and_scissor(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
-    render = ngl.RenderColor(COLORS.white)
-    graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask="")
+    draw = ngl.DrawColor(COLORS.white)
+    graphic_config = ngl.GraphicConfig(draw, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask="")
 
     texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS.orange + (1,))
-    render = ngl.RenderTexture(texture)
+    draw = ngl.DrawTexture(texture)
 
-    return ngl.Group(children=(graphic_config, rtt, render))
+    return ngl.Group(children=(graphic_config, rtt, draw))
 
 
 @test_fingerprint(width=64, height=64)
@@ -336,12 +336,12 @@ def texture_clear_and_scissor(cfg: ngl.SceneCfg):
 def texture_scissor(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
-    render = ngl.RenderColor(COLORS.orange)
-    graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(32, 32, 32, 32))
+    draw = ngl.DrawColor(COLORS.orange)
+    graphic_config = ngl.GraphicConfig(draw, scissor_test=True, scissor=(32, 32, 32, 32))
     texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(graphic_config, [texture], clear_color=(0, 0, 0, 1))
-    render = ngl.RenderTexture(texture)
-    return ngl.Group(children=(rtt, render))
+    draw = ngl.DrawTexture(texture)
+    return ngl.Group(children=(rtt, draw))
 
 
 _TEXTURE2D_ARRAY_VERT = """
@@ -394,9 +394,9 @@ def texture_2d_array(cfg: ngl.SceneCfg):
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_FRAG)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
-    return render
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=texture)
+    return draw
 
 
 _TEXTURE2D_ARRAY_LOD_FRAG = """
@@ -417,9 +417,9 @@ def texture_2d_array_mipmap(cfg: ngl.SceneCfg):
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_LOD_FRAG)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
-    return render
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=texture)
+    return draw
 
 
 _RENDER_TO_TEXTURE2D_ARRAY_VERT = """
@@ -460,17 +460,17 @@ def _get_texture_2d_array_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, sam
     )
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(steps=ngl.UniformFloat(value=_STEPS))
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(steps=ngl.UniformFloat(value=_STEPS))
     texture = ngl.Texture2DArray(width=64, height=64, depth=depth, min_filter="nearest", mag_filter="nearest")
-    rtt = ngl.RenderToTexture(render, [texture], samples=samples)
+    rtt = ngl.RenderToTexture(draw, [texture], samples=samples)
 
     program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_FRAG)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=texture)
 
-    group = ngl.Group(children=(rtt, render))
+    group = ngl.Group(children=(rtt, draw))
     if show_dbg_points:
         group.add_children(get_debug_points(cfg, _get_texture_2d_array_from_mrt_cuepoints()))
 
@@ -535,9 +535,9 @@ def texture_3d(cfg: ngl.SceneCfg):
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     program = ngl.Program(vertex=_TEXTURE3D_VERT, fragment=_TEXTURE3D_FRAG)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
-    return render
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=texture)
+    return draw
 
 
 _RENDER_TO_TEXTURE3D_VERT = """
@@ -575,17 +575,17 @@ def _get_texture_3d_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0
     program = ngl.Program(vertex=_RENDER_TO_TEXTURE3D_VERT, fragment=_RENDER_TO_TEXTURE3D_FRAG, nb_frag_output=depth)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(steps=ngl.UniformFloat(value=_STEPS))
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(steps=ngl.UniformFloat(value=_STEPS))
     texture = ngl.Texture3D(width=64, height=64, depth=depth, min_filter="nearest", mag_filter="nearest")
-    rtt = ngl.RenderToTexture(render, [texture], samples=samples)
+    rtt = ngl.RenderToTexture(draw, [texture], samples=samples)
 
     program = ngl.Program(vertex=_TEXTURE3D_VERT, fragment=_TEXTURE3D_FRAG)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=texture)
 
-    group = ngl.Group(children=(rtt, render))
+    group = ngl.Group(children=(rtt, draw))
     if show_dbg_points:
         group.add_children(get_debug_points(cfg, _get_texture_3d_from_mrt_cuepoints()))
 
@@ -657,10 +657,10 @@ def texture_mipmap(cfg: ngl.SceneCfg, show_dbg_points=False):
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
+    draw = ngl.Draw(quad, program)
+    draw.update_frag_resources(tex0=texture)
 
-    group = ngl.Group(children=(render,))
+    group = ngl.Group(children=(draw,))
     if show_dbg_points:
         group.add_children(get_debug_points(cfg, cuepoints))
 

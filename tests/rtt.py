@@ -96,17 +96,17 @@ def _get_cube_scene(cfg: ngl.SceneCfg, depth_test=True, stencil_test=False):
     cube = _get_cube()
     program = ngl.Program(vertex=_RENDER_CUBE_VERT, fragment=_RENDER_CUBE_FRAG)
     program.update_vert_out_vars(var_normal=ngl.IOVec3())
-    render = ngl.Render(cube, program)
-    render = ngl.Scale(render, (0.5, 0.5, 0.5))
+    draw = ngl.Draw(cube, program)
+    draw = ngl.Scale(draw, (0.5, 0.5, 0.5))
 
     for i in range(3):
         rot_animkf = ngl.AnimatedFloat(
             [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
         )
         axis = tuple(int(i == x) for x in range(3))
-        render = ngl.Rotate(render, axis=axis, angle=rot_animkf)
+        draw = ngl.Rotate(draw, axis=axis, angle=rot_animkf)
 
-    config = ngl.GraphicConfig(render, depth_test=depth_test, stencil_test=stencil_test)
+    config = ngl.GraphicConfig(draw, depth_test=depth_test, stencil_test=stencil_test)
 
     return ngl.Camera(
         config,
@@ -158,7 +158,7 @@ def _get_rtt_scene(
         assert sample_depth == False
         texture.set_data_src(scene)
         texture.set_clear_color(0, 0, 0, 1)
-        return ngl.RenderTexture(texture)
+        return ngl.DrawTexture(texture)
 
     texture_depth = None
     if texture_ds_format:
@@ -182,11 +182,11 @@ def _get_rtt_scene(
         quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
         program = ngl.Program(vertex=get_shader("texture.vert"), fragment=_RENDER_DEPTH)
         program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-        render = ngl.Render(quad, program)
-        render.update_frag_resources(tex0=texture_depth)
+        draw = ngl.Draw(quad, program)
+        draw.update_frag_resources(tex0=texture_depth)
     else:
-        render = ngl.RenderTexture(texture)
-    return ngl.Group(children=(rtt, render))
+        draw = ngl.DrawTexture(texture)
+    return ngl.Group(children=(rtt, draw))
 
 
 def _get_rtt_function(**kwargs):
@@ -232,17 +232,17 @@ for name, params in _rtt_tests.items():
 def _rtt_load_attachment(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
-    background = ngl.RenderColor(COLORS.white)
-    render = ngl.RenderColor(COLORS.orange)
+    background = ngl.DrawColor(COLORS.white)
+    draw = ngl.DrawColor(COLORS.orange)
 
     texture = ngl.Texture2D(width=16, height=16, min_filter="nearest", mag_filter="nearest")
-    rtt = ngl.RenderToTexture(render, [texture])
+    rtt = ngl.RenderToTexture(draw, [texture])
 
     texture_noop = ngl.Texture2D(width=16, height=16, min_filter="nearest", mag_filter="nearest")
-    rtt_noop = ngl.RenderToTexture(render, [texture_noop])
+    rtt_noop = ngl.RenderToTexture(draw, [texture_noop])
 
     quad = ngl.Quad((0, 0, 0), (1, 0, 0), (0, 1, 0))
-    foreground = ngl.RenderTexture(texture, geometry=quad)
+    foreground = ngl.DrawTexture(texture, geometry=quad)
 
     return ngl.Group(children=(background, rtt, rtt_noop, foreground))
 
@@ -267,7 +267,7 @@ def _rtt_load_attachment_nested(cfg: ngl.SceneCfg, samples=0):
     texture = ngl.Texture2D(width=16, height=16, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(scene, [texture], samples=samples)
 
-    foreground = ngl.RenderTexture(texture)
+    foreground = ngl.DrawTexture(texture)
 
     return ngl.Group(children=(rtt, foreground))
 
@@ -290,28 +290,28 @@ def rtt_clear_attachment_with_timeranges(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     # Time-disabled full screen white quad
-    render = ngl.RenderColor(COLORS.white)
+    draw = ngl.DrawColor(COLORS.white)
 
-    time_range_filter = ngl.TimeRangeFilter(render, end=0)
+    time_range_filter = ngl.TimeRangeFilter(draw, end=0)
 
-    # Intermediate no-op RTT to force the use of a different render pass internally
+    # Intermediate no-op RTT to force the use of a different draw pass internally
     texture = ngl.Texture2D(width=32, height=32, min_filter="nearest", mag_filter="nearest")
     rtt_noop = ngl.RenderToTexture(ngl.Identity(), [texture])
 
     # Centered rotating quad
     quad = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    render = ngl.RenderColor(COLORS.orange, geometry=quad)
+    draw = ngl.DrawColor(COLORS.orange, geometry=quad)
 
     animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, -360)]
-    render = ngl.Rotate(render, angle=ngl.AnimatedFloat(animkf))
+    draw = ngl.Rotate(draw, angle=ngl.AnimatedFloat(animkf))
 
-    group = ngl.Group(children=(time_range_filter, rtt_noop, render))
+    group = ngl.Group(children=(time_range_filter, rtt_noop, draw))
 
     # Root RTT
     texture = ngl.Texture2D(width=512, height=512, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(group, [texture])
 
-    # Full screen render of the root RTT result
-    render = ngl.RenderTexture(texture)
+    # Full screen draw of the root RTT result
+    draw = ngl.DrawTexture(texture)
 
-    return ngl.Group(children=(rtt, render))
+    return ngl.Group(children=(rtt, draw))

@@ -4,7 +4,7 @@
 installation.md
 shapes.md
 transforms.md
-renders.md
+draws.md
 blending.md
 timeranges.md
 eval.md
