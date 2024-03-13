@@ -251,6 +251,16 @@ struct drawwaveform_priv {
     struct render_common common;
 };
 
+#define COMMON_PARAMS                                                                                                \
+    {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),                                                    \
+                 .choices=&ngli_blending_choices,                                                                    \
+                 .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},   \
+    {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),                                                      \
+                 .node_types=GEOMETRY_TYPES_LIST,                                                                    \
+                 .desc=NGLI_DOCSTRING("geometry to be rasterized")},                                                 \
+    {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),                                                   \
+                 .node_types=FILTERS_TYPES_LIST,                                                                     \
+                 .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},                               \
 
 #define OFFSET(x) offsetof(struct drawcolor_opts, x)
 static const struct node_param drawcolor_params[] = {
@@ -260,15 +270,7 @@ static const struct node_param drawcolor_params[] = {
     {"opacity",  NGLI_PARAM_TYPE_F32, OFFSET(opacity_node), {.f32=1.f},
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                  .desc=NGLI_DOCSTRING("opacity of the color")},
-    {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
-                 .choices=&ngli_blending_choices,
-                 .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
-    {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
-                 .node_types=GEOMETRY_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("geometry to be rasterized")},
-    {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
-                 .node_types=FILTERS_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    COMMON_PARAMS
     {NULL}
 };
 #undef OFFSET
@@ -283,15 +285,7 @@ static const struct node_param drawdisplace_params[] = {
                      .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                      .flags=NGLI_PARAM_FLAG_NON_NULL,
                      .desc=NGLI_DOCSTRING("displacement vectors stored in a texture")},
-    {"blending",     NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
-                     .choices=&ngli_blending_choices,
-                     .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
-    {"geometry",     NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
-                     .node_types=GEOMETRY_TYPES_LIST,
-                     .desc=NGLI_DOCSTRING("geometry to be rasterized")},
-    {"filters",      NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
-                     .node_types=FILTERS_TYPES_LIST,
-                     .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    COMMON_PARAMS
     {NULL}
 };
 #undef OFFSET
@@ -334,15 +328,7 @@ static const struct node_param drawgradient_params[] = {
     {"linear",   NGLI_PARAM_TYPE_BOOL, OFFSET(linear_node), {.i32=1},
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                  .desc=NGLI_DOCSTRING("interpolate colors linearly")},
-    {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
-                 .choices=&ngli_blending_choices,
-                 .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
-    {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
-                 .node_types=GEOMETRY_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("geometry to be rasterized")},
-    {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
-                 .node_types=FILTERS_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    COMMON_PARAMS
     {NULL}
 };
 #undef OFFSET
@@ -376,15 +362,7 @@ static const struct node_param drawgradient4_params[] = {
     {"linear",     NGLI_PARAM_TYPE_BOOL, OFFSET(linear_node), {.i32=1},
                    .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                    .desc=NGLI_DOCSTRING("interpolate colors linearly")},
-    {"blending",   NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
-                   .choices=&ngli_blending_choices,
-                   .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
-    {"geometry",   NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
-                   .node_types=GEOMETRY_TYPES_LIST,
-                   .desc=NGLI_DOCSTRING("geometry to be rasterized")},
-    {"filters",    NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
-                   .node_types=FILTERS_TYPES_LIST,
-                   .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    COMMON_PARAMS
     {NULL}
 };
 #undef OFFSET
@@ -414,15 +392,7 @@ static const struct node_param drawhistogram_params[] = {
     {"mode",     NGLI_PARAM_TYPE_SELECT, OFFSET(mode),
                  .choices=&scope_mode_choices,
                  .desc=NGLI_DOCSTRING("define how to represent the data")},
-    {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
-                 .choices=&ngli_blending_choices,
-                 .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
-    {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
-                 .node_types=GEOMETRY_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("geometry to be rasterized")},
-    {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
-                 .node_types=FILTERS_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    COMMON_PARAMS
     {NULL}
 };
 #undef OFFSET
@@ -464,15 +434,7 @@ static const struct node_param drawnoise_params[] = {
     {"evolution",   NGLI_PARAM_TYPE_F32, OFFSET(evolution_node), {.f32 = 0.0},
                     .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
                     .desc=NGLI_DOCSTRING("evolution of the 3rd non-spatial dimension, time if unspecified")},
-    {"blending",    NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
-                    .choices=&ngli_blending_choices,
-                    .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
-    {"geometry",    NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
-                    .node_types=GEOMETRY_TYPES_LIST,
-                    .desc=NGLI_DOCSTRING("geometry to be rasterized")},
-    {"filters",     NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
-                    .node_types=FILTERS_TYPES_LIST,
-                    .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    COMMON_PARAMS
     {NULL}
 };
 #undef OFFSET
@@ -483,15 +445,7 @@ static const struct node_param drawtexture_params[] = {
                  .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                  .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .desc=NGLI_DOCSTRING("texture to render")},
-    {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
-                 .choices=&ngli_blending_choices,
-                 .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
-    {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
-                 .node_types=GEOMETRY_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("geometry to be rasterized")},
-    {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
-                 .node_types=FILTERS_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    COMMON_PARAMS
     {NULL}
 };
 #undef OFFSET
@@ -505,15 +459,7 @@ static const struct node_param drawwaveform_params[] = {
     {"mode",     NGLI_PARAM_TYPE_SELECT, OFFSET(mode),
                  .choices=&scope_mode_choices,
                  .desc=NGLI_DOCSTRING("define how to represent the data")},
-    {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
-                 .choices=&ngli_blending_choices,
-                 .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
-    {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
-                 .node_types=GEOMETRY_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("geometry to be rasterized")},
-    {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
-                 .node_types=FILTERS_TYPES_LIST,
-                 .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    COMMON_PARAMS
     {NULL}
 };
 #undef OFFSET
