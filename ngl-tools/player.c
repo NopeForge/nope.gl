@@ -357,7 +357,6 @@ static int add_progress_bar(struct player *p, struct ngl_scene *scene)
     ngl_node_param_set_vec4(text, "box", text_box);
     ngl_node_param_set_f32(text, "bg_opacity", 0.f);
     ngl_node_param_set_f32(text, "fg_opacity", 0.f);
-    ngl_node_param_set_rational(text, "aspect_ratio", params->aspect_ratio[0], params->aspect_ratio[1]);
 
     struct ngl_scene_params new_params = *params;
     new_params.root = group;
@@ -414,8 +413,6 @@ static int set_aspect_ratio(struct player *p, const int32_t *aspect)
     int32_t width, height;
     SDL_GetWindowSize(p->window, &width, &height);
     size_callback(p, width, height);
-    if (p->pgbar_text_node)
-        ngl_node_param_set_rational(p->pgbar_text_node, "aspect_ratio", p->aspect[0], p->aspect[1]);
     return 0;
 }
 
