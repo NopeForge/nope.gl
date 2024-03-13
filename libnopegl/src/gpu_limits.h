@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Nope Forge
  * Copyright 2019-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define NGLI_MAX_ATTRIBUTES_PER_BUFFER 16
 #define NGLI_MAX_UNIFORM_BUFFERS_DYNAMIC 8
 #define NGLI_MAX_STORAGE_BUFFERS_DYNAMIC 4
 #define NGLI_MAX_DYNAMIC_OFFSETS (NGLI_MAX_UNIFORM_BUFFERS_DYNAMIC + NGLI_MAX_STORAGE_BUFFERS_DYNAMIC)
