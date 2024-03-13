@@ -26,7 +26,6 @@
 
 #include "bindgroup.h"
 #include "buffer.h"
-#include "darray.h"
 #include "gpu_limits.h"
 #include "graphics_state.h"
 #include "program.h"
