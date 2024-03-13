@@ -42,8 +42,6 @@ struct vertex_attribute {
     size_t offset;
 };
 
-#define NGLI_MAX_ATTRIBUTES_PER_BUFFER 16
-
 struct vertex_buffer_layout {
     struct vertex_attribute attributes[NGLI_MAX_ATTRIBUTES_PER_BUFFER];
     size_t nb_attributes;
