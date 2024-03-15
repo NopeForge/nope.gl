@@ -141,6 +141,7 @@
     action(NGL_NODE_PATHKEYMOVE,            ngli_pathkeymove_class)             \
     action(NGL_NODE_PROGRAM,                ngli_program_class)                 \
     action(NGL_NODE_QUAD,                   ngli_quad_class)                    \
+    action(NGL_NODE_RADIALBLUR,             ngli_rblur_class)                   \
     action(NGL_NODE_RENDERTOTEXTURE,        ngli_rtt_class)                     \
     action(NGL_NODE_RESOURCEPROPS,          ngli_resourceprops_class)           \
     action(NGL_NODE_ROTATE,                 ngli_rotate_class)                  \

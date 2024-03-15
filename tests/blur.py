@@ -66,3 +66,26 @@ def blur_fast_gaussian(cfg: ngl.SceneCfg):
         ),
     )
     return ngl.Group(children=(blur, ngl.DrawTexture(blurred_texture)))
+
+
+@test_fingerprint(width=256, height=256, keyframes=10, tolerance=1)
+@ngl.scene()
+def blur_radial_zoom(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+    cfg.duration = 10
+
+    noise = ngl.DrawNoise(type="blocky", octaves=3, scale=(9, 9))
+    noise_texture = ngl.Texture2D(data_src=noise)
+    blurred_texture = ngl.Texture2D()
+    blur = ngl.RadialBlur(
+        source=noise_texture,
+        destination=blurred_texture,
+        amount=ngl.AnimatedFloat(
+            [
+                ngl.AnimKeyFrameFloat(0, 0),
+                ngl.AnimKeyFrameFloat(cfg.duration, 1),
+            ]
+        ),
+        center=ngl.UniformVec2(value=(0.5, 0.5), live_id="center"),
+    )
+    return ngl.Group(children=(blur, ngl.DrawTexture(blurred_texture)))

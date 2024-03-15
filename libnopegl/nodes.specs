@@ -3360,6 +3360,39 @@
         }
       ]
     },
+    "RadialBlur": {
+      "file": "src/node_rblur.c",
+      "params": [
+        {
+          "name": "source",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": ["nonull"],
+          "desc": "source to use for the blur"
+        },
+        {
+          "name": "destination",
+          "type": "node",
+          "node_types": ["Texture2D"],
+          "flags": ["nonull"],
+          "desc": "destination to use for the blur"
+        },
+        {
+          "name": "amount",
+          "type": "f32",
+          "default": 0.000000,
+          "flags": ["node"],
+          "desc": "amount of bluriness in the range [-1,1]"
+        },
+        {
+          "name": "center",
+          "type": "vec2",
+          "default": [0.000000,0.000000],
+          "flags": ["node"],
+          "desc": "center of the radial blur"
+        }
+      ]
+    },
     "RenderToTexture": {
       "file": "src/node_rtt.c",
       "params": [
