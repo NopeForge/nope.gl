@@ -25,7 +25,7 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-static const struct ngl_node *get_leaf_node(const struct ngl_node *node)
+const struct ngl_node *ngli_transform_get_leaf_node(const struct ngl_node *node)
 {
     while (node && node->cls->category == NGLI_NODE_CATEGORY_TRANSFORM) {
         const struct transform *transform = node->priv_data;
@@ -39,7 +39,7 @@ int ngli_transform_chain_check(const struct ngl_node *node)
     if (!node) // it is ok for the transform chain not to be set
         return 0;
 
-    const struct ngl_node *leaf = get_leaf_node(node);
+    const struct ngl_node *leaf = ngli_transform_get_leaf_node(node);
 
     // All transform nodes are expected to have a non-null child parameter
     ngli_assert(leaf);
