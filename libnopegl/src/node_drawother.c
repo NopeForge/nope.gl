@@ -1274,13 +1274,11 @@ static void drawother_draw(struct ngl_node *node, struct render_common *s, const
     for (size_t i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
         ngli_pipeline_compat_update_uniform(pl_compat, uniform_map[i].index, uniform_map[i].data);
 
-    if (node->cls->id == NGL_NODE_DRAWTEXTURE || node->cls->id == NGL_NODE_DRAWDISPLACE) {
-        struct texture_map *texture_map = ngli_darray_data(&desc->textures_map);
-        for (size_t i = 0; i < ngli_darray_count(&desc->textures_map); i++) {
-            if (texture_map[i].image_rev != texture_map[i].image->rev) {
-                ngli_pipeline_compat_update_image(pl_compat, (int32_t)i, texture_map[i].image);
-                texture_map[i].image_rev = texture_map[i].image->rev;
-            }
+    struct texture_map *texture_map = ngli_darray_data(&desc->textures_map);
+    for (size_t i = 0; i < ngli_darray_count(&desc->textures_map); i++) {
+        if (texture_map[i].image_rev != texture_map[i].image->rev) {
+            ngli_pipeline_compat_update_image(pl_compat, (int32_t)i, texture_map[i].image);
+            texture_map[i].image_rev = texture_map[i].image->rev;
         }
     }
 
