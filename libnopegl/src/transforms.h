@@ -33,6 +33,7 @@
 
 #define TRANSFORM_TYPES_LIST (const uint32_t[]){TRANSFORM_TYPES_ARGS, NGL_NODE_IDENTITY, NGLI_NODE_NONE}
 
+const struct ngl_node *ngli_transform_get_leaf_node(const struct ngl_node *node);
 int ngli_transform_chain_check(const struct ngl_node *node);
 void ngli_transform_chain_compute(const struct ngl_node *node, float *matrix);
 void ngli_transform_draw(struct ngl_node *node);
