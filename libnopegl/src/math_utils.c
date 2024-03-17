@@ -190,6 +190,61 @@ void ngli_mat3_inverse(float *dst, const float *m)
     ngli_mat3_mul_scalar(dst, a, 1.f / det);
 }
 
+void ngli_mat4_inverse(float *dst, const float *m)
+{
+    const float x00 = m[ 4] * m[ 9] - m[ 5] * m[ 8];
+    const float x01 = m[ 4] * m[13] - m[ 5] * m[12];
+    const float x02 = m[ 4] * m[10] - m[ 6] * m[ 8];
+    const float x03 = m[ 4] * m[11] - m[ 7] * m[ 8];
+    const float x04 = m[ 4] * m[14] - m[ 6] * m[12];
+    const float x05 = m[ 4] * m[15] - m[ 7] * m[12];
+    const float x06 = m[ 5] * m[10] - m[ 6] * m[ 9];
+    const float x07 = m[ 5] * m[11] - m[ 7] * m[ 9];
+    const float x08 = m[ 6] * m[11] - m[ 7] * m[10];
+    const float x09 = m[ 5] * m[14] - m[ 6] * m[13];
+    const float x10 = m[ 5] * m[15] - m[ 7] * m[13];
+    const float x11 = m[ 6] * m[15] - m[ 7] * m[14];
+    const float x12 = m[ 8] * m[13] - m[ 9] * m[12];
+    const float x13 = m[ 8] * m[14] - m[10] * m[12];
+    const float x14 = m[ 8] * m[15] - m[11] * m[12];
+    const float x15 = m[ 9] * m[14] - m[10] * m[13];
+    const float x16 = m[ 9] * m[15] - m[11] * m[13];
+    const float x17 = m[10] * m[15] - m[11] * m[14];
+
+    const float det_p0 = m[5] * x17 - m[6] * x16 + m[7] * x15;
+    const float det_p1 = m[4] * x17 - m[6] * x14 + m[7] * x13;
+    const float det_p2 = m[4] * x16 - m[5] * x14 + m[7] * x12;
+    const float det_p3 = m[4] * x15 - m[5] * x13 + m[6] * x12;
+
+    float det = m[0] * det_p0 - m[1] * det_p1 + m[2] * det_p2 - m[3] * det_p3;
+    if (det == 0.f) {
+        memcpy(dst, m, 4 * 4 * sizeof(*dst));
+        return;
+    }
+    det = 1.f / det;
+
+    const NGLI_ALIGNED_MAT(tmp) = {
+         det * det_p0,
+        -det * (m[1] * x17 - m[2] * x16 + m[3] * x15),
+         det * (m[1] * x11 - m[2] * x10 + m[3] * x09),
+        -det * (m[1] * x08 - m[2] * x07 + m[3] * x06),
+        -det * det_p1,
+         det * (m[0] * x17 - m[2] * x14 + m[3] * x13),
+        -det * (m[0] * x11 - m[2] * x05 + m[3] * x04),
+         det * (m[0] * x08 - m[2] * x03 + m[3] * x02),
+         det * det_p2,
+        -det * (m[0] * x16 - m[1] * x14 + m[3] * x12),
+         det * (m[0] * x10 - m[1] * x05 + m[3] * x01),
+        -det * (m[0] * x07 - m[1] * x03 + m[3] * x00),
+        -det * det_p3,
+         det * (m[0] * x15 - m[1] * x13 + m[2] * x12),
+        -det * (m[0] * x09 - m[1] * x04 + m[2] * x01),
+         det * (m[0] * x06 - m[1] * x02 + m[2] * x00),
+    };
+
+    memcpy(dst, tmp, sizeof(tmp));
+}
+
 void ngli_mat4_mul_c(float *dst, const float *m1, const float *m2)
 {
     float m[4*4];
