@@ -181,7 +181,7 @@ void ngli_mat3_inverse(float *dst, const float *m)
     float a[3*3];
     float det = ngli_mat3_determinant(m);
 
-    if (det == 0.0) {
+    if (det == 0.f) {
         memcpy(dst, m, 3 * 3 * sizeof(*m));
         return;
     }
@@ -245,22 +245,22 @@ void ngli_mat4_look_at(float * restrict dst, float *eye, float *center, float *u
     dst[ 0] =  s[0];
     dst[ 1] =  u[0];
     dst[ 2] = -f[0];
-    dst[ 3] =  0.0;
+    dst[ 3] =  0.f;
 
     dst[ 4] =  s[1];
     dst[ 5] =  u[1];
     dst[ 6] = -f[1];
-    dst[ 7] =  0.0;
+    dst[ 7] =  0.f;
 
     dst[ 8] =  s[2];
     dst[ 9] =  u[2];
     dst[10] = -f[2];
-    dst[11] =  0.0;
+    dst[11] =  0.f;
 
     dst[12] = -ngli_vec3_dot(s, eye);
     dst[13] = -ngli_vec3_dot(u, eye);
     dst[14] =  ngli_vec3_dot(f, eye);
-    dst[15] =  1.0;
+    dst[15] =  1.f;
 }
 
 void ngli_mat4_identity(float *dst)
@@ -310,9 +310,9 @@ void ngli_mat4_perspective(float * restrict dst, float fov, float aspect, float 
     dst[ 0] =  c / aspect;
     dst[ 5] =  c;
     dst[10] = -(far + near) / z;
-    dst[11] = -1;
-    dst[14] = -2 * near * far / z;
-    dst[15] =  0;
+    dst[11] = -1.f;
+    dst[14] = -2.f * near * far / z;
+    dst[15] =  0.f;
 }
 
 void ngli_mat4_rotate(float * restrict dst, float angle, float *axis, const float *anchor)
