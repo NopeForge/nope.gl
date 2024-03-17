@@ -99,6 +99,7 @@ void ngli_mat3_inverse(float *dst, const float *m);
                             0.0f, 0.0f, 0.0f, 1.0f} \
 
 void ngli_mat4_identity(float *dst);
+void ngli_mat4_inverse(float *dst, const float *m);
 void ngli_mat4_mul_c(float *dst, const float *m1, const float *m2);
 void ngli_mat4_mul_vec4_c(float *dst, const float *m, const float *v);
 void ngli_mat4_look_at(float * restrict dst, float *eye, float *center, float *up);
