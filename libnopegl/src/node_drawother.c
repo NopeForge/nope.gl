@@ -708,6 +708,7 @@ static int init_desc(struct ngl_node *node, struct render_common *s,
     ngli_darray_init(&desc->uniforms, sizeof(struct pgcraft_uniform), 0);
     ngli_darray_init(&desc->uniforms_map, sizeof(struct uniform_map), 0);
     ngli_darray_init(&desc->blocks_map, sizeof(struct resource_map), 0);
+    ngli_darray_init(&desc->textures_map, sizeof(struct texture_map), 0);
 
     /* register common uniforms */
     const struct pgcraft_uniform common_uniforms[] = {
@@ -753,6 +754,18 @@ static int build_uniforms_map(struct pipeline_desc *desc)
 
         const struct uniform_map map = {.index=index, .data=uniform->data};
         if (!ngli_darray_push(&desc->uniforms_map, &map))
+            return NGL_ERROR_MEMORY;
+    }
+
+    return 0;
+}
+
+static int build_texture_map(struct pipeline_desc *desc)
+{
+    const struct pgcraft_compat_info *info = ngli_pgcraft_get_compat_info(desc->crafter);
+    for (size_t i = 0; i < info->nb_texture_infos; i++) {
+        const struct texture_map map = {.image = info->images[i], .image_rev = SIZE_MAX};
+        if (!ngli_darray_push(&desc->textures_map, &map))
             return NGL_ERROR_MEMORY;
     }
 
@@ -809,6 +822,10 @@ static int finalize_pipeline(struct ngl_node *node,
         return ret;
 
     ret = build_uniforms_map(desc);
+    if (ret < 0)
+        return ret;
+
+    ret = build_texture_map(desc);
     if (ret < 0)
         return ret;
 
@@ -920,19 +937,7 @@ static int drawdisplace_prepare(struct ngl_node *node)
     };
 
     const struct render_common_opts *co = &o->common;
-    ret = finalize_pipeline(node, c, co, &crafter_params);
-    if (ret < 0)
-        return ret;
-
-    ngli_darray_init(&desc->textures_map, sizeof(struct texture_map), 0);
-    const struct pgcraft_compat_info *info = ngli_pgcraft_get_compat_info(desc->crafter);
-    for (size_t i = 0; i < info->nb_texture_infos; i++) {
-        const struct texture_map map = {.image = info->images[i], .image_rev = SIZE_MAX};
-        if (!ngli_darray_push(&desc->textures_map, &map))
-            return NGL_ERROR_MEMORY;
-    }
-
-    return 0;
+    return finalize_pipeline(node, c, co, &crafter_params);
 }
 
 static int drawgradient_prepare(struct ngl_node *node)
@@ -1175,19 +1180,7 @@ static int drawtexture_prepare(struct ngl_node *node)
     };
 
     const struct render_common_opts *co = &o->common;
-    ret = finalize_pipeline(node, c, co, &crafter_params);
-    if (ret < 0)
-        return ret;
-
-    ngli_darray_init(&desc->textures_map, sizeof(struct texture_map), 0);
-    const struct pgcraft_compat_info *info = ngli_pgcraft_get_compat_info(desc->crafter);
-    for (size_t i = 0; i < info->nb_texture_infos; i++) {
-        const struct texture_map map = {.image = info->images[i], .image_rev = SIZE_MAX};
-        if (!ngli_darray_push(&desc->textures_map, &map))
-            return NGL_ERROR_MEMORY;
-    }
-
-    return 0;
+    return finalize_pipeline(node, c, co, &crafter_params);
 }
 
 static int drawwaveform_prepare(struct ngl_node *node)
