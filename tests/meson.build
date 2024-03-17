@@ -421,6 +421,7 @@ foreach backend : backends
     '3d',
     'cubemap',
     'cubemap_mipmap',
+    'reframing',
   ]
 
   if max_color_attachments >= 4

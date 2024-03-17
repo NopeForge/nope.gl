@@ -35,6 +35,7 @@
 #include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "topology.h"
+#include "transforms.h"
 #include "type.h"
 #include "utils.h"
 
@@ -103,6 +104,7 @@ struct pipeline_desc {
     struct darray uniforms_map; // struct uniform_map
     struct darray blocks_map; // struct resource_map
     struct darray textures_map; // struct texture_map
+    struct darray reframing_nodes; // struct ngl_node *
     struct darray uniforms; // struct pgcraft_uniform
 };
 
@@ -278,11 +280,11 @@ static const struct node_param drawcolor_params[] = {
 #define OFFSET(x) offsetof(struct drawdisplace_opts, x)
 static const struct node_param drawdisplace_params[] = {
     {"source",       NGLI_PARAM_TYPE_NODE, OFFSET(source_node),
-                     .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
+                     .node_types=(const uint32_t[]){TRANSFORM_TYPES_ARGS, NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                      .flags=NGLI_PARAM_FLAG_NON_NULL,
                      .desc=NGLI_DOCSTRING("source texture to displace")},
     {"displacement", NGLI_PARAM_TYPE_NODE, OFFSET(displacement_node),
-                     .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
+                     .node_types=(const uint32_t[]){TRANSFORM_TYPES_ARGS, NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                      .flags=NGLI_PARAM_FLAG_NON_NULL,
                      .desc=NGLI_DOCSTRING("displacement vectors stored in a texture")},
     COMMON_PARAMS
@@ -442,7 +444,7 @@ static const struct node_param drawnoise_params[] = {
 #define OFFSET(x) offsetof(struct drawtexture_opts, x)
 static const struct node_param drawtexture_params[] = {
     {"texture",  NGLI_PARAM_TYPE_NODE, OFFSET(texture_node),
-                 .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
+                 .node_types=(const uint32_t[]){TRANSFORM_TYPES_ARGS, NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                  .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .desc=NGLI_DOCSTRING("texture to render")},
     COMMON_PARAMS
@@ -526,6 +528,7 @@ static void reset_pipeline_desc(void *user_arg, void *data)
     ngli_darray_reset(&desc->uniforms_map);
     ngli_darray_reset(&desc->blocks_map);
     ngli_darray_reset(&desc->textures_map);
+    ngli_darray_reset(&desc->reframing_nodes);
 }
 
 static int init(struct ngl_node *node,
@@ -620,9 +623,21 @@ static int drawdisplace_init(struct ngl_node *node)
     struct drawdisplace_priv *s = node->priv_data;
     struct drawdisplace_opts *o = node->opts;
 
+    const struct ngl_node *source_node = ngli_transform_get_leaf_node(o->source_node);
+    if (!source_node) {
+        LOG(ERROR, "no source texture found at the end of the transform chain");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    const struct ngl_node *displacement_node = ngli_transform_get_leaf_node(o->displacement_node);
+    if (!displacement_node) {
+        LOG(ERROR, "no source texture found at the end of the transform chain");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
     ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
-    if (!ngli_darray_push(&s->common.draw_resources, &o->source_node) ||
-        !ngli_darray_push(&s->common.draw_resources, &o->displacement_node))
+    if (!ngli_darray_push(&s->common.draw_resources, &source_node) ||
+        !ngli_darray_push(&s->common.draw_resources, &displacement_node))
         return NGL_ERROR_MEMORY;
 
     return init(node, &s->common, &o->common, "source_displace", source_displace_frag);
@@ -674,8 +689,14 @@ static int drawtexture_init(struct ngl_node *node)
     struct drawtexture_priv *s = node->priv_data;
     struct drawtexture_opts *o = node->opts;
 
+    const struct ngl_node *texture_node = ngli_transform_get_leaf_node(o->texture_node);
+    if (!texture_node) {
+        LOG(ERROR, "no texture found at the end of the transform chain");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
     ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
-    if (!ngli_darray_push(&s->common.draw_resources, &o->texture_node))
+    if (!ngli_darray_push(&s->common.draw_resources, &texture_node))
         return NGL_ERROR_MEMORY;
 
     return init(node, &s->common, &o->common, "source_texture", source_texture_frag);
@@ -936,6 +957,11 @@ static int drawdisplace_prepare(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
+    ngli_darray_init(&desc->reframing_nodes, sizeof(struct ngl_node *), 0);
+    if (!ngli_darray_push(&desc->reframing_nodes, &o->source_node) ||
+        !ngli_darray_push(&desc->reframing_nodes, &o->displacement_node))
+        return NGL_ERROR_MEMORY;
+
     const struct render_common_opts *co = &o->common;
     return finalize_pipeline(node, c, co, &crafter_params);
 }
@@ -1140,8 +1166,10 @@ static int drawtexture_prepare(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    struct texture_priv *texture_priv = o->texture_node->priv_data;
-    const struct texture_opts *texture_opts = o->texture_node->opts;
+    const struct ngl_node *texture_node = ngli_transform_get_leaf_node(o->texture_node);
+    ngli_assert(texture_node); // already checked in init
+    struct texture_priv *texture_priv = texture_node->priv_data;
+    const struct texture_opts *texture_opts = texture_node->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "tex",
@@ -1178,6 +1206,10 @@ static int drawtexture_prepare(struct ngl_node *node)
         .vert_out_vars    = vert_out_vars,
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
+
+    ngli_darray_init(&desc->reframing_nodes, sizeof(struct ngl_node *), 0);
+    if (!ngli_darray_push(&desc->reframing_nodes, &o->texture_node))
+        return NGL_ERROR_MEMORY;
 
     const struct render_common_opts *co = &o->common;
     return finalize_pipeline(node, c, co, &crafter_params);
@@ -1268,11 +1300,16 @@ static void drawother_draw(struct ngl_node *node, struct render_common *s, const
         ngli_pipeline_compat_update_uniform(pl_compat, uniform_map[i].index, uniform_map[i].data);
 
     struct texture_map *texture_map = ngli_darray_data(&desc->textures_map);
+    const struct ngl_node **reframing_nodes = ngli_darray_data(&desc->reframing_nodes);
     for (size_t i = 0; i < ngli_darray_count(&desc->textures_map); i++) {
         if (texture_map[i].image_rev != texture_map[i].image->rev) {
             ngli_pipeline_compat_update_image(pl_compat, (int32_t)i, texture_map[i].image);
             texture_map[i].image_rev = texture_map[i].image->rev;
         }
+
+        NGLI_ALIGNED_MAT(reframing_matrix);
+        ngli_transform_chain_compute(reframing_nodes[i], reframing_matrix);
+        ngli_pipeline_compat_apply_reframing_matrix(pl_compat, (int32_t)i, texture_map[i].image, reframing_matrix);
     }
 
     struct resource_map *resource_map = ngli_darray_data(&desc->blocks_map);

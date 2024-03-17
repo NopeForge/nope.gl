@@ -665,3 +665,24 @@ def texture_mipmap(cfg: ngl.SceneCfg, show_dbg_points=False):
         group.add_children(get_debug_points(cfg, cuepoints))
 
     return group
+
+
+@test_fingerprint(width=320, height=320, keyframes=5, tolerance=1)
+@ngl.scene()
+def texture_reframing(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+    cfg.duration = d = 3
+
+    media = load_media("hamster")
+    anim_pos_kf = [
+        ngl.AnimKeyFrameVec3(0, (-1, -1, 0)),
+        ngl.AnimKeyFrameVec3(d / 2, (1, 1, 0)),
+        ngl.AnimKeyFrameVec3(d, (-1, -1, 0)),
+    ]
+    anim_angle_kf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(d, 360)]
+    tex = ngl.Texture2D(data_src=ngl.Media(filename=media.filename))
+    tex = ngl.Scale(tex, factors=(1.2, 1.2, 1))
+    tex = ngl.Rotate(tex, angle=ngl.AnimatedFloat(anim_angle_kf))
+    tex = ngl.Translate(tex, vector=ngl.AnimatedVec3(anim_pos_kf))
+    geometry = ngl.Quad(corner=(-0.8, -0.8, 0), width=(1.6, 0, 0), height=(0, 1.6, 0))
+    return ngl.DrawTexture(texture=tex, geometry=geometry)
