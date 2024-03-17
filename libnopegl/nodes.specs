@@ -1914,14 +1914,14 @@
         {
           "name": "source",
           "type": "node",
-          "node_types": ["Texture2D"],
+          "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Texture2D"],
           "flags": ["nonull"],
           "desc": "source texture to displace"
         },
         {
           "name": "displacement",
           "type": "node",
-          "node_types": ["Texture2D"],
+          "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Texture2D"],
           "flags": ["nonull"],
           "desc": "displacement vectors stored in a texture"
         },
@@ -2351,7 +2351,7 @@
         {
           "name": "texture",
           "type": "node",
-          "node_types": ["Texture2D"],
+          "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Texture2D"],
           "flags": ["nonull"],
           "desc": "texture to render"
         },

@@ -15,6 +15,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `ngl_get_viewport()` to get the viewport currently in use by the rendering
   context
 - `FontFace.index` parameter to select a different face in the font file
+- `DrawTexture.texture` now accepts transformation nodes before the texture node
+  to serve as a reframing mechanism (the transforms are applied to the texture
+  coordinates in a centered `[-1,1]` space with `(-1,-1)` in the bottom left)
 
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node
