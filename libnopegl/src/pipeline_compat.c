@@ -26,6 +26,7 @@
 #include "darray.h"
 #include "gpu_ctx.h"
 #include "gpu_limits.h"
+#include "math_utils.h"
 #include "memory.h"
 #include "nopegl.h"
 #include "pipeline_compat.h"
@@ -315,6 +316,45 @@ int ngli_pipeline_compat_update_dynamic_offsets(struct pipeline_compat *s, const
     memcpy(s->dynamic_offsets, offsets, nb_offsets * sizeof(*s->dynamic_offsets));
     s->nb_dynamic_offsets = nb_offsets;
     return 0;
+}
+
+void ngli_pipeline_compat_apply_reframing_matrix(struct pipeline_compat *s, int32_t index, const struct image *image, const float *reframing)
+{
+    if (index == -1)
+        return;
+
+    ngli_assert(index >= 0 && index < s->compat_info->nb_texture_infos);
+    const struct pgcraft_texture_info *info = &s->compat_info->texture_infos[index];
+    const struct pgcraft_texture_info_field *fields = info->fields;
+
+    if (fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index == -1)
+        return;
+
+    /* Scale up from normalized [0,1] UV to centered [-1,1], swapping y-axis */
+    static const NGLI_ALIGNED_MAT(remap_uv_to_centered) = {
+        2.f,  0.f, 0.f, 0.f,
+        0.f, -2.f, 0.f, 0.f,
+        0.f,  0.f, 1.f, 0.f,
+       -1.f,  1.f, 0.f, 1.f,
+    };
+
+    /* Scale down from centered [-1,1] to normalized [0,1] UV, swapping y-axis */
+    static const NGLI_ALIGNED_MAT(remap_centered_to_uv) = {
+        .5f,  0.f, 0.f, 0.f,
+        0.f, -.5f, 0.f, 0.f,
+        0.f,  0.f, 1.f, 0.f,
+        .5f,  .5f, 0.f, 1.f,
+    };
+
+    NGLI_ALIGNED_MAT(inverse_reframing);
+    ngli_mat4_inverse(inverse_reframing, reframing);
+
+    NGLI_ALIGNED_MAT(matrix);
+    ngli_mat4_mul(matrix, remap_uv_to_centered, image->coordinates_matrix);
+    ngli_mat4_mul(matrix, inverse_reframing, matrix);
+    ngli_mat4_mul(matrix, remap_centered_to_uv, matrix);
+
+    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, matrix);
 }
 
 void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index, const struct image *image)
