@@ -22,7 +22,7 @@
 import colorsys
 import textwrap
 
-from pynopegl_utils.misc import MEDIA_FILES_DB, get_shader, load_media
+from pynopegl_utils.misc import get_shader, load_media
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cmp_resources import test_resources
 
@@ -118,7 +118,7 @@ def _get_random_geometry(rng):
     return shape_func(rng)
 
 
-_MEDIA_UIDS = list(MEDIA_FILES_DB.keys())
+_MEDIA_UIDS = ["mire", "cat", "fallen_leaf", "hamster", "rooster", "panda"]
 
 
 def _get_random_texture(cfg: ngl.SceneCfg, rng):
