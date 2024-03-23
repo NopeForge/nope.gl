@@ -442,7 +442,7 @@ void main()
 """
 
 _STEPS = 4
-_CUEPOINTS = get_grid_points(_STEPS, 1)
+_CUEPOINTS = get_grid_points(_STEPS, 2)
 
 
 def _get_texture_2d_array_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0):
