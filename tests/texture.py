@@ -26,7 +26,7 @@ from textwrap import dedent
 from pynopegl_utils.misc import get_shader, load_media
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynopegl_utils.tests.debug import get_debug_points
+from pynopegl_utils.tests.debug import get_debug_points, get_grid_points
 from pynopegl_utils.toolbox.colors import COLORS, get_random_color_buffer
 
 import pynopegl as ngl
@@ -442,13 +442,7 @@ void main()
 """
 
 _STEPS = 4
-
-
-def _get_texture_2d_array_from_mrt_cuepoints():
-    f = float(_STEPS)
-    off = 1 / (2 * f)
-    c = lambda i: (i / f + off) * 2.0 - 1.0
-    return {f"{x}": (c(x), 0.5) for x in range(_STEPS)}
+_CUEPOINTS = get_grid_points(_STEPS, 1)
 
 
 def _get_texture_2d_array_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0):
@@ -472,18 +466,18 @@ def _get_texture_2d_array_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, sam
 
     group = ngl.Group(children=(rtt, draw))
     if show_dbg_points:
-        group.add_children(get_debug_points(cfg, _get_texture_2d_array_from_mrt_cuepoints()))
+        group.add_children(get_debug_points(cfg, _CUEPOINTS))
 
     return group
 
 
-@test_cuepoints(width=128, height=128, points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_2d_array_from_mrt(cfg: ngl.SceneCfg, show_dbg_points=False):
     return _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points)
 
 
-@test_cuepoints(width=128, height=128, points=_get_texture_2d_array_from_mrt_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_2d_array_from_mrt_msaa(cfg: ngl.SceneCfg, show_dbg_points=False):
     return _get_texture_2d_array_from_mrt_scene(cfg, show_dbg_points, 4)
@@ -559,15 +553,6 @@ void main()
 }
 """
 
-_STEPS = 4
-
-
-def _get_texture_3d_from_mrt_cuepoints():
-    f = float(_STEPS)
-    off = 1 / (2 * f)
-    c = lambda i: (i / f + off) * 2.0 - 1.0
-    return {f"{x}": (c(x), 0.5) for x in range(_STEPS)}
-
 
 def _get_texture_3d_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0):
     cfg.aspect_ratio = (1, 1)
@@ -587,18 +572,18 @@ def _get_texture_3d_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0
 
     group = ngl.Group(children=(rtt, draw))
     if show_dbg_points:
-        group.add_children(get_debug_points(cfg, _get_texture_3d_from_mrt_cuepoints()))
+        group.add_children(get_debug_points(cfg, _CUEPOINTS))
 
     return group
 
 
-@test_cuepoints(width=128, height=128, points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_3d_from_mrt(cfg: ngl.SceneCfg, show_dbg_points=False):
     return _get_texture_3d_from_mrt_scene(cfg, show_dbg_points)
 
 
-@test_cuepoints(width=128, height=128, points=_get_texture_3d_from_mrt_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_CUEPOINTS, tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_3d_from_mrt_msaa(cfg: ngl.SceneCfg, show_dbg_points=False):
     return _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, 4)
@@ -622,20 +607,13 @@ void main()
 
 
 _N = 8
+_MIPMAP_CUEPOINTS = get_grid_points(_N, _N)
 
 
-def _get_texture_mipmap_cuepoints():
-    f = float(_N)
-    off = 1 / (2 * f)
-    c = lambda i: (i / f + off) * 2.0 - 1.0
-    return {f"{x}{y}": (c(x), c(y)) for y in range(_N) for x in range(_N)}
-
-
-@test_cuepoints(width=128, height=128, points=_get_texture_mipmap_cuepoints(), tolerance=1)
+@test_cuepoints(width=128, height=128, points=_MIPMAP_CUEPOINTS, tolerance=1)
 @ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
 def texture_mipmap(cfg: ngl.SceneCfg, show_dbg_points=False):
     cfg.aspect_ratio = (1, 1)
-    cuepoints = _get_texture_mipmap_cuepoints()
     black = (0, 0, 0, 255)
     white = (255, 255, 255, 255)
     p = _N // 2
@@ -662,7 +640,7 @@ def texture_mipmap(cfg: ngl.SceneCfg, show_dbg_points=False):
 
     group = ngl.Group(children=(draw,))
     if show_dbg_points:
-        group.add_children(get_debug_points(cfg, cuepoints))
+        group.add_children(get_debug_points(cfg, _MIPMAP_CUEPOINTS))
 
     return group
 

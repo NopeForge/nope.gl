@@ -26,6 +26,23 @@ from pynopegl_utils.toolbox.colors import COLORS
 import pynopegl as ngl
 
 
+def get_grid_points(cols: int, rows: int) -> Mapping[str, Tuple[float, float]]:
+    points = {}
+    offx = 1 / (2 * cols)
+    offy = 1 / (2 * rows)
+    for y in range(rows):
+        for x in range(cols):
+            px = (x / cols + offx) * 2.0 - 1.0
+            py = (y / rows + offy) * 2.0 - 1.0
+            key = f"{x}{y}"
+            if cols == 1:
+                key = f"{y}"
+            elif rows == 1:
+                key = f"{x}"
+            points[key] = (px, py)
+    return points
+
+
 def get_debug_points(
     cfg: ngl.SceneCfg,
     points: Mapping[str, Tuple[float, float]],
