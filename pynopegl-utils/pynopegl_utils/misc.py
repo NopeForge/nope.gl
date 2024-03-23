@@ -80,7 +80,7 @@ def get_nopegl_tempdir() -> str:
     return tmpdir
 
 
-MEDIA_FILES_DB = dict(
+_MEDIA_FILES_DB = dict(
     mire="mire-hevc.mp4",
     cat="cat.mp4",
     fallen_leaf="OpenMoji-1F342-Fallen_Leaf.png",
@@ -98,7 +98,7 @@ def get_shader(name: str) -> str:
 
 
 def load_media(file: str):
-    db_file = MEDIA_FILES_DB.get(file)
+    db_file = _MEDIA_FILES_DB.get(file)
     if db_file:
         file = op.join(op.dirname(__file__), "assets", db_file)
     media = MediaInfo.from_filename(file)
