@@ -33,7 +33,7 @@ from pynopegl_utils.tests.data import (
     get_field_scene,
     match_fields,
 )
-from pynopegl_utils.tests.debug import get_debug_points
+from pynopegl_utils.tests.debug import get_debug_points, get_grid_points
 from pynopegl_utils.toolbox.colors import COLORS
 
 import pynopegl as ngl
@@ -175,13 +175,6 @@ void main()
 """
 
 
-def _get_data_streamed_buffer_cuepoints(size):
-    f = float(size)
-    off = 1 / (2 * f)
-    c = lambda i: (i / f + off) * 2.0 - 1.0
-    return {f"{x}{y}": (c(x), c(y)) for y in range(size) for x in range(size)}
-
-
 def _get_data_streamed_buffer_vec4_scene(cfg: ngl.SceneCfg, size, keyframes, scale, single, show_dbg_points):
     cfg.duration = keyframes * scale
     cfg.aspect_ratio = (1, 1)
@@ -234,7 +227,7 @@ def _get_data_streamed_buffer_vec4_scene(cfg: ngl.SceneCfg, size, keyframes, sca
 
     group = ngl.Group(children=(draw,))
     if show_dbg_points:
-        cuepoints = _get_data_streamed_buffer_cuepoints(size)
+        cuepoints = get_grid_points(size, size)
         group.add_children(get_debug_points(cfg, cuepoints))
     return group
 
@@ -246,7 +239,7 @@ def _get_data_streamed_buffer_function(scale, single):
     @test_cuepoints(
         width=128,
         height=128,
-        points=_get_data_streamed_buffer_cuepoints(size),
+        points=get_grid_points(size, size),
         keyframes=keyframes,
         tolerance=1,
     )
