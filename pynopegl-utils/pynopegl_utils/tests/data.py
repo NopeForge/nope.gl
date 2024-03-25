@@ -22,7 +22,7 @@
 import colorsys
 import random
 
-from pynopegl_utils.tests.cuepoints_utils import get_debug_points
+from pynopegl_utils.tests.cuepoints_utils import get_points_nodes
 
 import pynopegl as ngl
 
@@ -355,7 +355,7 @@ def get_field_scene(cfg: ngl.SceneCfg, spec, category, field_type, seed, debug_p
 
     if debug_positions:
         debug_points = get_data_debug_positions(fields)
-        dbg_circles = get_debug_points(cfg, debug_points, text_size=(0.2, 0.1))
+        dbg_circles = get_points_nodes(cfg, debug_points, text_size=(0.2, 0.1))
         g = ngl.Group(children=(draw, dbg_circles))
         return g
 

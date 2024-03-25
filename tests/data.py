@@ -24,7 +24,7 @@ import textwrap
 
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynopegl_utils.tests.cuepoints_utils import get_debug_points, get_grid_points
+from pynopegl_utils.tests.cuepoints_utils import get_grid_points, get_points_nodes
 from pynopegl_utils.tests.data import (
     ANIM_DURATION,
     LAYOUTS,
@@ -228,7 +228,7 @@ def _get_data_streamed_buffer_vec4_scene(cfg: ngl.SceneCfg, size, keyframes, sca
     group = ngl.Group(children=(draw,))
     if show_dbg_points:
         cuepoints = get_grid_points(size, size)
-        group.add_children(get_debug_points(cfg, cuepoints))
+        group.add_children(get_points_nodes(cfg, cuepoints))
     return group
 
 

@@ -25,7 +25,7 @@ import array
 from pynopegl_utils.misc import get_shader
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynopegl_utils.tests.cuepoints_utils import get_debug_points, get_grid_points
+from pynopegl_utils.tests.cuepoints_utils import get_grid_points, get_points_nodes
 from pynopegl_utils.toolbox.colors import COLORS
 
 import pynopegl as ngl
@@ -243,7 +243,7 @@ def compute_histogram(cfg: ngl.SceneCfg, show_dbg_points=False):
 
     group = ngl.Group(children=(clear_histogram, exec_histogram, draw))
     if show_dbg_points:
-        group.add_children(get_debug_points(cfg, _CUEPOINTS))
+        group.add_children(get_points_nodes(cfg, _CUEPOINTS))
     return group
 
 
@@ -384,7 +384,7 @@ def compute_image_load_store(cfg: ngl.SceneCfg, show_dbg_points=False):
 
     if show_dbg_points:
         cuepoints = _get_compute_histogram_cuepoints()
-        group.add_children(get_debug_points(cfg, cuepoints))
+        group.add_children(get_points_nodes(cfg, cuepoints))
 
     return group
 
@@ -461,7 +461,7 @@ def _get_compute_image_layered_load_store_scene(cfg: ngl.SceneCfg, texture_cls, 
     group = ngl.Group(children=(compute_store, compute_load_store, draw))
 
     if show_dbg_points:
-        group.add_children(get_debug_points(cfg, _CUEPOINTS))
+        group.add_children(get_points_nodes(cfg, _CUEPOINTS))
 
     return group
 

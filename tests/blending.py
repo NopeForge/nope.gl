@@ -23,7 +23,7 @@ import math
 from typing import Mapping, Tuple
 
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynopegl_utils.tests.cuepoints_utils import get_debug_points
+from pynopegl_utils.tests.cuepoints_utils import get_points_nodes
 from pynopegl_utils.toolbox.colors import COLORS
 from pynopegl_utils.toolbox.grid import AutoGrid, autogrid_queue, autogrid_simple
 
@@ -198,7 +198,7 @@ def _debug_overlay(cfg: ngl.SceneCfg, scene, grid_names, show_dbg_points=False, 
         dbg_positions = _get_dbg_positions(nb)
         if show_labels:
             dbg_positions = {name: (p[0], p[1] - text_height / 2.0 * ag.scale) for name, p in dbg_positions.items()}
-        dbg_points = get_debug_points(cfg, dbg_positions, radius=0.01, text_size=(0.08, 0.08))
+        dbg_points = get_points_nodes(cfg, dbg_positions, radius=0.01, text_size=(0.08, 0.08))
 
         overlay.add_children(dbg_points)
 
