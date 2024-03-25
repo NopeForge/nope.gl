@@ -22,7 +22,7 @@
 import colorsys
 import random
 
-from pynopegl_utils.tests.debug import get_debug_points
+from pynopegl_utils.tests.cuepoints_utils import get_debug_points
 
 import pynopegl as ngl
 

@@ -25,7 +25,7 @@ import array
 from pynopegl_utils.misc import get_shader
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynopegl_utils.tests.debug import get_debug_points, get_grid_points
+from pynopegl_utils.tests.cuepoints_utils import get_debug_points, get_grid_points
 from pynopegl_utils.toolbox.colors import COLORS
 
 import pynopegl as ngl
