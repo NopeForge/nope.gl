@@ -23,6 +23,7 @@ import textwrap
 
 from pynopegl_utils.misc import load_media
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynopegl_utils.tests.cuepoints_utils import get_debug_points
 from pynopegl_utils.tests.data import (
     LAYOUTS,
     gen_floats,
@@ -31,7 +32,6 @@ from pynopegl_utils.tests.data import (
     get_field_scene,
     match_fields,
 )
-from pynopegl_utils.tests.debug import get_debug_points
 from pynopegl_utils.toolbox.colors import COLORS
 
 import pynopegl as ngl

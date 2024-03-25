@@ -23,7 +23,7 @@ import math
 from typing import Mapping, Tuple
 
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynopegl_utils.tests.debug import get_debug_points
+from pynopegl_utils.tests.cuepoints_utils import get_debug_points
 from pynopegl_utils.toolbox.colors import COLORS
 from pynopegl_utils.toolbox.grid import AutoGrid, autogrid_queue, autogrid_simple
 
