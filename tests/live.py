@@ -23,7 +23,7 @@ import textwrap
 
 from pynopegl_utils.misc import load_media
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynopegl_utils.tests.cuepoints_utils import get_debug_points
+from pynopegl_utils.tests.cuepoints_utils import get_points_nodes
 from pynopegl_utils.tests.data import (
     LAYOUTS,
     gen_floats,
@@ -46,7 +46,7 @@ def _get_live_shared_uniform_scene(cfg: ngl.SceneCfg, color, debug_positions):
         draw = ngl.DrawColor(color, geometry=quad)
         group.add_children(draw)
     if debug_positions:
-        group.add_children(get_debug_points(cfg, _SHARED_UNIFORM_CUEPOINTS))
+        group.add_children(get_points_nodes(cfg, _SHARED_UNIFORM_CUEPOINTS))
     return group
 
 
@@ -76,7 +76,7 @@ def _get_live_shared_uniform_with_block_scene(cfg: ngl.SceneCfg, color, layout, 
         draw.update_frag_resources(data=block)
         group.add_children(draw)
     if debug_positions:
-        group.add_children(get_debug_points(cfg, _SHARED_UNIFORM_CUEPOINTS))
+        group.add_children(get_points_nodes(cfg, _SHARED_UNIFORM_CUEPOINTS))
     return group
 
 

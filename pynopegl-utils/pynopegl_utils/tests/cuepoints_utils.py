@@ -43,7 +43,7 @@ def get_grid_points(cols: int, rows: int) -> Mapping[str, Tuple[float, float]]:
     return points
 
 
-def get_debug_points(
+def get_points_nodes(
     cfg: ngl.SceneCfg,
     points: Mapping[str, Tuple[float, float]],
     radius: float = 0.025,

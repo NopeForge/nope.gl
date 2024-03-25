@@ -26,7 +26,7 @@ from textwrap import dedent
 from pynopegl_utils.misc import get_shader, load_media
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynopegl_utils.tests.cuepoints_utils import get_debug_points, get_grid_points
+from pynopegl_utils.tests.cuepoints_utils import get_grid_points, get_points_nodes
 from pynopegl_utils.toolbox.colors import COLORS, get_random_color_buffer
 
 import pynopegl as ngl
@@ -466,7 +466,7 @@ def _get_texture_2d_array_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, sam
 
     group = ngl.Group(children=(rtt, draw))
     if show_dbg_points:
-        group.add_children(get_debug_points(cfg, _CUEPOINTS))
+        group.add_children(get_points_nodes(cfg, _CUEPOINTS))
 
     return group
 
@@ -572,7 +572,7 @@ def _get_texture_3d_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0
 
     group = ngl.Group(children=(rtt, draw))
     if show_dbg_points:
-        group.add_children(get_debug_points(cfg, _CUEPOINTS))
+        group.add_children(get_points_nodes(cfg, _CUEPOINTS))
 
     return group
 
@@ -640,7 +640,7 @@ def texture_mipmap(cfg: ngl.SceneCfg, show_dbg_points=False):
 
     group = ngl.Group(children=(draw,))
     if show_dbg_points:
-        group.add_children(get_debug_points(cfg, _MIPMAP_CUEPOINTS))
+        group.add_children(get_points_nodes(cfg, _MIPMAP_CUEPOINTS))
 
     return group
 
