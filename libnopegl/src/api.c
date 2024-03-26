@@ -238,6 +238,9 @@ static struct viewport compute_scene_viewport(const struct ngl_scene *scene, int
         return vp;
 
     const int32_t *aspect_ratio = scene->params.aspect_ratio;
+    if (aspect_ratio[0] <= 0 || aspect_ratio[1] <= 0)
+        return vp;
+
     vp.width = width;
     vp.height = width * aspect_ratio[1] / aspect_ratio[0];
     if (vp.height > height) {
