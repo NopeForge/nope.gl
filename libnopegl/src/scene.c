@@ -390,7 +390,7 @@ int ngl_scene_init(struct ngl_scene *s, const struct ngl_scene_params *params)
         LOG(ERROR, "invalid framerate %d/%d", NGLI_ARG_VEC2(params->framerate));
         return NGL_ERROR_INVALID_ARG;
     }
-    if (params->aspect_ratio[0] <= 0 || params->aspect_ratio[1] <= 0) {
+    if (params->aspect_ratio[0] < 0 || params->aspect_ratio[1] < 0) {
         LOG(ERROR, "invalid aspect ratio %d:%d", NGLI_ARG_VEC2(params->aspect_ratio));
         return NGL_ERROR_INVALID_ARG;
     }
