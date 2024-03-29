@@ -515,12 +515,6 @@ static int resize(struct ngl_node *node)
             goto fail;
     }
 
-    pass2_rtt_ctx = ngli_rtt_create(ctx);
-    if (!pass2_rtt_ctx) {
-        ret = NGL_ERROR_MEMORY;
-        goto fail;
-    }
-
     const struct rtt_params pass2_rtt_params = {
         .width  = dst->params.width,
         .height = dst->params.height,
