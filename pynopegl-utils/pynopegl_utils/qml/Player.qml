@@ -100,6 +100,22 @@ ColumnLayout {
         set_frame_ts(now - clock_off)
     }
 
+    function is_aspect_valid(aspect) {
+        return aspect[0] > 0 && aspect[1] > 0
+    }
+
+    function adjust_width_to_aspect(width, height, aspect) {
+        if (!is_aspect_valid(aspect))
+            return width
+        return Math.min(parent.height * aspect[0] / aspect[1], parent.width)
+    }
+
+    function adjust_height_to_aspect(width, height, aspect) {
+        if (!is_aspect_valid(aspect))
+            return height
+        return Math.min(parent.width * aspect[1] / aspect[0], parent.height)
+    }
+
     Rectangle {
         color: "#767676" /* Middle-gray for ideal color neutrality */
         Layout.fillWidth: true
@@ -108,8 +124,8 @@ ColumnLayout {
         Rectangle {
             objectName: "ngl_widget_placeholder"
 
-            width: Math.min(parent.height * aspect[0] / aspect[1], parent.width)
-            height: Math.min(parent.width * aspect[1] / aspect[0], parent.height)
+            width: adjust_width_to_aspect(parent.width, parent.height, aspect)
+            height: adjust_height_to_aspect(parent.width, parent.height, aspect)
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             color: "black"
