@@ -165,3 +165,17 @@ def text_animated(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameFloat(cfg.duration, 360),
     ]
     return ngl.Rotate(ngl.Text("Hey"), angle=ngl.AnimatedFloat(animkf), axis=(1, 1, 1))
+
+
+@test_fingerprint(width=360, height=640, tolerance=1, keyframes=5)
+@ngl.scene()
+def text_animated_fixed(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (0, 1)
+    cfg.duration = 2
+    animkf = [
+        ngl.AnimKeyFrameFloat(0, 0),
+        ngl.AnimKeyFrameFloat(cfg.duration, 360),
+    ]
+    return ngl.Rotate(
+        ngl.Text("Hey", scale_mode="fixed", font_scale=8), angle=ngl.AnimatedFloat(animkf), axis=(1, 1, 1)
+    )
