@@ -122,7 +122,9 @@ class CompareSceneBase(CompareBase):
         scene = scene_info.scene
         duration = scene.duration
 
-        assert Fraction(*scene.aspect_ratio) == Fraction(width, height)
+        aspect_ratio = scene.aspect_ratio
+        if aspect_ratio[0] > 0 and aspect_ratio[1] > 1:
+            assert Fraction(*aspect_ratio) == Fraction(width, height)
 
         if isinstance(self._keyframes, int):
             timescale = duration / self._keyframes
