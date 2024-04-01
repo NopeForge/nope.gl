@@ -111,10 +111,10 @@ _SYSTEM = "MinGW" if sysconfig.get_platform().startswith("mingw") else platform.
 _RENDERDOC_ID = f"renderdoc_{_SYSTEM}"
 _EXTERNAL_DEPS = dict(
     boringssl=dict(
-        version="7a81362",
+        version="ec6cb3e",
         url="https://codeload.github.com/google/boringssl/zip/@VERSION@",
         dst_file="boringssl-@VERSION@.zip",
-        sha256="1e311f2328e721bb1317b39178ea540eb43588d311051300cc9ce35e9ee64990",
+        sha256="02ccd210fb184a312ce1d86c946aecc570640968f8745d1ee0805d8b48c10b06",
     ),
     ffmpeg=dict(
         version="6.1.1",
@@ -598,6 +598,7 @@ def _ffmpeg_setup(cfg):
         os.makedirs(builddir, exist_ok=True)
         extra_include_dir = op.join(cfg.prefix, "include")
         extra_library_dir = op.join(cfg.prefix, "lib")
+        extra_libs = "-lstdc++"  # Required by BoringSSL
         return [
             f"cd {builddir} && "
             + _cmd_join(
@@ -630,6 +631,7 @@ def _ffmpeg_setup(cfg):
                 f"--cc={cfg.android_ndk_bin}{os.sep}{cfg.android_compiler}-clang",
                 f"--extra-cflags=-I{extra_include_dir}",
                 f"--extra-ldflags=-L{extra_library_dir}",
+                f"--extra-libs={extra_libs}",
                 f"--prefix={cfg.prefix}",
             ),
         ]
