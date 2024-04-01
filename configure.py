@@ -155,10 +155,10 @@ _EXTERNAL_DEPS = dict(
         sha256="8e6efa8d9ec5ef1b2c735b2fc2afdfed210a3a5aa01c48e572326914e27bb221",
     ),
     sdl2_Windows=dict(
-        version="2.26.5",
+        version="2.30.2",
         url="https://github.com/libsdl-org/SDL/releases/download/release-@VERSION@/SDL2-devel-@VERSION@-VC.zip",
         dst_file="SDL2-@VERSION@.zip",
-        sha256="446cf6277ff0dd4211e6dc19c1b9015210a72758f53f5034c7e4d6b60e540ecf",
+        sha256="fc5d6c096a6b82f86613060dfef553a09b9e08afcb401fefac4b9ca221265cda",
     ),
     glslang=dict(
         version="14.1.0",
