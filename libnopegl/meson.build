@@ -304,7 +304,7 @@ hosts_cfg = {
 
 lib_deps = [
   cc.find_library('m', required: false),
-  dependency('libnopemd', version: '>= 11.0.0'),
+  dependency('libnopemd', version: '>= 12.0.0'),
   dependency('threads'),
 ]
 

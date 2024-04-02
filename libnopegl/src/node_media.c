@@ -303,6 +303,18 @@ static const char *get_pix_fmt_name(int pix_fmt)
     return pix_fmt_names[pix_fmt];
 }
 
+static const char *get_nmd_ret_name(int nmd_err)
+{
+    switch (nmd_err) {
+    case NMD_ERR_MEMORY:    return "memory error";
+    case NMD_ERR_EOF:       return "reached EOF";
+    case NMD_ERR_GENERIC:   return "generic error";
+    case NMD_RET_SUCCESS:   return "success";
+    case NMD_RET_UNCHANGED: return "unchanged";
+    default:                return "unknown";
+    }
+}
+
 static int media_update(struct ngl_node *node, double t)
 {
     struct media_priv *s = node->priv_data;
@@ -327,8 +339,9 @@ static int media_update(struct ngl_node *node, double t)
     nmd_frame_releasep(&s->frame);
 
     TRACE("get frame from %s at t=%g", node->label, media_time);
-    struct nmd_frame *frame = nmd_get_frame(s->player, media_time);
-    if (frame) {
+    struct nmd_frame *frame = NULL;
+    int ret = nmd_get_frame(s->player, media_time, &frame);
+    if (ret == NMD_RET_NEWFRAME) {
         const char *pix_fmt_str = get_pix_fmt_name(frame->pix_fmt);
         if (o->audio_tex) {
             if (frame->pix_fmt != NMD_SMPFMT_FLT) {
@@ -343,6 +356,8 @@ static int media_update(struct ngl_node *node, double t)
         }
         TRACE("got frame %dx%d %s with ts=%f", frame->width, frame->height,
               pix_fmt_str, frame->ts);
+    } else if (ret < 0 && ret != NMD_ERR_EOF) {
+        LOG(ERROR, "failed to get frame: %s", get_nmd_ret_name(ret));
     }
     s->frame = frame;
     return 0;
