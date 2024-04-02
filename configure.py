@@ -137,10 +137,10 @@ _EXTERNAL_DEPS = dict(
         sha256="684191528ab9ccddd616d9b47ad1c17d6a20c3c3ffacfba19db6c8a4d43e0eab",
     ),
     nopemd=dict(
-        version="11.2.0",
+        version="12.0.0",
         url="https://github.com/NopeForge/nope.media/archive/v@VERSION@.tar.gz",
         dst_file="nope.media-@VERSION@.tar.gz",
-        sha256="8bb9cdd59422eed9131f0ece5a0b74054253fd898c408905ae325ea6c1b5f489",
+        sha256="529ea97df30e1705b32ca6df8dcc6a703a5a1da2bd6f2bfc41a35f21913cccc2",
     ),
     egl_registry=dict(
         version="9ab6036",
