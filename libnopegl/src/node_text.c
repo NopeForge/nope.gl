@@ -254,7 +254,7 @@ static int refresh_geometry(struct ngl_node *node)
         return 0;
     }
 
-    float *transforms = ngli_calloc(text_nbchr, 4 * 4 * sizeof(*transforms));
+    float *transforms = ngli_calloc(text_nbchr, 4 * sizeof(*transforms));
     float *atlas_coords = ngli_calloc(text_nbchr, 4 * sizeof(*atlas_coords));
     if (!transforms || !atlas_coords) {
         ret = NGL_ERROR_MEMORY;
@@ -316,15 +316,8 @@ static int refresh_geometry(struct ngl_node *node)
         const float chr_height = height * chr->geom.h;
         const float chr_corner_x = corner_x + width  * chr->geom.x;
         const float chr_corner_y = corner_y + height * chr->geom.y;
-
-        /* deduce character transform from chr_{width,height,corner} */
-        const NGLI_ALIGNED_MAT(transform) = {
-                chr_width,             0,             0, 0,
-                        0,    chr_height,             0, 0,
-             chr_corner_x,  chr_corner_y,             0, 0,
-                        0,             0,             0, 1,
-        };
-        memcpy(transforms + 4 * 4 * n, transform, sizeof(transform));
+        const float transform[] = {chr_corner_x, chr_corner_y, chr_width, chr_height};
+        memcpy(transforms + 4 * n, transform, sizeof(transform));
 
         /* register atlas identifier */
         memcpy(atlas_coords + 4 * n, chr->atlas_coords, sizeof(chr->atlas_coords));
@@ -352,7 +345,7 @@ static int refresh_geometry(struct ngl_node *node)
             goto end;
         }
 
-        if ((ret = ngli_buffer_init(s->transforms,      text_nbchr * 4 * 4 * sizeof(*transforms),   DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+        if ((ret = ngli_buffer_init(s->transforms,      text_nbchr     * 4 * sizeof(*transforms),   DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->atlas_coords,    text_nbchr     * 4 * sizeof(*atlas_coords), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->user_transforms, text_nbchr * 4 * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->colors,          text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
@@ -387,7 +380,7 @@ static int refresh_geometry(struct ngl_node *node)
         }
     }
 
-    if ((ret = ngli_buffer_upload(s->transforms, transforms, 0, text_nbchr * 4 * 4 * sizeof(*transforms))) < 0 ||
+    if ((ret = ngli_buffer_upload(s->transforms, transforms, 0, text_nbchr * 4 * sizeof(*transforms))) < 0 ||
         (ret = ngli_buffer_upload(s->atlas_coords, atlas_coords, 0, text_nbchr * 4 * sizeof(*atlas_coords))) < 0)
         goto end;
 
@@ -624,9 +617,9 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     const struct pgcraft_attribute attributes[] = {
         {
             .name     = "transform",
-            .type     = NGLI_TYPE_MAT4,
+            .type     = NGLI_TYPE_VEC4,
             .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
-            .stride   = 4 * 4 * sizeof(float),
+            .stride   = 4 * sizeof(float),
             .buffer   = s->transforms,
             .rate     = 1,
         }, {
