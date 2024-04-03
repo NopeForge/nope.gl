@@ -472,6 +472,12 @@ enum {
     NGLI_TEXT_EFFECT_TEXT,
 };
 
+enum {
+    NGLI_TEXT_ANCHOR_REF_CHAR,
+    NGLI_TEXT_ANCHOR_REF_BOX,
+    NGLI_TEXT_ANCHOR_REF_VIEWPORT,
+};
+
 struct fontface_opts {
     char *path;
     int32_t index;
@@ -494,6 +500,8 @@ struct texteffect_opts {
 
     /* if animated, expressed in target time (0 to 1) */
     struct ngl_node *transform_chain;
+    float anchor[2];
+    int anchor_ref;
     struct ngl_node *color_node;
     float color[3];
     struct ngl_node *opacity_node;

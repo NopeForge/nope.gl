@@ -308,14 +308,53 @@ static int set_vec3_value(float *dst, struct ngl_node *node, const float *value,
     return 0;
 }
 
-static int set_transform(float *dst, struct ngl_node *node, double t)
+static int set_transform(float *dst, struct texteffect_opts *effect_opts,
+                         struct ngli_box box, struct ngli_box chr_box,
+                         const struct char_info *chr, double t)
 {
+    struct ngl_node *node = effect_opts->transform_chain;
+
     if (!node)
         return 0;
     int ret = ngli_node_update(node, t);
     if (ret < 0)
         return ret;
-    ngli_transform_chain_compute(node, dst);
+
+    float anchor_x, anchor_y;
+    if (effect_opts->anchor_ref == NGLI_TEXT_ANCHOR_REF_CHAR) {
+        /*
+         * Go to the the center of the character quad, then adjust to honor the
+         * anchor parameter according to the real dimension of the character
+         */
+        anchor_x = chr_box.x + chr_box.w / 2.f + effect_opts->anchor[0] * chr->real_dim[0] / 2.f;
+        anchor_y = chr_box.y + chr_box.h / 2.f + effect_opts->anchor[1] * chr->real_dim[1] / 2.f;
+    } else if (effect_opts->anchor_ref == NGLI_TEXT_ANCHOR_REF_BOX) {
+        /* Remap an anchor in [-1,1] to the text bounding box coordinates */
+        const float norm_x = NGLI_LINEAR_NORM(-1.f, 1.f, effect_opts->anchor[0]);
+        const float norm_y = NGLI_LINEAR_NORM(-1.f, 1.f, effect_opts->anchor[1]);
+        anchor_x = NGLI_MIX_F32(box.x, box.x + box.w, norm_x);
+        anchor_y = NGLI_MIX_F32(box.y, box.y + box.h, norm_y);
+    } else if (effect_opts->anchor_ref == NGLI_TEXT_ANCHOR_REF_VIEWPORT) {
+        anchor_x = effect_opts->anchor[0];
+        anchor_y = effect_opts->anchor[1];
+    } else {
+        ngli_assert(0);
+    }
+
+    NGLI_ALIGNED_MAT(tm);
+    NGLI_ALIGNED_MAT(tmreloc0);
+    NGLI_ALIGNED_MAT(tmreloc1);
+
+    ngli_transform_chain_compute(node, tm);
+    ngli_mat4_translate(tmreloc0,  anchor_x,  anchor_y, 0.f);
+    ngli_mat4_translate(tmreloc1, -anchor_x, -anchor_y, 0.f);
+
+    float *tmp = tmreloc0;             // go to anchor
+    ngli_mat4_mul(tmp, tmp, tm);       // apply user transform matrix
+    ngli_mat4_mul(tmp, tmp, tmreloc1); // go back from anchor
+
+    memcpy(dst, tmp, 4 * 4 * sizeof(*dst));
+
     return 0;
 }
 
@@ -580,6 +619,7 @@ int ngli_text_set_string(struct text *s, const char *str)
                 (float)chr_internal->atlas_coords[2] / (float)s->atlas_texture->params.width,
                 (float)chr_internal->atlas_coords[3] / (float)s->atlas_texture->params.height,
             },
+            .real_dim  = {w / (float)s->width, h / (float)s->height},
         };
 
         if (!ngli_darray_push(&s->chars, &chr)) {
@@ -674,6 +714,7 @@ int ngli_text_set_time(struct text *s, double t)
         const double timescale = (1.f - overlap) * duration;
 
         /* Apply effect on the selected range of characters */
+        const struct char_info *chars = ngli_darray_data(&s->chars);
         for (size_t c = 0; c < ngli_darray_count(&s->chars); c++) {
             const size_t pos = effect->positions[c];
 
@@ -689,7 +730,10 @@ int ngli_text_set_time(struct text *s, double t)
             const double next_t = prev_t + duration;
             const double target_t = NGLI_LINEAR_NORM(prev_t, next_t, effect_t);
 
-            if ((ret = set_transform( s->data_ptrs.transform  + c * 4 * 4, effect_opts->transform_chain,                                target_t)) < 0 ||
+            const struct ngli_box chr_box = {NGLI_ARG_VEC4(s->data_ptrs.pos_size + c * 4)};
+            const struct char_info *chr = &chars[i];
+
+            if ((ret = set_transform( s->data_ptrs.transform  + c * 4 * 4, effect_opts, s->config.box, chr_box, chr,                     target_t)) < 0 ||
                 (ret = set_vec3_value(s->data_ptrs.color      + c * 4,     effect_opts->color_node,         effect_opts->color,         target_t)) < 0 ||
                 (ret = set_f32_value( s->data_ptrs.color      + c * 4 + 3, effect_opts->opacity_node,       effect_opts->opacity,       target_t)) < 0 ||
                 (ret = set_vec3_value(s->data_ptrs.outline    + c * 4,     effect_opts->outline_color_node, effect_opts->outline_color, target_t)) < 0 ||

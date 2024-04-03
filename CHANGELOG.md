@@ -20,6 +20,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   coordinates in a centered `[-1,1]` space with `(-1,-1)` in the bottom left)
 - `HexagonalBlur` node to apply a post processing hexagonal bokeh blur effect to a
   scene
+- `TextEffect.anchor` and `TextEffect.anchor_ref` to control the character
+  relative anchor for scale and rotate transforms
 
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node
@@ -31,6 +33,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   `Text.box` parameter; if 3D positioning is required, traditional transform
   nodes can be used
 - `Render*` nodes are renamed to `Draw*`
+- `TextEffect.transform` now default to an anchor in the center of the
+  characters instead of a distant bottom-left position
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio
