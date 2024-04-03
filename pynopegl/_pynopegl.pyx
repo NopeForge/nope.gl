@@ -184,6 +184,7 @@ cdef extern from "nopegl.h":
     int ngl_get_viewport(ngl_ctx *s, int32_t *viewport)
     int ngl_set_capture_buffer(ngl_ctx *s, void *capture_buffer)
     int ngl_set_scene(ngl_ctx *s, ngl_scene *scene)
+    int ngl_update(ngl_ctx *s, double t) nogil
     int ngl_draw(ngl_ctx *s, double t) nogil
     char *ngl_dot(ngl_ctx *s, double t) nogil
     int ngl_livectls_get(ngl_scene *scene, size_t *nb_livectlsp, ngl_livectl **livectlsp)
@@ -743,6 +744,11 @@ cdef class Context:
             ptr = scene.cptr
             c_scene = <ngl_scene *>ptr
         return ngl_set_scene(self.ctx, c_scene)
+
+    def update(self, double t):
+        with nogil:
+            ret = ngl_update(self.ctx, t)
+        return ret
 
     def draw(self, double t):
         with nogil:
