@@ -74,6 +74,7 @@ foreach backend : backends
     'get_backend',
     'viewport',
     'transform_chain_check',
+    'update_with_timeranges',
   ]
   if has_text_libraries
     tests_api += 'text_live_change_with_font'

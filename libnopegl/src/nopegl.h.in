@@ -901,6 +901,16 @@ NGL_API int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer);
 NGL_API int ngl_set_scene(struct ngl_ctx *s, struct ngl_scene *scene);
 
 /**
+ * Update at the specified time.
+ *
+ * @param s     pointer to the configured nope.gl context
+ * @param t     target update time in seconds
+ *
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
+ */
+NGL_API int ngl_update(struct ngl_ctx *s, double t);
+
+/**
  * Draw at the specified time.
  *
  * @param s     pointer to the configured nope.gl context
