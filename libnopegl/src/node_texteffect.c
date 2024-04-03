@@ -37,6 +37,16 @@ static const struct param_choices target_choices = {
     }
 };
 
+static const struct param_choices anchor_ref_choices = {
+    .name = "anchor_ref",
+    .consts = {
+        {"char",      NGLI_TEXT_ANCHOR_REF_CHAR,     .desc=NGLI_DOCSTRING("relative to the center of each character")},
+        {"box",       NGLI_TEXT_ANCHOR_REF_BOX,      .desc=NGLI_DOCSTRING("relative to the bounding box of the text")},
+        {"viewport",  NGLI_TEXT_ANCHOR_REF_VIEWPORT, .desc=NGLI_DOCSTRING("relative to the [-1,1] viewport")},
+        {NULL}
+    }
+};
+
 #define OFFSET(x) offsetof(struct texteffect_opts, x)
 static const struct node_param texteffect_params[] = {
     {"start",        NGLI_PARAM_TYPE_F64, OFFSET(start_time), {.f64=0.0},
@@ -62,6 +72,12 @@ static const struct node_param texteffect_params[] = {
     {"transform",    NGLI_PARAM_TYPE_NODE, OFFSET(transform_chain), .node_types=TRANSFORM_TYPES_LIST,
                      .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                      .desc=NGLI_DOCSTRING("transformation chain")},
+    {"anchor",       NGLI_PARAM_TYPE_VEC2, OFFSET(anchor),
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                     .desc=NGLI_DOCSTRING("anchor coordinates for the transformations")},
+    {"anchor_ref",   NGLI_PARAM_TYPE_SELECT, OFFSET(anchor_ref), {.i32=NGLI_TEXT_ANCHOR_REF_CHAR},
+                     .choices=&anchor_ref_choices,
+                     .desc=NGLI_DOCSTRING("how to interpret `anchor` coordinates")},
     {"color",        NGLI_PARAM_TYPE_VEC3, OFFSET(color_node), {.vec={-1.f, -1.f, -1.f}},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                      .desc=NGLI_DOCSTRING("characters fill color, use negative values for unchanged from previous text effects "

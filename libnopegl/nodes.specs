@@ -766,6 +766,20 @@
         "desc": "whole text"
       }
     ],
+    "anchor_ref": [
+      {
+        "name": "char",
+        "desc": "relative to the center of each character"
+      },
+      {
+        "name": "box",
+        "desc": "relative to the bounding box of the text"
+      },
+      {
+        "name": "viewport",
+        "desc": "relative to the [-1,1] viewport"
+      }
+    ],
     "format": [
       {
         "name": "undefined",
@@ -3813,6 +3827,21 @@
           "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Identity"],
           "flags": [],
           "desc": "transformation chain"
+        },
+        {
+          "name": "anchor",
+          "type": "vec2",
+          "default": [0.000000,0.000000],
+          "flags": ["live"],
+          "desc": "anchor coordinates for the transformations"
+        },
+        {
+          "name": "anchor_ref",
+          "type": "select",
+          "default": "char",
+          "choices": "anchor_ref",
+          "flags": [],
+          "desc": "how to interpret `anchor` coordinates"
         },
         {
           "name": "color",

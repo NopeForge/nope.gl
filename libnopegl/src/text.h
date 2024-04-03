@@ -72,6 +72,7 @@ struct char_info_internal {
 struct char_info {
     struct ngli_box geom;   // geometry position
     float atlas_coords[4];  // texture position
+    float real_dim[2];      // real dimension (without distance field padding)
 };
 
 /* User-requested defaults for all the characters */

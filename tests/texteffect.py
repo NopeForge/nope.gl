@@ -107,6 +107,106 @@ def texteffect_transform(cfg: ngl.SceneCfg):
 
 @test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
 @ngl.scene()
+def texteffect_scale(cfg: ngl.SceneCfg):
+    cfg.duration = 3
+    cfg.aspect_ratio = (16, 9)
+
+    animkf = [
+        ngl.AnimKeyFrameVec3(0, (0.0, 0.0, 1.0)),
+        ngl.AnimKeyFrameVec3(1, (1.0, 1.0, 1.0), "bounce_out"),
+    ]
+    scale = ngl.Scale(ngl.Identity(), factors=ngl.AnimatedVec3(animkf))
+    effects = [
+        ngl.TextEffect(
+            start=0,
+            end=cfg.duration - 1,
+            target="char",
+            overlap=0.9,
+            transform=scale,
+            random=True,
+        ),
+    ]
+
+    return ngl.Text("Zoom\nzoom\nzang", effects=effects)
+
+
+@test_fingerprint(width=360, height=360, keyframes=10, tolerance=1)
+@ngl.scene()
+def texteffect_rotate(cfg: ngl.SceneCfg):
+    cfg.duration = 4
+    cfg.aspect_ratio = (1, 1)  # FIXME rotation doesn't look good with non-square
+
+    animkf = [
+        ngl.AnimKeyFrameFloat(0, 0),
+        ngl.AnimKeyFrameFloat(0.5, -180, "bounce_out"),
+    ]
+    rotate = ngl.Rotate(ngl.Identity(), angle=ngl.AnimatedFloat(animkf))
+    effects = [
+        ngl.TextEffect(
+            start=0,
+            end=cfg.duration,
+            target="char",
+            overlap=0.8,
+            transform=rotate,
+            anchor=(-1, -1),
+        ),
+    ]
+
+    return ngl.Text("nd", bg_color=(1, 0, 0), box=(-0.5, 0, 1.5, 1), effects=effects)
+
+
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
+@ngl.scene()
+def texteffect_box_anchor(cfg: ngl.SceneCfg):
+    cfg.duration = 3
+
+    animkf = [
+        ngl.AnimKeyFrameVec3(0, (0.0, 0.0, 1.0)),
+        ngl.AnimKeyFrameVec3(1, (1.0, 1.0, 1.0), "exp_in_out"),
+    ]
+    scale = ngl.Scale(ngl.Identity(), factors=ngl.AnimatedVec3(animkf))
+    effects = [
+        ngl.TextEffect(
+            start=0,
+            end=cfg.duration,
+            target="char",
+            overlap=0.5,
+            transform=scale,
+            anchor=(0, 0),
+            anchor_ref="box",
+        ),
+    ]
+
+    return ngl.Text("ABC", bg_color=(1, 0, 0), box=(-1, 0, 2, 1), effects=effects)
+
+
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
+@ngl.scene()
+def texteffect_vp_anchor(cfg: ngl.SceneCfg):
+    cfg.duration = 3
+
+    animkf = [
+        ngl.AnimKeyFrameVec3(0, (0.0, 0.0, 1.0)),
+        ngl.AnimKeyFrameVec3(1, (1.0, 1.0, 1.0), "exp_in_out"),
+    ]
+    scale = ngl.Scale(ngl.Identity(), factors=ngl.AnimatedVec3(animkf))
+    effects = [
+        ngl.TextEffect(
+            start=0,
+            end=cfg.duration,
+            target="char",
+            overlap=0.5,
+            transform=scale,
+            anchor=(0, -1),
+            anchor_ref="viewport",
+        ),
+    ]
+
+    return ngl.Text("ABC", bg_color=(1, 0, 0), box=(-1, 0, 2, 1), effects=effects)
+
+
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
+@ngl.scene()
 def texteffect_chars_space_nospace(cfg: ngl.SceneCfg):
     cfg.duration = 5
     cfg.aspect_ratio = (16, 9)
