@@ -842,6 +842,11 @@ int ngli_prepare_draw(struct ngl_ctx *s, double t)
     return s->api_impl->prepare_draw(s, t);
 }
 
+int ngl_update(struct ngl_ctx *s, double t)
+{
+    return ngli_prepare_draw(s, t);
+}
+
 int ngl_draw(struct ngl_ctx *s, double t)
 {
     if (!s->configured) {

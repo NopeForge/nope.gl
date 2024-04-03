@@ -21,6 +21,7 @@
 
 import atexit
 import csv
+import hashlib
 import locale
 import math
 import os
@@ -677,3 +678,65 @@ def api_transform_chain_check():
         pass
     else:
         assert False
+
+
+def _create_trf_scene_with_media(start, end):
+    mi = load_media("city")
+    media = ngl.Media(mi.filename)
+    texture = ngl.Texture2D(data_src=media)
+    draw = ngl.DrawTexture(texture=texture)
+    group = ngl.Group(children=(draw,))
+    trf = _create_trf(group, start, end)
+
+    return ngl.Scene.from_params(trf)
+
+
+def api_update_with_timeranges(width=320, height=240):
+    """
+    Exercise the `ngl_update()` API
+    """
+    ngl.log_set_min_level(ngl.Log.VERBOSE)
+    capture_buffer = bytearray(width * height * 4)
+    ctx = ngl.Context()
+    ret = ctx.configure(
+        ngl.Config(
+            offscreen=True,
+            width=width,
+            height=height,
+            backend=_backend,
+            capture_buffer=capture_buffer,
+            clear_color=(0.0, 0.0, 0.0, 0.0),
+        )
+    )
+    assert ret == 0
+
+    start = 5.0
+    end = 10.0
+    scene = _create_trf_scene_with_media(start, end)
+    assert ctx.set_scene(scene) == 0
+
+    initial_hash = hashlib.md5(capture_buffer).hexdigest()
+    assert ctx.update(start - 0.5) == 0
+    assert initial_hash == hashlib.md5(capture_buffer).hexdigest()
+
+    assert ctx.draw(start) == 0
+    draw_hash = hashlib.md5(capture_buffer).hexdigest()
+    assert initial_hash != draw_hash
+
+    assert ctx.draw(end - 1.0) == 0
+    assert draw_hash == hashlib.md5(capture_buffer).hexdigest()
+
+    assert ctx.update(end + 1.5) == 0
+    assert draw_hash == hashlib.md5(capture_buffer).hexdigest()
+
+    assert ctx.draw(end + 1.5) == 0
+    assert initial_hash == hashlib.md5(capture_buffer).hexdigest()
+
+    assert ctx.update(end - 1.0) == 0
+    assert initial_hash == hashlib.md5(capture_buffer).hexdigest()
+
+    assert ctx.draw(end - 1.0) == 0
+    assert draw_hash == hashlib.md5(capture_buffer).hexdigest()
+
+    assert ctx.draw(0.0) == 0
+    assert initial_hash == hashlib.md5(capture_buffer).hexdigest()
