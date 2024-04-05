@@ -241,79 +241,12 @@ static int refresh_geometry(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct text_priv *s = node->priv_data;
-    struct text_opts *o = node->opts;
-
     struct text *text = s->text_ctx;
 
     const size_t text_nbchr = ngli_darray_count(&text->chars);
     if (!text_nbchr) {
         destroy_characters_resources(s);
         return 0;
-    }
-
-    float *transforms = ngli_calloc(text_nbchr, 4 * sizeof(*transforms));
-    float *atlas_coords = ngli_calloc(text_nbchr, 4 * sizeof(*atlas_coords));
-    if (!transforms || !atlas_coords) {
-        ret = NGL_ERROR_MEMORY;
-        goto end;
-    }
-
-    /* Text/Box ratio */
-    const struct ngli_box box = {NGLI_ARG_VEC4(o->box)};
-    const struct viewport viewport = ngli_gpu_ctx_get_viewport(ctx->gpu_ctx);
-    const int32_t ar[] = {viewport.width, viewport.height};
-    const float box_ratio = (float)ar[0] * box.w / ((float)ar[1] * box.h);
-    const float text_ratio = (float)text->width / (float)text->height;
-
-    /* Apply aspect ratio and font scaling */
-    float width  = box.w * o->font_scale;
-    float height = box.h * o->font_scale;
-    float ratio_w, ratio_h;
-    if (o->scale_mode == NGLI_TEXT_SCALE_MODE_FIXED) {
-        const float tw = (float)text->width / (float)s->viewport.width;
-        const float th = (float)text->height / (float)s->viewport.height;
-        ratio_w = tw / box.w;
-        ratio_h = th / box.h;
-    } else {
-        if (text_ratio < box_ratio) {
-            ratio_w = text_ratio / box_ratio;
-            ratio_h = 1.0;
-        } else {
-            ratio_w = 1.0;
-            ratio_h = box_ratio / text_ratio;
-        }
-    }
-    width  *= ratio_w;
-    height *= ratio_h;
-
-    /* Adjust text position according to alignment settings */
-    const float align_padw = box.w - width;
-    const float align_padh = box.h - height;
-
-    const float spx = (o->halign == NGLI_TEXT_HALIGN_CENTER ? .5f :
-                       o->halign == NGLI_TEXT_HALIGN_RIGHT  ? 1.f :
-                       0.f);
-    const float spy = (o->valign == NGLI_TEXT_VALIGN_CENTER ? .5f :
-                       o->valign == NGLI_TEXT_VALIGN_TOP    ? 1.f :
-                       0.f);
-
-    const float corner_x = box.x + align_padw * spx;
-    const float corner_y = box.y + align_padh * spy;
-
-    const struct char_info *chars = ngli_darray_data(&text->chars);
-    for (size_t n = 0; n < text_nbchr; n++) {
-        const struct char_info *chr = &chars[n];
-
-        /* character dimension and position */
-        const float chr_width  = width  * chr->geom.w;
-        const float chr_height = height * chr->geom.h;
-        const float chr_corner_x = corner_x + width  * chr->geom.x;
-        const float chr_corner_y = corner_y + height * chr->geom.y;
-        const float transform[] = {chr_corner_x, chr_corner_y, chr_width, chr_height};
-        memcpy(transforms + 4 * n, transform, sizeof(transform));
-
-        /* register atlas identifier */
-        memcpy(atlas_coords + 4 * n, chr->atlas_coords, sizeof(chr->atlas_coords));
     }
 
     if (text_nbchr > s->nb_chars) { // need re-alloc
@@ -338,8 +271,8 @@ static int refresh_geometry(struct ngl_node *node)
             goto end;
         }
 
-        if ((ret = ngli_buffer_init(s->transforms,      text_nbchr     * 4 * sizeof(*transforms),   DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->atlas_coords,    text_nbchr     * 4 * sizeof(*atlas_coords), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+        if ((ret = ngli_buffer_init(s->transforms,      text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_buffer_init(s->atlas_coords,    text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->user_transforms, text_nbchr * 4 * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->colors,          text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->outlines,        text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
@@ -373,15 +306,13 @@ static int refresh_geometry(struct ngl_node *node)
         }
     }
 
-    if ((ret = ngli_buffer_upload(s->transforms, transforms, 0, text_nbchr * 4 * sizeof(*transforms))) < 0 ||
-        (ret = ngli_buffer_upload(s->atlas_coords, atlas_coords, 0, text_nbchr * 4 * sizeof(*atlas_coords))) < 0)
+    if ((ret = ngli_buffer_upload(s->transforms,   text->data_ptrs.pos_size,     0, text_nbchr * 4 * sizeof(float))) < 0 ||
+        (ret = ngli_buffer_upload(s->atlas_coords, text->data_ptrs.atlas_coords, 0, text_nbchr * 4 * sizeof(float))) < 0)
         goto end;
 
     s->nb_chars = text_nbchr;
 
 end:
-    ngli_free(transforms);
-    ngli_free(atlas_coords);
     return ret;
 }
 
@@ -462,9 +393,12 @@ static int text_init(struct ngl_node *node)
         .pt_size = o->pt_size,
         .dpi = o->dpi,
         .padding = o->padding,
+        .scale_mode = o->scale_mode,
+        .font_scale = o->font_scale,
         .valign = o->valign,
         .halign = o->halign,
         .writing_mode = o->writing_mode,
+        .box = {NGLI_ARG_VEC4(o->box)},
         .effect_nodes = o->effect_nodes,
         .nb_effect_nodes = o->nb_effect_nodes,
         .defaults = {
@@ -750,6 +684,7 @@ static int text_update(struct ngl_node *node, double t)
     const struct viewport viewport = ngli_gpu_ctx_get_viewport(node->ctx->gpu_ctx);
     if (memcmp(&s->viewport, &viewport, sizeof(viewport))) {
         memcpy(&s->viewport, &viewport, sizeof(viewport));
+        ngli_text_refresh_geometry_data(s->text_ctx);
         int ret = refresh_geometry(node);
         if (ret < 0)
             return ret;

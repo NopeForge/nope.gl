@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "darray.h"
+#include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
@@ -147,7 +148,9 @@ static void reset_chars_data_to_defaults(struct text *s)
 static struct text_effects_pointers get_chr_data_pointers(float *base, size_t nb_chars)
 {
     struct text_effects_pointers ptrs = {0};
-    ptrs.transform  = base;
+    ptrs.pos_size     = base;
+    ptrs.atlas_coords = ptrs.pos_size     + nb_chars * 4;
+    ptrs.transform    = ptrs.atlas_coords + nb_chars * 4;
     ptrs.color      = ptrs.transform  + nb_chars * 4 * 4;
     ptrs.outline    = ptrs.color      + nb_chars * 4;
     ptrs.glow       = ptrs.outline    + nb_chars * 4;
@@ -156,12 +159,75 @@ static struct text_effects_pointers get_chr_data_pointers(float *base, size_t nb
 }
 
 struct default_data {
+    float pos_size[4];
+    float atlas_coords[4];
     float transform[4 * 4];
     float color[4];
     float outline[4];
     float glow[4];
     float blur;
 };
+
+static void set_geometry_data(struct text *s, struct text_effects_pointers ptrs)
+{
+    /* Text/Box ratio */
+    const struct ngli_box box = s->config.box;
+    const struct viewport viewport = ngli_gpu_ctx_get_viewport(s->ctx->gpu_ctx);
+    const int32_t ar[] = {viewport.width, viewport.height};
+    const float box_ratio = (float)ar[0] * box.w / ((float)ar[1] * box.h);
+    const float text_ratio = (float)s->width / (float)s->height;
+
+    /* Apply aspect ratio and font scaling */
+    float width  = box.w * s->config.font_scale;
+    float height = box.h * s->config.font_scale;
+    float ratio_w, ratio_h;
+    if (s->config.scale_mode == NGLI_TEXT_SCALE_MODE_FIXED) {
+        const float tw = (float)s->width / (float)viewport.width;
+        const float th = (float)s->height / (float)viewport.height;
+        ratio_w = tw / box.w;
+        ratio_h = th / box.h;
+    } else {
+        if (text_ratio < box_ratio) {
+            ratio_w = text_ratio / box_ratio;
+            ratio_h = 1.0;
+        } else {
+            ratio_w = 1.0;
+            ratio_h = box_ratio / text_ratio;
+        }
+    }
+    width  *= ratio_w;
+    height *= ratio_h;
+
+    /* Adjust text position according to alignment settings */
+    const float align_padw = box.w - width;
+    const float align_padh = box.h - height;
+
+    const float spx = (s->config.halign == NGLI_TEXT_HALIGN_CENTER ? .5f :
+                       s->config.halign == NGLI_TEXT_HALIGN_RIGHT  ? 1.f :
+                       0.f);
+    const float spy = (s->config.valign == NGLI_TEXT_VALIGN_CENTER ? .5f :
+                       s->config.valign == NGLI_TEXT_VALIGN_TOP    ? 1.f :
+                       0.f);
+
+    const float corner_x = box.x + align_padw * spx;
+    const float corner_y = box.y + align_padh * spy;
+
+    const struct char_info *chars = ngli_darray_data(&s->chars);
+    for (size_t n = 0; n < ngli_darray_count(&s->chars); n++) {
+        const struct char_info *chr = &chars[n];
+
+        /* character dimension and position */
+        const float chr_width  = width  * chr->geom.w;
+        const float chr_height = height * chr->geom.h;
+        const float chr_corner_x = corner_x + width  * chr->geom.x;
+        const float chr_corner_y = corner_y + height * chr->geom.y;
+        const float transform[] = {chr_corner_x, chr_corner_y, chr_width, chr_height};
+        memcpy(ptrs.pos_size + 4 * n, transform, sizeof(transform));
+
+        /* register atlas identifier */
+        memcpy(ptrs.atlas_coords + 4 * n, chr->atlas_coords, sizeof(chr->atlas_coords));
+    }
+}
 
 /* Fill default buffers (1 row per character) with the default data. */
 static void fill_default_data_buffers(struct text *s, size_t nb_chars)
@@ -176,6 +242,8 @@ static void fill_default_data_buffers(struct text *s, size_t nb_chars)
     };
 
     const struct text_effects_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
+
+    set_geometry_data(s, defaults_ptr);
 
     // Loop is repeated to make memory accesses contiguous.
     for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.transform + i * 4 * 4, default_data.transform, sizeof(default_data.transform));
@@ -192,6 +260,19 @@ void ngli_text_update_effects_defaults(struct text *s, const struct text_effects
     const size_t nb_chars = ngli_darray_count(&s->chars);
     if (nb_chars)
         fill_default_data_buffers(s, nb_chars);
+}
+
+void ngli_text_refresh_geometry_data(struct text *s)
+{
+    const size_t nb_chars = ngli_darray_count(&s->chars);
+    if (!nb_chars)
+        return;
+
+    const struct text_effects_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
+    set_geometry_data(s, defaults_ptr);
+
+    for (size_t i = 0; i < nb_chars; i++) memcpy(s->data_ptrs.pos_size,     defaults_ptr.pos_size,     nb_chars * 4 * sizeof(float));
+    for (size_t i = 0; i < nb_chars; i++) memcpy(s->data_ptrs.atlas_coords, defaults_ptr.atlas_coords, nb_chars * 4 * sizeof(float));
 }
 
 static int set_value_from_node(float *dst, struct ngl_node *node, double t)
@@ -536,8 +617,14 @@ int ngli_text_set_string(struct text *s, const char *str)
         /* We don't need to copy the rounded size, only the actual number of characters */
         s->chars_copy_size = copy_size;
         s->data_ptrs = get_chr_data_pointers(s->chars_data, nb_chars);
-        fill_default_data_buffers(s, nb_chars);
     }
+
+    /*
+     * This is done unconditionally to make sure the geometry defaults are
+     * updated, even if the number of characters didn't change (for example
+     * because they might be different characters with different dimensions)
+     */
+    fill_default_data_buffers(s, nb_chars);
 
     reset_chars_data_to_defaults(s);
 
