@@ -271,16 +271,13 @@ static int refresh_geometry(struct ngl_node *node)
     /* Apply aspect ratio and font scaling */
     float width  = box.w * o->font_scale;
     float height = box.h * o->font_scale;
+    float ratio_w, ratio_h;
     if (o->scale_mode == SCALE_MODE_FIXED) {
         const float tw = (float)text->width / (float)s->viewport.width;
         const float th = (float)text->height / (float)s->viewport.height;
-        const float rw = tw / box.w;
-        const float rh = th / box.h;
-
-        width *= rw;
-        height *= rh;
+        ratio_w = tw / box.w;
+        ratio_h = th / box.h;
     } else {
-        float ratio_w, ratio_h;
         if (text_ratio < box_ratio) {
             ratio_w = text_ratio / box_ratio;
             ratio_h = 1.0;
@@ -288,10 +285,9 @@ static int refresh_geometry(struct ngl_node *node)
             ratio_w = 1.0;
             ratio_h = box_ratio / text_ratio;
         }
-
-        width *= ratio_w;
-        height *= ratio_h;
     }
+    width  *= ratio_w;
+    height *= ratio_h;
 
     /* Adjust text position according to alignment settings */
     const float align_padw = box.w - width;
