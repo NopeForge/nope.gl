@@ -86,9 +86,12 @@ struct text_config {
     int32_t pt_size;
     int32_t dpi;
     int32_t padding;
+    enum text_scale_mode scale_mode;
+    float font_scale;
     enum text_valign valign;
     enum text_halign halign;
     enum writing_mode writing_mode;
+    struct ngli_box box;
     struct ngl_node **effect_nodes;
     size_t nb_effect_nodes;
     struct text_effects_defaults defaults;
@@ -109,6 +112,11 @@ struct text_cls {
 
 /* Each field points to a contiguous data buffer (1 row per character) */
 struct text_effects_pointers {
+    // geometry
+    float *pos_size;     // vec4[]
+    float *atlas_coords; // vec4[]
+
+    // effects
     float *transform; // mat4[]
     float *color;     // vec4[] (last component is opacity)
     float *outline;   // vec4[] (vec3 color, f32 outline width)
@@ -150,6 +158,8 @@ int ngli_text_init(struct text *s, const struct text_config *cfg);
 
 /* The specified new user defaults will be honored at the next ngli_text_set_{string,time}() call */
 void ngli_text_update_effects_defaults(struct text *s, const struct text_effects_defaults *defaults);
+
+void ngli_text_refresh_geometry_data(struct text *s);
 
 int ngli_text_set_string(struct text *s, const char *str);
 
