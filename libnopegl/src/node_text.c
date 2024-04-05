@@ -154,14 +154,11 @@ static const struct param_choices writing_mode_choices = {
     }
 };
 
-#define SCALE_MODE_AUTO  0
-#define SCALE_MODE_FIXED 1
-
 static const struct param_choices scale_mode_choices = {
     .name = "scale_mode",
     .consts = {
-        {"auto",  SCALE_MODE_AUTO,  .desc=NGLI_DOCSTRING("automatic size by fitting the specified bounding box")},
-        {"fixed", SCALE_MODE_FIXED, .desc=NGLI_DOCSTRING("fixed character size (bounding box ignored for scaling)")},
+        {"auto",  NGLI_TEXT_SCALE_MODE_AUTO,  .desc=NGLI_DOCSTRING("automatic size by fitting the specified bounding box")},
+        {"fixed", NGLI_TEXT_SCALE_MODE_FIXED, .desc=NGLI_DOCSTRING("fixed character size (bounding box ignored for scaling)")},
         {NULL}
     }
 };
@@ -208,7 +205,7 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("resolution (dot per inch)")},
     {"font_scale",   NGLI_PARAM_TYPE_F32, OFFSET(font_scale), {.f32=1.f},
                      .desc=NGLI_DOCSTRING("scaling of the font")},
-    {"scale_mode",   NGLI_PARAM_TYPE_SELECT, OFFSET(scale_mode), {.i32=SCALE_MODE_AUTO},
+    {"scale_mode",   NGLI_PARAM_TYPE_SELECT, OFFSET(scale_mode), {.i32=NGLI_TEXT_SCALE_MODE_AUTO},
                      .choices=&scale_mode_choices,
                      .desc=NGLI_DOCSTRING("scaling behaviour for the characters")},
     {"effects",      NGLI_PARAM_TYPE_NODELIST, OFFSET(effect_nodes),
@@ -272,7 +269,7 @@ static int refresh_geometry(struct ngl_node *node)
     float width  = box.w * o->font_scale;
     float height = box.h * o->font_scale;
     float ratio_w, ratio_h;
-    if (o->scale_mode == SCALE_MODE_FIXED) {
+    if (o->scale_mode == NGLI_TEXT_SCALE_MODE_FIXED) {
         const float tw = (float)text->width / (float)s->viewport.width;
         const float th = (float)text->height / (float)s->viewport.height;
         ratio_w = tw / box.w;
