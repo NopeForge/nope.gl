@@ -255,10 +255,8 @@ static int refresh_geometry(struct ngl_node *node)
         /* The content of these buffers will remain constant until the next text content update */
         s->transforms = ngli_buffer_create(gpu_ctx);
         s->atlas_coords = ngli_buffer_create(gpu_ctx);
-        if (!s->transforms || !s->atlas_coords) {
-            ret = NGL_ERROR_MEMORY;
-            goto end;
-        }
+        if (!s->transforms || !s->atlas_coords)
+            return NGL_ERROR_MEMORY;
 
         /* The content of these buffers will be updated later using the effects data (see apply_effects()) */
         s->user_transforms = ngli_buffer_create(gpu_ctx);
@@ -266,10 +264,8 @@ static int refresh_geometry(struct ngl_node *node)
         s->outlines        = ngli_buffer_create(gpu_ctx);
         s->glows           = ngli_buffer_create(gpu_ctx);
         s->blurs           = ngli_buffer_create(gpu_ctx);
-        if (!s->user_transforms || !s->colors || !s->outlines || !s->glows  || !s->blurs) {
-            ret = NGL_ERROR_MEMORY;
-            goto end;
-        }
+        if (!s->user_transforms || !s->colors || !s->outlines || !s->glows  || !s->blurs)
+            return NGL_ERROR_MEMORY;
 
         if ((ret = ngli_buffer_init(s->transforms,      text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->atlas_coords,    text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
@@ -278,7 +274,7 @@ static int refresh_geometry(struct ngl_node *node)
             (ret = ngli_buffer_init(s->outlines,        text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->glows,           text_nbchr     * 4 * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->blurs,           text_nbchr         * sizeof(float),         DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
-            goto end;
+            return ret;
 
         struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
         for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
@@ -302,18 +298,17 @@ static int refresh_geometry(struct ngl_node *node)
             struct pipeline_desc_common *desc = &desc_fg->common;
             int ret = ngli_pipeline_compat_update_texture(desc->pipeline_compat, 0, text->atlas_texture);
             if (ret < 0)
-                goto end;
+                return ret;
         }
     }
 
     if ((ret = ngli_buffer_upload(s->transforms,   text->data_ptrs.pos_size,     0, text_nbchr * 4 * sizeof(float))) < 0 ||
         (ret = ngli_buffer_upload(s->atlas_coords, text->data_ptrs.atlas_coords, 0, text_nbchr * 4 * sizeof(float))) < 0)
-        goto end;
+        return ret;
 
     s->nb_chars = text_nbchr;
 
-end:
-    return ret;
+    return 0;
 }
 
 static int update_text_content(struct ngl_node *node)
