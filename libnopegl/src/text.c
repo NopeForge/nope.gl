@@ -213,18 +213,21 @@ static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
     const float corner_y = box.y + align_padh * spy;
 
     const struct char_info *chars = ngli_darray_data(&s->chars);
+
+    /* character dimension and position */
     for (size_t n = 0; n < ngli_darray_count(&s->chars); n++) {
         const struct char_info *chr = &chars[n];
-
-        /* character dimension and position */
         const float chr_width  = width  * chr->geom.w;
         const float chr_height = height * chr->geom.h;
         const float chr_corner_x = corner_x + width  * chr->geom.x;
         const float chr_corner_y = corner_y + height * chr->geom.y;
         const float transform[] = {chr_corner_x, chr_corner_y, chr_width, chr_height};
         memcpy(ptrs.pos_size + 4 * n, transform, sizeof(transform));
+    }
 
-        /* register atlas identifier */
+    /* register atlas identifier */
+    for (size_t n = 0; n < ngli_darray_count(&s->chars); n++) {
+        const struct char_info *chr = &chars[n];
         memcpy(ptrs.atlas_coords + 4 * n, chr->atlas_coords, sizeof(chr->atlas_coords));
     }
 }
