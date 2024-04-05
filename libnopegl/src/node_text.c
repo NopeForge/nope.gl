@@ -235,7 +235,7 @@ static void destroy_characters_resources(struct text_priv *s)
     s->nb_chars = 0;
 }
 
-static int refresh_geometry(struct ngl_node *node)
+static int refresh_pipeline_data(struct ngl_node *node)
 {
     int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
@@ -320,7 +320,7 @@ static int update_text_content(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    return refresh_geometry(node);
+    return refresh_pipeline_data(node);
 }
 
 /* Update the GPU buffers using the updated effects data */
@@ -680,7 +680,7 @@ static int text_update(struct ngl_node *node, double t)
     if (memcmp(&s->viewport, &viewport, sizeof(viewport))) {
         memcpy(&s->viewport, &viewport, sizeof(viewport));
         ngli_text_refresh_geometry_data(s->text_ctx);
-        int ret = refresh_geometry(node);
+        int ret = refresh_pipeline_data(node);
         if (ret < 0)
             return ret;
     }
