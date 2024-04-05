@@ -441,10 +441,10 @@ static int init_bounding_box_geometry(struct ngl_node *node)
 
     const struct ngli_box box = {NGLI_ARG_VEC4(o->box)};
     const float vertices[] = {
-        box.x,         box.y,         0,
-        box.x + box.w, box.y,         0,
-        box.x,         box.y + box.h, 0,
-        box.x + box.w, box.y + box.h, 0,
+        box.x,         box.y,
+        box.x + box.w, box.y,
+        box.x,         box.y + box.h,
+        box.x + box.w, box.y + box.h,
     };
 
     s->bg_vertices = ngli_buffer_create(gpu_ctx);
@@ -566,9 +566,9 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
     const struct pgcraft_attribute attributes[] = {
         {
             .name     = "position",
-            .type     = NGLI_TYPE_VEC3,
-            .format   = NGLI_FORMAT_R32G32B32_SFLOAT,
-            .stride   = 3 * sizeof(float),
+            .type     = NGLI_TYPE_VEC2,
+            .format   = NGLI_FORMAT_R32G32_SFLOAT,
+            .stride   = 2 * sizeof(float),
             .buffer   = s->bg_vertices,
         },
     };
