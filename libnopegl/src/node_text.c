@@ -23,13 +23,9 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "memory.h"
 #include "internal.h"
 #include "darray.h"
 #include "gpu_ctx.h"
-#include "log.h"
-#include "math_utils.h"
-#include "pgcache.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "text.h"
