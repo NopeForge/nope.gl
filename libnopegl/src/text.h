@@ -49,6 +49,11 @@ enum text_halign {
     NGLI_TEXT_HALIGN_LEFT,
 };
 
+enum text_scale_mode {
+    NGLI_TEXT_SCALE_MODE_AUTO,
+    NGLI_TEXT_SCALE_MODE_FIXED,
+};
+
 enum char_tag {
     NGLI_TEXT_CHAR_TAG_GLYPH          = 1 << 0,
     NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR = 1 << 1,
