@@ -55,9 +55,9 @@ enum text_scale_mode {
 };
 
 enum char_tag {
-    NGLI_TEXT_CHAR_TAG_GLYPH          = 1 << 0,
-    NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR = 1 << 1,
-    NGLI_TEXT_CHAR_TAG_LINE_BREAK     = 1 << 2,
+    NGLI_TEXT_CHAR_TAG_GLYPH          = 1U << 0,
+    NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR = 1U << 1,
+    NGLI_TEXT_CHAR_TAG_LINE_BREAK     = 1U << 2,
 };
 
 /* Exposed by text drivers  */
