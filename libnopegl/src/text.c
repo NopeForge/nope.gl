@@ -151,10 +151,10 @@ static struct text_data_pointers get_chr_data_pointers(float *base, size_t nb_ch
     ptrs.pos_size     = base;
     ptrs.atlas_coords = ptrs.pos_size     + nb_chars * 4;
     ptrs.transform    = ptrs.atlas_coords + nb_chars * 4;
-    ptrs.color      = ptrs.transform  + nb_chars * 4 * 4;
-    ptrs.outline    = ptrs.color      + nb_chars * 4;
-    ptrs.glow       = ptrs.outline    + nb_chars * 4;
-    ptrs.blur       = ptrs.glow       + nb_chars * 4;
+    ptrs.color        = ptrs.transform    + nb_chars * 4 * 4;
+    ptrs.outline      = ptrs.color        + nb_chars * 4;
+    ptrs.glow         = ptrs.outline      + nb_chars * 4;
+    ptrs.blur         = ptrs.glow         + nb_chars * 4;
     return ptrs;
 }
 
@@ -689,9 +689,9 @@ int ngli_text_set_time(struct text *s, double t)
             const double next_t = prev_t + duration;
             const double target_t = NGLI_LINEAR_NORM(prev_t, next_t, effect_t);
 
-            if ((ret = set_transform( s->data_ptrs.transform  + c * 4 * 4, effect_opts->transform_chain,                       target_t)) < 0 ||
-                (ret = set_vec3_value(s->data_ptrs.color      + c * 4,     effect_opts->color_node,      effect_opts->color,   target_t)) < 0 ||
-                (ret = set_f32_value( s->data_ptrs.color      + c * 4 + 3, effect_opts->opacity_node,    effect_opts->opacity, target_t)) < 0 ||
+            if ((ret = set_transform( s->data_ptrs.transform  + c * 4 * 4, effect_opts->transform_chain,                                target_t)) < 0 ||
+                (ret = set_vec3_value(s->data_ptrs.color      + c * 4,     effect_opts->color_node,         effect_opts->color,         target_t)) < 0 ||
+                (ret = set_f32_value( s->data_ptrs.color      + c * 4 + 3, effect_opts->opacity_node,       effect_opts->opacity,       target_t)) < 0 ||
                 (ret = set_vec3_value(s->data_ptrs.outline    + c * 4,     effect_opts->outline_color_node, effect_opts->outline_color, target_t)) < 0 ||
                 (ret = set_f32_value( s->data_ptrs.outline    + c * 4 + 3, effect_opts->outline_node,       effect_opts->outline,       target_t)) < 0 ||
                 (ret = set_vec3_value(s->data_ptrs.glow       + c * 4,     effect_opts->glow_color_node,    effect_opts->glow_color,    target_t)) < 0 ||
