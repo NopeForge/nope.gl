@@ -111,7 +111,7 @@ struct text_cls {
 };
 
 /* Each field points to a contiguous data buffer (1 row per character) */
-struct text_effects_pointers {
+struct text_data_pointers {
     // geometry
     float *pos_size;     // vec4[]
     float *atlas_coords; // vec4[]
@@ -138,7 +138,7 @@ struct text {
     int32_t height;
     struct darray chars; // struct char_info
     struct texture *atlas_texture;
-    struct text_effects_pointers data_ptrs; // set of effect data pointers (in chars_data)
+    struct text_data_pointers data_ptrs; // set of effect data pointers (in chars_data)
 
     /* effects specific */
     struct effect_segmentation *effects;

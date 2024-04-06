@@ -145,9 +145,9 @@ static void reset_chars_data_to_defaults(struct text *s)
     memcpy(s->chars_data, s->chars_data_default, s->chars_copy_size);
 }
 
-static struct text_effects_pointers get_chr_data_pointers(float *base, size_t nb_chars)
+static struct text_data_pointers get_chr_data_pointers(float *base, size_t nb_chars)
 {
-    struct text_effects_pointers ptrs = {0};
+    struct text_data_pointers ptrs = {0};
     ptrs.pos_size     = base;
     ptrs.atlas_coords = ptrs.pos_size     + nb_chars * 4;
     ptrs.transform    = ptrs.atlas_coords + nb_chars * 4;
@@ -168,7 +168,7 @@ struct default_data {
     float blur;
 };
 
-static void set_geometry_data(struct text *s, struct text_effects_pointers ptrs)
+static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
 {
     /* Text/Box ratio */
     const struct ngli_box box = s->config.box;
@@ -241,7 +241,7 @@ static void fill_default_data_buffers(struct text *s, size_t nb_chars)
         .blur      = 0.f,
     };
 
-    const struct text_effects_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
+    const struct text_data_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
 
     set_geometry_data(s, defaults_ptr);
 
@@ -268,7 +268,7 @@ void ngli_text_refresh_geometry_data(struct text *s)
     if (!nb_chars)
         return;
 
-    const struct text_effects_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
+    const struct text_data_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
     set_geometry_data(s, defaults_ptr);
 
     for (size_t i = 0; i < nb_chars; i++) memcpy(s->data_ptrs.pos_size,     defaults_ptr.pos_size,     nb_chars * 4 * sizeof(float));
