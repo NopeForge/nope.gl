@@ -34,6 +34,10 @@ void main()
      */
     coords = atlas_coords;
 
+    /*
+     * transform is the character positionning
+     * user_transform is the user effect
+     */
     vec4 position = user_transform * vec4(transform.xy + ref_uv * transform.zw, 0.0, 1.0);
     ngl_out_pos = projection_matrix * modelview_matrix * position;
 
