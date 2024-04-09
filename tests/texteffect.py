@@ -207,6 +207,45 @@ def texteffect_vp_anchor(cfg: ngl.SceneCfg):
 
 @test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
 @ngl.scene()
+def texteffect_combined_diff_anchors(cfg: ngl.SceneCfg):
+    cfg.duration = 3
+
+    animkf_rotate = [
+        ngl.AnimKeyFrameFloat(0, -180),
+        ngl.AnimKeyFrameFloat(0.5, 0, "linear"),
+    ]
+    animkf_scale = [
+        ngl.AnimKeyFrameVec3(0, (0.0, 0.0, 1.0)),
+        ngl.AnimKeyFrameVec3(1, (1.0, 1.0, 1.0), "linear"),
+    ]
+    rotate = ngl.Rotate(ngl.Identity(), angle=ngl.AnimatedFloat(animkf_rotate))
+    scale = ngl.Scale(ngl.Identity(), factors=ngl.AnimatedVec3(animkf_scale))
+    effects = [
+        ngl.TextEffect(
+            start=0,
+            end=cfg.duration,
+            target="char",
+            overlap=0.5,
+            transform=scale,
+            anchor=(0, -1),
+            anchor_ref="viewport",
+        ),
+        ngl.TextEffect(
+            start=0,
+            end=cfg.duration,
+            target="char",
+            overlap=0.0,
+            transform=rotate,
+            anchor=(0, 1),
+            anchor_ref="char",
+        ),
+    ]
+
+    return ngl.Text("ABC", bg_color=(1, 0, 0), box=(-1, 0, 2, 1), effects=effects)
+
+
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
+@ngl.scene()
 def texteffect_chars_space_nospace(cfg: ngl.SceneCfg):
     cfg.duration = 5
     cfg.aspect_ratio = (16, 9)

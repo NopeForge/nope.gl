@@ -35,6 +35,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `Render*` nodes are renamed to `Draw*`
 - `TextEffect.transform` now default to an anchor in the center of the
   characters instead of a distant bottom-left position
+- `TextEffect.transform` are now combined on overlapping text effects instead of
+  replacing the previous one
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio
