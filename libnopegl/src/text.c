@@ -349,11 +349,13 @@ static int set_transform(float *dst, struct texteffect_opts *effect_opts,
     ngli_mat4_translate(tmreloc0,  anchor_x,  anchor_y, 0.f);
     ngli_mat4_translate(tmreloc1, -anchor_x, -anchor_y, 0.f);
 
-    float *tmp = tmreloc0;             // go to anchor
+    NGLI_ALIGNED_MAT(tmp);
+    memcpy(tmp, dst, sizeof(tm));      // start from the existing position
+    ngli_mat4_mul(tmp, tmp, tmreloc0); // go to anchor
     ngli_mat4_mul(tmp, tmp, tm);       // apply user transform matrix
     ngli_mat4_mul(tmp, tmp, tmreloc1); // go back from anchor
 
-    memcpy(dst, tmp, 4 * 4 * sizeof(*dst));
+    memcpy(dst, tmp, sizeof(tmp));
 
     return 0;
 }
