@@ -1,7 +1,7 @@
 /*
  * Copyright 2023 Nope Forge
  * Copyright 2021-2022 GoPro Inc.
- * Copyright 2021-2022 Clément Bœsch <u pkh.me>
+ * Copyright 2021-2024 Clément Bœsch <u pkh.me>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -50,6 +50,8 @@
 #include "source_gradient4_vert.h"
 #include "source_histogram_frag.h"
 #include "source_histogram_vert.h"
+#include "source_mask_frag.h"
+#include "source_mask_vert.h"
 #include "source_noise_frag.h"
 #include "source_noise_vert.h"
 #include "source_texture_frag.h"
@@ -209,6 +211,17 @@ struct drawhistogram_opts {
 };
 
 struct drawhistogram_priv {
+    struct render_common common;
+};
+
+struct drawmask_opts {
+    struct ngl_node *content;
+    struct ngl_node *mask;
+    int inverted;
+    struct render_common_opts common;
+};
+
+struct drawmask_priv {
     struct render_common common;
 };
 
@@ -394,6 +407,23 @@ static const struct node_param drawhistogram_params[] = {
     {"mode",     NGLI_PARAM_TYPE_SELECT, OFFSET(mode),
                  .choices=&scope_mode_choices,
                  .desc=NGLI_DOCSTRING("define how to represent the data")},
+    COMMON_PARAMS
+    {NULL}
+};
+#undef OFFSET
+
+#define OFFSET(x) offsetof(struct drawmask_opts, x)
+static const struct node_param drawmask_params[] = {
+    {"content",   NGLI_PARAM_TYPE_NODE, OFFSET(content),
+                 .flags=NGLI_PARAM_FLAG_NON_NULL,
+                 .node_types=(const uint32_t[]){TRANSFORM_TYPES_ARGS, NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
+                 .desc=NGLI_DOCSTRING("content texture being masked")},
+    {"mask",      NGLI_PARAM_TYPE_NODE, OFFSET(mask),
+                 .flags=NGLI_PARAM_FLAG_NON_NULL,
+                 .node_types=(const uint32_t[]){TRANSFORM_TYPES_ARGS, NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
+                 .desc=NGLI_DOCSTRING("texture serving as mask (only the red channel is used)")},
+    {"inverted",  NGLI_PARAM_TYPE_BOOL, OFFSET(inverted),
+                 .desc=NGLI_DOCSTRING("whether to dig into or keep")},
     COMMON_PARAMS
     {NULL}
 };
@@ -669,6 +699,31 @@ static int drawhistogram_init(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
 
     return init(node, &s->common, &o->common, "source_histogram", source_histogram_frag);
+}
+
+static int drawmask_init(struct ngl_node *node)
+{
+    struct drawmask_priv *s = node->priv_data;
+    struct drawmask_opts *o = node->opts;
+
+    const struct ngl_node *content = ngli_transform_get_leaf_node(o->content);
+    if (!content) {
+        LOG(ERROR, "no content texture found at the end of the transform chain");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    const struct ngl_node *mask = ngli_transform_get_leaf_node(o->mask);
+    if (!mask) {
+        LOG(ERROR, "no mask texture found at the end of the transform chain");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
+    if (!ngli_darray_push(&s->common.draw_resources, &content) ||
+        !ngli_darray_push(&s->common.draw_resources, &mask))
+        return NGL_ERROR_MEMORY;
+
+    return init(node, &s->common, &o->common, "source_mask", source_mask_frag);
 }
 
 static int drawnoise_init(struct ngl_node *node)
@@ -1110,6 +1165,83 @@ static int drawhistogram_prepare(struct ngl_node *node)
     return 0;
 }
 
+static int drawmask_prepare(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct drawmask_priv *s = node->priv_data;
+    struct drawmask_opts *o = node->opts;
+
+    const struct pgcraft_uniform uniforms[] = {
+        {.name="inverted", .type=NGLI_TYPE_BOOL, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->inverted},
+    };
+
+    struct render_common *c = &s->common;
+    int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
+    if (ret < 0)
+        return ret;
+
+    struct texture_priv *content_priv = o->content->priv_data;
+    const struct texture_opts *content_opts = o->content->opts;
+    struct texture_priv *mask_priv = o->mask->priv_data;
+    const struct texture_opts *mask_opts = o->mask->opts;
+    struct pgcraft_texture textures[] = {
+        {
+            .name        = "content",
+            .stage       = NGLI_PROGRAM_SHADER_FRAG,
+            .image       = &content_priv->image,
+            .format      = content_priv->params.format,
+            .clamp_video = content_opts->clamp_video,
+        }, {
+            .name        = "mask",
+            .stage       = NGLI_PROGRAM_SHADER_FRAG,
+            .image       = &mask_priv->image,
+            .format      = mask_priv->params.format,
+            .clamp_video = mask_opts->clamp_video,
+        },
+    };
+
+    if (content_opts->data_src && content_opts->data_src->cls->id == NGL_NODE_MEDIA)
+        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
+    else
+        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
+
+    if (mask_opts->data_src && mask_opts->data_src->cls->id == NGL_NODE_MEDIA)
+        textures[1].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
+    else
+        textures[1].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
+
+    static const struct pgcraft_iovar vert_out_vars[] = {
+        {.name = "uv",            .type = NGLI_TYPE_VEC2},
+        {.name = "content_coord", .type = NGLI_TYPE_VEC2},
+        {.name = "mask_coord",    .type = NGLI_TYPE_VEC2},
+    };
+
+    struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
+    struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
+    const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
+    const struct pgcraft_params crafter_params = {
+        .program_label    = "nopegl/drawmask",
+        .vert_base        = source_mask_vert,
+        .frag_base        = c->combined_fragment,
+        .uniforms         = ngli_darray_data(&desc->uniforms),
+        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .textures         = textures,
+        .nb_textures      = NGLI_ARRAY_NB(textures),
+        .attributes       = attributes,
+        .nb_attributes    = NGLI_ARRAY_NB(attributes),
+        .vert_out_vars    = vert_out_vars,
+        .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
+    };
+
+    ngli_darray_init(&desc->reframing_nodes, sizeof(struct ngl_node *), 0);
+    if (!ngli_darray_push(&desc->reframing_nodes, &o->content) ||
+        !ngli_darray_push(&desc->reframing_nodes, &o->mask))
+        return NGL_ERROR_MEMORY;
+
+    const struct render_common_opts *co = &o->common;
+    return finalize_pipeline(node, c, co, &crafter_params);
+}
+
 static int drawnoise_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -1374,6 +1506,7 @@ DECLARE_DRAWOTHER(drawdisplace,  NGL_NODE_DRAWDISPLACE,  "DrawDisplace")
 DECLARE_DRAWOTHER(drawgradient,  NGL_NODE_DRAWGRADIENT,  "DrawGradient")
 DECLARE_DRAWOTHER(drawgradient4, NGL_NODE_DRAWGRADIENT4, "DrawGradient4")
 DECLARE_DRAWOTHER(drawhistogram, NGL_NODE_DRAWHISTOGRAM, "DrawHistogram")
+DECLARE_DRAWOTHER(drawmask,      NGL_NODE_DRAWMASK,      "DrawMask")
 DECLARE_DRAWOTHER(drawnoise,     NGL_NODE_DRAWNOISE,     "DrawNoise")
 DECLARE_DRAWOTHER(drawtexture,   NGL_NODE_DRAWTEXTURE,   "DrawTexture")
 DECLARE_DRAWOTHER(drawwaveform,  NGL_NODE_DRAWWAVEFORM,  "DrawWaveform")

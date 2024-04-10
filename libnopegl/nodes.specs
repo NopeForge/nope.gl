@@ -2179,6 +2179,54 @@
         }
       ]
     },
+    "DrawMask": {
+      "file": "src/node_drawother.c",
+      "params": [
+        {
+          "name": "content",
+          "type": "node",
+          "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Texture2D"],
+          "flags": ["nonull"],
+          "desc": "content texture being masked"
+        },
+        {
+          "name": "mask",
+          "type": "node",
+          "node_types": ["Rotate", "RotateQuat", "Transform", "Translate", "Scale", "Skew", "Texture2D"],
+          "flags": ["nonull"],
+          "desc": "texture serving as mask (only the red channel is used)"
+        },
+        {
+          "name": "inverted",
+          "type": "bool",
+          "default": 0,
+          "flags": [],
+          "desc": "whether to dig into or keep"
+        },
+        {
+          "name": "blending",
+          "type": "select",
+          "default": "default",
+          "choices": "blend_preset",
+          "flags": [],
+          "desc": "define how this node and the current frame buffer are blending together"
+        },
+        {
+          "name": "geometry",
+          "type": "node",
+          "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+          "flags": [],
+          "desc": "geometry to be rasterized"
+        },
+        {
+          "name": "filters",
+          "type": "node_list",
+          "node_types": ["FilterAlpha", "FilterColorMap", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSelector", "FilterSRGB2Linear"],
+          "flags": [],
+          "desc": "filter chain to apply on top of this source"
+        }
+      ]
+    },
     "DrawNoise": {
       "file": "src/node_drawother.c",
       "params": [

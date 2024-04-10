@@ -324,6 +324,7 @@ NGL_API void ngl_scene_unrefp(struct ngl_scene **sp);
 #define NGL_NODE_DRAWGRADIENT           NGLI_FOURCC('D','g','r','d')
 #define NGL_NODE_DRAWGRADIENT4          NGLI_FOURCC('D','g','d','4')
 #define NGL_NODE_DRAWHISTOGRAM          NGLI_FOURCC('D','h','s','t')
+#define NGL_NODE_DRAWMASK               NGLI_FOURCC('D','m','s','k')
 #define NGL_NODE_DRAWNOISE              NGLI_FOURCC('D','N','o','i')
 #define NGL_NODE_DRAWPATH               NGLI_FOURCC('D','P','t','h')
 #define NGL_NODE_DRAWTEXTURE            NGLI_FOURCC('D','t','e','x')

@@ -664,3 +664,36 @@ def texture_reframing(cfg: ngl.SceneCfg):
     tex = ngl.Translate(tex, vector=ngl.AnimatedVec3(anim_pos_kf))
     geometry = ngl.Quad(corner=(-0.8, -0.8, 0), width=(1.6, 0, 0), height=(0, 1.6, 0))
     return ngl.DrawTexture(texture=tex, geometry=geometry)
+
+
+@test_fingerprint(width=640, height=360, keyframes=5, tolerance=1)
+@ngl.scene()
+def texture_masking(cfg: ngl.SceneCfg):
+    media = load_media("cat")
+
+    cfg.aspect_ratio = (media.width, media.height)
+    cfg.duration = d = media.duration
+
+    animkf = [
+        ngl.AnimKeyFrameVec3(0, (0.5, 0.5, 1)),
+        ngl.AnimKeyFrameVec3(d, (20, 20, 1), "exp_in"),
+    ]
+
+    return ngl.Group(
+        children=[
+            ngl.DrawGradient4(),
+            ngl.DrawMask(
+                content=ngl.Texture2D(
+                    data_src=ngl.Media(filename=media.filename),
+                ),
+                mask=ngl.Texture2D(
+                    data_src=ngl.Scale(
+                        child=ngl.Text("CAT"),
+                        factors=ngl.AnimatedVec3(animkf),
+                        anchor=(0, -0.09, 0),
+                    ),
+                ),
+                blending="src_over",
+            ),
+        ]
+    )
