@@ -86,6 +86,7 @@
     action(NGL_NODE_DRAWGRADIENT,           ngli_drawgradient_class)            \
     action(NGL_NODE_DRAWGRADIENT4,          ngli_drawgradient4_class)           \
     action(NGL_NODE_DRAWHISTOGRAM,          ngli_drawhistogram_class)           \
+    action(NGL_NODE_DRAWMASK,               ngli_drawmask_class)                \
     action(NGL_NODE_DRAWNOISE,              ngli_drawnoise_class)               \
     action(NGL_NODE_DRAWPATH,               ngli_drawpath_class)                \
     action(NGL_NODE_DRAWTEXTURE,            ngli_drawtexture_class)             \
