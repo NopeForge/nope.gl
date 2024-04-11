@@ -2924,7 +2924,7 @@
           "type": "node",
           "node_types": ["Texture2D"],
           "flags": [],
-          "desc": "blur map providing the CoC (circle of confusion) for each pixels"
+          "desc": "blur map providing the CoC (circle of confusion) for each pixels (only the red channel is used)"
         }
       ]
     },
