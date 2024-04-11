@@ -107,7 +107,7 @@ static const struct node_param hblur_params[] = {
     {"map",         NGLI_PARAM_TYPE_NODE, OFFSET(map),
                     .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                     .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
-                    .desc=NGLI_DOCSTRING("blur map providing the CoC (circle of confusion) for each pixels")},
+                    .desc=NGLI_DOCSTRING("blur map providing the CoC (circle of confusion) for each pixels (only the red channel is used)")},
     {NULL}
 };
 
