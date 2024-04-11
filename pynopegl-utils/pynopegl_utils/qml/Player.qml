@@ -107,13 +107,13 @@ ColumnLayout {
     function adjust_width_to_aspect(width, height, aspect) {
         if (!is_aspect_valid(aspect))
             return width
-        return Math.min(parent.height * aspect[0] / aspect[1], parent.width)
+        return Math.min(height * aspect[0] / aspect[1], width)
     }
 
     function adjust_height_to_aspect(width, height, aspect) {
         if (!is_aspect_valid(aspect))
             return height
-        return Math.min(parent.width * aspect[1] / aspect[0], parent.height)
+        return Math.min(width * aspect[1] / aspect[0], height)
     }
 
     Rectangle {
