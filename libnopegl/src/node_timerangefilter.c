@@ -131,7 +131,7 @@ static void timerangefilter_draw(struct ngl_node *node)
     const struct timerangefilter_opts *o = node->opts;
 
     if (!s->drawme) {
-        TRACE("%s @ %p not marked for drawing, skip it", node->label, node);
+        TRACE("%s @ %p with range [%f,%f) not marked for drawing, skip it", node->label, node, o->start_time, o->end_time);
         return;
     }
 
