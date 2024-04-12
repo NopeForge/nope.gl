@@ -99,13 +99,11 @@ char *ngli_jni_jstring_to_utf_chars(JNIEnv *env, jstring string)
     char *ret = NULL;
     const char *utf_chars = NULL;
 
-    jboolean copy = 0;
-
     if (!string) {
         return NULL;
     }
 
-    utf_chars = (*env)->GetStringUTFChars(env, string, &copy);
+    utf_chars = (*env)->GetStringUTFChars(env, string, NULL);
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
         LOG(ERROR, "String.getStringUTFChars() threw an exception");
