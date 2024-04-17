@@ -289,7 +289,7 @@ static int eagl_make_current(struct glcontext *ctx, int current)
         ret = [EAGLContext setCurrentContext:nil];
     }
 
-    return ret;
+    return ret ? 0 : NGL_ERROR_EXTERNAL;
 }
 
 static void eagl_swap_buffers(struct glcontext *ctx)
