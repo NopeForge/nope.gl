@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x86_64, arm64]
-        ffmpeg_version: [5.0.1]
+        ffmpeg_version: [6.1.1]
         nopemd_version: [12.0.0]
 
     steps:
@@ -55,7 +55,7 @@ jobs:
         ./configure \
         --disable-everything --disable-doc --disable-static --disable-autodetect --disable-programs \
         --enable-shared --enable-cross-compile \
-        --enable-avdevice --enable-swresample --enable-rdft \
+        --enable-avdevice --enable-swresample \
         --enable-filter=aresample,aformat,asetnsamples,asettb,copy,format,scale,settb \
         --enable-demuxer=image_jpeg_pipe,matroska \
         --enable-decoder=mjpeg,flac,h264 \
