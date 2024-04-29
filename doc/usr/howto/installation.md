@@ -27,7 +27,7 @@ building and running the complete `nope.gl` stack.
     typically named with a `-dev` suffix on Debian based systems)
   - **Graphviz**
   - **SDL2**
-  - **Glslang**
+  - **Glslang ≥ 11.13.0**
   - **MoltenVK** (macOS, optional)
 - Build with `./configure.py && make`
 - Enter the virtual environment with `. venv/bin/ngli-activate`

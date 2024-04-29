@@ -24,6 +24,7 @@
 #include <string.h>
 #include <glslang/build_info.h>
 #include <glslang/Include/glslang_c_interface.h>
+#include <glslang/Public/resource_limits_c.h>
 
 #include "glslang_utils.h"
 #include "log.h"
@@ -31,13 +32,6 @@
 #include "nopegl.h"
 #include "program.h"
 #include "pthread_compat.h"
-
-/*
- * resource_limits_c.h which declares glslang_default_resource() is currently
- * not distributed, so forward declare it.
- * See: https://github.com/KhronosGroup/glslang/issues/2822
- */
-const glslang_resource_t *glslang_default_resource(void);
 
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static int refcount = 0;
