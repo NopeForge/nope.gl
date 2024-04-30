@@ -78,7 +78,7 @@ _ANDROID_CROSS_FILE_TPL = textwrap.dedent(
     cpp = toolchain / '{compiler}-clang++'
     strip = toolchain / 'llvm-strip'
     ar = toolchain / 'llvm-ar'
-    pkgconfig = 'pkg-config'
+    pkg-config = 'pkg-config'
     [host_machine]
     system = 'android'
     cpu_family = '{cpu_family}'
