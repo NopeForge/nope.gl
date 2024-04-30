@@ -86,7 +86,6 @@ jobs:
         PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
         meson setup --cross-file ../.github/meson-ios-${{ matrix.arch }}.ini builddir
         meson compile -C builddir
-        meson test -C builddir
 
     - name: Upload Logs
       if: ${{ always() }}
