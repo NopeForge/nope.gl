@@ -42,11 +42,11 @@ import zipfile
 from multiprocessing import Pool
 from subprocess import run
 
-_CPU_FAMILY_MAP = dict(
-    arm="arm",
-    aarch64="arm",
-    x86_64="x86",
-)
+_CPU_FAMILIES = [
+    "arm",
+    "aarch64",
+    "x86_64",
+]
 
 _ANDROID_VERSION = 28
 
@@ -1207,7 +1207,7 @@ class _Config:
         self.externals = externals
 
         self.cpu = args.host_arch
-        self.cpu_family = _CPU_FAMILY_MAP[args.host_arch]
+        self.cpu_family = args.host_arch
 
         if args.host == "Android":
             self.android_ndk_home = os.getenv("ANDROID_NDK_HOME")
@@ -1318,7 +1318,7 @@ def _run():
     parser.add_argument("--host", choices=("Android",), default=None, help="Cross compilation host machine")
     parser.add_argument(
         "--host-arch",
-        choices=_CPU_FAMILY_MAP.keys(),
+        choices=_CPU_FAMILIES,
         default="aarch64",
         help="Cross compilation host machine architecture",
     )
