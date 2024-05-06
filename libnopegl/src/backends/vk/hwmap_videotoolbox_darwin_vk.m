@@ -25,7 +25,11 @@
 #include <nopemd.h>
 
 #include <CoreVideo/CoreVideo.h>
+#if defined(TARGET_DARWIN)
 #include <IOSurface/IOSurface.h>
+#elif defined(TARGET_IPHONE)
+#include <IOSurface/IOSurfaceObjC.h>
+#endif
 #include <Metal/Metal.h>
 
 #include <MoltenVK/mvk_vulkan.h>
