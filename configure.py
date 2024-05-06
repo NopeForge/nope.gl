@@ -23,7 +23,6 @@
 
 import argparse
 import functools
-import glob
 import hashlib
 import logging
 import os
