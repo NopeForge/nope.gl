@@ -347,7 +347,7 @@ static VkResult create_window_surface(struct vkcontext *s, const struct ngl_conf
             .pView = (const void *)config->window,
         };
 
-        VK_LOAD_FUN(s->instance, CreateIOSSurfaceMVK);
+        VK_LOAD_FUNC(s->instance, CreateIOSSurfaceMVK);
         if (!CreateIOSSurfaceMVK) {
             return VK_ERROR_EXTENSION_NOT_PRESENT;
         }
