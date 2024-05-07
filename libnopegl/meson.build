@@ -298,7 +298,7 @@ hosts_cfg = {
     ),
   },
   'iphone': {
-    'frameworks': ['CoreVideo', 'Foundation'],
+    'frameworks': ['CoreVideo', 'Foundation', 'UIKit', 'IOSurface'],
   },
 }
 
@@ -502,7 +502,7 @@ gbackends_cfg = {
         'src': files('src/backends/vk/hwmap_videotoolbox_darwin_vk.m'),
         'deps': ['glslang'],
         'libs': ['MoltenVK'],
-        'frameworks': ['Metal'],
+        'frameworks': ['Metal', 'QuartzCore', 'CoreGraphics', 'IOKit'],
       },
       'android': {
         'src': files('src/backends/vk/hwmap_mediacodec_vk.c'),
@@ -512,7 +512,7 @@ gbackends_cfg = {
         'src': files('src/backends/vk/hwmap_videotoolbox_darwin_vk.m'),
         'deps': ['glslang'],
         'libs': ['MoltenVK'],
-        'frameworks': ['Metal'],
+        'frameworks': ['Metal', 'QuartzCore', 'CoreGraphics'],
       },
       'windows': {
         'deps': ['vulkan', 'glslang'],
