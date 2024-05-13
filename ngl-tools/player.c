@@ -583,6 +583,9 @@ void player_main_loop(struct player *p)
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
+            case SDL_QUIT:
+                run = 0;
+                break;
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_CLOSE)
                     run = 0;
