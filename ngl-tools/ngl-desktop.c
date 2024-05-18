@@ -396,7 +396,7 @@ static void *server_start(void *arg)
     struct ctx *s = arg;
 
     for (;;) {
-        const int conn_fd = accept(s->sock_fd, s->addr->ai_addr, &s->addr->ai_addrlen);
+        const int conn_fd = accept(s->sock_fd, NULL, NULL);
         if (conn_fd < 0) {
             perror("accept");
             break;
