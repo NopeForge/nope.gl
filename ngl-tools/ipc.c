@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -152,7 +153,10 @@ void ipc_pkt_freep(struct ipc_pkt **pktp)
 
 int ipc_send(int fd, const struct ipc_pkt *pkt)
 {
-    const int n = (int)send(fd, pkt->data, pkt->size, 0);
+    if (pkt->size > INT_MAX)
+        return NGL_ERROR_LIMIT_EXCEEDED;
+
+    const int n = (int)send(fd, (void *)pkt->data, (int)pkt->size, 0);
     if (n < 0) {
         perror("send");
         return NGL_ERROR_IO;
@@ -169,7 +173,7 @@ static int readbuf(int fd, uint8_t *buf, int size)
 {
     int nr = 0;
     while (nr != size) {
-        const int n = (int)recv(fd, buf + nr, size - nr, 0);
+        const int n = (int)recv(fd, (void *)((uintptr_t)buf + nr), size - nr, 0);
         if (n == 0)
             return 0;
         if (n < 0) {
