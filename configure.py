@@ -215,10 +215,10 @@ _EXTERNAL_DEPS = dict(
         sha256="fc5d6c096a6b82f86613060dfef553a09b9e08afcb401fefac4b9ca221265cda",
     ),
     glslang=dict(
-        version="14.1.0",
+        version="14.2.0",
         dst_file="glslang-@VERSION@.tar.gz",
         url="https://github.com/KhronosGroup/glslang/archive/refs/tags/@VERSION@.tar.gz",
-        sha256="b5e4c36d60eda7613f36cfee3489c6f507156829c707e1ecd7f48ca45b435322",
+        sha256="14a2edbb509cb3e51a9a53e3f5e435dbf5971604b4b833e63e6076e8c0a997b5",
     ),
     glslang_Windows=dict(
         # Use the legacy master-tot Windows build until the main-tot one is
