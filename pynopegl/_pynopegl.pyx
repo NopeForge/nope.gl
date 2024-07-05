@@ -144,6 +144,7 @@ cdef extern from "nopegl.h":
         uintptr_t display
         uintptr_t window
         int  swap_interval
+        int  disable_depth
         int  offscreen
         int32_t width
         int32_t height
@@ -640,6 +641,7 @@ cdef class Config:
         display,
         window,
         swap_interval,
+        disable_depth,
         offscreen,
         width,
         height,
@@ -663,6 +665,7 @@ cdef class Config:
         self.config.display = display
         self.config.window = window
         self.config.swap_interval = swap_interval
+        self.config.disable_depth = disable_depth
         self.config.offscreen = offscreen
         self.config.width = width
         self.config.height = height

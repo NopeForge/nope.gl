@@ -51,6 +51,7 @@ foreach backend : backends
     'resize_fail',
     'capture_buffer',
     'ctx_ownership',
+    'disable_depth',
     'scene_context_transfer',
     'scene_lifetime',
     'scene_mutate',

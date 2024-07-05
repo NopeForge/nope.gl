@@ -687,6 +687,10 @@ struct ngl_config {
                           Android (iOS does not provide swap interval control).
                           */
 
+    int disable_depth; /* Disable depth/stencil support on the default
+                          rendertarget by not creating the attached
+                          depth/stencil buffers */
+
     int offscreen; /* Whether the rendering should happen offscreen or not.
                       This field is ignored if the context is external. */
 

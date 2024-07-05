@@ -740,3 +740,22 @@ def api_update_with_timeranges(width=320, height=240):
 
     assert ctx.draw(0.0) == 0
     assert initial_hash == hashlib.md5(capture_buffer).hexdigest()
+
+
+def api_disable_depth(width=320, height=240):
+    ctx = ngl.Context()
+    ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend, disable_depth=True))
+    assert ret == 0
+
+    draw = ngl.Draw(
+        ngl.Quad(),
+        ngl.Program(
+            vertex="void main() { ngl_out_pos = vec4(0.0); }",
+            fragment="void main() { ngl_out_color = vec4(1.0); }",
+        ),
+    )
+    graphic_config = ngl.GraphicConfig(draw, depth_test=True)
+
+    scene = ngl.Scene.from_params(graphic_config)
+    ret = ctx.set_scene(scene)
+    assert ret != 0

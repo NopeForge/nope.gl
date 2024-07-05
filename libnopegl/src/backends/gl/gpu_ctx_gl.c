@@ -281,9 +281,11 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
             return ret;
     }
 
-    ret = create_texture(s, NGLI_FORMAT_D24_UNORM_S8_UINT, config->samples, DEPTH_USAGE, &s_priv->depth_stencil);
-    if (ret < 0)
-        return ret;
+    if (!config->disable_depth) {
+        ret = create_texture(s, NGLI_FORMAT_D24_UNORM_S8_UINT, config->samples, DEPTH_USAGE, &s_priv->depth_stencil);
+        if (ret < 0)
+            return ret;
+    }
 
     struct texture *color         = s_priv->ms_color ? s_priv->ms_color : s_priv->color;
     struct texture *resolve_color = s_priv->ms_color ? s_priv->color    : NULL;
@@ -535,7 +537,7 @@ static int gl_init(struct gpu_ctx *s)
     s_priv->default_rt_layout.nb_colors = 1;
     s_priv->default_rt_layout.colors[0].format = NGLI_FORMAT_R8G8B8A8_UNORM;
     s_priv->default_rt_layout.colors[0].resolve = gl->samples > 1;
-    s_priv->default_rt_layout.depth_stencil.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
+    s_priv->default_rt_layout.depth_stencil.format = config->disable_depth ? NGLI_FORMAT_UNDEFINED : NGLI_FORMAT_D24_UNORM_S8_UINT;
     s_priv->default_rt_layout.depth_stencil.resolve = gl->samples > 1;
 
     ngli_glstate_reset(gl, &s_priv->glstate);

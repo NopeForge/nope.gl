@@ -212,9 +212,11 @@ static VkResult create_render_resources(struct gpu_ctx *s)
         }
 
         struct texture *depth_stencil = NULL;
-        VkResult res = create_texture(s, ds_format, config->samples, DEPTH_USAGE, &depth_stencil);
-        if (res != VK_SUCCESS)
-            return res;
+        if (!config->disable_depth) {
+            VkResult res = create_texture(s, ds_format, config->samples, DEPTH_USAGE, &depth_stencil);
+            if (res != VK_SUCCESS)
+                return res;
+        }
 
         if (!ngli_darray_push(&s_priv->depth_stencils, &depth_stencil)) {
             ngli_texture_freep(&depth_stencil);
@@ -223,7 +225,7 @@ static VkResult create_render_resources(struct gpu_ctx *s)
 
         struct texture *ms_color = NULL;
         if (config->samples) {
-            res = create_texture(s, color_format, config->samples, COLOR_USAGE, &ms_color);
+            VkResult res = create_texture(s, color_format, config->samples, COLOR_USAGE, &ms_color);
             if (res != VK_SUCCESS)
                 return res;
 
@@ -237,7 +239,7 @@ static VkResult create_render_resources(struct gpu_ctx *s)
         struct texture *resolve_color = ms_color ? color : NULL;
 
         struct rendertarget *rt = NULL;
-        res = create_rendertarget(s, target_color, resolve_color, depth_stencil, NGLI_LOAD_OP_CLEAR, &rt);
+        VkResult res = create_rendertarget(s, target_color, resolve_color, depth_stencil, NGLI_LOAD_OP_CLEAR, &rt);
         if (res != VK_SUCCESS)
             return res;
 
@@ -948,14 +950,14 @@ static int vk_init(struct gpu_ctx *s)
         s_priv->default_rt_layout.nb_colors             = 1;
         s_priv->default_rt_layout.colors[0].format      = NGLI_FORMAT_R8G8B8A8_UNORM;
         s_priv->default_rt_layout.colors[0].resolve     = config->samples > 0 ? 1 : 0;
-        s_priv->default_rt_layout.depth_stencil.format  = vk->preferred_depth_stencil_format;
+        s_priv->default_rt_layout.depth_stencil.format  = config->disable_depth ? NGLI_FORMAT_UNDEFINED : vk->preferred_depth_stencil_format;
         s_priv->default_rt_layout.depth_stencil.resolve = 0;
     } else {
         s_priv->default_rt_layout.samples               = config->samples;
         s_priv->default_rt_layout.nb_colors             = 1;
         s_priv->default_rt_layout.colors[0].format      = ngli_format_vk_to_ngl(s_priv->surface_format.format);
         s_priv->default_rt_layout.colors[0].resolve     = config->samples > 0 ? 1 : 0;
-        s_priv->default_rt_layout.depth_stencil.format  = vk->preferred_depth_stencil_format;
+        s_priv->default_rt_layout.depth_stencil.format  = config->disable_depth ? NGLI_FORMAT_UNDEFINED : vk->preferred_depth_stencil_format;
         s_priv->default_rt_layout.depth_stencil.resolve = 0;
     }
 
