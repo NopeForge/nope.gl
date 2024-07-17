@@ -244,14 +244,14 @@ _EXTERNAL_DEPS = dict(
         sha256="427201f5d5151670d05c1f5b45bef5dda1f2e7dd971ef54f0feaaa7ffd2ab90c",
     ),
     harfbuzz=dict(
-        version="8.4.0",
+        version="9.0.0",
         url="https://github.com/harfbuzz/harfbuzz/archive/refs/tags/@VERSION@.tar.gz",
-        sha256="9f1ca089813b05944ad1ce8c7e018213026d35dc9bab480a21eb876838396556",
+        sha256="b7e481b109d19aefdba31e9f5888aa0cdfbe7608fed9a43494c060ce1f8a34d2",
     ),
     fribidi=dict(
-        version="1.0.13",
+        version="1.0.15",
         url="https://github.com/fribidi/fribidi/archive/refs/tags/v@VERSION@.tar.gz",
-        sha256="f24e8e381bcf76533ae56bd776196f3a0369ec28e9c0fdb6edd163277e008314",
+        sha256="0db5f0621b6fbfae5960c30da4f132009fd72bf4687f1b04a87a4cfc2a08ea38",
     ),
     moltenvk_iOS=dict(
         version="1.2.8",
