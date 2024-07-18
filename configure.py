@@ -1285,7 +1285,7 @@ class _EnvBuilder(venv.EnvBuilder):
         if _SYSTEM == "MinGW":
             return
         pip_install = [context.env_exe, "-m", "pip", "install"]
-        pip_install += ["meson", "ninja"]
+        pip_install += ["meson==1.4.2", "ninja"]
         logging.info("install build dependencies: %s", _cmd_join(*pip_install))
         run(pip_install, check=True)
 
