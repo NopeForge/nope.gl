@@ -171,16 +171,16 @@ _EXTERNAL_DEPS = dict(
         sha256="d7ed9c743c02469869f4bee7cb94641377b640676cb2a8a9a7955f2d07c4d8a6",
     ),
     ffmpeg=dict(
-        version="7.0",
+        version="7.1.1",
         url="https://ffmpeg.org/releases/ffmpeg-@VERSION@.tar.xz",
         dst_file="ffmpeg-@VERSION@.tar.xz",
-        sha256="4426a94dd2c814945456600c8adfc402bee65ec14a70e8c531ec9a2cd651da7b",
+        sha256="733984395e0dbbe5c046abda2dc49a5544e7e0e1e2366bba849222ae9e3a03b1",
     ),
     ffmpeg_Windows=dict(
-        version="7.0",
-        url="https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-04-30-12-51/ffmpeg-n@VERSION@-21-gfb8f0ea7b3-win64-gpl-shared-7.0.zip",
+        version="7.1.1",
+        url="https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2025-03-31-12-55/ffmpeg-n@VERSION@-5-g276bd388f3-win64-lgpl-shared-7.1.zip",
         dst_file="ffmpeg-@VERSION@.zip",
-        sha256="16a6b831ac85225e8fe43e6114489514f94cefb95bbb896586e19aec183c6f85",
+        sha256="a5b24188a1a7c3d4a7a1295bd597f35ad5ef7757796e6a8db1cc1b922ff84e16",
     ),
     nopemd=dict(
         version="12.0.1",
@@ -568,6 +568,7 @@ def _ffmpeg_setup(cfg):
     ]
     parsers = [
         "aac",
+        "amr",
         "av1",
         "flac",
         "h264",
@@ -597,9 +598,11 @@ def _ffmpeg_setup(cfg):
         "asetnsamples",
         "asettb",
         "copy",
+        "dynaudnorm",
         "format",
         "fps",
         "hflip",
+        "loudnorm",
         "palettegen",
         "paletteuse",
         "scale",
@@ -610,6 +613,7 @@ def _ffmpeg_setup(cfg):
     demuxers = [
         "aac",
         "aiff",
+        "amr",
         "avi",
         "flac",
         "gif",
@@ -628,9 +632,7 @@ def _ffmpeg_setup(cfg):
         "wav",
     ]
     decoders = [
-        "aac",
         "alac",
-        "amrnb",
         "flac",
         "gif",
         "mjpeg",
@@ -644,9 +646,10 @@ def _ffmpeg_setup(cfg):
         "rawvideo",
         "vorbis",
         "vp8",
+        "vp9",
         "webp",
     ]
-    encoders = ["mjpeg", "png", "aac"]
+    encoders = ["mjpeg", "png"]
     builddir = _get_builddir(cfg, "ffmpeg")
     os.makedirs(builddir, exist_ok=True)
     extra_include_dir = op.join(cfg.prefix, "include")
@@ -657,6 +660,9 @@ def _ffmpeg_setup(cfg):
     extra_args = []
     if cfg.host == "Android":
         decoders += [
+            "aac_mediacodec",
+            "amrnb_mediacodec",
+            "amrwb_mediacodec",
             "av1_mediacodec",
             "h264_mediacodec",
             "hevc_mediacodec",
@@ -672,6 +678,9 @@ def _ffmpeg_setup(cfg):
             f"--cc={cfg.android_ndk_bin}{os.sep}{cfg.android_compiler}-clang",
         ]
     elif cfg.host == "iOS":
+        decoders += [
+            "aac_at",
+        ]
         extra_cflags += f"-arch {cfg.ios_abi} -mios-version-min={cfg.ios_version}"
         extra_ldflags += f"-arch {cfg.ios_abi} -mios-version-min={cfg.ios_version}"
         extra_args += [
