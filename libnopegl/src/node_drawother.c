@@ -124,11 +124,10 @@ struct render_common {
     char *combined_fragment;
     struct pgcraft_attribute position_attr;
     struct pgcraft_attribute uvcoord_attr;
-    struct buffer *vertices;
-    struct buffer *uvcoords;
     int nb_vertices;
     int topology;
-    const struct geometry *geometry;
+    struct geometry *geometry;
+    int own_geometry;
     struct darray pipeline_descs;
     struct darray draw_resources;
 };
@@ -580,63 +579,52 @@ static int init(struct ngl_node *node,
     s->uvcoord_attr.format = NGLI_FORMAT_R32G32_SFLOAT;
 
     if (!o->geometry) {
-        s->uvcoords = ngli_buffer_create(gpu_ctx);
-        s->vertices = ngli_buffer_create(gpu_ctx);
-        if (!s->uvcoords || !s->vertices)
+        s->own_geometry = 1;
+
+        s->geometry = ngli_geometry_create(gpu_ctx);
+        if (!s->geometry)
             return NGL_ERROR_MEMORY;
 
         int ret;
-        if ((ret = ngli_buffer_init(s->vertices, sizeof(default_vertices), VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->uvcoords, sizeof(default_uvcoords), VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_upload(s->vertices, default_vertices, 0, sizeof(default_vertices))) < 0 ||
-            (ret = ngli_buffer_upload(s->uvcoords, default_uvcoords, 0, sizeof(default_uvcoords))) < 0)
+        if ((ret = ngli_geometry_set_vertices(s->geometry, 4, default_vertices)) < 0 ||
+            (ret = ngli_geometry_set_uvcoords(s->geometry, 4, default_uvcoords)) < 0 ||
+            (ret = ngli_geometry_init(s->geometry, NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP) < 0))
             return ret;
-
-        s->position_attr.stride = 3 * sizeof(float);
-        s->position_attr.buffer = s->vertices;
-
-        s->uvcoord_attr.stride = 2 * sizeof(float);
-        s->uvcoord_attr.buffer = s->uvcoords;
-
-        s->nb_vertices = 4;
-        s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-        s->draw = draw_simple;
     } else {
-        struct geometry *geometry = *(struct geometry **)o->geometry->priv_data;
-        struct buffer *vertices = geometry->vertices_buffer;
-        struct buffer *uvcoords = geometry->uvcoords_buffer;
-        struct buffer_layout vertices_layout = geometry->vertices_layout;
-        struct buffer_layout uvcoords_layout = geometry->uvcoords_layout;
-
-        if (!uvcoords) {
-            LOG(ERROR, "the specified geometry is missing UV coordinates");
-            return NGL_ERROR_INVALID_USAGE;
-        }
-
-        if (vertices_layout.type != NGLI_TYPE_VEC3) {
-            LOG(ERROR, "only geometry with vec3 vertices are supported");
-            return NGL_ERROR_UNSUPPORTED;
-        }
-
-        if (uvcoords && uvcoords_layout.type != NGLI_TYPE_VEC2) {
-            LOG(ERROR, "only geometry with vec2 uvcoords are supported");
-            return NGL_ERROR_UNSUPPORTED;
-        }
-
-        s->geometry = geometry;
-
-        s->position_attr.stride = vertices_layout.stride;
-        s->position_attr.offset = vertices_layout.offset;
-        s->position_attr.buffer = vertices;
-
-        s->uvcoord_attr.stride = uvcoords_layout.stride;
-        s->uvcoord_attr.offset = uvcoords_layout.offset;
-        s->uvcoord_attr.buffer = uvcoords;
-
-        s->nb_vertices = (int)vertices_layout.count;
-        s->topology = geometry->topology;
-        s->draw = geometry->indices_buffer ? draw_indexed : draw_simple;
+        s->geometry = *(struct geometry **)o->geometry->priv_data;
     }
+
+    struct buffer *vertices = s->geometry->vertices_buffer;
+    struct buffer *uvcoords = s->geometry->uvcoords_buffer;
+    struct buffer_layout vertices_layout = s->geometry->vertices_layout;
+    struct buffer_layout uvcoords_layout = s->geometry->uvcoords_layout;
+
+    if (!uvcoords) {
+        LOG(ERROR, "the specified geometry is missing UV coordinates");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    if (vertices_layout.type != NGLI_TYPE_VEC3) {
+        LOG(ERROR, "only geometry with vec3 vertices are supported");
+        return NGL_ERROR_UNSUPPORTED;
+    }
+
+    if (uvcoords && uvcoords_layout.type != NGLI_TYPE_VEC2) {
+        LOG(ERROR, "only geometry with vec2 uvcoords are supported");
+        return NGL_ERROR_UNSUPPORTED;
+    }
+
+    s->position_attr.stride = vertices_layout.stride;
+    s->position_attr.offset = vertices_layout.offset;
+    s->position_attr.buffer = vertices;
+
+    s->uvcoord_attr.stride = uvcoords_layout.stride;
+    s->uvcoord_attr.offset = uvcoords_layout.offset;
+    s->uvcoord_attr.buffer = uvcoords;
+
+    s->nb_vertices = (int)vertices_layout.count;
+    s->topology = s->geometry->topology;
+    s->draw = s->geometry->indices_buffer ? draw_indexed : draw_simple;
 
     return combine_filters_code(s, o, base_name, base_fragment);
 }
@@ -1467,9 +1455,9 @@ static void drawother_uninit(struct ngl_node *node, struct render_common *s)
     ngli_darray_reset(&s->pipeline_descs);
     ngli_freep(&s->combined_fragment);
     ngli_filterschain_freep(&s->filterschain);
-    ngli_buffer_freep(&s->vertices);
-    ngli_buffer_freep(&s->uvcoords);
     ngli_darray_reset(&s->draw_resources);
+    if (s->own_geometry)
+        ngli_geometry_freep(&s->geometry);
 }
 
 #define DECLARE_DRAWOTHER(type, cls_id, cls_name)   \
