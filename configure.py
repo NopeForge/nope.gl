@@ -243,9 +243,9 @@ _EXTERNAL_DEPS = dict(
         sha256="5a1d187a33daa58fcee2ad77f0eb9d136dd6fa4096239199ba31e850d397e8a8",
     ),
     moltenvk_iOS=dict(
-        version="1.2.8",
-        url="https://github.com/KhronosGroup/MoltenVK/releases/download/v1.2.8/MoltenVK-ios.tar",
-        sha256="778980f84f1afe7f5058df469fe9715d767a9891afb5497dd90ff29a7fa384a1",
+        version="1.3.0",
+        url="https://github.com/KhronosGroup/MoltenVK/releases/download/v@VERSION@/MoltenVK-ios.tar",
+        sha256="8cff295513dea3ec754d3662070404d2db54b66f110d5fda1e51f9ed5023c9e1",
     ),
 )
 
