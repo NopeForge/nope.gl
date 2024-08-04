@@ -67,6 +67,12 @@ int ngli_vec##n##_is_zero(const float *v)                               \
 {                                                                       \
     return !memcmp(v, zero_vec, n * sizeof(*v));                        \
 }                                                                       \
+                                                                        \
+void ngli_vec##n##_abs(float *dst, const float *v)                      \
+{                                                                       \
+    const float r[] = NGLI_VEC##n##_ABS(v);                             \
+    memcpy(dst, r, sizeof(r));                                          \
+}                                                                       \
 
 DECLARE_BASE_VEC_FUNCS(2)
 DECLARE_BASE_VEC_FUNCS(3)
