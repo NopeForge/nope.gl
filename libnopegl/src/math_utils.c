@@ -73,6 +73,11 @@ void ngli_vec##n##_abs(float *dst, const float *v)                      \
     const float r[] = NGLI_VEC##n##_ABS(v);                             \
     memcpy(dst, r, sizeof(r));                                          \
 }                                                                       \
+                                                                        \
+float ngli_vec##n##_dot(const float *v1, const float *v2)               \
+{                                                                       \
+    return NGLI_VEC##n##_DOT(v1, v2);                                   \
+}                                                                       \
 
 DECLARE_BASE_VEC_FUNCS(2)
 DECLARE_BASE_VEC_FUNCS(3)
@@ -99,13 +104,6 @@ void ngli_vec3_cross(float *dst, const float *v1, const float *v2)
     memcpy(dst, v, sizeof(v));
 }
 
-float ngli_vec3_dot(const float *v1, const float *v2)
-{
-    return v1[0]*v2[0]
-         + v1[1]*v2[1]
-         + v1[2]*v2[2];
-}
-
 void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float *c)
 {
     float d[3] = NGLI_VEC3_SUB(b, a);
@@ -118,14 +116,6 @@ void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float
 float ngli_vec4_length(const float *v)
 {
     return sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2] + v[3]*v[3]);
-}
-
-float ngli_vec4_dot(const float *v1, const float *v2)
-{
-    return v1[0]*v2[0]
-         + v1[1]*v2[1]
-         + v1[2]*v2[2]
-         + v1[3]*v2[3];
 }
 
 void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c)
