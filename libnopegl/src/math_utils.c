@@ -25,7 +25,7 @@
 #include "math_utils.h"
 #include "utils.h"
 
-static const float zvec[4];
+static const float zero_vec[4];
 
 #define DECLARE_BASE_VEC_FUNCS(n)                                       \
 void ngli_vec##n##_add(float *dst, const float *v1, const float *v2)    \
@@ -54,7 +54,7 @@ void ngli_vec##n##_scale(float *dst, const float *v, float s)           \
                                                                         \
 void ngli_vec##n##_norm(float *dst, const float *v)                     \
 {                                                                       \
-    if (!memcmp(v, zvec, n * sizeof(*v))) {                             \
+    if (!memcmp(v, zero_vec, n * sizeof(*v))) {                         \
         memset(dst, 0, n * sizeof(*v));                                 \
         return;                                                         \
     }                                                                   \
