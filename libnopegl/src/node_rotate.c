@@ -59,12 +59,11 @@ static int rotate_init(struct ngl_node *node)
 {
     struct rotate_priv *s = node->priv_data;
     const struct rotate_opts *o = node->opts;
-    static const float zvec[3];
-    if (!memcmp(o->axis, zvec, sizeof(o->axis))) {
+    if (ngli_vec3_is_zero(o->axis)) {
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
         return NGL_ERROR_INVALID_ARG;
     }
-    if (memcmp(o->anchor, zvec, sizeof(zvec)))
+    if (!ngli_vec3_is_zero(o->anchor))
         s->anchor = o->anchor;
     ngli_vec3_norm(s->normed_axis, o->axis);
     if (!o->angle_node)

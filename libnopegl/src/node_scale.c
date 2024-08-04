@@ -54,8 +54,7 @@ static int scale_init(struct ngl_node *node)
 {
     struct scale_priv *s = node->priv_data;
     const struct scale_opts *o = node->opts;
-    static const float zero_anchor[3];
-    if (memcmp(o->anchor, zero_anchor, sizeof(o->anchor)))
+    if (!ngli_vec3_is_zero(o->anchor))
         s->anchor = o->anchor;
     if (!o->factors_node)
         update_trf_matrix(node, o->factors);

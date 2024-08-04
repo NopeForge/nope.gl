@@ -145,9 +145,8 @@ static int update_params(struct ngl_node *node)
     struct camera_priv *s = node->priv_data;
     struct camera_opts *o = node->opts;
 
-    static const float zvec[4];
-    s->use_perspective = memcmp(o->perspective, zvec, sizeof(o->perspective)) || o->perspective_node;
-    s->use_orthographic = memcmp(o->orthographic, zvec, sizeof(o->orthographic));
+    s->use_perspective = !ngli_vec2_is_zero(o->perspective) || o->perspective_node;
+    s->use_orthographic = !ngli_vec4_is_zero(o->orthographic);
 
     return 0;
 }
@@ -200,12 +199,10 @@ static int camera_init(struct ngl_node *node)
     struct camera_priv *s = node->priv_data;
     struct camera_opts *o = node->opts;
 
-    static const float zvec[4];
-    s->use_perspective = memcmp(o->perspective, zvec, sizeof(o->perspective)) || o->perspective_node;
-    s->use_orthographic = memcmp(o->orthographic, zvec, sizeof(o->orthographic));
+    s->use_perspective = !ngli_vec2_is_zero(o->perspective) || o->perspective_node;
+    s->use_orthographic = !ngli_vec4_is_zero(o->orthographic);
 
-    if ((s->use_perspective || s->use_orthographic) &&
-        !memcmp(o->clipping, zvec, sizeof(o->clipping))) {
+    if ((s->use_perspective || s->use_orthographic) && ngli_vec2_is_zero(o->clipping)) {
         LOG(ERROR, "clipping must be set when perspective or orthographic is used");
         return NGL_ERROR_INVALID_ARG;
     }
