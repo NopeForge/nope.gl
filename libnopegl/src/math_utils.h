@@ -64,6 +64,10 @@
 #define NGLI_VEC3_ABS(v) {fabsf((v)[0]), fabsf((v)[1]), fabsf((v)[2])}
 #define NGLI_VEC4_ABS(v) {fabsf((v)[0]), fabsf((v)[1]), fabsf((v)[2]), fabsf((v)[3])}
 
+#define NGLI_VEC2_DOT(a, b) ((a)[0] * (b)[0] + (a)[1] * (b)[1])
+#define NGLI_VEC3_DOT(a, b) ((a)[0] * (b)[0] + (a)[1] * (b)[1] + (a)[2] * (b)[2])
+#define NGLI_VEC4_DOT(a, b) ((a)[0] * (b)[0] + (a)[1] * (b)[1] + (a)[2] * (b)[2] + (a)[3] * (b)[3])
+
 void ngli_vec2_add(float *dst, const float *v1, const float *v2);
 void ngli_vec2_sub(float *dst, const float *v1, const float *v2);
 void ngli_vec2_neg(float *dst, const float *v);
@@ -71,6 +75,7 @@ void ngli_vec2_scale(float *dst, const float *v, const float s);
 void ngli_vec2_norm(float *dst, const float *v);
 int ngli_vec2_is_zero(const float *v);
 void ngli_vec2_abs(float *dst, const float *v);
+float ngli_vec2_dot(const float *v1, const float *v2);
 float ngli_vec2_length(const float *v);
 
 void ngli_vec3_add(float *dst, const float *v1, const float *v2);
@@ -80,9 +85,9 @@ void ngli_vec3_scale(float *dst, const float *v, const float s);
 void ngli_vec3_norm(float *dst, const float *v);
 int ngli_vec3_is_zero(const float *v);
 void ngli_vec3_abs(float *dst, const float *v);
+float ngli_vec3_dot(const float *v1, const float *v2);
 float ngli_vec3_length(const float *v);
 void ngli_vec3_cross(float *dst, const float *v1, const float *v2);
-float ngli_vec3_dot(const float *v1, const float *v2);
 void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float *c);
 
 void ngli_vec4_add(float *dst, const float *v1, const float *v2);
