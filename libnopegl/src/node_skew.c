@@ -61,12 +61,11 @@ static int skew_init(struct ngl_node *node)
 {
     struct skew_priv *s = node->priv_data;
     const struct skew_opts *o = node->opts;
-    static const float zvec[3];
-    if (!memcmp(o->axis, zvec, sizeof(o->axis))) {
+    if (ngli_vec3_is_zero(o->axis)) {
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
         return NGL_ERROR_INVALID_ARG;
     }
-    if (memcmp(o->anchor, zvec, sizeof(zvec)))
+    if (!ngli_vec3_is_zero(o->anchor))
         s->anchor = o->anchor;
     ngli_vec3_norm(s->normed_axis, o->axis);
     if (!o->angles_node)

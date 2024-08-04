@@ -55,8 +55,7 @@ static int rotatequat_init(struct ngl_node *node)
 {
     struct rotatequat_priv *s = node->priv_data;
     const struct rotatequat_opts *o = node->opts;
-    static const float zvec[3];
-    if (memcmp(o->anchor, zvec, sizeof(zvec)))
+    if (!ngli_vec3_is_zero(o->anchor))
         s->anchor = o->anchor;
     if (!o->quat_node)
         update_trf_matrix(node, o->quat);
