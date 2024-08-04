@@ -78,20 +78,15 @@ float ngli_vec##n##_dot(const float *v1, const float *v2)               \
 {                                                                       \
     return NGLI_VEC##n##_DOT(v1, v2);                                   \
 }                                                                       \
+                                                                        \
+float ngli_vec##n##_length(const float *v)                              \
+{                                                                       \
+    return NGLI_VEC##n##_LENGTH(v);                                     \
+}                                                                       \
 
 DECLARE_BASE_VEC_FUNCS(2)
 DECLARE_BASE_VEC_FUNCS(3)
 DECLARE_BASE_VEC_FUNCS(4)
-
-float ngli_vec2_length(const float *v)
-{
-    return sqrtf(v[0]*v[0] + v[1]*v[1]);
-}
-
-float ngli_vec3_length(const float *v)
-{
-    return sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-}
 
 void ngli_vec3_cross(float *dst, const float *v1, const float *v2)
 {
@@ -111,11 +106,6 @@ void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float
 
     ngli_vec3_cross(dst, d, e);
     ngli_vec3_norm(dst, dst);
-}
-
-float ngli_vec4_length(const float *v)
-{
-    return sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2] + v[3]*v[3]);
 }
 
 void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c)
