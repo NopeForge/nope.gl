@@ -118,6 +118,12 @@ void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c)
     dst[3] = NGLI_MIX_F32(a[3], b[3], c);
 }
 
+void ngli_vec4_perspective_div(float *dst, const float *v)
+{
+    const NGLI_ALIGNED_VEC(r) = NGLI_VEC4_SCALE(v, 1.f / v[3]);
+    memcpy(dst, r, sizeof(r));
+}
+
 void ngli_mat3_from_mat4(float *dst, const float *m)
 {
     memcpy(dst,     m,     3 * sizeof(*m));
