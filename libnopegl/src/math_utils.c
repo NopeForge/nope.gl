@@ -211,6 +211,23 @@ void ngli_mat3_inverse(float *dst, const float *m)
     ngli_mat3_mul_scalar(dst, a, 1.f / det);
 }
 
+float ngli_mat4_determinant(const float *m)
+{
+    const float x12 = m[ 8] * m[13] - m[ 9] * m[12];
+    const float x13 = m[ 8] * m[14] - m[10] * m[12];
+    const float x14 = m[ 8] * m[15] - m[11] * m[12];
+    const float x15 = m[ 9] * m[14] - m[10] * m[13];
+    const float x16 = m[ 9] * m[15] - m[11] * m[13];
+    const float x17 = m[10] * m[15] - m[11] * m[14];
+
+    const float det_p0 = m[5] * x17 - m[6] * x16 + m[7] * x15;
+    const float det_p1 = m[4] * x17 - m[6] * x14 + m[7] * x13;
+    const float det_p2 = m[4] * x16 - m[5] * x14 + m[7] * x12;
+    const float det_p3 = m[4] * x15 - m[5] * x13 + m[6] * x12;
+
+    return m[0] * det_p0 - m[1] * det_p1 + m[2] * det_p2 - m[3] * det_p3;
+}
+
 void ngli_mat4_inverse(float *dst, const float *m)
 {
     const float x00 = m[ 4] * m[ 9] - m[ 5] * m[ 8];
