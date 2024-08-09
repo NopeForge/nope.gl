@@ -34,6 +34,7 @@
 #define NGLI_POLY2(a, b, c, x)    (NGLI_POLY1(a, b, x) * (x) + (c))
 #define NGLI_POLY3(a, b, c, d, x) (NGLI_POLY2(a, b, c, x) * (x) + (d))
 
+#define NGLI_RAD2DEG(x) ((x) * (360.f / TAU_F32))
 #define NGLI_DEG2RAD(x) ((x) * (TAU_F32 / 360.f))
 #define NGLI_CEIL_RSHIFT(a, b) -((-(a)) >> (b))
 
