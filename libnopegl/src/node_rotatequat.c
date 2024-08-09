@@ -48,7 +48,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *quat)
     struct rotatequat_priv *s = node->priv_data;
     struct transform *trf = &s->trf;
 
-    ngli_mat4_rotate_from_quat(trf->matrix, quat, s->anchor);
+    ngli_mat4_from_quat(trf->matrix, quat, s->anchor);
 }
 
 static int rotatequat_init(struct ngl_node *node)
