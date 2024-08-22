@@ -462,6 +462,15 @@ void *ngli_node_get_data_ptr(const struct ngl_node *var_node, void *data_fallbac
     return var->data;
 }
 
+void ngli_node_draw_children(struct ngl_node *node)
+{
+    struct ngl_node **children = ngli_darray_data(&node->children);
+    for (size_t i = 0; i < ngli_darray_count(&node->children); i++) {
+        struct ngl_node *child = children[i];
+        ngli_node_draw(child);
+    }
+}
+
 void ngli_node_draw(struct ngl_node *node)
 {
     if (node->cls->draw) {

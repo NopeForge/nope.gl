@@ -330,10 +330,6 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
 
 static int register_resource(struct pass *s, const char *name, struct ngl_node *node, int stage)
 {
-    /* Some resources may need their draw callback to be called (most don't) */
-    if (node->cls->draw && !ngli_darray_push(&s->draw_resources, &node))
-        return NGL_ERROR_MEMORY;
-
     switch (node->cls->category) {
     case NGLI_NODE_CATEGORY_VARIABLE:
     case NGLI_NODE_CATEGORY_BUFFER:  return register_uniform(s, name, node, stage);
@@ -599,7 +595,6 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     ngli_darray_init(&s->crafter_blocks, sizeof(struct pgcraft_block), 0);
 
     ngli_darray_init(&s->pipeline_descs, sizeof(struct pipeline_desc), 0);
-    ngli_darray_init(&s->draw_resources, sizeof(struct ngl_node *), 0);
 
     int ret = register_builtin_uniforms(s);
     if (ret < 0)
@@ -617,8 +612,6 @@ void ngli_pass_uninit(struct pass *s)
 {
     if (!s->ctx)
         return;
-
-    ngli_darray_reset(&s->draw_resources);
 
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
     for (size_t i = 0; i < ngli_darray_count(&s->pipeline_descs); i++) {
@@ -641,10 +634,6 @@ void ngli_pass_uninit(struct pass *s)
 
 int ngli_pass_exec(struct pass *s)
 {
-    struct ngl_node **draw_resources = ngli_darray_data(&s->draw_resources);
-    for (size_t i = 0; i < ngli_darray_count(&s->draw_resources); i++)
-        ngli_node_draw(draw_resources[i]);
-
     struct ngl_ctx *ctx = s->ctx;
     const struct pass_params *params = &s->params;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);

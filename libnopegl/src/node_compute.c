@@ -183,6 +183,7 @@ static void compute_uninit(struct ngl_node *node)
 static void compute_draw(struct ngl_node *node)
 {
     struct compute_priv *s = node->priv_data;
+    ngli_node_draw_children(node);
     ngli_pass_exec(&s->pass);
 }
 
