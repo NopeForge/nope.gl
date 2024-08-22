@@ -285,6 +285,7 @@ static void render_uninit(struct ngl_node *node)
 static void render_draw(struct ngl_node *node)
 {
     struct draw_priv *s = node->priv_data;
+    ngli_node_draw_children(node);
     ngli_pass_exec(&s->pass);
 }
 
