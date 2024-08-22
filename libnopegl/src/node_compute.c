@@ -114,10 +114,9 @@ static const struct node_param compute_params[] = {
     {NULL}
 };
 
-static int compute_init(struct ngl_node *node)
+static int check_params(const struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct compute_priv *s = node->priv_data;
     const struct compute_opts *o = node->opts;
 
     if (o->workgroup_count[0] <= 0 || o->workgroup_count[1] <= 0 || o->workgroup_count[2] <= 0) {
@@ -137,6 +136,20 @@ static int compute_init(struct ngl_node *node)
 
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
+
+    return 0;
+}
+
+static int compute_init(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct compute_priv *s = node->priv_data;
+    const struct compute_opts *o = node->opts;
+
+    int ret = check_params(node);
+    if (ret < 0)
+        return ret;
+
     const struct program_opts *program = o->program->opts;
     struct pass_params params = {
         .label = node->label,
