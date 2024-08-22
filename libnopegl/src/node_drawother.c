@@ -129,7 +129,6 @@ struct render_common {
     struct geometry *geometry;
     int own_geometry;
     struct darray pipeline_descs;
-    struct darray draw_resources;
 };
 
 struct drawcolor_opts {
@@ -653,11 +652,6 @@ static int drawdisplace_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
-    if (!ngli_darray_push(&s->common.draw_resources, &source_node) ||
-        !ngli_darray_push(&s->common.draw_resources, &displacement_node))
-        return NGL_ERROR_MEMORY;
-
     return init(node, &s->common, &o->common, "source_displace", source_displace_frag);
 }
 
@@ -682,10 +676,6 @@ static int drawhistogram_init(struct ngl_node *node)
     struct drawhistogram_priv *s = node->priv_data;
     struct drawhistogram_opts *o = node->opts;
 
-    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
-    if (!ngli_darray_push(&s->common.draw_resources, &o->stats))
-        return NGL_ERROR_MEMORY;
-
     return init(node, &s->common, &o->common, "source_histogram", source_histogram_frag);
 }
 
@@ -705,11 +695,6 @@ static int drawmask_init(struct ngl_node *node)
         LOG(ERROR, "no mask texture found at the end of the transform chain");
         return NGL_ERROR_INVALID_USAGE;
     }
-
-    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
-    if (!ngli_darray_push(&s->common.draw_resources, &content) ||
-        !ngli_darray_push(&s->common.draw_resources, &mask))
-        return NGL_ERROR_MEMORY;
 
     return init(node, &s->common, &o->common, "source_mask", source_mask_frag);
 }
@@ -738,10 +723,6 @@ static int drawtexture_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
-    if (!ngli_darray_push(&s->common.draw_resources, &texture_node))
-        return NGL_ERROR_MEMORY;
-
     return init(node, &s->common, &o->common, "source_texture", source_texture_frag);
 }
 
@@ -749,10 +730,6 @@ static int drawwaveform_init(struct ngl_node *node)
 {
     struct drawwaveform_priv *s = node->priv_data;
     struct drawwaveform_opts *o = node->opts;
-
-    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
-    if (!ngli_darray_push(&s->common.draw_resources, &o->stats))
-        return NGL_ERROR_MEMORY;
 
     return init(node, &s->common, &o->common, "source_waveform", source_waveform_frag);
 }
@@ -1394,9 +1371,7 @@ static int drawwaveform_prepare(struct ngl_node *node)
 
 static void drawother_draw(struct ngl_node *node, struct render_common *s, const struct render_common_opts *o)
 {
-    struct ngl_node **draw_resources = ngli_darray_data(&s->draw_resources);
-    for (size_t i = 0; i < ngli_darray_count(&s->draw_resources); i++)
-        ngli_node_draw(draw_resources[i]);
+    ngli_node_draw_children(node);
 
     struct ngl_ctx *ctx = node->ctx;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
@@ -1455,7 +1430,6 @@ static void drawother_uninit(struct ngl_node *node, struct render_common *s)
     ngli_darray_reset(&s->pipeline_descs);
     ngli_freep(&s->combined_fragment);
     ngli_filterschain_freep(&s->filterschain);
-    ngli_darray_reset(&s->draw_resources);
     if (s->own_geometry)
         ngli_geometry_freep(&s->geometry);
 }

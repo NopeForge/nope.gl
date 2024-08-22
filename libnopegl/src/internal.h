@@ -179,6 +179,7 @@ struct ngl_node {
     int ctx_refcount;
 
     struct darray children;
+    struct darray draw_children; // children with a draw callback
     struct darray parents;
 
     char *label;
@@ -727,6 +728,7 @@ int ngli_node_update_children(struct ngl_node *node, double t);
 void *ngli_node_get_data_ptr(const struct ngl_node *var_node, void *data_fallback);
 int ngli_prepare_draw(struct ngl_ctx *s, double t);
 void ngli_node_draw(struct ngl_node *node);
+void ngli_node_draw_children(struct ngl_node *node);
 
 int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);

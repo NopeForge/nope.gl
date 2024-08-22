@@ -105,6 +105,7 @@ static int reset_nodes(void *user_arg, struct ngl_node *parent, struct ngl_node 
     ngli_assert(ret == 0);
 
     ngli_darray_reset(&node->children);
+    ngli_darray_reset(&node->draw_children);
     ngli_darray_reset(&node->parents);
 
     node->scene = NULL;
@@ -140,6 +141,7 @@ static int setup_nodes(void *user_arg, struct ngl_node *parent, struct ngl_node 
         node->scene = s;
 
         ngli_darray_init(&node->children, sizeof(struct ngl_node *), 0);
+        ngli_darray_init(&node->draw_children, sizeof(struct ngl_node *), 0);
         ngli_darray_init(&node->parents, sizeof(struct ngl_node *), 0);
 
         int ret = children_apply_func(setup_nodes, s, node);
@@ -150,6 +152,10 @@ static int setup_nodes(void *user_arg, struct ngl_node *parent, struct ngl_node 
     if (parent) {
         if (!ngli_darray_push(&parent->children, &node))
             return NGL_ERROR_MEMORY;
+        if (node->cls->draw) {
+            if (!ngli_darray_push(&parent->draw_children, &node))
+                return NGL_ERROR_MEMORY;
+        }
         if (!ngli_darray_push(&node->parents, &parent))
             return NGL_ERROR_MEMORY;
     }
