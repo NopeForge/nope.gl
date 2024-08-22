@@ -744,8 +744,6 @@ static int init_desc(struct ngl_node *node, struct render_common *s,
         return NGL_ERROR_MEMORY;
     rnode->id = ngli_darray_count(&s->pipeline_descs) - 1;
 
-    memset(desc, 0, sizeof(*desc));
-
     ngli_darray_init(&desc->uniforms, sizeof(struct pgcraft_uniform), 0);
     ngli_darray_init(&desc->uniforms_map, sizeof(struct uniform_map), 0);
     ngli_darray_init(&desc->blocks_map, sizeof(struct resource_map), 0);

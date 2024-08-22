@@ -509,8 +509,6 @@ int ngli_pass_prepare(struct pass *s)
         return NGL_ERROR_MEMORY;
     ctx->rnode_pos->id = ngli_darray_count(&s->pipeline_descs) - 1;
 
-    memset(desc, 0, sizeof(*desc));
-
     desc->crafter = ngli_pgcraft_create(ctx);
     if (!desc->crafter)
         return NGL_ERROR_MEMORY;
