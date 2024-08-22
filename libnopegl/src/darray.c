@@ -115,6 +115,8 @@ void *ngli_darray_push(struct darray *darray, const void *element)
     darray->count++;
     if (element)
         memcpy(new_element, element, darray->element_size);
+    else
+        memset(new_element, 0, darray->element_size);
     return new_element;
 }
 
