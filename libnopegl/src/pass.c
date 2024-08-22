@@ -263,46 +263,6 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     return 0;
 }
 
-static int check_attributes(struct pass *s, struct hmap *attributes, int per_instance)
-{
-    if (!attributes)
-        return 0;
-
-    const struct geometry *geometry = s->params.geometry;
-    const int64_t max_indices = geometry->max_indices;
-
-    const size_t nb_vertices = geometry->vertices_layout.count;
-
-    const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(attributes, entry))) {
-        const struct ngl_node *anode = entry->data;
-        const struct buffer_info *buffer = anode->priv_data;
-
-        if (per_instance) {
-            if (buffer->layout.count != s->params.nb_instances) {
-                LOG(ERROR, "attribute buffer %s count (%zu) does not match instance count (%d)",
-                    entry->key.str, buffer->layout.count, s->params.nb_instances);
-                return NGL_ERROR_INVALID_ARG;
-            }
-        } else {
-            if (geometry->indices_buffer) {
-                if (max_indices >= buffer->layout.count) {
-                    LOG(ERROR, "indices buffer contains values exceeding attribute buffer %s count (%" PRId64 " >= %zu)",
-                        entry->key.str, max_indices, buffer->layout.count);
-                    return NGL_ERROR_INVALID_ARG;
-                }
-            } else {
-                if (buffer->layout.count != nb_vertices) {
-                    LOG(ERROR, "attribute buffer %s count (%zu) does not match vertices count (%zu)",
-                        entry->key.str, buffer->layout.count, nb_vertices);
-                    return NGL_ERROR_INVALID_ARG;
-                }
-            }
-        }
-    }
-    return 0;
-}
-
 static int register_attribute_from_buffer(struct pass *s, const char *name,
                                           struct buffer *buffer, const struct buffer_layout *layout)
 {
@@ -418,10 +378,6 @@ static int pass_graphics_init(struct pass *s)
 
     if ((ret = register_resources(s, params->vert_resources, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
         (ret = register_resources(s, params->frag_resources, NGLI_PROGRAM_SHADER_FRAG)) < 0)
-        return ret;
-
-    if ((ret = check_attributes(s, params->attributes, 0)) < 0 ||
-        (ret = check_attributes(s, params->instance_attributes, 1)) < 0)
         return ret;
 
     if ((ret = register_attribute_from_buffer(s, "ngl_position", geometry->vertices_buffer, &geometry->vertices_layout)) < 0 ||
