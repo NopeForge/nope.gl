@@ -19,11 +19,13 @@
  * under the License.
  */
 
+#include <inttypes.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "blending.h"
+#include "geometry.h"
 #include "gpu_ctx.h"
 #include "gpu_limits.h"
 #include "hmap.h"
@@ -166,14 +168,19 @@ static const struct node_param render_params[] = {
     {NULL}
 };
 
-static int render_init(struct ngl_node *node)
+static int check_params(const struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct draw_priv *s = node->priv_data;
     const struct draw_opts *o = node->opts;
 
     const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     const struct gpu_limits *limits = &gpu_ctx->limits;
+
+    if (o->nb_instances < 1) {
+        LOG(ERROR, "nb_instances must be > 0");
+        return NGL_ERROR_INVALID_ARG;
+    }
+
     const size_t nb_attributes = o->attributes ? ngli_hmap_count(o->attributes) : 0;
     if (nb_attributes > limits->max_vertex_attributes) {
         LOG(ERROR, "number of attributes (%zu) exceeds device limits (%u)",
@@ -181,10 +188,59 @@ static int render_init(struct ngl_node *node)
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
 
-    if (o->nb_instances < 1) {
-        LOG(ERROR, "nb_instances must be > 0");
-        return NGL_ERROR_INVALID_ARG;
+    const struct geometry *geometry = *(struct geometry **)o->geometry->priv_data;
+    const int64_t max_indices = geometry->max_indices;
+
+    const size_t nb_vertices = geometry->vertices_layout.count;
+
+    if (o->attributes) {
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(o->attributes, entry))) {
+            const struct ngl_node *anode = entry->data;
+            const struct buffer_info *buffer = anode->priv_data;
+
+            if (geometry->indices_buffer) {
+                if (max_indices >= buffer->layout.count) {
+                    LOG(ERROR, "indices buffer contains values exceeding attribute buffer %s count (%" PRId64 " >= %zu)",
+                        entry->key.str, max_indices, buffer->layout.count);
+                    return NGL_ERROR_INVALID_ARG;
+                }
+            } else {
+                if (buffer->layout.count != nb_vertices) {
+                    LOG(ERROR, "attribute buffer %s count (%zu) does not match vertices count (%zu)",
+                        entry->key.str, buffer->layout.count, nb_vertices);
+                    return NGL_ERROR_INVALID_ARG;
+                }
+            }
+        }
     }
+
+    if (o->instance_attributes) {
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(o->instance_attributes, entry))) {
+            const struct ngl_node *anode = entry->data;
+            const struct buffer_info *buffer = anode->priv_data;
+
+            if (buffer->layout.count != o->nb_instances) {
+                LOG(ERROR, "attribute buffer %s count (%zu) does not match instance count (%d)",
+                    entry->key.str, buffer->layout.count, o->nb_instances);
+                return NGL_ERROR_INVALID_ARG;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int render_init(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct draw_priv *s = node->priv_data;
+    const struct draw_opts *o = node->opts;
+
+    int ret = check_params(node);
+    if (ret < 0)
+        return ret;
 
     const struct program_priv *program_priv = o->program->priv_data;
     const struct program_opts *program_opts = o->program->opts;
