@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "hmap.h"
 #include "log.h"
 #include "nopegl.h"
 #include "internal.h"
