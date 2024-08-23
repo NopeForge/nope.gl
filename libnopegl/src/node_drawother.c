@@ -110,16 +110,16 @@ struct pipeline_desc {
     struct darray uniforms; // struct pgcraft_uniform
 };
 
-struct render_common_opts {
+struct draw_common_opts {
     int blending;
     struct ngl_node *geometry;
     struct ngl_node **filters;
     size_t nb_filters;
 };
 
-struct render_common {
+struct draw_common {
     uint32_t helpers;
-    void (*draw)(struct render_common *s, struct pipeline_compat *pl_compat);
+    void (*draw)(struct draw_common *s, struct pipeline_compat *pl_compat);
     struct filterschain *filterschain;
     char *combined_fragment;
     struct pgcraft_attribute position_attr;
@@ -136,21 +136,21 @@ struct drawcolor_opts {
     float color[3];
     struct ngl_node *opacity_node;
     float opacity;
-    struct render_common_opts common;
+    struct draw_common_opts common;
 };
 
 struct drawcolor_priv {
-    struct render_common common;
+    struct draw_common common;
 };
 
 struct drawdisplace_opts {
     struct ngl_node *source_node;
     struct ngl_node *displacement_node;
-    struct render_common_opts common;
+    struct draw_common_opts common;
 };
 
 struct drawdisplace_priv {
-    struct render_common common;
+    struct draw_common common;
 };
 
 struct drawgradient_opts {
@@ -169,11 +169,11 @@ struct drawgradient_opts {
     int mode;
     struct ngl_node *linear_node;
     int linear;
-    struct render_common_opts common;
+    struct draw_common_opts common;
 };
 
 struct drawgradient_priv {
-    struct render_common common;
+    struct draw_common common;
 };
 
 struct drawgradient4_opts {
@@ -195,41 +195,41 @@ struct drawgradient4_opts {
     float opacity_bl;
     struct ngl_node *linear_node;
     int linear;
-    struct render_common_opts common;
+    struct draw_common_opts common;
 };
 
 struct drawgradient4_priv {
-    struct render_common common;
+    struct draw_common common;
 };
 
 struct drawhistogram_opts {
     struct ngl_node *stats;
     int mode;
-    struct render_common_opts common;
+    struct draw_common_opts common;
 };
 
 struct drawhistogram_priv {
-    struct render_common common;
+    struct draw_common common;
 };
 
 struct drawmask_opts {
     struct ngl_node *content;
     struct ngl_node *mask;
     int inverted;
-    struct render_common_opts common;
+    struct draw_common_opts common;
 };
 
 struct drawmask_priv {
-    struct render_common common;
+    struct draw_common common;
 };
 
 struct drawtexture_opts {
     struct ngl_node *texture_node;
-    struct render_common_opts common;
+    struct draw_common_opts common;
 };
 
 struct drawnoise_priv {
-    struct render_common common;
+    struct draw_common common;
 };
 
 struct drawnoise_opts {
@@ -247,21 +247,21 @@ struct drawnoise_opts {
     float scale[2];
     struct ngl_node *evolution_node;
     float evolution;
-    struct render_common_opts common;
+    struct draw_common_opts common;
 };
 
 struct drawtexture_priv {
-    struct render_common common;
+    struct draw_common common;
 };
 
 struct drawwaveform_opts {
     struct ngl_node *stats;
     int mode;
-    struct render_common_opts common;
+    struct draw_common_opts common;
 };
 
 struct drawwaveform_priv {
-    struct render_common common;
+    struct draw_common common;
 };
 
 #define COMMON_PARAMS                                                                                                \
@@ -508,7 +508,7 @@ static const float default_uvcoords[] = {
     1.f, 0.f,
 };
 
-static int combine_filters_code(struct render_common *s, const struct render_common_opts *o,
+static int combine_filters_code(struct draw_common *s, const struct draw_common_opts *o,
                                 const char *base_name, const char *base_fragment)
 {
     s->filterschain = ngli_filterschain_create();
@@ -534,12 +534,12 @@ static int combine_filters_code(struct render_common *s, const struct render_com
     return 0;
 }
 
-static void draw_simple(struct render_common *s, struct pipeline_compat *pl_compat)
+static void draw_simple(struct draw_common *s, struct pipeline_compat *pl_compat)
 {
     ngli_pipeline_compat_draw(pl_compat, s->nb_vertices, 1);
 }
 
-static void draw_indexed(struct render_common *s, struct pipeline_compat *pl_compat)
+static void draw_indexed(struct draw_common *s, struct pipeline_compat *pl_compat)
 {
     ngli_pipeline_compat_draw_indexed(pl_compat,
                                       s->geometry->indices_buffer,
@@ -560,7 +560,7 @@ static void reset_pipeline_desc(void *user_arg, void *data)
 }
 
 static int init(struct ngl_node *node,
-                struct render_common *s, const struct render_common_opts *o,
+                struct draw_common *s, const struct draw_common_opts *o,
                 const char *base_name, const char *base_fragment)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -741,7 +741,7 @@ static int drawwaveform_init(struct ngl_node *node)
     return init(node, &s->common, &o->common, "source_waveform", source_waveform_frag);
 }
 
-static int init_desc(struct ngl_node *node, struct render_common *s,
+static int init_desc(struct ngl_node *node, struct draw_common *s,
                      const struct pgcraft_uniform *uniforms, size_t nb_uniforms)
 {
     struct rnode *rnode = node->ctx->rnode_pos;
@@ -819,7 +819,7 @@ static int build_texture_map(struct pipeline_desc *desc)
 }
 
 static int finalize_pipeline(struct ngl_node *node,
-                             struct render_common *s, const struct render_common_opts *o,
+                             struct draw_common *s, const struct draw_common_opts *o,
                              const struct pgcraft_params *crafter_params)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -890,7 +890,7 @@ static int drawcolor_prepare(struct ngl_node *node)
         {.name="opacity",           .type=NGLI_TYPE_F32,   .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
     };
 
-    struct render_common *c = &s->common;
+    struct draw_common *c = &s->common;
     int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
     if (ret < 0)
         return ret;
@@ -914,7 +914,7 @@ static int drawcolor_prepare(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    const struct render_common_opts *co = &o->common;
+    const struct draw_common_opts *co = &o->common;
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
@@ -924,7 +924,7 @@ static int drawdisplace_prepare(struct ngl_node *node)
     struct drawdisplace_priv *s = node->priv_data;
     struct drawdisplace_opts *o = node->opts;
 
-    struct render_common *c = &s->common;
+    struct draw_common *c = &s->common;
     int ret = init_desc(node, c, NULL, 0);
     if (ret < 0)
         return ret;
@@ -987,7 +987,7 @@ static int drawdisplace_prepare(struct ngl_node *node)
         !ngli_darray_push(&desc->reframing_nodes, &o->displacement_node))
         return NGL_ERROR_MEMORY;
 
-    const struct render_common_opts *co = &o->common;
+    const struct draw_common_opts *co = &o->common;
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
@@ -1006,7 +1006,7 @@ static int drawgradient_prepare(struct ngl_node *node)
         {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->linear_node, &o->linear)},
     };
 
-    struct render_common *c = &s->common;
+    struct draw_common *c = &s->common;
     int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
     if (ret < 0)
         return ret;
@@ -1030,7 +1030,7 @@ static int drawgradient_prepare(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    const struct render_common_opts *co = &o->common;
+    const struct draw_common_opts *co = &o->common;
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
@@ -1050,7 +1050,7 @@ static int drawgradient4_prepare(struct ngl_node *node)
         {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->linear_node, &o->linear)},
     };
 
-    struct render_common *c = &s->common;
+    struct draw_common *c = &s->common;
     int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
     if (ret < 0)
         return ret;
@@ -1074,7 +1074,7 @@ static int drawgradient4_prepare(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    const struct render_common_opts *co = &o->common;
+    const struct draw_common_opts *co = &o->common;
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
@@ -1086,7 +1086,7 @@ static int drawhistogram_prepare(struct ngl_node *node)
         {.name="mode",              .type=NGLI_TYPE_I32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->mode},
     };
 
-    struct render_common *c = &s->common;
+    struct draw_common *c = &s->common;
     int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
     if (ret < 0)
         return ret;
@@ -1122,7 +1122,7 @@ static int drawhistogram_prepare(struct ngl_node *node)
 
     ngli_node_block_extend_usage(o->stats, NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
-    const struct render_common_opts *co = &o->common;
+    const struct draw_common_opts *co = &o->common;
     ret = finalize_pipeline(node, c, co, &crafter_params);
     if (ret < 0)
         return ret;
@@ -1145,7 +1145,7 @@ static int drawmask_prepare(struct ngl_node *node)
         {.name="inverted", .type=NGLI_TYPE_BOOL, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->inverted},
     };
 
-    struct render_common *c = &s->common;
+    struct draw_common *c = &s->common;
     int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
     if (ret < 0)
         return ret;
@@ -1208,7 +1208,7 @@ static int drawmask_prepare(struct ngl_node *node)
         !ngli_darray_push(&desc->reframing_nodes, &o->mask))
         return NGL_ERROR_MEMORY;
 
-    const struct render_common_opts *co = &o->common;
+    const struct draw_common_opts *co = &o->common;
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
@@ -1229,7 +1229,7 @@ static int drawnoise_prepare(struct ngl_node *node)
         {.name="evolution",         .type=NGLI_TYPE_F32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->evolution_node, &o->evolution)},
     };
 
-    struct render_common *c = &s->common;
+    struct draw_common *c = &s->common;
     int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
     if (ret < 0)
         return ret;
@@ -1253,7 +1253,7 @@ static int drawnoise_prepare(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    const struct render_common_opts *co = &o->common;
+    const struct draw_common_opts *co = &o->common;
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
@@ -1263,7 +1263,7 @@ static int drawtexture_prepare(struct ngl_node *node)
     struct drawtexture_priv *s = node->priv_data;
     struct drawtexture_opts *o = node->opts;
 
-    struct render_common *c = &s->common;
+    struct draw_common *c = &s->common;
     int ret = init_desc(node, c, NULL, 0);
     if (ret < 0)
         return ret;
@@ -1313,7 +1313,7 @@ static int drawtexture_prepare(struct ngl_node *node)
     if (!ngli_darray_push(&desc->reframing_nodes, &o->texture_node))
         return NGL_ERROR_MEMORY;
 
-    const struct render_common_opts *co = &o->common;
+    const struct draw_common_opts *co = &o->common;
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
@@ -1325,7 +1325,7 @@ static int drawwaveform_prepare(struct ngl_node *node)
         {.name="mode",              .type=NGLI_TYPE_I32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->mode},
     };
 
-    struct render_common *c = &s->common;
+    struct draw_common *c = &s->common;
     int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
     if (ret < 0)
         return ret;
@@ -1361,7 +1361,7 @@ static int drawwaveform_prepare(struct ngl_node *node)
 
     ngli_node_block_extend_usage(o->stats, NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
-    const struct render_common_opts *co = &o->common;
+    const struct draw_common_opts *co = &o->common;
     ret = finalize_pipeline(node, c, co, &crafter_params);
     if (ret < 0)
         return ret;
@@ -1374,7 +1374,7 @@ static int drawwaveform_prepare(struct ngl_node *node)
     return 0;
 }
 
-static void drawother_draw(struct ngl_node *node, struct render_common *s, const struct render_common_opts *o)
+static void drawother_draw(struct ngl_node *node, struct draw_common *s, const struct draw_common_opts *o)
 {
     ngli_node_draw_children(node);
 
@@ -1430,7 +1430,7 @@ static void drawother_draw(struct ngl_node *node, struct render_common *s, const
     s->draw(s, desc->pipeline_compat);
 }
 
-static void drawother_uninit(struct ngl_node *node, struct render_common *s)
+static void drawother_uninit(struct ngl_node *node, struct draw_common *s)
 {
     ngli_darray_reset(&s->pipeline_descs);
     ngli_freep(&s->combined_fragment);
