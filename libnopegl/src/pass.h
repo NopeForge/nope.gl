@@ -30,6 +30,7 @@
 struct ngl_ctx;
 
 struct pass_params {
+    struct ngl_node *node;
     const char *label;
     const char *program_label;
 

@@ -246,6 +246,7 @@ static int render_init(struct ngl_node *node)
     const struct program_opts *program_opts = o->program->opts;
     const struct geometry *geometry = *(struct geometry **)o->geometry->priv_data;
     struct pass_params params = {
+        .node = node,
         .label = node->label,
         .program_label = o->program->label,
         .geometry = geometry,

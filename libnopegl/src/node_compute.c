@@ -152,6 +152,7 @@ static int compute_init(struct ngl_node *node)
 
     const struct program_opts *program = o->program->opts;
     struct pass_params params = {
+        .node = node,
         .label = node->label,
         .program_label = o->program->label,
         .comp_base = program->compute,
