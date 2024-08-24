@@ -79,6 +79,7 @@ static const struct node_param rtt_params[] = {
 };
 
 struct rtt_texture_info {
+    struct ngl_node *node;
     struct texture_priv *texture_priv;
     const struct texture_opts *texture_opts;
     int32_t layer_base;
@@ -89,9 +90,11 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
 {
     if (node->cls->id == NGL_NODE_TEXTUREVIEW) {
         const struct textureview_opts *textureview_opts = node->opts;
-        struct texture_priv *texture_priv = textureview_opts->texture->priv_data;
+        struct ngl_node *texture = textureview_opts->texture;
+        struct texture_priv *texture_priv = texture->priv_data;
         const struct texture_opts *texture_opts = textureview_opts->texture->opts;
         const struct rtt_texture_info info = {
+            .node = texture,
             .texture_priv = texture_priv,
             .texture_opts = texture_opts,
             .layer_base = textureview_opts->layer,
@@ -110,6 +113,7 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
         else if (node->cls->id == NGL_NODE_TEXTURE2DARRAY)
             layer_count = texture_params->depth;
         const struct rtt_texture_info info = {
+            .node = node,
             .texture_priv = texture_priv,
             .texture_opts = texture_opts,
             .layer_base = 0,
