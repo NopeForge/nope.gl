@@ -80,8 +80,8 @@ static const struct node_param rtt_params[] = {
 
 struct rtt_texture_info {
     struct ngl_node *node;
-    struct texture_priv *texture_priv;
-    const struct texture_opts *texture_opts;
+    struct texture_priv *priv;
+    const struct texture_opts *opts;
     int32_t layer_base;
     int32_t layer_count;
 };
@@ -93,14 +93,14 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
         struct ngl_node *texture = textureview_opts->texture;
         struct texture_priv *texture_priv = texture->priv_data;
         const struct texture_opts *texture_opts = textureview_opts->texture->opts;
-        const struct rtt_texture_info info = {
+        const struct rtt_texture_info texture_info = {
             .node = texture,
-            .texture_priv = texture_priv,
-            .texture_opts = texture_opts,
+            .priv = texture_priv,
+            .opts = texture_opts,
             .layer_base = textureview_opts->layer,
             .layer_count = 1,
         };
-        return info;
+        return texture_info;
     } else {
         struct texture_priv *texture_priv = node->priv_data;
         const struct texture_opts *texture_opts = node->opts;
@@ -112,14 +112,14 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
             layer_count = texture_params->depth;
         else if (node->cls->id == NGL_NODE_TEXTURE2DARRAY)
             layer_count = texture_params->depth;
-        const struct rtt_texture_info info = {
+        const struct rtt_texture_info texture_info = {
             .node = node,
-            .texture_priv = texture_priv,
-            .texture_opts = texture_opts,
+            .priv = texture_priv,
+            .opts = texture_opts,
             .layer_base = 0,
             .layer_count = layer_count,
         };
-        return info;
+        return texture_info;
     }
 }
 
@@ -147,17 +147,16 @@ static int rtt_init(struct ngl_node *node)
 
     size_t nb_color_attachments = 0;
     for (size_t i = 0; i < o->nb_color_textures; i++) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        nb_color_attachments += info.layer_count;
+        const struct rtt_texture_info texture_info = get_rtt_texture_info(o->color_textures[i]);
 
-        const struct texture_opts *texture_opts = info.texture_opts;
-        if (texture_opts->data_src) {
+        nb_color_attachments += texture_info.layer_count;
+
+        if (texture_info.opts->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
         }
 
-        struct texture_priv *texture_priv = info.texture_priv;
-        struct texture_params *params = &texture_priv->params;
+        struct texture_params *params = &texture_info.priv->params;
         if (i == 0) {
             s->width = params->width;
             s->height = params->height;
@@ -169,7 +168,7 @@ static int rtt_init(struct ngl_node *node)
         }
 
         params->usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
-        for (int32_t j = 0; j < info.layer_count; j++) {
+        for (int32_t j = 0; j < texture_info.layer_count; j++) {
             s->layout.colors[s->layout.nb_colors].format = params->format;
             s->layout.colors[s->layout.nb_colors].resolve = o->samples > 1;
             s->layout.nb_colors++;
@@ -182,15 +181,14 @@ static int rtt_init(struct ngl_node *node)
     }
 
     if (o->depth_texture) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
-        const struct texture_opts *texture_opts = info.texture_opts;
-        if (texture_opts->data_src) {
+        const struct rtt_texture_info texture_info = get_rtt_texture_info(o->depth_texture);
+
+        if (texture_info.opts->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
         }
 
-        struct texture_priv *texture_priv = info.texture_priv;
-        struct texture_params *params = &texture_priv->params;
+        struct texture_params *params = &texture_info.priv->params;
         if (s->width != params->width || s->height != params->height) {
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
                 s->width, s->height, params->width, params->height);
@@ -282,11 +280,11 @@ static int rtt_prefetch(struct ngl_node *node)
     };
 
     for (size_t i = 0; i < o->nb_color_textures; i++) {
-        const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        struct texture_priv *texture_priv = info.texture_priv;
+        const struct rtt_texture_info texture_info = get_rtt_texture_info(o->color_textures[i]);
+        struct texture_priv *texture_priv = texture_info.priv;
         struct texture *texture = texture_priv->texture;
-        const int32_t layer_end = info.layer_base + info.layer_count;
-        for (int32_t j = info.layer_base; j < layer_end; j++) {
+        const int32_t layer_end = texture_info.layer_base + texture_info.layer_count;
+        for (int32_t j = texture_info.layer_base; j < layer_end; j++) {
             s->rtt_params.colors[s->rtt_params.nb_colors++] = (struct attachment) {
                 .attachment       = texture,
                 .attachment_layer = j,
@@ -304,7 +302,7 @@ static int rtt_prefetch(struct ngl_node *node)
     int depth_format = NGLI_FORMAT_UNDEFINED;
     if (o->depth_texture) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
-        struct texture_priv *depth_texture_priv = info.texture_priv;
+        struct texture_priv *depth_texture_priv = info.priv;
         struct texture *texture = depth_texture_priv->texture;
         s->rtt_params.depth_stencil = (struct attachment) {
             .attachment       = texture,
@@ -362,7 +360,7 @@ static int rtt_resize(struct ngl_node *node)
         }
 
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        struct texture_params texture_params = info.texture_priv->params;
+        struct texture_params texture_params = info.priv->params;
         texture_params.width = width;
         texture_params.height = height;
 
@@ -379,7 +377,7 @@ static int rtt_resize(struct ngl_node *node)
         }
 
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
-        struct texture_params texture_params = info.texture_priv->params;
+        struct texture_params texture_params = info.priv->params;
         texture_params.width = width;
         texture_params.height = height;
 
@@ -415,7 +413,7 @@ static int rtt_resize(struct ngl_node *node)
 
     for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        struct texture_priv *texture_priv = info.texture_priv;
+        struct texture_priv *texture_priv = info.priv;
         ngli_texture_freep(&texture_priv->texture);
         texture_priv->texture = textures[i];
         texture_priv->image.params.width = width;
@@ -426,7 +424,7 @@ static int rtt_resize(struct ngl_node *node)
 
     if (o->depth_texture) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
-        struct texture_priv *texture_priv = info.texture_priv;
+        struct texture_priv *texture_priv = info.priv;
         ngli_texture_freep(&texture_priv->texture);
         texture_priv->texture = depth_texture;
         texture_priv->image.params.width = width;
