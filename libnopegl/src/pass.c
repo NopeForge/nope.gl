@@ -135,34 +135,29 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
      * initialized yet: non-media texture are initialized during prefetch and
      * media-texture are initialized during update.
      */
-    struct pgcraft_texture crafter_texture = {
-        .stage  = stage,
-        .image  = &texture_priv->image,
-        .format = texture_priv->params.format,
-        .clamp_video = texture_opts->clamp_video,
-    };
-    snprintf(crafter_texture.name, sizeof(crafter_texture.name), "%s", name);
-
+    int type = 0;
     switch (texture->cls->id) {
     case NGL_NODE_TEXTURE2D:
         if (texture_opts->data_src && texture_opts->data_src->cls->id == NGL_NODE_MEDIA)
-            crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
+            type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
         else
-            crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
+            type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
         break;
     case NGL_NODE_TEXTURE2DARRAY:
-        crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D_ARRAY;
+        type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D_ARRAY;
         break;
     case NGL_NODE_TEXTURE3D:
-        crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_3D;
+        type = NGLI_PGCRAFT_SHADER_TEX_TYPE_3D;
         break;
     case NGL_NODE_TEXTURECUBE:
-        crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_CUBE;
+        type = NGLI_PGCRAFT_SHADER_TEX_TYPE_CUBE;
         break;
     default:
         ngli_assert(0);
     }
 
+    int writable = 0;
+    int precision = 0;
     const struct pass_params *params = &s->params;
     if (params->properties) {
         const struct ngl_node *resprops_node = ngli_hmap_get_str(params->properties, name);
@@ -174,20 +169,31 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
                 texture_priv->params.usage |= NGLI_TEXTURE_USAGE_STORAGE_BIT;
 
                 if (texture->cls->id == NGL_NODE_TEXTURE2D)
-                    crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D;
+                    type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D;
                 else if (texture->cls->id == NGL_NODE_TEXTURE2DARRAY)
-                    crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D_ARRAY;
+                    type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D_ARRAY;
                 else if (texture->cls->id == NGL_NODE_TEXTURE3D)
-                    crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D;
+                    type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D;
                 else if (texture->cls->id == NGL_NODE_TEXTURECUBE)
-                    crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE;
+                    type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE;
                 else
                     ngli_assert(0);
             }
-            crafter_texture.writable  = resprops->writable;
-            crafter_texture.precision = resprops->precision;
+            writable  = resprops->writable;
+            precision = resprops->precision;
         }
     }
+
+    struct pgcraft_texture crafter_texture = {
+        .type        = type,
+        .stage       = stage,
+        .precision   = precision,
+        .writable    = writable,
+        .format      = texture_priv->params.format,
+        .clamp_video = texture_opts->clamp_video,
+        .image       = &texture_priv->image,
+    };
+    snprintf(crafter_texture.name, sizeof(crafter_texture.name), "%s", name);
 
     if (!ngli_darray_push(&s->crafter_textures, &crafter_texture))
         return NGL_ERROR_MEMORY;
