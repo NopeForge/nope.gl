@@ -285,7 +285,7 @@ void ngli_mat4_inverse(float *dst, const float *m)
 
 void ngli_mat4_mul_c(float *dst, const float *m1, const float *m2)
 {
-    float m[4*4];
+    NGLI_ALIGNED_MAT(m);
 
     m[ 0] = m1[0]*m2[ 0] + m1[4]*m2[ 1] + m1[ 8]*m2[ 2] + m1[12]*m2[ 3];
     m[ 1] = m1[1]*m2[ 0] + m1[5]*m2[ 1] + m1[ 9]*m2[ 2] + m1[13]*m2[ 3];
@@ -358,7 +358,7 @@ void ngli_mat4_look_at(float * restrict dst, float *eye, float *center, float *u
 
 void ngli_mat4_identity(float *dst)
 {
-    static const float id[4*4] = NGLI_MAT4_IDENTITY;
+    static const NGLI_ALIGNED_MAT(id) = NGLI_MAT4_IDENTITY;
     memcpy(dst, id, sizeof(id));
 }
 
