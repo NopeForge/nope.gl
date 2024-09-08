@@ -1088,7 +1088,7 @@ static int vk_begin_draw(struct gpu_ctx *s, double t)
         struct rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
         s_priv->default_rt_load = rts_load[s_priv->cur_frame_index];
     } else {
-        VkResult res = swapchain_acquire_image(s, &s_priv->cur_image_index);
+        res = swapchain_acquire_image(s, &s_priv->cur_image_index);
         if (res != VK_SUCCESS)
             return ngli_vk_res2ret(res);
 

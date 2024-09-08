@@ -131,6 +131,7 @@ trim_prefix = run_command([
 ], check: true).stdout().strip()
 
 project_args = cc.get_supported_arguments([
+  '-Wshadow',
   '-Werror=missing-prototypes',
   '-Werror=pointer-arith',
   '-Werror=vla',

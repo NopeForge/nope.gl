@@ -230,7 +230,7 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
         if (!vt->planes[i])
             return NGL_ERROR_MEMORY;
 
-        int ret = ngli_texture_gl_wrap(vt->planes[i], &wrap_params);
+        ret = ngli_texture_gl_wrap(vt->planes[i], &wrap_params);
         if (ret < 0)
             return ret;
     }

@@ -276,7 +276,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         return ret;
 
     if (config->samples) {
-        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, config->samples, COLOR_USAGE, &s_priv->ms_color);
+        ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, config->samples, COLOR_USAGE, &s_priv->ms_color);
         if (ret < 0)
             return ret;
     }
