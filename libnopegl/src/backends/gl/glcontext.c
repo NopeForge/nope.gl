@@ -512,7 +512,7 @@ struct glcontext *ngli_glcontext_new(const struct glcontext_params *params)
         ngli_glEnable(glcontext, GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     if (!glcontext->external && !glcontext->offscreen) {
-        int ret = ngli_glcontext_resize(glcontext, glcontext->width, glcontext->height);
+        ret = ngli_glcontext_resize(glcontext, glcontext->width, glcontext->height);
         if (ret < 0)
             goto fail;
     }

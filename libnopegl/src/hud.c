@@ -993,7 +993,7 @@ static int widgets_init(struct hud *s)
     struct widget *widgets = ngli_darray_data(widgets_array);
     for (size_t i = 0; i < ngli_darray_count(widgets_array); i++) {
         struct widget *widget = &widgets[i];
-        int ret = widget_specs[widget->type].init(s, widget);
+        ret = widget_specs[widget->type].init(s, widget);
         if (ret < 0)
             return ret;
     }
@@ -1007,8 +1007,8 @@ static void widget_drawcall_reset_draws(struct widget *widget)
     for (size_t i = 0; i < NB_DRAWCALL; i++) {
         struct darray *nodes_array = &priv->nodes;
         struct ngl_node **nodes = ngli_darray_data(nodes_array);
-        for (size_t i = 0; i < ngli_darray_count(nodes_array); i++)
-            nodes[i]->draw_count = 0;
+        for (size_t j = 0; j < ngli_darray_count(nodes_array); j++)
+            nodes[j]->draw_count = 0;
     }
 }
 
@@ -1356,7 +1356,6 @@ void ngli_hud_draw(struct hud *s)
         return;
 
     if (!ctx->render_pass_started) {
-        struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
         ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
         ctx->render_pass_started = 1;
     }

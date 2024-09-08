@@ -187,7 +187,7 @@ static int atlas_create(struct text *text, struct text_builtin_atlas *atlas)
 
         /* Register the glyph in the distmap atlas */
         int32_t shape_id;
-        int ret = ngli_distmap_add_shape(atlas->distmap, s->chr_w, s->chr_h, path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id);
+        ret = ngli_distmap_add_shape(atlas->distmap, s->chr_w, s->chr_h, path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id);
         if (ret < 0)
             goto end;
 

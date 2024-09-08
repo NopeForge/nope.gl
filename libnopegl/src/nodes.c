@@ -410,7 +410,7 @@ int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t)
     for (size_t i = 0; i < ngli_darray_count(nodes_array); i++) {
         struct ngl_node *node = nodes[i];
         if (node->is_active) {
-            int ret = node_prefetch(node);
+            ret = node_prefetch(node);
             if (ret < 0)
                 return ret;
         }

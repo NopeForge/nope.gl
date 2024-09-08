@@ -286,8 +286,8 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
                 const struct hmap_entry *e = NULL;
                 while ((e = ngli_hmap_next(&old_hm, e))) {
                     const size_t new_id = (size_t)hm->key_funcs.hash(e->key) & hm->mask;
-                    struct bucket *b = &hm->buckets[new_id];
-                    int ret = add_entry(hm, b, e->key, e->data, new_id);
+                    struct bucket *new_bucket = &hm->buckets[new_id];
+                    int ret = add_entry(hm, new_bucket, e->key, e->data, new_id);
                     if (ret < 0) {
                         /* Unable to allocate more, ngli_free the incomplete buckets
                          * and restore the previous hashmap state */
@@ -301,9 +301,9 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
 
                 /* Destroy previous indexes in the old buckets */
                 for (size_t j = 0; j < old_hm.size; j++) {
-                    struct bucket *b = &old_hm.buckets[j];
-                    ngli_free(b->entries);
-                    old_hm.count -= b->nb_entries;
+                    struct bucket *old_bucket = &old_hm.buckets[j];
+                    ngli_free(old_bucket->entries);
+                    old_hm.count -= old_bucket->nb_entries;
                     if (old_hm.count == 0)
                         break;
                 }
