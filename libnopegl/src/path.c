@@ -452,14 +452,14 @@ int ngli_path_init(struct path *s, int32_t precision)
          * Compared to curves, straight lines do not need to be divided into
          * small chunks because their length can be calculated exactly.
          */
-        const int32_t precision = segment->degree == 1 ? 1 : s->precision;
+        const int32_t segment_precision = segment->degree == 1 ? 1 : s->precision;
 
         /*
          * We're not using 1/(P-1) but 1/P for the scale because each segment is
          * composed of P+1 step points.
          */
         segment->step_start = (int)ngli_darray_count(&s->steps);
-        segment->time_scale = 1.f / (float)precision;
+        segment->time_scale = 1.f / (float)segment_precision;
 
         /*
          * This loop only calculates P step coordinates per segment instead of
@@ -467,7 +467,7 @@ int ngli_path_init(struct path *s, int32_t precision)
          * first step of the next segment (t=0). The two exceptions to this are
          * handled in the next block.
          */
-        for (int32_t k = 0; k < precision; k++) {
+        for (int32_t k = 0; k < segment_precision; k++) {
             const float t = (float)k * segment->time_scale;
             struct path_step step = {.segment_id=(int)i};
             poly_eval(step.position, segment, t);

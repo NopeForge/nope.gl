@@ -428,7 +428,7 @@ static int serialize_children(struct hmap *nlist,
                 const struct item *items = ngli_darray_data(&items_array);
                 for (size_t i = 0; i < ngli_darray_count(&items_array); i++) {
                     const struct item *item = &items[i];
-                    int ret = serialize(nlist, b, item->data);
+                    ret = serialize(nlist, b, item->data);
                     if (ret < 0) {
                         ngli_darray_reset(&items_array);
                         return ret;

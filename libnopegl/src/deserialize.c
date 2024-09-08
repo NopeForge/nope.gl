@@ -625,7 +625,7 @@ int ngli_scene_deserialize(struct ngl_scene *s, const char *str)
         size_t eol = strcspn(dupstr, "\n");
         dupstr[eol] = 0;
 
-        int ret = set_node_params(&nodes_array, dupstr, node);
+        ret = set_node_params(&nodes_array, dupstr, node);
         if (ret < 0) {
             node = NULL;
             break;

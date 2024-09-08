@@ -390,7 +390,7 @@ static int pass_graphics_init(struct pass *s)
     if (params->attributes) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(params->attributes, entry))) {
-            int ret = register_attribute(s, entry->key.str, entry->data, 0);
+            ret = register_attribute(s, entry->key.str, entry->data, 0);
             if (ret < 0)
                 return ret;
         }
@@ -399,7 +399,7 @@ static int pass_graphics_init(struct pass *s)
     if (params->instance_attributes) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(params->instance_attributes, entry))) {
-            int ret = register_attribute(s, entry->key.str, entry->data, 1);
+            ret = register_attribute(s, entry->key.str, entry->data, 1);
             if (ret < 0)
                 return ret;
         }

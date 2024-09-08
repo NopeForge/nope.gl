@@ -425,9 +425,9 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
     int ret = 1;
     for (size_t i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
         const int sampler = samplers[i];
-        const int32_t index = fields[sampler].index;
+        const int32_t binding_index = fields[sampler].index;
         const struct texture_binding *binding = &bindings[sampler];
-        ret &= update_texture(s, index, binding);
+        ret &= update_texture(s, binding_index, binding);
     };
 
     const int layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->params.layout;
@@ -502,13 +502,13 @@ static int prepare_bindgroup(struct pipeline_compat *s)
         return ret;
 
     for (size_t i = 0; i < s->nb_textures; i++) {
-        int ret = ngli_bindgroup_update_texture(s->cur_bindgroup, (int32_t)i, &s->textures[i]);
+        ret = ngli_bindgroup_update_texture(s->cur_bindgroup, (int32_t)i, &s->textures[i]);
         if (ret < 0)
             return ret;
     }
 
     for (size_t i = 0; i < s->nb_buffers; i++) {
-        int ret = ngli_bindgroup_update_buffer(s->cur_bindgroup, (int32_t)i, &s->buffers[i]);
+        ret = ngli_bindgroup_update_buffer(s->cur_bindgroup, (int32_t)i, &s->buffers[i]);
         if (ret < 0)
             return ret;
     }

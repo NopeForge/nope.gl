@@ -290,8 +290,8 @@ static int block_init(struct ngl_node *node)
         const struct ngl_node *field_node = o->fields[i];
 
         if (field_node->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
-            const struct buffer_info *info = field_node->priv_data;
-            if (info->block) {
+            const struct buffer_info *buffer_info = field_node->priv_data;
+            if (buffer_info->block) {
                 LOG(ERROR, "buffers used as a block field referencing a block are not supported");
                 return NGL_ERROR_UNSUPPORTED;
             }
@@ -300,7 +300,7 @@ static int block_init(struct ngl_node *node)
         const int type  = get_node_data_type(field_node);
         const size_t count = get_node_data_count(field_node);
 
-        int ret = ngli_block_add_field(&info->block, field_node->label, type, count);
+        ret = ngli_block_add_field(&info->block, field_node->label, type, count);
         if (ret < 0)
             return ret;
 
