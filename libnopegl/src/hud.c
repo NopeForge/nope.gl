@@ -499,6 +499,22 @@ static inline int get_pixel_pos(struct hud *s, int px, int py)
     return (py * s->canvas.w + px) * 4;
 }
 
+static inline void set_color_at(struct hud *s, int px, int py, uint32_t rgba)
+{
+    uint8_t *p = s->canvas.buf + get_pixel_pos(s, px, py);
+    set_color(p, rgba);
+}
+
+static inline void set_color_at_column(struct hud *s, int px, int py, int height, uint32_t rgba)
+{
+    uint8_t *p = s->canvas.buf + get_pixel_pos(s, px, py);
+    const int sign = height >= 0 ? 1 : -1;
+    for (int h = 0; h < height; h++) {
+        set_color(p, rgba);
+        p += sign * s->canvas.w * 4;
+    }
+}
+
 static void draw_block_graph(struct hud *s,
                              const struct data_graph *d,
                              const struct rect *rect,
@@ -513,12 +529,7 @@ static void draw_block_graph(struct hud *s,
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - h, 0, rect->h);
-        uint8_t *p = s->canvas.buf + get_pixel_pos(s, rect->x + k, rect->y + y);
-
-        for (int z = 0; z < h; z++) {
-            set_color(p, c);
-            p += s->canvas.w * 4;
-        }
+        set_color_at_column(s, rect->x + k, rect->y + y, h, c);
     }
 }
 
@@ -537,18 +548,10 @@ static void draw_line_graph(struct hud *s,
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - 1 - h, 0, rect->h - 1);
-        uint8_t *p = s->canvas.buf + get_pixel_pos(s, rect->x + k, rect->y + y);
 
-        set_color(p, c);
-        if (k) {
-            const int sign = prev_y < y ? 1 : -1;
-            const int column_h = abs(prev_y - y);
-            uint8_t *p = s->canvas.buf + get_pixel_pos(s, rect->x + k, rect->y + prev_y);
-            for (int z = 0; z < column_h; z++) {
-                set_color(p, c);
-                p += sign * s->canvas.w * 4;
-            }
-        }
+        set_color_at(s, rect->x + k, rect->y + y, c);
+        if (k)
+            set_color_at_column(s, rect->x + k, rect->y + prev_y, y - prev_y, c);
         prev_y = y;
     }
 }
