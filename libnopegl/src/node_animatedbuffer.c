@@ -22,14 +22,15 @@
 #include <float.h>
 #include <stddef.h>
 #include <string.h>
+
 #include "animation.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
 #include "node_animkeyframe.h"
 #include "node_buffer.h"
 #include "nopegl.h"
-#include "internal.h"
 #include "type.h"
 
 struct animatedbuffer_opts {

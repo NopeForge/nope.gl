@@ -22,15 +22,16 @@
 #include <float.h>
 #include <stddef.h>
 #include <string.h>
+
 #include "animation.h"
 #include "colorconv.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "node_animkeyframe.h"
 #include "node_uniform.h"
 #include "node_velocity.h"
 #include "nopegl.h"
-#include "internal.h"
 #include "path.h"
 #include "type.h"
 

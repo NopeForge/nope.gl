@@ -25,13 +25,13 @@
 #include "block.h"
 #include "buffer.h"
 #include "gpu_ctx.h"
+#include "internal.h"
 #include "log.h"
 #include "memory.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_uniform.h"
 #include "nopegl.h"
-#include "internal.h"
 
 static const struct param_choices layout_choices = {
     .name = "memory_layout",
