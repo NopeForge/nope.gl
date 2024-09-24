@@ -85,7 +85,6 @@ static const struct node_param rtt_params[] = {
 struct rtt_texture_info {
     struct ngl_node *node;
     struct texture_info *info;
-    const struct texture_opts *opts;
     int32_t layer_base;
     int32_t layer_count;
 };
@@ -96,19 +95,16 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
         const struct textureview_opts *textureview_opts = node->opts;
         struct ngl_node *texture = textureview_opts->texture;
         struct texture_info *texture_info = texture->priv_data;
-        const struct texture_opts *texture_opts = textureview_opts->texture->opts;
         const struct rtt_texture_info rtt_texture_info = {
             .node = texture,
             .info = texture_info,
-            .opts = texture_opts,
             .layer_base = textureview_opts->layer,
             .layer_count = 1,
         };
         return rtt_texture_info;
     } else {
         struct texture_info *texture_info = node->priv_data;
-        const struct texture_opts *texture_opts = node->opts;
-        const struct texture_params *texture_params = &texture_opts->params;
+        const struct texture_params *texture_params = &texture_info->params;
         int layer_count = 1;
         if (node->cls->id == NGL_NODE_TEXTURECUBE)
             layer_count = 6;
@@ -119,7 +115,6 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
         const struct rtt_texture_info rtt_texture_info = {
             .node = node,
             .info = texture_info,
-            .opts = texture_opts,
             .layer_base = 0,
             .layer_count = layer_count,
         };
@@ -155,7 +150,7 @@ static int rtt_init(struct ngl_node *node)
 
         nb_color_attachments += texture_info.layer_count;
 
-        if (texture_info.opts->data_src) {
+        if (ngli_node_texture_has_media_data_src(texture_info.node)) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
         }
@@ -187,7 +182,7 @@ static int rtt_init(struct ngl_node *node)
     if (o->depth_texture) {
         const struct rtt_texture_info texture_info = get_rtt_texture_info(o->depth_texture);
 
-        if (texture_info.opts->data_src) {
+        if (ngli_node_texture_has_media_data_src(texture_info.node)) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
         }
