@@ -36,6 +36,19 @@
 #include "rtt.h"
 #include "texture.h"
 
+struct texture_priv {
+    struct texture_info texture_info;
+    struct hwmap hwmap;
+    int rtt;
+    int rtt_resizeable;
+    struct renderpass_info renderpass_info;
+    struct rendertarget_layout rendertarget_layout;
+    struct rtt_params rtt_params;
+    struct rtt_ctx *rtt_ctx;
+};
+
+NGLI_STATIC_ASSERT(texture_info_is_first, offsetof(struct texture_priv, texture_info) == 0);
+
 const struct param_choices ngli_mipmap_filter_choices = {
     .name = "mipmap_filter",
     .consts = {
@@ -284,8 +297,9 @@ static int texture_prefetch(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
+    struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
-    struct texture_params *params = &s->params;
+    struct texture_params *params = &i->params;
 
     params->usage |= NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT | NGLI_TEXTURE_USAGE_SAMPLED_BIT;
 
@@ -300,7 +314,7 @@ static int texture_prefetch(struct ngl_node *node)
             ngli_unused struct media_priv *media_priv = media->priv_data;
             const struct hwmap_params hwmap_params = {
                 .label                 = node->label,
-                .image_layouts         = s->supported_image_layouts,
+                .image_layouts         = i->supported_image_layouts,
                 .texture_min_filter    = params->min_filter,
                 .texture_mag_filter    = params->mag_filter,
                 .texture_mipmap_filter = params->mipmap_filter,
@@ -351,16 +365,16 @@ static int texture_prefetch(struct ngl_node *node)
         }
     }
 
-    if (s->params.width > 0 && s->params.height > 0) {
-        s->texture = ngli_texture_create(gpu_ctx);
-        if (!s->texture)
+    if (i->params.width > 0 && i->params.height > 0) {
+        i->texture = ngli_texture_create(gpu_ctx);
+        if (!i->texture)
             return NGL_ERROR_MEMORY;
 
-        int ret = ngli_texture_init(s->texture, params);
+        int ret = ngli_texture_init(i->texture, params);
         if (ret < 0)
             return ret;
 
-        ret = ngli_texture_upload(s->texture, data, 0);
+        ret = ngli_texture_upload(i->texture, data, 0);
         if (ret < 0)
             return ret;
     }
@@ -372,13 +386,13 @@ static int texture_prefetch(struct ngl_node *node)
         .color_scale = 1.f,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
     };
-    ngli_image_init(&s->image, &image_params, &s->texture);
-    s->image.rev = s->image_rev++;
+    ngli_image_init(&i->image, &image_params, &i->texture);
+    i->image.rev = i->image_rev++;
 
     if (s->rtt) {
         /* Transform the color textures coordinates so it matches how the
          * graphics context uv coordinate system works regarding render targets */
-        ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, s->image.coordinates_matrix);
+        ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, i->image.coordinates_matrix);
 
         int depth_format = NGLI_FORMAT_UNDEFINED;
         if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
@@ -392,7 +406,7 @@ static int texture_prefetch(struct ngl_node *node)
             .nb_interruptions = s->renderpass_info.nb_interruptions,
             .nb_colors = 1,
             .colors[0] = {
-                .attachment = s->texture,
+                .attachment = i->texture,
                 .load_op = NGLI_LOAD_OP_CLEAR,
                 .store_op = NGLI_STORE_OP_STORE,
                 .clear_value = {NGLI_ARG_VEC4(o->clear_color)},
@@ -400,7 +414,7 @@ static int texture_prefetch(struct ngl_node *node)
             .depth_stencil_format = depth_format,
         };
 
-        if (s->params.width > 0 && s->params.height > 0) {
+        if (i->params.width > 0 && i->params.height > 0) {
             s->rtt_ctx = ngli_rtt_create(node->ctx);
             if (!s->rtt_ctx)
                 return NGL_ERROR_MEMORY;
@@ -417,6 +431,7 @@ static int texture_prefetch(struct ngl_node *node)
 static int handle_media_frame(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
+    struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
     struct media_priv *media = o->data_src->priv_data;
     struct nmd_frame *frame = media->frame;
@@ -428,12 +443,12 @@ static int handle_media_frame(struct ngl_node *node)
     media->frame = NULL;
 
     /* Reset destination image */
-    ngli_image_reset(&s->image);
+    ngli_image_reset(&i->image);
 
-    int ret = ngli_hwmap_map_frame(&s->hwmap, frame, &s->image);
+    int ret = ngli_hwmap_map_frame(&s->hwmap, frame, &i->image);
 
     /* Signal image change on new frame */
-    s->image.rev = s->image_rev++;
+    i->image.rev = i->image_rev++;
 
     if (ret < 0) {
         LOG(ERROR, "could not map media frame");
@@ -445,12 +460,12 @@ static int handle_media_frame(struct ngl_node *node)
 
 static int handle_buffer_frame(struct ngl_node *node)
 {
-    struct texture_priv *s = node->priv_data;
+    struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
     struct buffer_info *buffer = o->data_src->priv_data;
     const uint8_t *data = buffer->data;
 
-    int ret = ngli_texture_upload(s->texture, data, 0);
+    int ret = ngli_texture_upload(i->texture, data, 0);
     if (ret < 0) {
         LOG(ERROR, "could not upload texture buffer");
         return ret;
@@ -496,10 +511,11 @@ static int rtt_resize(struct ngl_node *node)
     int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct texture_priv *s = node->priv_data;
+    struct texture_info *i = node->priv_data;
 
     const int32_t width = ctx->current_rendertarget->width;
     const int32_t height = ctx->current_rendertarget->height;
-    if (s->params.width == width && s->params.height == height)
+    if (i->params.width == width && i->params.height == height)
         return 0;
 
     struct texture *texture = NULL;
@@ -511,7 +527,7 @@ static int rtt_resize(struct ngl_node *node)
         goto fail;
     }
 
-    struct texture_params texture_params = s->params;
+    struct texture_params texture_params = i->params;
     texture_params.width = width;
     texture_params.height = height;
 
@@ -535,14 +551,14 @@ static int rtt_resize(struct ngl_node *node)
         goto fail;
 
     ngli_rtt_freep(&s->rtt_ctx);
-    ngli_texture_freep(&s->texture);
+    ngli_texture_freep(&i->texture);
 
-    s->params = texture_params;
-    s->texture = texture;
-    s->image.params.width = width;
-    s->image.params.height = height;
-    s->image.planes[0] = texture;
-    s->image.rev = s->image_rev++;
+    i->params = texture_params;
+    i->texture = texture;
+    i->image.params.width = width;
+    i->image.params.height = height;
+    i->image.planes[0] = texture;
+    i->image.rev = i->image_rev++;
     s->rtt_params = rtt_params;
     s->rtt_ctx = rtt_ctx;
 
@@ -590,12 +606,13 @@ static void texture_draw(struct ngl_node *node)
 static void texture_release(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
+    struct texture_info *i = node->priv_data;
 
     ngli_rtt_freep(&s->rtt_ctx);
     ngli_hwmap_uninit(&s->hwmap);
-    ngli_texture_freep(&s->texture);
-    ngli_image_reset(&s->image);
-    s->image.rev = s->image_rev++;
+    ngli_texture_freep(&i->texture);
+    ngli_image_reset(&i->image);
+    i->image.rev = i->image_rev++;
 }
 
 static int get_preferred_format(struct gpu_ctx *gpu_ctx, int format)
@@ -615,20 +632,22 @@ static int texture2d_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
+    struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
 
-    s->params = o->params;
+    i->params = o->params;
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
-    if (s->params.width  < 0 || s->params.width  > max_dimension ||
-        s->params.height < 0 || s->params.height > max_dimension) {
+    if (i->params.width  < 0 || i->params.width  > max_dimension ||
+        i->params.height < 0 || i->params.height > max_dimension) {
         LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
-            s->params.width, s->params.height, max_dimension, max_dimension);
+            i->params.width, i->params.height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
-    s->params.type = NGLI_TEXTURE_TYPE_2D;
-    s->params.format = get_preferred_format(gpu_ctx, o->requested_format);
-    s->supported_image_layouts = o->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
+    i->params.type = NGLI_TEXTURE_TYPE_2D;
+    i->params.format = get_preferred_format(gpu_ctx, o->requested_format);
+    i->supported_image_layouts = o->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
+    i->clamp_video = o->clamp_video;
 
     /*
      * On Android, the frame can only be uploaded once and each subsequent
@@ -645,12 +664,12 @@ static int texture2d_init(struct ngl_node *node)
         }
     } else if (data_src && data_src->cls->category != NGLI_NODE_CATEGORY_BUFFER) {
         s->rtt = 1;
-        s->rtt_resizeable = (s->params.width == 0 && s->params.height == 0);
+        s->rtt_resizeable = (i->params.width == 0 && i->params.height == 0);
 
         ngli_node_get_renderpass_info(data_src, &s->renderpass_info);
 
-        s->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
-        s->rendertarget_layout.colors[s->rendertarget_layout.nb_colors].format = s->params.format;
+        i->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+        s->rendertarget_layout.colors[s->rendertarget_layout.nb_colors].format = i->params.format;
         s->rendertarget_layout.nb_colors++;
 
         int depth_format = NGLI_FORMAT_UNDEFINED;
@@ -683,23 +702,24 @@ static int texture2d_array_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct texture_priv *s = node->priv_data;
+    struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
 
-    s->params = o->params;
+    i->params = o->params;
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
     const int max_layers = gpu_ctx->limits.max_texture_array_layers;
-    if (s->params.width  <= 0 || s->params.width  > max_dimension ||
-        s->params.height <= 0 || s->params.height > max_dimension ||
-        s->params.depth  <= 0 || s->params.depth  > max_layers) {
+    if (i->params.width  <= 0 || i->params.width  > max_dimension ||
+        i->params.height <= 0 || i->params.height > max_dimension ||
+        i->params.depth  <= 0 || i->params.depth  > max_layers) {
         LOG(ERROR, "texture dimensions (%d,%d,%d) are invalid or exceeds device limits (%d,%d,%d)",
-            s->params.width, s->params.height, s->params.depth,
+            i->params.width, i->params.height, i->params.depth,
             max_dimension, max_dimension, max_layers);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
-    s->params.type = NGLI_TEXTURE_TYPE_2D_ARRAY;
-    s->params.format = get_preferred_format(gpu_ctx, o->requested_format);
+    i->params.type = NGLI_TEXTURE_TYPE_2D_ARRAY;
+    i->params.format = get_preferred_format(gpu_ctx, o->requested_format);
+    i->clamp_video = o->clamp_video;
 
     return 0;
 }
@@ -708,22 +728,23 @@ static int texture3d_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct texture_priv *s = node->priv_data;
+    struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
 
-    s->params = o->params;
+    i->params = o->params;
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_3d;
-    if (s->params.width  <= 0 || s->params.width  > max_dimension ||
-        s->params.height <= 0 || s->params.height > max_dimension ||
-        s->params.depth  <= 0 || s->params.depth  > max_dimension) {
+    if (i->params.width  <= 0 || i->params.width  > max_dimension ||
+        i->params.height <= 0 || i->params.height > max_dimension ||
+        i->params.depth  <= 0 || i->params.depth  > max_dimension) {
         LOG(ERROR, "texture dimensions (%d,%d,%d) are invalid or exceeds device limits (%d,%d,%d)",
-            s->params.width, s->params.height, s->params.depth,
+            i->params.width, i->params.height, i->params.depth,
             max_dimension, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
-    s->params.type = NGLI_TEXTURE_TYPE_3D;
-    s->params.format = get_preferred_format(gpu_ctx, o->requested_format);
+    i->params.type = NGLI_TEXTURE_TYPE_3D;
+    i->params.format = get_preferred_format(gpu_ctx, o->requested_format);
+    i->clamp_video = o->clamp_video;
 
     return 0;
 }
@@ -732,21 +753,22 @@ static int texturecube_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct texture_priv *s = node->priv_data;
+    struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
 
-    s->params = o->params;
-    s->params.height = s->params.width;
+    i->params = o->params;
+    i->params.height = i->params.width;
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
-    if (s->params.width  <= 0 || s->params.width  > max_dimension ||
-        s->params.height <= 0 || s->params.height > max_dimension) {
+    if (i->params.width  <= 0 || i->params.width  > max_dimension ||
+        i->params.height <= 0 || i->params.height > max_dimension) {
         LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
-            s->params.width, s->params.height, max_dimension, max_dimension);
+            i->params.width, i->params.height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
-    s->params.type = NGLI_TEXTURE_TYPE_CUBE;
-    s->params.format = get_preferred_format(gpu_ctx, o->requested_format);
+    i->params.type = NGLI_TEXTURE_TYPE_CUBE;
+    i->params.format = get_preferred_format(gpu_ctx, o->requested_format);
+    i->clamp_video = o->clamp_video;
 
     return 0;
 }

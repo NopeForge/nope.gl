@@ -457,8 +457,8 @@ static void widget_memory_make_stats(struct hud *s, struct widget *widget)
     priv->sizes[MEMORY_TEXTURES] = 0;
     for (size_t i = 0; i < ngli_darray_count(nodes_tex_array); i++) {
         const struct ngl_node *tex_node = nodes_tex[i];
-        const struct texture_priv *texture = tex_node->priv_data;
-        priv->sizes[MEMORY_TEXTURES] += ngli_image_get_memory_size(&texture->image)
+        const struct texture_info *texture_info = tex_node->priv_data;
+        priv->sizes[MEMORY_TEXTURES] += ngli_image_get_memory_size(&texture_info->image)
                                       * tex_node->is_active;
     }
 }
