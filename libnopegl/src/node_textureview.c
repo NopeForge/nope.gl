@@ -53,8 +53,8 @@ static int textureview_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    const struct texture_opts *texture_o = o->texture->opts;
-    const struct texture_params *texture_params = &texture_o->params;
+    const struct texture_info *texture_info = o->texture->priv_data;
+    const struct texture_params *texture_params = &texture_info->params;
     if (o->texture->cls->id == NGL_NODE_TEXTURE2DARRAY && o->layer >= texture_params->depth) {
         LOG(ERROR, "requested layer (%d) exceeds texture 2D array layer count (%d)", o->layer, texture_params->depth);
         return NGL_ERROR_INVALID_ARG;
