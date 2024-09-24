@@ -923,34 +923,24 @@ static int drawdisplace_prepare(struct ngl_node *node)
         return ret;
 
     struct texture_info *source_info = o->source_node->priv_data;
-    const struct texture_opts *source_opts = o->source_node->opts;
     struct texture_info *displacement_info = o->displacement_node->priv_data;
-    const struct texture_opts *displacement_opts = o->displacement_node->opts;
-    struct pgcraft_texture textures[] = {
+    const struct pgcraft_texture textures[] = {
         {
             .name        = "source",
+            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->source_node),
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
             .image       = &source_info->image,
             .format      = source_info->params.format,
             .clamp_video = source_info->clamp_video,
         }, {
             .name        = "displacement",
+            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->displacement_node),
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
             .image       = &displacement_info->image,
             .format      = displacement_info->params.format,
             .clamp_video = displacement_info->clamp_video,
         },
     };
-
-    if (source_opts->data_src && source_opts->data_src->cls->id == NGL_NODE_MEDIA)
-        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
-    else
-        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
-
-    if (displacement_opts->data_src && displacement_opts->data_src->cls->id == NGL_NODE_MEDIA)
-        textures[1].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
-    else
-        textures[1].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
         {.name = "uv",                 .type = NGLI_TYPE_VEC2},
@@ -1144,34 +1134,24 @@ static int drawmask_prepare(struct ngl_node *node)
         return ret;
 
     struct texture_info *content_info = o->content->priv_data;
-    const struct texture_opts *content_opts = o->content->opts;
     struct texture_info *mask_info = o->mask->priv_data;
-    const struct texture_opts *mask_opts = o->mask->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "content",
+            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->content),
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
             .image       = &content_info->image,
             .format      = content_info->params.format,
             .clamp_video = content_info->clamp_video,
         }, {
             .name        = "mask",
+            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->mask),
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
             .image       = &mask_info->image,
             .format      = mask_info->params.format,
             .clamp_video = mask_info->clamp_video,
         },
     };
-
-    if (content_opts->data_src && content_opts->data_src->cls->id == NGL_NODE_MEDIA)
-        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
-    else
-        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
-
-    if (mask_opts->data_src && mask_opts->data_src->cls->id == NGL_NODE_MEDIA)
-        textures[1].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
-    else
-        textures[1].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
         {.name = "uv",            .type = NGLI_TYPE_VEC2},
@@ -1264,21 +1244,16 @@ static int drawtexture_prepare(struct ngl_node *node)
     const struct ngl_node *texture_node = ngli_transform_get_leaf_node(o->texture_node);
     ngli_assert(texture_node); // already checked in init
     struct texture_info *texture_info = texture_node->priv_data;
-    const struct texture_opts *texture_opts = texture_node->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "tex",
+            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(texture_node),
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
             .image       = &texture_info->image,
             .format      = texture_info->params.format,
             .clamp_video = texture_info->clamp_video,
         },
     };
-
-    if (texture_opts->data_src && texture_opts->data_src->cls->id == NGL_NODE_MEDIA)
-        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
-    else
-        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
         {.name = "uv",        .type = NGLI_TYPE_VEC2},
