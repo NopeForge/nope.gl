@@ -922,23 +922,23 @@ static int drawdisplace_prepare(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    struct texture_priv *source_priv = o->source_node->priv_data;
+    struct texture_info *source_info = o->source_node->priv_data;
     const struct texture_opts *source_opts = o->source_node->opts;
-    struct texture_priv *displacement_priv = o->displacement_node->priv_data;
+    struct texture_info *displacement_info = o->displacement_node->priv_data;
     const struct texture_opts *displacement_opts = o->displacement_node->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "source",
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
-            .image       = &source_priv->image,
-            .format      = source_priv->params.format,
-            .clamp_video = source_opts->clamp_video,
+            .image       = &source_info->image,
+            .format      = source_info->params.format,
+            .clamp_video = source_info->clamp_video,
         }, {
             .name        = "displacement",
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
-            .image       = &displacement_priv->image,
-            .format      = displacement_priv->params.format,
-            .clamp_video = displacement_opts->clamp_video,
+            .image       = &displacement_info->image,
+            .format      = displacement_info->params.format,
+            .clamp_video = displacement_info->clamp_video,
         },
     };
 
@@ -1143,23 +1143,23 @@ static int drawmask_prepare(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    struct texture_priv *content_priv = o->content->priv_data;
+    struct texture_info *content_info = o->content->priv_data;
     const struct texture_opts *content_opts = o->content->opts;
-    struct texture_priv *mask_priv = o->mask->priv_data;
+    struct texture_info *mask_info = o->mask->priv_data;
     const struct texture_opts *mask_opts = o->mask->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "content",
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
-            .image       = &content_priv->image,
-            .format      = content_priv->params.format,
-            .clamp_video = content_opts->clamp_video,
+            .image       = &content_info->image,
+            .format      = content_info->params.format,
+            .clamp_video = content_info->clamp_video,
         }, {
             .name        = "mask",
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
-            .image       = &mask_priv->image,
-            .format      = mask_priv->params.format,
-            .clamp_video = mask_opts->clamp_video,
+            .image       = &mask_info->image,
+            .format      = mask_info->params.format,
+            .clamp_video = mask_info->clamp_video,
         },
     };
 
@@ -1263,15 +1263,15 @@ static int drawtexture_prepare(struct ngl_node *node)
 
     const struct ngl_node *texture_node = ngli_transform_get_leaf_node(o->texture_node);
     ngli_assert(texture_node); // already checked in init
-    struct texture_priv *texture_priv = texture_node->priv_data;
+    struct texture_info *texture_info = texture_node->priv_data;
     const struct texture_opts *texture_opts = texture_node->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "tex",
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
-            .image       = &texture_priv->image,
-            .format      = texture_priv->params.format,
-            .clamp_video = texture_opts->clamp_video,
+            .image       = &texture_info->image,
+            .format      = texture_info->params.format,
+            .clamp_video = texture_info->clamp_video,
         },
     };
 
