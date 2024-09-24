@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "format.h"
 #include "gpu_ctx.h"
 #include "internal.h"
 #include "memory.h"

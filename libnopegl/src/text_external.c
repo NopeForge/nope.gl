@@ -35,6 +35,7 @@
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
+#include "node_text.h"
 #include "nopegl.h"
 #include "path.h"
 #include "text.h"

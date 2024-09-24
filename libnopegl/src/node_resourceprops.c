@@ -23,6 +23,7 @@
 
 #include "gpu_ctx.h"
 #include "log.h"
+#include "node_resourceprops.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "precision.h"

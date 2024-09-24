@@ -27,6 +27,7 @@
 #include "log.h"
 #include "hmap.h"
 #include "memory.h"
+#include "node_uniform.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "params.h"

@@ -25,6 +25,8 @@
 #include <stddef.h>
 #include <string.h>
 #include "log.h"
+#include "node_buffer.h"
+#include "node_uniform.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "type.h"

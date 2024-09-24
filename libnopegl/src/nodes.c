@@ -29,6 +29,7 @@
 #include "nopegl.h"
 #include "internal.h"
 #include "memory.h"
+#include "node_uniform.h"
 #include "params.h"
 #include "utils.h"
 #include "nodes_register.h"

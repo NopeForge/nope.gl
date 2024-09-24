@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2023 Nope Forge
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -22,6 +23,8 @@
 #include <stddef.h>
 
 #include "log.h"
+#include "node_text.h"
+#include "node_texteffect.h"
 #include "internal.h"
 #include "transforms.h"
 

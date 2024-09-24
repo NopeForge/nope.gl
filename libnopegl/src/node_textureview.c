@@ -24,6 +24,8 @@
 
 #include "log.h"
 #include "internal.h"
+#include "node_texture.h"
+#include "node_textureview.h"
 #include "nopegl.h"
 
 #define OFFSET(x) offsetof(struct textureview_opts, x)

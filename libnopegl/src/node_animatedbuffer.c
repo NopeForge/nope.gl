@@ -26,6 +26,8 @@
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
+#include "node_animkeyframe.h"
+#include "node_buffer.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "type.h"

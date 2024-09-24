@@ -23,6 +23,7 @@
 
 #include "internal.h"
 #include "log.h"
+#include "node_text.h"
 
 #define OFFSET(x) offsetof(struct fontface_opts, x)
 static const struct node_param fontface_params[] = {

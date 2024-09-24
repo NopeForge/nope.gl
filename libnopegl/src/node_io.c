@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 
+#include "node_io.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "params.h"

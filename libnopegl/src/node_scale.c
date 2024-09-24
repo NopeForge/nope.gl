@@ -22,6 +22,8 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include "node_transform.h"
+#include "node_uniform.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "math_utils.h"

@@ -24,6 +24,7 @@
 
 #include "nopegl.h"
 #include "internal.h"
+#include "node_uniform.h"
 #include "noise.h"
 #include "type.h"
 

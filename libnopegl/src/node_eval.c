@@ -28,6 +28,7 @@
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
+#include "node_uniform.h"
 #include "nopegl.h"
 #include "type.h"
 

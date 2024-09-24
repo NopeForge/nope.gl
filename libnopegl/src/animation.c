@@ -23,6 +23,7 @@
 #include "animation.h"
 #include "log.h"
 #include "math_utils.h"
+#include "node_animkeyframe.h"
 #include "nopegl.h"
 #include "internal.h"
 

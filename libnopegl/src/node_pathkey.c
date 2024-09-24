@@ -23,6 +23,7 @@
 #include <stddef.h>
 
 #include "bstr.h"
+#include "node_pathkey.h"
 #include "nopegl.h"
 #include "internal.h"
 

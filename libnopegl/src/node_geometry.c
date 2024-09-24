@@ -26,6 +26,7 @@
 
 #include "geometry.h"
 #include "log.h"
+#include "node_buffer.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "topology.h"

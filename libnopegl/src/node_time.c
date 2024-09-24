@@ -23,6 +23,7 @@
 
 #include "nopegl.h"
 #include "internal.h"
+#include "node_uniform.h"
 #include "type.h"
 
 struct time_priv {
