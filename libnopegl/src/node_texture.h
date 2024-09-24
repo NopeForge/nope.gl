@@ -31,16 +31,6 @@
 
 struct ngl_node;
 
-struct texture_opts {
-    int requested_format;
-    struct texture_params params;
-    struct ngl_node *data_src;
-    int direct_rendering;
-    int clamp_video;
-    float clear_color[4];
-    int forward_transforms;
-};
-
 struct texture_info {
     int requested_format;
     struct texture_params params;
@@ -53,5 +43,6 @@ struct texture_info {
 
 enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node);
 enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node);
+int ngli_node_texture_has_media_data_src(const struct ngl_node *node);
 
 #endif
