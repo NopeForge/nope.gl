@@ -26,6 +26,7 @@
 #include <nopemd.h>
 
 #include "config.h"
+#include "pgcraft.h"
 
 #if defined(HAVE_VAAPI)
 #include "vaapi_ctx.h"
@@ -319,6 +320,9 @@ struct texture_info {
     struct image image;
     size_t image_rev;
 };
+
+enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node);
+enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node);
 
 struct media_priv {
     struct nmd_ctx *player;
