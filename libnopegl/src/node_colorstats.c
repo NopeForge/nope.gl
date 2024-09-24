@@ -144,14 +144,14 @@ static int setup_init_compute(struct colorstats_priv *s, const struct pgcraft_bl
 static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraft_block *block,
                                   const struct ngl_node *texture_node)
 {
-    struct texture_priv *texture_priv = texture_node->priv_data;
+    struct texture_info *texture_info = texture_node->priv_data;
     struct pgcraft_texture textures[] = {
         {
             .name        = "source",
             .type        = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
             .stage       = NGLI_PROGRAM_SHADER_COMP,
-            .image       = &texture_priv->image,
-            .format      = texture_priv->params.format,
+            .image       = &texture_info->image,
+            .format      = texture_info->params.format,
             .clamp_video = 0, /* clamping is done manually in the shader */
         },
     };
@@ -169,7 +169,7 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
     if (ret < 0)
         return ret;
 
-    s->waveform.image = &texture_priv->image;
+    s->waveform.image = &texture_info->image;
     s->waveform.image_rev = SIZE_MAX;
 
     s->waveform.block_index = ngli_pgcraft_get_block_index(s->waveform.crafter, block->name, block->stage);
@@ -364,8 +364,8 @@ static int colorstats_update(struct ngl_node *node, double t)
      * Lazily allocate the data buffer because it depends on the texture
      * dimensions
      */
-    const struct texture_priv *texture_priv = o->texture_node->priv_data;
-    const int32_t source_w = texture_priv->image.params.width;
+    const struct texture_info *texture_info = o->texture_node->priv_data;
+    const int32_t source_w = texture_info->image.params.width;
     if (!s->blk.buffer)
         return alloc_block_buffer(node, source_w);
 

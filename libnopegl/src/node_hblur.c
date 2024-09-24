@@ -372,39 +372,39 @@ static int hblur_init(struct ngl_node *node)
     struct hblur_priv *s = node->priv_data;
     struct hblur_opts *o = node->opts;
 
-    struct texture_priv *src_priv = o->source->priv_data;
-    s->image = &src_priv->image;
+    struct texture_info *src_info = o->source->priv_data;
+    s->image = &src_info->image;
     s->image_rev = SIZE_MAX;
 
     /* Disable direct rendering */
-    src_priv->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
+    src_info->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
 
     /* Override texture params */
-    src_priv->params.min_filter = NGLI_FILTER_LINEAR;
-    src_priv->params.mag_filter = NGLI_FILTER_LINEAR;
-    src_priv->params.mipmap_filter = NGLI_MIPMAP_FILTER_LINEAR;
+    src_info->params.min_filter = NGLI_FILTER_LINEAR;
+    src_info->params.mag_filter = NGLI_FILTER_LINEAR;
+    src_info->params.mipmap_filter = NGLI_MIPMAP_FILTER_LINEAR;
 
     s->map_image = &s->dummy_map_image;
     s->map_rev = SIZE_MAX;
     if (o->map) {
-        struct texture_priv *map_priv = (struct texture_priv *)o->map->priv_data;
+        struct texture_info *map_info = o->map->priv_data;
 
         /* Disable direct rendering */
-        map_priv->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
+        map_info->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
 
         /* Override texture params */
-        map_priv->params.min_filter = NGLI_FILTER_LINEAR;
-        map_priv->params.mag_filter = NGLI_FILTER_LINEAR;
-        s->map_image = &map_priv->image;
+        map_info->params.min_filter = NGLI_FILTER_LINEAR;
+        map_info->params.mag_filter = NGLI_FILTER_LINEAR;
+        s->map_image = &map_info->image;
     }
 
     s->prefered_format = get_prefered_format(ctx->gpu_ctx);
 
-    struct texture_priv *dst_priv = o->destination->priv_data;
-    dst_priv->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+    struct texture_info *dst_info = o->destination->priv_data;
+    dst_info->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    s->dst_is_resizeable = (dst_priv->params.width == 0 && dst_priv->params.height == 0);
-    s->pass2.layout.colors[0].format = dst_priv->params.format;
+    s->dst_is_resizeable = (dst_info->params.width == 0 && dst_info->params.height == 0);
+    s->pass2.layout.colors[0].format = dst_info->params.format;
     s->pass2.layout.nb_colors = 1;
 
     const struct gpu_block_field block_fields[] = {
@@ -440,9 +440,9 @@ static int resize(struct ngl_node *node)
     if (o->map)
         ngli_node_draw(o->map);
 
-    struct texture_priv *src_priv = o->source->priv_data;
-    const int32_t width = src_priv->image.params.width;
-    const int32_t height = src_priv->image.params.height;
+    struct texture_info *src_info = o->source->priv_data;
+    const int32_t width = src_info->image.params.width;
+    const int32_t height = src_info->image.params.height;
     if (s->width == width && s->height == height)
         return 0;
 
@@ -496,10 +496,10 @@ static int resize(struct ngl_node *node)
         goto fail;
 
     /* Assert that the destination texture format does not change */
-    struct texture_priv *dst_priv = o->destination->priv_data;
-    ngli_assert(dst_priv->params.format == s->pass2.layout.colors[0].format);
+    struct texture_info *dst_info = o->destination->priv_data;
+    ngli_assert(dst_info->params.format == s->pass2.layout.colors[0].format);
 
-    dst = dst_priv->texture;
+    dst = dst_info->texture;
     if (s->dst_is_resizeable) {
         dst = ngli_texture_create(ctx->gpu_ctx);
         if (!dst) {
@@ -507,7 +507,7 @@ static int resize(struct ngl_node *node)
             goto fail;
         }
 
-        struct texture_params params = dst_priv->params;
+        struct texture_params params = dst_info->params;
         params.width = width;
         params.height = height;
         ret = ngli_texture_init(dst, &params);
@@ -546,12 +546,12 @@ static int resize(struct ngl_node *node)
     ngli_pipeline_compat_update_texture(s->pass2.pl, 1, s->tex1);
 
     if (s->dst_is_resizeable) {
-        ngli_texture_freep(&dst_priv->texture);
-        dst_priv->texture = dst;
-        dst_priv->image.params.width = dst->params.width;
-        dst_priv->image.params.height = dst->params.height;
-        dst_priv->image.planes[0] = dst;
-        dst_priv->image.rev = dst_priv->image_rev++;
+        ngli_texture_freep(&dst_info->texture);
+        dst_info->texture = dst;
+        dst_info->image.params.width = dst->params.width;
+        dst_info->image.params.height = dst->params.height;
+        dst_info->image.planes[0] = dst;
+        dst_info->image.rev = dst_info->image_rev++;
     }
 
     s->width = width;
@@ -625,8 +625,8 @@ static void hblur_draw(struct ngl_node *node)
      * thus we need to forward the source coordinates matrix to the
      * destination.
      */
-    struct texture_priv *dst_priv = (struct texture_priv *)o->destination->priv_data;
-    struct image *dst_image = &dst_priv->image;
+    struct texture_info *dst_info = o->destination->priv_data;
+    struct image *dst_image = &dst_info->image;
     memcpy(dst_image->coordinates_matrix, s->image->coordinates_matrix, sizeof(s->image->coordinates_matrix));
 }
 

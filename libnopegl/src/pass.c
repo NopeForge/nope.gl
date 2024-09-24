@@ -127,7 +127,7 @@ static int register_builtin_uniforms(struct pass *s)
 
 static int register_texture(struct pass *s, const char *name, struct ngl_node *texture, int stage)
 {
-    struct texture_priv *texture_priv = texture->priv_data;
+    struct texture_info *texture_info = texture->priv_data;
     struct texture_opts *texture_opts = texture->opts;
 
     /*
@@ -165,8 +165,8 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
             const struct resourceprops_opts *resprops = resprops_node->opts;
             if (resprops->as_image) {
                 /* Disable direct rendering when using image load/store */
-                texture_priv->supported_image_layouts = 1 << NGLI_IMAGE_LAYOUT_DEFAULT;
-                texture_priv->params.usage |= NGLI_TEXTURE_USAGE_STORAGE_BIT;
+                texture_info->supported_image_layouts = 1 << NGLI_IMAGE_LAYOUT_DEFAULT;
+                texture_info->params.usage |= NGLI_TEXTURE_USAGE_STORAGE_BIT;
 
                 if (texture->cls->id == NGL_NODE_TEXTURE2D)
                     type = NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D;
@@ -189,9 +189,9 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
         .stage       = stage,
         .precision   = precision,
         .writable    = writable,
-        .format      = texture_priv->params.format,
-        .clamp_video = texture_opts->clamp_video,
-        .image       = &texture_priv->image,
+        .format      = texture_info->params.format,
+        .clamp_video = texture_info->clamp_video,
+        .image       = &texture_info->image,
     };
     snprintf(crafter_texture.name, sizeof(crafter_texture.name), "%s", name);
 

@@ -284,23 +284,23 @@ static int fgblur_init(struct ngl_node *node)
     struct fgblur_opts *o = node->opts;
 
     /* Disable direct rendering */
-    struct texture_priv *src_priv = o->source->priv_data;
-    src_priv->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
+    struct texture_info *src_info = o->source->priv_data;
+    src_info->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
 
     /* Override texture params */
-    src_priv->params.min_filter = NGLI_FILTER_LINEAR;
-    src_priv->params.mag_filter = NGLI_FILTER_LINEAR;
-    src_priv->params.wrap_s     = NGLI_WRAP_MIRRORED_REPEAT,
-    src_priv->params.wrap_t     = NGLI_WRAP_MIRRORED_REPEAT,
+    src_info->params.min_filter = NGLI_FILTER_LINEAR;
+    src_info->params.mag_filter = NGLI_FILTER_LINEAR;
+    src_info->params.wrap_s     = NGLI_WRAP_MIRRORED_REPEAT,
+    src_info->params.wrap_t     = NGLI_WRAP_MIRRORED_REPEAT,
 
-    s->mip_layout.colors[s->mip_layout.nb_colors].format = src_priv->params.format;
+    s->mip_layout.colors[s->mip_layout.nb_colors].format = src_info->params.format;
     s->mip_layout.nb_colors++;
 
-    struct texture_priv *dst_priv = o->destination->priv_data;
-    dst_priv->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+    struct texture_info *dst_info = o->destination->priv_data;
+    dst_info->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    s->dst_is_resizeable = (dst_priv->params.width == 0 && dst_priv->params.height == 0);
-    s->dst_layout.colors[0].format = dst_priv->params.format;
+    s->dst_is_resizeable = (dst_info->params.width == 0 && dst_info->params.height == 0);
+    s->dst_layout.colors[0].format = dst_info->params.format;
     s->dst_layout.nb_colors = 1;
 
     const struct gpu_block_field down_up_data_block_fields[] = {
@@ -350,22 +350,22 @@ static int resize(struct ngl_node *node)
 
     ngli_node_draw(o->source);
 
-    struct texture_priv *src_priv = o->source->priv_data;
-    const int32_t width = src_priv->image.params.width;
-    const int32_t height = src_priv->image.params.height;
+    struct texture_info *src_info = o->source->priv_data;
+    const int32_t width = src_info->image.params.width;
+    const int32_t height = src_info->image.params.height;
     if (s->width == width && s->height == height)
         return 0;
 
     /* Assert that the source texture format does not change */
-    ngli_assert(src_priv->params.format == s->mip_layout.colors[0].format);
+    ngli_assert(src_info->params.format == s->mip_layout.colors[0].format);
 
     /* Assert that the destination texture format does not change */
-    struct texture_priv *dst_priv = o->destination->priv_data;
-    ngli_assert(dst_priv->params.format == s->dst_layout.colors[0].format);
+    struct texture_info *dst_info = o->destination->priv_data;
+    ngli_assert(dst_info->params.format == s->dst_layout.colors[0].format);
 
     struct texture_params texture_params = (struct texture_params) {
         .type          = NGLI_TEXTURE_TYPE_2D,
-        .format        = src_priv->params.format,
+        .format        = src_info->params.format,
         .width         = width,
         .height        = height,
         .min_filter    = NGLI_FILTER_LINEAR,
@@ -409,7 +409,7 @@ static int resize(struct ngl_node *node)
         mip_height = NGLI_MAX(mip_height >> 1, 1);
     }
 
-    dst = dst_priv->texture;
+    dst = dst_info->texture;
     if (s->dst_is_resizeable) {
         dst = ngli_texture_create(ctx->gpu_ctx);
         if (!dst) {
@@ -417,7 +417,7 @@ static int resize(struct ngl_node *node)
             goto fail;
         }
 
-        struct texture_params params = dst_priv->params;
+        struct texture_params params = dst_info->params;
         params.width = width;
         params.height = height;
         ret = ngli_texture_init(dst, &params);
@@ -455,12 +455,12 @@ static int resize(struct ngl_node *node)
     }
 
     if (s->dst_is_resizeable) {
-        ngli_texture_freep(&dst_priv->texture);
-        dst_priv->texture = dst;
-        dst_priv->image.params.width = dst->params.width;
-        dst_priv->image.params.height = dst->params.height;
-        dst_priv->image.planes[0] = dst;
-        dst_priv->image.rev = dst_priv->image_rev++;
+        ngli_texture_freep(&dst_info->texture);
+        dst_info->texture = dst;
+        dst_info->image.params.width = dst->params.width;
+        dst_info->image.params.height = dst->params.height;
+        dst_info->image.planes[0] = dst;
+        dst_info->image.rev = dst_info->image_rev++;
     }
 
     ngli_rtt_freep(&s->dst_rtt_ctx);
@@ -552,8 +552,8 @@ static void fgblur_draw(struct ngl_node *node)
     const float lod_f = lod - (float)lod_i;
 
     /* Downsample source to mips[1] */
-    struct texture_priv *src_priv = (struct texture_priv *)o->source->priv_data;
-    const struct image *src_image = &src_priv->image;
+    struct texture_info *src_info = o->source->priv_data;
+    const struct image *src_image = &src_info->image;
     struct texture *mip = src_image->planes[0];
     execute_down_up_pass(ctx, s->mips[1], s->dws.pl, mip);
 
@@ -599,8 +599,8 @@ static void fgblur_draw(struct ngl_node *node)
      * texture coordinates at all, thus we need to forward the source
      * coordinates matrix to the destination.
      */
-    struct texture_priv *dst_priv = (struct texture_priv *)o->destination->priv_data;
-    struct image *dst_image = &dst_priv->image;
+    struct texture_info *dst_info = o->destination->priv_data;
+    struct image *dst_image = &dst_info->image;
     memcpy(dst_image->coordinates_matrix, src_image->coordinates_matrix, sizeof(src_image->coordinates_matrix));
 }
 

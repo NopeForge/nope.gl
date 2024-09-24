@@ -310,19 +310,14 @@ struct texture_opts {
     int forward_transforms;
 };
 
-struct texture_priv {
+struct texture_info {
+    int requested_format;
     struct texture_params params;
     uint32_t supported_image_layouts;
+    int clamp_video;
     struct texture *texture;
     struct image image;
     size_t image_rev;
-    struct hwmap hwmap;
-    int rtt;
-    int rtt_resizeable;
-    struct renderpass_info renderpass_info;
-    struct rendertarget_layout rendertarget_layout;
-    struct rtt_params rtt_params;
-    struct rtt_ctx *rtt_ctx;
 };
 
 struct media_priv {
