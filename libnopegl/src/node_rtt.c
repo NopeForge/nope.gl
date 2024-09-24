@@ -26,17 +26,17 @@
 #include <string.h>
 
 #include "config.h"
-#include "graphics_state.h"
-#include "rendertarget.h"
 #include "format.h"
 #include "gpu_ctx.h"
+#include "graphics_state.h"
+#include "internal.h"
 #include "log.h"
 #include "node_graphicconfig.h"
 #include "node_rtt.h"
 #include "node_texture.h"
 #include "node_textureview.h"
 #include "nopegl.h"
-#include "internal.h"
+#include "rendertarget.h"
 #include "rtt.h"
 #include "utils.h"
 

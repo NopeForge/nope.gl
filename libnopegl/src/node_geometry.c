@@ -25,10 +25,10 @@
 #include <stdint.h>
 
 #include "geometry.h"
+#include "internal.h"
 #include "log.h"
 #include "node_buffer.h"
 #include "nopegl.h"
-#include "internal.h"
 #include "topology.h"
 
 static const struct param_choices topology_choices = {

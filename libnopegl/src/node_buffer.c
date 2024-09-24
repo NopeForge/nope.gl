@@ -28,12 +28,12 @@
 #include <sys/stat.h>
 
 #include "buffer.h"
+#include "internal.h"
 #include "log.h"
 #include "memory.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "nopegl.h"
-#include "internal.h"
 #include "type.h"
 #include "utils.h"
 

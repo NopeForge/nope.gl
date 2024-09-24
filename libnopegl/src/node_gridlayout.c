@@ -29,8 +29,8 @@
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "nopegl.h"
 #include "node_transform.h"
+#include "nopegl.h"
 #include "transforms.h"
 #include "utils.h"
 

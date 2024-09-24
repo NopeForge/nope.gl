@@ -39,14 +39,14 @@
 #include "gpu_ctx.h"
 #include "graphics_state.h"
 #include "hmap.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
 #include "nopegl.h"
-#include "internal.h"
 #include "pgcache.h"
-#include "rnode.h"
 #include "pthread_compat.h"
+#include "rnode.h"
 
 #if defined(HAVE_VAAPI)
 #include "vaapi_ctx.h"

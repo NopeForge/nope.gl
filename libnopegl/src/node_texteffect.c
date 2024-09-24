@@ -22,10 +22,10 @@
 
 #include <stddef.h>
 
-#include "log.h"
-#include "node_text.h"
-#include "node_texteffect.h"
 #include "internal.h"
+#include "log.h"
+#include "node_texteffect.h"
+#include "node_text.h"
 #include "transforms.h"
 
 static const struct param_choices target_choices = {

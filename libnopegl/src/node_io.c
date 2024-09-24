@@ -21,9 +21,9 @@
 
 #include <stddef.h>
 
+#include "internal.h"
 #include "node_io.h"
 #include "nopegl.h"
-#include "internal.h"
 #include "params.h"
 #include "precision.h"
 #include "type.h"

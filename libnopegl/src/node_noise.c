@@ -22,10 +22,10 @@
 #include <stddef.h>
 #include <limits.h>
 
-#include "nopegl.h"
 #include "internal.h"
 #include "node_uniform.h"
 #include "noise.h"
+#include "nopegl.h"
 #include "type.h"
 
 struct noise_opts {

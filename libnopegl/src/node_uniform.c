@@ -26,11 +26,11 @@
 #include <string.h>
 
 #include "colorconv.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "node_uniform.h"
 #include "nopegl.h"
-#include "internal.h"
 #include "transforms.h"
 #include "type.h"
 
