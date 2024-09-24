@@ -23,6 +23,8 @@
 
 #include "darray.h"
 #include "log.h"
+#include "node_io.h"
+#include "node_program.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "pgcraft.h"

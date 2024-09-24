@@ -27,6 +27,9 @@
 #include "gpu_ctx.h"
 #include "log.h"
 #include "memory.h"
+#include "node_block.h"
+#include "node_buffer.h"
+#include "node_uniform.h"
 #include "nopegl.h"
 #include "internal.h"
 

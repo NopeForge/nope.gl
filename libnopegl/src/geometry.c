@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include "buffer.h"
 #include "format.h"
 #include "geometry.h"
 #include "log.h"

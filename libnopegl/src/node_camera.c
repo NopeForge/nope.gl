@@ -29,6 +29,7 @@
 #include "nopegl.h"
 #include "internal.h"
 #include "math_utils.h"
+#include "node_uniform.h"
 #include "transforms.h"
 
 struct camera_opts {
