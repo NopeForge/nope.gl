@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "log.h"
+#include "node_buffer.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "path.h"

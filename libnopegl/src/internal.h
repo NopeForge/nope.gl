@@ -23,10 +23,8 @@
 #define INTERNAL_H
 
 #include <stdlib.h>
-#include <nopemd.h>
 
 #include "config.h"
-#include "pgcraft.h"
 
 #if defined(HAVE_VAAPI)
 #include "vaapi_ctx.h"
@@ -34,9 +32,6 @@
 
 #if defined(TARGET_ANDROID)
 #include "android_ctx.h"
-#include "android_handlerthread.h"
-#include "android_surface.h"
-#include "android_imagereader.h"
 #endif
 
 #if HAVE_TEXT_LIBRARIES
@@ -44,27 +39,16 @@
 #include FT_OUTLINE_H
 #endif
 
-#include "animation.h"
-#include "block.h"
-#include "drawutils.h"
-#include "graphics_state.h"
+#include "gpu_ctx.h"
 #include "hmap.h"
 #include "hud.h"
-#include "hwconv.h"
-#include "hwmap.h"
-#include "image.h"
 #include "nopegl.h"
 #include "params.h"
 #include "pgcache.h"
-#include "program.h"
 #include "pthread_compat.h"
 #include "darray.h"
-#include "buffer.h"
-#include "format.h"
 #include "rendertarget.h"
 #include "rnode.h"
-#include "rtt.h"
-#include "texture.h"
 #include "utils.h"
 
 struct node_class;
@@ -159,6 +143,13 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t);
 int ngli_ctx_draw(struct ngl_ctx *s, double t);
 void ngli_ctx_reset(struct ngl_ctx *s, int action);
 
+struct livectl {
+    union ngl_livectl_data val;
+    char *id;
+    union ngl_livectl_data min;
+    union ngl_livectl_data max;
+};
+
 #define NGLI_NODE_NONE 0xffffffff
 
 struct ngl_node {
@@ -194,328 +185,6 @@ struct ngl_scene {
     struct darray nodes; // set of all the nodes in the graph
     struct darray files; // files path strings (array of char *)
     struct darray files_par; // file based parameters pointers (array of uint8_t *)
-};
-
-/* helper structure to specify the content (or a slice) of a buffer */
-struct buffer_layout {
-    int type;       // any of NGLI_TYPE_*
-    int format;     // any of NGLI_FORMAT_*
-    size_t stride;  // stride of 1 element, in bytes
-    size_t comp;    // number of components per element
-    size_t count;   // number of elements
-    size_t offset;  // offset where the data starts in the buffer, in bytes
-};
-
-#define NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD (1 << 0) /* The buffer is responsible for uploading its data to the GPU */
-#define NGLI_BUFFER_INFO_FLAG_DYNAMIC    (1 << 1) /* The buffer CPU data may change at every update */
-
-struct buffer_info {
-    struct buffer_layout layout;
-
-    uint8_t *data;          // buffer of <count> elements
-    size_t data_size;       // total buffer data size in bytes
-
-    struct ngl_node *block;
-    int usage;              // flags defining buffer use
-
-    uint32_t flags;
-
-    struct buffer *buffer;
-};
-
-void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage);
-size_t ngli_node_buffer_get_cpu_size(struct ngl_node *node);
-size_t ngli_node_buffer_get_gpu_size(struct ngl_node *node);
-
-struct livectl {
-    union ngl_livectl_data val;
-    char *id;
-    union ngl_livectl_data min;
-    union ngl_livectl_data max;
-};
-
-struct variable_opts {
-    struct livectl live;
-
-    struct ngl_node **animkf;
-    size_t nb_animkf;
-
-    union {
-        struct ngl_node *path_node; /* AnimatedPath only */
-        struct ngl_node *transform; /* UniformMat4 only */
-        int as_mat4; /* UniformQuat and AnimatedQuat only */
-        int space; /* UniformColor and AnimatedColor only */
-    };
-
-    double time_offset;
-};
-
-struct variable_info {
-    void *data;
-    size_t data_size;
-    int data_type;          // any of NGLI_TYPE_*
-    int dynamic;
-};
-
-int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t);
-
-struct block_info {
-    struct block block;
-
-    uint8_t *data;
-    size_t data_size;
-    int usage;
-
-    struct buffer *buffer;
-    size_t buffer_rev;
-};
-
-void ngli_node_block_extend_usage(struct ngl_node *node, int usage);
-size_t ngli_node_block_get_cpu_size(struct ngl_node *node);
-size_t ngli_node_block_get_gpu_size(struct ngl_node *node);
-
-struct program_opts {
-    const char *vertex;
-    const char *fragment;
-    const char *compute;
-    uint32_t workgroup_size[3];
-    struct hmap *properties;
-    struct hmap *vert_out_vars;
-    int32_t nb_frag_output;
-};
-
-struct program_priv {
-    struct darray vert_out_vars_array; // pgcraft_iovar
-};
-
-#define NGLI_RENDERPASS_FEATURE_DEPTH   (1 << 0)
-#define NGLI_RENDERPASS_FEATURE_STENCIL (1 << 1)
-
-struct renderpass_info {
-    int nb_interruptions;
-    uint32_t features;
-};
-
-void ngli_node_get_renderpass_info(const struct ngl_node *node, struct renderpass_info *info);
-
-extern const struct param_choices ngli_mipmap_filter_choices;
-extern const struct param_choices ngli_filter_choices;
-
-struct texture_opts {
-    int requested_format;
-    struct texture_params params;
-    struct ngl_node *data_src;
-    int direct_rendering;
-    int clamp_video;
-    float clear_color[4];
-    int forward_transforms;
-};
-
-struct texture_info {
-    int requested_format;
-    struct texture_params params;
-    uint32_t supported_image_layouts;
-    int clamp_video;
-    struct texture *texture;
-    struct image image;
-    size_t image_rev;
-};
-
-enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node);
-enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node);
-
-struct media_priv {
-    struct nmd_ctx *player;
-    struct nmd_frame *frame;
-    size_t nb_parents;
-    int prefetched;
-
-#if defined(TARGET_ANDROID)
-    struct android_surface *android_surface;
-    struct android_handlerthread *android_handlerthread;
-    struct android_imagereader *android_imagereader;
-#endif
-};
-
-struct transform {
-    struct ngl_node *child;
-    NGLI_ALIGNED_MAT(matrix);
-};
-
-struct io_opts {
-    int precision_out;
-    int precision_in;
-};
-
-struct io_priv {
-    int type;
-};
-
-struct resourceprops_opts {
-    int precision;
-    int as_image;
-    int writable;
-};
-
-void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct graphics_state *state);
-
-enum easing_id {
-    EASING_LINEAR,
-    EASING_QUADRATIC_IN,
-    EASING_QUADRATIC_OUT,
-    EASING_QUADRATIC_IN_OUT,
-    EASING_QUADRATIC_OUT_IN,
-    EASING_CUBIC_IN,
-    EASING_CUBIC_OUT,
-    EASING_CUBIC_IN_OUT,
-    EASING_CUBIC_OUT_IN,
-    EASING_QUARTIC_IN,
-    EASING_QUARTIC_OUT,
-    EASING_QUARTIC_IN_OUT,
-    EASING_QUARTIC_OUT_IN,
-    EASING_QUINTIC_IN,
-    EASING_QUINTIC_OUT,
-    EASING_QUINTIC_IN_OUT,
-    EASING_QUINTIC_OUT_IN,
-    EASING_POWER_IN,
-    EASING_POWER_OUT,
-    EASING_POWER_IN_OUT,
-    EASING_POWER_OUT_IN,
-    EASING_SINUS_IN,
-    EASING_SINUS_OUT,
-    EASING_SINUS_IN_OUT,
-    EASING_SINUS_OUT_IN,
-    EASING_EXP_IN,
-    EASING_EXP_OUT,
-    EASING_EXP_IN_OUT,
-    EASING_EXP_OUT_IN,
-    EASING_CIRCULAR_IN,
-    EASING_CIRCULAR_OUT,
-    EASING_CIRCULAR_IN_OUT,
-    EASING_CIRCULAR_OUT_IN,
-    EASING_BOUNCE_IN,
-    EASING_BOUNCE_OUT,
-    EASING_ELASTIC_IN,
-    EASING_ELASTIC_OUT,
-    EASING_BACK_IN,
-    EASING_BACK_OUT,
-    EASING_BACK_IN_OUT,
-    EASING_BACK_OUT_IN,
-};
-
-typedef double easing_type;
-typedef easing_type (*easing_function)(easing_type, size_t, const easing_type *);
-
-struct animkeyframe_opts {
-    double time;
-    float value[4];
-    double scalar;
-    uint8_t *data;
-    size_t data_size;
-    int easing;
-    double *args;
-    size_t nb_args;
-    double offsets[2];
-};
-
-struct animkeyframe_priv {
-    easing_function function;
-    easing_function derivative;
-    easing_function resolution;
-    int scale_boundaries;
-    double boundaries[2];
-    double derivative_scale;
-};
-
-struct colorkey_opts {
-    struct ngl_node *position_node;
-    float position;
-    struct ngl_node *color_node;
-    float color[3];
-    struct ngl_node *opacity_node;
-    float opacity;
-};
-
-struct pathkey_move_opts {
-    float to[3];
-};
-
-struct pathkey_line_opts {
-    float to[3];
-};
-
-struct pathkey_bezier2_opts {
-    float control[3];
-    float to[3];
-};
-
-struct pathkey_bezier3_opts {
-    float control1[3];
-    float control2[3];
-    float to[3];
-};
-
-struct textureview_opts {
-    struct ngl_node *texture;
-    int32_t layer;
-};
-
-struct textureview_priv {
-    struct textureview_opts opts;
-};
-
-enum {
-    NGLI_TEXT_EFFECT_CHAR,
-    NGLI_TEXT_EFFECT_CHAR_NOSPACE,
-    NGLI_TEXT_EFFECT_WORD,
-    NGLI_TEXT_EFFECT_LINE,
-    NGLI_TEXT_EFFECT_TEXT,
-};
-
-enum {
-    NGLI_TEXT_ANCHOR_REF_CHAR,
-    NGLI_TEXT_ANCHOR_REF_BOX,
-    NGLI_TEXT_ANCHOR_REF_VIEWPORT,
-};
-
-struct fontface_opts {
-    char *path;
-    int32_t index;
-};
-
-struct texteffect_opts {
-    double start_time;
-    double end_time;
-    int target;
-    int random;
-    uint32_t random_seed;
-
-    /* if animated, expressed in effect time (0 to 1) */
-    struct ngl_node *start_pos_node;
-    float start_pos;
-    struct ngl_node *end_pos_node;
-    float end_pos;
-    struct ngl_node *overlap_node;
-    float overlap;
-
-    /* if animated, expressed in target time (0 to 1) */
-    struct ngl_node *transform_chain;
-    float anchor[2];
-    int anchor_ref;
-    struct ngl_node *color_node;
-    float color[3];
-    struct ngl_node *opacity_node;
-    float opacity;
-    struct ngl_node *outline_node;
-    float outline;
-    struct ngl_node *outline_color_node;
-    float outline_color[3];
-    struct ngl_node *glow_node;
-    float glow;
-    struct ngl_node *glow_color_node;
-    float glow_color[3];
-    struct ngl_node *blur_node;
-    float blur;
 };
 
 enum {
@@ -716,15 +385,12 @@ char *ngli_scene_serialize(const struct ngl_scene *s);
 char *ngli_scene_dot(const struct ngl_scene *s);
 void ngli_scene_update_filepath_ref(struct ngl_node *node, const struct node_param *par);
 
-void ngli_node_print_specs(void);
-
 int ngli_node_prepare(struct ngl_node *node);
 int ngli_node_prepare_children(struct ngl_node *node);
 int ngli_node_visit(struct ngl_node *node, int is_active, double t);
 int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t);
 int ngli_node_update(struct ngl_node *node, double t);
 int ngli_node_update_children(struct ngl_node *node, double t);
-void *ngli_node_get_data_ptr(const struct ngl_node *var_node, void *data_fallback);
 int ngli_prepare_draw(struct ngl_ctx *s, double t);
 void ngli_node_draw(struct ngl_node *node);
 void ngli_node_draw_children(struct ngl_node *node);

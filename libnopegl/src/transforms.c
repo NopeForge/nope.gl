@@ -23,6 +23,7 @@
 #include "log.h"
 #include "nopegl.h"
 #include "math_utils.h"
+#include "node_transform.h"
 #include "transforms.h"
 
 const struct ngl_node *ngli_transform_get_leaf_node(const struct ngl_node *node)

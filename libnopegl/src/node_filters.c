@@ -29,6 +29,8 @@
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
+#include "node_colorkey.h"
+#include "node_uniform.h"
 #include "nopegl.h"
 #include "pgcraft.h"
 #include "type.h"

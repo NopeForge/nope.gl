@@ -25,6 +25,8 @@
 #include "gpu_limits.h"
 #include "internal.h"
 #include "log.h"
+#include "node_block.h"
+#include "node_texture.h"
 #include "nopegl.h"
 #include "pipeline_compat.h"
 #include "type.h"

@@ -25,10 +25,10 @@
 #include <nopemd.h>
 
 #include "config.h"
+#include "format.h"
 #include "gpu_ctx.h"
 #include "hwmap.h"
 #include "log.h"
-#include "math_utils.h"
 #include "memory.h"
 #include "nopegl.h"
 #include "internal.h"

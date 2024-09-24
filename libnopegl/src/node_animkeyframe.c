@@ -26,8 +26,8 @@
 #include <string.h>
 
 #include "bstr.h"
-#include "colorconv.h"
 #include "log.h"
+#include "node_animkeyframe.h"
 #include "nopegl.h"
 #include "internal.h"
 #include "math_utils.h"

@@ -22,6 +22,7 @@
 
 #include <stddef.h>
 
+#include "node_colorkey.h"
 #include "nopegl.h"
 #include "internal.h"
 
