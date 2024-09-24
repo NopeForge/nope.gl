@@ -24,12 +24,11 @@
 #include <string.h>
 
 #include "animation.h"
-#include "math_utils.h"
 #include "internal.h"
+#include "math_utils.h"
 #include "node_animkeyframe.h"
 #include "node_uniform.h"
 #include "node_velocity.h"
-
 #include "type.h"
 
 struct velocity_opts {

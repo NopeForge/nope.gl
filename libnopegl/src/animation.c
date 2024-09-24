@@ -20,12 +20,13 @@
  */
 
 #include <float.h>
+
 #include "animation.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "node_animkeyframe.h"
 #include "nopegl.h"
-#include "internal.h"
 
 static size_t get_kf_id(struct ngl_node * const *animkf, size_t nb_animkf, size_t start, double t)
 {

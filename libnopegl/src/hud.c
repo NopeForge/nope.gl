@@ -38,22 +38,22 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "drawutils.h"
 #include "gpu_ctx.h"
-#include "memory.h"
-#include "nopegl.h"
+#include "graphics_state.h"
+#include "hud.h"
 #include "internal.h"
 #include "log.h"
-#include "drawutils.h"
+#include "memory.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_texture.h"
+#include "nopegl.h"
 #include "pgcache.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "type.h"
 #include "topology.h"
-#include "graphics_state.h"
-#include "hud.h"
+#include "type.h"
 
 struct hud {
     struct ngl_ctx *ctx;

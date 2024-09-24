@@ -22,8 +22,8 @@
 
 #include <stddef.h>
 
-#include "log.h"
 #include "internal.h"
+#include "log.h"
 #include "node_texture.h"
 #include "node_textureview.h"
 #include "nopegl.h"

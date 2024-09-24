@@ -22,11 +22,11 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "nopegl.h"
 #include "internal.h"
 #include "math_utils.h"
 #include "node_transform.h"
 #include "node_uniform.h"
+#include "nopegl.h"
 #include "transforms.h"
 
 struct transform_opts {

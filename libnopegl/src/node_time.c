@@ -21,9 +21,9 @@
 
 #include <stddef.h>
 
-#include "nopegl.h"
 #include "internal.h"
 #include "node_uniform.h"
+#include "nopegl.h"
 #include "type.h"
 
 struct time_priv {

@@ -22,10 +22,10 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "nopegl.h"
 #include "internal.h"
 #include "math_utils.h"
 #include "node_transform.h"
+#include "nopegl.h"
 
 struct identity_priv {
     struct transform trf;
