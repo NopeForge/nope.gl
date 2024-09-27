@@ -212,17 +212,6 @@ _EXTERNAL_DEPS = dict(
         url="https://github.com/KhronosGroup/glslang/archive/refs/tags/@VERSION@.tar.gz",
         sha256="c6c21fe1873c37e639a6a9ac72d857ab63a5be6893a589f34e09a6c757174201",
     ),
-    glslang_Windows=dict(
-        # Use the legacy master-tot Windows build until the main-tot one is
-        # fixed, or until the glslang project provides Windows builds for their
-        # stable releases
-        # See: https://github.com/KhronosGroup/glslang/issues/3186
-        version="master",
-        dst_file="glslang-@VERSION@.zip",
-        dst_dir="glslang-@VERSION@",
-        url="https://github.com/KhronosGroup/glslang/releases/download/master-tot/glslang-master-windows-x64-Release.zip",
-        sha256="skip",
-    ),
     pkgconf=dict(
         version="1.9.5",
         url="https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-@VERSION@.tar.gz",
@@ -266,13 +255,15 @@ def _is_local(system):
 
 
 def _get_external_deps(args):
-    deps = ["nopemd"]
+    deps = [
+        "nopemd",
+        "glslang",
+    ]
 
     host, _ = _get_host(args)
     if host == "Android":
         deps.append("boringssl")
         deps.append("ffmpeg")
-        deps.append("glslang")
         deps.append("freetype")
         deps.append("harfbuzz")
         deps.append("fribidi")
@@ -280,7 +271,6 @@ def _get_external_deps(args):
         deps.append("boringssl")
         deps.append("ffmpeg")
         deps.append("moltenvk_iOS")
-        deps.append("glslang")
         deps.append("freetype")
         deps.append("harfbuzz")
         deps.append("fribidi")
@@ -290,7 +280,6 @@ def _get_external_deps(args):
         deps.append("opengl_registry")
         deps.append("ffmpeg_Windows")
         deps.append("sdl2_Windows")
-        deps.append("glslang_Windows")
         deps.append("freetype")
         deps.append("harfbuzz")
         deps.append("fribidi")
@@ -811,27 +800,14 @@ def _glslang_setup(cfg):
     ]
 
 
-@_block("glslang-install", {"Android": [_glslang_setup], "iOS": [_glslang_setup]})
+@_block("glslang-install", [_glslang_setup])
 def _glslang_install(cfg):
-    if cfg.host in ["Android", "iOS"]:
-        builddir = _get_builddir(cfg, "glslang")
-        cmds = [
-            _cmd_join("cmake", "--build", builddir),
-            _cmd_join("cmake", "--install", builddir),
-        ]
-        return cmds
-    elif cfg.host == "Windows":
-        dirs = (
-            ("lib", "Lib"),
-            ("include", "Include"),
-            ("bin", "Scripts"),
-        )
-        cmds = []
-        for src, dst in dirs:
-            src = op.join(cfg.externals["glslang_Windows"], src, "*")
-            dst = op.join(cfg.prefix, dst)
-            cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
-        return cmds
+    builddir = _get_builddir(cfg, "glslang")
+    cmds = [
+        _cmd_join("cmake", "--build", builddir),
+        _cmd_join("cmake", "--install", builddir),
+    ]
+    return cmds
 
 
 @_block(
@@ -909,7 +885,7 @@ def _fribidi_install(cfg):
             _harfbuzz_install,
             _fribidi_install,
         ],
-        "Local": [_nopemd_install],
+        "Local": [_nopemd_install, _glslang_install],
         "Windows": [
             _nopemd_install,
             _sdl2_install,
@@ -937,19 +913,14 @@ def _nopegl_setup(cfg):
 
     extra_library_dirs = []
     extra_include_dirs = []
-    if cfg.host == "Android":
-        extra_library_dirs += [op.join(cfg.prefix, "lib")]
-        extra_include_dirs += [op.join(cfg.prefix, "include")]
-
-    elif cfg.host == "iOS":
-        extra_library_dirs += [op.join(cfg.prefix, "lib")]
-        extra_include_dirs += [op.join(cfg.prefix, "include")]
-
-    elif cfg.host == "Windows":
+    if cfg.host == "Windows":
         extra_library_dirs += [op.join(cfg.prefix, "Lib")]
         extra_include_dirs += [op.join(cfg.prefix, "Include")]
+    else:
+        extra_library_dirs += [op.join(cfg.prefix, "lib")]
+        extra_include_dirs += [op.join(cfg.prefix, "include")]
 
-    elif cfg.host == "Darwin":
+    if cfg.host == "Darwin":
         prefix = _get_brew_prefix()
         if prefix:
             extra_library_dirs += [op.join(prefix, "lib")]
