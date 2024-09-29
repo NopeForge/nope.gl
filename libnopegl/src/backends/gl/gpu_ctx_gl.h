@@ -31,11 +31,11 @@
 #endif
 
 #include "glstate.h"
-#include "rendertarget.h"
+#include "gpu_rendertarget.h"
 #include "gpu_ctx.h"
 
 struct ngl_ctx;
-struct rendertarget;
+struct gpu_rendertarget;
 
 typedef void (*capture_func_type)(struct gpu_ctx *s);
 
@@ -43,20 +43,20 @@ struct gpu_ctx_gl {
     struct gpu_ctx parent;
     struct glcontext *glcontext;
     struct glstate glstate;
-    struct rendertarget_layout default_rt_layout;
+    struct gpu_rendertarget_layout default_rt_layout;
     /* Default rendertarget with load op set to clear */
-    struct rendertarget *default_rt;
+    struct gpu_rendertarget *default_rt;
     /* Default rendertarget with load op set to load, useful for resuming the
      * associated renderpass (without discarding its attachments) */
-    struct rendertarget *default_rt_load;
+    struct gpu_rendertarget *default_rt_load;
     /* Offscreen render target resources */
-    struct texture *color;
-    struct texture *ms_color;
-    struct texture *depth_stencil;
+    struct gpu_texture *color;
+    struct gpu_texture *ms_color;
+    struct gpu_texture *depth_stencil;
     /* Offscreen capture callback and resources */
     capture_func_type capture_func;
-    struct rendertarget *capture_rt;
-    struct texture *capture_texture;
+    struct gpu_rendertarget *capture_rt;
+    struct gpu_texture *capture_texture;
 #if defined(TARGET_IPHONE)
     CVPixelBufferRef capture_cvbuffer;
     CVOpenGLESTextureRef capture_cvtexture;

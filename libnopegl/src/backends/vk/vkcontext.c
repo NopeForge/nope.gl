@@ -38,7 +38,7 @@
 #include <vulkan/vulkan.h>
 
 #include "bstr.h"
-#include "format.h"
+#include "gpu_format.h"
 #include "log.h"
 #include "memory.h"
 #include "nopegl.h"
@@ -746,10 +746,10 @@ static VkResult query_swapchain_support(struct vkcontext *s)
 static int ngli_format_from_vk_format(VkFormat format)
 {
     switch (format) {
-    case VK_FORMAT_D32_SFLOAT:         return NGLI_FORMAT_D32_SFLOAT;
-    case VK_FORMAT_D16_UNORM:          return NGLI_FORMAT_D16_UNORM;
-    case VK_FORMAT_D32_SFLOAT_S8_UINT: return NGLI_FORMAT_D32_SFLOAT_S8_UINT;
-    case VK_FORMAT_D24_UNORM_S8_UINT:  return NGLI_FORMAT_D24_UNORM_S8_UINT;
+    case VK_FORMAT_D32_SFLOAT:         return NGLI_GPU_FORMAT_D32_SFLOAT;
+    case VK_FORMAT_D16_UNORM:          return NGLI_GPU_FORMAT_D16_UNORM;
+    case VK_FORMAT_D32_SFLOAT_S8_UINT: return NGLI_GPU_FORMAT_D32_SFLOAT_S8_UINT;
+    case VK_FORMAT_D24_UNORM_S8_UINT:  return NGLI_GPU_FORMAT_D24_UNORM_S8_UINT;
     default:
         ngli_assert(0);
     }

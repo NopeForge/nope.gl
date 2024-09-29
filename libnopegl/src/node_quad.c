@@ -28,7 +28,7 @@
 #include "math_utils.h"
 #include "nopegl.h"
 #include "internal.h"
-#include "topology.h"
+#include "gpu_ctx.h"
 #include "utils.h"
 
 struct quad_opts {
@@ -110,7 +110,7 @@ static int quad_init(struct ngl_node *node)
         (ret = ngli_geometry_set_normals(s->geom, NB_VERTICES, normals))   < 0)
         return ret;
 
-    return ngli_geometry_init(s->geom, NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    return ngli_geometry_init(s->geom, NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 
 static void quad_uninit(struct ngl_node *node)

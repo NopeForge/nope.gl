@@ -26,7 +26,7 @@
 #include <stddef.h>
 
 #include "type.h"
-#include "format.h"
+#include "gpu_format.h"
 
 /*
  * Helper structure to specify the content (or a slice) of a buffer

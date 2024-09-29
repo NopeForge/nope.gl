@@ -24,7 +24,7 @@
 
 #include "darray.h"
 #include "nopegl.h"
-#include "texture.h"
+#include "gpu_texture.h"
 #include "utils.h"
 
 #define NGLI_I32_TO_I26D6(x) ((x) * (1 << 6))     // convert i32 to 26.6 fixed point
@@ -138,7 +138,7 @@ struct text {
     int32_t width;
     int32_t height;
     struct darray chars; // struct char_info
-    struct texture *atlas_texture;
+    struct gpu_texture *atlas_texture;
     struct text_data_pointers data_ptrs; // set of effect data pointers (in chars_data)
 
     /* effects specific */

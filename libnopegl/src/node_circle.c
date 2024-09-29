@@ -29,7 +29,6 @@
 #include "memory.h"
 #include "nopegl.h"
 #include "internal.h"
-#include "topology.h"
 #include "utils.h"
 
 struct circle_opts {
@@ -124,7 +123,7 @@ end:
     if (ret < 0)
         return ret;
 
-    return ngli_geometry_init(s->geom, NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    return ngli_geometry_init(s->geom, NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 }
 
 static void circle_uninit(struct ngl_node *node)

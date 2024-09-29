@@ -22,11 +22,11 @@
 #ifndef HWCONV_H
 #define HWCONV_H
 
-#include "buffer.h"
-#include "rendertarget.h"
+#include "gpu_buffer.h"
+#include "gpu_rendertarget.h"
 #include "image.h"
 #include "pgcraft.h"
-#include "texture.h"
+#include "gpu_texture.h"
 #include "pipeline_compat.h"
 
 struct ngl_ctx;
@@ -35,7 +35,7 @@ struct hwconv {
     struct ngl_ctx *ctx;
     struct image_params src_params;
 
-    struct rendertarget *rt;
+    struct gpu_rendertarget *rt;
     struct pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
 };

@@ -22,7 +22,7 @@
 #ifndef BLENDING_H
 #define BLENDING_H
 
-#include "graphics_state.h"
+#include "gpu_graphics_state.h"
 
 enum {
     NGLI_BLENDING_DEFAULT,
@@ -38,6 +38,6 @@ enum {
 };
 
 extern const struct param_choices ngli_blending_choices;
-int ngli_blending_apply_preset(struct graphics_state *state, int preset);
+int ngli_blending_apply_preset(struct gpu_graphics_state *state, int preset);
 
 #endif

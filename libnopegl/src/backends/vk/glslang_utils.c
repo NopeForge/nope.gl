@@ -30,7 +30,7 @@
 #include "log.h"
 #include "memory.h"
 #include "nopegl.h"
-#include "program.h"
+#include "gpu_program.h"
 #include "pthread_compat.h"
 
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
@@ -54,9 +54,9 @@ int ngli_glslang_init(void)
 int ngli_glslang_compile(int stage, const char *src, void **datap, size_t *sizep)
 {
     static const glslang_stage_t stages[] = {
-        [NGLI_PROGRAM_SHADER_VERT] = GLSLANG_STAGE_VERTEX,
-        [NGLI_PROGRAM_SHADER_FRAG] = GLSLANG_STAGE_FRAGMENT,
-        [NGLI_PROGRAM_SHADER_COMP] = GLSLANG_STAGE_COMPUTE,
+        [NGLI_GPU_PROGRAM_SHADER_VERT] = GLSLANG_STAGE_VERTEX,
+        [NGLI_GPU_PROGRAM_SHADER_FRAG] = GLSLANG_STAGE_FRAGMENT,
+        [NGLI_GPU_PROGRAM_SHADER_COMP] = GLSLANG_STAGE_COMPUTE,
     };
 
     /*
@@ -143,7 +143,7 @@ int ngli_glslang_compile(int stage, const char *src, void **datap, size_t *sizep
     };
     glslang_program_SPIRV_generate_with_options(program, glslc_input.stage, &options);
 #else
-    glslang_program_SPIRV_generate(program, glslc_input.stage);
+    glslang_program_SPIRV_generate(gpu_program, glslc_input.stage);
 #endif
 
     const char *messages = glslang_program_SPIRV_get_messages(program);

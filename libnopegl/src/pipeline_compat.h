@@ -23,30 +23,30 @@
 #ifndef PIPELINE_COMPAT_H
 #define PIPELINE_COMPAT_H
 
-#include "bindgroup.h"
+#include "gpu_bindgroup.h"
 #include "pgcraft.h"
-#include "pipeline.h"
+#include "gpu_pipeline.h"
 
 struct pipeline_compat_resources {
-    struct texture_binding *textures;
+    struct gpu_texture_binding *textures;
     size_t nb_textures;
-    struct buffer_binding *buffers;
+    struct gpu_buffer_binding *buffers;
     size_t nb_buffers;
-    struct buffer **vertex_buffers;
+    struct gpu_buffer **vertex_buffers;
     size_t nb_vertex_buffers;
 };
 
 struct pipeline_compat_layout {
-    const struct bindgroup_layout_entry *textures;
+    const struct gpu_bindgroup_layout_entry *textures;
     size_t nb_textures;
-    const struct bindgroup_layout_entry *buffers;
+    const struct gpu_bindgroup_layout_entry *buffers;
     size_t nb_buffers;
 };
 
 struct pipeline_compat_params {
     int type; // NGLI_PIPELINE_TYPE_*
-    struct pipeline_graphics graphics;
-    const struct program *program;
+    struct gpu_pipeline_graphics graphics;
+    const struct gpu_program *program;
     struct pipeline_compat_layout layout;
     struct pipeline_compat_resources resources;
     const struct pgcraft_compat_info *compat_info;
@@ -56,16 +56,16 @@ struct pipeline_compat;
 
 struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx);
 int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_compat_params *params);
-int ngli_pipeline_compat_update_vertex_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer);
+int ngli_pipeline_compat_update_vertex_buffer(struct pipeline_compat *s, int32_t index, const struct gpu_buffer *buffer);
 int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index, const void *value);
 int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t index, const void *value, size_t count);
-int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct texture *texture);
+int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct gpu_texture *texture);
 void ngli_pipeline_compat_apply_reframing_matrix(struct pipeline_compat *s, int32_t index, const struct image *image, const float *reframing);
 void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index, const struct image *image);
-int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct buffer *buffer, size_t offset, size_t size);
+int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct gpu_buffer *buffer, size_t offset, size_t size);
 int ngli_pipeline_compat_update_dynamic_offsets(struct pipeline_compat *s, const uint32_t *offsets, size_t nb_offsets);
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances);
-void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances);
+void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct gpu_buffer *indices, int indices_format, int nb_indices, int nb_instances);
 void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 void ngli_pipeline_compat_freep(struct pipeline_compat **sp);
 

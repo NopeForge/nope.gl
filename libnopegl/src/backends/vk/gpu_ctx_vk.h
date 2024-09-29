@@ -66,13 +66,13 @@ struct gpu_ctx_vk {
     struct darray depth_stencils;
     struct darray rts;
     struct darray rts_load;
-    struct buffer *capture_buffer;
+    struct gpu_buffer *capture_buffer;
     int capture_buffer_size;
     void *mapped_data;
 
-    struct rendertarget *default_rt;
-    struct rendertarget *default_rt_load;
-    struct rendertarget_layout default_rt_layout;
+    struct gpu_rendertarget *default_rt;
+    struct gpu_rendertarget *default_rt_load;
+    struct gpu_rendertarget_layout default_rt_layout;
 
     /*
      * The nope.gl pipeline API allows executing a pipeline with unbound
@@ -80,7 +80,7 @@ struct gpu_ctx_vk {
      * restriction we allocate a dummy texture and bind it to any unbound
      * binding point of a pipeline.
      */
-    struct texture *dummy_texture;
+    struct gpu_texture *dummy_texture;
 };
 
 #endif

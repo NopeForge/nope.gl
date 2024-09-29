@@ -26,8 +26,8 @@
 #include <CoreFoundation/CFBundle.h>
 #include <Cocoa/Cocoa.h>
 
-#include "format.h"
 #include "glcontext.h"
+#include "gpu_format.h"
 #include "log.h"
 #include "nopegl.h"
 

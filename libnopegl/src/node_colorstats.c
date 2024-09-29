@@ -103,7 +103,7 @@ static int setup_compute(struct colorstats_priv *s, struct pgcraft *crafter,
         return ret;
 
     const struct pipeline_compat_params params = {
-        .type        = NGLI_PIPELINE_TYPE_COMPUTE,
+        .type        = NGLI_GPU_PIPELINE_TYPE_COMPUTE,
         .program     = ngli_pgcraft_get_program(crafter),
         .layout      = ngli_pgcraft_get_pipeline_layout(crafter),
         .resources   = ngli_pgcraft_get_pipeline_resources(crafter),
@@ -117,8 +117,8 @@ static int setup_compute(struct colorstats_priv *s, struct pgcraft *crafter,
 static int setup_init_compute(struct colorstats_priv *s, const struct pgcraft_block *block)
 {
     const struct pgcraft_uniform uniforms[] = {
-        {.name="depth",         .type=NGLI_TYPE_I32, .stage=NGLI_PROGRAM_SHADER_COMP},
-        {.name="length_minus1", .type=NGLI_TYPE_I32, .stage=NGLI_PROGRAM_SHADER_COMP},
+        {.name="depth",         .type=NGLI_TYPE_I32, .stage=NGLI_GPU_PROGRAM_SHADER_COMP},
+        {.name="length_minus1", .type=NGLI_TYPE_I32, .stage=NGLI_GPU_PROGRAM_SHADER_COMP},
     };
 
     const struct pgcraft_params crafter_params = {
@@ -134,8 +134,8 @@ static int setup_init_compute(struct colorstats_priv *s, const struct pgcraft_bl
     if (ret < 0)
         return ret;
 
-    s->init.depth_index         = ngli_pgcraft_get_uniform_index(s->init.crafter, "depth",         NGLI_PROGRAM_SHADER_COMP);
-    s->init.length_minus1_index = ngli_pgcraft_get_uniform_index(s->init.crafter, "length_minus1", NGLI_PROGRAM_SHADER_COMP);
+    s->init.depth_index         = ngli_pgcraft_get_uniform_index(s->init.crafter, "depth", NGLI_GPU_PROGRAM_SHADER_COMP);
+    s->init.length_minus1_index = ngli_pgcraft_get_uniform_index(s->init.crafter, "length_minus1", NGLI_GPU_PROGRAM_SHADER_COMP);
 
     s->init.block_index    = ngli_pgcraft_get_block_index(s->init.crafter, block->name, block->stage);
 
@@ -151,7 +151,7 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
         {
             .name        = "source",
             .type        = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
-            .stage       = NGLI_PROGRAM_SHADER_COMP,
+            .stage       = NGLI_GPU_PROGRAM_SHADER_COMP,
             .image       = &texture_info->image,
             .format      = texture_info->params.format,
             .clamp_video = 0, /* clamping is done manually in the shader */
@@ -236,7 +236,7 @@ static int init_computes(struct ngl_node *node)
     const struct pgcraft_block block = {
         .name     = "stats",
         .type     = NGLI_TYPE_STORAGE_BUFFER,
-        .stage    = NGLI_PROGRAM_SHADER_COMP,
+        .stage    = NGLI_GPU_PROGRAM_SHADER_COMP,
         .writable = 1,
         .block    = &s->blk.block,
     };
@@ -272,7 +272,7 @@ static int init_block(struct colorstats_priv *s, struct gpu_ctx *gpu_ctx)
     s->blk.data_size = 0;
 
     /* Colorstats needs to write into the block so we bind it as SSBO */
-    s->blk.usage = NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    s->blk.usage = NGLI_GPU_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 
     return 0;
 }
@@ -283,7 +283,7 @@ static int colorstats_init(struct ngl_node *node)
     struct colorstats_priv *s = node->priv_data;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
-    if (!(gpu_ctx->features & NGLI_FEATURE_COMPUTE)) {
+    if (!(gpu_ctx->features & NGLI_GPU_FEATURE_COMPUTE)) {
         LOG(ERROR, "ColorStats is not supported by this context (requires compute shaders and SSBO support)");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
@@ -328,7 +328,7 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
 
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    s->blk.buffer = ngli_buffer_create(gpu_ctx);
+    s->blk.buffer = ngli_gpu_buffer_create(gpu_ctx);
     if (!s->blk.buffer)
         return NGL_ERROR_MEMORY;
 
@@ -338,7 +338,7 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
      */
     const size_t data_field_count = length * s->depth;
     s->blk.data_size = ngli_block_get_size(&s->blk.block, data_field_count);
-    int ret = ngli_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
+    int ret = ngli_gpu_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
     if (ret < 0)
         return ret;
 
@@ -422,7 +422,7 @@ static void colorstats_uninit(struct ngl_node *node)
     ngli_pipeline_compat_freep(&s->init.pipeline_compat);
     ngli_pipeline_compat_freep(&s->waveform.pipeline_compat);
     ngli_pipeline_compat_freep(&s->sumscale.pipeline_compat);
-    ngli_buffer_freep(&s->blk.buffer);
+    ngli_gpu_buffer_freep(&s->blk.buffer);
     ngli_block_reset(&s->blk.block);
 }
 

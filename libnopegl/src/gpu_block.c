@@ -49,13 +49,13 @@ int ngli_gpu_block_init(struct gpu_ctx *gpu_ctx, struct gpu_block *s, const stru
     }
 
     s->block_size = ngli_block_get_aligned_size(&s->block, 0);
-    s->buffer = ngli_buffer_create(gpu_ctx);
+    s->buffer = ngli_gpu_buffer_create(gpu_ctx);
     if (!s->buffer)
         return NGL_ERROR_MEMORY;
 
     const size_t buffer_size = s->block_size * NGLI_MAX(params->count, 1);
-    const int usage = params->usage | NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGLI_BUFFER_USAGE_MAP_WRITE;
-    int ret = ngli_buffer_init(s->buffer, buffer_size, usage);
+    const int usage = params->usage | NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
+    int ret = ngli_gpu_buffer_init(s->buffer, buffer_size, usage);
     if (ret < 0)
         return ret;
 
@@ -66,7 +66,7 @@ int ngli_gpu_block_update(struct gpu_block *s, size_t index, const void *data)
 {
     const uint8_t *src = data;
     uint8_t *dst = NULL;
-    int ret = ngli_buffer_map(s->buffer, s->block_size * index, s->block_size, (void **)&dst);
+    int ret = ngli_gpu_buffer_map(s->buffer, s->block_size * index, s->block_size, (void **) &dst);
     if (ret < 0)
         return ret;
     const struct block_field *fields = ngli_darray_data(&s->block.fields);
@@ -75,7 +75,7 @@ int ngli_gpu_block_update(struct gpu_block *s, size_t index, const void *data)
         const struct block_field *field = &fields[i];
         ngli_block_field_copy_count(field, dst + field->offset, src + offsets[i], field->count);
     }
-    ngli_buffer_unmap(s->buffer);
+    ngli_gpu_buffer_unmap(s->buffer);
 
     return 0;
 }
@@ -84,6 +84,6 @@ void ngli_gpu_block_reset(struct gpu_block *s)
 {
     ngli_block_reset(&s->block);
     ngli_darray_reset(&s->offsets);
-    ngli_buffer_freep(&s->buffer);
+    ngli_gpu_buffer_freep(&s->buffer);
     memset(s, 0, sizeof(*s));
 }

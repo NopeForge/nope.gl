@@ -355,7 +355,7 @@ static int glcontext_probe_limits(struct glcontext *glcontext)
     GET(GL_MAX_ARRAY_TEXTURE_LAYERS, &limits->max_texture_array_layers);
     GET(GL_MAX_SAMPLES, &limits->max_samples);
     GET(GL_MAX_COLOR_ATTACHMENTS, &limits->max_color_attachments);
-    limits->max_color_attachments = NGLI_MIN(limits->max_color_attachments, NGLI_MAX_COLOR_ATTACHMENTS);
+    limits->max_color_attachments = NGLI_MIN(limits->max_color_attachments, NGLI_GPU_MAX_COLOR_ATTACHMENTS);
     GET(GL_MAX_UNIFORM_BLOCK_SIZE, &limits->max_uniform_block_size);
     GET(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &limits->min_uniform_block_offset_alignment);
 
@@ -389,7 +389,7 @@ static int glcontext_probe_limits(struct glcontext *glcontext)
 
 static int glcontext_probe_formats(struct glcontext *glcontext)
 {
-    ngli_format_gl_init(glcontext);
+    ngli_gpu_format_gl_init(glcontext);
 
     return 0;
 }

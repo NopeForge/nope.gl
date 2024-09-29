@@ -37,12 +37,12 @@
 #include "log.h"
 #include "nopegl.h"
 #include "internal.h"
-#include "texture_gl.h"
+#include "gpu_texture_gl.h"
 #include "utils.h"
 
 struct hwmap_vaapi {
     struct nmd_frame *frame;
-    struct texture *planes[2];
+    struct gpu_texture *planes[2];
 
     GLuint gl_planes[2];
     EGLImageKHR egl_images[2];
@@ -86,10 +86,11 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
     ngli_glGenTextures(gl, 2, vaapi->gl_planes);
 
     for (size_t i = 0; i < 2; i++) {
-        const GLint min_filter = ngli_texture_get_gl_min_filter(params->texture_min_filter, NGLI_MIPMAP_FILTER_NONE);
-        const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->texture_mag_filter);
-        const GLint wrap_s = ngli_texture_get_gl_wrap(params->texture_wrap_s);
-        const GLint wrap_t = ngli_texture_get_gl_wrap(params->texture_wrap_t);
+        const GLint min_filter = ngli_gpu_texture_get_gl_min_filter(params->texture_min_filter,
+                                                                    NGLI_GPU_MIPMAP_FILTER_NONE);
+        const GLint mag_filter = ngli_gpu_texture_get_gl_mag_filter(params->texture_mag_filter);
+        const GLint wrap_s = ngli_gpu_texture_get_gl_wrap(params->texture_wrap_s);
+        const GLint wrap_t = ngli_gpu_texture_get_gl_wrap(params->texture_wrap_t);
 
         ngli_glBindTexture(gl, GL_TEXTURE_2D, vaapi->gl_planes[i]);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
@@ -98,28 +99,28 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
-        const int format = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM;
+        const int format = i == 0 ? NGLI_GPU_FORMAT_R8_UNORM : NGLI_GPU_FORMAT_R8G8_UNORM;
 
-        const struct texture_params plane_params = {
-            .type             = NGLI_TEXTURE_TYPE_2D,
+        const struct gpu_texture_params plane_params = {
+            .type             = NGLI_GPU_TEXTURE_TYPE_2D,
             .format           = format,
             .min_filter       = params->texture_min_filter,
             .mag_filter       = params->texture_mag_filter,
             .wrap_s           = params->texture_wrap_s,
             .wrap_t           = params->texture_wrap_t,
-            .usage            = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
+            .usage            = NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
         };
 
-        const struct texture_gl_wrap_params wrap_params = {
+        const struct gpu_texture_gl_wrap_params wrap_params = {
             .params  = &plane_params,
             .texture = vaapi->gl_planes[i],
         };
 
-        vaapi->planes[i] = ngli_texture_create(gpu_ctx);
+        vaapi->planes[i] = ngli_gpu_texture_create(gpu_ctx);
         if (!vaapi->planes[i])
             return NGL_ERROR_MEMORY;
 
-        int ret = ngli_texture_gl_wrap(vaapi->planes[i], &wrap_params);
+        int ret = ngli_gpu_texture_gl_wrap(vaapi->planes[i], &wrap_params);
         if (ret < 0)
             return ret;
     }
@@ -171,7 +172,7 @@ static void vaapi_uninit(struct hwmap *hwmap)
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
     for (size_t i = 0; i < 2; i++)
-        ngli_texture_freep(&vaapi->planes[i]);
+        ngli_gpu_texture_freep(&vaapi->planes[i]);
 
     ngli_glDeleteTextures(gl, 2, vaapi->gl_planes);
 
@@ -266,9 +267,9 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             return NGL_ERROR_EXTERNAL;
         }
 
-        struct texture *plane = vaapi->planes[i];
-        struct texture_gl *plane_gl = (struct texture_gl *)plane;
-        ngli_texture_gl_set_dimensions(plane, width, height, 0);
+        struct gpu_texture *plane = vaapi->planes[i];
+        struct gpu_texture_gl *plane_gl = (struct gpu_texture_gl *)plane;
+        ngli_gpu_texture_gl_set_dimensions(plane, width, height, 0);
 
         ngli_glBindTexture(gl, plane_gl->target, plane_gl->id);
         ngli_glEGLImageTargetTexture2DOES(gl, plane_gl->target, vaapi->egl_images[i]);

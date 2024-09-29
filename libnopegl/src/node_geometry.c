@@ -29,16 +29,16 @@
 #include "log.h"
 #include "node_buffer.h"
 #include "nopegl.h"
-#include "topology.h"
+#include "gpu_ctx.h"
 
 static const struct param_choices topology_choices = {
     .name = "topology",
     .consts = {
-        {"point_list",     NGLI_PRIMITIVE_TOPOLOGY_POINT_LIST,     .desc=NGLI_DOCSTRING("point list")},
-        {"line_strip",     NGLI_PRIMITIVE_TOPOLOGY_LINE_STRIP,     .desc=NGLI_DOCSTRING("line strip")},
-        {"line_list",      NGLI_PRIMITIVE_TOPOLOGY_LINE_LIST,      .desc=NGLI_DOCSTRING("line list")},
-        {"triangle_strip", NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, .desc=NGLI_DOCSTRING("triangle strip")},
-        {"triangle_list",  NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,  .desc=NGLI_DOCSTRING("triangle list")},
+        {"point_list",     NGLI_GPU_PRIMITIVE_TOPOLOGY_POINT_LIST,     .desc=NGLI_DOCSTRING("point list")},
+        {"line_strip",     NGLI_GPU_PRIMITIVE_TOPOLOGY_LINE_STRIP,     .desc=NGLI_DOCSTRING("line strip")},
+        {"line_list",      NGLI_GPU_PRIMITIVE_TOPOLOGY_LINE_LIST,      .desc=NGLI_DOCSTRING("line list")},
+        {"triangle_strip", NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, .desc=NGLI_DOCSTRING("triangle strip")},
+        {"triangle_list",  NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,  .desc=NGLI_DOCSTRING("triangle list")},
         {NULL}
     }
 };
@@ -81,7 +81,7 @@ static const struct node_param geometry_params[] = {
                   .node_types=(const uint32_t[]){NGL_NODE_BUFFERUSHORT, NGL_NODE_BUFFERUINT, NGLI_NODE_NONE},
                   .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                   .desc=NGLI_DOCSTRING("indices defining the drawing order of the `vertices`, auto-generated if not set")},
-    {"topology",  NGLI_PARAM_TYPE_SELECT, OFFSET(topology), {.i32=NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST},
+    {"topology",  NGLI_PARAM_TYPE_SELECT, OFFSET(topology), {.i32=NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST},
                   .choices=&topology_choices,
                   .desc=NGLI_DOCSTRING("primitive topology")},
     {NULL}
@@ -109,20 +109,20 @@ static int geometry_init(struct ngl_node *node)
 
     struct buffer_info *vertices = o->vertices->priv_data;
     ngli_geometry_set_vertices_buffer(s->geom, vertices->buffer, vertices->layout);
-    ngli_node_buffer_extend_usage(o->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    ngli_node_buffer_extend_usage(o->vertices, NGLI_GPU_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     vertices->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
 
     if (o->uvcoords) {
         struct buffer_info *uvcoords = o->uvcoords->priv_data;
         ngli_geometry_set_uvcoords_buffer(s->geom, uvcoords->buffer, uvcoords->layout);
-        ngli_node_buffer_extend_usage(o->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        ngli_node_buffer_extend_usage(o->uvcoords, NGLI_GPU_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         uvcoords->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
     }
 
     if (o->normals) {
         struct buffer_info *normals = o->normals->priv_data;
         ngli_geometry_set_normals_buffer(s->geom, normals->buffer, normals->layout);
-        ngli_node_buffer_extend_usage(o->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        ngli_node_buffer_extend_usage(o->normals, NGLI_GPU_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         normals->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
     }
 
@@ -133,13 +133,13 @@ static int geometry_init(struct ngl_node *node)
             return NGL_ERROR_UNSUPPORTED;
         }
 
-        ngli_node_buffer_extend_usage(o->indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        ngli_node_buffer_extend_usage(o->indices, NGLI_GPU_BUFFER_USAGE_INDEX_BUFFER_BIT);
         indices->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
 
         int64_t max_indices = 0;
         switch (indices->layout.format) {
-        case NGLI_FORMAT_R16_UNORM: GET_MAX_INDICES(uint16_t); break;
-        case NGLI_FORMAT_R32_UINT:  GET_MAX_INDICES(uint32_t); break;
+        case NGLI_GPU_FORMAT_R16_UNORM: GET_MAX_INDICES(uint16_t); break;
+        case NGLI_GPU_FORMAT_R32_UINT:  GET_MAX_INDICES(uint32_t); break;
         default:
             ngli_assert(0);
         }

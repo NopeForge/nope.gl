@@ -47,7 +47,7 @@
 #include "pgcache.h"
 #include "pthread_compat.h"
 #include "darray.h"
-#include "rendertarget.h"
+#include "gpu_rendertarget.h"
 #include "rnode.h"
 #include "utils.h"
 
@@ -89,8 +89,8 @@ struct ngl_ctx {
     struct ngl_scene *scene;
     struct ngl_config config;
     struct ngl_backend backend;
-    struct rendertarget *available_rendertargets[2];
-    struct rendertarget *current_rendertarget;
+    struct gpu_rendertarget *available_rendertargets[2];
+    struct gpu_rendertarget *current_rendertarget;
     int render_pass_started;
     float default_modelview_matrix[16];
     float default_projection_matrix[16];
@@ -194,7 +194,7 @@ enum {
     NGLI_NODE_CATEGORY_BUFFER,
     NGLI_NODE_CATEGORY_BLOCK,
     NGLI_NODE_CATEGORY_IO,
-    NGLI_NODE_CATEGORY_DRAW, /* node executes a graphics pipeline */
+    NGLI_NODE_CATEGORY_DRAW, /* node executes a graphics gpu_pipeline */
     NGLI_NODE_CATEGORY_TRANSFORM,
 };
 

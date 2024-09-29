@@ -31,8 +31,8 @@
 
 #include "darray.h"
 #include "nopegl.h"
-#include "rendertarget.h"
-#include "texture.h"
+#include "gpu_rendertarget.h"
+#include "gpu_texture.h"
 
 #define VK_FUNC(name) PFN_vk##name
 #define VK_DECLARE_FUNC(name) VK_FUNC(name) name

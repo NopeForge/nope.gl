@@ -37,7 +37,7 @@
 #include "darray.h"
 #include "distmap.h"
 #include "gpu_ctx.h"
-#include "graphics_state.h"
+#include "gpu_graphics_state.h"
 #include "hmap.h"
 #include "internal.h"
 #include "log.h"
@@ -129,8 +129,8 @@ static const char *get_cap_string_id(unsigned cap_id)
 
 static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
 {
-    const int has_compute        = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_FEATURE_COMPUTE);
-    const int has_ds_resolve     = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_FEATURE_DEPTH_STENCIL_RESOLVE);
+    const int has_compute        = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_GPU_FEATURE_COMPUTE);
+    const int has_ds_resolve     = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_GPU_FEATURE_DEPTH_STENCIL_RESOLVE);
 
     const struct gpu_limits *limits = &gpu_ctx->limits;
     const struct ngl_cap caps[] = {
@@ -217,9 +217,9 @@ static void reset_scene(struct ngl_ctx *s, int action)
     ngli_rnode_reset(&s->rnode);
 }
 
-static struct viewport compute_scene_viewport(const struct ngl_scene *scene, int32_t width, int32_t height)
+static struct gpu_viewport compute_scene_viewport(const struct ngl_scene *scene, int32_t width, int32_t height)
 {
-    struct viewport vp = {0, 0, width, height};
+    struct gpu_viewport vp = {0, 0, width, height};
 
     if (!scene)
         return vp;
@@ -249,7 +249,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 
     ngli_rnode_init(&s->rnode);
     s->rnode_pos = &s->rnode;
-    s->rnode_pos->graphics_state = NGLI_GRAPHICS_STATE_DEFAULTS;
+    s->rnode_pos->graphics_state = NGLI_GPU_GRAPHICS_STATE_DEFAULTS;
     s->rnode_pos->rendertarget_layout = *ngli_gpu_ctx_get_default_rendertarget_layout(s->gpu_ctx);
 
     if (scene) {
@@ -276,7 +276,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
     // Re-compute the viewport according to the new scene aspect ratio
     int32_t width, height;
     ngli_gpu_ctx_get_default_rendertarget_size(s->gpu_ctx, &width, &height);
-    const struct viewport vp = compute_scene_viewport(s->scene, width, height);
+    const struct gpu_viewport vp = compute_scene_viewport(s->scene, width, height);
     ngli_gpu_ctx_set_viewport(s->gpu_ctx, &vp);
 
     const struct ngl_config *config = &s->config;
@@ -412,7 +412,7 @@ int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height)
     if (ret < 0)
         return ret;
 
-    struct viewport vp = compute_scene_viewport(s->scene, width, height);
+    struct gpu_viewport vp = compute_scene_viewport(s->scene, width, height);
     ngli_gpu_ctx_set_viewport(s->gpu_ctx, &vp);
 
     return 0;
@@ -420,7 +420,7 @@ int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height)
 
 int ngli_ctx_get_viewport(struct ngl_ctx *s, int32_t *viewport)
 {
-    struct viewport vp = ngli_gpu_ctx_get_viewport(s->gpu_ctx);
+    struct gpu_viewport vp = ngli_gpu_ctx_get_viewport(s->gpu_ctx);
     const int32_t vp_i32[] = {vp.x, vp.y, vp.width, vp.height};
     memcpy(viewport, vp_i32, sizeof(vp_i32));
     return 0;
@@ -486,8 +486,8 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
 
     const int64_t cpu_start_time = s->hud ? ngli_gettime_relative() : 0;
 
-    struct rendertarget *rt = ngli_gpu_ctx_get_default_rendertarget(s->gpu_ctx, NGLI_LOAD_OP_CLEAR);
-    struct rendertarget *rt_resume = ngli_gpu_ctx_get_default_rendertarget(s->gpu_ctx, NGLI_LOAD_OP_LOAD);
+    struct gpu_rendertarget *rt = ngli_gpu_ctx_get_default_rendertarget(s->gpu_ctx, NGLI_GPU_LOAD_OP_CLEAR);
+    struct gpu_rendertarget *rt_resume = ngli_gpu_ctx_get_default_rendertarget(s->gpu_ctx, NGLI_GPU_LOAD_OP_LOAD);
     s->available_rendertargets[0] = rt;
     s->available_rendertargets[1] = rt_resume;
     s->current_rendertarget = rt;

@@ -22,7 +22,7 @@
 
 #include <string.h>
 
-#include "buffer.h"
+#include "gpu_buffer.h"
 #include "hwconv.h"
 #include "gpu_ctx.h"
 #include "image.h"
@@ -30,8 +30,7 @@
 #include "internal.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "texture.h"
-#include "topology.h"
+#include "gpu_texture.h"
 #include "type.h"
 #include "utils.h"
 
@@ -58,27 +57,27 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    struct texture *texture = dst_image->planes[0];
-    const struct texture_params *texture_params = &texture->params;
+    struct gpu_texture *texture = dst_image->planes[0];
+    const struct gpu_texture_params *texture_params = &texture->params;
 
-    const struct rendertarget_layout rt_layout = {
+    const struct gpu_rendertarget_layout rt_layout = {
         .nb_colors = 1,
         .colors[0].format = texture_params->format,
     };
-    const struct rendertarget_params rt_params = {
+    const struct gpu_rendertarget_params rt_params = {
         .width = dst_image->params.width,
         .height = dst_image->params.height,
         .nb_colors = 1,
         .colors[0] = {
             .attachment = texture,
-            .load_op    = NGLI_LOAD_OP_CLEAR,
-            .store_op   = NGLI_STORE_OP_STORE,
+            .load_op    = NGLI_GPU_LOAD_OP_CLEAR,
+            .store_op   = NGLI_GPU_STORE_OP_STORE,
         }
     };
-    hwconv->rt = ngli_rendertarget_create(gpu_ctx);
+    hwconv->rt = ngli_gpu_rendertarget_create(gpu_ctx);
     if (!hwconv->rt)
         return NGL_ERROR_MEMORY;
-    int ret = ngli_rendertarget_init(hwconv->rt, &rt_params);
+    int ret = ngli_gpu_rendertarget_init(hwconv->rt, &rt_params);
     if (ret < 0)
         return ret;
 
@@ -93,7 +92,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     }
 
     struct pgcraft_texture textures[] = {
-        {.name = "tex", .type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO, .stage = NGLI_PROGRAM_SHADER_FRAG},
+        {.name = "tex", .type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO, .stage = NGLI_GPU_PROGRAM_SHADER_FRAG},
     };
 
     const char *vert_base = hwconv_vert;
@@ -131,10 +130,10 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_compat_params params = {
-        .type         = NGLI_PIPELINE_TYPE_GRAPHICS,
+        .type         = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
-            .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .state    = NGLI_GRAPHICS_STATE_DEFAULTS,
+            .topology = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .state    = NGLI_GPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = rt_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(hwconv->crafter),
         },
@@ -157,12 +156,12 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     ngli_assert(hwconv->src_params.layout == image->params.layout);
 
-    struct rendertarget *rt = hwconv->rt;
+    struct gpu_rendertarget *rt = hwconv->rt;
     ngli_gpu_ctx_begin_render_pass(gpu_ctx, rt);
 
-    const struct viewport prev_vp = ngli_gpu_ctx_get_viewport(gpu_ctx);
+    const struct gpu_viewport prev_vp = ngli_gpu_ctx_get_viewport(gpu_ctx);
 
-    const struct viewport vp = {0, 0, rt->params.width, rt->params.height};
+    const struct gpu_viewport vp = {0, 0, rt->params.width, rt->params.height};
     ngli_gpu_ctx_set_viewport(gpu_ctx, &vp);
 
     struct pipeline_compat *pipeline = hwconv->pipeline_compat;
@@ -184,7 +183,7 @@ void ngli_hwconv_reset(struct hwconv *hwconv)
 
     ngli_pipeline_compat_freep(&hwconv->pipeline_compat);
     ngli_pgcraft_freep(&hwconv->crafter);
-    ngli_rendertarget_freep(&hwconv->rt);
+    ngli_gpu_rendertarget_freep(&hwconv->rt);
 
     memset(hwconv, 0, sizeof(*hwconv));
 }

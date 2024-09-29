@@ -175,7 +175,7 @@ static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
 {
     /* Text/Box ratio */
     const struct ngli_box box = s->config.box;
-    const struct viewport viewport = ngli_gpu_ctx_get_viewport(s->ctx->gpu_ctx);
+    const struct gpu_viewport viewport = ngli_gpu_ctx_get_viewport(s->ctx->gpu_ctx);
     const int32_t ar[] = {viewport.width, viewport.height};
     const float box_ratio = (float)ar[0] * box.w / ((float)ar[1] * box.h);
     const float text_ratio = (float)s->width / (float)s->height;

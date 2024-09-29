@@ -28,7 +28,7 @@
 
 #include "blending.h"
 #include "block.h"
-#include "buffer.h"
+#include "gpu_buffer.h"
 #include "darray.h"
 #include "geometry.h"
 #include "gpu_ctx.h"
@@ -46,8 +46,8 @@
 #include "pass.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "program.h"
-#include "texture.h"
+#include "gpu_program.h"
+#include "gpu_texture.h"
 #include "type.h"
 #include "utils.h"
 
@@ -115,10 +115,10 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
 static int register_builtin_uniforms(struct pass *s)
 {
     struct pgcraft_uniform crafter_uniforms[] = {
-        {.name = "ngl_modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_projection_matrix", .type = NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_normal_matrix",     .type = NGLI_TYPE_MAT3, .stage=NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_resolution",        .type = NGLI_TYPE_VEC2, .stage=NGLI_PROGRAM_SHADER_FRAG, .data = NULL},
+        {.name = "ngl_modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage=NGLI_GPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "ngl_projection_matrix", .type = NGLI_TYPE_MAT4, .stage=NGLI_GPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "ngl_normal_matrix",     .type = NGLI_TYPE_MAT3, .stage=NGLI_GPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "ngl_resolution",        .type = NGLI_TYPE_VEC2, .stage=NGLI_GPU_PROGRAM_SHADER_FRAG, .data = NULL},
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(crafter_uniforms); i++) {
@@ -148,7 +148,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
             if (as_image) {
                 /* Disable direct rendering when using image load/store */
                 texture_info->supported_image_layouts = 1 << NGLI_IMAGE_LAYOUT_DEFAULT;
-                texture_info->params.usage |= NGLI_TEXTURE_USAGE_STORAGE_BIT;
+                texture_info->params.usage |= NGLI_GPU_TEXTURE_USAGE_STORAGE_BIT;
                 type = ngli_node_texture_get_pgcraft_shader_image_type(texture);
             }
             precision = resprops->precision;
@@ -215,13 +215,13 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     }
 
     if (type == NGLI_TYPE_UNIFORM_BUFFER)
-        ngli_node_block_extend_usage(block_node, NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+        ngli_node_block_extend_usage(block_node, NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
     else if (type == NGLI_TYPE_STORAGE_BUFFER)
-        ngli_node_block_extend_usage(block_node, NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+        ngli_node_block_extend_usage(block_node, NGLI_GPU_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     else
         ngli_assert(0);
 
-    const struct buffer *buffer = block_info->buffer;
+    const struct gpu_buffer *buffer = block_info->buffer;
     const size_t buffer_size = buffer ? buffer->size : 0;
     struct pgcraft_block crafter_block = {
         .type     = type,
@@ -242,7 +242,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
 }
 
 static int register_attribute_from_buffer(struct pass *s, const char *name,
-                                          struct buffer *buffer, const struct buffer_layout *layout)
+                                          struct gpu_buffer *buffer, const struct buffer_layout *layout)
 {
     if (!buffer)
         return 0;
@@ -276,7 +276,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     if (!attribute)
         return 0;
 
-    ngli_node_buffer_extend_usage(attribute, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    ngli_node_buffer_extend_usage(attribute, NGLI_GPU_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
     struct buffer_info *attribute_priv = attribute->priv_data;
     struct pgcraft_attribute crafter_attribute = {
@@ -337,7 +337,7 @@ static int pass_graphics_init(struct pass *s)
     const struct pass_params *params = &s->params;
     const struct geometry *geometry = params->geometry;
 
-    s->pipeline_type = NGLI_PIPELINE_TYPE_GRAPHICS;
+    s->pipeline_type = NGLI_GPU_PIPELINE_TYPE_GRAPHICS;
     s->topology = geometry->topology;
 
     if (geometry->indices_buffer) {
@@ -350,8 +350,8 @@ static int pass_graphics_init(struct pass *s)
 
     int ret;
 
-    if ((ret = register_resources(s, params->vert_resources, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = register_resources(s, params->frag_resources, NGLI_PROGRAM_SHADER_FRAG)) < 0)
+    if ((ret = register_resources(s, params->vert_resources, NGLI_GPU_PROGRAM_SHADER_VERT)) < 0 ||
+        (ret = register_resources(s, params->frag_resources, NGLI_GPU_PROGRAM_SHADER_FRAG)) < 0)
         return ret;
 
     if ((ret = register_attribute_from_buffer(s, "ngl_position", geometry->vertices_buffer, &geometry->vertices_layout)) < 0 ||
@@ -384,11 +384,11 @@ static int pass_compute_init(struct pass *s)
 {
     const struct pass_params *params = &s->params;
 
-    int ret = register_resources(s, params->compute_resources, NGLI_PROGRAM_SHADER_COMP);
+    int ret = register_resources(s, params->compute_resources, NGLI_GPU_PROGRAM_SHADER_COMP);
     if (ret < 0)
         return ret;
 
-    s->pipeline_type = NGLI_PIPELINE_TYPE_COMPUTE;
+    s->pipeline_type = NGLI_GPU_PIPELINE_TYPE_COMPUTE;
 
     return 0;
 }
@@ -427,13 +427,13 @@ static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
     struct pipeline_compat_layout layout = ngli_pgcraft_get_pipeline_layout(desc->crafter);
 
     for (size_t i = 0; i < layout.nb_buffers; i++) {
-        const struct bindgroup_layout_entry *entry = &layout.buffers[i];
+        const struct gpu_bindgroup_layout_entry *entry = &layout.buffers[i];
         const struct hmap *resources = NULL;
-        if (entry->stage == NGLI_PROGRAM_SHADER_VERT)
+        if (entry->stage == NGLI_GPU_PROGRAM_SHADER_VERT)
             resources = s->params.vert_resources;
-        else if (entry->stage == NGLI_PROGRAM_SHADER_FRAG)
+        else if (entry->stage == NGLI_GPU_PROGRAM_SHADER_FRAG)
             resources = s->params.frag_resources;
-        else if (entry->stage == NGLI_PROGRAM_SHADER_COMP)
+        else if (entry->stage == NGLI_GPU_PROGRAM_SHADER_COMP)
             resources = s->params.compute_resources;
         else
             ngli_assert(0);
@@ -467,17 +467,17 @@ int ngli_pass_prepare(struct pass *s)
     struct rnode *rnode = ctx->rnode_pos;
 
     const int format = rnode->rendertarget_layout.depth_stencil.format;
-    if (rnode->graphics_state.depth_test && !ngli_format_has_depth(format)) {
+    if (rnode->graphics_state.depth_test && !ngli_gpu_format_has_depth(format)) {
         LOG(ERROR, "depth testing is not supported on rendertargets with no depth attachment");
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    if (rnode->graphics_state.stencil_test && !ngli_format_has_stencil(format)) {
+    if (rnode->graphics_state.stencil_test && !ngli_gpu_format_has_stencil(format)) {
         LOG(ERROR, "stencil operations are not supported on rendertargets with no stencil attachment");
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    struct graphics_state state = rnode->graphics_state;
+    struct gpu_graphics_state state = rnode->graphics_state;
     int ret = ngli_blending_apply_preset(&state, s->params.blending);
     if (ret < 0)
         return ret;
@@ -544,10 +544,10 @@ int ngli_pass_prepare(struct pass *s)
     if (ret < 0)
         return ret;
 
-    desc->modelview_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_modelview_matrix", NGLI_PROGRAM_SHADER_VERT);
-    desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_projection_matrix", NGLI_PROGRAM_SHADER_VERT);
-    desc->normal_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_normal_matrix", NGLI_PROGRAM_SHADER_VERT);
-    desc->resolution_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_resolution", NGLI_PROGRAM_SHADER_FRAG);
+    desc->modelview_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_modelview_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
+    desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_projection_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
+    desc->normal_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_normal_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
+    desc->resolution_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_resolution", NGLI_GPU_PROGRAM_SHADER_FRAG);
 
     ngli_darray_init(&desc->textures_map, sizeof(struct texture_map), 0);
     const struct pgcraft_compat_info *info = ngli_pgcraft_get_compat_info(desc->crafter);
@@ -622,7 +622,7 @@ int ngli_pass_exec(struct pass *s)
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->projection_matrix_index, projection_matrix);
 
-    const struct viewport viewport = ngli_gpu_ctx_get_viewport(ctx->gpu_ctx);
+    const struct gpu_viewport viewport = ngli_gpu_ctx_get_viewport(ctx->gpu_ctx);
 
     const float resolution[2] = {(float)viewport.width, (float)viewport.height};
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->resolution_index, resolution);
@@ -656,7 +656,7 @@ int ngli_pass_exec(struct pass *s)
         }
     }
 
-    if (s->pipeline_type == NGLI_PIPELINE_TYPE_GRAPHICS) {
+    if (s->pipeline_type == NGLI_GPU_PIPELINE_TYPE_GRAPHICS) {
         if (!ctx->render_pass_started) {
             struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
             ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);

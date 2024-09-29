@@ -27,7 +27,7 @@
 #include <stddef.h>
 
 #include "block.h"
-#include "buffer.h"
+#include "gpu_buffer.h"
 
 struct gpu_ctx;
 
@@ -52,7 +52,7 @@ struct gpu_block {
     struct block block;
     size_t block_size;
     struct darray offsets; // array of size_t
-    struct buffer *buffer;
+    struct gpu_buffer *buffer;
 };
 
 int ngli_gpu_block_init(struct gpu_ctx *gpu_ctx, struct gpu_block *s, const struct gpu_block_params *params);

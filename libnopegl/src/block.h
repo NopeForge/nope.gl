@@ -24,9 +24,9 @@
 
 #include <stdint.h>
 
-#include "buffer.h"
+#include "gpu_buffer.h"
 #include "darray.h"
-#include "program.h" // MAX_ID_LEN
+#include "gpu_program.h" // MAX_ID_LEN
 
 struct gpu_ctx;
 

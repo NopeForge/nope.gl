@@ -31,10 +31,10 @@ struct gpu_ctx;
 struct geometry {
     struct gpu_ctx *gpu_ctx;
 
-    struct buffer *vertices_buffer;
-    struct buffer *uvcoords_buffer;
-    struct buffer *normals_buffer;
-    struct buffer *indices_buffer;
+    struct gpu_buffer *vertices_buffer;
+    struct gpu_buffer *uvcoords_buffer;
+    struct gpu_buffer *normals_buffer;
+    struct gpu_buffer *indices_buffer;
 
     uint32_t buffer_ownership;
 
@@ -57,10 +57,10 @@ int ngli_geometry_set_normals(struct geometry *s, size_t n, const float *indices
 int ngli_geometry_set_indices(struct geometry *s, size_t n, const uint16_t *indices);
 
 /* With the following functions, the user own the buffers already */
-void ngli_geometry_set_vertices_buffer(struct geometry *s, struct buffer *buffer, struct buffer_layout layout);
-void ngli_geometry_set_uvcoords_buffer(struct geometry *s, struct buffer *buffer, struct buffer_layout layout);
-void ngli_geometry_set_normals_buffer(struct geometry *s, struct buffer *buffer, struct buffer_layout layout);
-void ngli_geometry_set_indices_buffer(struct geometry *s, struct buffer *buffer, struct buffer_layout layout, int64_t max_indices);
+void ngli_geometry_set_vertices_buffer(struct geometry *s, struct gpu_buffer *buffer, struct buffer_layout layout);
+void ngli_geometry_set_uvcoords_buffer(struct geometry *s, struct gpu_buffer *buffer, struct buffer_layout layout);
+void ngli_geometry_set_normals_buffer(struct geometry *s, struct gpu_buffer *buffer, struct buffer_layout layout);
+void ngli_geometry_set_indices_buffer(struct geometry *s, struct gpu_buffer *buffer, struct buffer_layout layout, int64_t max_indices);
 
 /* Must be called when vertices/uvs/normals/indices are set */
 int ngli_geometry_init(struct geometry *s, int topology);
