@@ -24,7 +24,7 @@
 
 #include <nopemd.h>
 
-#include "texture.h"
+#include "gpu_texture.h"
 #include "utils.h"
 
 #define NGLI_COLOR_INFO_DEFAULTS {             \
@@ -65,7 +65,7 @@ struct image_params {
 
 struct image {
     struct image_params params;
-    struct texture *planes[4];
+    struct gpu_texture *planes[4];
     void *samplers[4];
     size_t nb_planes;
     NGLI_ALIGNED_MAT(color_matrix);
@@ -75,7 +75,7 @@ struct image {
     size_t rev;
 };
 
-void ngli_image_init(struct image *s, const struct image_params *params, struct texture **planes);
+void ngli_image_init(struct image *s, const struct image_params *params, struct gpu_texture **planes);
 void ngli_image_reset(struct image *s);
 uint64_t ngli_image_get_memory_size(const struct image *s);
 

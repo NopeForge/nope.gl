@@ -29,8 +29,8 @@
 
 struct ngl_node;
 
-#define NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD (1 << 0) /* The buffer is responsible for uploading its data to the GPU */
-#define NGLI_BUFFER_INFO_FLAG_DYNAMIC    (1 << 1) /* The buffer CPU data may change at every update */
+#define NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD (1 << 0) /* The gpu_buffer is responsible for uploading its data to the GPU */
+#define NGLI_BUFFER_INFO_FLAG_DYNAMIC    (1 << 1) /* The gpu_buffer CPU data may change at every update */
 
 struct buffer_info {
     struct buffer_layout layout;
@@ -43,7 +43,7 @@ struct buffer_info {
 
     uint32_t flags;
 
-    struct buffer *buffer;
+    struct gpu_buffer *buffer;
 };
 
 void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage);

@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include "darray.h"
 #include "pgcraft.h"
-#include "pipeline.h"
+#include "gpu_pipeline.h"
 
 struct ngl_ctx;
 
@@ -64,13 +64,13 @@ struct pass {
     struct ngl_ctx *ctx;
     struct pass_params params;
 
-    struct buffer *indices;
+    struct gpu_buffer *indices;
     const struct buffer_layout *indices_layout;
     int nb_vertices;
     int nb_instances;
     int topology;
     int pipeline_type;
-    struct pipeline_graphics pipeline_graphics;
+    struct gpu_pipeline_graphics pipeline_graphics;
     struct darray crafter_attributes;
     struct darray crafter_uniforms;
     struct darray crafter_textures;

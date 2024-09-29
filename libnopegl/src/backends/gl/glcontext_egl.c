@@ -41,7 +41,7 @@
 #endif
 
 #include "egl.h"
-#include "format.h"
+#include "gpu_format.h"
 #include "glcontext.h"
 #include "log.h"
 #include "nopegl.h"

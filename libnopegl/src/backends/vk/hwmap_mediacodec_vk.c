@@ -28,8 +28,8 @@
 #include <android/hardware_buffer.h>
 
 #include "android_imagereader.h"
-#include "format.h"
-#include "format_vk.h"
+#include "gpu_format.h"
+#include "gpu_format_vk.h"
 #include "gpu_ctx_vk.h"
 #include "hwmap.h"
 #include "image.h"
@@ -37,14 +37,14 @@
 #include "log.h"
 #include "math_utils.h"
 #include "nopegl.h"
-#include "texture_vk.h"
+#include "gpu_texture_vk.h"
 #include "vkcontext.h"
 #include "vkutils.h"
 #include "ycbcr_sampler_vk.h"
 
 struct hwmap_mc {
     struct android_image *android_image;
-    struct texture *texture;
+    struct gpu_texture *texture;
     VkImage image;
     VkDeviceMemory memory;
     VkImageView image_view;
@@ -59,8 +59,8 @@ static int support_direct_rendering(struct hwmap *hwmap)
         LOG(WARNING, "samplers with YCbCr conversion enabled do not support mipmapping: "
             "disabling direct rendering");
         return 0;
-    } else if (params->texture_wrap_s != NGLI_WRAP_CLAMP_TO_EDGE ||
-               params->texture_wrap_t != NGLI_WRAP_CLAMP_TO_EDGE) {
+    } else if (params->texture_wrap_s != NGLI_GPU_WRAP_CLAMP_TO_EDGE ||
+               params->texture_wrap_t != NGLI_GPU_WRAP_CLAMP_TO_EDGE) {
         LOG(WARNING, "samplers with YCbCr conversion enabled only support clamp to edge wrapping: "
             "disabling direct rendering");
         return 0;
@@ -101,7 +101,7 @@ static void mc_release_frame_resources(struct hwmap *hwmap)
 
     hwmap->mapped_image.planes[0] = NULL;
     hwmap->mapped_image.samplers[0] = NULL;
-    ngli_texture_freep(&mc->texture);
+    ngli_gpu_texture_freep(&mc->texture);
 
     vkDestroyImageView(vk->device, mc->image_view, NULL);
     mc->image_view = VK_NULL_HANDLE;
@@ -266,7 +266,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         .x_chroma_offset         = ahb_format_props.suggestedXChromaOffset,
         .y_chroma_offset         = ahb_format_props.suggestedYChromaOffset,
         /* Sampler params */
-        .filter                  = ngli_vk_get_filter(params->texture_min_filter),
+        .filter                  = ngli_gpu_vk_get_filter(params->texture_min_filter),
     };
 
     if (!mc->ycbcr_sampler || !ngli_ycbcr_sampler_vk_is_compat(mc->ycbcr_sampler, &sampler_params)) {
@@ -332,27 +332,27 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
                          0, NULL,
                          1, &barrier);
 
-    mc->texture = ngli_texture_create(gpu_ctx);
+    mc->texture = ngli_gpu_texture_create(gpu_ctx);
     if (!mc->texture)
         return NGL_ERROR_MEMORY;
 
-    int ngl_format = NGLI_FORMAT_UNDEFINED;
+    int ngl_format = NGLI_GPU_FORMAT_UNDEFINED;
     if (ahb_format_props.format)
-        ngl_format = ngli_format_ngl_to_vk(ahb_format_props.format);
+        ngl_format = ngli_gpu_format_ngl_to_vk(ahb_format_props.format);
 
-    const struct texture_params texture_params = {
-        .type             = NGLI_TEXTURE_TYPE_2D,
+    const struct gpu_texture_params texture_params = {
+        .type             = NGLI_GPU_TEXTURE_TYPE_2D,
         .format           = ngl_format,
         .width            = desc.width,
         .height           = desc.height,
         .min_filter       = params->texture_min_filter,
         .mag_filter       = params->texture_min_filter,
-        .wrap_s           = NGLI_WRAP_CLAMP_TO_EDGE,
-        .wrap_t           = NGLI_WRAP_CLAMP_TO_EDGE,
+        .wrap_s           = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
+        .wrap_t           = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
         .usage            = params->texture_usage,
     };
 
-    const struct texture_vk_wrap_params wrap_params = {
+    const struct gpu_texture_vk_wrap_params wrap_params = {
         .params        = &texture_params,
         .image         = mc->image,
         .image_layout  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -361,11 +361,11 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         .ycbcr_sampler = mc->ycbcr_sampler,
     };
 
-    res = ngli_texture_vk_wrap(mc->texture, &wrap_params);
+    res = ngli_gpu_texture_vk_wrap(mc->texture, &wrap_params);
     if (res != VK_SUCCESS)
         return NGL_ERROR_GRAPHICS_GENERIC;
 
-    ngli_texture_vk_transition_to_default_layout(mc->texture);
+    ngli_gpu_texture_vk_transition_to_default_layout(mc->texture);
 
     hwmap->mapped_image.planes[0] = mc->texture;
     hwmap->mapped_image.samplers[0] = mc->ycbcr_sampler;

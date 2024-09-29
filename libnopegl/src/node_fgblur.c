@@ -27,7 +27,7 @@
 
 #include "gpu_block.h"
 #include "gpu_ctx.h"
-#include "graphics_state.h"
+#include "gpu_graphics_state.h"
 #include "internal.h"
 #include "log.h"
 #include "node_texture.h"
@@ -35,9 +35,8 @@
 #include "nopegl.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "rendertarget.h"
+#include "gpu_rendertarget.h"
 #include "rtt.h"
-#include "topology.h"
 #include "utils.h"
 
 /* GLSL shaders */
@@ -76,7 +75,7 @@ struct fgblur_priv {
     float bluriness;
 
     /* Intermediates Mips used by the blur passses */
-    struct rendertarget_layout mip_layout;
+    struct gpu_rendertarget_layout mip_layout;
 
     struct rtt_ctx *mip;
     struct rtt_ctx *mips[MAX_MIP_LEVELS];
@@ -97,7 +96,7 @@ struct fgblur_priv {
 
     /* Render target (destination) used by the interpolate pass */
     int dst_is_resizeable;
-    struct rendertarget_layout dst_layout;
+    struct gpu_rendertarget_layout dst_layout;
     struct rtt_ctx *dst_rtt_ctx;
 
     /* Interpolate pass */
@@ -128,7 +127,7 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
                                   const char *name,
                                   const char *frag_base,
                                   struct pipeline_compat *pipeline,
-                                  const struct rendertarget_layout *layout,
+                                  const struct gpu_rendertarget_layout *layout,
                                   struct gpu_block *block)
 {
     const struct pgcraft_iovar vert_out_vars[] = {
@@ -140,7 +139,7 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
             .name      = "tex",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
             .precision = NGLI_PRECISION_HIGH,
-            .stage     = NGLI_PROGRAM_SHADER_FRAG,
+            .stage     = NGLI_GPU_PROGRAM_SHADER_FRAG,
         },
     };
 
@@ -149,7 +148,7 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
             .name          = "data",
             .instance_name = "",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
-            .stage         = NGLI_PROGRAM_SHADER_FRAG,
+            .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
             .block         = &block->block,
             .buffer        = {
                 .buffer    = block->buffer,
@@ -175,10 +174,10 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
         return ret;
 
     const struct pipeline_compat_params params = {
-        .type         = NGLI_PIPELINE_TYPE_GRAPHICS,
+        .type         = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
-            .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .state    = NGLI_GRAPHICS_STATE_DEFAULTS,
+            .topology = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .state    = NGLI_GPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = *layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(crafter),
         },
@@ -210,12 +209,12 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
             .name      = "tex0",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
             .precision = NGLI_PRECISION_HIGH,
-            .stage     = NGLI_PROGRAM_SHADER_FRAG
+            .stage     = NGLI_GPU_PROGRAM_SHADER_FRAG
         }, {
             .name      = "tex1",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
             .precision = NGLI_PRECISION_HIGH,
-            .stage     = NGLI_PROGRAM_SHADER_FRAG
+            .stage     = NGLI_GPU_PROGRAM_SHADER_FRAG
         },
     };
 
@@ -234,7 +233,7 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
         {
             .name          = "interpolate",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
-            .stage         = NGLI_PROGRAM_SHADER_FRAG,
+            .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
             .block         = &s->interpolate.block.block,
             .buffer        = {
                 .buffer    = s->interpolate.block.buffer,
@@ -260,10 +259,10 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
         return ret;
 
     const struct pipeline_compat_params params = {
-        .type         = NGLI_PIPELINE_TYPE_GRAPHICS,
+        .type         = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
-            .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .state    = NGLI_GRAPHICS_STATE_DEFAULTS,
+            .topology = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .state    = NGLI_GPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = s->dst_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(s->interpolate.crafter),
         },
@@ -292,16 +291,16 @@ static int fgblur_init(struct ngl_node *node)
     src_info->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
 
     /* Override texture params */
-    src_info->params.min_filter = NGLI_FILTER_LINEAR;
-    src_info->params.mag_filter = NGLI_FILTER_LINEAR;
-    src_info->params.wrap_s     = NGLI_WRAP_MIRRORED_REPEAT,
-    src_info->params.wrap_t     = NGLI_WRAP_MIRRORED_REPEAT,
+    src_info->params.min_filter = NGLI_GPU_FILTER_LINEAR;
+    src_info->params.mag_filter = NGLI_GPU_FILTER_LINEAR;
+    src_info->params.wrap_s     = NGLI_GPU_WRAP_MIRRORED_REPEAT,
+    src_info->params.wrap_t     = NGLI_GPU_WRAP_MIRRORED_REPEAT,
 
     s->mip_layout.colors[s->mip_layout.nb_colors].format = src_info->params.format;
     s->mip_layout.nb_colors++;
 
     struct texture_info *dst_info = o->destination->priv_data;
-    dst_info->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+    dst_info->params.usage |= NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
 
     s->dst_is_resizeable = (dst_info->params.width == 0 && dst_info->params.height == 0);
     s->dst_layout.colors[0].format = dst_info->params.format;
@@ -367,23 +366,23 @@ static int resize(struct ngl_node *node)
     struct texture_info *dst_info = o->destination->priv_data;
     ngli_assert(dst_info->params.format == s->dst_layout.colors[0].format);
 
-    struct texture_params texture_params = (struct texture_params) {
-        .type          = NGLI_TEXTURE_TYPE_2D,
+    struct gpu_texture_params texture_params = (struct gpu_texture_params) {
+        .type          = NGLI_GPU_TEXTURE_TYPE_2D,
         .format        = src_info->params.format,
         .width         = width,
         .height        = height,
-        .min_filter    = NGLI_FILTER_LINEAR,
-        .mag_filter    = NGLI_FILTER_LINEAR,
-        .wrap_s        = NGLI_WRAP_MIRRORED_REPEAT,
-        .wrap_t        = NGLI_WRAP_MIRRORED_REPEAT,
-        .usage         = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT |
-                         NGLI_TEXTURE_USAGE_SAMPLED_BIT,
+        .min_filter    = NGLI_GPU_FILTER_LINEAR,
+        .mag_filter    = NGLI_GPU_FILTER_LINEAR,
+        .wrap_s        = NGLI_GPU_WRAP_MIRRORED_REPEAT,
+        .wrap_t        = NGLI_GPU_WRAP_MIRRORED_REPEAT,
+        .usage         = NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT |
+                         NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
 
     struct rtt_ctx *mip = NULL;
     struct rtt_ctx *mips[MAX_MIP_LEVELS] = {0};
 
-    struct texture *dst = NULL;
+    struct gpu_texture *dst = NULL;
     struct rtt_ctx *dst_rtt_ctx = NULL;
 
     mip = ngli_rtt_create(ctx);
@@ -415,16 +414,16 @@ static int resize(struct ngl_node *node)
 
     dst = dst_info->texture;
     if (s->dst_is_resizeable) {
-        dst = ngli_texture_create(ctx->gpu_ctx);
+        dst = ngli_gpu_texture_create(ctx->gpu_ctx);
         if (!dst) {
             ret = NGL_ERROR_MEMORY;
             goto fail;
         }
 
-        struct texture_params params = dst_info->params;
+        struct gpu_texture_params params = dst_info->params;
         params.width = width;
         params.height = height;
-        ret = ngli_texture_init(dst, &params);
+        ret = ngli_gpu_texture_init(dst, &params);
         if (ret < 0)
             goto fail;
     }
@@ -441,8 +440,8 @@ static int resize(struct ngl_node *node)
         .nb_colors = 1,
         .colors[0] = {
             .attachment = dst,
-            .load_op = NGLI_LOAD_OP_CLEAR,
-            .store_op = NGLI_STORE_OP_STORE,
+            .load_op = NGLI_GPU_LOAD_OP_CLEAR,
+            .store_op = NGLI_GPU_STORE_OP_STORE,
         },
     };
 
@@ -459,7 +458,7 @@ static int resize(struct ngl_node *node)
     }
 
     if (s->dst_is_resizeable) {
-        ngli_texture_freep(&dst_info->texture);
+        ngli_gpu_texture_freep(&dst_info->texture);
         dst_info->texture = dst;
         dst_info->image.params.width = dst->params.width;
         dst_info->image.params.height = dst->params.height;
@@ -491,7 +490,7 @@ fail:
 
     ngli_rtt_freep(&dst_rtt_ctx);
     if (s->dst_is_resizeable)
-        ngli_texture_freep(&dst);
+        ngli_gpu_texture_freep(&dst);
 
     LOG(ERROR, "failed to resize blur: %dx%d", width, height);
     return ret;
@@ -500,7 +499,7 @@ fail:
 static void execute_down_up_pass(struct ngl_ctx *ctx,
                                  struct rtt_ctx *rtt_ctx,
                                  struct pipeline_compat *pipeline,
-                                 struct texture *texture)
+                                 struct gpu_texture *texture)
 {
     ngli_rtt_begin(rtt_ctx);
     ngli_gpu_ctx_begin_render_pass(ctx->gpu_ctx, ctx->current_rendertarget);
@@ -558,7 +557,7 @@ static void fgblur_draw(struct ngl_node *node)
     /* Downsample source to mips[1] */
     struct texture_info *src_info = o->source->priv_data;
     const struct image *src_image = &src_info->image;
-    struct texture *mip = src_image->planes[0];
+    struct gpu_texture *mip = src_image->planes[0];
     execute_down_up_pass(ctx, s->mips[1], s->dws.pl, mip);
 
     /* Downsample successively until mips[lod_i+1] is generated */

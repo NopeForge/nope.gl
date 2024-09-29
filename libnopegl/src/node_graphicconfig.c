@@ -24,7 +24,7 @@
 #include <string.h>
 
 #include "gpu_ctx.h"
-#include "graphics_state.h"
+#include "gpu_graphics_state.h"
 #include "log.h"
 #include "node_graphicconfig.h"
 #include "nopegl.h"
@@ -73,16 +73,16 @@ static const struct param_choices blend_factor_choices = {
     .name = "blend_factor",
     .consts = {
         {"unset",               -1,                     .desc=NGLI_DOCSTRING("unset")},
-        {"zero",                NGLI_BLEND_FACTOR_ZERO,                .desc=NGLI_DOCSTRING("`0`")},
-        {"one",                 NGLI_BLEND_FACTOR_ONE,                 .desc=NGLI_DOCSTRING("`1`")},
-        {"src_color",           NGLI_BLEND_FACTOR_SRC_COLOR,           .desc=NGLI_DOCSTRING("`src_color`")},
-        {"one_minus_src_color", NGLI_BLEND_FACTOR_ONE_MINUS_SRC_COLOR, .desc=NGLI_DOCSTRING("`1 - src_color`")},
-        {"dst_color",           NGLI_BLEND_FACTOR_DST_COLOR,           .desc=NGLI_DOCSTRING("`dst_color`")},
-        {"one_minus_dst_color", NGLI_BLEND_FACTOR_ONE_MINUS_DST_COLOR, .desc=NGLI_DOCSTRING("`1 - dst_color`")},
-        {"src_alpha",           NGLI_BLEND_FACTOR_SRC_ALPHA,           .desc=NGLI_DOCSTRING("`src_alpha`")},
-        {"one_minus_src_alpha", NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, .desc=NGLI_DOCSTRING("`1 - src_alpha`")},
-        {"dst_alpha",           NGLI_BLEND_FACTOR_DST_ALPHA,           .desc=NGLI_DOCSTRING("`dst_alpha`")},
-        {"one_minus_dst_alpha", NGLI_BLEND_FACTOR_ONE_MINUS_DST_ALPHA, .desc=NGLI_DOCSTRING("`1 - dst_alpha`")},
+        {"zero",                NGLI_GPU_BLEND_FACTOR_ZERO,                .desc=NGLI_DOCSTRING("`0`")},
+        {"one",                 NGLI_GPU_BLEND_FACTOR_ONE,                 .desc=NGLI_DOCSTRING("`1`")},
+        {"src_color",           NGLI_GPU_BLEND_FACTOR_SRC_COLOR,           .desc=NGLI_DOCSTRING("`src_color`")},
+        {"one_minus_src_color", NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_COLOR, .desc=NGLI_DOCSTRING("`1 - src_color`")},
+        {"dst_color",           NGLI_GPU_BLEND_FACTOR_DST_COLOR,           .desc=NGLI_DOCSTRING("`dst_color`")},
+        {"one_minus_dst_color", NGLI_GPU_BLEND_FACTOR_ONE_MINUS_DST_COLOR, .desc=NGLI_DOCSTRING("`1 - dst_color`")},
+        {"src_alpha",           NGLI_GPU_BLEND_FACTOR_SRC_ALPHA,           .desc=NGLI_DOCSTRING("`src_alpha`")},
+        {"one_minus_src_alpha", NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, .desc=NGLI_DOCSTRING("`1 - src_alpha`")},
+        {"dst_alpha",           NGLI_GPU_BLEND_FACTOR_DST_ALPHA,           .desc=NGLI_DOCSTRING("`dst_alpha`")},
+        {"one_minus_dst_alpha", NGLI_GPU_BLEND_FACTOR_ONE_MINUS_DST_ALPHA, .desc=NGLI_DOCSTRING("`1 - dst_alpha`")},
         {NULL}
     }
 };
@@ -91,11 +91,11 @@ static const struct param_choices blend_op_choices = {
     .name = "blend_operation",
     .consts = {
         {"unset",  -1,                             .desc=NGLI_DOCSTRING("unset")},
-        {"add",    NGLI_BLEND_OP_ADD,              .desc=NGLI_DOCSTRING("`src + dst`")},
-        {"sub",    NGLI_BLEND_OP_SUBTRACT,         .desc=NGLI_DOCSTRING("`src - dst`")},
-        {"revsub", NGLI_BLEND_OP_REVERSE_SUBTRACT, .desc=NGLI_DOCSTRING("`dst - src`")},
-        {"min",    NGLI_BLEND_OP_MIN,              .desc=NGLI_DOCSTRING("`min(src, dst)`")},
-        {"max",    NGLI_BLEND_OP_MAX,              .desc=NGLI_DOCSTRING("`max(src, dst)`")},
+        {"add",    NGLI_GPU_BLEND_OP_ADD,              .desc=NGLI_DOCSTRING("`src + dst`")},
+        {"sub",    NGLI_GPU_BLEND_OP_SUBTRACT,         .desc=NGLI_DOCSTRING("`src - dst`")},
+        {"revsub", NGLI_GPU_BLEND_OP_REVERSE_SUBTRACT, .desc=NGLI_DOCSTRING("`dst - src`")},
+        {"min",    NGLI_GPU_BLEND_OP_MIN,              .desc=NGLI_DOCSTRING("`min(src, dst)`")},
+        {"max",    NGLI_GPU_BLEND_OP_MAX,              .desc=NGLI_DOCSTRING("`max(src, dst)`")},
         {NULL}
     }
 };
@@ -103,10 +103,10 @@ static const struct param_choices blend_op_choices = {
 static const struct param_choices component_choices = {
     .name = "component",
     .consts = {
-        {"r", NGLI_COLOR_COMPONENT_R_BIT, .desc=NGLI_DOCSTRING("red")},
-        {"g", NGLI_COLOR_COMPONENT_G_BIT, .desc=NGLI_DOCSTRING("green")},
-        {"b", NGLI_COLOR_COMPONENT_B_BIT, .desc=NGLI_DOCSTRING("blue")},
-        {"a", NGLI_COLOR_COMPONENT_A_BIT, .desc=NGLI_DOCSTRING("alpha")},
+        {"r", NGLI_GPU_COLOR_COMPONENT_R_BIT, .desc=NGLI_DOCSTRING("red")},
+        {"g", NGLI_GPU_COLOR_COMPONENT_G_BIT, .desc=NGLI_DOCSTRING("green")},
+        {"b", NGLI_GPU_COLOR_COMPONENT_B_BIT, .desc=NGLI_DOCSTRING("blue")},
+        {"a", NGLI_GPU_COLOR_COMPONENT_A_BIT, .desc=NGLI_DOCSTRING("alpha")},
         {NULL}
     }
 };
@@ -115,14 +115,14 @@ static const struct param_choices func_choices = {
     .name = "function",
     .consts = {
         {"unset",    -1,                               .desc=NGLI_DOCSTRING("unset")},
-        {"never",    NGLI_COMPARE_OP_NEVER,            .desc=NGLI_DOCSTRING("`f(a,b) = 0`")},
-        {"less",     NGLI_COMPARE_OP_LESS,             .desc=NGLI_DOCSTRING("`f(a,b) = a < b`")},
-        {"equal",    NGLI_COMPARE_OP_EQUAL,            .desc=NGLI_DOCSTRING("`f(a,b) = a == b`")},
-        {"lequal",   NGLI_COMPARE_OP_LESS_OR_EQUAL,    .desc=NGLI_DOCSTRING("`f(a,b) = a ≤ b`")},
-        {"greater",  NGLI_COMPARE_OP_GREATER,          .desc=NGLI_DOCSTRING("`f(a,b) = a > b`")},
-        {"notequal", NGLI_COMPARE_OP_NOT_EQUAL,        .desc=NGLI_DOCSTRING("`f(a,b) = a ≠ b`")},
-        {"gequal",   NGLI_COMPARE_OP_GREATER_OR_EQUAL, .desc=NGLI_DOCSTRING("`f(a,b) = a ≥ b`")},
-        {"always",   NGLI_COMPARE_OP_ALWAYS,           .desc=NGLI_DOCSTRING("`f(a,b) = 1`")},
+        {"never",    NGLI_GPU_COMPARE_OP_NEVER,            .desc=NGLI_DOCSTRING("`f(a,b) = 0`")},
+        {"less",     NGLI_GPU_COMPARE_OP_LESS,             .desc=NGLI_DOCSTRING("`f(a,b) = a < b`")},
+        {"equal",    NGLI_GPU_COMPARE_OP_EQUAL,            .desc=NGLI_DOCSTRING("`f(a,b) = a == b`")},
+        {"lequal",   NGLI_GPU_COMPARE_OP_LESS_OR_EQUAL,    .desc=NGLI_DOCSTRING("`f(a,b) = a ≤ b`")},
+        {"greater",  NGLI_GPU_COMPARE_OP_GREATER,          .desc=NGLI_DOCSTRING("`f(a,b) = a > b`")},
+        {"notequal", NGLI_GPU_COMPARE_OP_NOT_EQUAL,        .desc=NGLI_DOCSTRING("`f(a,b) = a ≠ b`")},
+        {"gequal",   NGLI_GPU_COMPARE_OP_GREATER_OR_EQUAL, .desc=NGLI_DOCSTRING("`f(a,b) = a ≥ b`")},
+        {"always",   NGLI_GPU_COMPARE_OP_ALWAYS,           .desc=NGLI_DOCSTRING("`f(a,b) = 1`")},
         {NULL}
     }
 };
@@ -131,14 +131,14 @@ static const struct param_choices stencil_op_choices = {
     .name = "stencil_operation",
     .consts = {
         {"unset",       -1,                                  .desc=NGLI_DOCSTRING("unset")},
-        {"keep",        NGLI_STENCIL_OP_KEEP,                .desc=NGLI_DOCSTRING("keeps the current value")},
-        {"zero",        NGLI_STENCIL_OP_ZERO,                .desc=NGLI_DOCSTRING("sets the stencil buffer value to 0")},
-        {"replace",     NGLI_STENCIL_OP_REPLACE,             .desc=NGLI_DOCSTRING("sets the stencil buffer value to ref, as specified by the stencil function")},
-        {"incr",        NGLI_STENCIL_OP_INCREMENT_AND_CLAMP, .desc=NGLI_DOCSTRING("increments the current stencil buffer value and clamps it")},
-        {"incr_wrap",   NGLI_STENCIL_OP_INCREMENT_AND_WRAP,  .desc=NGLI_DOCSTRING("increments the current stencil buffer value and wraps it")},
-        {"decr",        NGLI_STENCIL_OP_DECREMENT_AND_CLAMP, .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and clamps it")},
-        {"decr_wrap",   NGLI_STENCIL_OP_DECREMENT_AND_WRAP,  .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and wraps it")},
-        {"decr_invert", NGLI_STENCIL_OP_INVERT,              .desc=NGLI_DOCSTRING("bitwise inverts the current stencil buffer value")},
+        {"keep",        NGLI_GPU_STENCIL_OP_KEEP,                .desc=NGLI_DOCSTRING("keeps the current value")},
+        {"zero",        NGLI_GPU_STENCIL_OP_ZERO,                .desc=NGLI_DOCSTRING("sets the stencil buffer value to 0")},
+        {"replace",     NGLI_GPU_STENCIL_OP_REPLACE,             .desc=NGLI_DOCSTRING("sets the stencil buffer value to ref, as specified by the stencil function")},
+        {"incr",        NGLI_GPU_STENCIL_OP_INCREMENT_AND_CLAMP, .desc=NGLI_DOCSTRING("increments the current stencil buffer value and clamps it")},
+        {"incr_wrap",   NGLI_GPU_STENCIL_OP_INCREMENT_AND_WRAP,  .desc=NGLI_DOCSTRING("increments the current stencil buffer value and wraps it")},
+        {"decr",        NGLI_GPU_STENCIL_OP_DECREMENT_AND_CLAMP, .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and clamps it")},
+        {"decr_wrap",   NGLI_GPU_STENCIL_OP_DECREMENT_AND_WRAP,  .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and wraps it")},
+        {"decr_invert", NGLI_GPU_STENCIL_OP_INVERT,              .desc=NGLI_DOCSTRING("bitwise inverts the current stencil buffer value")},
         {NULL}
     }
 };
@@ -147,9 +147,9 @@ static const struct param_choices cull_mode_choices = {
     .name = "cull_mode",
     .consts = {
         {"unset", -1,                       .desc=NGLI_DOCSTRING("unset")},
-        {"none",  NGLI_CULL_MODE_NONE,      .desc=NGLI_DOCSTRING("no facets are discarded")},
-        {"front", NGLI_CULL_MODE_FRONT_BIT, .desc=NGLI_DOCSTRING("cull front-facing facets")},
-        {"back",  NGLI_CULL_MODE_BACK_BIT,  .desc=NGLI_DOCSTRING("cull back-facing facets")},
+        {"none",  NGLI_GPU_CULL_MODE_NONE,      .desc=NGLI_DOCSTRING("no facets are discarded")},
+        {"front", NGLI_GPU_CULL_MODE_FRONT_BIT, .desc=NGLI_DOCSTRING("cull front-facing facets")},
+        {"back",  NGLI_GPU_CULL_MODE_BACK_BIT,  .desc=NGLI_DOCSTRING("cull back-facing facets")},
         {NULL}
     }
 };
@@ -224,7 +224,7 @@ static const struct node_param graphicconfig_params[] = {
     }                                \
 } while (0)                          \
 
-void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct graphics_state *state)
+void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct gpu_graphics_state *state)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -299,10 +299,10 @@ static void graphicconfig_draw(struct ngl_node *node)
     struct graphicconfig_priv *s = node->priv_data;
     const struct graphicconfig_opts *o = node->opts;
 
-    struct scissor prev_scissor;
+    struct gpu_scissor prev_scissor;
     if (s->use_scissor) {
         prev_scissor = ngli_gpu_ctx_get_scissor(gpu_ctx);
-        struct scissor scissor = {NGLI_ARG_VEC4(o->scissor)};
+        struct gpu_scissor scissor = {NGLI_ARG_VEC4(o->scissor)};
         ngli_gpu_ctx_set_scissor(gpu_ctx, &scissor);
     }
 

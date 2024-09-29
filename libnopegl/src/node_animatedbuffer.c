@@ -90,7 +90,7 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
     if (!(info->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return 0;
 
-    return ngli_buffer_upload(info->buffer, info->data, 0, info->data_size);
+    return ngli_gpu_buffer_upload(info->buffer, info->data, 0, info->data_size);
 }
 
 static int animatedbuffer_init(struct ngl_node *node)
@@ -101,9 +101,9 @@ static int animatedbuffer_init(struct ngl_node *node)
     struct buffer_layout *layout = &info->layout;
 
     info->flags |= NGLI_BUFFER_INFO_FLAG_DYNAMIC;
-    info->usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT | NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
-    layout->comp = ngli_format_get_nb_comp(layout->format);
-    layout->stride = ngli_format_get_bytes_per_pixel(layout->format);
+    info->usage = NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT | NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT;
+    layout->comp = ngli_gpu_format_get_nb_comp(layout->format);
+    layout->stride = ngli_gpu_format_get_bytes_per_pixel(layout->format);
 
     int ret = ngli_animation_init(&s->anim, s,
                                   o->animkf, o->nb_animkf,
@@ -138,7 +138,7 @@ static int animatedbuffer_init(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
     info->data_size = layout->count * layout->stride;
 
-    info->buffer = ngli_buffer_create(node->ctx->gpu_ctx);
+    info->buffer = ngli_gpu_buffer_create(node->ctx->gpu_ctx);
     if (!info->buffer)
         return NGL_ERROR_MEMORY;
 
@@ -156,7 +156,7 @@ static int animatedbuffer_prepare(struct ngl_node *node)
     if (info->buffer->size)
         return 0;
 
-    int ret = ngli_buffer_init(info->buffer, info->data_size, info->usage);
+    int ret = ngli_gpu_buffer_init(info->buffer, info->data_size, info->usage);
     if (ret < 0)
         return ret;
 
@@ -168,7 +168,7 @@ static void animatedbuffer_uninit(struct ngl_node *node)
     struct animatedbuffer_priv *s = node->priv_data;
     struct buffer_info *info = &s->buf;
 
-    ngli_buffer_freep(&info->buffer);
+    ngli_gpu_buffer_freep(&info->buffer);
     ngli_freep(&info->data);
 }
 
@@ -197,7 +197,7 @@ const struct node_class ngli_animatedbuffer##type_name##_class = {              
     .file      = __FILE__,                                                         \
 };                                                                                 \
 
-DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERFLOAT, "AnimatedBufferFloat", float, NGLI_TYPE_F32,   NGLI_FORMAT_R32_SFLOAT)
-DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC2,  "AnimatedBufferVec2",  vec2,  NGLI_TYPE_VEC2,  NGLI_FORMAT_R32G32_SFLOAT)
-DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC3,  "AnimatedBufferVec3",  vec3,  NGLI_TYPE_VEC3,  NGLI_FORMAT_R32G32B32_SFLOAT)
-DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC4,  "AnimatedBufferVec4",  vec4,  NGLI_TYPE_VEC4,  NGLI_FORMAT_R32G32B32A32_SFLOAT)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERFLOAT, "AnimatedBufferFloat", float, NGLI_TYPE_F32, NGLI_GPU_FORMAT_R32_SFLOAT)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC2, "AnimatedBufferVec2", vec2, NGLI_TYPE_VEC2, NGLI_GPU_FORMAT_R32G32_SFLOAT)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC3, "AnimatedBufferVec3", vec3, NGLI_TYPE_VEC3, NGLI_GPU_FORMAT_R32G32B32_SFLOAT)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC4, "AnimatedBufferVec4", vec4, NGLI_TYPE_VEC4, NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT)

@@ -23,7 +23,7 @@
 #include <stddef.h>
 
 #include "block.h"
-#include "buffer.h"
+#include "gpu_buffer.h"
 #include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
@@ -261,7 +261,7 @@ static int check_dup_labels(const char *block_name, struct ngl_node * const *nod
     return 0;
 }
 
-#define FEATURES_STD430 (NGLI_FEATURE_STORAGE_BUFFER)
+#define FEATURES_STD430 (NGLI_GPU_FEATURE_STORAGE_BUFFER)
 
 static int block_init(struct ngl_node *node)
 {
@@ -287,7 +287,7 @@ static int block_init(struct ngl_node *node)
 
     ngli_block_init(gpu_ctx, &info->block, o->layout);
 
-    info->usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
+    info->usage = NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     for (size_t i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
@@ -313,7 +313,7 @@ static int block_init(struct ngl_node *node)
             node->label, i, field_node->label, fi->offset, fi->size, fi->stride);
 
         if (field_is_dynamic(field_node, fi))
-            info->usage |= NGLI_BUFFER_USAGE_DYNAMIC_BIT;
+            info->usage |= NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT;
     }
 
     info->data_size = info->block.size;
@@ -325,7 +325,7 @@ static int block_init(struct ngl_node *node)
     update_block_data(node, 1);
     s->force_update = 1; /* First update will need an upload */
 
-    info->buffer = ngli_buffer_create(gpu_ctx);
+    info->buffer = ngli_gpu_buffer_create(gpu_ctx);
     if (!info->buffer)
         return NGL_ERROR_MEMORY;
 
@@ -342,7 +342,7 @@ static int block_prepare(struct ngl_node *node)
     if (info->buffer->size)
         return 0;
 
-    int ret = ngli_buffer_init(info->buffer, info->data_size, info->usage);
+    int ret = ngli_gpu_buffer_init(info->buffer, info->data_size, info->usage);
     if (ret < 0)
         return ret;
 
@@ -371,7 +371,7 @@ static int block_update(struct ngl_node *node, double t)
     s->force_update = 0;
 
     if (has_changed) {
-        ret = ngli_buffer_upload(info->buffer, info->data, 0, info->data_size);
+        ret = ngli_gpu_buffer_upload(info->buffer, info->data, 0, info->data_size);
         if (ret < 0)
             return ret;
     }
@@ -384,7 +384,7 @@ static void block_uninit(struct ngl_node *node)
     struct block_priv *s = node->priv_data;
     struct block_info *info = &s->blk;
 
-    ngli_buffer_freep(&info->buffer);
+    ngli_gpu_buffer_freep(&info->buffer);
     ngli_block_reset(&info->block);
     ngli_free(info->data);
 }

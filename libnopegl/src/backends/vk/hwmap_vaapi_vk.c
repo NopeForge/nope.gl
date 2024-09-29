@@ -29,7 +29,7 @@
 #include <va/va_drmcommon.h>
 #include <libdrm/drm_fourcc.h>
 
-#include "format_vk.h"
+#include "gpu_format_vk.h"
 #include "gpu_ctx.h"
 #include "gpu_ctx_vk.h"
 #include "hwmap.h"
@@ -38,7 +38,7 @@
 #include "log.h"
 #include "math_utils.h"
 #include "nopegl.h"
-#include "texture_vk.h"
+#include "gpu_texture_vk.h"
 #include "utils.h"
 #include "vkutils.h"
 
@@ -59,8 +59,8 @@ static int vaapi_get_format_desc(uint32_t format, struct format_desc *desc)
             .nb_planes = 2,
             .log2_chroma_width = 1,
             .log2_chroma_height = 1,
-            .formats[0] = NGLI_FORMAT_R8_UNORM,
-            .formats[1] = NGLI_FORMAT_R8G8_UNORM,
+            .formats[0] = NGLI_GPU_FORMAT_R8_UNORM,
+            .formats[1] = NGLI_GPU_FORMAT_R8G8_UNORM,
         };
         break;
     case VA_FOURCC_P010:
@@ -70,8 +70,8 @@ static int vaapi_get_format_desc(uint32_t format, struct format_desc *desc)
             .nb_planes = 2,
             .log2_chroma_width = 1,
             .log2_chroma_height = 1,
-            .formats[0] = NGLI_FORMAT_R16_UNORM,
-            .formats[1] = NGLI_FORMAT_R16G16_UNORM,
+            .formats[0] = NGLI_GPU_FORMAT_R16_UNORM,
+            .formats[1] = NGLI_GPU_FORMAT_R16G16_UNORM,
         };
         break;
     default:
@@ -84,7 +84,7 @@ static int vaapi_get_format_desc(uint32_t format, struct format_desc *desc)
 
 struct hwmap_vaapi {
     struct nmd_frame *frame;
-    struct texture *planes[2];
+    struct gpu_texture *planes[2];
     VkImage images[2];
     VkDeviceMemory memories[2];
     int fds[2];
@@ -140,7 +140,7 @@ static void vaapi_release_frame_resources(struct hwmap *hwmap)
     if (vaapi->surface_acquired) {
         for (size_t i = 0; i < 2; i++) {
             hwmap->mapped_image.planes[i] = NULL;
-            ngli_texture_freep(&vaapi->planes[i]);
+            ngli_gpu_texture_freep(&vaapi->planes[i]);
 
             if (vaapi->images[i]) {
                 vkDestroyImage(vk->device, vaapi->images[i], NULL);
@@ -213,7 +213,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 
     for (size_t i = 0; i < nb_layers; i++) {
         const int ngl_format = desc.formats[i];
-        const VkFormat format = ngli_format_ngl_to_vk(ngl_format);
+        const VkFormat format = ngli_gpu_format_ngl_to_vk(ngl_format);
         const int32_t width = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc.log2_chroma_width);
         const int32_t height = i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc.log2_chroma_height);
 
@@ -251,7 +251,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             .arrayLayers   = 1,
             .samples       = VK_SAMPLE_COUNT_1_BIT,
             .tiling        = VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT,
-            .usage         = ngli_vk_get_image_usage_flags(params->texture_usage),
+            .usage         = ngli_gpu_vk_get_image_usage_flags(params->texture_usage),
             .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
             .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
         };
@@ -381,12 +381,12 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             return NGL_ERROR_GRAPHICS_GENERIC;
         }
 
-        vaapi->planes[i] = ngli_texture_create(gpu_ctx);
+        vaapi->planes[i] = ngli_gpu_texture_create(gpu_ctx);
         if (!vaapi->planes[i])
             return NGL_ERROR_MEMORY;
 
-        const struct texture_params plane_params = {
-            .type             = NGLI_TEXTURE_TYPE_2D,
+        const struct gpu_texture_params plane_params = {
+            .type             = NGLI_GPU_TEXTURE_TYPE_2D,
             .format           = ngl_format,
             .width            = width,
             .height           = height,
@@ -397,17 +397,17 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             .usage            = params->texture_usage,
         };
 
-        const struct texture_vk_wrap_params wrap_params = {
+        const struct gpu_texture_vk_wrap_params wrap_params = {
             .params       = &plane_params,
             .image        = vaapi->images[i],
             .image_layout = VK_IMAGE_LAYOUT_UNDEFINED,
         };
 
-        res = ngli_texture_vk_wrap(vaapi->planes[i], &wrap_params);
+        res = ngli_gpu_texture_vk_wrap(vaapi->planes[i], &wrap_params);
         if (res != VK_SUCCESS)
             return NGL_ERROR_GRAPHICS_GENERIC;
 
-        ngli_texture_vk_transition_layout(vaapi->planes[i], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        ngli_gpu_texture_vk_transition_layout(vaapi->planes[i], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         hwmap->mapped_image.planes[i] = vaapi->planes[i];
     }

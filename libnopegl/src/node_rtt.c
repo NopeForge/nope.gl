@@ -26,9 +26,9 @@
 #include <string.h>
 
 #include "config.h"
-#include "format.h"
+#include "gpu_format.h"
 #include "gpu_ctx.h"
-#include "graphics_state.h"
+#include "gpu_graphics_state.h"
 #include "internal.h"
 #include "log.h"
 #include "node_graphicconfig.h"
@@ -36,7 +36,7 @@
 #include "node_texture.h"
 #include "node_textureview.h"
 #include "nopegl.h"
-#include "rendertarget.h"
+#include "gpu_rendertarget.h"
 #include "rtt.h"
 #include "utils.h"
 
@@ -56,7 +56,7 @@ struct rtt_priv {
     int32_t height;
     int resizeable;
 
-    struct rendertarget_layout layout;
+    struct gpu_rendertarget_layout layout;
     struct rtt_params rtt_params;
     struct rtt_ctx *rtt_ctx;
 };
@@ -104,7 +104,7 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
         return rtt_texture_info;
     } else {
         struct texture_info *texture_info = node->priv_data;
-        const struct texture_params *texture_params = &texture_info->params;
+        const struct gpu_texture_params *texture_params = &texture_info->params;
         int layer_count = 1;
         if (node->cls->id == NGL_NODE_TEXTURECUBE)
             layer_count = 6;
@@ -155,7 +155,7 @@ static int rtt_init(struct ngl_node *node)
             return NGL_ERROR_INVALID_ARG;
         }
 
-        struct texture_params *params = &texture_info.info->params;
+        struct gpu_texture_params *params = &texture_info.info->params;
         if (i == 0) {
             s->width = params->width;
             s->height = params->height;
@@ -166,7 +166,7 @@ static int rtt_init(struct ngl_node *node)
             return NGL_ERROR_INVALID_ARG;
         }
 
-        params->usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+        params->usage |= NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
         for (int32_t j = 0; j < texture_info.layer_count; j++) {
             s->layout.colors[s->layout.nb_colors].format = params->format;
             s->layout.colors[s->layout.nb_colors].resolve = o->samples > 1;
@@ -187,23 +187,23 @@ static int rtt_init(struct ngl_node *node)
             return NGL_ERROR_INVALID_ARG;
         }
 
-        struct texture_params *params = &texture_info.info->params;
+        struct gpu_texture_params *params = &texture_info.info->params;
         if (s->width != params->width || s->height != params->height) {
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
                 s->width, s->height, params->width, params->height);
             return NGL_ERROR_INVALID_ARG;
         }
 
-        if (!(gpu_ctx->features & NGLI_FEATURE_DEPTH_STENCIL_RESOLVE) && o->samples > 0) {
+        if (!(gpu_ctx->features & NGLI_GPU_FEATURE_DEPTH_STENCIL_RESOLVE) && o->samples > 0) {
             LOG(ERROR, "context does not support resolving depth/stencil attachments");
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
 
-        params->usage |= NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        params->usage |= NGLI_GPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
         s->layout.depth_stencil.format = params->format;
         s->layout.depth_stencil.resolve = o->samples > 1;
     } else {
-        int depth_format = NGLI_FORMAT_UNDEFINED;
+        int depth_format = NGLI_GPU_FORMAT_UNDEFINED;
         if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
             depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
         else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
@@ -234,7 +234,7 @@ static int get_renderpass_info(const struct ngl_node *node, int state, struct re
                 info->nb_interruptions++;
             state = RENDER_PASS_STATE_STARTED;
         } else if (child->cls->id == NGL_NODE_GRAPHICCONFIG) {
-            struct graphics_state graphics_state = {0};
+            struct gpu_graphics_state graphics_state = {0};
             ngli_node_graphicconfig_get_state(child, &graphics_state);
             if (graphics_state.depth_test)
                 info->features |= NGLI_RENDERPASS_FEATURE_DEPTH;
@@ -281,15 +281,15 @@ static int rtt_prefetch(struct ngl_node *node)
     for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info rtt_texture_info = get_rtt_texture_info(o->color_textures[i]);
         struct texture_info *texture_info = rtt_texture_info.info;
-        struct texture *texture = texture_info->texture;
+        struct gpu_texture *texture = texture_info->texture;
         const int32_t layer_end = rtt_texture_info.layer_base + rtt_texture_info.layer_count;
         for (int32_t j = rtt_texture_info.layer_base; j < layer_end; j++) {
-            s->rtt_params.colors[s->rtt_params.nb_colors++] = (struct attachment) {
+            s->rtt_params.colors[s->rtt_params.nb_colors++] = (struct gpu_attachment) {
                 .attachment       = texture,
                 .attachment_layer = j,
-                .load_op          = NGLI_LOAD_OP_CLEAR,
+                .load_op          = NGLI_GPU_LOAD_OP_CLEAR,
                 .clear_value      = {NGLI_ARG_VEC4(o->clear_color)},
-                .store_op         = NGLI_STORE_OP_STORE,
+                .store_op         = NGLI_GPU_STORE_OP_STORE,
             };
         }
         /* Transform the color textures coordinates so it matches how the
@@ -298,16 +298,16 @@ static int rtt_prefetch(struct ngl_node *node)
         ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, image->coordinates_matrix);
     }
 
-    int depth_format = NGLI_FORMAT_UNDEFINED;
+    int depth_format = NGLI_GPU_FORMAT_UNDEFINED;
     if (o->depth_texture) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
         struct texture_info *depth_texture_info = info.info;
-        struct texture *texture = depth_texture_info->texture;
-        s->rtt_params.depth_stencil = (struct attachment) {
+        struct gpu_texture *texture = depth_texture_info->texture;
+        s->rtt_params.depth_stencil = (struct gpu_attachment) {
             .attachment       = texture,
             .attachment_layer = info.layer_base,
-            .load_op          = NGLI_LOAD_OP_CLEAR,
-            .store_op         = NGLI_STORE_OP_STORE,
+            .load_op          = NGLI_GPU_LOAD_OP_CLEAR,
+            .store_op         = NGLI_GPU_STORE_OP_STORE,
         };
         /* Transform the depth texture coordinates so it matches how the
          * graphics context uv coordinate system works */
@@ -347,40 +347,40 @@ static int rtt_resize(struct ngl_node *node)
     if (s->width == width && s->height == height)
         return 0;
 
-    struct texture *textures[NGLI_MAX_COLOR_ATTACHMENTS] = {NULL};
-    struct texture *depth_texture = NULL;
+    struct gpu_texture *textures[NGLI_GPU_MAX_COLOR_ATTACHMENTS] = {NULL};
+    struct gpu_texture *depth_texture = NULL;
     struct rtt_ctx *rtt_ctx = NULL;
 
     for (size_t i = 0; i < o->nb_color_textures; i++) {
-        textures[i] = ngli_texture_create(ctx->gpu_ctx);
+        textures[i] = ngli_gpu_texture_create(ctx->gpu_ctx);
         if (!textures[i]) {
             ret = NGL_ERROR_MEMORY;
             goto fail;
         }
 
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        struct texture_params texture_params = info.info->params;
+        struct gpu_texture_params texture_params = info.info->params;
         texture_params.width = width;
         texture_params.height = height;
 
-        ret = ngli_texture_init(textures[i], &texture_params);
+        ret = ngli_gpu_texture_init(textures[i], &texture_params);
         if (ret < 0)
             goto fail;
     }
 
     if (o->depth_texture) {
-        depth_texture = ngli_texture_create(ctx->gpu_ctx);
+        depth_texture = ngli_gpu_texture_create(ctx->gpu_ctx);
         if (!depth_texture) {
             ret = NGL_ERROR_MEMORY;
             goto fail;
         }
 
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
-        struct texture_params texture_params = info.info->params;
+        struct gpu_texture_params texture_params = info.info->params;
         texture_params.width = width;
         texture_params.height = height;
 
-        ret = ngli_texture_init(depth_texture, &texture_params);
+        ret = ngli_gpu_texture_init(depth_texture, &texture_params);
         if (ret < 0)
             goto fail;
     }
@@ -413,7 +413,7 @@ static int rtt_resize(struct ngl_node *node)
     for (size_t i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
         struct texture_info *texture_info = info.info;
-        ngli_texture_freep(&texture_info->texture);
+        ngli_gpu_texture_freep(&texture_info->texture);
         texture_info->texture = textures[i];
         texture_info->image.params.width = width;
         texture_info->image.params.height = height;
@@ -424,7 +424,7 @@ static int rtt_resize(struct ngl_node *node)
     if (o->depth_texture) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
         struct texture_info *texture_info = info.info;
-        ngli_texture_freep(&texture_info->texture);
+        ngli_gpu_texture_freep(&texture_info->texture);
         texture_info->texture = depth_texture;
         texture_info->image.params.width = width;
         texture_info->image.params.height = height;
@@ -436,8 +436,8 @@ static int rtt_resize(struct ngl_node *node)
 
 fail:
     for (size_t i = 0; i < o->nb_color_textures; i++)
-        ngli_texture_freep(&textures[i]);
-    ngli_texture_freep(&depth_texture);
+        ngli_gpu_texture_freep(&textures[i]);
+    ngli_gpu_texture_freep(&depth_texture);
     ngli_rtt_freep(&rtt_ctx);
 
     LOG(ERROR, "failed to resize rtt: %dx%d", width, height);

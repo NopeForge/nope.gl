@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #include "feature_gl.h"
-#include "format_gl.h"
+#include "gpu_format_gl.h"
 #include "glfunctions.h"
 #include "gpu_limits.h"
 #include "nopegl.h"
@@ -77,7 +77,7 @@ struct glcontext {
     struct glfunctions funcs;
 
     /* GL formats */
-    struct format_gl formats[NGLI_FORMAT_NB];
+    struct gpu_format_gl formats[NGLI_GPU_FORMAT_NB];
 
     /*
      * Workaround a radeonsi sync issue between fbo writes and compute reads

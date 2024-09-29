@@ -24,7 +24,7 @@
 #include <string.h>
 
 #include "darray.h"
-#include "format.h"
+#include "gpu_format.h"
 #include "gpu_ctx.h"
 #include "internal.h"
 #include "math_utils.h"
@@ -32,7 +32,6 @@
 #include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "text.h"
-#include "topology.h"
 #include "type.h"
 #include "utils.h"
 
@@ -42,13 +41,13 @@
 #include "text_chars_frag.h"
 #include "text_chars_vert.h"
 
-#define VERTEX_USAGE_FLAGS (NGLI_BUFFER_USAGE_TRANSFER_DST_BIT | \
-                            NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT) \
+#define VERTEX_USAGE_FLAGS (NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT | \
+                            NGLI_GPU_BUFFER_USAGE_VERTEX_BUFFER_BIT) \
 
 #define INDEX_USAGE_FLAGS (NGLI_BUFFER_USAGE_TRANSFER_DST_BIT | \
                            NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT)  \
 
-#define DYNAMIC_VERTEX_USAGE_FLAGS (NGLI_BUFFER_USAGE_DYNAMIC_BIT | VERTEX_USAGE_FLAGS)
+#define DYNAMIC_VERTEX_USAGE_FLAGS (NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT | VERTEX_USAGE_FLAGS)
 #define DYNAMIC_INDEX_USAGE_FLAGS  (NGLI_BUFFER_USAGE_DYNAMIC_BIT | INDEX_USAGE_FLAGS)
 
 struct pipeline_desc_common {
@@ -103,21 +102,21 @@ struct text_opts {
 struct text_priv {
     /* characters */
     struct text *text_ctx;
-    struct buffer *transforms;
-    struct buffer *atlas_coords;
-    struct buffer *user_transforms;
-    struct buffer *colors;
-    struct buffer *outlines;
-    struct buffer *glows;
-    struct buffer *blurs;
+    struct gpu_buffer *transforms;
+    struct gpu_buffer *atlas_coords;
+    struct gpu_buffer *user_transforms;
+    struct gpu_buffer *colors;
+    struct gpu_buffer *outlines;
+    struct gpu_buffer *glows;
+    struct gpu_buffer *blurs;
     size_t nb_chars;
 
     /* background box */
-    struct buffer *bg_vertices;
+    struct gpu_buffer *bg_vertices;
 
     struct darray pipeline_descs;
     int live_changed;
-    struct viewport viewport;
+    struct gpu_viewport viewport;
 };
 
 static const struct param_choices valign_choices = {
@@ -224,13 +223,13 @@ static const struct node_param text_params[] = {
 
 static void destroy_characters_resources(struct text_priv *s)
 {
-    ngli_buffer_freep(&s->transforms);
-    ngli_buffer_freep(&s->atlas_coords);
-    ngli_buffer_freep(&s->user_transforms);
-    ngli_buffer_freep(&s->colors);
-    ngli_buffer_freep(&s->outlines);
-    ngli_buffer_freep(&s->glows);
-    ngli_buffer_freep(&s->blurs);
+    ngli_gpu_buffer_freep(&s->transforms);
+    ngli_gpu_buffer_freep(&s->atlas_coords);
+    ngli_gpu_buffer_freep(&s->user_transforms);
+    ngli_gpu_buffer_freep(&s->colors);
+    ngli_gpu_buffer_freep(&s->outlines);
+    ngli_gpu_buffer_freep(&s->glows);
+    ngli_gpu_buffer_freep(&s->blurs);
     s->nb_chars = 0;
 }
 
@@ -252,27 +251,28 @@ static int refresh_pipeline_data(struct ngl_node *node)
         destroy_characters_resources(s);
 
         /* The content of these buffers will remain constant until the next text content update */
-        s->transforms   = ngli_buffer_create(gpu_ctx);
-        s->atlas_coords = ngli_buffer_create(gpu_ctx);
+        s->transforms   = ngli_gpu_buffer_create(gpu_ctx);
+        s->atlas_coords = ngli_gpu_buffer_create(gpu_ctx);
         if (!s->transforms || !s->atlas_coords)
             return NGL_ERROR_MEMORY;
 
         /* The content of these buffers will be updated later using the effects data (see apply_effects()) */
-        s->user_transforms = ngli_buffer_create(gpu_ctx);
-        s->colors          = ngli_buffer_create(gpu_ctx);
-        s->outlines        = ngli_buffer_create(gpu_ctx);
-        s->glows           = ngli_buffer_create(gpu_ctx);
-        s->blurs           = ngli_buffer_create(gpu_ctx);
+        s->user_transforms = ngli_gpu_buffer_create(gpu_ctx);
+        s->colors          = ngli_gpu_buffer_create(gpu_ctx);
+        s->outlines        = ngli_gpu_buffer_create(gpu_ctx);
+        s->glows           = ngli_gpu_buffer_create(gpu_ctx);
+        s->blurs           = ngli_gpu_buffer_create(gpu_ctx);
         if (!s->user_transforms || !s->colors || !s->outlines || !s->glows  || !s->blurs)
             return NGL_ERROR_MEMORY;
 
-        if ((ret = ngli_buffer_init(s->transforms,      text_nbchr     * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->atlas_coords,    text_nbchr     * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->user_transforms, text_nbchr * 4 * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->colors,          text_nbchr     * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->outlines,        text_nbchr     * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->glows,           text_nbchr     * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->blurs,           text_nbchr         * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
+        if ((ret = ngli_gpu_buffer_init(s->transforms, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_gpu_buffer_init(s->atlas_coords, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_gpu_buffer_init(s->user_transforms, text_nbchr * 4 * 4 * sizeof(float),
+                                        DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_gpu_buffer_init(s->colors, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_gpu_buffer_init(s->outlines, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_gpu_buffer_init(s->glows, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_gpu_buffer_init(s->blurs, text_nbchr * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
             return ret;
 
         struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
@@ -301,8 +301,8 @@ static int refresh_pipeline_data(struct ngl_node *node)
         }
     }
 
-    if ((ret = ngli_buffer_upload(s->transforms,   text->data_ptrs.pos_size,     0, text_nbchr * 4 * sizeof(float))) < 0 ||
-        (ret = ngli_buffer_upload(s->atlas_coords, text->data_ptrs.atlas_coords, 0, text_nbchr * 4 * sizeof(float))) < 0)
+    if ((ret = ngli_gpu_buffer_upload(s->transforms, text->data_ptrs.pos_size, 0, text_nbchr * 4 * sizeof(float))) < 0 ||
+        (ret = ngli_gpu_buffer_upload(s->atlas_coords, text->data_ptrs.atlas_coords, 0, text_nbchr * 4 * sizeof(float))) < 0)
         return ret;
 
     s->nb_chars = text_nbchr;
@@ -333,11 +333,12 @@ static int apply_effects(struct text_priv *s)
         return 0;
 
     const struct text_data_pointers *ptrs = &text->data_ptrs;
-    if ((ret = ngli_buffer_upload(s->user_transforms, ptrs->transform,  0, text_nbchr * 4 * 4 * sizeof(*ptrs->transform))) < 0 ||
-        (ret = ngli_buffer_upload(s->colors,          ptrs->color,      0, text_nbchr     * 4 * sizeof(*ptrs->color)))     < 0 ||
-        (ret = ngli_buffer_upload(s->outlines,        ptrs->outline,    0, text_nbchr     * 4 * sizeof(*ptrs->outline)))   < 0 ||
-        (ret = ngli_buffer_upload(s->glows,           ptrs->glow,       0, text_nbchr     * 4 * sizeof(*ptrs->glow)))      < 0 ||
-        (ret = ngli_buffer_upload(s->blurs,           ptrs->blur,       0, text_nbchr         * sizeof(*ptrs->blur)))      < 0)
+    if ((ret = ngli_gpu_buffer_upload(s->user_transforms, ptrs->transform, 0,
+                                      text_nbchr * 4 * 4 * sizeof(*ptrs->transform))) < 0 ||
+        (ret = ngli_gpu_buffer_upload(s->colors, ptrs->color, 0, text_nbchr * 4 * sizeof(*ptrs->color))) < 0 ||
+        (ret = ngli_gpu_buffer_upload(s->outlines, ptrs->outline, 0, text_nbchr * 4 * sizeof(*ptrs->outline))) < 0 ||
+        (ret = ngli_gpu_buffer_upload(s->glows, ptrs->glow, 0, text_nbchr * 4 * sizeof(*ptrs->glow))) < 0 ||
+        (ret = ngli_gpu_buffer_upload(s->blurs, ptrs->blur, 0, text_nbchr * sizeof(*ptrs->blur))) < 0)
         return ret;
 
     return 0;
@@ -358,13 +359,13 @@ static int init_bounding_box_geometry(struct ngl_node *node)
         box.x + box.w, box.y + box.h,
     };
 
-    s->bg_vertices = ngli_buffer_create(gpu_ctx);
+    s->bg_vertices = ngli_gpu_buffer_create(gpu_ctx);
     if (!s->bg_vertices)
         return NGL_ERROR_MEMORY;
 
     int ret;
-    if ((ret = ngli_buffer_init(s->bg_vertices, sizeof(vertices), VERTEX_USAGE_FLAGS)) < 0 ||
-        (ret = ngli_buffer_upload(s->bg_vertices, vertices, 0, sizeof(vertices))) < 0)
+    if ((ret = ngli_gpu_buffer_init(s->bg_vertices, sizeof(vertices), VERTEX_USAGE_FLAGS)) < 0 ||
+        (ret = ngli_gpu_buffer_upload(s->bg_vertices, vertices, 0, sizeof(vertices))) < 0)
         return ret;
 
     return 0;
@@ -420,7 +421,7 @@ static int text_init(struct ngl_node *node)
 
 static int init_subdesc(struct ngl_node *node,
                         struct pipeline_desc_common *desc,
-                        const struct graphics_state *graphics_state,
+                        const struct gpu_graphics_state *graphics_state,
                         const struct pgcraft_params *crafter_params)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -440,9 +441,9 @@ static int init_subdesc(struct ngl_node *node,
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_compat_params params = {
-        .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
+        .type          = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
         .graphics      = {
-            .topology     = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+            .topology     = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state        = *graphics_state,
             .rt_layout    = rnode->rendertarget_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
@@ -457,8 +458,8 @@ static int init_subdesc(struct ngl_node *node,
     if (ret < 0)
         return ret;
 
-    desc->modelview_matrix_index  = ngli_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix",  NGLI_PROGRAM_SHADER_VERT);
-    desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "projection_matrix", NGLI_PROGRAM_SHADER_VERT);
+    desc->modelview_matrix_index  = ngli_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
+    desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "projection_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
 
     return 0;
 }
@@ -471,29 +472,29 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
     const struct text_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
-        {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = o->bg_color},
-        {.name = "opacity",           .type = NGLI_TYPE_F32,  .stage = NGLI_PROGRAM_SHADER_FRAG, .data = &o->bg_opacity},
+        {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_GPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_GPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_GPU_PROGRAM_SHADER_FRAG, .data = o->bg_color},
+        {.name = "opacity",           .type = NGLI_TYPE_F32,  .stage = NGLI_GPU_PROGRAM_SHADER_FRAG, .data = &o->bg_opacity},
     };
 
     const struct pgcraft_attribute attributes[] = {
         {
             .name     = "position",
             .type     = NGLI_TYPE_VEC2,
-            .format   = NGLI_FORMAT_R32G32_SFLOAT,
+            .format   = NGLI_GPU_FORMAT_R32G32_SFLOAT,
             .stride   = 2 * sizeof(float),
             .buffer   = s->bg_vertices,
         },
     };
 
     /* This controls how the background blends onto the current framebuffer */
-    struct graphics_state state = rnode->graphics_state;
+    struct gpu_graphics_state state = rnode->graphics_state;
     state.blend = 1;
-    state.blend_src_factor   = NGLI_BLEND_FACTOR_ONE;
-    state.blend_dst_factor   = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    state.blend_src_factor_a = NGLI_BLEND_FACTOR_ONE;
-    state.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    state.blend_src_factor   = NGLI_GPU_BLEND_FACTOR_ONE;
+    state.blend_dst_factor   = NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    state.blend_src_factor_a = NGLI_GPU_BLEND_FACTOR_ONE;
+    state.blend_dst_factor_a = NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
     const struct pgcraft_params crafter_params = {
         .program_label    = "nopegl/text-bg",
@@ -509,8 +510,8 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
     if (ret < 0)
         return ret;
 
-    desc->color_index   = ngli_pgcraft_get_uniform_index(desc->common.crafter, "color",   NGLI_PROGRAM_SHADER_FRAG);
-    desc->opacity_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "opacity", NGLI_PROGRAM_SHADER_FRAG);
+    desc->color_index   = ngli_pgcraft_get_uniform_index(desc->common.crafter, "color", NGLI_GPU_PROGRAM_SHADER_FRAG);
+    desc->opacity_index = ngli_pgcraft_get_uniform_index(desc->common.crafter, "opacity", NGLI_GPU_PROGRAM_SHADER_FRAG);
 
     return 0;
 }
@@ -522,15 +523,15 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     struct text_priv *s = node->priv_data;
 
     const struct pgcraft_uniform uniforms[] = {
-        {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_GPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_GPU_PROGRAM_SHADER_VERT, .data = NULL},
     };
 
     const struct pgcraft_texture textures[] = {
         {
             .name     = "tex",
             .type     = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .stage    = NGLI_PROGRAM_SHADER_FRAG,
+            .stage    = NGLI_GPU_PROGRAM_SHADER_FRAG,
             .texture  = s->text_ctx->atlas_texture,
         },
     };
@@ -539,49 +540,49 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
         {
             .name     = "transform",
             .type     = NGLI_TYPE_VEC4,
-            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .format   = NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->transforms,
             .rate     = 1,
         }, {
             .name     = "atlas_coords",
             .type     = NGLI_TYPE_VEC4,
-            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .format   = NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->atlas_coords,
             .rate     = 1,
         }, {
             .name     = "user_transform",
             .type     = NGLI_TYPE_MAT4,
-            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .format   = NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * 4 * sizeof(float),
             .buffer   = s->user_transforms,
             .rate     = 1,
         }, {
             .name     = "frag_color",
             .type     = NGLI_TYPE_VEC4,
-            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .format   = NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->colors,
             .rate     = 1,
         }, {
             .name     = "frag_outline",
             .type     = NGLI_TYPE_VEC4,
-            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .format   = NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->outlines,
             .rate     = 1,
         }, {
             .name     = "frag_glow",
             .type     = NGLI_TYPE_VEC4,
-            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .format   = NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->glows,
             .rate     = 1,
         }, {
             .name     = "frag_blur",
             .type     = NGLI_TYPE_F32,
-            .format   = NGLI_FORMAT_R32_SFLOAT,
+            .format   = NGLI_GPU_FORMAT_R32_SFLOAT,
             .stride   = sizeof(float),
             .buffer   = s->blurs,
             .rate     = 1,
@@ -589,12 +590,12 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     };
 
     /* This controls how the characters blend onto the background */
-    struct graphics_state state = rnode->graphics_state;
+    struct gpu_graphics_state state = rnode->graphics_state;
     state.blend = 1;
-    state.blend_src_factor   = NGLI_BLEND_FACTOR_ONE;
-    state.blend_dst_factor   = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    state.blend_src_factor_a = NGLI_BLEND_FACTOR_ONE;
-    state.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    state.blend_src_factor   = NGLI_GPU_BLEND_FACTOR_ONE;
+    state.blend_dst_factor   = NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    state.blend_src_factor_a = NGLI_GPU_BLEND_FACTOR_ONE;
+    state.blend_dst_factor_a = NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
         {.name = "uv",     .type = NGLI_TYPE_VEC2},
@@ -673,7 +674,7 @@ static int text_update(struct ngl_node *node, double t)
         s->live_changed = 0;
     }
 
-    const struct viewport viewport = ngli_gpu_ctx_get_viewport(node->ctx->gpu_ctx);
+    const struct gpu_viewport viewport = ngli_gpu_ctx_get_viewport(node->ctx->gpu_ctx);
     if (memcmp(&s->viewport, &viewport, sizeof(viewport))) {
         memcpy(&s->viewport, &viewport, sizeof(viewport));
         ngli_text_refresh_geometry_data(s->text_ctx);
@@ -738,7 +739,7 @@ static void text_uninit(struct ngl_node *node)
         ngli_pgcraft_freep(&desc->fg.common.crafter);
     }
     ngli_darray_reset(&s->pipeline_descs);
-    ngli_buffer_freep(&s->bg_vertices);
+    ngli_gpu_buffer_freep(&s->bg_vertices);
     destroy_characters_resources(s);
     ngli_text_freep(&s->text_ctx);
 }

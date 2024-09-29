@@ -27,7 +27,7 @@
 
 #include "gpu_block.h"
 #include "gpu_ctx.h"
-#include "graphics_state.h"
+#include "gpu_graphics_state.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
@@ -36,9 +36,8 @@
 #include "nopegl.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "rendertarget.h"
+#include "gpu_rendertarget.h"
 #include "rtt.h"
-#include "topology.h"
 #include "utils.h"
 
 /* GLSL shaders */
@@ -80,12 +79,12 @@ struct gblur_priv {
     size_t image_rev;
 
     /* Render the horizontal pass to a temporary destination */
-    struct rendertarget_layout tmp_layout;
+    struct gpu_rendertarget_layout tmp_layout;
     struct rtt_ctx *tmp;
 
     /* Render the vertical pass to the destination */
     int dst_is_resizeable;
-    struct rendertarget_layout dst_layout;
+    struct gpu_rendertarget_layout dst_layout;
     struct rtt_ctx *dst_rtt_ctx;
 
     struct gpu_block direction;
@@ -192,13 +191,13 @@ static int update_kernel(struct ngl_node *node)
     return 0;
 }
 
-static int setup_pipeline(struct pgcraft *crafter, struct pipeline_compat *pipeline, const struct rendertarget_layout *layout)
+static int setup_pipeline(struct pgcraft *crafter, struct pipeline_compat *pipeline, const struct gpu_rendertarget_layout *layout)
 {
     const struct pipeline_compat_params params = {
-        .type         = NGLI_PIPELINE_TYPE_GRAPHICS,
+        .type         = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
-            .topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .state    = NGLI_GRAPHICS_STATE_DEFAULTS,
+            .topology = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .state    = NGLI_GPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = *layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(crafter),
         },
@@ -212,7 +211,7 @@ static int setup_pipeline(struct pgcraft *crafter, struct pipeline_compat *pipel
     if (ret < 0)
         return ret;
 
-    const int32_t index = ngli_pgcraft_get_uniform_index(crafter, "tex_coord_matrix", NGLI_PROGRAM_SHADER_VERT);
+    const int32_t index = ngli_pgcraft_get_uniform_index(crafter, "tex_coord_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
     ngli_assert(index >= 0);
 
     NGLI_ALIGNED_MAT(tmp_coord_matrix) = NGLI_MAT4_IDENTITY;
@@ -236,16 +235,16 @@ static int gblur_init(struct ngl_node *node)
     src_info->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
 
     /* Override texture params */
-    src_info->params.min_filter = NGLI_FILTER_LINEAR;
-    src_info->params.mag_filter = NGLI_FILTER_LINEAR;
-    src_info->params.wrap_s     = NGLI_WRAP_MIRRORED_REPEAT,
-    src_info->params.wrap_t     = NGLI_WRAP_MIRRORED_REPEAT,
+    src_info->params.min_filter = NGLI_GPU_FILTER_LINEAR;
+    src_info->params.mag_filter = NGLI_GPU_FILTER_LINEAR;
+    src_info->params.wrap_s     = NGLI_GPU_WRAP_MIRRORED_REPEAT,
+    src_info->params.wrap_t     = NGLI_GPU_WRAP_MIRRORED_REPEAT,
 
     s->tmp_layout.colors[s->tmp_layout.nb_colors].format = src_info->params.format;
     s->tmp_layout.nb_colors++;
 
     struct texture_info *dst_info = o->destination->priv_data;
-    dst_info->params.usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+    dst_info->params.usage |= NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
 
     s->dst_is_resizeable = (dst_info->params.width == 0 && dst_info->params.height == 0);
     s->dst_layout.colors[0].format = dst_info->params.format;
@@ -284,7 +283,7 @@ static int gblur_init(struct ngl_node *node)
             .name      = "tex",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
             .precision = NGLI_PRECISION_HIGH,
-            .stage     = NGLI_PROGRAM_SHADER_FRAG,
+            .stage     = NGLI_GPU_PROGRAM_SHADER_FRAG,
         },
     };
 
@@ -292,7 +291,7 @@ static int gblur_init(struct ngl_node *node)
         {
             .name          = "direction",
             .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
-            .stage         = NGLI_PROGRAM_SHADER_FRAG,
+            .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
             .block         = &s->direction.block,
             .buffer        = {
                 .buffer = s->direction.buffer,
@@ -301,7 +300,7 @@ static int gblur_init(struct ngl_node *node)
         }, {
             .name          = "kernel",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
-            .stage         = NGLI_PROGRAM_SHADER_FRAG,
+            .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
             .block         = &s->kernel.block,
             .buffer        = {
                 .buffer = s->kernel.buffer,
@@ -365,20 +364,20 @@ static int resize(struct ngl_node *node)
 
     struct rtt_ctx *tmp = NULL;
 
-    struct texture *dst = NULL;
+    struct gpu_texture *dst = NULL;
     struct rtt_ctx *dst_rtt_ctx = NULL;
 
-    const struct texture_params texture_params = {
-        .type          = NGLI_TEXTURE_TYPE_2D,
+    const struct gpu_texture_params texture_params = {
+        .type          = NGLI_GPU_TEXTURE_TYPE_2D,
         .format        = src_info->params.format,
         .width         = width,
         .height        = height,
-        .min_filter    = NGLI_FILTER_LINEAR,
-        .mag_filter    = NGLI_FILTER_LINEAR,
-        .wrap_s        = NGLI_WRAP_MIRRORED_REPEAT,
-        .wrap_t        = NGLI_WRAP_MIRRORED_REPEAT,
-        .usage         = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT |
-                         NGLI_TEXTURE_USAGE_SAMPLED_BIT,
+        .min_filter    = NGLI_GPU_FILTER_LINEAR,
+        .mag_filter    = NGLI_GPU_FILTER_LINEAR,
+        .wrap_s        = NGLI_GPU_WRAP_MIRRORED_REPEAT,
+        .wrap_t        = NGLI_GPU_WRAP_MIRRORED_REPEAT,
+        .usage         = NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT |
+                         NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
 
     tmp = ngli_rtt_create(ctx);
@@ -393,16 +392,16 @@ static int resize(struct ngl_node *node)
 
     dst = dst_info->texture;
     if (s->dst_is_resizeable) {
-        dst = ngli_texture_create(ctx->gpu_ctx);
+        dst = ngli_gpu_texture_create(ctx->gpu_ctx);
         if (!dst) {
             ret = NGL_ERROR_MEMORY;
             goto fail;
         }
 
-        struct texture_params params = dst_info->params;
+        struct gpu_texture_params params = dst_info->params;
         params.width = width;
         params.height = height;
-        ret = ngli_texture_init(dst, &params);
+        ret = ngli_gpu_texture_init(dst, &params);
         if (ret < 0)
             goto fail;
     }
@@ -411,7 +410,7 @@ static int resize(struct ngl_node *node)
     s->tmp = tmp;
 
     if (s->dst_is_resizeable) {
-        ngli_texture_freep(&dst_info->texture);
+        ngli_gpu_texture_freep(&dst_info->texture);
         dst_info->texture = dst;
         dst_info->image.params.width = dst->params.width;
         dst_info->image.params.height = dst->params.height;
@@ -431,8 +430,8 @@ static int resize(struct ngl_node *node)
         .nb_colors = 1,
         .colors[0] = {
             .attachment = dst,
-            .load_op = NGLI_LOAD_OP_CLEAR,
-            .store_op = NGLI_STORE_OP_STORE,
+            .load_op = NGLI_GPU_LOAD_OP_CLEAR,
+            .store_op = NGLI_GPU_STORE_OP_STORE,
         },
     };
 
@@ -456,7 +455,7 @@ fail:
 
     ngli_rtt_freep(&dst_rtt_ctx);
     if (s->dst_is_resizeable)
-        ngli_texture_freep(&dst);
+        ngli_gpu_texture_freep(&dst);
 
     LOG(ERROR, "failed to resize blur: %dx%d", width, height);
     return ret;

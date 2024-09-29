@@ -35,8 +35,8 @@
 #include <MoltenVK/mvk_vulkan.h>
 #include <vulkan/vulkan.h>
 
-#include "format.h"
-#include "format_vk.h"
+#include "gpu_format.h"
+#include "gpu_format_vk.h"
 #include "gpu_ctx_vk.h"
 #include "hwmap.h"
 #include "image.h"
@@ -44,7 +44,7 @@
 #include "log.h"
 #include "math_utils.h"
 #include "nopegl.h"
-#include "texture_vk.h"
+#include "gpu_texture_vk.h"
 #include "type.h"
 #include "vkutils.h"
 
@@ -74,21 +74,21 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
     case kCVPixelFormatType_32BGRA:
         desc->layout = NGLI_IMAGE_LAYOUT_DEFAULT;
         desc->nb_planes = 1;
-        desc->planes[0].format = NGLI_FORMAT_B8G8R8A8_UNORM;
+        desc->planes[0].format = NGLI_GPU_FORMAT_B8G8R8A8_UNORM;
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         desc->layout = NGLI_IMAGE_LAYOUT_NV12;
         desc->nb_planes = 2;
-        desc->planes[0].format = NGLI_FORMAT_R8_UNORM;
-        desc->planes[1].format = NGLI_FORMAT_R8G8_UNORM;
+        desc->planes[0].format = NGLI_GPU_FORMAT_R8_UNORM;
+        desc->planes[1].format = NGLI_GPU_FORMAT_R8G8_UNORM;
         break;
     case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange:
     case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
         desc->layout = NGLI_IMAGE_LAYOUT_NV12;
         desc->nb_planes = 2;
-        desc->planes[0].format = NGLI_FORMAT_R16_UNORM;
-        desc->planes[1].format = NGLI_FORMAT_R16G16_UNORM;
+        desc->planes[0].format = NGLI_GPU_FORMAT_R16_UNORM;
+        desc->planes[1].format = NGLI_GPU_FORMAT_R16G16_UNORM;
         break;
     default:
         LOG(ERROR, "unsupported pixel format %d", format);
@@ -100,7 +100,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 
 struct hwmap_vt_darwin {
     struct nmd_frame *frame;
-    struct texture *planes[2];
+    struct gpu_texture *planes[2];
     OSType format;
     struct format_desc format_desc;
     id<MTLDevice> device;
@@ -127,13 +127,13 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     }
 
     for (size_t i = 0; i < vt->format_desc.nb_planes; i++) {
-        struct texture *plane = vt->planes[i];
-        struct texture_vk *plane_vk = (struct texture_vk *)plane;
+        struct gpu_texture *plane = vt->planes[i];
+        struct gpu_texture_vk *plane_vk = (struct gpu_texture_vk *)plane;
 
         const size_t width = CVPixelBufferGetWidthOfPlane(cvpixbuf, i);
         const size_t height = CVPixelBufferGetHeightOfPlane(cvpixbuf, i);
         const int format = vt->format_desc.planes[i].format;
-        const int vk_format = ngli_format_ngl_to_vk(format);
+        const int vk_format = ngli_gpu_format_ngl_to_vk(format);
         const MTLPixelFormat mtl_format = vt_get_mtl_format(vk_format);
 
         CVMetalTextureRef texture_ref = NULL;
@@ -159,7 +159,7 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             .format        = vk_format,
             .tiling        = VK_IMAGE_TILING_OPTIMAL,
             .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .usage         = ngli_vk_get_image_usage_flags(params->texture_usage),
+            .usage         = ngli_gpu_vk_get_image_usage_flags(params->texture_usage),
             .samples       = VK_SAMPLE_COUNT_1_BIT,
             .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
         };
@@ -171,8 +171,8 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             return ngli_vk_res2ret(res);
         }
 
-        const struct texture_params plane_params = {
-            .type             = NGLI_TEXTURE_TYPE_2D,
+        const struct gpu_texture_params plane_params = {
+            .type             = NGLI_GPU_TEXTURE_TYPE_2D,
             .format           = format,
             .width            = width,
             .height           = height,
@@ -183,13 +183,13 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             .usage            = params->texture_usage,
         };
 
-        const struct texture_vk_wrap_params wrap_params = {
+        const struct gpu_texture_vk_wrap_params wrap_params = {
             .params       = &plane_params,
             .image        = plane_vk->image,
             .image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
         };
 
-        res = ngli_texture_vk_wrap(vt->planes[i], &wrap_params);
+        res = ngli_gpu_texture_vk_wrap(vt->planes[i], &wrap_params);
         if (res != VK_SUCCESS) {
             LOG(ERROR, "could not wrap texture: %s", ngli_vk_res2str(res));
             CFRelease(texture_ref);
@@ -250,7 +250,7 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
     }
 
     for (size_t i = 0; i < 2; i++) {
-        vt->planes[i] = ngli_texture_create(gpu_ctx);
+        vt->planes[i] = ngli_gpu_texture_create(gpu_ctx);
         if (!vt->planes[i])
             return NGL_ERROR_MEMORY;
     }
@@ -274,7 +274,7 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
 
     for (size_t i = 0; i < 2; i++)
-        ngli_texture_freep(&vt->planes[i]);
+        ngli_gpu_texture_freep(&vt->planes[i]);
 
     nmd_frame_releasep(&vt->frame);
 }

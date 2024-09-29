@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023-2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2023 Nope Forge
  * Copyright 2017-2022 GoPro Inc.
  *
@@ -27,7 +27,7 @@
 #include "glcontext.h"
 #include "gpu_ctx.h"
 
-struct graphics_state;
+struct gpu_graphics_state;
 
 struct glstate {
     /* Graphics state */
@@ -60,8 +60,8 @@ struct glstate {
     GLboolean scissor_test;
 
     /* Dynamic graphics state */
-    struct scissor scissor;
-    struct viewport viewport;
+    struct gpu_scissor scissor;
+    struct gpu_viewport viewport;
 
     /* Common state */
     GLuint program_id;
@@ -72,7 +72,7 @@ void ngli_glstate_reset(const struct glcontext *gl,
 
 void ngli_glstate_update(const struct glcontext *gl,
                          struct glstate *glstate,
-                         const struct graphics_state *state);
+                         const struct gpu_graphics_state *state);
 
 void ngli_glstate_use_program(const struct glcontext *gl,
                               struct glstate *glstate,
@@ -80,10 +80,10 @@ void ngli_glstate_use_program(const struct glcontext *gl,
 
 void ngli_glstate_update_scissor(const struct glcontext *gl,
                                  struct glstate *glstate,
-                                 const struct scissor *scissor);
+                                 const struct gpu_scissor *scissor);
 
 void ngli_glstate_update_viewport(const struct glcontext *gl,
                                   struct glstate *glstate,
-                                  const struct viewport *viewport);
+                                  const struct gpu_viewport *viewport);
 
 #endif

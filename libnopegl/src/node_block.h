@@ -26,7 +26,7 @@
 #include <stdint.h>
 
 #include "block.h"
-#include "buffer.h"
+#include "gpu_buffer.h"
 
 struct ngl_node;
 
@@ -37,7 +37,7 @@ struct block_info {
     size_t data_size;
     int usage;
 
-    struct buffer *buffer;
+    struct gpu_buffer *buffer;
     size_t buffer_rev;
 };
 

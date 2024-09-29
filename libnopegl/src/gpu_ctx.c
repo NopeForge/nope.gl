@@ -25,7 +25,7 @@
 #include "gpu_ctx.h"
 #include "log.h"
 #include "memory.h"
-#include "rendertarget.h"
+#include "gpu_rendertarget.h"
 
 const char *ngli_backend_get_string_id(int backend)
 {
@@ -49,7 +49,7 @@ const char *ngli_backend_get_full_name(int backend)
     }
 }
 
-int ngli_viewport_is_valid(const struct viewport *viewport)
+int ngli_gpu_viewport_is_valid(const struct gpu_viewport *viewport)
 {
     return viewport->width > 0 && viewport->height > 0;
 }
@@ -106,7 +106,7 @@ int ngli_gpu_ctx_init(struct gpu_ctx *s)
         return ret;
 
     const struct gpu_limits *limits = &s->limits;
-    s->vertex_buffers = ngli_calloc(limits->max_vertex_attributes, sizeof(struct buffer *));
+    s->vertex_buffers = ngli_calloc(limits->max_vertex_attributes, sizeof(struct gpu_buffer *));
     if (!s->vertex_buffers)
         return NGL_ERROR_MEMORY;
 
@@ -181,7 +181,7 @@ void ngli_gpu_ctx_transform_projection_matrix(struct gpu_ctx *s, float *dst)
     s->cls->transform_projection_matrix(s, dst);
 }
 
-void ngli_gpu_ctx_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
+void ngli_gpu_ctx_begin_render_pass(struct gpu_ctx *s, struct gpu_rendertarget *rt)
 {
     ngli_assert(rt);
     ngli_assert(!s->rendertarget);
@@ -201,12 +201,12 @@ void ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(struct gpu_ctx *s, float *dst)
     s->cls->get_rendertarget_uvcoord_matrix(s, dst);
 }
 
-struct rendertarget *ngli_gpu_ctx_get_default_rendertarget(struct gpu_ctx *s, int load_op)
+struct gpu_rendertarget *ngli_gpu_ctx_get_default_rendertarget(struct gpu_ctx *s, int load_op)
 {
     return s->cls->get_default_rendertarget(s, load_op);
 }
 
-const struct rendertarget_layout *ngli_gpu_ctx_get_default_rendertarget_layout(struct gpu_ctx *s)
+const struct gpu_rendertarget_layout *ngli_gpu_ctx_get_default_rendertarget_layout(struct gpu_ctx *s)
 {
     return s->cls->get_default_rendertarget_layout(s);
 }
@@ -216,22 +216,22 @@ void ngli_gpu_ctx_get_default_rendertarget_size(struct gpu_ctx *s, int32_t *widt
     s->cls->get_default_rendertarget_size(s, width, height);
 }
 
-void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const struct viewport *viewport)
+void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const struct gpu_viewport *viewport)
 {
     s->viewport = *viewport;
 }
 
-struct viewport ngli_gpu_ctx_get_viewport(struct gpu_ctx *s)
+struct gpu_viewport ngli_gpu_ctx_get_viewport(struct gpu_ctx *s)
 {
     return s->viewport;
 }
 
-void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const struct scissor *scissor)
+void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const struct gpu_scissor *scissor)
 {
     s->scissor = *scissor;
 }
 
-struct scissor ngli_gpu_ctx_get_scissor(struct gpu_ctx *s)
+struct gpu_scissor ngli_gpu_ctx_get_scissor(struct gpu_ctx *s)
 {
     return s->scissor;
 }
@@ -251,13 +251,13 @@ uint32_t ngli_gpu_ctx_get_format_features(struct gpu_ctx *s, int format)
     return s->cls->get_format_features(s, format);
 }
 
-void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct pipeline *pipeline)
+void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct gpu_pipeline *pipeline)
 {
     s->pipeline = pipeline;
     s->cls->set_pipeline(s, pipeline);
 }
 
-void ngli_gpu_ctx_set_bindgroup(struct gpu_ctx *s, struct bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
+void ngli_gpu_ctx_set_bindgroup(struct gpu_ctx *s, struct gpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
 {
     s->bindgroup = bindgroup;
 
@@ -270,9 +270,9 @@ void ngli_gpu_ctx_set_bindgroup(struct gpu_ctx *s, struct bindgroup *bindgroup, 
 
 static void validate_vertex_buffers(struct gpu_ctx *s)
 {
-    const struct pipeline *pipeline = s->pipeline;
-    const struct pipeline_graphics *graphics = &pipeline->graphics;
-    const struct vertex_state *vertex_state = &graphics->vertex_state;
+    const struct gpu_pipeline *pipeline = s->pipeline;
+    const struct gpu_pipeline_graphics *graphics = &pipeline->graphics;
+    const struct gpu_vertex_state *vertex_state = &graphics->vertex_state;
     for (size_t i = 0; i < vertex_state->nb_buffers; i++) {
         ngli_assert(s->vertex_buffers[i]);
     }
@@ -283,9 +283,9 @@ void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
     ngli_assert(s->pipeline);
     validate_vertex_buffers(s);
     ngli_assert(s->bindgroup);
-    const struct bindgroup_layout *p_layout = s->pipeline->layout.bindgroup_layout;
-    const struct bindgroup_layout *b_layout = s->bindgroup->layout;
-    ngli_assert(ngli_bindgroup_layout_is_compatible(p_layout, b_layout));
+    const struct gpu_bindgroup_layout *p_layout = s->pipeline->layout.bindgroup_layout;
+    const struct gpu_bindgroup_layout *b_layout = s->bindgroup->layout;
+    ngli_assert(ngli_gpu_bindgroup_layout_is_compatible(p_layout, b_layout));
 
     s->cls->draw(s, nb_vertices, nb_instances);
 }
@@ -295,9 +295,9 @@ void ngli_gpu_ctx_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instanc
     ngli_assert(s->pipeline);
     validate_vertex_buffers(s);
     ngli_assert(s->bindgroup);
-    const struct bindgroup_layout *p_layout = s->pipeline->layout.bindgroup_layout;
-    const struct bindgroup_layout *b_layout = s->bindgroup->layout;
-    ngli_assert(ngli_bindgroup_layout_is_compatible(p_layout, b_layout));
+    const struct gpu_bindgroup_layout *p_layout = s->pipeline->layout.bindgroup_layout;
+    const struct gpu_bindgroup_layout *b_layout = s->bindgroup->layout;
+    ngli_assert(ngli_gpu_bindgroup_layout_is_compatible(p_layout, b_layout));
 
     s->cls->draw_indexed(s, nb_indices, nb_instances);
 }
@@ -306,14 +306,14 @@ void ngli_gpu_ctx_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_g
 {
     ngli_assert(s->pipeline);
     ngli_assert(s->bindgroup);
-    const struct bindgroup_layout *p_layout = s->pipeline->layout.bindgroup_layout;
-    const struct bindgroup_layout *b_layout = s->bindgroup->layout;
-    ngli_assert(ngli_bindgroup_layout_is_compatible(p_layout, b_layout));
+    const struct gpu_bindgroup_layout *p_layout = s->pipeline->layout.bindgroup_layout;
+    const struct gpu_bindgroup_layout *b_layout = s->bindgroup->layout;
+    ngli_assert(ngli_gpu_bindgroup_layout_is_compatible(p_layout, b_layout));
 
     s->cls->dispatch(s, nb_group_x, nb_group_y, nb_group_z);
 }
 
-void ngli_gpu_ctx_set_vertex_buffer(struct gpu_ctx *s, uint32_t index, const struct buffer *buffer)
+void ngli_gpu_ctx_set_vertex_buffer(struct gpu_ctx *s, uint32_t index, const struct gpu_buffer *buffer)
 {
     struct gpu_limits *limits = &s->limits;
     ngli_assert(index < limits->max_vertex_attributes);
@@ -321,7 +321,7 @@ void ngli_gpu_ctx_set_vertex_buffer(struct gpu_ctx *s, uint32_t index, const str
     s->cls->set_vertex_buffer(s, index, buffer);
 }
 
-void ngli_gpu_ctx_set_index_buffer(struct gpu_ctx *s, const struct buffer *buffer, int format)
+void ngli_gpu_ctx_set_index_buffer(struct gpu_ctx *s, const struct gpu_buffer *buffer, int format)
 {
     s->index_buffer = buffer;
     s->index_format = format;

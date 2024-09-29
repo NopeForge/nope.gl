@@ -31,7 +31,7 @@
 #include "math_utils.h"
 #include "memory.h"
 #include "nopegl.h"
-#include "program.h" // for MAX_ID_LEN
+#include "gpu_program.h" // for MAX_ID_LEN
 #include "utils.h"
 
 #define WHITESPACES " \r\n\t"

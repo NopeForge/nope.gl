@@ -27,16 +27,16 @@
 #include "image.h"
 #include "nopegl.h"
 #include "params.h"
-#include "texture.h"
+#include "gpu_texture.h"
 
 struct ngl_node;
 
 struct texture_info {
     int requested_format;
-    struct texture_params params;
+    struct gpu_texture_params params;
     uint32_t supported_image_layouts;
     int clamp_video;
-    struct texture *texture;
+    struct gpu_texture *texture;
     struct image image;
     size_t image_rev;
 };

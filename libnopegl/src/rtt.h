@@ -26,7 +26,7 @@
 #include <stdint.h>
 
 #include "gpu_limits.h"
-#include "rendertarget.h"
+#include "gpu_rendertarget.h"
 
 struct ngl_ctx;
 struct rtt_ctx;
@@ -38,16 +38,16 @@ struct rtt_params {
     int nb_interruptions;
 
     size_t nb_colors;
-    struct attachment colors[NGLI_MAX_COLOR_ATTACHMENTS];
+    struct gpu_attachment colors[NGLI_GPU_MAX_COLOR_ATTACHMENTS];
 
     int depth_stencil_format;
-    struct attachment depth_stencil;
+    struct gpu_attachment depth_stencil;
 };
 
 struct rtt_ctx *ngli_rtt_create(struct ngl_ctx *ctx);
 int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params);
-int ngli_rtt_from_texture_params(struct rtt_ctx *s, const struct texture_params *params);
-struct texture *ngli_rtt_get_texture(struct rtt_ctx *s, size_t index);
+int ngli_rtt_from_texture_params(struct rtt_ctx *s, const struct gpu_texture_params *params);
+struct gpu_texture *ngli_rtt_get_texture(struct rtt_ctx *s, size_t index);
 void ngli_rtt_begin(struct rtt_ctx *s);
 void ngli_rtt_end(struct rtt_ctx *s);
 void ngli_rtt_freep(struct rtt_ctx **sp);

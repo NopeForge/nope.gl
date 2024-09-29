@@ -29,7 +29,7 @@
 #include "android_imagereader.h"
 #include "android_surface.h"
 #include "egl.h"
-#include "format.h"
+#include "gpu_format.h"
 #include "gpu_ctx_gl.h"
 #include "glincludes.h"
 #include "hwmap.h"
@@ -38,13 +38,13 @@
 #include "math_utils.h"
 #include "nopegl.h"
 #include "internal.h"
-#include "texture_gl.h"
+#include "gpu_texture_gl.h"
 
 struct hwmap_mc {
     struct android_image *android_image;
     EGLImageKHR egl_image;
     GLuint gl_texture;
-    struct texture *texture;
+    struct gpu_texture *texture;
 };
 
 static int support_direct_rendering(struct hwmap *hwmap)
@@ -58,8 +58,8 @@ static int support_direct_rendering(struct hwmap *hwmap)
             LOG(WARNING, "external textures do not support mipmapping: "
                 "disabling direct rendering");
             direct_rendering = 0;
-        } else if (params->texture_wrap_s != NGLI_WRAP_CLAMP_TO_EDGE ||
-                   params->texture_wrap_t != NGLI_WRAP_CLAMP_TO_EDGE) {
+        } else if (params->texture_wrap_s != NGLI_GPU_WRAP_CLAMP_TO_EDGE ||
+                   params->texture_wrap_t != NGLI_GPU_WRAP_CLAMP_TO_EDGE) {
             LOG(WARNING, "external textures only support clamp to edge wrapping: "
                 "disabling direct rendering");
             direct_rendering = 0;
@@ -81,8 +81,8 @@ static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
 
     ngli_glGenTextures(gl, 1, &mc->gl_texture);
 
-    const GLint min_filter = ngli_texture_get_gl_min_filter(params->texture_min_filter, NGLI_MIPMAP_FILTER_NONE);
-    const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->texture_mag_filter);
+    const GLint min_filter = ngli_gpu_texture_get_gl_min_filter(params->texture_min_filter, NGLI_GPU_MIPMAP_FILTER_NONE);
+    const GLint mag_filter = ngli_gpu_texture_get_gl_mag_filter(params->texture_mag_filter);
 
     ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, mc->gl_texture);
     ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, min_filter);
@@ -91,28 +91,28 @@ static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
     ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
 
-    struct texture_params texture_params = {
-        .type         = NGLI_TEXTURE_TYPE_2D,
-        .format       = NGLI_FORMAT_UNDEFINED,
+    struct gpu_texture_params texture_params = {
+        .type         = NGLI_GPU_TEXTURE_TYPE_2D,
+        .format       = NGLI_GPU_FORMAT_UNDEFINED,
         .min_filter   = params->texture_min_filter,
         .mag_filter   = params->texture_mag_filter,
-        .wrap_s       = NGLI_WRAP_CLAMP_TO_EDGE,
-        .wrap_t       = NGLI_WRAP_CLAMP_TO_EDGE,
-        .wrap_r       = NGLI_WRAP_CLAMP_TO_EDGE,
-        .usage        = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
+        .wrap_s       = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
+        .wrap_t       = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
+        .wrap_r       = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
+        .usage        = NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
 
-    struct texture_gl_wrap_params wrap_params = {
+    struct gpu_texture_gl_wrap_params wrap_params = {
         .params  = &texture_params,
         .texture = mc->gl_texture,
         .target  = GL_TEXTURE_EXTERNAL_OES,
     };
 
-    mc->texture = ngli_texture_create(gpu_ctx);
+    mc->texture = ngli_gpu_texture_create(gpu_ctx);
     if (!mc->texture)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_texture_gl_wrap(mc->texture, &wrap_params);
+    int ret = ngli_gpu_texture_gl_wrap(mc->texture, &wrap_params);
     if (ret < 0)
         return ret;
 
@@ -128,7 +128,7 @@ static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
     hwmap->require_hwconv = !support_direct_rendering(hwmap);
 
     if (!android_ctx->has_native_imagereader_api) {
-        struct texture_gl *texture_gl = (struct texture_gl *)mc->texture;
+        struct gpu_texture_gl *texture_gl = (struct gpu_texture_gl *)mc->texture;
         ret = ngli_android_surface_attach_to_gl_context(params->android_surface, texture_gl->id);
         if (ret < 0)
             return ret;
@@ -142,7 +142,7 @@ static int mc_map_frame_surfacetexture(struct hwmap *hwmap, struct nmd_frame *fr
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
-    ngli_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
+    ngli_gpu_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
 
     NGLI_ALIGNED_MAT(flip_matrix) = {
         1.0f, 0.0f, 0.0f, 0.0f,
@@ -169,7 +169,7 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct nmd_frame *frame
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
-    ngli_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
+    ngli_gpu_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
 
     int ret = nmd_mc_frame_render_and_releasep(&frame);
     if (ret < 0)
@@ -212,7 +212,7 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct nmd_frame *frame
         EGL_NONE,
     };
 
-    const struct texture_gl *texture_gl = (struct texture_gl *)mc->texture;
+    const struct gpu_texture_gl *texture_gl = (struct gpu_texture_gl *)mc->texture;
     const GLuint id = texture_gl->id;
 
     mc->egl_image = ngli_eglCreateImageKHR(gl, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, egl_buffer, attrs);
@@ -247,7 +247,7 @@ static void mc_uninit(struct hwmap *hwmap)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
-    ngli_texture_freep(&mc->texture);
+    ngli_gpu_texture_freep(&mc->texture);
     ngli_glDeleteTextures(gl, 1, &mc->gl_texture);
 
     if (android_ctx->has_native_imagereader_api) {
