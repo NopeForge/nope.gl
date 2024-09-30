@@ -469,7 +469,7 @@ static void normalize_coordinates(struct distmap *s)
                           NGLI_GPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
                           NGLI_GPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
 
-static int get_prefered_distmap_format(const struct distmap *s)
+static int get_preferred_distmap_format(const struct distmap *s)
 {
     struct gpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
 
@@ -551,7 +551,7 @@ int ngli_distmap_finalize(struct distmap *s)
         .type       = NGLI_GPU_TEXTURE_TYPE_2D,
         .width      = s->texture_w,
         .height     = s->texture_h,
-        .format     = get_prefered_distmap_format(s),
+        .format     = get_preferred_distmap_format(s),
         .min_filter = NGLI_GPU_FILTER_LINEAR,
         .mag_filter = NGLI_GPU_FILTER_LINEAR,
         .usage      = NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT

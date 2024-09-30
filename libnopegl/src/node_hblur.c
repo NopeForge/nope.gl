@@ -74,7 +74,7 @@ struct hblur_priv {
 
     struct gpu_block blur_params_block;
 
-    int prefered_format;
+    int preferred_format;
     struct gpu_texture *tex0;
     struct gpu_texture *tex1;
 
@@ -119,7 +119,7 @@ static const struct node_param hblur_params[] = {
                                  NGLI_GPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
                                  NGLI_GPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
 
-static int get_prefered_format(struct gpu_ctx *gpu_ctx)
+static int get_preferred_format(struct gpu_ctx *gpu_ctx)
 {
     static const int formats[] = {
         NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT,
@@ -241,8 +241,8 @@ static int setup_pass1_pipeline(struct ngl_node *node)
 
     s->pass1.layout = (struct gpu_rendertarget_layout) {
         .nb_colors        = 2,
-        .colors[0].format = s->prefered_format,
-        .colors[1].format = s->prefered_format,
+        .colors[0].format = s->preferred_format,
+        .colors[1].format = s->preferred_format,
     };
 
     const struct pipeline_compat_params params = {
@@ -392,7 +392,7 @@ static int hblur_init(struct ngl_node *node)
         s->map_image = &map_info->image;
     }
 
-    s->prefered_format = get_prefered_format(ctx->gpu_ctx);
+    s->preferred_format = get_preferred_format(ctx->gpu_ctx);
 
     struct texture_info *dst_info = o->destination->priv_data;
     dst_info->params.usage |= NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -452,7 +452,7 @@ static int resize(struct ngl_node *node)
 
     struct gpu_texture_params texture_params = {
         .type          = NGLI_GPU_TEXTURE_TYPE_2D,
-        .format        = s->prefered_format,
+        .format        = s->preferred_format,
         .width         = width,
         .height        = height,
         .min_filter    = NGLI_GPU_FILTER_LINEAR,
