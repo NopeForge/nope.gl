@@ -508,7 +508,10 @@ gbackends_cfg = {
         'deps': ['vulkan', 'glslang'],
       },
       'darwin': {
-        'src': files('src/backends/vk/hwmap_videotoolbox_darwin_vk.m'),
+        'src': files(
+          'src/backends/vk/hwmap_videotoolbox_darwin_vk.m',
+          'src/ngpu/vulkan/wsi_apple.m',
+        ),
         'deps': ['glslang'],
         'libs': ['MoltenVK'],
         'frameworks': ['Metal', 'QuartzCore', 'CoreGraphics', 'IOKit'],
@@ -518,7 +521,10 @@ gbackends_cfg = {
         'deps': ['vulkan', 'glslang'],
       },
       'iphone': {
-        'src': files('src/backends/vk/hwmap_videotoolbox_darwin_vk.m'),
+        'src': files(
+          'src/backends/vk/hwmap_videotoolbox_darwin_vk.m',
+          'src/ngpu/vulkan/wsi_apple.m',
+        ),
         'deps': ['glslang'],
         'libs': ['MoltenVK'],
         'frameworks': ['Metal', 'QuartzCore', 'CoreGraphics'],
