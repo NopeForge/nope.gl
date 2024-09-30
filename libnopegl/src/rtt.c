@@ -46,6 +46,8 @@ struct rtt_ctx {
     size_t nb_ms_colors;
     struct gpu_texture *ms_depth;
 
+    struct image images[NGLI_GPU_MAX_COLOR_ATTACHMENTS];
+
     int started;
     struct gpu_viewport prev_viewport;
     struct gpu_scissor prev_scissor;
@@ -113,6 +115,15 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
         } else {
             rt_params.colors[rt_params.nb_colors] = s->params.colors[i];
         }
+
+        const struct image_params image_params = {
+            .width = s->params.width,
+            .height = s->params.height,
+            .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
+            .color_info = NGLI_COLOR_INFO_DEFAULTS,
+        };
+        ngli_image_init(&s->images[i], &image_params, &rt_params.colors[i].attachment);
+
         rt_params.nb_colors++;
     }
 
@@ -254,6 +265,12 @@ struct gpu_texture *ngli_rtt_get_texture(struct rtt_ctx *s, size_t index)
 {
     ngli_assert(index < s->params.nb_colors);
     return s->params.colors[index].attachment;
+}
+
+struct image *ngli_rtt_get_image(struct rtt_ctx *s, size_t index)
+{
+    ngli_assert(index < s->params.nb_colors);
+    return &s->images[index];
 }
 
 void ngli_rtt_begin(struct rtt_ctx *s)

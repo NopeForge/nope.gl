@@ -499,12 +499,12 @@ fail:
 static void execute_down_up_pass(struct ngl_ctx *ctx,
                                  struct rtt_ctx *rtt_ctx,
                                  struct pipeline_compat *pipeline,
-                                 struct gpu_texture *texture)
+                                 const struct image *image)
 {
     ngli_rtt_begin(rtt_ctx);
     ngli_gpu_ctx_begin_render_pass(ctx->gpu_ctx, ctx->current_rendertarget);
     ctx->render_pass_started = 1;
-    ngli_pipeline_compat_update_texture(pipeline, 0, texture);
+    ngli_pipeline_compat_update_image(pipeline, 0, image);
     ngli_pipeline_compat_draw(pipeline, 3, 1);
     ngli_rtt_end(rtt_ctx);
 }
@@ -557,12 +557,12 @@ static void fgblur_draw(struct ngl_node *node)
     /* Downsample source to mips[1] */
     struct texture_info *src_info = o->source->priv_data;
     const struct image *src_image = &src_info->image;
-    struct gpu_texture *mip = src_image->planes[0];
+    const struct image *mip = src_image;
     execute_down_up_pass(ctx, s->mips[1], s->dws.pl, mip);
 
     /* Downsample successively until mips[lod_i+1] is generated */
     for (int32_t i = 2; i <= lod_i + 1; i++)
-        execute_down_up_pass(ctx, s->mips[i], s->dws.pl, ngli_rtt_get_texture(s->mips[i - 1], 0));
+        execute_down_up_pass(ctx, s->mips[i], s->dws.pl, ngli_rtt_get_image(s->mips[i - 1], 0));
 
     /*
      * Upsample successively from mips[lod_i] back to full resolution and store
@@ -570,9 +570,9 @@ static void fgblur_draw(struct ngl_node *node)
      */
     if (lod_i > 0) {
         for (int32_t i = lod_i - 1; i > 0; i--)
-            execute_down_up_pass(ctx, s->mips[i], s->ups.pl, ngli_rtt_get_texture(s->mips[i + 1], 0));
-        execute_down_up_pass(ctx, s->mip, s->ups.pl, ngli_rtt_get_texture(s->mips[1], 0));
-        mip = ngli_rtt_get_texture(s->mip, 0);
+            execute_down_up_pass(ctx, s->mips[i], s->ups.pl, ngli_rtt_get_image(s->mips[i + 1], 0));
+        execute_down_up_pass(ctx, s->mip, s->ups.pl, ngli_rtt_get_image(s->mips[1], 0));
+        mip = ngli_rtt_get_image(s->mip, 0);
     }
 
     /*
@@ -580,7 +580,7 @@ static void fgblur_draw(struct ngl_node *node)
      * store the result in mips[0]
      */
     for (int32_t i = lod_i; i >= 0; i--)
-        execute_down_up_pass(ctx, s->mips[i], s->ups.pl, ngli_rtt_get_texture(s->mips[i + 1], 0));
+        execute_down_up_pass(ctx, s->mips[i], s->ups.pl, ngli_rtt_get_image(s->mips[i + 1], 0));
 
     const struct interpolate_block interpolate_block = {.lod = lod_f};
     ngli_gpu_block_update(&s->interpolate.block, 0, &interpolate_block);
@@ -592,8 +592,8 @@ static void fgblur_draw(struct ngl_node *node)
     ngli_rtt_begin(s->dst_rtt_ctx);
     ngli_gpu_ctx_begin_render_pass(ctx->gpu_ctx, ctx->current_rendertarget);
     ctx->render_pass_started = 1;
-    ngli_pipeline_compat_update_texture(s->interpolate.pl, 0, mip);
-    ngli_pipeline_compat_update_texture(s->interpolate.pl, 1, ngli_rtt_get_texture(s->mips[0], 0));
+    ngli_pipeline_compat_update_image(s->interpolate.pl, 0, mip);
+    ngli_pipeline_compat_update_image(s->interpolate.pl, 1, ngli_rtt_get_image(s->mips[0], 0));
     ngli_pipeline_compat_draw(s->interpolate.pl, 3, 1);
     ngli_rtt_end(s->dst_rtt_ctx);
 
