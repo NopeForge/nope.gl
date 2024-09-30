@@ -121,8 +121,6 @@ struct gpu_ctx_class {
 
     struct gpu_pipeline *(*pipeline_create)(struct gpu_ctx *ctx);
     int (*pipeline_init)(struct gpu_pipeline *s);
-    int (*pipeline_update_texture)(struct gpu_pipeline *s, int32_t index, const struct gpu_texture *texture);
-    int (*pipeline_update_buffer)(struct gpu_pipeline *s, int32_t index, const struct gpu_buffer *buffer, size_t offset, size_t size);
     void (*pipeline_freep)(struct gpu_pipeline **sp);
 
     struct gpu_program *(*program_create)(struct gpu_ctx *ctx);
