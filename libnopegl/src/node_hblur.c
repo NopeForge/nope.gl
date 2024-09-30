@@ -354,16 +354,6 @@ static int setup_pass2_pipeline(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const int32_t tex0_coord_matrix_index = ngli_pgcraft_get_uniform_index(s->pass2.crafter, "tex0_coord_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
-    ngli_assert(tex0_coord_matrix_index >= 0);
-
-    const int32_t tex1_coord_matrix_index = ngli_pgcraft_get_uniform_index(s->pass2.crafter, "tex1_coord_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
-    ngli_assert(tex1_coord_matrix_index >= 0);
-
-    NGLI_ALIGNED_MAT(tmp_coord_matrix) = NGLI_MAT4_IDENTITY;
-    ngli_pipeline_compat_update_uniform(s->pass2.pl, tex0_coord_matrix_index, tmp_coord_matrix);
-    ngli_pipeline_compat_update_uniform(s->pass2.pl, tex1_coord_matrix_index, tmp_coord_matrix);
-
     ngli_pipeline_compat_update_texture(s->pass2.pl, 2, s->dummy_map);
 
     return 0;
@@ -546,8 +536,8 @@ static int resize(struct ngl_node *node)
     ngli_rtt_freep(&s->pass2.rtt_ctx);
     s->pass2.rtt_ctx = pass2_rtt_ctx;
 
-    ngli_pipeline_compat_update_texture(s->pass2.pl, 0, s->tex0);
-    ngli_pipeline_compat_update_texture(s->pass2.pl, 1, s->tex1);
+    ngli_pipeline_compat_update_image(s->pass2.pl, 0, ngli_rtt_get_image(s->pass1.rtt_ctx, 0));
+    ngli_pipeline_compat_update_image(s->pass2.pl, 1, ngli_rtt_get_image(s->pass1.rtt_ctx, 1));
 
     if (s->dst_is_resizeable) {
         ngli_gpu_texture_freep(&dst_info->texture);

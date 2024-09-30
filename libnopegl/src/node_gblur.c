@@ -211,12 +211,6 @@ static int setup_pipeline(struct pgcraft *crafter, struct pipeline_compat *pipel
     if (ret < 0)
         return ret;
 
-    const int32_t index = ngli_pgcraft_get_uniform_index(crafter, "tex_coord_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
-    ngli_assert(index >= 0);
-
-    NGLI_ALIGNED_MAT(tmp_coord_matrix) = NGLI_MAT4_IDENTITY;
-    ngli_pipeline_compat_update_uniform(pipeline, index, tmp_coord_matrix);
-
     return 0;
 }
 
@@ -492,7 +486,7 @@ static void gblur_draw(struct ngl_node *node)
     ctx->render_pass_started = 1;
     offset = (uint32_t)s->direction.block_size;
     ngli_pipeline_compat_update_dynamic_offsets(s->pl_blur_v, &offset, 1);
-    ngli_pipeline_compat_update_texture(s->pl_blur_v, 0, ngli_rtt_get_texture(s->tmp, 0));
+    ngli_pipeline_compat_update_image(s->pl_blur_v, 0, ngli_rtt_get_image(s->tmp, 0));
     ngli_pipeline_compat_draw(s->pl_blur_v, 3, 1);
     ngli_rtt_end(s->dst_rtt_ctx);
 }
