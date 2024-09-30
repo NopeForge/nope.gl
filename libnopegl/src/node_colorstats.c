@@ -21,6 +21,7 @@
  */
 
 #include "block.h"
+#include "gpu_block.h"
 #include "gpu_ctx.h"
 #include "gpu_limits.h"
 #include "internal.h"
@@ -44,6 +45,11 @@
  */
 #define MAX_BIT_DEPTH 8
 
+struct stats_params_block {
+    int depth;
+    int length_minus1;
+};
+
 struct colorstats_opts {
     struct ngl_node *texture_node;
 };
@@ -63,14 +69,13 @@ struct colorstats_priv {
     int length_minus1;
     uint32_t group_size;
 
+    struct gpu_block stats_params_block;
+
     /* Init compute */
     struct {
         struct pgcraft *crafter;
         struct pipeline_compat *pipeline_compat;
         int32_t wg_count;
-        int32_t depth_index;
-        int32_t length_minus1_index;
-        int32_t block_index;
     } init;
 
     /* Waveform compute */
@@ -78,7 +83,6 @@ struct colorstats_priv {
         struct pgcraft *crafter;
         struct pipeline_compat *pipeline_compat;
         uint32_t wg_count;
-        int32_t block_index;
         const struct image *image;
         size_t image_rev;
     } waveform;
@@ -88,7 +92,6 @@ struct colorstats_priv {
         struct pgcraft *crafter;
         struct pipeline_compat *pipeline_compat;
         uint32_t wg_count;
-        int32_t block_index;
     } sumscale;
 };
 
@@ -114,19 +117,12 @@ static int setup_compute(struct colorstats_priv *s, struct pgcraft *crafter,
 }
 
 /* Phase 1: initialization (set globally shared values) */
-static int setup_init_compute(struct colorstats_priv *s, const struct pgcraft_block *block)
+static int setup_init_compute(struct colorstats_priv *s, const struct pgcraft_block *blocks, size_t nb_blocks)
 {
-    const struct pgcraft_uniform uniforms[] = {
-        {.name="depth",         .type=NGLI_TYPE_I32, .stage=NGLI_GPU_PROGRAM_SHADER_COMP},
-        {.name="length_minus1", .type=NGLI_TYPE_I32, .stage=NGLI_GPU_PROGRAM_SHADER_COMP},
-    };
-
     const struct pgcraft_params crafter_params = {
         .comp_base      = colorstats_init_comp,
-        .uniforms       = uniforms,
-        .nb_uniforms    = NGLI_ARRAY_NB(uniforms),
-        .blocks         = block,
-        .nb_blocks      = 1,
+        .blocks         = blocks,
+        .nb_blocks      = nb_blocks,
         .workgroup_size = {s->group_size, 1, 1},
     };
 
@@ -134,17 +130,12 @@ static int setup_init_compute(struct colorstats_priv *s, const struct pgcraft_bl
     if (ret < 0)
         return ret;
 
-    s->init.depth_index         = ngli_pgcraft_get_uniform_index(s->init.crafter, "depth", NGLI_GPU_PROGRAM_SHADER_COMP);
-    s->init.length_minus1_index = ngli_pgcraft_get_uniform_index(s->init.crafter, "length_minus1", NGLI_GPU_PROGRAM_SHADER_COMP);
-
-    s->init.block_index    = ngli_pgcraft_get_block_index(s->init.crafter, block->name, block->stage);
-
     return 0;
 }
 
 /* Phase 2: compute waveform in the data field (histograms per column) */
-static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraft_block *block,
-                                  const struct ngl_node *texture_node)
+static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraft_block *blocks,
+                                  size_t nb_blocks, const struct ngl_node *texture_node)
 {
     struct texture_info *texture_info = texture_node->priv_data;
     struct pgcraft_texture textures[] = {
@@ -162,8 +153,8 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
         .comp_base      = colorstats_waveform_comp,
         .textures       = textures,
         .nb_textures    = NGLI_ARRAY_NB(textures),
-        .blocks         = block,
-        .nb_blocks      = 1,
+        .blocks         = blocks,
+        .nb_blocks      = nb_blocks,
         .workgroup_size = {s->group_size, 1, 1},
     };
 
@@ -174,26 +165,22 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
     s->waveform.image = &texture_info->image;
     s->waveform.image_rev = SIZE_MAX;
 
-    s->waveform.block_index = ngli_pgcraft_get_block_index(s->waveform.crafter, block->name, block->stage);
-
     return 0;
 }
 
 /* Phase 3: summary and scale for global histograms */
-static int setup_sumscale_compute(struct colorstats_priv *s, const struct pgcraft_block *block)
+static int setup_sumscale_compute(struct colorstats_priv *s, const struct pgcraft_block *blocks, size_t nb_blocks)
 {
     const struct pgcraft_params crafter_params = {
         .comp_base      = colorstats_sumscale_comp,
-        .blocks         = block,
-        .nb_blocks      = 1,
+        .blocks         = blocks,
+        .nb_blocks      = nb_blocks,
         .workgroup_size = {s->group_size, 1, 1},
     };
 
     int ret = setup_compute(s, s->sumscale.crafter, s->sumscale.pipeline_compat, &crafter_params);
     if (ret < 0)
         return ret;
-
-    s->sumscale.block_index = ngli_pgcraft_get_block_index(s->sumscale.crafter, block->name, block->stage);
 
     return 0;
 }
@@ -233,18 +220,43 @@ static int init_computes(struct ngl_node *node)
     if (!s->init.crafter || !s->waveform.crafter || !s->sumscale.crafter)
         return NGL_ERROR_MEMORY;
 
-    const struct pgcraft_block block = {
-        .name     = "stats",
-        .type     = NGLI_TYPE_STORAGE_BUFFER,
-        .stage    = NGLI_GPU_PROGRAM_SHADER_COMP,
-        .writable = 1,
-        .block    = &s->blk.block,
+    const struct gpu_block_field block_fields[] = {
+        NGLI_GPU_BLOCK_FIELD(struct stats_params_block, depth, NGLI_TYPE_I32, 0),
+        NGLI_GPU_BLOCK_FIELD(struct stats_params_block, length_minus1, NGLI_TYPE_I32, 0),
     };
+    const struct gpu_block_params block_params = {
+        .count     = 1,
+        .fields    = block_fields,
+        .nb_fields = NGLI_ARRAY_NB(block_fields),
+    };
+    int ret = ngli_gpu_block_init(gpu_ctx, &s->stats_params_block, &block_params);
+    if (ret < 0)
+        return ret;
 
-    int ret;
-    if ((ret = setup_init_compute(s, &block)) < 0 ||
-        (ret = setup_waveform_compute(s, &block, o->texture_node)) < 0 ||
-        (ret = setup_sumscale_compute(s, &block)) < 0)
+    const struct pgcraft_block blocks[] = {
+        {
+            .name     = "params",
+            .instance_name = "",
+            .type     = NGLI_TYPE_UNIFORM_BUFFER,
+            .stage    = NGLI_GPU_PROGRAM_SHADER_COMP,
+            .block    = &s->stats_params_block.block,
+            .buffer   = {
+                .buffer = s->stats_params_block.buffer,
+                .size   = s->stats_params_block.buffer->size,
+            },
+        }, {
+            .name     = "stats",
+            .type     = NGLI_TYPE_STORAGE_BUFFER,
+            .stage    = NGLI_GPU_PROGRAM_SHADER_COMP,
+            .writable = 1,
+            .block    = &s->blk.block,
+        },
+    };
+    size_t nb_blocks = NGLI_ARRAY_NB(blocks);
+
+    if ((ret = setup_init_compute(s, blocks, nb_blocks)) < 0 ||
+        (ret = setup_waveform_compute(s, blocks, nb_blocks, o->texture_node)) < 0 ||
+        (ret = setup_sumscale_compute(s, blocks, nb_blocks)) < 0)
         return ret;
 
     return 0;
@@ -308,6 +320,11 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
      */
     s->length_minus1 = length - 1;
 
+    ngli_gpu_block_update(&s->stats_params_block, 0, &(const struct stats_params_block) {
+        .depth = s->depth,
+        .length_minus1 = s->length_minus1,
+    });
+
     /*
      * Given the following possible configurations:
      * - depth: 1<<8 (256), 1<<9 (512) or 1<<10 (1024)
@@ -342,9 +359,9 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
     if (ret < 0)
         return ret;
 
-    if ((ret = ngli_pipeline_compat_update_buffer(s->init.pipeline_compat, s->init.block_index, s->blk.buffer, 0, 0)) < 0 ||
-        (ret = ngli_pipeline_compat_update_buffer(s->sumscale.pipeline_compat, s->sumscale.block_index, s->blk.buffer, 0, 0)) < 0 ||
-        (ret = ngli_pipeline_compat_update_buffer(s->waveform.pipeline_compat, s->waveform.block_index, s->blk.buffer, 0, 0)) < 0)
+    if ((ret = ngli_pipeline_compat_update_buffer(s->init.pipeline_compat, 1, s->blk.buffer, 0, 0)) < 0 ||
+        (ret = ngli_pipeline_compat_update_buffer(s->sumscale.pipeline_compat, 1, s->blk.buffer, 0, 0)) < 0 ||
+        (ret = ngli_pipeline_compat_update_buffer(s->waveform.pipeline_compat, 1, s->blk.buffer, 0, 0)) < 0)
         return ret;
 
     /* Signal buffer change */
@@ -397,8 +414,6 @@ static void colorstats_draw(struct ngl_node *node)
     ngli_node_draw(o->texture_node);
 
     /* Init */
-    ngli_pipeline_compat_update_uniform(s->init.pipeline_compat, s->init.depth_index, &s->depth);
-    ngli_pipeline_compat_update_uniform(s->init.pipeline_compat, s->init.length_minus1_index, &s->length_minus1);
     ngli_pipeline_compat_dispatch(s->init.pipeline_compat, s->init.wg_count, 1, 1);
 
     /* Waveform */
