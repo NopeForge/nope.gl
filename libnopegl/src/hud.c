@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -40,10 +41,12 @@
 
 #include "drawutils.h"
 #include "gpu_ctx.h"
+#include "gpu_block.h"
 #include "gpu_graphics_state.h"
 #include "hud.h"
 #include "internal.h"
 #include "log.h"
+#include "math_utils.h"
 #include "memory.h"
 #include "node_block.h"
 #include "node_buffer.h"
@@ -53,6 +56,11 @@
 #include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "type.h"
+
+struct transforms_block {
+    NGLI_ALIGNED_MAT(modelview_matrix);
+    NGLI_ALIGNED_MAT(projection_matrix);
+};
 
 struct hud {
     struct ngl_ctx *ctx;
@@ -76,11 +84,9 @@ struct hud {
     struct pgcraft *crafter;
     struct gpu_texture *texture;
     struct gpu_buffer *coords;
+    struct gpu_block transforms_block;
     struct pipeline_compat *pipeline_compat;
     struct gpu_graphics_state graphics_state;
-
-    int32_t modelview_matrix_index;
-    int32_t projection_matrix_index;
 };
 
 #define WIDGET_PADDING 4
@@ -1235,9 +1241,35 @@ int ngli_hud_init(struct hud *s)
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_uniform uniforms[] = {
-        {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_GPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_GPU_PROGRAM_SHADER_VERT, .data = NULL},
+    const struct gpu_block_field block_fields[] = {
+        NGLI_GPU_BLOCK_FIELD(struct transforms_block, modelview_matrix, NGLI_TYPE_MAT4, 0),
+        NGLI_GPU_BLOCK_FIELD(struct transforms_block, projection_matrix, NGLI_TYPE_MAT4, 0),
+    };
+    const struct gpu_block_params block_params = {
+        .count     = 1,
+        .fields    = block_fields,
+        .nb_fields = NGLI_ARRAY_NB(block_fields),
+    };
+    ret = ngli_gpu_block_init(gpu_ctx, &s->transforms_block, &block_params);
+    if (ret < 0)
+        return ret;
+    ngli_gpu_block_update(&s->transforms_block, 0, &(struct transforms_block){
+        .modelview_matrix = NGLI_MAT4_IDENTITY,
+        .projection_matrix = NGLI_MAT4_IDENTITY,
+    });
+
+    const struct pgcraft_block blocks[] = {
+        {
+            .name          = "transforms",
+            .instance_name = "",
+            .type          = NGLI_TYPE_UNIFORM_BUFFER,
+            .stage         = NGLI_GPU_PROGRAM_SHADER_VERT,
+            .block         = &s->transforms_block.block,
+            .buffer = {
+                .buffer = s->transforms_block.buffer,
+                .size   = s->transforms_block.buffer->size,
+            }
+        },
     };
 
     struct pgcraft_texture textures[] = {
@@ -1271,8 +1303,8 @@ int ngli_hud_init(struct hud *s)
         .program_label    = "nopegl/hud",
         .vert_base        = vertex_data,
         .frag_base        = fragment_data,
-        .uniforms         = uniforms,
-        .nb_uniforms      = NGLI_ARRAY_NB(uniforms),
+        .blocks           = blocks,
+        .nb_blocks        = NGLI_ARRAY_NB(blocks),
         .textures         = textures,
         .nb_textures      = NGLI_ARRAY_NB(textures),
         .attributes       = attributes,
@@ -1310,9 +1342,6 @@ int ngli_hud_init(struct hud *s)
     ret = ngli_pipeline_compat_init(s->pipeline_compat, &params);
     if (ret < 0)
         return ret;
-
-    s->modelview_matrix_index = ngli_pgcraft_get_uniform_index(s->crafter, "modelview_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
-    s->projection_matrix_index = ngli_pgcraft_get_uniform_index(s->crafter, "projection_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
 
     return 0;
 }
@@ -1362,10 +1391,13 @@ void ngli_hud_draw(struct hud *s)
         ctx->render_pass_started = 1;
     }
 
-    const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);
+    struct transforms_block transforms_block = {0};
+    const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
-    ngli_pipeline_compat_update_uniform(s->pipeline_compat, s->modelview_matrix_index, modelview_matrix);
-    ngli_pipeline_compat_update_uniform(s->pipeline_compat, s->projection_matrix_index, projection_matrix);
+    memcpy(transforms_block.modelview_matrix, modelview_matrix, sizeof(transforms_block.modelview_matrix));
+    memcpy(transforms_block.projection_matrix, projection_matrix, sizeof(transforms_block.projection_matrix));
+    ngli_gpu_block_update(&s->transforms_block, 0, &transforms_block);
+
     ngli_pipeline_compat_draw(s->pipeline_compat, 4, 1);
 }
 
@@ -1379,6 +1411,7 @@ void ngli_hud_freep(struct hud **sp)
     ngli_pgcraft_freep(&s->crafter);
     ngli_gpu_texture_freep(&s->texture);
     ngli_gpu_buffer_freep(&s->coords);
+    ngli_gpu_block_reset(&s->transforms_block);
 
     widgets_uninit(s);
     ngli_free(s->canvas.buf);
