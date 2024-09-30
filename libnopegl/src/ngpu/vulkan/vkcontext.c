@@ -31,6 +31,7 @@
 # define VK_USE_PLATFORM_WIN32_KHR
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
 # include <MoltenVK/mvk_vulkan.h>
+# include "wsi_apple.h"
 #endif
 
 #include <limits.h>
@@ -322,35 +323,24 @@ static VkResult create_window_surface(struct vkcontext *s, const struct ngl_conf
 #else
         return VK_ERROR_EXTENSION_NOT_PRESENT;
 #endif
-    } else if (platform == NGL_PLATFORM_MACOS) {
-#if defined(TARGET_DARWIN)
-        const VkMacOSSurfaceCreateInfoMVK surface_create_info = {
-            .sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK,
-            .pView = (const void *)config->window,
+    } else if (platform == NGL_PLATFORM_MACOS || platform == NGL_PLATFORM_IOS) {
+#if defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
+        const void *view = (const void *)config->window;
+        const CAMetalLayer *layer = ngpu_window_get_metal_layer(view);
+        if (!layer)
+            return VK_ERROR_UNKNOWN;
+
+        VkMetalSurfaceCreateInfoEXT surface_create_info = {
+            .sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT,
+            .pLayer = layer,
         };
 
-        VK_LOAD_FUNC(s->instance, CreateMacOSSurfaceMVK);
-        if (!CreateMacOSSurfaceMVK) {
+        VK_LOAD_FUNC(s->instance, CreateMetalSurfaceEXT);
+        if (!CreateMetalSurfaceEXT) {
             return VK_ERROR_EXTENSION_NOT_PRESENT;
         }
 
-        VkResult res = CreateMacOSSurfaceMVK(s->instance, &surface_create_info, NULL, &s->surface);
-        if (res != VK_SUCCESS)
-            return res;
-#endif
-    } else if (platform == NGL_PLATFORM_IOS) {
-#if defined(TARGET_IPHONE)
-        const VkIOSSurfaceCreateInfoMVK surface_create_info = {
-            .sType = VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK,
-            .pView = (const void *)config->window,
-        };
-
-        VK_LOAD_FUNC(s->instance, CreateIOSSurfaceMVK);
-        if (!CreateIOSSurfaceMVK) {
-            return VK_ERROR_EXTENSION_NOT_PRESENT;
-        }
-
-        VkResult res = CreateIOSSurfaceMVK(s->instance, &surface_create_info, NULL, &s->surface);
+        VkResult res = CreateMetalSurfaceEXT(s->instance, &surface_create_info, NULL, &s->surface);
         if (res != VK_SUCCESS)
             return res;
 #endif
