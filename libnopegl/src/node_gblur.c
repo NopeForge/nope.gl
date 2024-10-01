@@ -87,8 +87,8 @@ struct gblur_priv {
     struct gpu_rendertarget_layout dst_layout;
     struct rtt_ctx *dst_rtt_ctx;
 
-    struct gpu_block direction;
-    struct gpu_block kernel;
+    struct gpu_block direction_block;
+    struct gpu_block kernel_block;
     struct pgcraft *crafter;
     struct pipeline_compat *pl_blur_h;
     struct pipeline_compat *pl_blur_v;
@@ -171,20 +171,20 @@ static int update_kernel(struct ngl_node *node)
      * the number of texture fetches from (2*radius + 1) to (radius + 1). The
      * resulting offsets and weights are stored in a vec2.
      */
-    struct kernel_block kernel = {0};
+    struct kernel_block kernel_block = {0};
     for (int i = -radius; i < radius; i += 2) {
         const float w0 = weights[i + radius + 0];
         const float w1 = weights[i + radius + 1];
         const float w = w0 + w1;
-        kernel.weights[O(kernel.nb_weights)] = w > 0 ? (float)i + w1 / w : (float)i;
-        kernel.weights[W(kernel.nb_weights)] = w;
-        kernel.nb_weights++;
+        kernel_block.weights[O(kernel_block.nb_weights)] = w > 0 ? (float)i + w1 / w : (float)i;
+        kernel_block.weights[W(kernel_block.nb_weights)] = w;
+        kernel_block.nb_weights++;
     }
-    kernel.weights[O(kernel.nb_weights)] = (float)radius;
-    kernel.weights[W(kernel.nb_weights)] = weights[radius + radius];
-    kernel.nb_weights++;
+    kernel_block.weights[O(kernel_block.nb_weights)] = (float)radius;
+    kernel_block.weights[W(kernel_block.nb_weights)] = weights[radius + radius];
+    kernel_block.nb_weights++;
 
-    int ret = ngli_gpu_block_update(&s->kernel, 0, &kernel);
+    int ret = ngli_gpu_block_update(&s->kernel_block, 0, &kernel_block);
     if (ret < 0)
         return ret;
 
@@ -244,29 +244,29 @@ static int gblur_init(struct ngl_node *node)
     s->dst_layout.colors[0].format = dst_info->params.format;
     s->dst_layout.nb_colors = 1;
 
-    const struct gpu_block_field direction_fields[] = {
+    const struct gpu_block_field direction_block_fields[] = {
         NGLI_GPU_BLOCK_FIELD(struct direction_block, direction, NGLI_TYPE_VEC2, 0),
     };
-    const struct gpu_block_params direction_params = {
+    const struct gpu_block_params direction_block_params = {
         .count     = 2,
-        .fields    = direction_fields,
-        .nb_fields = NGLI_ARRAY_NB(direction_fields),
+        .fields    = direction_block_fields,
+        .nb_fields = NGLI_ARRAY_NB(direction_block_fields),
     };
-    int ret = ngli_gpu_block_init(gpu_ctx, &s->direction, &direction_params);
+    int ret = ngli_gpu_block_init(gpu_ctx, &s->direction_block, &direction_block_params);
     if (ret < 0)
         return ret;
-    ngli_gpu_block_update(&s->direction, 0, &(struct direction_block){.direction = {1.f, 0.f}});
-    ngli_gpu_block_update(&s->direction, 1, &(struct direction_block){.direction = {0.f, 1.f}});
+    ngli_gpu_block_update(&s->direction_block, 0, &(struct direction_block){.direction = {1.f, 0.f}});
+    ngli_gpu_block_update(&s->direction_block, 1, &(struct direction_block){.direction = {0.f, 1.f}});
 
-    const struct gpu_block_field kernel_fields[] = {
+    const struct gpu_block_field kernel_block_fields[] = {
         NGLI_GPU_BLOCK_FIELD(struct kernel_block, weights,    NGLI_TYPE_VEC2, MAX_KERNEL_SIZE),
         NGLI_GPU_BLOCK_FIELD(struct kernel_block, nb_weights, NGLI_TYPE_I32,  0),
     };
-    const struct gpu_block_params kernel_params = {
-        .fields    = kernel_fields,
-        .nb_fields = NGLI_ARRAY_NB(kernel_fields),
+    const struct gpu_block_params kernel_block_params = {
+        .fields    = kernel_block_fields,
+        .nb_fields = NGLI_ARRAY_NB(kernel_block_fields),
     };
-    ngli_gpu_block_init(gpu_ctx, &s->kernel, &kernel_params);
+    ngli_gpu_block_init(gpu_ctx, &s->kernel_block, &kernel_block_params);
 
     const struct pgcraft_iovar vert_out_vars[] = {
         {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
@@ -286,19 +286,19 @@ static int gblur_init(struct ngl_node *node)
             .name          = "direction",
             .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
             .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->direction.block,
+            .block         = &s->direction_block.block,
             .buffer        = {
-                .buffer = s->direction.buffer,
-                .size   = s->direction.block_size,
+                .buffer = s->direction_block.buffer,
+                .size   = s->direction_block.block_size,
             },
         }, {
             .name          = "kernel",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->kernel.block,
+            .block         = &s->kernel_block.block,
             .buffer        = {
-                .buffer = s->kernel.buffer,
-                .size   = s->kernel.block_size,
+                .buffer = s->kernel_block.buffer,
+                .size   = s->kernel_block.block_size,
             },
         },
     };
@@ -484,7 +484,7 @@ static void gblur_draw(struct ngl_node *node)
     ngli_rtt_begin(s->dst_rtt_ctx);
     ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
     ctx->render_pass_started = 1;
-    offset = (uint32_t)s->direction.block_size;
+    offset = (uint32_t)s->direction_block.block_size;
     ngli_pipeline_compat_update_dynamic_offsets(s->pl_blur_v, &offset, 1);
     ngli_pipeline_compat_update_image(s->pl_blur_v, 0, ngli_rtt_get_image(s->tmp, 0));
     ngli_pipeline_compat_draw(s->pl_blur_v, 3, 1);
@@ -503,8 +503,8 @@ static void gblur_uninit(struct ngl_node *node)
 {
     struct gblur_priv *s = node->priv_data;
 
-    ngli_gpu_block_reset(&s->direction);
-    ngli_gpu_block_reset(&s->kernel);
+    ngli_gpu_block_reset(&s->direction_block);
+    ngli_gpu_block_reset(&s->kernel_block);
     ngli_pipeline_compat_freep(&s->pl_blur_h);
     ngli_pipeline_compat_freep(&s->pl_blur_v);
     ngli_pgcraft_freep(&s->crafter);
