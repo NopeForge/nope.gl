@@ -56,15 +56,16 @@ struct gpu_bindgroup_layout *ngli_gpu_bindgroup_layout_vk_create(struct gpu_ctx 
     return (struct gpu_bindgroup_layout *)s;
 }
 
-static const VkShaderStageFlags stage_flag_map[NGLI_GPU_PROGRAM_SHADER_NB] = {
-    [NGLI_GPU_PROGRAM_SHADER_VERT] = VK_SHADER_STAGE_VERTEX_BIT,
-    [NGLI_GPU_PROGRAM_SHADER_FRAG] = VK_SHADER_STAGE_FRAGMENT_BIT,
-    [NGLI_GPU_PROGRAM_SHADER_COMP] = VK_SHADER_STAGE_COMPUTE_BIT,
-};
-
-static VkShaderStageFlags get_vk_stage_flags(int stage)
+static VkShaderStageFlags get_vk_stage_flags(uint32_t stage_flags)
 {
-    return stage_flag_map[stage];
+    VkShaderStageFlags flags = 0;
+    if (NGLI_HAS_ALL_FLAGS(stage_flags, NGLI_GPU_PROGRAM_STAGE_VERTEX_BIT))
+        flags |= VK_SHADER_STAGE_VERTEX_BIT;
+    if (NGLI_HAS_ALL_FLAGS(stage_flags, NGLI_GPU_PROGRAM_STAGE_FRAGMENT_BIT))
+        flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+    if (NGLI_HAS_ALL_FLAGS(stage_flags, NGLI_GPU_PROGRAM_STAGE_COMPUTE_BIT))
+        flags |= VK_SHADER_STAGE_COMPUTE_BIT;
+    return flags;
 }
 
 static const VkDescriptorType descriptor_type_map[NGLI_TYPE_NB] = {
@@ -129,7 +130,7 @@ static VkResult create_desc_set_layout_bindings(struct gpu_bindgroup_layout *s)
             .binding         = entry->binding,
             .descriptorType  = type,
             .descriptorCount = 1,
-            .stageFlags      = get_vk_stage_flags(entry->stage),
+            .stageFlags      = get_vk_stage_flags(entry->stage_flags),
         };
         if (!ngli_darray_push(&s_priv->desc_set_layout_bindings, &binding))
             return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -146,7 +147,7 @@ static VkResult create_desc_set_layout_bindings(struct gpu_bindgroup_layout *s)
             .binding            = entry->binding,
             .descriptorType     = type,
             .descriptorCount    = 1,
-            .stageFlags         = get_vk_stage_flags(entry->stage),
+            .stageFlags         = get_vk_stage_flags(entry->stage_flags),
         };
         if (entry->immutable_sampler) {
             struct ycbcr_sampler_vk *ycbcr_sampler = entry->immutable_sampler;

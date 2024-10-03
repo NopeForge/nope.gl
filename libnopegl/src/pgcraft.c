@@ -459,11 +459,11 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
                 return NGL_ERROR_MEMORY;
 
             const struct gpu_bindgroup_layout_entry layout_entry = {
-                .id       = ngli_darray_count(&s->symbols) - 1,
-                .type     = field->type,
-                .binding  = request_next_binding(s, field->type),
-                .access   = texture->writable ? NGLI_GPU_ACCESS_READ_WRITE : NGLI_GPU_ACCESS_READ_BIT,
-                .stage    = stage,
+                .id          = ngli_darray_count(&s->symbols) - 1,
+                .type        = field->type,
+                .binding     = request_next_binding(s, field->type),
+                .access      = texture->writable ? NGLI_GPU_ACCESS_READ_WRITE : NGLI_GPU_ACCESS_READ_BIT,
+                .stage_flags = 1U << stage,
             };
 
             const char *prefix = "";
@@ -554,11 +554,11 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
         return NGL_ERROR_MEMORY;
 
     const struct gpu_bindgroup_layout_entry layout_entry = {
-        .id      = ngli_darray_count(&s->symbols) - 1,
-        .type    = named_block->type,
-        .binding = request_next_binding(s, named_block->type),
-        .access  = named_block->writable ? NGLI_GPU_ACCESS_READ_WRITE : NGLI_GPU_ACCESS_READ_BIT,
-        .stage   = named_block->stage,
+        .id          = ngli_darray_count(&s->symbols) - 1,
+        .type        = named_block->type,
+        .binding     = request_next_binding(s, named_block->type),
+        .access      = named_block->writable ? NGLI_GPU_ACCESS_READ_WRITE : NGLI_GPU_ACCESS_READ_BIT,
+        .stage_flags = 1U << named_block->stage,
     };
 
     const struct block *block = named_block->block;
@@ -1215,9 +1215,9 @@ static void probe_ublocks(struct pgcraft *s)
         const struct gpu_bindgroup_layout_entry *entries = ngli_darray_data(array);
         for (size_t j = 0; j < ngli_darray_count(array); j++) {
             const struct gpu_bindgroup_layout_entry *entry = &entries[j];
-            if (entry->type    == NGLI_TYPE_UNIFORM_BUFFER &&
+            if (entry->type == NGLI_TYPE_UNIFORM_BUFFER &&
                 entry->binding == binding &&
-                entry->stage   == i) {
+                entry->stage_flags == (1U << i)) {
                 info->uindices[i] = (int32_t)j;
                 break;
             }
@@ -1451,7 +1451,7 @@ int32_t ngli_pgcraft_get_block_index(const struct pgcraft *s, const char *name, 
     for (int32_t i = 0; i < (int32_t)ngli_darray_count(array); i++) {
         const struct gpu_bindgroup_layout_entry *entry = &entries[i];
         const char *desc_name = ngli_pgcraft_get_symbol_name(s, entry->id);
-        if (!strcmp(desc_name, name) && entry->stage == stage)
+        if (!strcmp(desc_name, name) && entry->stage_flags == (1U << stage))
             return i;
     }
     return -1;

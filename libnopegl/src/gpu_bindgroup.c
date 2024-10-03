@@ -28,10 +28,10 @@
 static int layout_entry_is_compatible(const struct gpu_bindgroup_layout_entry *a,
                                       const struct gpu_bindgroup_layout_entry *b)
 {
-    return a->type    == b->type    &&
-           a->binding == b->binding &&
-           a->access  == b->access  &&
-           a->stage   == b->stage;
+    return a->type        == b->type    &&
+           a->binding     == b->binding &&
+           a->access      == b->access  &&
+           a->stage_flags == b->stage_flags;
 }
 
 static void bindgroup_layout_freep(struct gpu_bindgroup_layout **sp)

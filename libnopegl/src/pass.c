@@ -420,6 +420,17 @@ static int build_uniforms_map(struct pipeline_desc *desc, struct darray *crafter
     return 0;
 }
 
+static int get_program_shader_stage(uint32_t stage_flags)
+{
+    if (stage_flags == NGLI_GPU_PROGRAM_STAGE_VERTEX_BIT)
+        return NGLI_GPU_PROGRAM_SHADER_VERT;
+    if (stage_flags == NGLI_GPU_PROGRAM_STAGE_FRAGMENT_BIT)
+        return NGLI_GPU_PROGRAM_SHADER_FRAG;
+    if (stage_flags == NGLI_GPU_PROGRAM_STAGE_COMPUTE_BIT)
+        return NGLI_GPU_PROGRAM_SHADER_COMP;
+    ngli_assert(0);
+}
+
 static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
 {
     ngli_darray_init(&desc->blocks_map, sizeof(struct resource_map), 0);
@@ -429,11 +440,11 @@ static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
     for (size_t i = 0; i < layout.nb_buffers; i++) {
         const struct gpu_bindgroup_layout_entry *entry = &layout.buffers[i];
         const struct hmap *resources = NULL;
-        if (entry->stage == NGLI_GPU_PROGRAM_SHADER_VERT)
+        if (entry->stage_flags == NGLI_GPU_PROGRAM_STAGE_VERTEX_BIT)
             resources = s->params.vert_resources;
-        else if (entry->stage == NGLI_GPU_PROGRAM_SHADER_FRAG)
+        else if (entry->stage_flags == NGLI_GPU_PROGRAM_STAGE_FRAGMENT_BIT)
             resources = s->params.frag_resources;
-        else if (entry->stage == NGLI_GPU_PROGRAM_SHADER_COMP)
+        else if (entry->stage_flags == NGLI_GPU_PROGRAM_STAGE_COMPUTE_BIT)
             resources = s->params.compute_resources;
         else
             ngli_assert(0);
@@ -441,8 +452,9 @@ static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
         if (!resources)
             continue;
 
+        const int stage = get_program_shader_stage(entry->stage_flags);
         const char *name = ngli_pgcraft_get_symbol_name(desc->crafter, entry->id);
-        const int32_t index = ngli_pgcraft_get_block_index(desc->crafter, name, entry->stage);
+        const int32_t index = ngli_pgcraft_get_block_index(desc->crafter, name, stage);
 
         const struct ngl_node *node = ngli_hmap_get_str(resources, name);
         if (!node)
