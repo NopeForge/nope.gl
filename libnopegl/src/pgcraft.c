@@ -85,7 +85,6 @@ struct pgcraft {
 
     int bindings[NGLI_BINDING_TYPE_NB];
     int *next_bindings[NGLI_BINDING_TYPE_NB];
-    int next_vertex_binding;
     int next_in_locations[NGLI_GPU_PROGRAM_SHADER_NB];
     int next_out_locations[NGLI_GPU_PROGRAM_SHADER_NB];
 
