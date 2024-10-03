@@ -50,7 +50,7 @@ struct gpu_bindgroup_layout_entry {
     int type;
     int binding;
     int access;
-    int stage;
+    uint32_t stage_flags;
     void *immutable_sampler;
 };
 

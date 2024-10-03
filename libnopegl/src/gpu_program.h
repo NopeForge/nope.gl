@@ -41,6 +41,12 @@ enum {
     NGLI_GPU_PROGRAM_SHADER_NB
 };
 
+enum {
+    NGLI_GPU_PROGRAM_STAGE_VERTEX_BIT   = 1U << NGLI_GPU_PROGRAM_SHADER_VERT,
+    NGLI_GPU_PROGRAM_STAGE_FRAGMENT_BIT = 1U << NGLI_GPU_PROGRAM_SHADER_FRAG,
+    NGLI_GPU_PROGRAM_STAGE_COMPUTE_BIT  = 1U << NGLI_GPU_PROGRAM_SHADER_COMP,
+};
+
 struct gpu_program_params {
     const char *label;
     const char *vertex;
