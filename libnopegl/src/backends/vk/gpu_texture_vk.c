@@ -192,7 +192,7 @@ static void transition_image_layout(VkCommandBuffer cmd_buf,
     vkCmdPipelineBarrier(cmd_buf, src_stage, dst_stage, 0, 0, NULL, 0, NULL, 1, &barrier);
 }
 
-VkImageUsageFlags ngli_gpu_vk_get_image_usage_flags(int usage)
+VkImageUsageFlags ngli_gpu_vk_get_image_usage_flags(uint32_t usage)
 {
     return (usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT             : 0)
          | (usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT             ? VK_IMAGE_USAGE_TRANSFER_DST_BIT             : 0)
@@ -203,7 +203,7 @@ VkImageUsageFlags ngli_gpu_vk_get_image_usage_flags(int usage)
          | (usage & NGLI_GPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT     ? VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT     : 0);
 }
 
-static VkFormatFeatureFlags get_vk_format_features(int usage)
+static VkFormatFeatureFlags get_vk_format_features(uint32_t usage)
 {
     return (usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             ? VK_FORMAT_FEATURE_TRANSFER_SRC_BIT             : 0)
          | (usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT             ? VK_FORMAT_FEATURE_TRANSFER_DST_BIT             : 0)

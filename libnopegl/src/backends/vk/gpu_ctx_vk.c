@@ -86,7 +86,7 @@ static void destroy_dummy_texture(struct gpu_ctx *s)
     ngli_gpu_texture_freep(&s_priv->dummy_texture);
 }
 
-static VkResult create_texture(struct gpu_ctx *s, int format, int32_t samples, int usage, struct gpu_texture **texturep)
+static VkResult create_texture(struct gpu_ctx *s, int format, int32_t samples, uint32_t usage, struct gpu_texture **texturep)
 {
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
 
