@@ -151,7 +151,7 @@ static void reset_capture_cvpixelbuffer(struct gpu_ctx *s)
 }
 #endif
 
-static int create_texture(struct gpu_ctx *s, int format, int32_t samples, int usage, struct gpu_texture **texturep)
+static int create_texture(struct gpu_ctx *s, int format, int32_t samples, uint32_t usage, struct gpu_texture **texturep)
 {
     const struct ngl_config *config = &s->config;
 

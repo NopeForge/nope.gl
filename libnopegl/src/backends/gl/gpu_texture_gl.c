@@ -66,7 +66,7 @@ GLint ngli_gpu_texture_get_gl_wrap(int wrap)
     return gl_wrap_map[wrap];
 }
 
-static GLbitfield get_gl_barriers(int usage)
+static GLbitfield get_gl_barriers(uint32_t usage)
 {
     GLbitfield barriers = 0;
     if (usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT)

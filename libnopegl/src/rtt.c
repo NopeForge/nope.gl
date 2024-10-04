@@ -71,7 +71,7 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
 
     s->params = *params;
 
-    int transient_usage = 0;
+    uint32_t transient_usage = 0;
     if (!params->nb_interruptions)
         transient_usage |= NGLI_GPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT;
 

@@ -71,6 +71,6 @@ void ngli_gpu_texture_vk_copy_to_buffer(struct gpu_texture *s, struct gpu_buffer
 void ngli_gpu_texture_vk_freep(struct gpu_texture **sp);
 
 VkFilter ngli_gpu_vk_get_filter(int filter);
-VkImageUsageFlags ngli_gpu_vk_get_image_usage_flags(int usage);
+VkImageUsageFlags ngli_gpu_vk_get_image_usage_flags(uint32_t usage);
 
 #endif

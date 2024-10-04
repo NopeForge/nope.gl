@@ -83,7 +83,7 @@ struct gpu_texture_params {
     int wrap_s;
     int wrap_t;
     int wrap_r;
-    int usage;
+    uint32_t usage;
 };
 
 struct gpu_texture {
