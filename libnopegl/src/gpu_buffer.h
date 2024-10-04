@@ -46,13 +46,13 @@ struct gpu_buffer {
     struct ngli_rc rc;
     struct gpu_ctx *gpu_ctx;
     size_t size;
-    int usage;
+    uint32_t usage;
 };
 
 NGLI_RC_CHECK_STRUCT(gpu_buffer);
 
 struct gpu_buffer *ngli_gpu_buffer_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_buffer_init(struct gpu_buffer *s, size_t size, int usage);
+int ngli_gpu_buffer_init(struct gpu_buffer *s, size_t size, uint32_t usage);
 int ngli_gpu_buffer_upload(struct gpu_buffer *s, const void *data, size_t offset, size_t size);
 int ngli_gpu_buffer_map(struct gpu_buffer *s, size_t offset, size_t size, void **datap);
 void ngli_gpu_buffer_unmap(struct gpu_buffer *s);

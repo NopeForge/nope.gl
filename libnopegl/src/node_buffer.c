@@ -70,7 +70,7 @@ static const struct node_param buffer_params[] = {
     {NULL}
 };
 
-void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage)
+void ngli_node_buffer_extend_usage(struct ngl_node *node, uint32_t usage)
 {
     struct buffer_info *s = node->priv_data;
 

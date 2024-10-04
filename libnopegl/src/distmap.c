@@ -616,7 +616,7 @@ int ngli_distmap_finalize(struct distmap *s)
     s->vert_offset = ngli_block_get_aligned_size(&s->vert_block, 0);
     s->frag_offset = ngli_block_get_aligned_size(&s->frag_block, 0);
 
-    static const int usage = NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
+    static const uint32_t usage = NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
     if ((ret = ngli_gpu_buffer_init(s->vert_buffer, nb_shapes * s->vert_offset, usage)) < 0 ||
         (ret = ngli_gpu_buffer_init(s->frag_buffer, nb_shapes * s->frag_offset, usage)) < 0)
         return ret;

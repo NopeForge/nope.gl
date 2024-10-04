@@ -584,9 +584,9 @@ static VkResult texture_vk_upload(struct gpu_texture *s, const uint8_t *data, in
         if (!s_priv->staging_buffer)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        const int usage = NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT |
-                          NGLI_GPU_BUFFER_USAGE_TRANSFER_SRC_BIT |
-                          NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
+        const uint32_t usage = NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT |
+                               NGLI_GPU_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                               NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
         int ret = ngli_gpu_buffer_init(s_priv->staging_buffer, staging_buffer_size, usage);
         if (ret < 0)
             return VK_ERROR_UNKNOWN;

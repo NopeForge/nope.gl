@@ -54,7 +54,7 @@ int ngli_gpu_block_init(struct gpu_ctx *gpu_ctx, struct gpu_block *s, const stru
         return NGL_ERROR_MEMORY;
 
     const size_t buffer_size = s->block_size * NGLI_MAX(params->count, 1);
-    const int usage = params->usage | NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
+    const uint32_t usage = params->usage | NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
     int ret = ngli_gpu_buffer_init(s->buffer, buffer_size, usage);
     if (ret < 0)
         return ret;
