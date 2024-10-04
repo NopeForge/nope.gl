@@ -40,7 +40,7 @@ struct gpu_buffer *ngli_gpu_buffer_create(struct gpu_ctx *gpu_ctx)
     return s;
 }
 
-int ngli_gpu_buffer_init(struct gpu_buffer *s, size_t size, int usage)
+int ngli_gpu_buffer_init(struct gpu_buffer *s, size_t size, uint32_t usage)
 {
     s->size = size;
     s->usage = usage;

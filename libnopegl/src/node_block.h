@@ -35,13 +35,13 @@ struct block_info {
 
     uint8_t *data;
     size_t data_size;
-    int usage;
+    uint32_t usage;
 
     struct gpu_buffer *buffer;
     size_t buffer_rev;
 };
 
-void ngli_node_block_extend_usage(struct ngl_node *node, int usage);
+void ngli_node_block_extend_usage(struct ngl_node *node, uint32_t usage);
 size_t ngli_node_block_get_cpu_size(struct ngl_node *node);
 size_t ngli_node_block_get_gpu_size(struct ngl_node *node);
 

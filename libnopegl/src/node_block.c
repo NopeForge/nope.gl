@@ -133,7 +133,7 @@ static const struct node_param block_params[] = {
 
 NGLI_STATIC_ASSERT(block_info_is_first, offsetof(struct block_priv, blk) == 0);
 
-void ngli_node_block_extend_usage(struct ngl_node *node, int usage)
+void ngli_node_block_extend_usage(struct ngl_node *node, uint32_t usage)
 {
     struct block_info *s = node->priv_data;
     s->usage |= usage;

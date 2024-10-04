@@ -29,7 +29,7 @@
 #include "glincludes.h"
 #include "memory.h"
 
-static GLbitfield get_gl_barriers(int usage)
+static GLbitfield get_gl_barriers(uint32_t usage)
 {
     GLbitfield barriers = 0;
     if (usage & NGLI_GPU_BUFFER_USAGE_TRANSFER_SRC_BIT)
@@ -51,14 +51,14 @@ static GLbitfield get_gl_barriers(int usage)
     return barriers;
 }
 
-static GLenum get_gl_usage(int usage)
+static GLenum get_gl_usage(uint32_t usage)
 {
     if (usage & NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT)
         return GL_DYNAMIC_DRAW;
     return GL_STATIC_DRAW;
 }
 
-static GLbitfield get_gl_map_flags(int usage)
+static GLbitfield get_gl_map_flags(uint32_t usage)
 {
     GLbitfield flags = 0;
     if (usage & NGLI_GPU_BUFFER_USAGE_MAP_READ)

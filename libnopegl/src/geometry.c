@@ -44,7 +44,7 @@ struct geometry *ngli_geometry_create(struct gpu_ctx *gpu_ctx)
 
 static int gen_buffer(struct geometry *s,
                       struct gpu_buffer **bufferp, const struct buffer_layout *layout,
-                      const void *data, int usage)
+                      const void *data, uint32_t usage)
 {
     struct gpu_buffer *buffer = ngli_gpu_buffer_create(s->gpu_ctx);
     if (!buffer)

@@ -88,7 +88,7 @@ fail:
     return res;
 }
 
-static VkBufferUsageFlags get_vk_buffer_usage_flags(int usage)
+static VkBufferUsageFlags get_vk_buffer_usage_flags(uint32_t usage)
 {
     return (usage & NGLI_GPU_BUFFER_USAGE_TRANSFER_SRC_BIT   ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT   : 0) |
            (usage & NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT   ? VK_BUFFER_USAGE_TRANSFER_DST_BIT   : 0) |

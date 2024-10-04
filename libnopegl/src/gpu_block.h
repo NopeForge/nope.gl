@@ -41,7 +41,7 @@ struct gpu_block_field {
 
 struct gpu_block_params {
     int layout;
-    int usage;
+    uint32_t usage;
     size_t count;
     const struct gpu_block_field *fields;
     size_t nb_fields;
