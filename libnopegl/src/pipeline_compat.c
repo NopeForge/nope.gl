@@ -203,6 +203,9 @@ static int create_pipeline(struct pipeline_compat *s)
     s->cur_bindgroup = *(struct gpu_bindgroup **)ngli_darray_get(&s->bindgroups, 0);
     s->cur_bindgroup_index = 0;
 
+    /* Initialize bindgroup before first pipeline execution */
+    s->updated = 1;
+
     return 0;
 }
 
