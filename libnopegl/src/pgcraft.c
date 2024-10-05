@@ -277,6 +277,17 @@ static const char *get_precision_qualifier(const struct pgcraft *s, int type, in
     return ret ? ret : defaultp;
 }
 
+static const char *get_array_suffix(size_t count, char *buf, size_t len)
+{
+    if (count == NGLI_BLOCK_VARIADIC_COUNT)
+        snprintf(buf, len, "[]");
+    else if (count > 0)
+        snprintf(buf, len, "[%zu]", count);
+    return buf;
+}
+
+#define GET_ARRAY_SUFFIX(count) get_array_suffix(count, (char[32]){0}, 32)
+
 static int inject_block_uniform(struct pgcraft *s, struct bstr *b,
                                 const struct pgcraft_uniform *uniform, int stage)
 {
@@ -578,12 +589,9 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     for (size_t i = 0; i < ngli_darray_count(&block->fields); i++) {
         const struct block_field *fi = &field_info[i];
         const char *type = get_glsl_type(fi->type);
-        if (fi->count == NGLI_BLOCK_VARIADIC_COUNT)
-            ngli_bstr_printf(b, "    %s %s[];\n", type, fi->name);
-        else if (fi->count)
-            ngli_bstr_printf(b, "    %s %s[%zu];\n", type, fi->name, fi->count);
-        else
-            ngli_bstr_printf(b, "    %s %s;\n", type, fi->name);
+        const char *precision = get_precision_qualifier(s, fi->type, fi->precision, "");
+        const char *array_suffix = GET_ARRAY_SUFFIX(fi->count);
+        ngli_bstr_printf(b, "    %s %s %s%s;\n", precision, type, fi->name, array_suffix);
     }
     const char *instance_name = named_block->instance_name ? named_block->instance_name : named_block->name;
     ngli_bstr_printf(b, "} %s;\n", instance_name);
