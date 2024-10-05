@@ -44,6 +44,7 @@ struct block_field {
     size_t offset;
     size_t size;
     size_t stride;
+    int precision;
 };
 
 void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uint8_t *src);
