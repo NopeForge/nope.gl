@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #include "block.h"
 #include "gpu_ctx.h"
@@ -204,7 +205,10 @@ int ngli_block_add_field(struct block *s, const char *name, int type, size_t cou
     if (!ngli_darray_push(&s->fields, &field))
         return NGL_ERROR_MEMORY;
 
-    return 0;
+    const size_t nb_fields = ngli_darray_count(&s->fields);
+    ngli_assert(nb_fields > 0 && nb_fields < INT_MAX);
+
+    return (int)nb_fields - 1;
 }
 
 int ngli_block_add_fields(struct block *s, const struct block_field *fields, size_t count)
