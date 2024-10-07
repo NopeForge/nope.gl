@@ -185,7 +185,7 @@ static int support_direct_rendering(struct hwmap *hwmap, struct nmd_frame *frame
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-        direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12);
+        direct_rendering = params->image_layouts & NGLI_IMAGE_LAYOUT_NV12_BIT;
         break;
     default:
         ngli_assert(0);
