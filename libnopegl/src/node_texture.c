@@ -707,7 +707,7 @@ static int texture2d_init(struct ngl_node *node)
     }
     i->params.type = NGLI_GPU_TEXTURE_TYPE_2D;
     i->params.format = get_preferred_format(gpu_ctx, o->requested_format);
-    i->supported_image_layouts = o->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
+    i->supported_image_layouts = o->direct_rendering ? NGLI_IMAGE_LAYOUT_ALL_BIT : NGLI_IMAGE_LAYOUT_DEFAULT_BIT;
     i->clamp_video = o->clamp_video;
 
     /*

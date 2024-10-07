@@ -226,7 +226,7 @@ static int gblur_init(struct ngl_node *node)
     s->image_rev = SIZE_MAX;
 
     /* Disable direct rendering */
-    src_info->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
+    src_info->supported_image_layouts = NGLI_IMAGE_LAYOUT_DEFAULT_BIT;
 
     /* Override texture params */
     src_info->params.min_filter = NGLI_GPU_FILTER_LINEAR;

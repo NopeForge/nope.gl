@@ -55,7 +55,7 @@ static int support_direct_rendering(struct hwmap *hwmap)
 {
     const struct hwmap_params *params = &hwmap->params;
 
-    int direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12);
+    int direct_rendering = params->image_layouts & NGLI_IMAGE_LAYOUT_NV12_BIT;
 
     if (direct_rendering && params->texture_mipmap_filter) {
         LOG(WARNING,

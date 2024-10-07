@@ -147,7 +147,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
             as_image = resprops->as_image;
             if (as_image) {
                 /* Disable direct rendering when using image load/store */
-                texture_info->supported_image_layouts = 1 << NGLI_IMAGE_LAYOUT_DEFAULT;
+                texture_info->supported_image_layouts = NGLI_IMAGE_LAYOUT_DEFAULT_BIT;
                 texture_info->params.usage |= NGLI_GPU_TEXTURE_USAGE_STORAGE_BIT;
                 type = ngli_node_texture_get_pgcraft_shader_image_type(texture);
             }

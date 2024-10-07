@@ -288,7 +288,7 @@ static int fgblur_init(struct ngl_node *node)
 
     /* Disable direct rendering */
     struct texture_info *src_info = o->source->priv_data;
-    src_info->supported_image_layouts = 1U << NGLI_IMAGE_LAYOUT_DEFAULT;
+    src_info->supported_image_layouts = NGLI_IMAGE_LAYOUT_DEFAULT_BIT;
 
     /* Override texture params */
     src_info->params.min_filter = NGLI_GPU_FILTER_LINEAR;
