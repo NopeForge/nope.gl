@@ -27,6 +27,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `ngl-export` tool to export videos for all the scenes from a given script
 - Path and text rendering can now control the position of the outline (inner,
   centered, outer, or anything in between) through the `outline_pos` parameter
+- `bezier_cubic` easing
 
 ### Fixed
 - Crash when using resizable RTTs with time ranges

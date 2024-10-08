@@ -69,6 +69,7 @@ enum easing_id {
     EASING_BACK_OUT,
     EASING_BACK_IN_OUT,
     EASING_BACK_OUT_IN,
+    EASING_BEZIER_CUBIC,
 };
 
 typedef double easing_type;
