@@ -300,6 +300,10 @@
       {
         "name": "back_out_in",
         "desc": "combination of `back_out` then `back_in`"
+      },
+      {
+        "name": "bezier_cubic",
+        "desc": "cubic bezier curve"
       }
     ],
     "memory_layout": [
