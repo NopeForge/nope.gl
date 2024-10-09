@@ -407,13 +407,13 @@ ANIM_EVALUATE, ANIM_DERIVATE, ANIM_SOLVE = range(3)
 
 
 def animate(const char *name, double src, args, offsets, mode):
-    cdef double c_args[2]
+    cdef double c_args[4]
     cdef double *c_args_param = NULL
     cdef size_t nb_args = 0
     if args is not None:
         nb_args = len(args)
-        if nb_args > 2:
-            raise Exception("Easings do not support more than 2 arguments")
+        if nb_args > 4:
+            raise Exception("Easings do not support more than 4 arguments")
         for i, arg in enumerate(args):
             c_args[i] = arg
         c_args_param = c_args
