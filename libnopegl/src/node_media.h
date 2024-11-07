@@ -47,6 +47,7 @@ struct media_priv {
     struct android_surface *android_surface;
     struct android_handlerthread *android_handlerthread;
     struct android_imagereader *android_imagereader;
+    void *android_surface_handle;
 #endif
 };
 
