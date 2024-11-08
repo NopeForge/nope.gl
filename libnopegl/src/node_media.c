@@ -269,15 +269,6 @@ static int media_init(struct ngl_node *node)
     nmd_set_option(s->player, "auto_hwaccel", o->hwaccel);
 
     nmd_set_option(s->player, "sw_pix_fmt", NMD_PIXFMT_AUTO);
-#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-    const struct ngl_ctx *ctx = node->ctx;
-    const struct ngl_config *config = &ctx->config;
-    const char *vt_pix_fmt = o->vt_pix_fmt;
-    if (!strcmp(o->vt_pix_fmt, "auto"))
-        vt_pix_fmt = get_default_vt_pix_fmts(config->backend);
-    nmd_set_option(s->player, "vt_pix_fmt", vt_pix_fmt);
-#endif
-
     if (o->audio_tex) {
         nmd_set_option(s->player, "avselect", NMD_SELECT_AUDIO);
         nmd_set_option(s->player, "audio_texture", 1);
@@ -289,6 +280,13 @@ static int media_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
     nmd_set_option(s->player, "opaque", &s->android_surface_handle);
+#elif defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
+    const struct ngl_ctx *ctx = node->ctx;
+    const struct ngl_config *config = &ctx->config;
+    const char *vt_pix_fmt = o->vt_pix_fmt;
+    if (!strcmp(o->vt_pix_fmt, "auto"))
+        vt_pix_fmt = get_default_vt_pix_fmts(config->backend);
+    nmd_set_option(s->player, "vt_pix_fmt", vt_pix_fmt);
 #elif defined(HAVE_VAAPI)
     struct ngl_ctx *ctx = node->ctx;
     struct vaapi_ctx *vaapi_ctx = &ctx->vaapi_ctx;
