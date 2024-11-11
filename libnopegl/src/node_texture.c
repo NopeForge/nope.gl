@@ -382,8 +382,8 @@ static int texture_prefetch(struct ngl_node *node)
                 .texture_wrap_t        = params->wrap_t,
                 .texture_usage         = params->usage,
 #if defined(TARGET_ANDROID)
-                .android_surface       = media_priv->android_surface,
-                .android_imagereader   = media_priv->android_imagereader,
+                .android_surface       = media_priv->android_surface.surface,
+                .android_imagereader   = media_priv->android_surface.imagereader,
 #endif
             };
             return ngli_hwmap_init(&s->hwmap, ctx, &hwmap_params);
