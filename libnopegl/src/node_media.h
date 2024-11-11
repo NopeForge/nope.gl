@@ -32,6 +32,14 @@
 #include "android_handlerthread.h"
 #include "android_surface.h"
 #include "android_imagereader.h"
+
+struct android_surface_compat {
+    struct android_ctx *android_ctx;
+    struct android_surface *surface;
+    struct android_handlerthread *handlerthread;
+    struct android_imagereader *imagereader;
+    void *surface_handle;
+};
 #endif
 
 struct media_priv {
@@ -44,10 +52,7 @@ struct media_priv {
     int invalidated;
 
 #if defined(TARGET_ANDROID)
-    struct android_surface *android_surface;
-    struct android_handlerthread *android_handlerthread;
-    struct android_imagereader *android_imagereader;
-    void *android_surface_handle;
+    struct android_surface_compat android_surface;
 #endif
 };
 

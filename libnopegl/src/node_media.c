@@ -178,54 +178,52 @@ static const char *get_default_vt_pix_fmts(int backend)
 #endif
 
 #if defined(TARGET_ANDROID)
-static int init_android_surface(struct ngl_node *node)
+static int init_android_surface(struct android_ctx *ctx, struct android_surface_compat *surface)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct android_ctx *android_ctx = &ctx->android_ctx;
-    struct media_priv *s = node->priv_data;
-    const struct media_opts *o = node->opts;
+    surface->android_ctx = ctx;
 
-    if (android_ctx->has_native_imagereader_api) {
-        s->android_imagereader = ngli_android_imagereader_create(android_ctx, 1, 1,
-                                                                 NGLI_ANDROID_IMAGE_FORMAT_PRIVATE, 2);
-        if (!s->android_imagereader)
+    if (ctx->has_native_imagereader_api) {
+        surface->imagereader = ngli_android_imagereader_create(ctx, 1, 1,
+                                                               NGLI_ANDROID_IMAGE_FORMAT_PRIVATE, 2);
+        if (!surface->imagereader)
             return NGL_ERROR_MEMORY;
 
-        int ret = ngli_android_imagereader_get_window(s->android_imagereader, &s->android_surface_handle);
+        int ret = ngli_android_imagereader_get_window(surface->imagereader, &surface->surface_handle);
         if (ret < 0)
             return ret;
-    } else if (android_ctx->has_surface_texture_api) {
-        s->android_handlerthread = ngli_android_handlerthread_new();
-        if (!s->android_handlerthread)
+    } else if (ctx->has_surface_texture_api) {
+        surface->handlerthread = ngli_android_handlerthread_new();
+        if (!surface->handlerthread)
             return NGL_ERROR_MEMORY;
 
-        void *handler = ngli_android_handlerthread_get_native_handler(s->android_handlerthread);
+        void *handler = ngli_android_handlerthread_get_native_handler(surface->handlerthread);
         if (!handler)
             return NGL_ERROR_EXTERNAL;
 
-        s->android_surface = ngli_android_surface_new(0, handler);
-        if (!s->android_surface)
+        surface->surface = ngli_android_surface_new(0, handler);
+        if (!surface->surface)
             return NGL_ERROR_MEMORY;
 
-        s->android_surface_handle = ngli_android_surface_get_surface(s->android_surface);
-        if (!s->android_surface_handle)
+        surface->surface_handle = ngli_android_surface_get_surface(surface->surface);
+        if (!surface->surface_handle)
             return NGL_ERROR_EXTERNAL;
     }
 
     return 0;
 }
 
-static void reset_android_surface(struct ngl_node *node)
+static void reset_android_surface(struct android_surface_compat *surface)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct android_ctx *android_ctx = &ctx->android_ctx;
+    struct android_ctx *ctx = surface->android_ctx;
 
-    if (android_ctx->has_native_imagereader_api) {
-        ngli_android_imagereader_freep(&s->android_imagereader);
-    } else if (android_ctx->has_surface_texture_api) {
-        ngli_android_surface_free(&s->android_surface);
-        ngli_android_handlerthread_free(&s->android_handlerthread);
+    if (ctx->has_native_imagereader_api) {
+        ngli_android_imagereader_freep(&surface->imagereader);
+    } else if (ctx->has_surface_texture_api) {
+        ngli_android_surface_free(&surface->surface);
+        ngli_android_handlerthread_free(&surface->handlerthread);
     }
+
+    memset(surface, 0, sizeof(*surface));
 }
 #endif
 
@@ -276,10 +274,12 @@ static int media_init(struct ngl_node *node)
     }
 
 #if defined(TARGET_ANDROID)
-    int ret = init_android_surface(node);
+    struct ngl_ctx *ctx = node->ctx;
+    struct android_ctx *android_ctx = &ctx->android_ctx;
+    int ret = init_android_surface(android_ctx, &s->android_surface);
     if (ret < 0)
         return ret;
-    nmd_set_option(s->player, "opaque", &s->android_surface_handle);
+    nmd_set_option(s->player, "opaque", &s->android_surface.surface_handle);
 #elif defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
     const struct ngl_ctx *ctx = node->ctx;
     const struct ngl_config *config = &ctx->config;
