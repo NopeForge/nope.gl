@@ -37,8 +37,8 @@ building and running the complete `nope.gl` stack.
 "MINGW64" should be visible in the prompt):
     ```shell
     pacman -Syuu  # and restart the shell
-    pacman -S --needed git make mingw-w64-x86_64-{toolchain,ffmpeg,python,python-watchdog,python3-pillow,pyside6,meson,graphviz,vulkan-devel}
-    pacman -S --needed mingw-w64-x86_64-ca-certificates
+    pacman -S --needed git make mingw-w64-ucrt-x86_64-{toolchain,ffmpeg,python,python-watchdog,python3-pillow,pyside6,meson,graphviz,vulkan-devel}
+    pacman -S --needed mingw-w64-ucrt-x86_64-ca-certificates
     ```
 - From MinGW64, build with `./configure.py && make`
 - Enter the virtual environment with `. venv/bin/ngli-activate`

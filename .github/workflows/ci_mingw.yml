@@ -21,16 +21,16 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64 # Start a 64 bit Mingw environment
+          msystem: ucrt64
           update: true
 
       - name: Install dependencies
         run: |
-          pacman -S --noconfirm --needed git make mingw-w64-x86_64-{toolchain,ffmpeg,python,python3-pillow,meson,cmake}
+          pacman -S --noconfirm --needed git make mingw-w64-ucrt-x86_64-{toolchain,ffmpeg,python,python3-pillow,meson,cmake}
           # Install vulkan-devel packages explicitely to workaround a conflict between vulkan-utility-libraries and vulkan-validation-layers
-          pacman -S --noconfirm --needed  mingw-w64-x86_64-{spirv-headers,spirv-tools,vulkan-headers,vulkan-loader,vulkan-validation-layers}
+          pacman -S --noconfirm --needed  mingw-w64-ucrt-x86_64-{spirv-headers,spirv-tools,vulkan-headers,vulkan-loader,vulkan-validation-layers}
           # Prevents random "SSL: CERTIFICATE_VERIFY_FAILED" error with urllib HTTPS calls
-          pacman -S --noconfirm --needed mingw-w64-x86_64-ca-certificates
+          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-ca-certificates
 
       - name: Build
         run: |

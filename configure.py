@@ -1371,9 +1371,6 @@ class _Config:
             env["PKG_CONFIG_ALLOW_SYSTEM_LIBS"] = "1"
             env["PKG_CONFIG_ALLOW_SYSTEM_CFLAGS"] = "1"
             env["CMAKE_PREFIX_PATH"] = op.join(self.prefix, "cmake")
-        elif self.host == "MinGW":
-            # See https://setuptools.pypa.io/en/latest/deprecated/distutils-legacy.html
-            env["SETUPTOOLS_USE_DISTUTILS"] = "stdlib"
         return env
 
 
