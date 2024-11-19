@@ -22,17 +22,11 @@
 #ifndef VKCONTEXT_H
 #define VKCONTEXT_H
 
-#include <stdlib.h>
-
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_android.h>
 
 #include "config.h"
-
-#include "darray.h"
 #include "nopegl.h"
-#include "gpu_rendertarget.h"
-#include "gpu_texture.h"
 
 #define VK_FUNC(name) PFN_vk##name
 #define VK_DECLARE_FUNC(name) VK_FUNC(name) name
