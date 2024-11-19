@@ -38,6 +38,7 @@
 #include <vulkan/vulkan.h>
 
 #include "bstr.h"
+#include "darray.h"
 #include "gpu_format.h"
 #include "log.h"
 #include "memory.h"

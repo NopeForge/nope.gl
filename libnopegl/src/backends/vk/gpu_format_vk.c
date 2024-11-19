@@ -22,6 +22,7 @@
  */
 
 #include "gpu_format_vk.h"
+#include "utils.h"
 
 VkFormat ngli_gpu_format_ngl_to_vk(int format)
 {
