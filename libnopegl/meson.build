@@ -144,6 +144,8 @@ project_args = cc.get_supported_arguments([
   '-Wno-sign-conversion',
   '-fmacro-prefix-map=@0@/='.format(trim_prefix),
   '-fno-math-errno',
+  '-Wcast-function-type',
+  '-Wcast-function-type-strict',
 ])
 add_project_arguments(project_args, language: 'c')
 

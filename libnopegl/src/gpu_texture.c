@@ -22,8 +22,9 @@
 #include "gpu_ctx.h"
 #include "gpu_texture.h"
 
-static void texture_freep(struct gpu_texture **sp)
+static void texture_freep(void **texturep)
 {
+    struct gpu_texture **sp = (struct gpu_texture **)texturep;
     if (!*sp)
         return;
 

@@ -22,8 +22,9 @@
 #include "gpu_ctx.h"
 #include "gpu_rendertarget.h"
 
-static void rendertarget_freep(struct gpu_rendertarget **sp)
+static void rendertarget_freep(void **rendertargetp)
 {
+    struct gpu_rendertarget **sp = (struct gpu_rendertarget **)rendertargetp;
     if (!*sp)
         return;
 

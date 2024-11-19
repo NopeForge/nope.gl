@@ -32,7 +32,7 @@
 #define VK_DECLARE_FUNC(name) VK_FUNC(name) name
 
 #define VK_LOAD_FUNC(instance, name) \
-    VK_DECLARE_FUNC(name) = (VK_FUNC(name))vkGetInstanceProcAddr(instance, "vk" #name);
+    VK_DECLARE_FUNC(name) = (VK_FUNC(name))(void *)vkGetInstanceProcAddr(instance, "vk" #name);
 
 struct vkcontext {
     uint32_t api_version;
