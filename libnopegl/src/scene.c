@@ -348,7 +348,7 @@ int ngl_scene_update_filepath(struct ngl_scene *s, size_t index, const char *fil
     return 0;
 }
 
-static void scene_freep(struct ngl_scene **sp)
+static void scene_freep(void **sp)
 {
     struct ngl_scene *s = *sp;
     if (!s)

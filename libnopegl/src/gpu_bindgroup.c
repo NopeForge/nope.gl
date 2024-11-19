@@ -34,8 +34,9 @@ static int layout_entry_is_compatible(const struct gpu_bindgroup_layout_entry *a
            a->stage_flags == b->stage_flags;
 }
 
-static void bindgroup_layout_freep(struct gpu_bindgroup_layout **sp)
+static void bindgroup_layout_freep(void **layoutp)
 {
+    struct gpu_bindgroup_layout **sp = (struct gpu_bindgroup_layout **)layoutp;
     if (!*sp)
         return;
 
@@ -99,8 +100,9 @@ void ngli_gpu_bindgroup_layout_freep(struct gpu_bindgroup_layout **sp)
     NGLI_RC_UNREFP(sp);
 }
 
-static void bindgroup_freep(struct gpu_bindgroup **sp)
+static void bindgroup_freep(void **bindgroupp)
 {
+    struct gpu_bindgroup **sp = (struct gpu_bindgroup **)bindgroupp;
     if (!*sp)
         return;
 

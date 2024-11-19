@@ -46,8 +46,9 @@ void ngli_gpu_pipeline_graphics_reset(struct gpu_pipeline_graphics *graphics)
     memset(graphics, 0, sizeof(*graphics));
 }
 
-static void pipeline_freep(struct gpu_pipeline **sp)
+static void pipeline_freep(void **pipelinep)
 {
+    struct gpu_pipeline **sp = (struct gpu_pipeline **)pipelinep;
     if (!*sp)
         return;
 

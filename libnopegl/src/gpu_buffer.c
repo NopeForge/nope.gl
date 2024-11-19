@@ -25,8 +25,9 @@
 #include "gpu_ctx.h"
 #include "utils.h"
 
-static void buffer_freep(struct gpu_buffer **sp)
+static void buffer_freep(void **bufferp)
 {
+    struct gpu_buffer **sp = (struct gpu_buffer **)bufferp;
     if (!*sp)
         return;
 
