@@ -165,10 +165,10 @@ _SYSTEM = "MinGW" if sysconfig.get_platform().startswith("mingw") else platform.
 _RENDERDOC_ID = f"renderdoc_{_SYSTEM}"
 _EXTERNAL_DEPS = dict(
     boringssl=dict(
-        version="ec6cb3e",
+        version="059585c",
         url="https://codeload.github.com/google/boringssl/zip/@VERSION@",
         dst_file="boringssl-@VERSION@.zip",
-        sha256="02ccd210fb184a312ce1d86c946aecc570640968f8745d1ee0805d8b48c10b06",
+        sha256="d7ed9c743c02469869f4bee7cb94641377b640676cb2a8a9a7955f2d07c4d8a6",
     ),
     ffmpeg=dict(
         version="7.0",
