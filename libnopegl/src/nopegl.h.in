@@ -691,9 +691,9 @@ struct ngl_config {
     int offscreen; /* Whether the rendering should happen offscreen or not.
                       This field is ignored if the context is external. */
 
-    int32_t width; /* Graphic context width, mandatory for offscreen rendering */
+    int32_t width; /* Graphics context width, mandatory for offscreen rendering */
 
-    int32_t height; /* Graphic context height, mandatory for offscreen rendering */
+    int32_t height; /* Graphics context height, mandatory for offscreen rendering */
 
     int32_t samples;     /* Number of samples used for multisample anti-aliasing */
 
