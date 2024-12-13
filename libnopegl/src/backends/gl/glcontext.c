@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023-2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -493,6 +493,7 @@ struct glcontext *ngli_glcontext_create(const struct glcontext_params *params)
     glcontext->width = params->width;
     glcontext->height = params->height;
     glcontext->samples = params->samples;
+    glcontext->debug = params->debug;
 
     if (glcontext->cls->init) {
         int ret = glcontext->cls->init(glcontext, params->display, params->window, params->shared_ctx);

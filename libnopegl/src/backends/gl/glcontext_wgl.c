@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2017-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -200,13 +201,12 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     HGLRC shared_context = (HGLRC)other;
 
     if (ctx->backend == NGL_BACKEND_OPENGL) {
-        static const int context_attributes[] = {
+        const int flags = ctx->debug ? WGL_CONTEXT_DEBUG_BIT_ARB : 0;
+        const int context_attributes[] = {
             WGL_CONTEXT_MAJOR_VERSION_ARB, 1,
             WGL_CONTEXT_MINOR_VERSION_ARB, 0,
             WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-#if DEBUG_GL
-            WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
-#endif
+            WGL_CONTEXT_FLAGS_ARB, flags,
             0
         };
         wgl->rendering_context = wgl->CreateContextAttribsARB(wgl->device_context, shared_context, context_attributes);

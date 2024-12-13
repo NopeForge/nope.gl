@@ -45,6 +45,7 @@ static const struct opt options[] = {
     {"-c", "--clear_color",   OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
     {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
     {"-u", "--disable-ui",    OPT_TYPE_TOGGLE,   .offset=OFFSET(player_ui)},
+    {NULL, "--debug",         OPT_TYPE_TOGGLE,   .offset=OFFSET(cfg.debug)},
 };
 
 int main(int argc, char *argv[])

@@ -51,7 +51,7 @@ int ngli_glslang_init(void)
     return ret;
 }
 
-int ngli_glslang_compile(int stage, const char *src, void **datap, size_t *sizep)
+int ngli_glslang_compile(int stage, const char *src, int debug, void **datap, size_t *sizep)
 {
     static const glslang_stage_t stages[] = {
         [NGLI_GPU_PROGRAM_SHADER_VERT] = GLSLANG_STAGE_VERTEX,
@@ -125,7 +125,7 @@ int ngli_glslang_compile(int stage, const char *src, void **datap, size_t *sizep
      (GLSLANG_VERSION_PATCH >= (patch))))))
 
 #if FIXED_GLSLANG_VERSION_GREATER_OR_EQUAL_TO(11, 11, 0)
-    static const bool dbg = DEBUG_VK || DEBUG_GPU_CAPTURE;
+    const bool dbg = debug || DEBUG_GPU_CAPTURE;
 
     // See https://github.com/KhronosGroup/glslang/issues/3252
     if (dbg)

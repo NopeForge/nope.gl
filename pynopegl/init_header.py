@@ -127,6 +127,7 @@ class Config(_ngl.Config):
         hud_refresh_rate: Tuple[int, int] = (0, 0),
         hud_export_filename: Optional[str] = None,
         hud_scale: int = 0,
+        debug: bool = False,
     ):
         self.capture_buffer = capture_buffer
         super().__init__(
@@ -149,6 +150,7 @@ class Config(_ngl.Config):
             hud_refresh_rate,
             hud_export_filename,
             hud_scale,
+            debug,
         )
 
 

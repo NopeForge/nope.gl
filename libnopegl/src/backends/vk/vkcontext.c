@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -47,7 +48,6 @@
 #include "vkcontext.h"
 #include "vkutils.h"
 
-#if DEBUG_VK
 static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
                                                      VkDebugUtilsMessageTypeFlagsEXT type,
                                                      const VkDebugUtilsMessengerCallbackDataEXT *cb_data,
@@ -93,7 +93,6 @@ static int has_layer(struct vkcontext *s, const char *name)
             return 1;
     return 0;
 }
-#endif
 
 static const char *platform_ext_names[] = {
     [NGL_PLATFORM_XLIB]    = "VK_KHR_xlib_surface",
@@ -104,7 +103,7 @@ static const char *platform_ext_names[] = {
     [NGL_PLATFORM_WAYLAND] = "VK_KHR_wayland_surface",
 };
 
-static VkResult create_instance(struct vkcontext *s, int platform)
+static VkResult create_instance(struct vkcontext *s, int platform, int debug)
 {
     s->api_version = VK_API_VERSION_1_0;
 
@@ -198,24 +197,24 @@ static VkResult create_instance(struct vkcontext *s, int platform)
         }
     }
 
-#if DEBUG_VK
     static const char *debug_ext = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
     const int has_debug_extension = ngli_vkcontext_has_extension(s, debug_ext, 0);
-    if (has_debug_extension && !ngli_darray_push(&extensions, &debug_ext)) {
-        res = VK_ERROR_OUT_OF_HOST_MEMORY;
-        goto end;
-    }
+    if (debug) {
+        if (has_debug_extension && !ngli_darray_push(&extensions, &debug_ext)) {
+            res = VK_ERROR_OUT_OF_HOST_MEMORY;
+            goto end;
+        }
 
-    static const char *debug_layer = "VK_LAYER_KHRONOS_validation";
-    const int has_validation_layer = has_layer(s, debug_layer);
-    if (has_validation_layer && !ngli_darray_push(&layers, &debug_layer)) {
-        res = VK_ERROR_OUT_OF_HOST_MEMORY;
-        goto end;
-    }
+        static const char *debug_layer = "VK_LAYER_KHRONOS_validation";
+        const int has_validation_layer = has_layer(s, debug_layer);
+        if (has_validation_layer && !ngli_darray_push(&layers, &debug_layer)) {
+            res = VK_ERROR_OUT_OF_HOST_MEMORY;
+            goto end;
+        }
 
-    if (!has_validation_layer)
-        LOG(WARNING, "missing validation layer: %s", debug_layer);
-#endif
+        if (!has_validation_layer)
+            LOG(WARNING, "missing validation layer: %s", debug_layer);
+    }
 
     const VkApplicationInfo app_info = {
         .sType         = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -237,8 +236,7 @@ static VkResult create_instance(struct vkcontext *s, int platform)
     if (res != VK_SUCCESS)
         goto end;
 
-#if DEBUG_VK
-    if (has_debug_extension) {
+    if (debug && has_debug_extension) {
         VK_LOAD_FUNC(s->instance, CreateDebugUtilsMessengerEXT);
         if (!CreateDebugUtilsMessengerEXT)
             return VK_ERROR_EXTENSION_NOT_PRESENT;
@@ -260,7 +258,6 @@ static VkResult create_instance(struct vkcontext *s, int platform)
         if (res != VK_SUCCESS)
             goto end;
     }
-#endif
 
 end:
     ngli_darray_reset(&extensions);
@@ -878,7 +875,7 @@ struct vkcontext *ngli_vkcontext_create(void)
 
 VkResult ngli_vkcontext_init(struct vkcontext *s, const struct ngl_config *config)
 {
-    VkResult res = create_instance(s, config->platform);
+    VkResult res = create_instance(s, config->platform, config->debug);
     if (res != VK_SUCCESS) {
         LOG(ERROR, "failed to create instance: %s", ngli_vk_res2str(res));
         return res;

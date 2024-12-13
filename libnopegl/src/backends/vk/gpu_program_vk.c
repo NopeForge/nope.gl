@@ -42,7 +42,8 @@ struct gpu_program *ngli_gpu_program_vk_create(struct gpu_ctx *gpu_ctx)
 
 int ngli_gpu_program_vk_init(struct gpu_program *s, const struct gpu_program_params *params)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct gpu_program_vk *s_priv = (struct gpu_program_vk *)s;
 
@@ -61,7 +62,7 @@ int ngli_gpu_program_vk_init(struct gpu_program *s, const struct gpu_program_par
 
         void *data = NULL;
         size_t size = 0;
-        int ret = ngli_glslang_compile(shaders[i].stage, shaders[i].src, &data, &size);
+        int ret = ngli_glslang_compile(shaders[i].stage, shaders[i].src, s->gpu_ctx->config.debug, &data, &size);
         if (ret < 0) {
             char *s_with_numbers = ngli_numbered_lines(shaders[i].src);
             if (s_with_numbers) {

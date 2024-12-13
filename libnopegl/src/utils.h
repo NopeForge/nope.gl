@@ -159,6 +159,7 @@ uint32_t ngli_crc32_mem(const uint8_t *s, size_t size);
 void ngli_thread_set_name(const char *name);
 int ngli_get_filesize(const char *name, int64_t *size);
 char *ngli_numbered_lines(const char *s);
+int ngli_config_set_debug_defaults(struct ngl_config *config);
 int ngli_config_copy(struct ngl_config *dst, const struct ngl_config *src);
 void ngli_config_reset(struct ngl_config *config);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023-2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2023 Nope Forge
  * Copyright 2019-2022 GoPro Inc.
  *
@@ -388,7 +388,6 @@ static struct gpu_ctx *gl_create(const struct ngl_config *config)
     return (struct gpu_ctx *)s;
 }
 
-#if DEBUG_GL
 #define GL_ENUM_STR_CASE(prefix, error) case prefix##_##error: return #error
 
 static const char *gl_debug_source_to_str(GLenum source)
@@ -467,7 +466,6 @@ static void NGLI_GL_APIENTRY gl_debug_message_callback(GLenum source,
     if (log_level == NGL_LOG_ERROR && source != GL_DEBUG_SOURCE_SHADER_COMPILER && DEBUG_GL)
         ngli_assert(0);
 }
-#endif
 
 static const struct {
     uint64_t feature;
@@ -556,6 +554,7 @@ static int gl_init(struct gpu_ctx *s)
         .width         = config->width,
         .height        = config->height,
         .samples       = config->samples,
+        .debug         = config->debug,
     };
 
     s_priv->glcontext = ngli_glcontext_create(&params);
@@ -564,13 +563,11 @@ static int gl_init(struct gpu_ctx *s)
 
     struct glcontext *gl = s_priv->glcontext;
 
-#if DEBUG_GL
-    if ((gl->features & NGLI_FEATURE_GL_KHR_DEBUG)) {
+    if (gl->debug && (gl->features & NGLI_FEATURE_GL_KHR_DEBUG)) {
         gl->funcs.Enable(GL_DEBUG_OUTPUT);
         gl->funcs.Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         gl->funcs.DebugMessageCallback(gl_debug_message_callback, NULL);
     }
-#endif
 
     gpu_ctx_info_init(s);
 

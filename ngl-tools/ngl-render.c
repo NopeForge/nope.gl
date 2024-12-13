@@ -69,7 +69,7 @@ struct ctx {
     /* options */
     int log_level;
     struct ngl_config cfg;
-    int debug;
+    int debug_timings;
     const char *input;
     const char *output;
     struct range *ranges;
@@ -101,7 +101,7 @@ static int opt_timerange(const char *arg, void *dst)
 
 #define OFFSET(x) offsetof(struct ctx, x)
 static const struct opt options[] = {
-    {"-d", "--debug",         OPT_TYPE_TOGGLE,   .offset=OFFSET(debug)},
+    {"-d", "--debug-timings", OPT_TYPE_TOGGLE,   .offset=OFFSET(debug_timings)},
     {"-w", "--show_window",   OPT_TYPE_TOGGLE,   .offset=OFFSET(cfg.offscreen)},
     {"-i", "--input",         OPT_TYPE_STR,      .offset=OFFSET(input)},
     {"-o", "--output",        OPT_TYPE_STR,      .offset=OFFSET(output)},
@@ -112,6 +112,7 @@ static const struct opt options[] = {
     {"-z", "--swap_interval", OPT_TYPE_INT,      .offset=OFFSET(cfg.swap_interval)},
     {"-c", "--clear_color",   OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
     {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
+    {NULL, "--debug",         OPT_TYPE_TOGGLE,   .offset=OFFSET(cfg.debug)},
 };
 
 int main(int argc, char *argv[])
@@ -226,7 +227,7 @@ int main(int argc, char *argv[])
             const float t = t0 + (float)k / (float)r->freq;
             if (t >= t1)
                 break;
-            if (s.debug)
+            if (s.debug_timings)
                 printf("draw @ t=%f [range %zu/%zu: %g-%g @ %dHz]\n",
                        t, i + 1, s.nb_ranges, t0, t1, r->freq);
             ret = ngl_draw(ctx, t);

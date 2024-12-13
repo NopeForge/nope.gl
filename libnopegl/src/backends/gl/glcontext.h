@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023-2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -45,6 +45,7 @@ struct glcontext_params {
     int32_t width;
     int32_t height;
     int32_t samples;
+    int debug;
 };
 
 struct glcontext {
@@ -60,6 +61,7 @@ struct glcontext {
     int32_t width;
     int32_t height;
     int32_t samples;
+    int debug;
 
     /* GL api */
     int version;

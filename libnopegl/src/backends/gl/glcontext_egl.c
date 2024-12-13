@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023-2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -386,7 +386,7 @@ try_again:;
     EGLContext shared_context = other ? (EGLContext)other : NULL;
 
     if (egl->has_create_context_ext) {
-        const EGLint context_flags = DEBUG_GL ? EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR : 0;
+        const EGLint context_flags = ctx->debug ? EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR : 0;
 
         if (ctx->backend == NGL_BACKEND_OPENGL) {
             static const struct {

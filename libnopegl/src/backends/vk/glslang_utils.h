@@ -28,7 +28,7 @@
 #include <glslang/Include/glslang_c_interface.h>
 
 int ngli_glslang_init(void);
-int ngli_glslang_compile(int stage, const char *src, void **datap, size_t *sizep);
+int ngli_glslang_compile(int stage, const char *src, int debug, void **datap, size_t *sizep);
 void ngli_glslang_uninit(void);
 
 #endif

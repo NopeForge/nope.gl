@@ -45,6 +45,7 @@ foreach backend : backends
 
   tests_api = [
     'backend',
+    'debug',
     'reconfigure',
     'reconfigure_clearcolor',
     'reconfigure_fail',

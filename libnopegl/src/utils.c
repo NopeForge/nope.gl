@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -269,6 +270,22 @@ char *ngli_numbered_lines(const char *s)
         ret[--len] = 0;
 
     return ret;
+}
+
+int ngli_config_set_debug_defaults(struct ngl_config *config)
+{
+    switch (config->backend) {
+        case NGL_BACKEND_OPENGL:
+        case NGL_BACKEND_OPENGLES:
+            config->debug |= DEBUG_GL;
+            break;
+        case NGL_BACKEND_VULKAN:
+            config->debug |= DEBUG_VK;
+            break;
+        default:
+            return NGL_ERROR_UNSUPPORTED;
+    }
+    return config->debug;
 }
 
 int ngli_config_copy(struct ngl_config *dst, const struct ngl_config *src)

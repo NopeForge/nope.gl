@@ -721,6 +721,8 @@ struct ngl_config {
     const char *hud_export_filename; /* Path to the HUD export file (CSV). Disables display if enabled. */
 
     int hud_scale;           /* Scaling applied to the HUD, useful for high DPI displays */
+
+    int debug; /* Enable graphics context debugging */
 };
 
 #define NGL_CAP_COMPUTE                         NGL_NODE_COMPUTE
