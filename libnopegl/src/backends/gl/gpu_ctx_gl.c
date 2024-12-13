@@ -558,7 +558,7 @@ static int gl_init(struct gpu_ctx *s)
         .samples       = config->samples,
     };
 
-    s_priv->glcontext = ngli_glcontext_new(&params);
+    s_priv->glcontext = ngli_glcontext_create(&params);
     if (!s_priv->glcontext)
         return NGL_ERROR_MEMORY;
 
