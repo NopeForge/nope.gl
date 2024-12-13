@@ -83,7 +83,7 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
-    ngli_glGenTextures(gl, 2, vaapi->gl_planes);
+    gl->funcs.GenTextures(2, vaapi->gl_planes);
 
     for (size_t i = 0; i < 2; i++) {
         const GLint min_filter = ngli_gpu_texture_get_gl_min_filter(params->texture_min_filter,
@@ -92,12 +92,12 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
         const GLint wrap_s = ngli_gpu_texture_get_gl_wrap(params->texture_wrap_s);
         const GLint wrap_t = ngli_gpu_texture_get_gl_wrap(params->texture_wrap_t);
 
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, vaapi->gl_planes[i]);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+        gl->funcs.BindTexture(GL_TEXTURE_2D, vaapi->gl_planes[i]);
+        gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+        gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+        gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
+        gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
+        gl->funcs.BindTexture(GL_TEXTURE_2D, 0);
 
         const int format = i == 0 ? NGLI_GPU_FORMAT_R8_UNORM : NGLI_GPU_FORMAT_R8G8_UNORM;
 
@@ -174,7 +174,7 @@ static void vaapi_uninit(struct hwmap *hwmap)
     for (size_t i = 0; i < 2; i++)
         ngli_gpu_texture_freep(&vaapi->planes[i]);
 
-    ngli_glDeleteTextures(gl, 2, vaapi->gl_planes);
+    gl->funcs.DeleteTextures(2, vaapi->gl_planes);
 
     vaapi_release_frame_resources(hwmap);
 }
@@ -271,8 +271,8 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         struct gpu_texture_gl *plane_gl = (struct gpu_texture_gl *)plane;
         ngli_gpu_texture_gl_set_dimensions(plane, width, height, 0);
 
-        ngli_glBindTexture(gl, plane_gl->target, plane_gl->id);
-        ngli_glEGLImageTargetTexture2DOES(gl, plane_gl->target, vaapi->egl_images[i]);
+        gl->funcs.BindTexture(plane_gl->target, plane_gl->id);
+        gl->funcs.EGLImageTargetTexture2DOES(plane_gl->target, vaapi->egl_images[i]);
     }
 
     return 0;

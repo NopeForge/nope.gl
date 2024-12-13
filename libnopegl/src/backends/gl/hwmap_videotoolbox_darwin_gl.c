@@ -94,7 +94,7 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t
     struct gpu_texture *plane = vt->planes[index];
     struct gpu_texture_gl *plane_gl = (struct gpu_texture_gl *)plane;
 
-    ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, plane_gl->id);
+    gl->funcs.BindTexture(GL_TEXTURE_RECTANGLE, plane_gl->id);
 
     size_t width = IOSurfaceGetWidthOfPlane(surface, index);
     size_t height = IOSurfaceGetHeightOfPlane(surface, index);
@@ -113,7 +113,7 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t
         return NGL_ERROR_EXTERNAL;
     }
 
-    ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, 0);
+    gl->funcs.BindTexture(GL_TEXTURE_RECTANGLE, 0);
 
     return 0;
 }
@@ -197,18 +197,18 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
     if (ret < 0)
         return ret;
 
-    ngli_glGenTextures(gl, 2, vt->gl_planes);
+    gl->funcs.GenTextures(2, vt->gl_planes);
 
     for (size_t i = 0; i < vt->format_desc.nb_planes; i++) {
         const GLint min_filter = ngli_gpu_texture_get_gl_min_filter(params->texture_min_filter, NGLI_GPU_MIPMAP_FILTER_NONE);
         const GLint mag_filter = ngli_gpu_texture_get_gl_mag_filter(params->texture_mag_filter);
 
-        ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, vt->gl_planes[i]);
-        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, min_filter);
-        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, mag_filter);
-        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, 0);
+        gl->funcs.BindTexture(GL_TEXTURE_RECTANGLE, vt->gl_planes[i]);
+        gl->funcs.TexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, min_filter);
+        gl->funcs.TexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, mag_filter);
+        gl->funcs.TexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        gl->funcs.TexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        gl->funcs.BindTexture(GL_TEXTURE_RECTANGLE, 0);
 
         const struct gpu_texture_params plane_params = {
             .type             = NGLI_GPU_TEXTURE_TYPE_2D,
@@ -260,7 +260,7 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
     for (size_t i = 0; i < 2; i++)
         ngli_gpu_texture_freep(&vt->planes[i]);
 
-    ngli_glDeleteTextures(gl, 2, vt->gl_planes);
+    gl->funcs.DeleteTextures(2, vt->gl_planes);
 
     nmd_frame_releasep(&vt->frame);
 }

@@ -128,12 +128,12 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, size
     const GLint wrap_s = ngli_gpu_texture_get_gl_wrap(plane_params->wrap_s);
     const GLint wrap_t = ngli_gpu_texture_get_gl_wrap(plane_params->wrap_t);
 
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+    gl->funcs.BindTexture(GL_TEXTURE_2D, id);
+    gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+    gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+    gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
+    gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
+    gl->funcs.BindTexture(GL_TEXTURE_2D, 0);
 
     ngli_gpu_texture_gl_set_id(plane, id);
     ngli_gpu_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);

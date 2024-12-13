@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2017-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -173,54 +174,54 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
     struct eagl_priv *eagl = ctx->priv_data;
 
     eagl->fb_initialized = 1;
-    ngli_glGenFramebuffers(ctx, 1, &eagl->fbo);
-    ngli_glBindFramebuffer(ctx, GL_FRAMEBUFFER, eagl->fbo);
+    ctx->funcs.GenFramebuffers(1, &eagl->fbo);
+    ctx->funcs.BindFramebuffer(GL_FRAMEBUFFER, eagl->fbo);
 
     if (!eagl->colorbuffer)
-        ngli_glGenRenderbuffers(ctx, 1, &eagl->colorbuffer);
-    ngli_glBindRenderbuffer (ctx, GL_RENDERBUFFER, eagl->colorbuffer);
+        ctx->funcs.GenRenderbuffers(1, &eagl->colorbuffer);
+    ctx->funcs.BindRenderbuffer (GL_RENDERBUFFER, eagl->colorbuffer);
     [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
-    ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
-    ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &ctx->width);
-    ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &ctx->height);
+    ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
+    ctx->funcs.GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &ctx->width);
+    ctx->funcs.GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &ctx->height);
 
     if (!ctx->samples) {
-        ngli_glGenRenderbuffers(ctx, 1, &eagl->depthbuffer);
-        ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->depthbuffer);
-        ngli_glRenderbufferStorage(ctx, GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
-        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
-        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
+        ctx->funcs.GenRenderbuffers(1, &eagl->depthbuffer);
+        ctx->funcs.BindRenderbuffer(GL_RENDERBUFFER, eagl->depthbuffer);
+        ctx->funcs.RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
+        ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
+        ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
     }
 
-    GLenum status = ngli_glCheckFramebufferStatus(ctx, GL_FRAMEBUFFER);
+    GLenum status = ctx->funcs.CheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
        LOG(ERROR, "framebuffer is not complete: 0x%x", status);
        return NGL_ERROR_EXTERNAL;
     }
 
     if (ctx->samples > 0) {
-        ngli_glGenFramebuffers(ctx, 1, &eagl->fbo_ms);
-        ngli_glBindFramebuffer(ctx, GL_FRAMEBUFFER, eagl->fbo_ms);
+        ctx->funcs.GenFramebuffers(1, &eagl->fbo_ms);
+        ctx->funcs.BindFramebuffer(GL_FRAMEBUFFER, eagl->fbo_ms);
 
-        ngli_glGenRenderbuffers(ctx, 1, &eagl->colorbuffer_ms);
-        ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->colorbuffer_ms);
-        ngli_glRenderbufferStorageMultisample(ctx, GL_RENDERBUFFER, ctx->samples, GL_RGBA8, ctx->width, ctx->height);
-        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer_ms);
+        ctx->funcs.GenRenderbuffers(1, &eagl->colorbuffer_ms);
+        ctx->funcs.BindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer_ms);
+        ctx->funcs.RenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_RGBA8, ctx->width, ctx->height);
+        ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer_ms);
 
-        ngli_glGenRenderbuffers(ctx, 1, &eagl->depthbuffer);
-        ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->depthbuffer);
-        ngli_glRenderbufferStorageMultisample(ctx, GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
-        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
-        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
+        ctx->funcs.GenRenderbuffers(1, &eagl->depthbuffer);
+        ctx->funcs.BindRenderbuffer(GL_RENDERBUFFER, eagl->depthbuffer);
+        ctx->funcs.RenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
+        ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
+        ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
 
-        status = ngli_glCheckFramebufferStatus(ctx, GL_FRAMEBUFFER);
+        status = ctx->funcs.CheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
             LOG(ERROR, "framebuffer is not complete: 0x%x", status);
             return NGL_ERROR_EXTERNAL;
         }
     }
 
-    ngli_glViewport(ctx, 0, 0, ctx->width, ctx->height);
+    ctx->funcs.Viewport(0, 0, ctx->width, ctx->height);
 
     return 0;
 }
@@ -229,10 +230,10 @@ static void eagl_reset_framebuffer(struct glcontext *ctx)
 {
     struct eagl_priv *eagl = ctx->priv_data;
 
-    ngli_glDeleteFramebuffers(ctx, 1, &eagl->fbo);
-    ngli_glDeleteFramebuffers(ctx, 1, &eagl->fbo_ms);
-    ngli_glDeleteRenderbuffers(ctx, 1, &eagl->depthbuffer);
-    ngli_glDeleteRenderbuffers(ctx, 1, &eagl->colorbuffer_ms);
+    ctx->funcs.DeleteFramebuffers(1, &eagl->fbo);
+    ctx->funcs.DeleteFramebuffers(1, &eagl->fbo_ms);
+    ctx->funcs.DeleteRenderbuffers(1, &eagl->depthbuffer);
+    ctx->funcs.DeleteRenderbuffers(1, &eagl->colorbuffer_ms);
 }
 
 static void eagl_uninit(struct glcontext *ctx)
@@ -241,7 +242,7 @@ static void eagl_uninit(struct glcontext *ctx)
 
     if (eagl->fb_initialized) {
         eagl_reset_framebuffer(ctx);
-        ngli_glDeleteRenderbuffers(ctx, 1, &eagl->colorbuffer);
+        ctx->funcs.DeleteRenderbuffers(1, &eagl->colorbuffer);
         eagl->fb_initialized = 0;
     }
 
@@ -300,14 +301,14 @@ static void eagl_swap_buffers(struct glcontext *ctx)
         return;
 
     if (ctx->samples > 0) {
-        ngli_glBindFramebuffer(ctx, GL_READ_FRAMEBUFFER, eagl->fbo_ms);
-        ngli_glBindFramebuffer(ctx, GL_DRAW_FRAMEBUFFER, eagl->fbo);
+        ctx->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, eagl->fbo_ms);
+        ctx->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, eagl->fbo);
         GLbitfield mask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-        ngli_glBlitFramebuffer(ctx, 0, 0, ctx->width, ctx->height, 0, 0, ctx->width, ctx->height, mask, GL_NEAREST);
-        ngli_glBindFramebuffer(ctx, GL_DRAW_FRAMEBUFFER, eagl->fbo_ms);
+        ctx->funcs.BlitFramebuffer(0, 0, ctx->width, ctx->height, 0, 0, ctx->width, ctx->height, mask, GL_NEAREST);
+        ctx->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, eagl->fbo_ms);
     }
 
-    ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->colorbuffer);
+    ctx->funcs.BindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
     [eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
 }
 

@@ -36,28 +36,28 @@ static int program_check_status(const struct glcontext *gl, GLuint id, GLenum st
     char *info_log = NULL;
     int info_log_length = 0;
 
-    void (*get_info)(const struct glcontext *gl, GLuint id, GLenum pname, GLint *params);
-    void (*get_log)(const struct glcontext *gl, GLuint id, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+    void (NGLI_GL_APIENTRY *get_info)(GLuint id, GLenum pname, GLint *params);
+    void (NGLI_GL_APIENTRY *get_log)(GLuint id, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
     const char *type_str;
 
     if (status == GL_COMPILE_STATUS) {
         type_str = "compile";
-        get_info = ngli_glGetShaderiv;
-        get_log  = ngli_glGetShaderInfoLog;
+        get_info = gl->funcs.GetShaderiv;
+        get_log  = gl->funcs.GetShaderInfoLog;
     } else if (status == GL_LINK_STATUS) {
         type_str = "link";
-        get_info = ngli_glGetProgramiv;
-        get_log  = ngli_glGetProgramInfoLog;
+        get_info = gl->funcs.GetProgramiv;
+        get_log  = gl->funcs.GetProgramInfoLog;
     } else {
         ngli_assert(0);
     }
 
     GLint result = GL_FALSE;
-    get_info(gl, id, status, &result);
+    get_info(id, status, &result);
     if (result == GL_TRUE)
         return 0;
 
-    get_info(gl, id, GL_INFO_LOG_LENGTH, &info_log_length);
+    get_info(id, GL_INFO_LOG_LENGTH, &info_log_length);
     if (!info_log_length)
         return NGL_ERROR_BUG;
 
@@ -65,7 +65,7 @@ static int program_check_status(const struct glcontext *gl, GLuint id, GLenum st
     if (!info_log)
         return NGL_ERROR_MEMORY;
 
-    get_log(gl, id, info_log_length, NULL, info_log);
+    get_log(id, info_log_length, NULL, info_log);
     while (info_log_length && strchr(" \r\n", info_log[info_log_length - 1]))
         info_log_length--;
 
@@ -97,7 +97,7 @@ static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
     ngli_hmap_set_free_func(umap, free_pinfo, NULL);
 
     GLint nb_active_uniforms;
-    ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
+    gl->funcs.GetProgramiv(pid, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
     for (GLint i = 0; i < nb_active_uniforms; i++) {
         char name[MAX_ID_LEN];
         struct gpu_program_variable_info *info = program_variable_info_create();
@@ -108,14 +108,14 @@ static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
 
         GLenum type;
         GLint size;
-        ngli_glGetActiveUniform(gl, pid, i, sizeof(name), NULL, &size, &type, name);
+        gl->funcs.GetActiveUniform(pid, i, sizeof(name), NULL, &size, &type, name);
 
         /* Remove [0] suffix from names of uniform arrays */
         name[strcspn(name, "[")] = 0;
-        info->location = ngli_glGetUniformLocation(gl, pid, name);
+        info->location = gl->funcs.GetUniformLocation(pid, name);
 
         if (type == GL_IMAGE_2D) {
-            ngli_glGetUniformiv(gl, pid, info->location, &info->binding);
+            gl->funcs.GetUniformiv(pid, info->location, &info->binding);
         } else {
             info->binding = -1;
         }
@@ -142,7 +142,7 @@ static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
     ngli_hmap_set_free_func(amap, free_pinfo, NULL);
 
     GLint nb_active_attributes;
-    ngli_glGetProgramiv(gl, pid, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
+    gl->funcs.GetProgramiv(pid, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
     for (GLint i = 0; i < nb_active_attributes; i++) {
         char name[MAX_ID_LEN];
         struct gpu_program_variable_info *info = program_variable_info_create();
@@ -153,8 +153,8 @@ static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
 
         GLenum type;
         GLint size;
-        ngli_glGetActiveAttrib(gl, pid, i, sizeof(name), NULL, &size, &type, name);
-        info->location = ngli_glGetAttribLocation(gl, pid, name);
+        gl->funcs.GetActiveAttrib(pid, i, sizeof(name), NULL, &size, &type, name);
+        info->location = gl->funcs.GetAttribLocation(pid, name);
         LOG(DEBUG, "attribute[%d/%d]: %s location:%d",
             i + 1, nb_active_attributes, name, info->location);
 
@@ -178,7 +178,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
 
     /* Uniform Buffers */
     GLint nb_active_uniform_buffers;
-    ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
+    gl->funcs.GetProgramiv(pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
     for (GLint i = 0; i < nb_active_uniform_buffers; i++) {
         struct gpu_program_variable_info *info = program_variable_info_create();
         if (!info) {
@@ -187,13 +187,13 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         }
 
         char name[MAX_ID_LEN] = {0};
-        ngli_glGetActiveUniformBlockName(gl, pid, i, sizeof(name), NULL, name);
+        gl->funcs.GetActiveUniformBlockName(pid, i, sizeof(name), NULL, name);
 
-        const GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
-        ngli_glGetActiveUniformBlockiv(gl, pid, block_index, GL_UNIFORM_BLOCK_BINDING, &info->binding);
+        const GLuint block_index = gl->funcs.GetUniformBlockIndex(pid, name);
+        gl->funcs.GetActiveUniformBlockiv(pid, block_index, GL_UNIFORM_BLOCK_BINDING, &info->binding);
 
         GLint block_size = 0;
-        ngli_glGetActiveUniformBlockiv(gl, pid, block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
+        gl->funcs.GetActiveUniformBlockiv(pid, block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
 
         LOG(DEBUG, "ubo[%d/%d]: %s binding:%d size:%d",
             i + 1, nb_active_uniform_buffers, name, info->binding, block_size);
@@ -212,7 +212,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
 
     /* Shader Storage Buffers */
     GLint nb_active_buffers;
-    ngli_glGetProgramInterfaceiv(gl, pid, GL_SHADER_STORAGE_BLOCK,
+    gl->funcs.GetProgramInterfaceiv(pid, GL_SHADER_STORAGE_BLOCK,
                                  GL_ACTIVE_RESOURCES, &nb_active_buffers);
     for (GLint i = 0; i < nb_active_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
@@ -222,10 +222,10 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
             return NULL;
         }
 
-        ngli_glGetProgramResourceName(gl, pid, GL_SHADER_STORAGE_BLOCK, i, sizeof(name), NULL, name);
-        GLuint block_index = ngli_glGetProgramResourceIndex(gl, pid, GL_SHADER_STORAGE_BLOCK, name);
+        gl->funcs.GetProgramResourceName(pid, GL_SHADER_STORAGE_BLOCK, i, sizeof(name), NULL, name);
+        GLuint block_index = gl->funcs.GetProgramResourceIndex(pid, GL_SHADER_STORAGE_BLOCK, name);
         static const GLenum props[] = {GL_BUFFER_BINDING};
-        ngli_glGetProgramResourceiv(gl, pid, GL_SHADER_STORAGE_BLOCK, block_index,
+        gl->funcs.GetProgramResourceiv(pid, GL_SHADER_STORAGE_BLOCK, block_index,
                                     (GLsizei)NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
 
         LOG(DEBUG, "ssbo[%d/%d]: %s binding:%d",
@@ -276,15 +276,15 @@ int ngli_gpu_program_gl_init(struct gpu_program *s, const struct gpu_program_par
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
-    s_priv->id = ngli_glCreateProgram(gl);
+    s_priv->id = gl->funcs.CreateProgram();
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
         if (!shaders[i].src)
             continue;
-        GLuint shader = ngli_glCreateShader(gl, shaders[i].type);
+        GLuint shader = gl->funcs.CreateShader(shaders[i].type);
         shaders[i].id = shader;
-        ngli_glShaderSource(gl, shader, 1, &shaders[i].src, NULL);
-        ngli_glCompileShader(gl, shader);
+        gl->funcs.ShaderSource(shader, 1, &shaders[i].src, NULL);
+        gl->funcs.CompileShader(shader);
         ret = program_check_status(gl, shader, GL_COMPILE_STATUS);
         if (ret < 0) {
             char *s_with_numbers = ngli_numbered_lines(shaders[i].src);
@@ -295,10 +295,10 @@ int ngli_gpu_program_gl_init(struct gpu_program *s, const struct gpu_program_par
             }
             goto fail;
         }
-        ngli_glAttachShader(gl, s_priv->id, shader);
+        gl->funcs.AttachShader(s_priv->id, shader);
     }
 
-    ngli_glLinkProgram(gl, s_priv->id);
+    gl->funcs.LinkProgram(s_priv->id);
     ret = program_check_status(gl, s_priv->id, GL_LINK_STATUS);
     if (ret < 0) {
         struct bstr *bstr = ngli_bstr_create();
@@ -321,7 +321,7 @@ int ngli_gpu_program_gl_init(struct gpu_program *s, const struct gpu_program_par
     }
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++)
-        ngli_glDeleteShader(gl, shaders[i].id);
+        gl->funcs.DeleteShader(shaders[i].id);
 
     s->uniforms = program_probe_uniforms(gl, s_priv->id);
     s->attributes = program_probe_attributes(gl, s_priv->id);
@@ -335,7 +335,7 @@ int ngli_gpu_program_gl_init(struct gpu_program *s, const struct gpu_program_par
 
 fail:
     for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++)
-        ngli_glDeleteShader(gl, shaders[i].id);
+        gl->funcs.DeleteShader(shaders[i].id);
 
     return ret;
 }
@@ -351,6 +351,6 @@ void ngli_gpu_program_gl_freep(struct gpu_program **sp)
     ngli_hmap_freep(&s->buffer_blocks);
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    ngli_glDeleteProgram(gl, s_priv->id);
+    gl->funcs.DeleteProgram(s_priv->id);
     ngli_freep(sp);
 }

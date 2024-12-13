@@ -56,8 +56,8 @@ static void capture_cpu(struct gpu_ctx *s)
     struct gpu_rendertarget *rt = s_priv->capture_rt;
     struct gpu_rendertarget_gl *rt_gl = (struct gpu_rendertarget_gl *)rt;
 
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rt_gl->id);
-    ngli_glReadPixels(gl, 0, 0, rt->width, rt->height, GL_RGBA, GL_UNSIGNED_BYTE, config->capture_buffer);
+    gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, rt_gl->id);
+    gl->funcs.ReadPixels(0, 0, rt->width, rt->height, GL_RGBA, GL_UNSIGNED_BYTE, config->capture_buffer);
 }
 
 static void capture_corevideo(struct gpu_ctx *s)
@@ -65,7 +65,7 @@ static void capture_corevideo(struct gpu_ctx *s)
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
 
-    ngli_glFinish(gl);
+    gl->funcs.Finish();
 }
 
 #if defined(TARGET_IPHONE)
@@ -99,10 +99,10 @@ static int wrap_capture_cvpixelbuffer(struct gpu_ctx *s,
     }
 
     GLuint id = CVOpenGLESTextureGetName(cv_texture);
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+    gl->funcs.BindTexture(GL_TEXTURE_2D, id);
+    gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->funcs.BindTexture(GL_TEXTURE_2D, 0);
 
     struct gpu_texture *texture = ngli_gpu_texture_create(s);
     if (!texture) {
@@ -346,19 +346,19 @@ static int timer_init(struct gpu_ctx *s)
     struct glcontext *gl = s_priv->glcontext;
 
     if (gl->features & NGLI_FEATURE_GL_TIMER_QUERY) {
-        s_priv->glGenQueries          = ngli_glGenQueries;
-        s_priv->glDeleteQueries       = ngli_glDeleteQueries;
-        s_priv->glBeginQuery          = ngli_glBeginQuery;
-        s_priv->glEndQuery            = ngli_glEndQuery;
-        s_priv->glQueryCounter        = ngli_glQueryCounter;
-        s_priv->glGetQueryObjectui64v = ngli_glGetQueryObjectui64v;
+        s_priv->glGenQueries          = gl->funcs.GenQueries;
+        s_priv->glDeleteQueries       = gl->funcs.DeleteQueries;
+        s_priv->glBeginQuery          = gl->funcs.BeginQuery;
+        s_priv->glEndQuery            = gl->funcs.EndQuery;
+        s_priv->glQueryCounter        = gl->funcs.QueryCounter;
+        s_priv->glGetQueryObjectui64v = gl->funcs.GetQueryObjectui64v;
     } else if (gl->features & NGLI_FEATURE_GL_EXT_DISJOINT_TIMER_QUERY) {
-        s_priv->glGenQueries          = ngli_glGenQueriesEXT;
-        s_priv->glDeleteQueries       = ngli_glDeleteQueriesEXT;
-        s_priv->glBeginQuery          = ngli_glBeginQueryEXT;
-        s_priv->glEndQuery            = ngli_glEndQueryEXT;
-        s_priv->glQueryCounter        = ngli_glQueryCounterEXT;
-        s_priv->glGetQueryObjectui64v = ngli_glGetQueryObjectui64vEXT;
+        s_priv->glGenQueries          = gl->funcs.GenQueriesEXT;
+        s_priv->glDeleteQueries       = gl->funcs.DeleteQueriesEXT;
+        s_priv->glBeginQuery          = gl->funcs.BeginQueryEXT;
+        s_priv->glEndQuery            = gl->funcs.EndQueryEXT;
+        s_priv->glQueryCounter        = gl->funcs.QueryCounterEXT;
+        s_priv->glGetQueryObjectui64v = gl->funcs.GetQueryObjectui64vEXT;
     } else {
         s_priv->glGenQueries          = (void *)noop;
         s_priv->glDeleteQueries       = (void *)noop;
@@ -367,7 +367,7 @@ static int timer_init(struct gpu_ctx *s)
         s_priv->glQueryCounter        = (void *)noop;
         s_priv->glGetQueryObjectui64v = (void *)noop;
     }
-    s_priv->glGenQueries(gl, 2, s_priv->queries);
+    s_priv->glGenQueries(2, s_priv->queries);
 
     return 0;
 }
@@ -375,10 +375,9 @@ static int timer_init(struct gpu_ctx *s)
 static void timer_reset(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
 
     if (s_priv->glDeleteQueries)
-        s_priv->glDeleteQueries(gl, 2, s_priv->queries);
+        s_priv->glDeleteQueries(2, s_priv->queries);
 }
 
 static struct gpu_ctx *gl_create(const struct ngl_config *config)
@@ -567,9 +566,9 @@ static int gl_init(struct gpu_ctx *s)
 
 #if DEBUG_GL
     if ((gl->features & NGLI_FEATURE_GL_KHR_DEBUG)) {
-        ngli_glEnable(gl, GL_DEBUG_OUTPUT);
-        ngli_glEnable(gl, GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        ngli_glDebugMessageCallback(gl, gl_debug_message_callback, NULL);
+        gl->funcs.Enable(GL_DEBUG_OUTPUT);
+        gl->funcs.Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        gl->funcs.DebugMessageCallback(gl_debug_message_callback, NULL);
     }
 #endif
 
@@ -764,10 +763,10 @@ int ngli_gpu_ctx_gl_wrap_framebuffer(struct gpu_ctx *s, GLuint fbo)
     }
 
     GLuint prev_fbo = 0;
-    ngli_glGetIntegerv(gl, GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&prev_fbo);
+    gl->funcs.GetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&prev_fbo);
 
     const GLenum target = GL_DRAW_FRAMEBUFFER;
-    ngli_glBindFramebuffer(gl, target, fbo);
+    gl->funcs.BindFramebuffer(target, fbo);
 
     const int es = config->backend == NGL_BACKEND_OPENGLES;
     const GLenum default_color_attachment = es ? GL_BACK : GL_FRONT_LEFT;
@@ -789,25 +788,25 @@ int ngli_gpu_ctx_gl_wrap_framebuffer(struct gpu_ctx *s, GLuint fbo)
     };
     for (size_t i = 0; i < NGLI_ARRAY_NB(components); i++) {
         GLint type = 0;
-        ngli_glGetFramebufferAttachmentParameteriv(gl, target,
+        gl->funcs.GetFramebufferAttachmentParameteriv(target,
             components[i].attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
         if (!type) {
             LOG(ERROR, "external framebuffer have no %s buffer attached to it", components[i].buffer_name);
-            ngli_glBindFramebuffer(gl, target, prev_fbo);
+            gl->funcs.BindFramebuffer(target, prev_fbo);
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
 
         GLint size = 0;
-        ngli_glGetFramebufferAttachmentParameteriv(gl, target,
+        gl->funcs.GetFramebufferAttachmentParameteriv(target,
             components[i].attachment, components[i].property, &size);
         if (!size) {
             LOG(ERROR, "external framebuffer have no %s component", components[i].component_name);
-            ngli_glBindFramebuffer(gl, target, prev_fbo);
+            gl->funcs.BindFramebuffer(target, prev_fbo);
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
     }
 
-    ngli_glBindFramebuffer(gl, target, prev_fbo);
+    gl->funcs.BindFramebuffer(target, prev_fbo);
 
     ngli_gpu_rendertarget_freep(&s_priv->default_rt);
     ngli_gpu_rendertarget_freep(&s_priv->default_rt_load);
@@ -837,14 +836,13 @@ static int gl_end_update(struct gpu_ctx *s, double t)
 static int gl_begin_draw(struct gpu_ctx *s, double t)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
     const struct ngl_config *config = &s->config;
 
     if (config->hud)
 #if defined(TARGET_DARWIN)
-        s_priv->glBeginQuery(gl, GL_TIME_ELAPSED, s_priv->queries[0]);
+        s_priv->glBeginQuery(GL_TIME_ELAPSED, s_priv->queries[0]);
 #else
-        s_priv->glQueryCounter(gl, s_priv->queries[0], GL_TIMESTAMP);
+        s_priv->glQueryCounter(s_priv->queries[0], GL_TIMESTAMP);
 #endif
 
     return 0;
@@ -863,9 +861,9 @@ static void blit_vflip(struct gpu_ctx *s, struct gpu_rendertarget *src, struct g
 
     const int32_t w = src->width, h = dst->height;
 
-    ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, src_fbo);
-    ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, dst_fbo);
-    ngli_glBlitFramebuffer(gl, 0, 0, w, h,
+    gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
+    gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, dst_fbo);
+    gl->funcs.BlitFramebuffer(0, 0, w, h,
                                0, h, w, 0,
                                GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
@@ -898,7 +896,6 @@ static int gl_end_draw(struct gpu_ctx *s, double t)
 static int gl_query_draw_time(struct gpu_ctx *s, int64_t *time)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
 
     const struct ngl_config *config = &s->config;
     if (!config->hud)
@@ -906,17 +903,17 @@ static int gl_query_draw_time(struct gpu_ctx *s, int64_t *time)
 
 #if defined(TARGET_DARWIN)
     GLuint64 time_elapsed = 0;
-    s_priv->glEndQuery(gl, GL_TIME_ELAPSED);
-    s_priv->glGetQueryObjectui64v(gl, s_priv->queries[0], GL_QUERY_RESULT, &time_elapsed);
+    s_priv->glEndQuery(GL_TIME_ELAPSED);
+    s_priv->glGetQueryObjectui64v(s_priv->queries[0], GL_QUERY_RESULT, &time_elapsed);
     *time = time_elapsed;
 #else
-    s_priv->glQueryCounter(gl, s_priv->queries[1], GL_TIMESTAMP);
+    s_priv->glQueryCounter(s_priv->queries[1], GL_TIMESTAMP);
 
     GLuint64 start_time = 0;
-    s_priv->glGetQueryObjectui64v(gl, s_priv->queries[0], GL_QUERY_RESULT, &start_time);
+    s_priv->glGetQueryObjectui64v(s_priv->queries[0], GL_QUERY_RESULT, &start_time);
 
     GLuint64 end_time = 0;
-    s_priv->glGetQueryObjectui64v(gl, s_priv->queries[1], GL_QUERY_RESULT, &end_time);
+    s_priv->glGetQueryObjectui64v(s_priv->queries[1], GL_QUERY_RESULT, &end_time);
 
     *time = end_time - start_time;
 #endif
@@ -927,7 +924,7 @@ static void gl_wait_idle(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
-    ngli_glFinish(gl);
+    gl->funcs.Finish();
 }
 
 static void gl_destroy(struct gpu_ctx *s)

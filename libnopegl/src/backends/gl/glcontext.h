@@ -119,6 +119,4 @@ void ngli_glcontext_freep(struct glcontext **glcontext);
 int ngli_glcontext_check_extension(const char *extension, const char *extensions);
 int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char *context);
 
-#include "glwrappers.h"
-
 #endif /* GLCONTEXT_H */

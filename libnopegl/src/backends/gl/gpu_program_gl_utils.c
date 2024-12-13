@@ -49,7 +49,7 @@ int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
             if (name && !strcmp(name, attribute_name))
                 continue;
             name = attribute_name;
-            ngli_glBindAttribLocation(gl, s_priv->id, attribute->location, attribute_name);
+            gl->funcs.BindAttribLocation(s_priv->id, attribute->location, attribute_name);
             struct gpu_program_variable_info *info = ngli_hmap_get_str(s->attributes, attribute_name);
             if (info && info->location != attribute->location) {
                 info->location = attribute->location;
@@ -58,7 +58,7 @@ int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
         }
     }
     if (need_relink)
-        ngli_glLinkProgram(gl, s_priv->id);
+        gl->funcs.LinkProgram(s_priv->id);
 
     const struct pipeline_compat_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
     for (size_t i = 0; i < layout.nb_buffers; i++) {
@@ -73,8 +73,8 @@ int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
             LOG(ERROR, "block name \"%s\" is too long", buffer_name);
             return NGL_ERROR_MEMORY;
         }
-        const GLuint block_index = ngli_glGetUniformBlockIndex(gl, s_priv->id, block_name);
-        ngli_glUniformBlockBinding(gl, s_priv->id, block_index, entry->binding);
+        const GLuint block_index = gl->funcs.GetUniformBlockIndex(s_priv->id, block_name);
+        gl->funcs.UniformBlockBinding(s_priv->id, block_index, entry->binding);
         struct gpu_program_variable_info *info = ngli_hmap_get_str(s->buffer_blocks, block_name);
         if (info)
             info->binding = entry->binding;
@@ -85,8 +85,8 @@ int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
     for (size_t i = 0; i < layout.nb_textures; i++) {
         const struct gpu_bindgroup_layout_entry *entry = &layout.textures[i];
         const char *texture_name = ngli_pgcraft_get_symbol_name(crafter, entry->id);
-        const GLint location = ngli_glGetUniformLocation(gl, s_priv->id, texture_name);
-        ngli_glUniform1i(gl, location, entry->binding);
+        const GLint location = gl->funcs.GetUniformLocation(s_priv->id, texture_name);
+        gl->funcs.Uniform1i(location, entry->binding);
         struct gpu_program_variable_info *info = ngli_hmap_get_str(s->uniforms, texture_name);
         if (info)
             info->binding = entry->binding;

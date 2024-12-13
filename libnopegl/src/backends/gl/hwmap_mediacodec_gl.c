@@ -79,17 +79,17 @@ static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
-    ngli_glGenTextures(gl, 1, &mc->gl_texture);
+    gl->funcs.GenTextures(1, &mc->gl_texture);
 
     const GLint min_filter = ngli_gpu_texture_get_gl_min_filter(params->texture_min_filter, NGLI_GPU_MIPMAP_FILTER_NONE);
     const GLint mag_filter = ngli_gpu_texture_get_gl_mag_filter(params->texture_mag_filter);
 
-    ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, mc->gl_texture);
-    ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, min_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, mag_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
+    gl->funcs.BindTexture(GL_TEXTURE_EXTERNAL_OES, mc->gl_texture);
+    gl->funcs.TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, min_filter);
+    gl->funcs.TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, mag_filter);
+    gl->funcs.TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->funcs.TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->funcs.BindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
 
     struct gpu_texture_params texture_params = {
         .type         = NGLI_GPU_TEXTURE_TYPE_2D,
@@ -221,8 +221,8 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct nmd_frame *frame
         return NGL_ERROR_EXTERNAL;
     }
 
-    ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, id);
-    ngli_glEGLImageTargetTexture2DOES(gl, GL_TEXTURE_EXTERNAL_OES, mc->egl_image);
+    gl->funcs.BindTexture(GL_TEXTURE_EXTERNAL_OES, id);
+    gl->funcs.EGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, mc->egl_image);
 
     return 0;
 }
@@ -248,7 +248,7 @@ static void mc_uninit(struct hwmap *hwmap)
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
     ngli_gpu_texture_freep(&mc->texture);
-    ngli_glDeleteTextures(gl, 1, &mc->gl_texture);
+    gl->funcs.DeleteTextures(1, &mc->gl_texture);
 
     if (android_ctx->has_native_imagereader_api) {
         ngli_eglDestroyImageKHR(gl, mc->egl_image);
