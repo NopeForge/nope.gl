@@ -104,7 +104,7 @@ struct glcontext_class {
     size_t priv_size;
 };
 
-struct glcontext *ngli_glcontext_new(const struct glcontext_params *params);
+struct glcontext *ngli_glcontext_create(const struct glcontext_params *params);
 int ngli_glcontext_make_current(struct glcontext *glcontext, int current);
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext);
 int ngli_glcontext_set_swap_interval(struct glcontext *glcontext, int interval);

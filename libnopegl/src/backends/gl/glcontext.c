@@ -460,7 +460,7 @@ static int glcontext_load_extensions(struct glcontext *glcontext)
     return 0;
 }
 
-struct glcontext *ngli_glcontext_new(const struct glcontext_params *params)
+struct glcontext *ngli_glcontext_create(const struct glcontext_params *params)
 {
     if (params->platform < 0 || params->platform >= NGLI_ARRAY_NB(platform_to_glplatform))
         return NULL;
