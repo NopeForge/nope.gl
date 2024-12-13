@@ -23,6 +23,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `TextEffect.anchor` and `TextEffect.anchor_ref` to control the character
   relative anchor for scale and rotate transforms
 - `DrawMask` node to facilitate alpha masking with textures
+- `ngl_config.debug` parameter to enable graphics context debugging
 
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node

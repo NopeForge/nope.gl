@@ -52,6 +52,13 @@ def api_backend():
     del ctx
 
 
+def api_debug():
+    ctx = ngl.Context()
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, debug=True, backend=_backend))
+    assert ret == 0
+    del ctx
+
+
 def api_reconfigure():
     ctx = ngl.Context()
     ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))

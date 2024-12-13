@@ -56,6 +56,7 @@ static const struct opt options[] = {
     {"-u", "--disable-ui",       OPT_TYPE_TOGGLE,   .offset=OFFSET(player_ui)},
     {NULL, "--hwaccel",          OPT_TYPE_INT,      .offset=OFFSET(hwaccel)},
     {NULL, "--mipmap",           OPT_TYPE_INT,      .offset=OFFSET(mipmap)},
+    {NULL, "--debug",            OPT_TYPE_TOGGLE,   .offset=OFFSET(cfg.debug)},
 };
 
 static struct ngl_scene *get_scene(const struct ctx *s, const char *filename)

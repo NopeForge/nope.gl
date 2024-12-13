@@ -333,7 +333,11 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
     if (ret < 0)
         return ret;
 
-    s->gpu_ctx = ngli_gpu_ctx_create(config);
+    ret = ngli_config_set_debug_defaults(&s->config);
+    if (ret < 0)
+        return ret;
+
+    s->gpu_ctx = ngli_gpu_ctx_create(&s->config);
     if (!s->gpu_ctx) {
         ngli_config_reset(&s->config);
         return NGL_ERROR_MEMORY;

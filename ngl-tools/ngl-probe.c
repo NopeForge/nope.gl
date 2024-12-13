@@ -40,6 +40,7 @@ static const struct opt options[] = {
     {"-l", "--loglevel",  OPT_TYPE_LOGLEVEL, .offset=OFFSET(log_level)},
     {"-b", "--backend",   OPT_TYPE_BACKEND,  .offset=OFFSET(cfg.backend)},
     {"-c", "--cap",       OPT_TYPE_STR,      .offset=OFFSET(cap)},
+    {NULL, "--debug",     OPT_TYPE_TOGGLE,   .offset=OFFSET(cfg.debug)},
 };
 
 static const struct ngl_cap *get_cap(const struct ngl_backend *backend, const char *key)

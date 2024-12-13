@@ -157,6 +157,7 @@ cdef extern from "nopegl.h":
         int hud_refresh_rate[2]
         const char *hud_export_filename
         int hud_scale
+        int debug
 
     cdef union ngl_livectl_data:
         float f[4]
@@ -652,6 +653,7 @@ cdef class Config:
         hud_refresh_rate,
         hud_export_filename,
         hud_scale,
+        debug,
     ):
         self.config.platform = platform.value
         self.config.backend = backend.value
@@ -679,6 +681,7 @@ cdef class Config:
         if hud_export_filename is not None:
             self.config.hud_export_filename = hud_export_filename
         self.config.hud_scale = hud_scale
+        self.config.debug = debug
 
     @property
     def cptr(self):
