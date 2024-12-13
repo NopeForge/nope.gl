@@ -106,72 +106,72 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
     memset(glstate, 0, sizeof(*glstate));
 
     /* Blending */
-    ngli_glDisable(gl, GL_BLEND);
+    gl->funcs.Disable(GL_BLEND);
     glstate->blend = 0;
 
-    ngli_glBlendFuncSeparate(gl, GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+    gl->funcs.BlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
     glstate->blend_src_factor = GL_ONE;
     glstate->blend_dst_factor = GL_ZERO;
     glstate->blend_src_factor_a = GL_ONE;
     glstate->blend_dst_factor_a = GL_ZERO;
 
-    ngli_glBlendEquationSeparate(gl, GL_FUNC_ADD, GL_FUNC_ADD);
+    gl->funcs.BlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     glstate->blend_op = GL_FUNC_ADD;
     glstate->blend_op_a = GL_FUNC_ADD;
 
     /* Color write mask */
-    ngli_glColorMask(gl, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    gl->funcs.ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glstate->color_write_mask[0] = GL_TRUE;
     glstate->color_write_mask[1] = GL_TRUE;
     glstate->color_write_mask[2] = GL_TRUE;
     glstate->color_write_mask[3] = GL_TRUE;
 
     /* Depth */
-    ngli_glDisable(gl, GL_DEPTH_TEST);
+    gl->funcs.Disable(GL_DEPTH_TEST);
     glstate->depth_test = 0;
 
-    ngli_glDepthMask(gl, GL_TRUE);
+    gl->funcs.DepthMask(GL_TRUE);
     glstate->depth_write_mask = GL_TRUE;
 
-    ngli_glDepthFunc(gl, GL_LESS);
+    gl->funcs.DepthFunc(GL_LESS);
     glstate->depth_func = GL_LESS;
 
     /* Stencil */
-    ngli_glDisable(gl, GL_STENCIL_TEST);
+    gl->funcs.Disable(GL_STENCIL_TEST);
     glstate->stencil_test = 0;
 
     /* Use nope.gl's stencil read mask default (0xff) instead of OpenGL's ((GLuint)-1) */
-    ngli_glStencilMask(gl, 0xff);
+    gl->funcs.StencilMask(0xff);
     glstate->stencil_write_mask = 0xff;
 
     /* Use nope.gl's stencil write mask default (0xff) instead of OpenGL's ((GLuint)-1) */
-    ngli_glStencilFunc(gl, GL_ALWAYS, 0, 0xff);
+    gl->funcs.StencilFunc(GL_ALWAYS, 0, 0xff);
     glstate->stencil_func = GL_ALWAYS;
     glstate->stencil_ref = 0;
     glstate->stencil_read_mask = 0xff;
 
-    ngli_glStencilOp(gl, GL_KEEP, GL_KEEP, GL_KEEP);
+    gl->funcs.StencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     glstate->stencil_fail = GL_KEEP;
     glstate->stencil_depth_fail = GL_KEEP;
     glstate->stencil_depth_pass = GL_KEEP;
 
     /* Face culling */
-    ngli_glDisable(gl, GL_CULL_FACE);
+    gl->funcs.Disable(GL_CULL_FACE);
     glstate->cull_face = 0;
 
-    ngli_glCullFace(gl, GL_BACK);
+    gl->funcs.CullFace(GL_BACK);
     glstate->cull_face_mode = GL_BACK;
 
     /* Scissor */
-    ngli_glDisable(gl, GL_SCISSOR_TEST);
+    gl->funcs.Disable(GL_SCISSOR_TEST);
     glstate->scissor_test = 0;
 
     /* Program */
-    ngli_glUseProgram(gl, 0);
+    gl->funcs.UseProgram(0);
     glstate->program_id = 0;
 
     /* VAO */
-    ngli_glBindVertexArray(gl, 0);
+    gl->funcs.BindVertexArray(0);
 }
 
 void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct gpu_graphics_state *state)
@@ -180,9 +180,9 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     const int blend = state->blend;
     if (blend != glstate->blend) {
         if (blend)
-            ngli_glEnable(gl, GL_BLEND);
+            gl->funcs.Enable(GL_BLEND);
         else
-            ngli_glDisable(gl, GL_BLEND);
+            gl->funcs.Disable(GL_BLEND);
         glstate->blend = blend;
     }
 
@@ -194,11 +194,10 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
         blend_src_factor   != glstate->blend_src_factor   ||
         blend_dst_factor_a != glstate->blend_dst_factor_a ||
         blend_src_factor_a != glstate->blend_src_factor_a) {
-        ngli_glBlendFuncSeparate(gl,
-                                 blend_src_factor,
-                                 blend_dst_factor,
-                                 blend_src_factor_a,
-                                 blend_dst_factor_a);
+        gl->funcs.BlendFuncSeparate(blend_src_factor,
+                                    blend_dst_factor,
+                                    blend_src_factor_a,
+                                    blend_dst_factor_a);
         glstate->blend_dst_factor = blend_dst_factor;
         glstate->blend_src_factor = blend_src_factor;
         glstate->blend_dst_factor_a = blend_dst_factor_a;
@@ -209,9 +208,7 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     const GLenum blend_op_a = get_gl_blend_op(state->blend_op_a);
     if (blend_op   != glstate->blend_op ||
         blend_op_a != glstate->blend_op_a) {
-        ngli_glBlendEquationSeparate(gl,
-                                     blend_op,
-                                     blend_op_a);
+        gl->funcs.BlendEquationSeparate(blend_op, blend_op_a);
         glstate->blend_op   = blend_op;
         glstate->blend_op_a = blend_op_a;
     }
@@ -221,11 +218,10 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     for (size_t i = 0; i < 4; i++)
         color_write_mask[i] = state->color_write_mask >> i & 1;
     if (memcmp(color_write_mask, glstate->color_write_mask, sizeof(glstate->color_write_mask))) {
-        ngli_glColorMask(gl,
-                         color_write_mask[0],
-                         color_write_mask[1],
-                         color_write_mask[2],
-                         color_write_mask[3]);
+        gl->funcs.ColorMask(color_write_mask[0],
+                            color_write_mask[1],
+                            color_write_mask[2],
+                            color_write_mask[3]);
         memcpy(glstate->color_write_mask, color_write_mask, sizeof(glstate->color_write_mask));
     }
 
@@ -233,21 +229,21 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     const GLenum depth_test = state->depth_test;
     if (depth_test != glstate->depth_test) {
         if (depth_test)
-            ngli_glEnable(gl, GL_DEPTH_TEST);
+            gl->funcs.Enable(GL_DEPTH_TEST);
         else
-            ngli_glDisable(gl, GL_DEPTH_TEST);
+            gl->funcs.Disable(GL_DEPTH_TEST);
         glstate->depth_test = depth_test;
     }
 
     const GLboolean depth_write_mask = (GLboolean)state->depth_write_mask;
     if (depth_write_mask != glstate->depth_write_mask) {
-        ngli_glDepthMask(gl, depth_write_mask);
+        gl->funcs.DepthMask(depth_write_mask);
         glstate->depth_write_mask = depth_write_mask;
     }
 
     const GLenum depth_func = get_gl_compare_op(state->depth_func);
     if (depth_func != glstate->depth_func) {
-        ngli_glDepthFunc(gl, depth_func);
+        gl->funcs.DepthFunc(depth_func);
         glstate->depth_func = depth_func;
     }
 
@@ -255,15 +251,15 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     const int stencil_test = state->stencil_test;
     if (stencil_test != glstate->stencil_test) {
         if (stencil_test)
-            ngli_glEnable(gl, GL_STENCIL_TEST);
+            gl->funcs.Enable(GL_STENCIL_TEST);
         else
-            ngli_glDisable(gl, GL_STENCIL_TEST);
+            gl->funcs.Disable(GL_STENCIL_TEST);
         glstate->stencil_test = stencil_test;
     }
 
     const GLuint stencil_write_mask = state->stencil_write_mask;
     if (stencil_write_mask != glstate->stencil_write_mask) {
-        ngli_glStencilMask(gl, stencil_write_mask);
+        gl->funcs.StencilMask(stencil_write_mask);
         glstate->stencil_write_mask = stencil_write_mask;
     }
 
@@ -273,10 +269,9 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     if (stencil_func      != glstate->stencil_func ||
         stencil_ref       != glstate->stencil_ref  ||
         stencil_read_mask != glstate->stencil_read_mask) {
-        ngli_glStencilFunc(gl,
-                           stencil_func,
-                           stencil_ref,
-                           stencil_read_mask);
+        gl->funcs.StencilFunc(stencil_func,
+                              stencil_ref,
+                              stencil_read_mask);
         glstate->stencil_func = stencil_func;
         glstate->stencil_ref = stencil_ref;
         glstate->stencil_read_mask = stencil_read_mask;
@@ -288,10 +283,9 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     if (stencil_fail       != glstate->stencil_fail       ||
         stencil_depth_fail != glstate->stencil_depth_fail ||
         stencil_depth_pass != glstate->stencil_depth_pass) {
-        ngli_glStencilOp(gl,
-                         stencil_fail,
-                         stencil_depth_fail,
-                         stencil_depth_pass);
+        gl->funcs.StencilOp(stencil_fail,
+                            stencil_depth_fail,
+                            stencil_depth_pass);
         glstate->stencil_fail = stencil_fail;
         glstate->stencil_depth_fail = stencil_depth_fail;
         glstate->stencil_depth_pass = stencil_depth_pass;
@@ -301,15 +295,15 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     const GLboolean cull_face = state->cull_mode != NGLI_GPU_CULL_MODE_NONE;
     if (cull_face != glstate->cull_face) {
         if (cull_face)
-            ngli_glEnable(gl, GL_CULL_FACE);
+            gl->funcs.Enable(GL_CULL_FACE);
         else
-            ngli_glDisable(gl, GL_CULL_FACE);
+            gl->funcs.Disable(GL_CULL_FACE);
         glstate->cull_face = cull_face;
     }
 
     const GLenum cull_face_mode = get_gl_cull_mode(state->cull_mode);
     if (cull_face_mode != glstate->cull_face_mode) {
-        ngli_glCullFace(gl, cull_face_mode);
+        gl->funcs.CullFace(cull_face_mode);
         glstate->cull_face_mode = cull_face_mode;
     }
 
@@ -317,9 +311,9 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     const GLboolean scissor_test = (GLboolean)state->scissor_test;
     if (scissor_test != glstate->scissor_test) {
         if (scissor_test)
-            ngli_glEnable(gl, GL_SCISSOR_TEST);
+            gl->funcs.Enable(GL_SCISSOR_TEST);
         else
-            ngli_glDisable(gl, GL_SCISSOR_TEST);
+            gl->funcs.Disable(GL_SCISSOR_TEST);
         glstate->scissor_test = scissor_test;
     }
 }
@@ -327,7 +321,7 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
 void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstate, GLuint program_id)
 {
     if (glstate->program_id != program_id) {
-        ngli_glUseProgram(gl, program_id);
+        gl->funcs.UseProgram(program_id);
         glstate->program_id = program_id;
     }
 }
@@ -340,7 +334,7 @@ void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *gls
         glstate->scissor.height == scissor->height)
         return;
     glstate->scissor = *scissor;
-    ngli_glScissor(gl, scissor->x, scissor->y, scissor->width, scissor->height);
+    gl->funcs.Scissor(scissor->x, scissor->y, scissor->width, scissor->height);
 }
 
 void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *glstate, const struct gpu_viewport *viewport)
@@ -351,5 +345,5 @@ void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *gl
         glstate->viewport.height == viewport->height)
         return;
     glstate->viewport = *viewport;
-    ngli_glViewport(gl, viewport->x, viewport->y, viewport->width, viewport->height);
+    gl->funcs.Viewport(viewport->x, viewport->y, viewport->width, viewport->height);
 }

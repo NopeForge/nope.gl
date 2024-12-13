@@ -277,17 +277,17 @@ void ngli_gpu_bindgroup_gl_bind(struct gpu_bindgroup *s)
                 texture_binding->layout_entry.type == NGLI_TYPE_IMAGE_3D ||
                 texture_binding->layout_entry.type == NGLI_TYPE_IMAGE_CUBE)
                 layered = GL_TRUE;
-            ngli_glBindImageTexture(gl, texture_binding->layout_entry.binding, texture_id, 0, layered, 0, access, internal_format);
+            gl->funcs.BindImageTexture(texture_binding->layout_entry.binding, texture_id, 0, layered, 0, access, internal_format);
         } else {
-            ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_binding->layout_entry.binding);
+            gl->funcs.ActiveTexture(GL_TEXTURE0 + texture_binding->layout_entry.binding);
             if (texture_gl) {
-                ngli_glBindTexture(gl, texture_gl->target, texture_gl->id);
+                gl->funcs.BindTexture(texture_gl->target, texture_gl->id);
             } else {
-                ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-                ngli_glBindTexture(gl, GL_TEXTURE_2D_ARRAY, 0);
-                ngli_glBindTexture(gl, GL_TEXTURE_3D, 0);
+                gl->funcs.BindTexture(GL_TEXTURE_2D, 0);
+                gl->funcs.BindTexture(GL_TEXTURE_2D_ARRAY, 0);
+                gl->funcs.BindTexture(GL_TEXTURE_3D, 0);
                 if (gl->features & NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE)
-                    ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
+                    gl->funcs.BindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
             }
         }
     }
@@ -306,7 +306,7 @@ void ngli_gpu_bindgroup_gl_bind(struct gpu_bindgroup *s)
             offset += s->gpu_ctx->dynamic_offsets[current_dynamic_offset++];
         }
         const size_t size = buffer_binding->size;
-        ngli_glBindBufferRange(gl, target, layout_entry->binding, buffer_gl->id, offset, size);
+        gl->funcs.BindBufferRange(target, layout_entry->binding, buffer_gl->id, offset, size);
     }
 }
 

@@ -58,7 +58,7 @@ static void resolve_no_draw_buffers(struct gpu_rendertarget *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const GLbitfield flags = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-    ngli_glBlitFramebuffer(gl, 0, 0, s->width, s->height, 0, 0, s->width, s->height, flags, GL_NEAREST);
+    gl->funcs.BlitFramebuffer(0, 0, s->width, s->height, 0, 0, s->width, s->height, flags, GL_NEAREST);
 }
 
 static void resolve_draw_buffers(struct gpu_rendertarget *s)
@@ -75,14 +75,14 @@ static void resolve_draw_buffers(struct gpu_rendertarget *s)
         GLbitfield flags = GL_COLOR_BUFFER_BIT;
         if (i == 0)
             flags |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-        ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0 + (GLenum)i);
+        gl->funcs.ReadBuffer(GL_COLOR_ATTACHMENT0 + (GLenum)i);
         GLenum draw_buffers[NGLI_GPU_MAX_COLOR_ATTACHMENTS] = {0};
         draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
-        ngli_glDrawBuffers(gl, (GLsizei)i + 1, draw_buffers);
-        ngli_glBlitFramebuffer(gl, 0, 0, s->width, s->height, 0, 0, s->width, s->height, flags, GL_NEAREST);
+        gl->funcs.DrawBuffers((GLsizei)i + 1, draw_buffers);
+        gl->funcs.BlitFramebuffer(0, 0, s->width, s->height, 0, 0, s->width, s->height, flags, GL_NEAREST);
     }
-    ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0);
-    ngli_glDrawBuffers(gl, (GLsizei)params->nb_colors, s_priv->draw_buffers);
+    gl->funcs.ReadBuffer(GL_COLOR_ATTACHMENT0);
+    gl->funcs.DrawBuffers((GLsizei)params->nb_colors, s_priv->draw_buffers);
 }
 
 static int create_fbo(struct gpu_rendertarget *s, int resolve, GLuint *idp)
@@ -96,8 +96,8 @@ static int create_fbo(struct gpu_rendertarget *s, int resolve, GLuint *idp)
     GLuint id = 0;
     int nb_color_attachments = 0;
 
-    ngli_glGenFramebuffers(gl, 1, &id);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, id);
+    gl->funcs.GenFramebuffers(1, &id);
+    gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, id);
 
     for (size_t i = 0; i < params->nb_colors; i++) {
         const struct gpu_attachment *attachment = &params->colors[i];
@@ -115,19 +115,19 @@ static int create_fbo(struct gpu_rendertarget *s, int resolve, GLuint *idp)
 
         switch (texture_gl->target) {
         case GL_RENDERBUFFER:
-            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, attachment_index, GL_RENDERBUFFER, texture_gl->id);
+            gl->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, attachment_index, GL_RENDERBUFFER, texture_gl->id);
             break;
         case GL_TEXTURE_2D:
-            ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, texture_gl->id, 0);
+            gl->funcs.FramebufferTexture2D(GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, texture_gl->id, 0);
             break;
         case GL_TEXTURE_2D_ARRAY:
-            ngli_glFramebufferTextureLayer(gl, GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, layer);
+            gl->funcs.FramebufferTextureLayer(GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, layer);
             break;
         case GL_TEXTURE_3D:
-            ngli_glFramebufferTextureLayer(gl, GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, layer);
+            gl->funcs.FramebufferTextureLayer(GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, layer);
             break;
         case GL_TEXTURE_CUBE_MAP:
-            ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, texture_gl->id, 0);
+            gl->funcs.FramebufferTexture2D(GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, texture_gl->id, 0);
             break;
         default:
             ngli_assert(0);
@@ -143,17 +143,17 @@ static int create_fbo(struct gpu_rendertarget *s, int resolve, GLuint *idp)
 
         switch (texture_gl->target) {
         case GL_RENDERBUFFER:
-            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, attachment_index, GL_RENDERBUFFER, texture_gl->id);
+            gl->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, attachment_index, GL_RENDERBUFFER, texture_gl->id);
             break;
         case GL_TEXTURE_2D:
-            ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, texture_gl->id, 0);
+            gl->funcs.FramebufferTexture2D(GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, texture_gl->id, 0);
             break;
         default:
             ngli_assert(0);
         }
     }
 
-    if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    if (gl->funcs.CheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         LOG(ERROR, "framebuffer %u is not complete", id);
         goto fail;
     }
@@ -163,7 +163,7 @@ static int create_fbo(struct gpu_rendertarget *s, int resolve, GLuint *idp)
     return 0;
 
 fail:
-    ngli_glDeleteFramebuffers(gl, 1, &id);
+    gl->funcs.DeleteFramebuffers(1, &id);
     return ret;
 }
 
@@ -188,14 +188,14 @@ static void clear_buffers(struct gpu_rendertarget *s)
     for (size_t i = 0; i < params->nb_colors; i++) {
         const struct gpu_attachment *color = &params->colors[i];
         if (color->load_op != NGLI_GPU_LOAD_OP_LOAD) {
-            ngli_glClearBufferfv(gl, GL_COLOR, (GLint)i, color->clear_value);
+            gl->funcs.ClearBufferfv(GL_COLOR, (GLint)i, color->clear_value);
         }
     }
 
     if (params->depth_stencil.attachment || s_priv->wrapped) {
         const struct gpu_attachment *depth_stencil = &params->depth_stencil;
         if (depth_stencil->load_op != NGLI_GPU_LOAD_OP_LOAD) {
-            ngli_glClearBufferfi(gl, GL_DEPTH_STENCIL, 0, 1.0f, 0);
+            gl->funcs.ClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);
         }
     }
 }
@@ -209,7 +209,7 @@ static void invalidate(struct gpu_rendertarget *s)
     struct gpu_rendertarget_gl *s_priv = (struct gpu_rendertarget_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    ngli_glInvalidateFramebuffer(gl, GL_FRAMEBUFFER, s_priv->nb_invalidate_attachments, s_priv->invalidate_attachments);
+    gl->funcs.InvalidateFramebuffer(GL_FRAMEBUFFER, s_priv->nb_invalidate_attachments, s_priv->invalidate_attachments);
 }
 
 struct gpu_rendertarget *ngli_gpu_rendertarget_gl_create(struct gpu_ctx *gpu_ctx)
@@ -255,7 +255,7 @@ int ngli_gpu_rendertarget_gl_init(struct gpu_rendertarget *s)
     if (s->params.nb_colors > 1) {
         for (size_t i = 0; i < s->params.nb_colors; i++)
             s_priv->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
-        ngli_glDrawBuffers(gl, (GLsizei)s->params.nb_colors, s_priv->draw_buffers);
+        gl->funcs.DrawBuffers((GLsizei)s->params.nb_colors, s_priv->draw_buffers);
         s_priv->resolve = resolve_draw_buffers;
     }
 
@@ -286,7 +286,7 @@ done:;
     struct gpu_rendertarget *rt = gpu_ctx->rendertarget;
     struct gpu_rendertarget_gl *rt_gl = (struct gpu_rendertarget_gl *)rt;
     const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+    gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, fbo_id);
 
     return ret;
 }
@@ -300,26 +300,26 @@ void ngli_gpu_rendertarget_gl_begin_pass(struct gpu_rendertarget *s)
 
     static const GLboolean default_color_write_mask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
     if (memcmp(glstate->color_write_mask, default_color_write_mask, sizeof(default_color_write_mask))) {
-        ngli_glColorMask(gl, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        gl->funcs.ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
         memcpy(glstate->color_write_mask, &default_color_write_mask, sizeof(default_color_write_mask));
     }
 
     if (glstate->depth_write_mask != GL_TRUE) {
-        ngli_glDepthMask(gl, GL_TRUE);
+        gl->funcs.DepthMask(GL_TRUE);
         glstate->depth_write_mask = GL_TRUE;
     }
 
     if (glstate->stencil_write_mask != 0xff) {
-        ngli_glStencilMask(gl, 0xff);
+        gl->funcs.StencilMask(0xff);
         glstate->stencil_write_mask = 0xff;
     }
 
     if (glstate->scissor_test) {
-        ngli_glDisable(gl, GL_SCISSOR_TEST);
+        gl->funcs.Disable(GL_SCISSOR_TEST);
         glstate->scissor_test = 0;
     }
 
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s_priv->id);
+    gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, s_priv->id);
 
     s_priv->clear(s);
 }
@@ -333,20 +333,20 @@ void ngli_gpu_rendertarget_gl_end_pass(struct gpu_rendertarget *s)
     struct glstate *glstate = &gpu_ctx_gl->glstate;
 
     if (glstate->scissor_test) {
-        ngli_glDisable(gl, GL_SCISSOR_TEST);
+        gl->funcs.Disable(GL_SCISSOR_TEST);
         glstate->scissor_test = 0;
     }
 
     if (s_priv->resolve_id) {
-        ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s_priv->id);
-        ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s_priv->resolve_id);
+        gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, s_priv->id);
+        gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, s_priv->resolve_id);
 
         s_priv->resolve(s);
 
         struct gpu_rendertarget *rt = gpu_ctx->rendertarget;
         struct gpu_rendertarget_gl *rt_gl = (struct gpu_rendertarget_gl *)rt;
         const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
-        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+        gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, fbo_id);
     }
 
     s_priv->invalidate(s);
@@ -363,8 +363,8 @@ void ngli_gpu_rendertarget_gl_freep(struct gpu_rendertarget **sp)
     struct gpu_rendertarget_gl *s_priv = (struct gpu_rendertarget_gl *)s;
 
     if (!s_priv->wrapped) {
-        ngli_glDeleteFramebuffers(gl, 1, &s_priv->id);
-        ngli_glDeleteFramebuffers(gl, 1, &s_priv->resolve_id);
+        gl->funcs.DeleteFramebuffers(1, &s_priv->id);
+        gl->funcs.DeleteFramebuffers(1, &s_priv->resolve_id);
     }
 
     ngli_freep(sp);

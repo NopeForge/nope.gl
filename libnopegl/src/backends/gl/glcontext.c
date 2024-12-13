@@ -136,7 +136,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
     GLint major_version = 0;
     GLint minor_version = 0;
 
-    const char *gl_version = (const char *)ngli_glGetString(glcontext, GL_VERSION);
+    const char *gl_version = (const char *)glcontext->funcs.GetString(GL_VERSION);
     if (!gl_version) {
         LOG(ERROR, "could not get OpenGL version");
         return NGL_ERROR_BUG;
@@ -152,8 +152,8 @@ static int glcontext_probe_version(struct glcontext *glcontext)
     }
 
     if (glcontext->backend == NGL_BACKEND_OPENGL) {
-        ngli_glGetIntegerv(glcontext, GL_MAJOR_VERSION, &major_version);
-        ngli_glGetIntegerv(glcontext, GL_MINOR_VERSION, &minor_version);
+        glcontext->funcs.GetIntegerv(GL_MAJOR_VERSION, &major_version);
+        glcontext->funcs.GetIntegerv(GL_MINOR_VERSION, &minor_version);
     } else if (glcontext->backend == NGL_BACKEND_OPENGLES) {
         int ret = sscanf(gl_version,
                          "OpenGL ES %d.%d",
@@ -172,7 +172,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
         minor_version,
         glcontext->backend == NGL_BACKEND_OPENGLES ? "ES " : "");
 
-    const char *renderer = (const char *)ngli_glGetString(glcontext, GL_RENDERER);
+    const char *renderer = (const char *)glcontext->funcs.GetString(GL_RENDERER);
     if (!renderer) {
         LOG(ERROR, "could not get OpenGL renderer");
         return NGL_ERROR_BUG;
@@ -202,7 +202,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
 static int glcontext_probe_glsl_version(struct glcontext *glcontext)
 {
     if (glcontext->backend == NGL_BACKEND_OPENGL) {
-        const char *glsl_version = (const char *)ngli_glGetString(glcontext, GL_SHADING_LANGUAGE_VERSION);
+        const char *glsl_version = (const char *)glcontext->funcs.GetString(GL_SHADING_LANGUAGE_VERSION);
         if (!glsl_version) {
             LOG(ERROR, "could not get GLSL version");
             return NGL_ERROR_BUG;
@@ -229,10 +229,10 @@ static int glcontext_check_extension(const char *extension,
                                      const struct glcontext *glcontext)
 {
     GLint nb_extensions;
-    ngli_glGetIntegerv(glcontext, GL_NUM_EXTENSIONS, &nb_extensions);
+    glcontext->funcs.GetIntegerv(GL_NUM_EXTENSIONS, &nb_extensions);
 
     for (GLint i = 0; i < nb_extensions; i++) {
-        const char *tmp = (const char *)ngli_glGetStringi(glcontext, GL_EXTENSIONS, i);
+        const char *tmp = (const char *)glcontext->funcs.GetStringi(GL_EXTENSIONS, i);
         if (!tmp)
             break;
         if (!strcmp(extension, tmp))
@@ -249,7 +249,7 @@ static int glcontext_check_extensions(struct glcontext *glcontext,
         return 0;
 
     if (glcontext->backend == NGL_BACKEND_OPENGLES) {
-        const char *gl_extensions = (const char *)ngli_glGetString(glcontext, GL_EXTENSIONS);
+        const char *gl_extensions = (const char *)glcontext->funcs.GetString(GL_EXTENSIONS);
         while (*extensions) {
             if (!ngli_glcontext_check_extension(*extensions, gl_extensions))
                 return 0;
@@ -326,13 +326,13 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
 
 #define GET(name, value) do {                         \
     GLint gl_value;                                   \
-    ngli_glGetIntegerv(glcontext, (name), &gl_value); \
+    glcontext->funcs.GetIntegerv((name), &gl_value);  \
     *(value) = gl_value;                              \
 } while (0)                                           \
 
 #define GET_I(name, index, value) do {                           \
     GLint gl_value;                                              \
-    ngli_glGetIntegeri_v(glcontext, (name), (index), &gl_value); \
+    glcontext->funcs.GetIntegeri_v((name), (index), &gl_value);  \
     *(value) = gl_value;                                         \
 } while (0)                                                      \
 
@@ -396,7 +396,7 @@ static int glcontext_probe_formats(struct glcontext *glcontext)
 
 static int glcontext_check_driver(struct glcontext *glcontext)
 {
-    const char *gl_version = (const char *)ngli_glGetString(glcontext, GL_VERSION);
+    const char *gl_version = (const char *)glcontext->funcs.GetString(GL_VERSION);
     if (!gl_version) {
         LOG(ERROR, "could not get OpenGL version");
         return NGL_ERROR_BUG;
@@ -509,7 +509,7 @@ struct glcontext *ngli_glcontext_new(const struct glcontext_params *params)
         goto fail;
 
     if (glcontext->backend == NGL_BACKEND_OPENGL)
-        ngli_glEnable(glcontext, GL_TEXTURE_CUBE_MAP_SEAMLESS);
+        glcontext->funcs.Enable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     if (!glcontext->external && !glcontext->offscreen) {
         ret = ngli_glcontext_resize(glcontext, glcontext->width, glcontext->height);
@@ -664,7 +664,7 @@ int ngli_glcontext_check_extension(const char *extension, const char *extensions
 
 int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char *context)
 {
-    const GLenum error = ngli_glGetError(glcontext);
+    const GLenum error = glcontext->funcs.GetError();
     if (!error)
         return 0;
 
