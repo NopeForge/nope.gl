@@ -422,8 +422,8 @@ static VkResult texture_vk_init(struct gpu_texture *s, const struct gpu_texture_
     if (res != VK_SUCCESS)
         return res;
 
-    struct cmd_vk *cmd_vk;
-    res = ngli_cmd_vk_begin_transient(s->gpu_ctx, 0, &cmd_vk);
+    struct cmd_buffer_vk *cmd_buffer_vk;
+    res = ngli_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
     if (res != VK_SUCCESS)
         return res;
 
@@ -435,13 +435,13 @@ static VkResult texture_vk_init(struct gpu_texture *s, const struct gpu_texture_
         .layerCount     = VK_REMAINING_ARRAY_LAYERS,
     };
 
-    transition_image_layout(cmd_vk->cmd_buf,
+    transition_image_layout(cmd_buffer_vk->cmd_buf,
                             s_priv->image,
                             s_priv->image_layout,
                             s_priv->default_image_layout,
                             &subres_range);
 
-    res = ngli_cmd_vk_execute_transient(&cmd_vk);
+    res = ngli_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
     if (res != VK_SUCCESS)
         return res;
 
@@ -506,10 +506,10 @@ void ngli_gpu_texture_vk_transition_layout(struct gpu_texture *s, VkImageLayout 
     if (s_priv->image_layout == layout)
         return;
 
-    struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
-    NGLI_CMD_VK_REF(cmd_vk, s);
+    struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
+    NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
 
-    VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
+    VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
         .baseMipLevel   = 0,
@@ -550,7 +550,7 @@ void ngli_gpu_texture_vk_copy_to_buffer(struct gpu_texture *s, struct gpu_buffer
         .imageExtent = {s->params.width, s->params.height, 1},
     };
 
-    VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
+    VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd_buffer->cmd_buf;
     vkCmdCopyImageToBuffer(cmd_buf, s_priv->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            buffer_vk->buffer, 1, &region);
 }
@@ -600,15 +600,15 @@ static VkResult texture_vk_upload(struct gpu_texture *s, const uint8_t *data, in
 
     memcpy(s_priv->staging_buffer_ptr, data, s_priv->staging_buffer->size);
 
-    struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
-    const int cmd_is_transient = cmd_vk ? 0 : 1;
+    struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
+    const int cmd_is_transient = cmd_buffer_vk ? 0 : 1;
     if (cmd_is_transient) {
-        VkResult res = ngli_cmd_vk_begin_transient(s->gpu_ctx, 0, &cmd_vk);
+        VkResult res = ngli_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
         if (res != VK_SUCCESS)
             return res;
     }
-    VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
-    NGLI_CMD_VK_REF(cmd_vk, s);
+    VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
+    NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
 
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
@@ -649,7 +649,7 @@ static VkResult texture_vk_upload(struct gpu_texture *s, const uint8_t *data, in
         if (!ngli_darray_push(&copy_regions, &region)) {
             ngli_darray_reset(&copy_regions);
             if (cmd_is_transient) {
-                ngli_cmd_vk_freep(&cmd_vk);
+                ngli_cmd_buffer_vk_freep(&cmd_buffer_vk);
             }
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
@@ -672,7 +672,7 @@ static VkResult texture_vk_upload(struct gpu_texture *s, const uint8_t *data, in
                             &subres_range);
 
     if (cmd_is_transient) {
-        VkResult res = ngli_cmd_vk_execute_transient(&cmd_vk);
+        VkResult res = ngli_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
         if (res != VK_SUCCESS)
             return res;
     }
@@ -700,15 +700,15 @@ static VkResult texture_vk_generate_mipmap(struct gpu_texture *s)
     ngli_assert(params->usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT);
     ngli_assert(params->usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT);
 
-    struct cmd_vk *cmd_vk = gpu_ctx_vk->cur_cmd;
-    const int cmd_is_transient = cmd_vk ? 0 : 1;
+    struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
+    const int cmd_is_transient = cmd_buffer_vk ? 0 : 1;
     if (cmd_is_transient) {
-        VkResult res = ngli_cmd_vk_begin_transient(s->gpu_ctx, 0, &cmd_vk);
+        VkResult res = ngli_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
         if (res != VK_SUCCESS)
             return res;
     }
-    VkCommandBuffer cmd_buf = cmd_vk->cmd_buf;
-    NGLI_CMD_VK_REF(cmd_vk, s);
+    VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
+    NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
 
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
@@ -814,7 +814,7 @@ static VkResult texture_vk_generate_mipmap(struct gpu_texture *s)
                          1, &barrier);
 
     if (cmd_is_transient) {
-        VkResult res = ngli_cmd_vk_execute_transient(&cmd_vk);
+        VkResult res = ngli_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
         if (res != VK_SUCCESS)
             return res;
     }

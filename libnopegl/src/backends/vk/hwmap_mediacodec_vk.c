@@ -323,7 +323,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         .subresourceRange    = subres_range,
     };
 
-    VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd->cmd_buf;
+    VkCommandBuffer cmd_buf = gpu_ctx_vk->cur_cmd_buffer->cmd_buf;
     vkCmdPipelineBarrier(cmd_buf,
                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,

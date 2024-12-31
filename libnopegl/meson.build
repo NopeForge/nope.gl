@@ -483,7 +483,7 @@ gbackends_cfg = {
     'src': files(
       'src/backends/vk/api_vk.c',
 
-      'src/backends/vk/command_vk.c',
+      'src/backends/vk/cmd_buffer_vk.c',
       'src/backends/vk/glslang_utils.c',
       'src/backends/vk/gpu_bindgroup_vk.c',
       'src/backends/vk/gpu_buffer_vk.c',
