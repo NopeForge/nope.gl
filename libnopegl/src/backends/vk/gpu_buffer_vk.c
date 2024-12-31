@@ -171,8 +171,8 @@ static VkResult buffer_vk_upload(struct gpu_buffer *s, const void *data, size_t 
     memcpy(mapped_data + offset, data, size);
     vkUnmapMemory(vk->device, s_priv->staging_memory);
 
-    struct cmd_vk *cmd_vk;
-    res = ngli_cmd_vk_begin_transient(s->gpu_ctx, 0, &cmd_vk);
+    struct cmd_buffer_vk *cmd_buffer_vk;
+    res = ngli_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
     if (res != VK_SUCCESS)
         return res;
 
@@ -181,9 +181,9 @@ static VkResult buffer_vk_upload(struct gpu_buffer *s, const void *data, size_t 
         .dstOffset = offset,
         .size      = size,
     };
-    vkCmdCopyBuffer(cmd_vk->cmd_buf, s_priv->staging_buffer, s_priv->buffer, 1, &region);
+    vkCmdCopyBuffer(cmd_buffer_vk->cmd_buf, s_priv->staging_buffer, s_priv->buffer, 1, &region);
 
-    res = ngli_cmd_vk_execute_transient(&cmd_vk);
+    res = ngli_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
     if (res != VK_SUCCESS)
         return res;
 

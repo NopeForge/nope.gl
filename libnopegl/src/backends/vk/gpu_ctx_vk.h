@@ -24,7 +24,7 @@
 
 #include "gpu_ctx.h"
 #include "vkcontext.h"
-#include "command_vk.h"
+#include "cmd_buffer_vk.h"
 
 struct gpu_ctx_vk {
     struct gpu_ctx parent;
@@ -37,11 +37,11 @@ struct gpu_ctx_vk {
 
     VkCommandPool cmd_pool;
 
-    struct cmd_vk **cmds;
-    struct cmd_vk **update_cmds;
-    struct darray pending_cmds;
-    struct cmd_vk *cur_cmd;
-    int cur_cmd_is_transient;
+    struct cmd_buffer_vk **cmd_buffers;
+    struct cmd_buffer_vk **update_cmd_buffers;
+    struct darray pending_cmd_buffers;
+    struct cmd_buffer_vk *cur_cmd_buffer;
+    int cur_cmd_buffer_is_transient;
 
     VkQueryPool query_pool;
 

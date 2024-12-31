@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023-2024 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -20,15 +20,15 @@
  * under the License.
  */
 
-#ifndef COMMAND_VK_H
-#define COMMAND_VK_H
+#ifndef CMD_BUFFER_VK_H
+#define CMD_BUFFER_VK_H
 
 #include <vulkan/vulkan.h>
 
 #include "darray.h"
 #include "utils.h"
 
-struct cmd_vk {
+struct cmd_buffer_vk {
     struct gpu_ctx *gpu_ctx;
     int type;
     VkCommandPool pool;
@@ -40,20 +40,20 @@ struct cmd_vk {
     struct darray refs; // array of ngli_rc pointers
 };
 
-struct cmd_vk *ngli_cmd_vk_create(struct gpu_ctx *gpu_ctx);
-void ngli_cmd_vk_freep(struct cmd_vk **sp);
-VkResult ngli_cmd_vk_init(struct cmd_vk *s, int type);
-VkResult ngli_cmd_vk_add_wait_sem(struct cmd_vk *s, VkSemaphore *sem, VkPipelineStageFlags stage);
-VkResult ngli_cmd_vk_add_signal_sem(struct cmd_vk *s, VkSemaphore *sem);
+struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct gpu_ctx *gpu_ctx);
+void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp);
+VkResult ngli_cmd_buffer_vk_init(struct cmd_buffer_vk *s, int type);
+VkResult ngli_cmd_buffer_vk_add_wait_sem(struct cmd_buffer_vk *s, VkSemaphore *sem, VkPipelineStageFlags stage);
+VkResult ngli_cmd_buffer_vk_add_signal_sem(struct cmd_buffer_vk *s, VkSemaphore *sem);
 
-#define NGLI_CMD_VK_REF(cmd, rc) ngli_cmd_vk_ref((cmd), (struct ngli_rc *)(rc))
-VkResult ngli_cmd_vk_ref(struct cmd_vk *s, struct ngli_rc *rc);
+#define NGLI_CMD_BUFFER_VK_REF(cmd, rc) ngli_cmd_buffer_vk_ref((cmd), (struct ngli_rc *)(rc))
+VkResult ngli_cmd_buffer_vk_ref(struct cmd_buffer_vk *s, struct ngli_rc *rc);
 
-VkResult ngli_cmd_vk_begin(struct cmd_vk *s);
-VkResult ngli_cmd_vk_submit(struct cmd_vk *s);
-VkResult ngli_cmd_vk_wait(struct cmd_vk *s);
+VkResult ngli_cmd_buffer_vk_begin(struct cmd_buffer_vk *s);
+VkResult ngli_cmd_buffer_vk_submit(struct cmd_buffer_vk *s);
+VkResult ngli_cmd_buffer_vk_wait(struct cmd_buffer_vk *s);
 
-VkResult ngli_cmd_vk_begin_transient(struct gpu_ctx *gpu_ctx, int type, struct cmd_vk **sp);
-VkResult ngli_cmd_vk_execute_transient(struct cmd_vk **sp);
+VkResult ngli_cmd_buffer_vk_begin_transient(struct gpu_ctx *gpu_ctx, int type, struct cmd_buffer_vk **sp);
+VkResult ngli_cmd_buffer_vk_execute_transient(struct cmd_buffer_vk **sp);
 
 #endif

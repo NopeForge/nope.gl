@@ -20,14 +20,14 @@
  * under the License.
  */
 
-#include "command_vk.h"
+#include "cmd_buffer_vk.h"
 #include "darray.h"
 #include "gpu_ctx_vk.h"
 #include "memory.h"
 
-struct cmd_vk *ngli_cmd_vk_create(struct gpu_ctx *gpu_ctx)
+struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct gpu_ctx *gpu_ctx)
 {
-    struct cmd_vk *s = ngli_calloc(1, sizeof(*s));
+    struct cmd_buffer_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->gpu_ctx = gpu_ctx;
@@ -40,9 +40,9 @@ static void unref_rc(void *user_arg, void *data)
     NGLI_RC_UNREFP(rcp);
 }
 
-void ngli_cmd_vk_freep(struct cmd_vk **sp)
+void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp)
 {
-    struct cmd_vk *s = *sp;
+    struct cmd_buffer_vk *s = *sp;
     if (!s)
         return;
 
@@ -61,7 +61,7 @@ void ngli_cmd_vk_freep(struct cmd_vk **sp)
     ngli_freep(sp);
 }
 
-VkResult ngli_cmd_vk_init(struct cmd_vk *s, int type)
+VkResult ngli_cmd_buffer_vk_init(struct cmd_buffer_vk *s, int type)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -98,7 +98,7 @@ VkResult ngli_cmd_vk_init(struct cmd_vk *s, int type)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_vk_add_wait_sem(struct cmd_vk *s, VkSemaphore *sem, VkPipelineStageFlags stage)
+VkResult ngli_cmd_buffer_vk_add_wait_sem(struct cmd_buffer_vk *s, VkSemaphore *sem, VkPipelineStageFlags stage)
 {
     if (!ngli_darray_push(&s->wait_sems, sem))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -109,7 +109,7 @@ VkResult ngli_cmd_vk_add_wait_sem(struct cmd_vk *s, VkSemaphore *sem, VkPipeline
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_vk_add_signal_sem(struct cmd_vk *s, VkSemaphore *sem)
+VkResult ngli_cmd_buffer_vk_add_signal_sem(struct cmd_buffer_vk *s, VkSemaphore *sem)
 {
     if (!ngli_darray_push(&s->signal_sems, sem))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -117,7 +117,7 @@ VkResult ngli_cmd_vk_add_signal_sem(struct cmd_vk *s, VkSemaphore *sem)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_vk_ref(struct cmd_vk *s, struct ngli_rc *rc)
+VkResult ngli_cmd_buffer_vk_ref(struct cmd_buffer_vk *s, struct ngli_rc *rc)
 {
     if (!ngli_darray_push(&s->refs, &rc))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -127,7 +127,7 @@ VkResult ngli_cmd_vk_ref(struct cmd_vk *s, struct ngli_rc *rc)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_vk_begin(struct cmd_vk *s)
+VkResult ngli_cmd_buffer_vk_begin(struct cmd_buffer_vk *s)
 {
     const VkCommandBufferBeginInfo cmd_buf_begin_info = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -136,7 +136,7 @@ VkResult ngli_cmd_vk_begin(struct cmd_vk *s)
     return vkBeginCommandBuffer(s->cmd_buf, &cmd_buf_begin_info);
 }
 
-VkResult ngli_cmd_vk_submit(struct cmd_vk *s)
+VkResult ngli_cmd_buffer_vk_submit(struct cmd_buffer_vk *s)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -164,7 +164,7 @@ VkResult ngli_cmd_vk_submit(struct cmd_vk *s)
     if (res != VK_SUCCESS)
         return res;
 
-    if (!ngli_darray_push(&gpu_ctx_vk->pending_cmds, &s))
+    if (!ngli_darray_push(&gpu_ctx_vk->pending_cmd_buffers, &s))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
     ngli_darray_clear(&s->wait_sems);
@@ -174,7 +174,7 @@ VkResult ngli_cmd_vk_submit(struct cmd_vk *s)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_vk_wait(struct cmd_vk *s)
+VkResult ngli_cmd_buffer_vk_wait(struct cmd_buffer_vk *s)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -186,10 +186,10 @@ VkResult ngli_cmd_vk_wait(struct cmd_vk *s)
     ngli_darray_clear(&s->refs);
 
     size_t i = 0;
-    while (i < ngli_darray_count(&gpu_ctx_vk->pending_cmds)) {
-        struct cmd_vk **cmds = ngli_darray_data(&gpu_ctx_vk->pending_cmds);
+    while (i < ngli_darray_count(&gpu_ctx_vk->pending_cmd_buffers)) {
+        struct cmd_buffer_vk **cmds = ngli_darray_data(&gpu_ctx_vk->pending_cmd_buffers);
         if (cmds[i] == s) {
-            ngli_darray_remove(&gpu_ctx_vk->pending_cmds, i);
+            ngli_darray_remove(&gpu_ctx_vk->pending_cmd_buffers, i);
             continue;
         }
         i++;
@@ -198,17 +198,17 @@ VkResult ngli_cmd_vk_wait(struct cmd_vk *s)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_vk_begin_transient(struct gpu_ctx *gpu_ctx, int type, struct cmd_vk **sp)
+VkResult ngli_cmd_buffer_vk_begin_transient(struct gpu_ctx *gpu_ctx, int type, struct cmd_buffer_vk **sp)
 {
-    struct cmd_vk *s = ngli_cmd_vk_create(gpu_ctx);
+    struct cmd_buffer_vk *s = ngli_cmd_buffer_vk_create(gpu_ctx);
     if (!s)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    VkResult res = ngli_cmd_vk_init(s, type);
+    VkResult res = ngli_cmd_buffer_vk_init(s, type);
     if (res != VK_SUCCESS)
         goto fail;
 
-    res = ngli_cmd_vk_begin(s);
+    res = ngli_cmd_buffer_vk_begin(s);
     if (res != VK_SUCCESS)
         goto fail;
 
@@ -216,23 +216,23 @@ VkResult ngli_cmd_vk_begin_transient(struct gpu_ctx *gpu_ctx, int type, struct c
     return VK_SUCCESS;
 
 fail:
-    ngli_cmd_vk_freep(&s);
+    ngli_cmd_buffer_vk_freep(&s);
     return res;
 }
 
-VkResult ngli_cmd_vk_execute_transient(struct cmd_vk **sp)
+VkResult ngli_cmd_buffer_vk_execute_transient(struct cmd_buffer_vk **sp)
 {
-    struct cmd_vk *s = *sp;
+    struct cmd_buffer_vk *s = *sp;
     if (!s)
         return VK_SUCCESS;
 
-    VkResult res = ngli_cmd_vk_submit(s);
+    VkResult res = ngli_cmd_buffer_vk_submit(s);
     if (res != VK_SUCCESS)
         goto done;
 
-    res = ngli_cmd_vk_wait(s);
+    res = ngli_cmd_buffer_vk_wait(s);
 
 done:
-    ngli_cmd_vk_freep(sp);
+    ngli_cmd_buffer_vk_freep(sp);
     return res;
 }
