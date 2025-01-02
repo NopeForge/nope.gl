@@ -245,8 +245,6 @@ static struct ngpu_viewport compute_scene_viewport(const struct ngl_scene *scene
 
 int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 {
-    int ret = 0;
-
     ngpu_ctx_wait_idle(s->gpu_ctx);
     reset_scene(s, NGLI_ACTION_UNREF_SCENE);
 
@@ -254,6 +252,10 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
     s->rnode_pos = &s->rnode;
     s->rnode_pos->graphics_state = NGPU_GRAPHICS_STATE_DEFAULTS;
     s->rnode_pos->rendertarget_layout = *ngpu_ctx_get_default_rendertarget_layout(s->gpu_ctx);
+
+    int ret = ngpu_ctx_begin_update(s->gpu_ctx, 0.0);
+    if (ret < 0)
+        return ret;
 
     if (scene) {
         if (!scene->params.root) {
@@ -296,9 +298,11 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
             goto fail;
     }
 
+    ngpu_ctx_end_update(s->gpu_ctx, 0.0);
     return 0;
 
 fail:
+    ngpu_ctx_end_update(s->gpu_ctx, 0.0);
     reset_scene(s, NGLI_ACTION_UNREF_SCENE);
     return ret;
 }

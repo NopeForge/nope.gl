@@ -409,6 +409,8 @@ gbackends_cfg = {
     'src': files(
       'src/backends/gl/api_gl.c',
       'src/backends/gl/hwmap_gl.c',
+      'src/ngpu/opengl/cmd_buffer_gl.c',
+      'src/ngpu/opengl/fence_gl.c',
       'src/ngpu/opengl/glcontext.c',
       'src/ngpu/opengl/glstate.c',
       'src/ngpu/opengl/bindgroup_gl.c',
@@ -444,6 +446,8 @@ gbackends_cfg = {
     'src': files(
       'src/backends/gl/api_gl.c',
       'src/backends/gl/hwmap_gl.c',
+      'src/ngpu/opengl/cmd_buffer_gl.c',
+      'src/ngpu/opengl/fence_gl.c',
       'src/ngpu/opengl/format_gl.c',
       'src/ngpu/opengl/glcontext.c',
       'src/ngpu/opengl/glstate.c',

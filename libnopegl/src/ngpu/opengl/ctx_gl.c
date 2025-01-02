@@ -494,12 +494,61 @@ static void ngpu_ctx_info_init(struct ngpu_ctx *s)
     s->limits = gl->limits;
 }
 
+static int create_command_buffers(struct ngpu_ctx *s)
+{
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+
+    s_priv->update_cmd_buffers = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(struct ngpu_cmd_buffer_gl *));
+    s_priv->draw_cmd_buffers = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(struct ngpu_cmd_buffer_gl *));
+    if (!s_priv->update_cmd_buffers || !s_priv->draw_cmd_buffers)
+        return NGL_ERROR_MEMORY;
+
+    for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++) {
+        s_priv->update_cmd_buffers[i] = ngpu_cmd_buffer_gl_create(s);
+        if (!s_priv->update_cmd_buffers[i])
+            return NGL_ERROR_MEMORY;
+
+        int ret = ngpu_cmd_buffer_gl_init(s_priv->update_cmd_buffers[i], 0);
+        if (ret < 0)
+            return ret;
+
+        s_priv->draw_cmd_buffers[i] = ngpu_cmd_buffer_gl_create(s);
+        if (!s_priv->draw_cmd_buffers[i])
+            return NGL_ERROR_MEMORY;
+
+        ret = ngpu_cmd_buffer_gl_init(s_priv->draw_cmd_buffers[i], 0);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
+}
+
+static void destroy_command_buffers(struct ngpu_ctx *s)
+{
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+
+    if (s_priv->update_cmd_buffers) {
+        for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++)
+            ngpu_cmd_buffer_gl_freep(&s_priv->update_cmd_buffers[i]);
+        ngli_freep(&s_priv->update_cmd_buffers);
+    }
+
+    if (s_priv->draw_cmd_buffers) {
+        for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++)
+            ngpu_cmd_buffer_gl_freep(&s_priv->draw_cmd_buffers[i]);
+        ngli_freep(&s_priv->draw_cmd_buffers);
+    }
+}
+
 static int gl_init(struct ngpu_ctx *s)
 {
     int ret;
     struct ngl_config *config = &s->config;
     const struct ngl_config_gl *config_gl = config->backend_config;
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+
+    s_priv->nb_in_flight_frames = 1;
 
     const int external = config_gl ? config_gl->external : 0;
     if (external) {
@@ -602,6 +651,10 @@ static int gl_init(struct ngpu_ctx *s)
 
     ngli_glstate_reset(gl, &s_priv->glstate);
     ngli_glstate_enable_scissor_test(gl, &s_priv->glstate, 1);
+
+    ret = create_command_buffers(s);
+    if (ret < 0)
+        return ret;
 
     return 0;
 }
@@ -811,11 +864,28 @@ int ngpu_ctx_gl_wrap_framebuffer(struct ngpu_ctx *s, GLuint fbo)
 
 static int gl_begin_update(struct ngpu_ctx *s, double t)
 {
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+
+    s_priv->cur_cmd_buffer = s_priv->update_cmd_buffers[s_priv->current_frame_index];
+    int ret = ngpu_cmd_buffer_gl_wait(s_priv->cur_cmd_buffer);
+    if (ret < 0)
+        return ret;
+
+    ret = ngpu_cmd_buffer_gl_begin(s_priv->cur_cmd_buffer);
+    if (ret < 0)
+        return ret;
+
     return 0;
 }
 
 static int gl_end_update(struct ngpu_ctx *s, double t)
 {
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+
+    int ret = ngpu_cmd_buffer_gl_submit(s_priv->cur_cmd_buffer);
+    if (ret < 0)
+        return ret;
+
     return 0;
 }
 
@@ -830,6 +900,15 @@ static int gl_begin_draw(struct ngpu_ctx *s, double t)
 #else
         s_priv->glQueryCounter(s_priv->queries[0], GL_TIMESTAMP);
 #endif
+
+    s_priv->cur_cmd_buffer = s_priv->draw_cmd_buffers[s_priv->current_frame_index];
+    int ret = ngpu_cmd_buffer_gl_wait(s_priv->cur_cmd_buffer);
+    if (ret < 0)
+        return ret;
+
+    ret = ngpu_cmd_buffer_gl_begin(s_priv->cur_cmd_buffer);
+    if (ret < 0)
+        return ret;
 
     return 0;
 }
@@ -867,12 +946,16 @@ static int gl_end_draw(struct ngpu_ctx *s, double t)
     const struct ngl_config *config = &s->config;
     const struct ngl_config_gl *config_gl = config->backend_config;
 
+    int ret = ngpu_cmd_buffer_gl_submit(s_priv->cur_cmd_buffer);
+    if (ret < 0)
+        return ret;
+
     if (s_priv->capture_func && config->capture_buffer) {
         blit_vflip(s, s_priv->default_rt, s_priv->capture_rt);
         s_priv->capture_func(s);
     }
 
-    int ret = ngli_glcontext_check_gl_error(gl, __func__);
+    ret = ngli_glcontext_check_gl_error(gl, __func__);
 
     const int external = config_gl ? config_gl->external : 0;
     if (!external && !config->offscreen) {
@@ -893,6 +976,12 @@ static int gl_query_draw_time(struct ngpu_ctx *s, int64_t *time)
     if (!config->hud)
         return NGL_ERROR_INVALID_USAGE;
 
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
+
+    int ret = ngpu_cmd_buffer_gl_submit(cmd_buffer);
+    if (ret < 0)
+        return ret;
+
 #if defined(TARGET_DARWIN)
     GLuint64 time_elapsed = 0;
     s_priv->glEndQuery(GL_TIME_ELAPSED);
@@ -909,6 +998,10 @@ static int gl_query_draw_time(struct ngpu_ctx *s, int64_t *time)
 
     *time = end_time - start_time;
 #endif
+    ret = ngpu_cmd_buffer_gl_begin(cmd_buffer);
+    if (ret < 0)
+        return ret;
+
     return 0;
 }
 
@@ -916,6 +1009,11 @@ static void gl_wait_idle(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
+
+    for (size_t i = 0; i < s_priv->nb_in_flight_frames; i++) {
+        ngpu_cmd_buffer_gl_wait(s_priv->update_cmd_buffers[i]);
+        ngpu_cmd_buffer_gl_wait(s_priv->draw_cmd_buffers[i]);
+    }
     gl->funcs.Finish();
 }
 
@@ -924,6 +1022,7 @@ static void gl_destroy(struct ngpu_ctx *s)
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     timer_reset(s);
     rendertarget_reset(s);
+    destroy_command_buffers(s);
 #if DEBUG_GPU_CAPTURE
     if (s->gpu_capture)
         ngpu_capture_end(s->gpu_capture_ctx);
@@ -980,30 +1079,47 @@ static void gl_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width,
 
 static void gl_begin_render_pass(struct ngpu_ctx *s, struct ngpu_rendertarget *rt)
 {
-    ngpu_rendertarget_gl_begin_pass(rt);
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
+
+    NGLI_CMD_BUFFER_GL_CMD_REF(cmd_buffer, rt);
+
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_BEGIN_RENDER_PASS,
+                                            .begin_render_pass.rendertarget = rt,
+                                        });
 }
 
 static void gl_end_render_pass(struct ngpu_ctx *s)
 {
-    ngpu_rendertarget_gl_end_pass(s->rendertarget);
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
+
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_END_RENDER_PASS,
+                                        });
 }
 
 static void gl_set_viewport(struct ngpu_ctx *s, const struct ngpu_viewport *viewport)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
-    struct glstate *glstate = &s_priv->glstate;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
 
-    ngli_glstate_update_viewport(gl, glstate, viewport);
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_SET_VIEWPORT,
+                                            .set_viewport.viewport = *viewport,
+                                        });
 }
 
 static void gl_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scissor)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
-    struct glstate *glstate = &s_priv->glstate;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
 
-    ngli_glstate_update_scissor(gl, glstate, scissor);
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_SET_SCISSOR,
+                                            .set_scissor.scissor = *scissor,
+                                        });
 }
 
 static enum ngpu_format gl_get_preferred_depth_format(struct ngpu_ctx *s)
@@ -1027,45 +1143,111 @@ static uint32_t gl_get_format_features(struct ngpu_ctx *s, enum ngpu_format form
 
 static void gl_generate_texture_mipmap(struct ngpu_ctx *s, struct ngpu_texture *texture)
 {
-    ngpu_texture_generate_mipmap(texture);
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
+
+    NGLI_CMD_BUFFER_GL_CMD_REF(cmd_buffer, texture);
+
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_GENERATE_TEXTURE_MIPMAP,
+                                            .generate_texture_mipmap.texture = texture,
+                                        });
 }
 
 static void gl_set_bindgroup(struct ngpu_ctx *s, struct ngpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
 {
-    ngpu_bindgroup_gl_bind(bindgroup, offsets, nb_offsets);
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
+
+    NGLI_CMD_BUFFER_GL_CMD_REF(cmd_buffer, bindgroup);
+
+    struct ngpu_cmd_gl cmd_gl = {
+        .type = NGPU_CMD_TYPE_GL_SET_BINDGROUP,
+        .set_bindgroup.bindgroup = bindgroup,
+    };
+    memcpy(cmd_gl.set_bindgroup.offsets, offsets, nb_offsets * sizeof(*offsets));
+    cmd_gl.set_bindgroup.nb_offsets = nb_offsets;
+
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &cmd_gl);
 }
 
 static void gl_set_pipeline(struct ngpu_ctx *s, struct ngpu_pipeline *pipeline)
 {
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
+
+    NGLI_CMD_BUFFER_GL_CMD_REF(cmd_buffer, pipeline);
+
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_SET_PIPELINE,
+                                            .set_pipeline.pipeline = pipeline,
+                                        });
 }
 
 static void gl_draw(struct ngpu_ctx *s, uint32_t nb_vertices, uint32_t nb_instances, uint32_t first_vertex)
 {
-    struct ngpu_pipeline *pipeline = s->pipeline;
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
 
-    ngpu_pipeline_gl_draw(pipeline, nb_vertices, nb_instances, first_vertex);
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_DRAW,
+                                            .draw.nb_vertices = nb_vertices,
+                                            .draw.nb_instances = nb_instances,
+                                            .draw.first_vertex = first_vertex,
+                                        });
 }
 
 static void gl_draw_indexed(struct ngpu_ctx *s, uint32_t nb_indices, uint32_t nb_instances)
 {
-    struct ngpu_pipeline *pipeline = s->pipeline;
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
 
-    ngpu_pipeline_gl_draw_indexed(pipeline, nb_indices, nb_instances);
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_DRAW_INDEXED,
+                                            .draw_indexed.nb_indices = nb_indices,
+                                            .draw_indexed.nb_instances = nb_instances,
+                                        });
 }
 
 static void gl_dispatch(struct ngpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
-    struct ngpu_pipeline *pipeline = s->pipeline;
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
 
-    ngpu_pipeline_gl_dispatch(pipeline, nb_group_x, nb_group_y, nb_group_z);
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_DISPATCH,
+                                            .dispatch.nb_group_x = nb_group_x,
+                                            .dispatch.nb_group_y = nb_group_y,
+                                            .dispatch.nb_group_z = nb_group_z,
+                                        });
 }
 
 static void gl_set_vertex_buffer(struct ngpu_ctx *s, uint32_t index, const struct ngpu_buffer *buffer)
 {
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
+
+    NGLI_CMD_BUFFER_GL_CMD_REF(cmd_buffer, buffer);
+
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_SET_VERTEX_BUFFER,
+                                            .set_vertex_buffer.index = index,
+                                            .set_vertex_buffer.buffer = buffer,
+                                        });
 }
 
 static void gl_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, enum ngpu_format format)
 {
+    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
+    struct ngpu_cmd_buffer_gl *cmd_buffer = s_priv->cur_cmd_buffer;
+
+    NGLI_CMD_BUFFER_GL_CMD_REF(cmd_buffer, buffer);
+
+    ngpu_cmd_buffer_gl_push(cmd_buffer, &(struct ngpu_cmd_gl){
+                                            .type = NGPU_CMD_TYPE_GL_SET_INDEX_BUFFER,
+                                            .set_index_buffer.buffer = buffer,
+                                            .set_index_buffer.format = format,
+                                        });
 }
 
 #define DECLARE_GPU_CTX_CLASS(cls_suffix, cls_id)                                \
