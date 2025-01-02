@@ -203,10 +203,7 @@ void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_i
         gl->funcs.MemoryBarrier(barriers);
 
     const GLenum gl_topology = get_gl_topology(graphics->topology);
-    if (nb_instances > 1)
-        gl->funcs.DrawArraysInstanced(gl_topology, 0, nb_vertices, nb_instances);
-    else
-        gl->funcs.DrawArrays(gl_topology, 0, nb_vertices);
+    gl->funcs.DrawArraysInstanced(gl_topology, 0, nb_vertices, nb_instances);
 
     if (barriers)
         gl->funcs.MemoryBarrier(barriers);
@@ -235,10 +232,7 @@ void ngli_gpu_pipeline_gl_draw_indexed(struct gpu_pipeline *s, int nb_indices, i
         gl->funcs.MemoryBarrier(barriers);
 
     const GLenum gl_topology = get_gl_topology(graphics->topology);
-    if (nb_instances > 1)
-        gl->funcs.DrawElementsInstanced(gl_topology, nb_indices, gl_indices_type, 0, nb_instances);
-    else
-        gl->funcs.DrawElements(gl_topology, nb_indices, gl_indices_type, 0);
+    gl->funcs.DrawElementsInstanced(gl_topology, nb_indices, gl_indices_type, 0, nb_instances);
 
     if (barriers)
         gl->funcs.MemoryBarrier(barriers);
