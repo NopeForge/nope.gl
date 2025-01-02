@@ -54,7 +54,6 @@ int ngli_gpu_bindgroup_vk_init(struct gpu_bindgroup *s, const struct gpu_bindgro
 int ngli_gpu_bindgroup_vk_update_texture(struct gpu_bindgroup *s, int32_t index, const struct gpu_texture_binding *binding);
 int ngli_gpu_bindgroup_vk_update_buffer(struct gpu_bindgroup *s, int32_t index, const struct gpu_buffer_binding *binding);
 int ngli_gpu_bindgroup_vk_update_descriptor_set(struct gpu_bindgroup *s);
-int ngli_gpu_bindgroup_vk_bind(struct gpu_bindgroup *s);
 void ngli_gpu_bindgroup_vk_freep(struct gpu_bindgroup **sp);
 
 #endif
