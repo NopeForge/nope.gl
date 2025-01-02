@@ -30,6 +30,7 @@
 #include <CoreVideo/CoreVideo.h>
 #endif
 
+#include "cmd_buffer_gl.h"
 #include "glstate.h"
 #include "ngpu/ctx.h"
 #include "ngpu/rendertarget.h"
@@ -43,6 +44,11 @@ struct ngpu_ctx_gl {
     struct ngpu_ctx parent;
     struct glcontext *glcontext;
     struct glstate glstate;
+    uint32_t nb_in_flight_frames;
+    uint32_t current_frame_index;
+    struct ngpu_cmd_buffer_gl **update_cmd_buffers;
+    struct ngpu_cmd_buffer_gl **draw_cmd_buffers;
+    struct ngpu_cmd_buffer_gl *cur_cmd_buffer;
     struct ngpu_rendertarget_layout default_rt_layout;
     /* Default rendertarget with load op set to clear */
     struct ngpu_rendertarget *default_rt;
