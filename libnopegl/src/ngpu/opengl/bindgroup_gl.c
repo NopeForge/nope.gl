@@ -199,6 +199,18 @@ struct ngpu_bindgroup *ngpu_bindgroup_gl_create(struct ngpu_ctx *gpu_ctx)
     return (struct ngpu_bindgroup *)s;
 }
 
+static void unref_texture_binding(void *user_arg, void *data)
+{
+    struct texture_binding_gl *binding = data;
+    NGLI_RC_UNREFP(&binding->texture);
+}
+
+static void unref_buffer_binding(void *user_arg, void *data)
+{
+    struct buffer_binding_gl *binding = data;
+    NGLI_RC_UNREFP(&binding->buffer);
+}
+
 int ngpu_bindgroup_gl_init(struct ngpu_bindgroup *s, const struct ngpu_bindgroup_params *params)
 {
     struct ngpu_bindgroup_gl *s_priv = (struct ngpu_bindgroup_gl *)s;
@@ -207,6 +219,9 @@ int ngpu_bindgroup_gl_init(struct ngpu_bindgroup *s, const struct ngpu_bindgroup
 
     ngli_darray_init(&s_priv->texture_bindings, sizeof(struct texture_binding_gl), 0);
     ngli_darray_init(&s_priv->buffer_bindings, sizeof(struct buffer_binding_gl), 0);
+
+    ngli_darray_set_free_func(&s_priv->texture_bindings, unref_texture_binding, NULL);
+    ngli_darray_set_free_func(&s_priv->buffer_bindings, unref_buffer_binding, NULL);
 
     int ret;
     if((ret = build_texture_bindings(s)) < 0 ||
@@ -220,7 +235,8 @@ int ngpu_bindgroup_gl_update_texture(struct ngpu_bindgroup *s, int32_t index, co
 {
     struct ngpu_bindgroup_gl *s_priv = (struct ngpu_bindgroup_gl *)s;
     struct texture_binding_gl *binding_gl = ngli_darray_get(&s_priv->texture_bindings, index);
-    binding_gl->texture = binding->texture;
+    NGLI_RC_UNREFP(&binding_gl->texture);
+    binding_gl->texture = binding->texture ? NGLI_RC_REF(binding->texture) : NULL;
 
     return 0;
 }
@@ -229,7 +245,8 @@ int ngpu_bindgroup_gl_update_buffer(struct ngpu_bindgroup *s, int32_t index, con
 {
     struct ngpu_bindgroup_gl *s_priv = (struct ngpu_bindgroup_gl *)s;
     struct buffer_binding_gl *binding_gl = ngli_darray_get(&s_priv->buffer_bindings, index);
-    binding_gl->buffer = binding->buffer;
+    NGLI_RC_UNREFP(&binding_gl->buffer);
+    binding_gl->buffer = NGLI_RC_REF(binding->buffer);
     binding_gl->offset = binding->offset;
     binding_gl->size = binding->size;
 
