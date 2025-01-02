@@ -49,7 +49,7 @@ int ngli_gpu_bindgroup_gl_init(struct gpu_bindgroup *s, const struct gpu_bindgro
 int ngli_gpu_bindgroup_gl_update_texture(struct gpu_bindgroup *s, int32_t index, const struct gpu_texture_binding *binding);
 int ngli_gpu_bindgroup_gl_update_buffer(struct gpu_bindgroup *s, int32_t index, const struct gpu_buffer_binding *binding);
 GLbitfield ngli_gpu_bindgroup_gl_get_memory_barriers(struct gpu_bindgroup *s);
-void ngli_gpu_bindgroup_gl_bind(struct gpu_bindgroup *s);
+void ngli_gpu_bindgroup_gl_bind(struct gpu_bindgroup *s, const uint32_t *dynamic_offsets, size_t nb_dynamic_offsets);
 void ngli_gpu_bindgroup_gl_freep(struct gpu_bindgroup **sp);
 
 #endif

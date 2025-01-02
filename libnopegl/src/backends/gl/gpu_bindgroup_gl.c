@@ -247,7 +247,7 @@ static GLenum get_gl_access(int access)
     return gl_access_map[access];
 }
 
-void ngli_gpu_bindgroup_gl_bind(struct gpu_bindgroup *s)
+void ngli_gpu_bindgroup_gl_bind(struct gpu_bindgroup *s, const uint32_t *dynamic_offsets, size_t nb_dynamic_offsets)
 {
     const struct gpu_bindgroup_gl *s_priv = (struct gpu_bindgroup_gl *)s;
     const struct gpu_ctx *gpu_ctx = s->gpu_ctx;
@@ -303,7 +303,7 @@ void ngli_gpu_bindgroup_gl_bind(struct gpu_bindgroup *s)
         size_t offset = buffer_binding->offset;
         if (layout_entry->type == NGLI_TYPE_STORAGE_BUFFER_DYNAMIC ||
             layout_entry->type == NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC) {
-            offset += s->gpu_ctx->dynamic_offsets[current_dynamic_offset++];
+            offset += dynamic_offsets[current_dynamic_offset++];
         }
         const size_t size = buffer_binding->size;
         gl->funcs.BindBufferRange(target, layout_entry->binding, buffer_gl->id, offset, size);

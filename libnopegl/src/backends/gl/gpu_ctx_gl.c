@@ -1014,7 +1014,7 @@ static uint32_t gl_get_format_features(struct gpu_ctx *s, int format)
 
 static void gl_set_bindgroup(struct gpu_ctx *s, struct gpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
 {
-    ngli_gpu_bindgroup_gl_bind(bindgroup);
+    ngli_gpu_bindgroup_gl_bind(bindgroup, offsets, nb_offsets);
 }
 
 static void gl_set_pipeline(struct gpu_ctx *s, struct gpu_pipeline *pipeline)
