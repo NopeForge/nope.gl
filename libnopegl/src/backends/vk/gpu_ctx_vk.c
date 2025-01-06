@@ -767,15 +767,6 @@ static uint32_t get_max_color_attachments(const VkPhysicalDeviceLimits *limits)
     return NGLI_MIN(limits->maxColorAttachments, NGLI_GPU_MAX_COLOR_ATTACHMENTS);
 }
 
-static void set_viewport_and_scissor(struct gpu_ctx *s, int32_t width, int32_t height)
-{
-    const struct gpu_viewport viewport = {0, 0, width, height};
-    ngli_gpu_ctx_set_viewport(s, &viewport);
-
-    const struct gpu_scissor scissor = {0, 0, width, height};
-    ngli_gpu_ctx_set_scissor(s, &scissor);
-}
-
 static void free_texture(void *user_arg, void *data)
 {
     struct gpu_texture **texturep = data;
@@ -959,8 +950,6 @@ static int vk_init(struct gpu_ctx *s)
         s_priv->default_rt_layout.depth_stencil.resolve = 0;
     }
 
-    set_viewport_and_scissor(s, config->width, config->height);
-
     return 0;
 }
 
@@ -977,8 +966,6 @@ static int vk_resize(struct gpu_ctx *s, int32_t width, int32_t height)
     s_priv->recreate_swapchain = 1;
     s_priv->width = width;
     s_priv->height = height;
-
-    set_viewport_and_scissor(s, width, height);
 
     return 0;
 }
@@ -1322,6 +1309,26 @@ static void vk_begin_render_pass(struct gpu_ctx *s, struct gpu_rendertarget *rt)
         .pClearValues    = rt_vk->clear_values,
     };
     vkCmdBeginRenderPass(cmd_buf, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+
+    const VkViewport viewport = {
+        .x        = 0.f,
+        .y        = 0.f,
+        .width    = (float)rt->width,
+        .height   = (float)rt->height,
+        .minDepth = 0.f,
+        .maxDepth = 1.f,
+    };
+    vkCmdSetViewport(cmd_buf, 0, 1, &viewport);
+
+    const VkRect2D scissor = {
+        .offset.x      = 0,
+        .offset.y      = 0,
+        .extent.width  = rt->width,
+        .extent.height = rt->height,
+    };
+    vkCmdSetScissor(cmd_buf, 0, 1, &scissor);
+
+    vkCmdSetLineWidth(cmd_buf, 1.0f);
 }
 
 static void vk_end_render_pass(struct gpu_ctx *s)
@@ -1356,6 +1363,38 @@ static void vk_end_render_pass(struct gpu_ctx *s)
         ngli_cmd_buffer_vk_execute_transient(&s_priv->cur_cmd_buffer);
         s_priv->cur_cmd_buffer_is_transient = 0;
     }
+}
+
+static void vk_set_viewport(struct gpu_ctx *s, const struct gpu_viewport *viewport)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    VkCommandBuffer cmd_buf = s_priv->cur_cmd_buffer->cmd_buf;
+
+    const VkViewport vp = {
+        .x        = (float)viewport->x,
+        .y        = (float)viewport->y,
+        .width    = (float)viewport->width,
+        .height   = (float)viewport->height,
+        .minDepth = 0.f,
+        .maxDepth = 1.f,
+    };
+    vkCmdSetViewport(cmd_buf, 0, 1, &vp);
+}
+
+static void vk_set_scissor(struct gpu_ctx *s, const struct gpu_scissor *scissor)
+{
+    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    VkCommandBuffer cmd_buf = s_priv->cur_cmd_buffer->cmd_buf;
+
+    struct gpu_rendertarget *rt = s->rendertarget;
+
+    const VkRect2D sc = {
+        .offset.x      = scissor->x,
+        .offset.y      = NGLI_MAX(rt->height - scissor->y - scissor->height, 0),
+        .extent.width  = scissor->width,
+        .extent.height = scissor->height,
+    };
+    vkCmdSetScissor(cmd_buf, 0, 1, &sc);
 }
 
 static int vk_get_preferred_depth_format(struct gpu_ctx *s)
@@ -1475,6 +1514,9 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
 
     .begin_render_pass                  = vk_begin_render_pass,
     .end_render_pass                    = vk_end_render_pass,
+
+    .set_viewport                       = vk_set_viewport,
+    .set_scissor                        = vk_set_scissor,
 
     .get_preferred_depth_format         = vk_get_preferred_depth_format,
     .get_preferred_depth_stencil_format = vk_get_preferred_depth_stencil_format,

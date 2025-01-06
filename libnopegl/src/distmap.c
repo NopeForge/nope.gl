@@ -682,16 +682,11 @@ int ngli_distmap_finalize(struct distmap *s)
 
     ngli_gpu_ctx_begin_render_pass(gpu_ctx, s->rt);
 
-    const struct gpu_viewport prev_vp = ngli_gpu_ctx_get_viewport(gpu_ctx);
-    const struct gpu_viewport vp = {0, 0, s->rt->width, s->rt->height};
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &vp);
-
     ret = draw_glyphs(s);
     if (ret < 0)
         return ret;
 
     ngli_gpu_ctx_end_render_pass(gpu_ctx);
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &prev_vp);
 
     /*
      * Now that the distmap is rendered, the pipeline and other related

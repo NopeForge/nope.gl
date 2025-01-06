@@ -1361,8 +1361,7 @@ static void drawother_draw(struct ngl_node *node, struct draw_common *s, const s
     ngli_pipeline_compat_update_uniform(pl_compat, desc->projection_matrix_index, projection_matrix);
 
     if (desc->aspect_index >= 0) {
-        const struct gpu_viewport viewport = ngli_gpu_ctx_get_viewport(ctx->gpu_ctx);
-        const float aspect = (float)viewport.width / (float)viewport.height;
+        const float aspect = (float)ctx->viewport.width / (float)ctx->viewport.height;
         ngli_pipeline_compat_update_uniform(pl_compat, desc->aspect_index, &aspect);
     }
 
@@ -1392,11 +1391,15 @@ static void drawother_draw(struct ngl_node *node, struct draw_common *s, const s
         }
     }
 
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+
     if (!ctx->render_pass_started) {
-        struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
         ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
         ctx->render_pass_started = 1;
     }
+
+    ngli_gpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
+    ngli_gpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
 
     s->draw(s, desc->pipeline_compat);
 }

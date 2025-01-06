@@ -157,20 +157,14 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     ngli_assert(hwconv->src_params.layout == image->params.layout);
 
     struct gpu_rendertarget *rt = hwconv->rt;
-    ngli_gpu_ctx_begin_render_pass(gpu_ctx, rt);
-
-    const struct gpu_viewport prev_vp = ngli_gpu_ctx_get_viewport(gpu_ctx);
-
-    const struct gpu_viewport vp = {0, 0, rt->params.width, rt->params.height};
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &vp);
-
     struct pipeline_compat *pipeline = hwconv->pipeline_compat;
+
+    ngli_gpu_ctx_begin_render_pass(gpu_ctx, rt);
 
     ngli_pipeline_compat_update_image(pipeline, 0, image);
     ngli_pipeline_compat_draw(pipeline, 3, 1);
 
     ngli_gpu_ctx_end_render_pass(gpu_ctx);
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &prev_vp);
 
     return 0;
 }

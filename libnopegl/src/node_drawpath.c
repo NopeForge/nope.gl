@@ -407,11 +407,14 @@ static void drawpath_draw(struct ngl_node *node)
     for (size_t i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
         ngli_pipeline_compat_update_uniform(pl_compat, map[i].index, map[i].data);
 
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     if (!ctx->render_pass_started) {
-        struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
         ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
         ctx->render_pass_started = 1;
     }
+
+    ngli_gpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
+    ngli_gpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
 
     ngli_pipeline_compat_draw(desc->pipeline_compat, 4, 1);
 }

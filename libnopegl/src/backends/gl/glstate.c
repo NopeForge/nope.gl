@@ -306,16 +306,6 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
         gl->funcs.CullFace(cull_face_mode);
         glstate->cull_face_mode = cull_face_mode;
     }
-
-    /* Scissor */
-    const GLboolean scissor_test = (GLboolean)state->scissor_test;
-    if (scissor_test != glstate->scissor_test) {
-        if (scissor_test)
-            gl->funcs.Enable(GL_SCISSOR_TEST);
-        else
-            gl->funcs.Disable(GL_SCISSOR_TEST);
-        glstate->scissor_test = scissor_test;
-    }
 }
 
 void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstate, GLuint program_id)
@@ -346,4 +336,15 @@ void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *gl
         return;
     glstate->viewport = *viewport;
     gl->funcs.Viewport(viewport->x, viewport->y, viewport->width, viewport->height);
+}
+
+void ngli_glstate_enable_scissor_test(const struct glcontext *gl, struct glstate *glstate, int enable)
+{
+    if (glstate->scissor_test == enable)
+        return;
+    if (enable)
+        gl->funcs.Enable(GL_SCISSOR_TEST);
+    else
+        gl->funcs.Disable(GL_SCISSOR_TEST);
+    glstate->scissor_test = !!enable;
 }

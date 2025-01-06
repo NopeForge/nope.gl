@@ -111,8 +111,6 @@ struct gpu_graphics_state {
     int stencil_depth_pass;
 
     int cull_mode;
-
-    int scissor_test;
 };
 
 /* Make sure to keep this in sync with the blending documentation */

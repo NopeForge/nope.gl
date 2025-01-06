@@ -1365,10 +1365,9 @@ void ngli_hud_draw(struct hud *s)
         widgets_draw(s);
     }
 
-    const struct gpu_viewport viewport = ngli_gpu_ctx_get_viewport(gpu_ctx);
     const int scale = s->scale > 0 ? s->scale : 1;
-    const float ratio_w = (float)(scale * s->canvas.w) / (float)viewport.width;
-    const float ratio_h = (float)(scale * s->canvas.h) / (float)viewport.height;
+    const float ratio_w = (float)(scale * s->canvas.w) / (float)ctx->viewport.width;
+    const float ratio_h = (float)(scale * s->canvas.h) / (float)ctx->viewport.height;
     const float x =-1.0f + 2 * ratio_w;
     const float y = 1.0f - 2 * ratio_h;
     const float coords[] = {
@@ -1390,6 +1389,9 @@ void ngli_hud_draw(struct hud *s)
         ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
         ctx->render_pass_started = 1;
     }
+
+    ngli_gpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
+    ngli_gpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
 
     struct transforms_block transforms_block = {0};
     const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);

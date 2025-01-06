@@ -280,8 +280,8 @@ void ngli_rtt_begin(struct rtt_ctx *s)
 
     ngli_assert(!s->started);
     s->started = 1;
-    s->prev_viewport = ngli_gpu_ctx_get_viewport(gpu_ctx);
-    s->prev_scissor = ngli_gpu_ctx_get_scissor(gpu_ctx);
+    s->prev_viewport = ctx->viewport;
+    s->prev_scissor = ctx->scissor;
     s->prev_rendertargets[0] = ctx->available_rendertargets[0];
     s->prev_rendertargets[1] = ctx->available_rendertargets[1];
     s->prev_rendertarget = ctx->current_rendertarget;
@@ -294,8 +294,8 @@ void ngli_rtt_begin(struct rtt_ctx *s)
 
     const int32_t width = s->params.width;
     const int32_t height = s->params.height;
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &(struct gpu_viewport){0, 0, width, height});
-    ngli_gpu_ctx_set_scissor(gpu_ctx, &(struct gpu_scissor){0, 0, width, height});
+    ctx->viewport = (struct gpu_viewport){0, 0, width, height};
+    ctx->scissor = (struct gpu_scissor){0, 0, width, height};
 
     ctx->available_rendertargets[0] = s->available_rendertargets[0];
     ctx->available_rendertargets[1] = s->available_rendertargets[1];
@@ -320,8 +320,8 @@ void ngli_rtt_end(struct rtt_ctx *s)
     ctx->current_rendertarget = s->prev_rendertarget;
     ctx->available_rendertargets[0] = s->prev_rendertargets[0];
     ctx->available_rendertargets[1] = s->prev_rendertargets[1];
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &s->prev_viewport);
-    ngli_gpu_ctx_set_scissor(gpu_ctx, &s->prev_scissor);
+    ctx->viewport = s->prev_viewport;
+    ctx->scissor = s->prev_scissor;
 
     for (size_t i = 0; i < s->params.nb_colors; i++) {
         struct gpu_texture *texture = s->params.colors[i].attachment;

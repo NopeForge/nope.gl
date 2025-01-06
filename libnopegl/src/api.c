@@ -276,8 +276,8 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
     // Re-compute the viewport according to the new scene aspect ratio
     int32_t width, height;
     ngli_gpu_ctx_get_default_rendertarget_size(s->gpu_ctx, &width, &height);
-    const struct gpu_viewport vp = compute_scene_viewport(s->scene, width, height);
-    ngli_gpu_ctx_set_viewport(s->gpu_ctx, &vp);
+    s->viewport = compute_scene_viewport(s->scene, width, height);
+    s->scissor = (struct gpu_scissor){0, 0, width, height};
 
     const struct ngl_config *config = &s->config;
     if (config->hud) {
@@ -416,16 +416,15 @@ int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height)
     if (ret < 0)
         return ret;
 
-    struct gpu_viewport vp = compute_scene_viewport(s->scene, width, height);
-    ngli_gpu_ctx_set_viewport(s->gpu_ctx, &vp);
+    s->viewport = compute_scene_viewport(s->scene, width, height);
+    s->scissor = (struct gpu_scissor){0, 0, width, height};
 
     return 0;
 }
 
 int ngli_ctx_get_viewport(struct ngl_ctx *s, int32_t *viewport)
 {
-    struct gpu_viewport vp = ngli_gpu_ctx_get_viewport(s->gpu_ctx);
-    const int32_t vp_i32[] = {vp.x, vp.y, vp.width, vp.height};
+    const int32_t vp_i32[] = {s->viewport.x, s->viewport.y, s->viewport.width, s->viewport.height};
     memcpy(viewport, vp_i32, sizeof(vp_i32));
     return 0;
 }

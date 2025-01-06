@@ -218,22 +218,14 @@ void ngli_gpu_ctx_get_default_rendertarget_size(struct gpu_ctx *s, int32_t *widt
 
 void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const struct gpu_viewport *viewport)
 {
-    s->viewport = *viewport;
-}
-
-struct gpu_viewport ngli_gpu_ctx_get_viewport(struct gpu_ctx *s)
-{
-    return s->viewport;
+    ngli_assert(s->rendertarget);
+    s->cls->set_viewport(s, viewport);
 }
 
 void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const struct gpu_scissor *scissor)
 {
-    s->scissor = *scissor;
-}
-
-struct gpu_scissor ngli_gpu_ctx_get_scissor(struct gpu_ctx *s)
-{
-    return s->scissor;
+    ngli_assert(s->rendertarget);
+    s->cls->set_scissor(s, scissor);
 }
 
 int ngli_gpu_ctx_get_preferred_depth_format(struct gpu_ctx *s)

@@ -59,7 +59,6 @@ struct graphicconfig_opts {
 
     int cull_mode;
 
-    int scissor_test;
     int32_t scissor[4];
 };
 
@@ -211,8 +210,6 @@ static const struct node_param graphicconfig_params[] = {
     {"cull_mode",          NGLI_PARAM_TYPE_SELECT, OFFSET(cull_mode),          {.i32=-1},
                            .choices=&cull_mode_choices,
                            .desc=NGLI_DOCSTRING("face culling mode")},
-    {"scissor_test",       NGLI_PARAM_TYPE_BOOL,   OFFSET(scissor_test),       {.i32=-1},
-                           .desc=NGLI_DOCSTRING("enable scissor testing")},
     {"scissor",            NGLI_PARAM_TYPE_IVEC4, OFFSET(scissor), {.ivec=DEFAULT_SCISSOR},
                            .desc=NGLI_DOCSTRING("define an area where all pixels outside are discarded")},
     {NULL}
@@ -255,8 +252,6 @@ void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct gpu_g
 
     if (o->cull_mode != -1)
         state->cull_mode = ngli_gpu_ctx_transform_cull_mode(gpu_ctx, o->cull_mode);
-
-    COPY_PARAM(scissor_test);
 }
 
 static int graphicconfig_init(struct ngl_node *node)
@@ -295,21 +290,19 @@ static int graphicconfig_prepare(struct ngl_node *node)
 static void graphicconfig_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct graphicconfig_priv *s = node->priv_data;
     const struct graphicconfig_opts *o = node->opts;
 
     struct gpu_scissor prev_scissor;
     if (s->use_scissor) {
-        prev_scissor = ngli_gpu_ctx_get_scissor(gpu_ctx);
-        struct gpu_scissor scissor = {NGLI_ARG_VEC4(o->scissor)};
-        ngli_gpu_ctx_set_scissor(gpu_ctx, &scissor);
+        prev_scissor = ctx->scissor;
+        ctx->scissor = (struct gpu_scissor){NGLI_ARG_VEC4(o->scissor)};
     }
 
     ngli_node_draw(o->child);
 
     if (s->use_scissor)
-        ngli_gpu_ctx_set_scissor(gpu_ctx, &prev_scissor);
+        ctx->scissor = prev_scissor;
 }
 
 const struct node_class ngli_graphicconfig_class = {

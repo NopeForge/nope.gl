@@ -314,14 +314,29 @@ void ngli_gpu_rendertarget_gl_begin_pass(struct gpu_rendertarget *s)
         glstate->stencil_write_mask = 0xff;
     }
 
-    if (glstate->scissor_test) {
-        gl->funcs.Disable(GL_SCISSOR_TEST);
-        glstate->scissor_test = 0;
-    }
+    ngli_glstate_enable_scissor_test(gl, glstate, 0);
 
     gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, s_priv->id);
 
+    const struct gpu_viewport viewport = {
+        .x      = 0,
+        .y      = 0,
+        .width  = s->width,
+        .height = s->height,
+    };
+    ngli_glstate_update_viewport(gl, glstate, &viewport);
+
+    const struct gpu_scissor scissor = {
+        .x      = 0,
+        .y      = 0,
+        .width  = s->width,
+        .height = s->height,
+    };
+    ngli_glstate_update_scissor(gl, glstate, &scissor);
+
     s_priv->clear(s);
+
+    ngli_glstate_enable_scissor_test(gl, glstate, 1);
 }
 
 void ngli_gpu_rendertarget_gl_end_pass(struct gpu_rendertarget *s)
@@ -332,16 +347,15 @@ void ngli_gpu_rendertarget_gl_end_pass(struct gpu_rendertarget *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct glstate *glstate = &gpu_ctx_gl->glstate;
 
-    if (glstate->scissor_test) {
-        gl->funcs.Disable(GL_SCISSOR_TEST);
-        glstate->scissor_test = 0;
-    }
-
     if (s_priv->resolve_id) {
         gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, s_priv->id);
         gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, s_priv->resolve_id);
 
+        ngli_glstate_enable_scissor_test(gl, glstate, 0);
+
         s_priv->resolve(s);
+
+        ngli_glstate_enable_scissor_test(gl, glstate, 1);
 
         struct gpu_rendertarget *rt = gpu_ctx->rendertarget;
         struct gpu_rendertarget_gl *rt_gl = (struct gpu_rendertarget_gl *)rt;

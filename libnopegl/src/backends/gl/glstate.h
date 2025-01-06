@@ -86,4 +86,8 @@ void ngli_glstate_update_viewport(const struct glcontext *gl,
                                   struct glstate *glstate,
                                   const struct gpu_viewport *viewport);
 
+void ngli_glstate_enable_scissor_test(const struct glcontext *gl,
+                                      struct glstate *glstate,
+                                      int enable);
+
 #endif

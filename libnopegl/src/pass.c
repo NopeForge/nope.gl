@@ -634,9 +634,7 @@ int ngli_pass_exec(struct pass *s)
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->projection_matrix_index, projection_matrix);
 
-    const struct gpu_viewport viewport = ngli_gpu_ctx_get_viewport(ctx->gpu_ctx);
-
-    const float resolution[2] = {(float)viewport.width, (float)viewport.height};
+    const float resolution[2] = {(float)ctx->viewport.width, (float)ctx->viewport.height};
     ngli_pipeline_compat_update_uniform(pipeline_compat, desc->resolution_index, resolution);
 
     if (desc->normal_matrix_index >= 0) {
@@ -669,11 +667,15 @@ int ngli_pass_exec(struct pass *s)
     }
 
     if (s->pipeline_type == NGLI_GPU_PIPELINE_TYPE_GRAPHICS) {
+        struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+
         if (!ctx->render_pass_started) {
-            struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
             ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
             ctx->render_pass_started = 1;
         }
+
+        ngli_gpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
+        ngli_gpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
 
         if (s->indices)
             ngli_pipeline_compat_draw_indexed(pipeline_compat, s->indices, s->indices_layout->format,

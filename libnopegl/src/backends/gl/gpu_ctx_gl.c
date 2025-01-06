@@ -601,12 +601,7 @@ static int gl_init(struct gpu_ctx *s)
     s_priv->default_rt_layout.depth_stencil.resolve = gl->samples > 1;
 
     ngli_glstate_reset(gl, &s_priv->glstate);
-
-    const struct gpu_viewport default_vp = {0, 0, config->width, config->height};
-    ngli_gpu_ctx_set_viewport(s, &default_vp);
-
-    const struct gpu_scissor scissor = {0, 0, config->width, config->height};
-    ngli_gpu_ctx_set_scissor(s, &scissor);
+    ngli_glstate_enable_scissor_test(gl, &s_priv->glstate, 1);
 
     return 0;
 }
@@ -647,12 +642,6 @@ static int gl_resize(struct gpu_ctx *s, int32_t width, int32_t height)
         struct gpu_rendertarget_gl *rt_load_gl = (struct gpu_rendertarget_gl *)s_priv->default_rt_load;
         rt_gl->id = rt_load_gl->id = ngli_glcontext_get_default_framebuffer(gl);
     }
-
-    const struct gpu_viewport viewport = {0, 0, width, height};
-    ngli_gpu_ctx_set_viewport(s, &viewport);
-
-    const struct gpu_scissor scissor = {0, 0, width, height};
-    ngli_gpu_ctx_set_scissor(s, &scissor);
 
     return 0;
 }
@@ -849,6 +838,7 @@ static void blit_vflip(struct gpu_ctx *s, struct gpu_rendertarget *src, struct g
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
+    struct glstate *glstate = &s_priv->glstate;
 
     struct gpu_rendertarget_gl *src_gl = (struct gpu_rendertarget_gl *)src;
     const GLuint src_fbo = src_gl->resolve_id ? src_gl->resolve_id : src_gl->id;
@@ -860,9 +850,14 @@ static void blit_vflip(struct gpu_ctx *s, struct gpu_rendertarget *src, struct g
 
     gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
     gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, dst_fbo);
+
+    ngli_glstate_enable_scissor_test(gl, glstate, 0);
+
     gl->funcs.BlitFramebuffer(0, 0, w, h,
                                0, h, w, 0,
                                GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    ngli_glstate_enable_scissor_test(gl, glstate, 1);
 }
 
 static int gl_end_draw(struct gpu_ctx *s, double t)
@@ -993,6 +988,24 @@ static void gl_end_render_pass(struct gpu_ctx *s)
     ngli_gpu_rendertarget_gl_end_pass(s->rendertarget);
 }
 
+static void gl_set_viewport(struct gpu_ctx *s, const struct gpu_viewport *viewport)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct glcontext *gl = s_priv->glcontext;
+    struct glstate *glstate = &s_priv->glstate;
+
+    ngli_glstate_update_viewport(gl, glstate, viewport);
+}
+
+static void gl_set_scissor(struct gpu_ctx *s, const struct gpu_scissor *scissor)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct glcontext *gl = s_priv->glcontext;
+    struct glstate *glstate = &s_priv->glstate;
+
+    ngli_glstate_update_scissor(gl, glstate, scissor);
+}
+
 static int gl_get_preferred_depth_format(struct gpu_ctx *s)
 {
     return NGLI_GPU_FORMAT_D16_UNORM;
@@ -1075,6 +1088,9 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
                                                                                  \
     .begin_render_pass                  = gl_begin_render_pass,                  \
     .end_render_pass                    = gl_end_render_pass,                    \
+                                                                                 \
+    .set_viewport                       = gl_set_viewport,                       \
+    .set_scissor                        = gl_set_scissor,                        \
                                                                                  \
     .get_preferred_depth_format         = gl_get_preferred_depth_format,         \
     .get_preferred_depth_stencil_format = gl_get_preferred_depth_stencil_format, \
