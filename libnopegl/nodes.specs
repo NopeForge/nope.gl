@@ -2899,13 +2899,6 @@
           "desc": "face culling mode"
         },
         {
-          "name": "scissor_test",
-          "type": "bool",
-          "default": -1,
-          "flags": [],
-          "desc": "enable scissor testing"
-        },
-        {
           "name": "scissor",
           "type": "ivec4",
           "default": [-1,-1,-1,-1],

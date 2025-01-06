@@ -173,10 +173,11 @@ struct default_data {
 
 static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
 {
+    struct ngl_ctx *ctx = s->ctx;
+    
     /* Text/Box ratio */
     const struct ngli_box box = s->config.box;
-    const struct gpu_viewport viewport = ngli_gpu_ctx_get_viewport(s->ctx->gpu_ctx);
-    const int32_t ar[] = {viewport.width, viewport.height};
+    const int32_t ar[] = {ctx->viewport.width, ctx->viewport.height};
     const float box_ratio = (float)ar[0] * box.w / ((float)ar[1] * box.h);
     const float text_ratio = (float)s->width / (float)s->height;
 
@@ -185,8 +186,8 @@ static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
     float height = box.h * s->config.font_scale;
     float ratio_w, ratio_h;
     if (s->config.scale_mode == NGLI_TEXT_SCALE_MODE_FIXED) {
-        const float tw = (float)s->width / (float)viewport.width;
-        const float th = (float)s->height / (float)viewport.height;
+        const float tw = (float)s->width / (float)ctx->viewport.width;
+        const float th = (float)s->height / (float)ctx->viewport.height;
         ratio_w = tw / box.w;
         ratio_h = th / box.h;
     } else {

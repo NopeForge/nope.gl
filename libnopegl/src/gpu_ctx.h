@@ -89,6 +89,9 @@ struct gpu_ctx_class {
     void (*begin_render_pass)(struct gpu_ctx *s, struct gpu_rendertarget *rt);
     void (*end_render_pass)(struct gpu_ctx *s);
 
+    void (*set_viewport)(struct gpu_ctx *s, const struct gpu_viewport *viewport);
+    void (*set_scissor)(struct gpu_ctx *s, const struct gpu_scissor *scissor);
+
     int (*get_preferred_depth_format)(struct gpu_ctx *s);
     int (*get_preferred_depth_stencil_format)(struct gpu_ctx *s);
     uint32_t (*get_format_features)(struct gpu_ctx *s, int format);
@@ -161,8 +164,6 @@ struct gpu_ctx {
     const struct gpu_buffer **vertex_buffers;
     const struct gpu_buffer *index_buffer;
     int index_format;
-    struct gpu_viewport viewport;
-    struct gpu_scissor scissor;
 };
 
 struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config);
@@ -189,9 +190,7 @@ void ngli_gpu_ctx_begin_render_pass(struct gpu_ctx *s, struct gpu_rendertarget *
 void ngli_gpu_ctx_end_render_pass(struct gpu_ctx *s);
 
 void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const struct gpu_viewport *viewport);
-struct gpu_viewport ngli_gpu_ctx_get_viewport(struct gpu_ctx *s);
 void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const struct gpu_scissor *scissor);
-struct gpu_scissor ngli_gpu_ctx_get_scissor(struct gpu_ctx *s);
 
 int ngli_gpu_ctx_get_preferred_depth_format(struct gpu_ctx *s);
 int ngli_gpu_ctx_get_preferred_depth_stencil_format(struct gpu_ctx *s);

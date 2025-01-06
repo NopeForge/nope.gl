@@ -180,8 +180,6 @@ static void set_graphics_state(struct gpu_pipeline *s)
     struct gpu_pipeline_graphics *graphics = &s->graphics;
 
     ngli_glstate_update(gl, glstate, &graphics->state);
-    ngli_glstate_update_viewport(gl, glstate, &gpu_ctx->viewport);
-    ngli_glstate_update_scissor(gl, glstate, &gpu_ctx->scissor);
 }
 
 void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances)

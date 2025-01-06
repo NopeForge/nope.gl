@@ -376,7 +376,7 @@ static int text_init(struct ngl_node *node)
     struct text_priv *s = node->priv_data;
     const struct text_opts *o = node->opts;
 
-    s->viewport = ngli_gpu_ctx_get_viewport(node->ctx->gpu_ctx);
+    s->viewport = node->ctx->viewport;
 
     s->text_ctx = ngli_text_create(node->ctx);
     if (!s->text_ctx)
@@ -658,6 +658,7 @@ static int text_prepare(struct ngl_node *node)
 
 static int text_update(struct ngl_node *node, double t)
 {
+    struct ngl_ctx *ctx = node->ctx;
     struct text_priv *s = node->priv_data;
     const struct text_opts *o = node->opts;
 
@@ -674,9 +675,8 @@ static int text_update(struct ngl_node *node, double t)
         s->live_changed = 0;
     }
 
-    const struct gpu_viewport viewport = ngli_gpu_ctx_get_viewport(node->ctx->gpu_ctx);
-    if (memcmp(&s->viewport, &viewport, sizeof(viewport))) {
-        memcpy(&s->viewport, &viewport, sizeof(viewport));
+    if (memcmp(&s->viewport, &ctx->viewport, sizeof(ctx->viewport))) {
+        memcpy(&s->viewport, &ctx->viewport, sizeof(ctx->viewport));
         ngli_text_refresh_geometry_data(s->text_ctx);
         int ret = refresh_pipeline_data(node);
         if (ret < 0)
@@ -717,6 +717,11 @@ static void text_draw(struct ngl_node *node)
     ngli_pipeline_compat_update_uniform(bg_desc->common.pipeline_compat, bg_desc->common.projection_matrix_index, projection_matrix);
     ngli_pipeline_compat_update_uniform(bg_desc->common.pipeline_compat, bg_desc->color_index, o->bg_color);
     ngli_pipeline_compat_update_uniform(bg_desc->common.pipeline_compat, bg_desc->opacity_index, &o->bg_opacity);
+
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    ngli_gpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
+    ngli_gpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
+
     ngli_pipeline_compat_draw(bg_desc->common.pipeline_compat, 4, 1);
 
     if (s->nb_chars) {

@@ -322,7 +322,7 @@ def texture_clear_and_scissor(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     draw = ngl.DrawColor(COLORS.white)
-    graphic_config = ngl.GraphicConfig(draw, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask="")
+    graphic_config = ngl.GraphicConfig(draw, scissor=(0, 0, 0, 0), color_write_mask="")
 
     texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS.orange + (1,))
@@ -337,7 +337,8 @@ def texture_scissor(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     draw = ngl.DrawColor(COLORS.orange)
-    graphic_config = ngl.GraphicConfig(draw, scissor_test=True, scissor=(32, 32, 32, 32))
+    graphic_config = ngl.GraphicConfig(draw, scissor=(32, 32, 32, 32))
+
     texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(graphic_config, [texture], clear_color=(0, 0, 0, 1))
     draw = ngl.DrawTexture(texture)
