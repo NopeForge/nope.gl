@@ -341,6 +341,7 @@ static int glcontext_probe_limits(struct glcontext *glcontext)
     struct gpu_limits *limits = &glcontext->limits;
 
     GET(GL_MAX_VERTEX_ATTRIBS, &limits->max_vertex_attributes);
+    limits->max_vertex_attributes = NGLI_MIN(limits->max_vertex_attributes, NGLI_GPU_MAX_VERTEX_BUFFERS);
     /*
      * macOS and iOS OpenGL drivers pass gl_VertexID and gl_InstanceID as
      * standard attributes and forget to count them in GL_MAX_VERTEX_ATTRIBS.
