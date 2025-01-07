@@ -101,16 +101,7 @@ struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config)
 
 int ngli_gpu_ctx_init(struct gpu_ctx *s)
 {
-    int ret = s->cls->init(s);
-    if (ret < 0)
-        return ret;
-
-    const struct gpu_limits *limits = &s->limits;
-    s->vertex_buffers = ngli_calloc(limits->max_vertex_attributes, sizeof(struct gpu_buffer *));
-    if (!s->vertex_buffers)
-        return NGL_ERROR_MEMORY;
-
-    return 0;
+    return s->cls->init(s);
 }
 
 int ngli_gpu_ctx_resize(struct gpu_ctx *s, int32_t width, int32_t height)
@@ -161,8 +152,6 @@ void ngli_gpu_ctx_freep(struct gpu_ctx **sp)
         return;
 
     struct gpu_ctx *s = *sp;
-    ngli_freep(&s->vertex_buffers);
-
     const struct gpu_ctx_class *cls = s->cls;
     if (cls)
         cls->destroy(s);

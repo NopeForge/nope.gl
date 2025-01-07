@@ -767,6 +767,11 @@ static uint32_t get_max_color_attachments(const VkPhysicalDeviceLimits *limits)
     return NGLI_MIN(limits->maxColorAttachments, NGLI_GPU_MAX_COLOR_ATTACHMENTS);
 }
 
+static uint32_t get_max_vertex_attributes(const VkPhysicalDeviceLimits *limits)
+{
+    return NGLI_MIN(limits->maxVertexInputAttributes, NGLI_GPU_MAX_VERTEX_BUFFERS);
+}
+
 static void free_texture(void *user_arg, void *data)
 {
     struct gpu_texture **texturep = data;
@@ -862,7 +867,7 @@ static int vk_init(struct gpu_ctx *s)
                   NGLI_GPU_FEATURE_BUFFER_MAP_PERSISTENT;
 
     const VkPhysicalDeviceLimits *limits = &vk->phy_device_props.limits;
-    s->limits.max_vertex_attributes              = limits->maxVertexInputAttributes;
+    s->limits.max_vertex_attributes              = get_max_vertex_attributes(limits);
     s->limits.max_color_attachments              = get_max_color_attachments(limits);
     s->limits.max_texture_dimension_1d           = limits->maxImageDimension1D;
     s->limits.max_texture_dimension_2d           = limits->maxImageDimension2D;

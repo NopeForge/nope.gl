@@ -161,7 +161,7 @@ struct gpu_ctx {
     struct gpu_bindgroup *bindgroup;
     uint32_t dynamic_offsets[NGLI_GPU_MAX_DYNAMIC_OFFSETS];
     size_t nb_dynamic_offsets;
-    const struct gpu_buffer **vertex_buffers;
+    const struct gpu_buffer *vertex_buffers[NGLI_GPU_MAX_VERTEX_BUFFERS];
     const struct gpu_buffer *index_buffer;
     int index_format;
 };
