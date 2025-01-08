@@ -99,6 +99,8 @@ struct gpu_ctx_class {
     void (*set_vertex_buffer)(struct gpu_ctx *s, uint32_t index, const struct gpu_buffer *buffer);
     void (*set_index_buffer)(struct gpu_ctx *s, const struct gpu_buffer *buffer, int format);
 
+    void (*generate_texture_mipmap)(struct gpu_ctx *s, struct gpu_texture *texture);
+
     void (*set_pipeline)(struct gpu_ctx *s, struct gpu_pipeline *pipeline);
     void (*set_bindgroup)(struct gpu_ctx *s, struct gpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);
     void (*draw)(struct gpu_ctx *s, int nb_vertices, int nb_instances);
@@ -195,6 +197,8 @@ void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const struct gpu_scissor *sciss
 int ngli_gpu_ctx_get_preferred_depth_format(struct gpu_ctx *s);
 int ngli_gpu_ctx_get_preferred_depth_stencil_format(struct gpu_ctx *s);
 uint32_t ngli_gpu_ctx_get_format_features(struct gpu_ctx *s, int format);
+
+void ngli_gpu_ctx_generate_texture_mipmap(struct gpu_ctx *s, struct gpu_texture *texture);
 
 void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct gpu_pipeline *pipeline);
 void ngli_gpu_ctx_set_bindgroup(struct gpu_ctx *s, struct gpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);

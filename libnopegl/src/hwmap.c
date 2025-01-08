@@ -116,6 +116,8 @@ end:
 
 static int exec_hwconv(struct hwmap *hwmap)
 {
+    struct ngl_ctx *ctx = hwmap->ctx;
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_texture *texture = hwmap->hwconv_texture;
     const struct gpu_texture_params *texture_params = &texture->params;
     struct image *mapped_image = &hwmap->mapped_image;
@@ -126,7 +128,7 @@ static int exec_hwconv(struct hwmap *hwmap)
         return ret;
 
     if (texture_params->mipmap_filter != NGLI_GPU_MIPMAP_FILTER_NONE)
-        ngli_gpu_texture_generate_mipmap(texture);
+        ngli_gpu_ctx_generate_texture_mipmap(gpu_ctx, texture);
 
     return 0;
 }
