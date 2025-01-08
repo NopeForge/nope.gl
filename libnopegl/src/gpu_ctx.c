@@ -232,6 +232,12 @@ uint32_t ngli_gpu_ctx_get_format_features(struct gpu_ctx *s, int format)
     return s->cls->get_format_features(s, format);
 }
 
+void ngli_gpu_ctx_generate_texture_mipmap(struct gpu_ctx *s, struct gpu_texture *texture)
+{
+    ngli_assert(!s->rendertarget);
+    s->cls->generate_texture_mipmap(s, texture);
+}
+
 void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct gpu_pipeline *pipeline)
 {
     s->pipeline = pipeline;

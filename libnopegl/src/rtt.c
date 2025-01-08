@@ -327,7 +327,7 @@ void ngli_rtt_end(struct rtt_ctx *s)
         struct gpu_texture *texture = s->params.colors[i].attachment;
         const struct gpu_texture_params *texture_params = &texture->params;
         if (texture_params->mipmap_filter != NGLI_GPU_MIPMAP_FILTER_NONE)
-            ngli_gpu_texture_generate_mipmap(texture);
+            ngli_gpu_ctx_generate_texture_mipmap(gpu_ctx, texture);
     }
 }
 

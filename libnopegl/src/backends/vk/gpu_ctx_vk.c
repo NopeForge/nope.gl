@@ -1428,6 +1428,11 @@ static uint32_t vk_get_format_features(struct gpu_ctx *s, int format)
     return ngli_gpu_format_feature_vk_to_ngl(properties.optimalTilingFeatures);
 }
 
+static void vk_generate_texture_mipmap(struct gpu_ctx *s, struct gpu_texture *texture)
+{
+    ngli_gpu_texture_generate_mipmap(texture);
+}
+
 static void vk_set_bindgroup(struct gpu_ctx *s, struct gpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
 {
 }
@@ -1526,6 +1531,8 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .get_preferred_depth_format         = vk_get_preferred_depth_format,
     .get_preferred_depth_stencil_format = vk_get_preferred_depth_stencil_format,
     .get_format_features                = vk_get_format_features,
+
+    .generate_texture_mipmap            = vk_generate_texture_mipmap,
 
     .set_bindgroup                      = vk_set_bindgroup,
 
