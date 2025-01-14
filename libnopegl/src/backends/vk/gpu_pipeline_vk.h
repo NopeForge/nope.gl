@@ -44,7 +44,7 @@ struct gpu_pipeline *ngli_gpu_pipeline_vk_create(struct gpu_ctx *gpu_ctx);
 int ngli_gpu_pipeline_vk_init(struct gpu_pipeline *s);
 int ngli_gpu_pipeline_vk_update_texture(struct gpu_pipeline *s, int32_t index, const struct gpu_texture *texture);
 int ngli_gpu_pipeline_vk_update_buffer(struct gpu_pipeline *s, int32_t index, const struct gpu_buffer *buffer, size_t offset, size_t size);
-void ngli_gpu_pipeline_vk_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances);
+void ngli_gpu_pipeline_vk_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex);
 void ngli_gpu_pipeline_vk_draw_indexed(struct gpu_pipeline *s, int nb_vertices, int nb_instances);
 void ngli_gpu_pipeline_vk_dispatch(struct gpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 void ngli_gpu_pipeline_vk_freep(struct gpu_pipeline **sp);

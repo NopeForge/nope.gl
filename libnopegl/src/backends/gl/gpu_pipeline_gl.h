@@ -39,7 +39,7 @@ struct gpu_pipeline_gl {
 
 struct gpu_pipeline *ngli_gpu_pipeline_gl_create(struct gpu_ctx *gpu_ctx);
 int ngli_gpu_pipeline_gl_init(struct gpu_pipeline *s);
-void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances);
+void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex);
 void ngli_gpu_pipeline_gl_draw_indexed(struct gpu_pipeline *s, int nb_indices, int nb_instances);
 void ngli_gpu_pipeline_gl_dispatch(struct gpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 void ngli_gpu_pipeline_gl_freep(struct gpu_pipeline **sp);

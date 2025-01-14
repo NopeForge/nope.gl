@@ -1441,11 +1441,11 @@ static void vk_set_pipeline(struct gpu_ctx *s, struct gpu_pipeline *pipeline)
 {
 }
 
-static void vk_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
+static void vk_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex)
 {
     struct gpu_pipeline *pipeline = s->pipeline;
 
-    ngli_gpu_pipeline_vk_draw(pipeline, nb_vertices, nb_instances);
+    ngli_gpu_pipeline_vk_draw(pipeline, nb_vertices, nb_instances, first_vertex);
 }
 
 static void vk_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)
