@@ -265,7 +265,7 @@ static void validate_vertex_buffers(struct gpu_ctx *s)
     }
 }
 
-void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
+void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex)
 {
     ngli_assert(s->pipeline);
     validate_vertex_buffers(s);
@@ -274,7 +274,7 @@ void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
     const struct gpu_bindgroup_layout *b_layout = s->bindgroup->layout;
     ngli_assert(ngli_gpu_bindgroup_layout_is_compatible(p_layout, b_layout));
 
-    s->cls->draw(s, nb_vertices, nb_instances);
+    s->cls->draw(s, nb_vertices, nb_instances, first_vertex);
 }
 
 void ngli_gpu_ctx_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)

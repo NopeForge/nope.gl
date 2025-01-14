@@ -182,7 +182,7 @@ static void set_graphics_state(struct gpu_pipeline *s)
     ngli_glstate_update(gl, glstate, &graphics->state);
 }
 
-void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances)
+void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
@@ -201,7 +201,7 @@ void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_i
         gl->funcs.MemoryBarrier(barriers);
 
     const GLenum gl_topology = get_gl_topology(graphics->topology);
-    gl->funcs.DrawArraysInstanced(gl_topology, 0, nb_vertices, nb_instances);
+    gl->funcs.DrawArraysInstanced(gl_topology, first_vertex, nb_vertices, nb_instances);
 
     if (barriers)
         gl->funcs.MemoryBarrier(barriers);

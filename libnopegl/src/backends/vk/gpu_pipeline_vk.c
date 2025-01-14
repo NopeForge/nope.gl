@@ -439,7 +439,7 @@ static int prepare_and_bind_graphics_pipeline(struct gpu_pipeline *s, VkCommandB
     return 0;
 }
 
-void ngli_gpu_pipeline_vk_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances)
+void ngli_gpu_pipeline_vk_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
@@ -455,7 +455,7 @@ void ngli_gpu_pipeline_vk_draw(struct gpu_pipeline *s, int nb_vertices, int nb_i
     if (ret < 0)
         return;
 
-    vkCmdDraw(cmd_buf, nb_vertices, nb_instances, 0, 0);
+    vkCmdDraw(cmd_buf, nb_vertices, nb_instances, first_vertex, 0);
 }
 
 void ngli_gpu_pipeline_vk_draw_indexed(struct gpu_pipeline *s, int nb_vertices, int nb_instances)

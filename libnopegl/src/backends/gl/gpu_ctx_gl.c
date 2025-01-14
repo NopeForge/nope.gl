@@ -1039,11 +1039,11 @@ static void gl_set_pipeline(struct gpu_ctx *s, struct gpu_pipeline *pipeline)
 {
 }
 
-static void gl_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances)
+static void gl_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex)
 {
     struct gpu_pipeline *pipeline = s->pipeline;
 
-    ngli_gpu_pipeline_gl_draw(pipeline, nb_vertices, nb_instances);
+    ngli_gpu_pipeline_gl_draw(pipeline, nb_vertices, nb_instances, first_vertex);
 }
 
 static void gl_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)
