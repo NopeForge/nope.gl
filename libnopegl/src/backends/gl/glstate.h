@@ -29,6 +29,16 @@
 
 struct gpu_graphics_state;
 
+struct glstate_stencil_op {
+    GLuint write_mask;
+    GLenum func;
+    GLint  ref;
+    GLuint read_mask;
+    GLenum fail;
+    GLenum depth_fail;
+    GLenum depth_pass;
+};
+
 struct glstate {
     /* Graphics state */
     GLenum blend;
@@ -46,13 +56,8 @@ struct glstate {
     GLenum    depth_func;
 
     GLenum stencil_test;
-    GLuint stencil_write_mask;
-    GLenum stencil_func;
-    GLint  stencil_ref;
-    GLuint stencil_read_mask;
-    GLenum stencil_fail;
-    GLenum stencil_depth_fail;
-    GLenum stencil_depth_pass;
+    struct glstate_stencil_op stencil_front;
+    struct glstate_stencil_op stencil_back;
 
     GLboolean cull_face;
     GLenum cull_face_mode;

@@ -221,6 +221,13 @@ static const struct node_param graphicconfig_params[] = {
     }                                \
 } while (0)                          \
 
+#define COPY_STENCIL_PARAM(name) do {                   \
+    if (o->stencil_##name != -1) {                      \
+        state->stencil_front.name = o->stencil_##name;  \
+        state->stencil_back.name  = o->stencil_##name;  \
+    }                                                   \
+} while (0)                                             \
+
 void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct gpu_graphics_state *state)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -242,13 +249,13 @@ void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct gpu_g
     COPY_PARAM(depth_func);
 
     COPY_PARAM(stencil_test);
-    COPY_PARAM(stencil_write_mask);
-    COPY_PARAM(stencil_func);
-    COPY_PARAM(stencil_ref);
-    COPY_PARAM(stencil_read_mask);
-    COPY_PARAM(stencil_fail);
-    COPY_PARAM(stencil_depth_fail);
-    COPY_PARAM(stencil_depth_pass);
+    COPY_STENCIL_PARAM(write_mask);
+    COPY_STENCIL_PARAM(func);
+    COPY_STENCIL_PARAM(ref);
+    COPY_STENCIL_PARAM(read_mask);
+    COPY_STENCIL_PARAM(fail);
+    COPY_STENCIL_PARAM(depth_fail);
+    COPY_STENCIL_PARAM(depth_pass);
 
     if (o->cull_mode != -1)
         state->cull_mode = ngli_gpu_ctx_transform_cull_mode(gpu_ctx, o->cull_mode);

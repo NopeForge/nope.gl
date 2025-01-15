@@ -141,19 +141,31 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
     glstate->stencil_test = 0;
 
     /* Use nope.gl's stencil read mask default (0xff) instead of OpenGL's ((GLuint)-1) */
-    gl->funcs.StencilMask(0xff);
-    glstate->stencil_write_mask = 0xff;
+    gl->funcs.StencilMaskSeparate(GL_FRONT, 0xff);
+    glstate->stencil_front.write_mask = 0xff;
 
-    /* Use nope.gl's stencil write mask default (0xff) instead of OpenGL's ((GLuint)-1) */
-    gl->funcs.StencilFunc(GL_ALWAYS, 0, 0xff);
-    glstate->stencil_func = GL_ALWAYS;
-    glstate->stencil_ref = 0;
-    glstate->stencil_read_mask = 0xff;
+    gl->funcs.StencilFuncSeparate(GL_FRONT, GL_ALWAYS, 0, 0xff);
+    glstate->stencil_front.func = GL_ALWAYS;
+    glstate->stencil_front.ref = 0;
+    glstate->stencil_front.read_mask = 0xff;
 
-    gl->funcs.StencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-    glstate->stencil_fail = GL_KEEP;
-    glstate->stencil_depth_fail = GL_KEEP;
-    glstate->stencil_depth_pass = GL_KEEP;
+    gl->funcs.StencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_KEEP);
+    glstate->stencil_front.fail = GL_KEEP;
+    glstate->stencil_front.depth_fail = GL_KEEP;
+    glstate->stencil_front.depth_pass = GL_KEEP;
+
+    gl->funcs.StencilMaskSeparate(GL_BACK, 0xff);
+    glstate->stencil_back.write_mask = 0xff;
+
+    gl->funcs.StencilFuncSeparate(GL_BACK, GL_ALWAYS, 0, 0xff);
+    glstate->stencil_back.func = GL_ALWAYS;
+    glstate->stencil_back.ref = 0;
+    glstate->stencil_back.read_mask = 0xff;
+
+    gl->funcs.StencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
+    glstate->stencil_back.fail = GL_KEEP;
+    glstate->stencil_back.depth_fail = GL_KEEP;
+    glstate->stencil_back.depth_pass = GL_KEEP;
 
     /* Face culling */
     gl->funcs.Disable(GL_CULL_FACE);
@@ -257,38 +269,70 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
         glstate->stencil_test = stencil_test;
     }
 
-    const GLuint stencil_write_mask = state->stencil_write_mask;
-    if (stencil_write_mask != glstate->stencil_write_mask) {
-        gl->funcs.StencilMask(stencil_write_mask);
-        glstate->stencil_write_mask = stencil_write_mask;
+    /* Stencil front operations */
+    {
+        const GLuint stencil_write_mask = state->stencil_front.write_mask;
+        if (stencil_write_mask != glstate->stencil_front.write_mask) {
+            gl->funcs.StencilMaskSeparate(GL_FRONT, stencil_write_mask);
+            glstate->stencil_front.write_mask = stencil_write_mask;
+        }
+
+        const GLenum stencil_func = get_gl_compare_op(state->stencil_front.func);
+        const GLint stencil_ref = state->stencil_front.ref;
+        const GLuint stencil_read_mask = state->stencil_front.read_mask;
+        if (stencil_func != glstate->stencil_front.func ||
+            stencil_ref != glstate->stencil_front.ref ||
+            stencil_read_mask != glstate->stencil_front.read_mask) {
+            gl->funcs.StencilFuncSeparate(GL_FRONT, stencil_func, stencil_ref, stencil_read_mask);
+            glstate->stencil_front.func = stencil_func;
+            glstate->stencil_front.ref = stencil_ref;
+            glstate->stencil_front.read_mask = stencil_read_mask;
+        }
+
+        const GLenum stencil_fail = get_gl_stencil_op(state->stencil_front.fail);
+        const GLenum stencil_depth_fail = get_gl_stencil_op(state->stencil_front.depth_fail);
+        const GLenum stencil_depth_pass = get_gl_stencil_op(state->stencil_front.depth_pass);
+        if (stencil_fail != glstate->stencil_front.fail ||
+            stencil_depth_fail != glstate->stencil_front.depth_fail ||
+            stencil_depth_pass != glstate->stencil_front.depth_pass) {
+            gl->funcs.StencilOpSeparate(GL_FRONT, stencil_fail, stencil_depth_fail, stencil_depth_pass);
+            glstate->stencil_front.fail = stencil_fail;
+            glstate->stencil_front.depth_fail = stencil_depth_fail;
+            glstate->stencil_front.depth_pass = stencil_depth_pass;
+        }
     }
 
-    const GLenum stencil_func       = get_gl_compare_op(state->stencil_func);
-    const GLint stencil_ref         = state->stencil_ref;
-    const GLuint stencil_read_mask  = state->stencil_read_mask;
-    if (stencil_func      != glstate->stencil_func ||
-        stencil_ref       != glstate->stencil_ref  ||
-        stencil_read_mask != glstate->stencil_read_mask) {
-        gl->funcs.StencilFunc(stencil_func,
-                              stencil_ref,
-                              stencil_read_mask);
-        glstate->stencil_func = stencil_func;
-        glstate->stencil_ref = stencil_ref;
-        glstate->stencil_read_mask = stencil_read_mask;
-    }
+    /* Stencil back operations */
+    {
+        const GLuint stencil_write_mask = state->stencil_back.write_mask;
+        if (stencil_write_mask != glstate->stencil_back.write_mask) {
+            gl->funcs.StencilMaskSeparate(GL_BACK, stencil_write_mask);
+            glstate->stencil_back.write_mask = stencil_write_mask;
+        }
 
-    const GLenum stencil_fail       = get_gl_stencil_op(state->stencil_fail);
-    const GLenum stencil_depth_fail = get_gl_stencil_op(state->stencil_depth_fail);
-    const GLenum stencil_depth_pass = get_gl_stencil_op(state->stencil_depth_pass);
-    if (stencil_fail       != glstate->stencil_fail       ||
-        stencil_depth_fail != glstate->stencil_depth_fail ||
-        stencil_depth_pass != glstate->stencil_depth_pass) {
-        gl->funcs.StencilOp(stencil_fail,
-                            stencil_depth_fail,
-                            stencil_depth_pass);
-        glstate->stencil_fail = stencil_fail;
-        glstate->stencil_depth_fail = stencil_depth_fail;
-        glstate->stencil_depth_pass = stencil_depth_pass;
+        const GLenum stencil_func = get_gl_compare_op(state->stencil_back.func);
+        const GLint stencil_ref = state->stencil_back.ref;
+        const GLuint stencil_read_mask = state->stencil_back.read_mask;
+        if (stencil_func != glstate->stencil_back.func ||
+            stencil_ref != glstate->stencil_back.ref ||
+            stencil_read_mask != glstate->stencil_back.read_mask) {
+            gl->funcs.StencilFuncSeparate(GL_BACK, stencil_func, stencil_ref, stencil_read_mask);
+            glstate->stencil_back.func = stencil_func;
+            glstate->stencil_back.ref = stencil_ref;
+            glstate->stencil_back.read_mask = stencil_read_mask;
+        }
+
+        const GLenum stencil_fail = get_gl_stencil_op(state->stencil_back.fail);
+        const GLenum stencil_depth_fail = get_gl_stencil_op(state->stencil_back.depth_fail);
+        const GLenum stencil_depth_pass = get_gl_stencil_op(state->stencil_back.depth_pass);
+        if (stencil_fail != glstate->stencil_back.fail ||
+            stencil_depth_fail != glstate->stencil_back.depth_fail ||
+            stencil_depth_pass != glstate->stencil_back.depth_pass) {
+            gl->funcs.StencilOpSeparate(GL_BACK, stencil_fail, stencil_depth_fail, stencil_depth_pass);
+            glstate->stencil_back.fail = stencil_fail;
+            glstate->stencil_back.depth_fail = stencil_depth_fail;
+            glstate->stencil_back.depth_pass = stencil_depth_pass;
+        }
     }
 
     /* Face Culling */
