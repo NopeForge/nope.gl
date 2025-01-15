@@ -309,9 +309,11 @@ void ngli_gpu_rendertarget_gl_begin_pass(struct gpu_rendertarget *s)
         glstate->depth_write_mask = GL_TRUE;
     }
 
-    if (glstate->stencil_write_mask != 0xff) {
+    if (glstate->stencil_front.write_mask != 0xff ||
+        glstate->stencil_back.write_mask != 0xff) {
         gl->funcs.StencilMask(0xff);
-        glstate->stencil_write_mask = 0xff;
+        glstate->stencil_front.write_mask = 0xff;
+        glstate->stencil_back.write_mask = 0xff;
     }
 
     ngli_glstate_enable_scissor_test(gl, glstate, 0);

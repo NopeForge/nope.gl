@@ -86,6 +86,16 @@ enum {
     NGLI_GPU_COLOR_COMPONENT_A_BIT = 1 << 3,
 };
 
+struct gpu_stencil_op_state {
+    int write_mask;
+    int func;
+    int ref;
+    int read_mask;
+    int fail;
+    int depth_fail;
+    int depth_pass;
+};
+
 struct gpu_graphics_state {
     int blend;
     int blend_dst_factor;
@@ -102,13 +112,8 @@ struct gpu_graphics_state {
     int depth_func;
 
     int stencil_test;
-    int stencil_write_mask;
-    int stencil_func;
-    int stencil_ref;
-    int stencil_read_mask;
-    int stencil_fail;
-    int stencil_depth_fail;
-    int stencil_depth_pass;
+    struct gpu_stencil_op_state stencil_front;
+    struct gpu_stencil_op_state stencil_back;
 
     int cull_mode;
 };
@@ -130,13 +135,24 @@ struct gpu_graphics_state {
     .depth_write_mask   = 1,                                           \
     .depth_func         = NGLI_GPU_COMPARE_OP_LESS,                    \
     .stencil_test       = 0,                                           \
-    .stencil_write_mask = 0xff,                                        \
-    .stencil_func       = NGLI_GPU_COMPARE_OP_ALWAYS,                  \
-    .stencil_ref        = 0,                                           \
-    .stencil_read_mask  = 0xff,                                        \
-    .stencil_fail       = NGLI_GPU_STENCIL_OP_KEEP,                    \
-    .stencil_depth_fail = NGLI_GPU_STENCIL_OP_KEEP,                    \
-    .stencil_depth_pass = NGLI_GPU_STENCIL_OP_KEEP,                    \
+    .stencil_front      = {                                            \
+        .write_mask = 0xff,                                            \
+        .func       = NGLI_GPU_COMPARE_OP_ALWAYS,                      \
+        .ref        = 0,                                               \
+        .read_mask  = 0xff,                                            \
+        .fail       = NGLI_GPU_STENCIL_OP_KEEP,                        \
+        .depth_fail = NGLI_GPU_STENCIL_OP_KEEP,                        \
+        .depth_pass = NGLI_GPU_STENCIL_OP_KEEP,                        \
+    },                                                                 \
+    .stencil_back = {                                                  \
+         .write_mask = 0xff,                                           \
+         .func       = NGLI_GPU_COMPARE_OP_ALWAYS,                     \
+         .ref        = 0,                                              \
+         .read_mask  = 0xff,                                           \
+         .fail       = NGLI_GPU_STENCIL_OP_KEEP,                       \
+         .depth_fail = NGLI_GPU_STENCIL_OP_KEEP,                       \
+         .depth_pass = NGLI_GPU_STENCIL_OP_KEEP,                       \
+     },                                                                \
     .cull_mode          = NGLI_GPU_CULL_MODE_NONE,                     \
 }                                                                      \
 
