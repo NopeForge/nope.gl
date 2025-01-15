@@ -64,7 +64,7 @@ void ngli_pipeline_compat_apply_reframing_matrix(struct pipeline_compat *s, int3
 void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index, const struct image *image);
 int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct gpu_buffer *buffer, size_t offset, size_t size);
 int ngli_pipeline_compat_update_dynamic_offsets(struct pipeline_compat *s, const uint32_t *offsets, size_t nb_offsets);
-void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances);
+void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances, int first_vertex);
 void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct gpu_buffer *indices, int indices_format, int nb_indices, int nb_instances);
 void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 void ngli_pipeline_compat_freep(struct pipeline_compat **sp);

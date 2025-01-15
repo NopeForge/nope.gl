@@ -416,7 +416,7 @@ static void drawpath_draw(struct ngl_node *node)
     ngli_gpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
     ngli_gpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
 
-    ngli_pipeline_compat_draw(desc->pipeline_compat, 4, 1);
+    ngli_pipeline_compat_draw(desc->pipeline_compat, 4, 1, 0);
 }
 
 static void drawpath_uninit(struct ngl_node *node)

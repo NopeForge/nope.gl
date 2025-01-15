@@ -478,7 +478,7 @@ static void gblur_draw(struct ngl_node *node)
         ngli_pipeline_compat_update_image(s->pl_blur_h, 0, s->image);
         s->image_rev = s->image->rev;
     }
-    ngli_pipeline_compat_draw(s->pl_blur_h, 3, 1);
+    ngli_pipeline_compat_draw(s->pl_blur_h, 3, 1, 0);
     ngli_rtt_end(s->tmp);
 
     ngli_rtt_begin(s->dst_rtt_ctx);
@@ -487,7 +487,7 @@ static void gblur_draw(struct ngl_node *node)
     offset = (uint32_t)s->direction_block.block_size;
     ngli_pipeline_compat_update_dynamic_offsets(s->pl_blur_v, &offset, 1);
     ngli_pipeline_compat_update_image(s->pl_blur_v, 0, ngli_rtt_get_image(s->tmp, 0));
-    ngli_pipeline_compat_draw(s->pl_blur_v, 3, 1);
+    ngli_pipeline_compat_draw(s->pl_blur_v, 3, 1, 0);
     ngli_rtt_end(s->dst_rtt_ctx);
 }
 

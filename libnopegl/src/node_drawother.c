@@ -539,7 +539,7 @@ static int combine_filters_code(struct draw_common *s, const struct draw_common_
 
 static void draw_simple(struct draw_common *s, struct pipeline_compat *pl_compat)
 {
-    ngli_pipeline_compat_draw(pl_compat, s->nb_vertices, 1);
+    ngli_pipeline_compat_draw(pl_compat, s->nb_vertices, 1, 0);
 }
 
 static void draw_indexed(struct draw_common *s, struct pipeline_compat *pl_compat)

@@ -420,7 +420,7 @@ static int draw_glyphs(struct distmap *s)
             ret = ngli_pipeline_compat_update_dynamic_offsets(s->pipeline_compat, offsets, NGLI_ARRAY_NB(offsets));
             if (ret < 0)
                 return ret;
-            ngli_pipeline_compat_draw(s->pipeline_compat, 3, 1);
+            ngli_pipeline_compat_draw(s->pipeline_compat, 3, 1, 0);
             shape_id++;
         }
     }
