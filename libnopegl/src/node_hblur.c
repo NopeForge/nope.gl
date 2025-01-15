@@ -601,7 +601,7 @@ static void hblur_draw(struct ngl_node *node)
         ngli_pipeline_compat_update_image(s->pass1.pl, 1, s->map_image);
         s->image_rev = s->map_image->rev;
     }
-    ngli_pipeline_compat_draw(s->pass1.pl, 3, 1);
+    ngli_pipeline_compat_draw(s->pass1.pl, 3, 1, 0);
     ngli_rtt_end(s->pass1.rtt_ctx);
 
     ngli_rtt_begin(s->pass2.rtt_ctx);
@@ -611,7 +611,7 @@ static void hblur_draw(struct ngl_node *node)
         ngli_pipeline_compat_update_image(s->pass2.pl, 2, s->map_image);
         s->image_rev = s->map_image->rev;
     }
-    ngli_pipeline_compat_draw(s->pass2.pl, 3, 1);
+    ngli_pipeline_compat_draw(s->pass2.pl, 3, 1, 0);
     ngli_rtt_end(s->pass2.rtt_ctx);
 
     /*

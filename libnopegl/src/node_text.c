@@ -722,13 +722,13 @@ static void text_draw(struct ngl_node *node)
     ngli_gpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
     ngli_gpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
 
-    ngli_pipeline_compat_draw(bg_desc->common.pipeline_compat, 4, 1);
+    ngli_pipeline_compat_draw(bg_desc->common.pipeline_compat, 4, 1, 0);
 
     if (s->nb_chars) {
         struct pipeline_desc_fg *fg_desc = &desc->fg;
         ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->common.modelview_matrix_index, modelview_matrix);
         ngli_pipeline_compat_update_uniform(fg_desc->common.pipeline_compat, fg_desc->common.projection_matrix_index, projection_matrix);
-        ngli_pipeline_compat_draw(fg_desc->common.pipeline_compat, 4, (int)s->nb_chars);
+        ngli_pipeline_compat_draw(fg_desc->common.pipeline_compat, 4, (int)s->nb_chars, 0);
     }
 }
 

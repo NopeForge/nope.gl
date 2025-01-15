@@ -681,7 +681,7 @@ int ngli_pass_exec(struct pass *s)
             ngli_pipeline_compat_draw_indexed(pipeline_compat, s->indices, s->indices_layout->format,
                                               (int)s->indices_layout->count, s->nb_instances);
         else
-            ngli_pipeline_compat_draw(pipeline_compat, s->nb_vertices, s->nb_instances);
+            ngli_pipeline_compat_draw(pipeline_compat, s->nb_vertices, s->nb_instances, 0);
     } else {
         if (ctx->render_pass_started) {
             struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;

@@ -1400,7 +1400,7 @@ void ngli_hud_draw(struct hud *s)
     memcpy(transforms_block.projection_matrix, projection_matrix, sizeof(transforms_block.projection_matrix));
     ngli_gpu_block_update(&s->transforms_block, 0, &transforms_block);
 
-    ngli_pipeline_compat_draw(s->pipeline_compat, 4, 1);
+    ngli_pipeline_compat_draw(s->pipeline_compat, 4, 1, 0);
 }
 
 void ngli_hud_freep(struct hud **sp)

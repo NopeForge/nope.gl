@@ -162,7 +162,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     ngli_gpu_ctx_begin_render_pass(gpu_ctx, rt);
 
     ngli_pipeline_compat_update_image(pipeline, 0, image);
-    ngli_pipeline_compat_draw(pipeline, 3, 1);
+    ngli_pipeline_compat_draw(pipeline, 3, 1, 0);
 
     ngli_gpu_ctx_end_render_pass(gpu_ctx);
 
