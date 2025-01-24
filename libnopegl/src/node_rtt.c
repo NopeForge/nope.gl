@@ -234,6 +234,7 @@ static int get_renderpass_info(const struct ngl_node *node, int state, struct re
             if (texture_info->rtt && state == RENDER_PASS_STATE_STARTED)
                 state = RENDER_PASS_STATE_STOPPED;
         } else if (child->cls->category == NGLI_NODE_CATEGORY_DRAW) {
+            state = get_renderpass_info(child, state, info);
             if (state == RENDER_PASS_STATE_STOPPED)
                 info->nb_interruptions++;
             state = RENDER_PASS_STATE_STARTED;
