@@ -36,6 +36,7 @@ struct texture_info {
     struct gpu_texture_params params;
     uint32_t supported_image_layouts;
     int clamp_video;
+    int rtt;
     struct gpu_texture *texture;
     struct image image;
     size_t image_rev;
