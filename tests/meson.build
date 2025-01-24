@@ -297,7 +297,9 @@ foreach backend : backends
 
   tests_rtt = [
     'load_attachment',
+    'load_attachment_implicit',
     'load_attachment_nested',
+    'load_attachment_nested_implicit',
     'depth',
     'depth_stencil',
     'depth_stencil_resizeable',
@@ -316,7 +318,9 @@ foreach backend : backends
   if max_samples >= 4
     tests_rtt += [
       'load_attachment_msaa',
+      'load_attachment_msaa_implicit',
       'load_attachment_nested_msaa',
+      'load_attachment_nested_msaa_implicit',
       'depth_msaa',
       'depth_stencil_msaa',
       'depth_stencil_msaa_resizeable',
