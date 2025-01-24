@@ -53,7 +53,6 @@ struct texture_opts {
 struct texture_priv {
     struct texture_info texture_info;
     struct hwmap hwmap;
-    int rtt;
     int rtt_resizeable;
     struct renderpass_info renderpass_info;
     struct gpu_rendertarget_layout rendertarget_layout;
@@ -450,7 +449,7 @@ static int texture_prefetch(struct ngl_node *node)
     ngli_image_init(&i->image, &image_params, &i->texture);
     i->image.rev = i->image_rev++;
 
-    if (s->rtt) {
+    if (s->texture_info.rtt) {
         /* Transform the color textures coordinates so it matches how the
          * graphics context uv coordinate system works regarding render targets */
         ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, i->image.coordinates_matrix);
@@ -639,7 +638,7 @@ static void texture_draw(struct ngl_node *node)
     struct texture_priv *s = node->priv_data;
     struct texture_opts *o = node->opts;
 
-    if (!s->rtt)
+    if (!s->texture_info.rtt)
         return;
 
     if (s->rtt_resizeable) {
@@ -724,7 +723,7 @@ static int texture2d_init(struct ngl_node *node)
             return NGL_ERROR_INVALID_USAGE;
         }
     } else if (data_src && data_src->cls->category != NGLI_NODE_CATEGORY_BUFFER) {
-        s->rtt = 1;
+        s->texture_info.rtt = 1;
         s->rtt_resizeable = (i->params.width == 0 && i->params.height == 0);
 
         ngli_node_get_renderpass_info(data_src, &s->renderpass_info);
@@ -750,7 +749,7 @@ static int texture2d_prepare(struct ngl_node *node)
     struct rnode *rnode = ctx->rnode_pos;
     struct texture_priv *s = node->priv_data;
 
-    if (!s->rtt)
+    if (!s->texture_info.rtt)
         return 0;
 
     rnode->rendertarget_layout = s->rendertarget_layout;
