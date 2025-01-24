@@ -284,6 +284,60 @@ def rtt_load_attachment_nested_msaa(cfg: ngl.SceneCfg):
     return _rtt_load_attachment_nested(cfg, 4)
 
 
+def _rtt_load_attachment_implicit(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+
+    background = ngl.DrawColor(COLORS.white)
+
+    foreground = ngl.DrawTexture(
+        ngl.Texture2D(
+            data_src=ngl.DrawColor(COLORS.orange),
+            min_filter="nearest",
+            mag_filter="nearest",
+        ),
+        geometry=ngl.Quad((0, 0, 0), (1, 0, 0), (0, 1, 0)),
+    )
+
+    return ngl.Group(children=(background, foreground))
+
+
+@test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
+@ngl.scene()
+def rtt_load_attachment_implicit(cfg: ngl.SceneCfg):
+    return _rtt_load_attachment_implicit(cfg)
+
+
+@test_cuepoints(
+    samples=4, width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1
+)
+@ngl.scene()
+def rtt_load_attachment_msaa_implicit(cfg: ngl.SceneCfg):
+    return _rtt_load_attachment_implicit(cfg)
+
+
+def _rtt_load_attachment_nested_implicit(cfg: ngl.SceneCfg, samples=0):
+    scene = _rtt_load_attachment_implicit(cfg)
+
+    texture = ngl.Texture2D(width=16, height=16, min_filter="nearest", mag_filter="nearest")
+    rtt = ngl.RenderToTexture(scene, [texture], samples=samples)
+
+    foreground = ngl.DrawTexture(texture)
+
+    return ngl.Group(children=(rtt, foreground))
+
+
+@test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
+@ngl.scene()
+def rtt_load_attachment_nested_implicit(cfg: ngl.SceneCfg):
+    return _rtt_load_attachment_nested_implicit(cfg)
+
+
+@test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
+@ngl.scene()
+def rtt_load_attachment_nested_msaa_implicit(cfg: ngl.SceneCfg):
+    return _rtt_load_attachment_nested_implicit(cfg, 4)
+
+
 @test_fingerprint(width=512, height=512, keyframes=10, tolerance=3)
 @ngl.scene()
 def rtt_clear_attachment_with_timeranges(cfg: ngl.SceneCfg):
