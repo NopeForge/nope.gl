@@ -134,7 +134,7 @@ def _get_rtt_scene(
     texture_ds_format=None,
     samples=0,
     implicit=False,
-    resizeable=False,
+    resizable=False,
     mipmap_filter="none",
     sample_depth=False,
 ):
@@ -143,7 +143,7 @@ def _get_rtt_scene(
 
     scene = _get_cube_scene(cfg, depth_test, stencil_test)
 
-    size = 0 if resizeable else 1024
+    size = 0 if resizable else 1024
     texture = ngl.Texture2D(
         width=size,
         height=size,
@@ -205,21 +205,21 @@ def _get_rtt_function(**kwargs):
 _rtt_tests = dict(
     depth=dict(depth_test=True),
     depth_stencil=dict(depth_test=True, stencil_test=True),
-    depth_stencil_resizeable=dict(depth_test=True, stencil_test=True, resizeable=True),
+    depth_stencil_resizable=dict(depth_test=True, stencil_test=True, resizable=True),
     depth_msaa=dict(depth_test=True, samples=4),
     depth_stencil_msaa=dict(depth_test=True, stencil_test=True, samples=4),
-    depth_stencil_msaa_resizeable=dict(depth_test=True, stencil_test=True, samples=4, resizeable=True),
+    depth_stencil_msaa_resizable=dict(depth_test=True, stencil_test=True, samples=4, resizable=True),
     depth_implicit=dict(depth_test=True, implicit=True),
     depth_stencil_implicit=dict(depth_test=True, stencil_test=True, implicit=True),
-    depth_stencil_implicit_resizeable=dict(depth_test=True, stencil_test=True, implicit=True, resizeable=True),
+    depth_stencil_implicit_resizable=dict(depth_test=True, stencil_test=True, implicit=True, resizable=True),
     depth_texture=dict(texture_ds_format="auto_depth"),
     depth_stencil_texture=dict(texture_ds_format="auto_depth_stencil"),
-    depth_stencil_texture_resizeable=dict(texture_ds_format="auto_depth_stencil", resizeable=True),
+    depth_stencil_texture_resizable=dict(texture_ds_format="auto_depth_stencil", resizable=True),
     depth_texture_msaa=dict(texture_ds_format="auto_depth", samples=4),
     depth_stencil_texture_msaa=dict(texture_ds_format="auto_depth_stencil", samples=4),
-    depth_stencil_texture_msaa_resizeable=dict(texture_ds_format="auto_depth_stencil", samples=4, resizeable=True),
+    depth_stencil_texture_msaa_resizable=dict(texture_ds_format="auto_depth_stencil", samples=4, resizable=True),
     mipmap=dict(depth_test=True, mipmap_filter="linear"),
-    mipmap_resizeable=dict(depth_test=True, resizeable=True, mipmap_filter="linear"),
+    mipmap_resizable=dict(depth_test=True, resizable=True, mipmap_filter="linear"),
     sample_depth=dict(texture_ds_format="auto_depth", sample_depth=True),
     sample_depth_msaa=dict(texture_ds_format="auto_depth", sample_depth=True, samples=4),
 )
