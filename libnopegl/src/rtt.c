@@ -261,6 +261,12 @@ int ngli_rtt_from_texture_params(struct rtt_ctx *s, const struct gpu_texture_par
     return ngli_rtt_init(s, &rtt_params);
 }
 
+void ngli_rtt_get_dimensions(struct rtt_ctx *s, int32_t *width, int32_t *height)
+{
+    *width = s->params.width;
+    *height = s->params.height;
+}
+
 struct gpu_texture *ngli_rtt_get_texture(struct rtt_ctx *s, size_t index)
 {
     ngli_assert(index < s->params.nb_colors);

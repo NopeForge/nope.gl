@@ -48,6 +48,7 @@ struct rtt_params {
 struct rtt_ctx *ngli_rtt_create(struct ngl_ctx *ctx);
 int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params);
 int ngli_rtt_from_texture_params(struct rtt_ctx *s, const struct gpu_texture_params *params);
+void ngli_rtt_get_dimensions(struct rtt_ctx *s, int32_t *width, int32_t *height);
 struct gpu_texture *ngli_rtt_get_texture(struct rtt_ctx *s, size_t index);
 struct image *ngli_rtt_get_image(struct rtt_ctx *s, size_t index);
 void ngli_rtt_begin(struct rtt_ctx *s);
