@@ -313,6 +313,8 @@ foreach backend : backends
     'mipmap_resizable',
     'sample_depth',
     'clear_attachment_with_timeranges',
+    'resizable_with_timeranges',
+    'resizable_with_timeranges_implicit',
   ]
 
   if max_samples >= 4

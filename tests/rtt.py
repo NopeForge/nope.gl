@@ -369,3 +369,61 @@ def rtt_clear_attachment_with_timeranges(cfg: ngl.SceneCfg):
     draw = ngl.DrawTexture(texture)
 
     return ngl.Group(children=(rtt, draw))
+
+
+@test_fingerprint(width=512, height=512, keyframes=10, tolerance=3)
+@ngl.scene()
+def rtt_shared_subgraph_implicit(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+
+    scene = _get_cube_scene(cfg)
+
+    texture = ngl.Texture2D(format="r8g8_unorm", data_src=scene)
+    draw = ngl.DrawTexture(texture)
+
+    # The order here is important as we want to test that the render target
+    # (texture) internally setup a dedicated rnode and that the rnode used by
+    # the draw node is not overridden by the subgraph
+    group = ngl.Group(children=(scene, draw))
+
+    return group
+
+
+@test_fingerprint(width=512, height=512, keyframes=10, tolerance=3)
+@ngl.scene()
+def rtt_resizable_with_timeranges(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+    cfg.duration = 10
+
+    scene = _get_cube_scene(cfg)
+
+    texture = ngl.Texture2D()
+    rtt = ngl.RenderToTexture(scene, color_textures=(texture,))
+    draw = ngl.DrawTexture(texture)
+    group = ngl.Group(children=(rtt, draw))
+
+    time_range_filter1 = ngl.TimeRangeFilter(group, start=0, end=1)
+    time_range_filter2 = ngl.TimeRangeFilter(group, start=5)
+
+    group = ngl.Group(children=(time_range_filter1, time_range_filter2))
+
+    return group
+
+
+@test_fingerprint(width=512, height=512, keyframes=10, tolerance=3)
+@ngl.scene()
+def rtt_resizable_with_timeranges_implicit(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+    cfg.duration = 10
+
+    scene = _get_cube_scene(cfg)
+
+    texture = ngl.Texture2D(data_src=scene)
+    draw = ngl.DrawTexture(texture)
+
+    time_range_filter1 = ngl.TimeRangeFilter(draw, start=0, end=1)
+    time_range_filter2 = ngl.TimeRangeFilter(draw, start=5)
+
+    group = ngl.Group(children=(time_range_filter1, time_range_filter2))
+
+    return group
