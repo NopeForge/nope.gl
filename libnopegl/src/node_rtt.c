@@ -349,8 +349,12 @@ static int rtt_resize(struct ngl_node *node)
 
     const int32_t width = ctx->current_rendertarget->width;
     const int32_t height = ctx->current_rendertarget->height;
-    if (s->width == width && s->height == height)
-        return 0;
+    if (s->rtt_ctx) {
+        int32_t current_width, current_height;
+        ngli_rtt_get_dimensions(s->rtt_ctx, &current_width, &current_height);
+        if (current_width == width && current_height == height)
+            return 0;
+    }
 
     struct gpu_texture *textures[NGLI_GPU_MAX_COLOR_ATTACHMENTS] = {NULL};
     struct gpu_texture *depth_texture = NULL;
