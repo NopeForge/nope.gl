@@ -54,7 +54,7 @@ struct rtt_priv {
     struct renderpass_info renderpass_info;
     int32_t width;
     int32_t height;
-    int resizeable;
+    int resizable;
 
     struct gpu_rendertarget_layout layout;
     struct rtt_params rtt_params;
@@ -159,7 +159,7 @@ static int rtt_init(struct ngl_node *node)
         if (i == 0) {
             s->width = params->width;
             s->height = params->height;
-            s->resizeable = (s->width == 0 && s->height == 0);
+            s->resizable = (s->width == 0 && s->height == 0);
         } else if (s->width != params->width || s->height != params->height) {
             LOG(ERROR, "all color texture dimensions do not match: %dx%d != %dx%d",
             s->width, s->height, params->width, params->height);
@@ -326,7 +326,7 @@ static int rtt_prefetch(struct ngl_node *node)
         s->rtt_params.depth_stencil_format = depth_format;
     }
 
-    if (s->resizeable)
+    if (s->resizable)
         return 0;
 
     s->rtt_ctx = ngli_rtt_create(node->ctx);
@@ -455,7 +455,7 @@ static void rtt_draw(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
     const struct rtt_opts *o = node->opts;
 
-    if (s->resizeable) {
+    if (s->resizable) {
         int ret = rtt_resize(node);
         if (ret < 0)
             return;

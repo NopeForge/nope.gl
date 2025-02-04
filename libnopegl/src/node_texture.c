@@ -53,7 +53,7 @@ struct texture_opts {
 struct texture_priv {
     struct texture_info texture_info;
     struct hwmap hwmap;
-    int rtt_resizeable;
+    int rtt_resizable;
     struct renderpass_info renderpass_info;
     struct gpu_rendertarget_layout rendertarget_layout;
     struct rtt_params rtt_params;
@@ -641,7 +641,7 @@ static void texture_draw(struct ngl_node *node)
     if (!s->texture_info.rtt)
         return;
 
-    if (s->rtt_resizeable) {
+    if (s->rtt_resizable) {
         int ret = rtt_resize(node);
         if (ret < 0)
             return;
@@ -724,7 +724,7 @@ static int texture2d_init(struct ngl_node *node)
         }
     } else if (data_src && data_src->cls->category != NGLI_NODE_CATEGORY_BUFFER) {
         s->texture_info.rtt = 1;
-        s->rtt_resizeable = (i->params.width == 0 && i->params.height == 0);
+        s->rtt_resizable = (i->params.width == 0 && i->params.height == 0);
 
         ngli_node_get_renderpass_info(data_src, &s->renderpass_info);
 

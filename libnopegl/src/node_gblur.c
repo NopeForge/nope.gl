@@ -83,7 +83,7 @@ struct gblur_priv {
     struct rtt_ctx *tmp;
 
     /* Render the vertical pass to the destination */
-    int dst_is_resizeable;
+    int dst_is_resizable;
     struct gpu_rendertarget_layout dst_layout;
     struct rtt_ctx *dst_rtt_ctx;
 
@@ -240,7 +240,7 @@ static int gblur_init(struct ngl_node *node)
     struct texture_info *dst_info = o->destination->priv_data;
     dst_info->params.usage |= NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    s->dst_is_resizeable = (dst_info->params.width == 0 && dst_info->params.height == 0);
+    s->dst_is_resizable = (dst_info->params.width == 0 && dst_info->params.height == 0);
     s->dst_layout.colors[0].format = dst_info->params.format;
     s->dst_layout.nb_colors = 1;
 
@@ -385,7 +385,7 @@ static int resize(struct ngl_node *node)
         goto fail;
 
     dst = dst_info->texture;
-    if (s->dst_is_resizeable) {
+    if (s->dst_is_resizable) {
         dst = ngli_gpu_texture_create(ctx->gpu_ctx);
         if (!dst) {
             ret = NGL_ERROR_MEMORY;
@@ -403,7 +403,7 @@ static int resize(struct ngl_node *node)
     ngli_rtt_freep(&s->tmp);
     s->tmp = tmp;
 
-    if (s->dst_is_resizeable) {
+    if (s->dst_is_resizable) {
         ngli_gpu_texture_freep(&dst_info->texture);
         dst_info->texture = dst;
         dst_info->image.params.width = dst->params.width;
@@ -448,7 +448,7 @@ fail:
     ngli_rtt_freep(&tmp);
 
     ngli_rtt_freep(&dst_rtt_ctx);
-    if (s->dst_is_resizeable)
+    if (s->dst_is_resizable)
         ngli_gpu_texture_freep(&dst);
 
     LOG(ERROR, "failed to resize blur: %dx%d", width, height);
