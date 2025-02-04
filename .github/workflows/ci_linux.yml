@@ -31,7 +31,7 @@ jobs:
             custom_args: --suite vulkan
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -78,7 +78,7 @@ jobs:
 
     - name: Upload Logs
       if: ${{ always() }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: linux logs ${{matrix.backend}}
         path: builddir/tests/meson-logs/testlog.txt
