@@ -25,6 +25,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `DrawMask` node to facilitate alpha masking with textures
 - `ngl_config.debug` parameter to enable graphics context debugging
 
+### Fixed
+- Crash when using resizable RTTs with time ranges
+
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node
   list which accepts `FontFace` nodes instead
