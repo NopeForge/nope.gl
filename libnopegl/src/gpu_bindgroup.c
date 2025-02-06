@@ -55,10 +55,10 @@ struct gpu_bindgroup_layout *ngli_gpu_bindgroup_layout_create(struct gpu_ctx *gp
 }
 
 int ngli_gpu_bindgroup_layout_init(struct gpu_bindgroup_layout *s,
-                                   const struct gpu_bindgroup_layout_params *params)
+                                   const struct gpu_bindgroup_layout_desc *desc)
 {
-    NGLI_ARRAY_MEMDUP(s, params, textures);
-    NGLI_ARRAY_MEMDUP(s, params, buffers);
+    NGLI_ARRAY_MEMDUP(s, desc, textures);
+    NGLI_ARRAY_MEMDUP(s, desc, buffers);
 
     size_t nb_uniform_buffers_dynamic = 0;
     size_t nb_storage_buffers_dynamic = 0;

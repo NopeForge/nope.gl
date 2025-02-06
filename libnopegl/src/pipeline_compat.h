@@ -36,18 +36,11 @@ struct pipeline_compat_resources {
     size_t nb_vertex_buffers;
 };
 
-struct pipeline_compat_layout {
-    const struct gpu_bindgroup_layout_entry *textures;
-    size_t nb_textures;
-    const struct gpu_bindgroup_layout_entry *buffers;
-    size_t nb_buffers;
-};
-
 struct pipeline_compat_params {
     int type; // NGLI_PIPELINE_TYPE_*
     struct gpu_pipeline_graphics graphics;
     const struct gpu_program *program;
-    struct pipeline_compat_layout layout;
+    struct gpu_bindgroup_layout_desc layout_desc;
     struct pipeline_compat_resources resources;
     const struct pgcraft_compat_info *compat_info;
 };

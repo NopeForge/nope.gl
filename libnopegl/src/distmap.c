@@ -671,7 +671,7 @@ int ngli_distmap_finalize(struct distmap *s)
             .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
         },
         .program     = ngli_pgcraft_get_program(s->crafter),
-        .layout      = ngli_pgcraft_get_pipeline_layout(s->crafter),
+        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(s->crafter),
         .resources   = ngli_pgcraft_get_pipeline_resources(s->crafter),
         .compat_info = ngli_pgcraft_get_compat_info(s->crafter),
     };

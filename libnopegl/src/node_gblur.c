@@ -202,7 +202,7 @@ static int setup_pipeline(struct pgcraft *crafter, struct pipeline_compat *pipel
             .vertex_state = ngli_pgcraft_get_vertex_state(crafter),
         },
         .program      = ngli_pgcraft_get_program(crafter),
-        .layout       = ngli_pgcraft_get_pipeline_layout(crafter),
+        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter),
         .resources    = ngli_pgcraft_get_pipeline_resources(crafter),
         .compat_info  = ngli_pgcraft_get_compat_info(crafter),
     };

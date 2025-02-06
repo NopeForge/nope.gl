@@ -435,10 +435,10 @@ static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
 {
     ngli_darray_init(&desc->blocks_map, sizeof(struct resource_map), 0);
 
-    struct pipeline_compat_layout layout = ngli_pgcraft_get_pipeline_layout(desc->crafter);
+    struct gpu_bindgroup_layout_desc layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(desc->crafter);
 
-    for (size_t i = 0; i < layout.nb_buffers; i++) {
-        const struct gpu_bindgroup_layout_entry *entry = &layout.buffers[i];
+    for (size_t i = 0; i < layout_desc.nb_buffers; i++) {
+        const struct gpu_bindgroup_layout_entry *entry = &layout_desc.buffers[i];
         const struct hmap *resources = NULL;
         if (entry->stage_flags == NGLI_GPU_PROGRAM_STAGE_VERTEX_BIT)
             resources = s->params.vert_resources;
@@ -540,7 +540,7 @@ int ngli_pass_prepare(struct pass *s)
             .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
         },
         .program     = ngli_pgcraft_get_program(desc->crafter),
-        .layout      = ngli_pgcraft_get_pipeline_layout(desc->crafter),
+        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(desc->crafter),
         .resources   = ngli_pgcraft_get_pipeline_resources(desc->crafter),
         .compat_info = ngli_pgcraft_get_compat_info(desc->crafter),
     };

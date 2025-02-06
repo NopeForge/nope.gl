@@ -60,9 +60,9 @@ int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
     if (need_relink)
         gl->funcs.LinkProgram(s_priv->id);
 
-    const struct pipeline_compat_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
-    for (size_t i = 0; i < layout.nb_buffers; i++) {
-        const struct gpu_bindgroup_layout_entry *entry = &layout.buffers[i];
+    const struct gpu_bindgroup_layout_desc layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter);
+    for (size_t i = 0; i < layout_desc.nb_buffers; i++) {
+        const struct gpu_bindgroup_layout_entry *entry = &layout_desc.buffers[i];
         if (entry->type != NGLI_TYPE_UNIFORM_BUFFER &&
             entry->type != NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC)
             continue;
@@ -82,8 +82,8 @@ int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
 
     struct glstate *glstate = &gpu_ctx_gl->glstate;
     ngli_glstate_use_program(gl, glstate, s_priv->id);
-    for (size_t i = 0; i < layout.nb_textures; i++) {
-        const struct gpu_bindgroup_layout_entry *entry = &layout.textures[i];
+    for (size_t i = 0; i < layout_desc.nb_textures; i++) {
+        const struct gpu_bindgroup_layout_entry *entry = &layout_desc.textures[i];
         const char *texture_name = ngli_pgcraft_get_symbol_name(crafter, entry->id);
         const GLint location = gl->funcs.GetUniformLocation(s_priv->id, texture_name);
         gl->funcs.Uniform1i(location, entry->binding);

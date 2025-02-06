@@ -138,7 +138,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
             .vertex_state = ngli_pgcraft_get_vertex_state(hwconv->crafter),
         },
         .program      = ngli_pgcraft_get_program(hwconv->crafter),
-        .layout       = ngli_pgcraft_get_pipeline_layout(hwconv->crafter),
+        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(hwconv->crafter),
         .resources    = ngli_pgcraft_get_pipeline_resources(hwconv->crafter),
         .compat_info  = ngli_pgcraft_get_compat_info(hwconv->crafter),
     };
