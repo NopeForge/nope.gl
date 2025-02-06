@@ -181,10 +181,11 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
             .rt_layout    = *layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(crafter),
         },
-        .program      = ngli_pgcraft_get_program(crafter),
-        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter),
-        .resources    = ngli_pgcraft_get_pipeline_resources(crafter),
-        .compat_info  = ngli_pgcraft_get_compat_info(crafter),
+        .program          = ngli_pgcraft_get_program(crafter),
+        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(crafter),
+        .resources        = ngli_pgcraft_get_bindgroup_resources(crafter),
+        .vertex_resources = ngli_pgcraft_get_vertex_resources(crafter),
+        .compat_info      = ngli_pgcraft_get_compat_info(crafter),
     };
 
     ret = ngli_pipeline_compat_init(pipeline, &params);
@@ -266,10 +267,11 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
             .rt_layout    = s->dst_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(s->interpolate.crafter),
         },
-        .program      = ngli_pgcraft_get_program(s->interpolate.crafter),
-        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(s->interpolate.crafter),
-        .resources    = ngli_pgcraft_get_pipeline_resources(s->interpolate.crafter),
-        .compat_info  = ngli_pgcraft_get_compat_info(s->interpolate.crafter),
+        .program          = ngli_pgcraft_get_program(s->interpolate.crafter),
+        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->interpolate.crafter),
+        .resources        = ngli_pgcraft_get_bindgroup_resources(s->interpolate.crafter),
+        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->interpolate.crafter),
+        .compat_info      = ngli_pgcraft_get_compat_info(s->interpolate.crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->interpolate.pl, &params);

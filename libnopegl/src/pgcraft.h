@@ -205,10 +205,11 @@ int32_t ngli_pgcraft_get_image_index(const struct pgcraft *s, const char *name);
 const struct pgcraft_compat_info *ngli_pgcraft_get_compat_info(const struct pgcraft *s);
 const char *ngli_pgcraft_get_symbol_name(const struct pgcraft *s, size_t id);
 struct gpu_vertex_state ngli_pgcraft_get_vertex_state(const struct pgcraft *s);
+struct gpu_vertex_resources ngli_pgcraft_get_vertex_resources(const struct pgcraft *s);
 int32_t ngli_pgcraft_get_vertex_buffer_index(const struct pgcraft *s, const char *name);
 struct gpu_program *ngli_pgcraft_get_program(const struct pgcraft *s);
 struct gpu_bindgroup_layout_desc ngli_pgcraft_get_bindgroup_layout_desc(const struct pgcraft *s);
-struct pipeline_compat_resources ngli_pgcraft_get_pipeline_resources(const struct pgcraft *s);
+struct gpu_bindgroup_resources ngli_pgcraft_get_bindgroup_resources(const struct pgcraft *s);
 void ngli_pgcraft_freep(struct pgcraft **sp);
 
 #endif

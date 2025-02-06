@@ -145,11 +145,13 @@ static int grow_bindgroup_array(struct pipeline_compat *s)
             return NGL_ERROR_MEMORY;
 
         struct gpu_bindgroup_params params = {
-            .layout      = s->bindgroup_layout,
-            .textures    = s->textures,
-            .nb_textures = s->nb_textures,
-            .buffers     = s->buffers,
-            .nb_buffers  = s->nb_buffers,
+            .layout    = s->bindgroup_layout,
+            .resources = {
+                .textures    = s->textures,
+                .nb_textures = s->nb_textures,
+                .buffers     = s->buffers,
+                .nb_buffers  = s->nb_buffers,
+            },
         };
 
         int ret = ngli_gpu_bindgroup_init(bindgroup, &params);
@@ -231,10 +233,12 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_desc, &params->layout_desc, textures);
     NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_desc, &params->layout_desc, buffers);
 
-    const struct pipeline_compat_resources *resources = &params->resources;
-    NGLI_ARRAY_MEMDUP(s, resources, vertex_buffers);
-    NGLI_ARRAY_MEMDUP(s, resources, buffers);
-    NGLI_ARRAY_MEMDUP(s, resources, textures);
+    const struct gpu_bindgroup_resources *bindgroup_resources = &params->resources;
+    NGLI_ARRAY_MEMDUP(s, bindgroup_resources, buffers);
+    NGLI_ARRAY_MEMDUP(s, bindgroup_resources, textures);
+
+    const struct gpu_vertex_resources *vertex_resources = &params->vertex_resources;
+    NGLI_ARRAY_MEMDUP(s, vertex_resources, vertex_buffers);
 
     s->compat_info = params->compat_info;
     ret = init_blocks_buffers(s, params);

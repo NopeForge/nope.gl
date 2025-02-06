@@ -109,7 +109,7 @@ static int setup_compute(struct colorstats_priv *s, struct pgcraft *crafter,
         .type        = NGLI_GPU_PIPELINE_TYPE_COMPUTE,
         .program     = ngli_pgcraft_get_program(crafter),
         .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter),
-        .resources   = ngli_pgcraft_get_pipeline_resources(crafter),
+        .resources   = ngli_pgcraft_get_bindgroup_resources(crafter),
         .compat_info = ngli_pgcraft_get_compat_info(crafter),
     };
 

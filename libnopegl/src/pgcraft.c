@@ -1497,6 +1497,15 @@ struct gpu_vertex_state ngli_pgcraft_get_vertex_state(const struct pgcraft *s)
     };
 }
 
+struct gpu_vertex_resources ngli_pgcraft_get_vertex_resources(const struct pgcraft *s)
+{
+    const struct gpu_vertex_resources resources = {
+        .vertex_buffers    = ngli_darray_data(&s->pipeline_info.data.vertex_buffers),
+        .nb_vertex_buffers = ngli_darray_count(&s->pipeline_info.data.vertex_buffers),
+    };
+    return resources;
+}
+
 int32_t ngli_pgcraft_get_vertex_buffer_index(const struct pgcraft *s, const char *name)
 {
     const struct darray *array = &s->pipeline_info.desc.vertex_buffers;
@@ -1529,13 +1538,11 @@ struct gpu_bindgroup_layout_desc ngli_pgcraft_get_bindgroup_layout_desc(const st
     return bindgroup_layout_params;
 }
 
-struct pipeline_compat_resources ngli_pgcraft_get_pipeline_resources(const struct pgcraft *s)
+struct gpu_bindgroup_resources ngli_pgcraft_get_bindgroup_resources(const struct pgcraft *s)
 {
-    const struct pipeline_compat_resources resources = {
+    const struct gpu_bindgroup_resources resources = {
         .textures          = ngli_darray_data(&s->pipeline_info.data.textures),
         .nb_textures       = ngli_darray_count(&s->pipeline_info.data.textures),
-        .vertex_buffers    = ngli_darray_data(&s->pipeline_info.data.vertex_buffers),
-        .nb_vertex_buffers = ngli_darray_count(&s->pipeline_info.data.vertex_buffers),
         .buffers           = ngli_darray_data(&s->pipeline_info.data.buffers),
         .nb_buffers        = ngli_darray_count(&s->pipeline_info.data.buffers),
     };

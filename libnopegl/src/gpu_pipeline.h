@@ -54,6 +54,11 @@ struct gpu_vertex_state {
     size_t nb_buffers;
 };
 
+struct gpu_vertex_resources {
+    struct gpu_buffer **vertex_buffers;
+    size_t nb_vertex_buffers;
+};
+
 struct gpu_pipeline_graphics {
     int topology;
     struct gpu_graphics_state state;
