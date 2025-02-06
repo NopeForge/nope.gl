@@ -289,14 +289,14 @@ int ngli_gpu_bindgroup_vk_init(struct gpu_bindgroup *s, const struct gpu_bindgro
     }
 
     for (size_t i = 0; i < layout->nb_buffers; i++) {
-        const struct gpu_buffer_binding *binding = &params->buffers[i];
+        const struct gpu_buffer_binding *binding = &params->resources.buffers[i];
         int ret = ngli_gpu_bindgroup_update_buffer(s, (int32_t) i, binding);
         if (ret < 0)
             return ret;
     }
 
     for (size_t i = 0; i < layout->nb_textures; i++) {
-        const struct gpu_texture_binding *binding = &params->textures[i];
+        const struct gpu_texture_binding *binding = &params->resources.textures[i];
         int ret = ngli_gpu_bindgroup_update_texture(s, (int32_t) i, binding);
         if (ret < 0)
             return ret;

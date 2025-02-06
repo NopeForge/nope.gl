@@ -253,10 +253,11 @@ static int setup_pass1_pipeline(struct ngl_node *node)
             .rt_layout    = s->pass1.layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(s->pass1.crafter),
         },
-        .program      = ngli_pgcraft_get_program(s->pass1.crafter),
-        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(s->pass1.crafter),
-        .resources    = ngli_pgcraft_get_pipeline_resources(s->pass1.crafter),
-        .compat_info  = ngli_pgcraft_get_compat_info(s->pass1.crafter),
+        .program          = ngli_pgcraft_get_program(s->pass1.crafter),
+        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->pass1.crafter),
+        .resources        = ngli_pgcraft_get_bindgroup_resources(s->pass1.crafter),
+        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->pass1.crafter),
+        .compat_info      = ngli_pgcraft_get_compat_info(s->pass1.crafter),
     };
 
     s->pass1.pl = ngli_pipeline_compat_create(gpu_ctx);
@@ -344,10 +345,11 @@ static int setup_pass2_pipeline(struct ngl_node *node)
             .rt_layout    = s->pass2.layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(s->pass2.crafter),
         },
-        .program      = ngli_pgcraft_get_program(s->pass2.crafter),
-        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(s->pass2.crafter),
-        .resources    = ngli_pgcraft_get_pipeline_resources(s->pass2.crafter),
-        .compat_info  = ngli_pgcraft_get_compat_info(s->pass2.crafter),
+        .program          = ngli_pgcraft_get_program(s->pass2.crafter),
+        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->pass2.crafter),
+        .resources        = ngli_pgcraft_get_bindgroup_resources(s->pass2.crafter),
+        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->pass2.crafter),
+        .compat_info      = ngli_pgcraft_get_compat_info(s->pass2.crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->pass2.pl, &params);

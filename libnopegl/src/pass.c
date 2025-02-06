@@ -539,10 +539,11 @@ int ngli_pass_prepare(struct pass *s)
             .rt_layout    = rnode->rendertarget_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
         },
-        .program     = ngli_pgcraft_get_program(desc->crafter),
-        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(desc->crafter),
-        .resources   = ngli_pgcraft_get_pipeline_resources(desc->crafter),
-        .compat_info = ngli_pgcraft_get_compat_info(desc->crafter),
+        .program          = ngli_pgcraft_get_program(desc->crafter),
+        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(desc->crafter),
+        .resources        = ngli_pgcraft_get_bindgroup_resources(desc->crafter),
+        .vertex_resources = ngli_pgcraft_get_vertex_resources(desc->crafter),
+        .compat_info      = ngli_pgcraft_get_compat_info(desc->crafter),
     };
     ret = ngli_pipeline_compat_init(desc->pipeline_compat, &params);
     if (ret < 0)

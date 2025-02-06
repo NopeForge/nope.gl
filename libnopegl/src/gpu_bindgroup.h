@@ -84,12 +84,16 @@ struct gpu_buffer_binding {
     size_t size;
 };
 
-struct gpu_bindgroup_params {
-    const struct gpu_bindgroup_layout *layout;
+struct gpu_bindgroup_resources {
     struct gpu_texture_binding *textures;
     size_t nb_textures;
     struct gpu_buffer_binding *buffers;
     size_t nb_buffers;
+};
+
+struct gpu_bindgroup_params {
+    const struct gpu_bindgroup_layout *layout;
+    struct gpu_bindgroup_resources resources;
 };
 
 struct gpu_bindgroup {

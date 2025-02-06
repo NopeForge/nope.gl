@@ -27,21 +27,13 @@
 #include "pgcraft.h"
 #include "gpu_pipeline.h"
 
-struct pipeline_compat_resources {
-    struct gpu_texture_binding *textures;
-    size_t nb_textures;
-    struct gpu_buffer_binding *buffers;
-    size_t nb_buffers;
-    struct gpu_buffer **vertex_buffers;
-    size_t nb_vertex_buffers;
-};
-
 struct pipeline_compat_params {
     int type; // NGLI_PIPELINE_TYPE_*
     struct gpu_pipeline_graphics graphics;
     const struct gpu_program *program;
     struct gpu_bindgroup_layout_desc layout_desc;
-    struct pipeline_compat_resources resources;
+    struct gpu_bindgroup_resources resources;
+    struct gpu_vertex_resources vertex_resources;
     const struct pgcraft_compat_info *compat_info;
 };
 
