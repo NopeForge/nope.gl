@@ -82,6 +82,7 @@ struct pgcraft {
     struct darray textures; // pgcraft_texture
 
     struct gpu_program *program;
+    struct gpu_bindgroup_layout *bindgroup_layout;
 
     int bindings[NGLI_BINDING_TYPE_NB];
     int *next_bindings[NGLI_BINDING_TYPE_NB];
@@ -1517,15 +1518,15 @@ const char *ngli_pgcraft_get_symbol_name(const struct pgcraft *s, size_t id)
     return ngli_darray_get(&s->symbols, id);
 }
 
-struct pipeline_compat_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s)
+struct gpu_bindgroup_layout_desc ngli_pgcraft_get_bindgroup_layout_desc(const struct pgcraft *s)
 {
-    const struct pipeline_compat_layout layout = {
-        .textures      = ngli_darray_data(&s->pipeline_info.desc.textures),
-        .nb_textures   = ngli_darray_count(&s->pipeline_info.desc.textures),
-        .buffers       = ngli_darray_data(&s->pipeline_info.desc.buffers),
-        .nb_buffers    = ngli_darray_count(&s->pipeline_info.desc.buffers),
+    const struct gpu_bindgroup_layout_desc bindgroup_layout_params = {
+        .textures    = ngli_darray_data(&s->pipeline_info.desc.textures),
+        .nb_textures = ngli_darray_count(&s->pipeline_info.desc.textures),
+        .buffers     = ngli_darray_data(&s->pipeline_info.desc.buffers),
+        .nb_buffers  = ngli_darray_count(&s->pipeline_info.desc.buffers),
     };
-    return layout;
+    return bindgroup_layout_params;
 }
 
 struct pipeline_compat_resources ngli_pgcraft_get_pipeline_resources(const struct pgcraft *s)

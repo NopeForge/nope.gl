@@ -850,7 +850,7 @@ static int finalize_pipeline(struct ngl_node *node,
             .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
         },
         .program     = ngli_pgcraft_get_program(desc->crafter),
-        .layout      = ngli_pgcraft_get_pipeline_layout(desc->crafter),
+        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(desc->crafter),
         .resources   = ngli_pgcraft_get_pipeline_resources(desc->crafter),
         .compat_info = ngli_pgcraft_get_compat_info(desc->crafter),
     };

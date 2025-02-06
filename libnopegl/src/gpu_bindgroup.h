@@ -54,7 +54,7 @@ struct gpu_bindgroup_layout_entry {
     void *immutable_sampler;
 };
 
-struct gpu_bindgroup_layout_params {
+struct gpu_bindgroup_layout_desc {
     struct gpu_bindgroup_layout_entry *textures;
     size_t nb_textures;
     struct gpu_bindgroup_layout_entry *buffers;
@@ -101,7 +101,7 @@ struct gpu_bindgroup {
 NGLI_RC_CHECK_STRUCT(gpu_bindgroup);
 
 struct gpu_bindgroup_layout *ngli_gpu_bindgroup_layout_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_bindgroup_layout_init(struct gpu_bindgroup_layout *s, const struct gpu_bindgroup_layout_params *params);
+int ngli_gpu_bindgroup_layout_init(struct gpu_bindgroup_layout *s, const struct gpu_bindgroup_layout_desc *desc);
 int ngli_gpu_bindgroup_layout_is_compatible(const struct gpu_bindgroup_layout *a, const struct gpu_bindgroup_layout *b);
 void ngli_gpu_bindgroup_layout_freep(struct gpu_bindgroup_layout **sp);
 

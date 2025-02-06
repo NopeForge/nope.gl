@@ -40,7 +40,7 @@ struct pipeline_compat {
     struct gpu_pipeline_graphics graphics;
     const struct gpu_program *program;
     struct gpu_pipeline *pipeline;
-    struct gpu_bindgroup_layout_params bindgroup_layout_params;
+    struct gpu_bindgroup_layout_desc bindgroup_layout_desc;
     struct gpu_bindgroup_layout *bindgroup_layout;
     struct darray bindgroups;
     struct gpu_bindgroup *cur_bindgroup;
@@ -175,7 +175,7 @@ static int create_pipeline(struct pipeline_compat *s)
     if (!s->bindgroup_layout)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_gpu_bindgroup_layout_init(s->bindgroup_layout, &s->bindgroup_layout_params);
+    int ret = ngli_gpu_bindgroup_layout_init(s->bindgroup_layout, &s->bindgroup_layout_desc);
     if (ret < 0)
         return ret;
 
@@ -228,8 +228,8 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
 
     s->program = params->program;
 
-    NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_params, &params->layout, textures);
-    NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_params, &params->layout, buffers);
+    NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_desc, &params->layout_desc, textures);
+    NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_desc, &params->layout_desc, buffers);
 
     const struct pipeline_compat_resources *resources = &params->resources;
     NGLI_ARRAY_MEMDUP(s, resources, vertex_buffers);
@@ -296,7 +296,7 @@ static int update_texture(struct pipeline_compat *s, int32_t index, const struct
     ngli_assert(index >= 0 && index < s->nb_textures);
 
     if (s->textures[index].immutable_sampler != binding->immutable_sampler) {
-        struct gpu_bindgroup_layout_entry *entry = &s->bindgroup_layout_params.textures[index];
+        struct gpu_bindgroup_layout_entry *entry = &s->bindgroup_layout_desc.textures[index];
         entry->immutable_sampler = binding->immutable_sampler;
         s->need_pipeline_recreation = 1;
     }
@@ -588,8 +588,8 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
 
     ngli_gpu_pipeline_graphics_reset(&s->graphics);
 
-    ngli_freep(&s->bindgroup_layout_params.textures);
-    ngli_freep(&s->bindgroup_layout_params.buffers);
+    ngli_freep(&s->bindgroup_layout_desc.textures);
+    ngli_freep(&s->bindgroup_layout_desc.buffers);
 
     ngli_freep(&s->vertex_buffers);
     ngli_freep(&s->textures);
