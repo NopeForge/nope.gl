@@ -26,6 +26,6 @@
 
 struct ngl_node;
 
-void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct gpu_graphics_state *state);
+void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct ngpu_graphics_state *state);
 
 #endif

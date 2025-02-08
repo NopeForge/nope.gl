@@ -22,17 +22,17 @@
 #include "gpu_ctx.h"
 #include "gpu_program.h"
 
-struct gpu_program *ngli_gpu_program_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_program *ngpu_program_create(struct ngpu_ctx *gpu_ctx)
 {
     return gpu_ctx->cls->program_create(gpu_ctx);
 }
 
-int ngli_gpu_program_init(struct gpu_program *s, const struct gpu_program_params *params)
+int ngpu_program_init(struct ngpu_program *s, const struct ngpu_program_params *params)
 {
     return s->gpu_ctx->cls->program_init(s, params);
 }
 
-void ngli_gpu_program_freep(struct gpu_program **sp)
+void ngpu_program_freep(struct ngpu_program **sp)
 {
     if (!*sp)
         return;

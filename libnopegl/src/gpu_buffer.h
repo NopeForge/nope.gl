@@ -20,42 +20,42 @@
  * under the License.
  */
 
-#ifndef GPU_BUFFER_H
-#define GPU_BUFFER_H
+#ifndef NGPU_BUFFER_H
+#define NGPU_BUFFER_H
 
 #include <stdlib.h>
 
 #include "utils.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
 enum {
-    NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT        = 1 << 0,
-    NGLI_GPU_BUFFER_USAGE_TRANSFER_SRC_BIT   = 1 << 1,
-    NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT   = 1 << 2,
-    NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT = 1 << 3,
-    NGLI_GPU_BUFFER_USAGE_STORAGE_BUFFER_BIT = 1 << 4,
-    NGLI_GPU_BUFFER_USAGE_INDEX_BUFFER_BIT   = 1 << 5,
-    NGLI_GPU_BUFFER_USAGE_VERTEX_BUFFER_BIT  = 1 << 6,
-    NGLI_GPU_BUFFER_USAGE_MAP_READ           = 1 << 7,
-    NGLI_GPU_BUFFER_USAGE_MAP_WRITE          = 1 << 8,
-    NGLI_GPU_BUFFER_USAGE_NB
+    NGPU_BUFFER_USAGE_DYNAMIC_BIT        = 1 << 0,
+    NGPU_BUFFER_USAGE_TRANSFER_SRC_BIT   = 1 << 1,
+    NGPU_BUFFER_USAGE_TRANSFER_DST_BIT   = 1 << 2,
+    NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT = 1 << 3,
+    NGPU_BUFFER_USAGE_STORAGE_BUFFER_BIT = 1 << 4,
+    NGPU_BUFFER_USAGE_INDEX_BUFFER_BIT   = 1 << 5,
+    NGPU_BUFFER_USAGE_VERTEX_BUFFER_BIT  = 1 << 6,
+    NGPU_BUFFER_USAGE_MAP_READ           = 1 << 7,
+    NGPU_BUFFER_USAGE_MAP_WRITE          = 1 << 8,
+    NGPU_BUFFER_USAGE_NB
 };
 
-struct gpu_buffer {
+struct ngpu_buffer {
     struct ngli_rc rc;
-    struct gpu_ctx *gpu_ctx;
+    struct ngpu_ctx *gpu_ctx;
     size_t size;
     uint32_t usage;
 };
 
-NGLI_RC_CHECK_STRUCT(gpu_buffer);
+NGLI_RC_CHECK_STRUCT(ngpu_buffer);
 
-struct gpu_buffer *ngli_gpu_buffer_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_buffer_init(struct gpu_buffer *s, size_t size, uint32_t usage);
-int ngli_gpu_buffer_upload(struct gpu_buffer *s, const void *data, size_t offset, size_t size);
-int ngli_gpu_buffer_map(struct gpu_buffer *s, size_t offset, size_t size, void **datap);
-void ngli_gpu_buffer_unmap(struct gpu_buffer *s);
-void ngli_gpu_buffer_freep(struct gpu_buffer **sp);
+struct ngpu_buffer *ngpu_buffer_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_buffer_init(struct ngpu_buffer *s, size_t size, uint32_t usage);
+int ngpu_buffer_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size);
+int ngpu_buffer_map(struct ngpu_buffer *s, size_t offset, size_t size, void **datap);
+void ngpu_buffer_unmap(struct ngpu_buffer *s);
+void ngpu_buffer_freep(struct ngpu_buffer **sp);
 
 #endif

@@ -20,49 +20,49 @@
  * under the License.
  */
 
-#ifndef GPU_PROGRAM_H
-#define GPU_PROGRAM_H
+#ifndef NGPU_PROGRAM_H
+#define NGPU_PROGRAM_H
 
 #include "hmap.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
 #define MAX_ID_LEN 128
 
-struct gpu_program_variable_info {
+struct ngpu_program_variable_info {
     int binding;
     int location;
 };
 
 enum {
-    NGLI_GPU_PROGRAM_SHADER_VERT,
-    NGLI_GPU_PROGRAM_SHADER_FRAG,
-    NGLI_GPU_PROGRAM_SHADER_COMP,
-    NGLI_GPU_PROGRAM_SHADER_NB
+    NGPU_PROGRAM_SHADER_VERT,
+    NGPU_PROGRAM_SHADER_FRAG,
+    NGPU_PROGRAM_SHADER_COMP,
+    NGPU_PROGRAM_SHADER_NB
 };
 
 enum {
-    NGLI_GPU_PROGRAM_STAGE_VERTEX_BIT   = 1U << NGLI_GPU_PROGRAM_SHADER_VERT,
-    NGLI_GPU_PROGRAM_STAGE_FRAGMENT_BIT = 1U << NGLI_GPU_PROGRAM_SHADER_FRAG,
-    NGLI_GPU_PROGRAM_STAGE_COMPUTE_BIT  = 1U << NGLI_GPU_PROGRAM_SHADER_COMP,
+    NGPU_PROGRAM_STAGE_VERTEX_BIT   = 1U << NGPU_PROGRAM_SHADER_VERT,
+    NGPU_PROGRAM_STAGE_FRAGMENT_BIT = 1U << NGPU_PROGRAM_SHADER_FRAG,
+    NGPU_PROGRAM_STAGE_COMPUTE_BIT  = 1U << NGPU_PROGRAM_SHADER_COMP,
 };
 
-struct gpu_program_params {
+struct ngpu_program_params {
     const char *label;
     const char *vertex;
     const char *fragment;
     const char *compute;
 };
 
-struct gpu_program {
-    struct gpu_ctx *gpu_ctx;
+struct ngpu_program {
+    struct ngpu_ctx *gpu_ctx;
     struct hmap *uniforms;
     struct hmap *attributes;
     struct hmap *buffer_blocks;
 };
 
-struct gpu_program *ngli_gpu_program_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_program_init(struct gpu_program *s, const struct gpu_program_params *params);
-void ngli_gpu_program_freep(struct gpu_program **sp);
+struct ngpu_program *ngpu_program_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_program_init(struct ngpu_program *s, const struct ngpu_program_params *params);
+void ngpu_program_freep(struct ngpu_program **sp);
 
 #endif

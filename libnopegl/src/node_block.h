@@ -37,7 +37,7 @@ struct block_info {
     size_t data_size;
     uint32_t usage;
 
-    struct gpu_buffer *buffer;
+    struct ngpu_buffer *buffer;
     size_t buffer_rev;
 };
 

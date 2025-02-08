@@ -20,78 +20,78 @@
  * under the License.
  */
 
-#ifndef GPU_GRAPHICS_STATE_H
-#define GPU_GRAPHICS_STATE_H
+#ifndef NGPU_GRAPHICS_STATE_H
+#define NGPU_GRAPHICS_STATE_H
 
 #include "utils.h"
 
 enum {
-    NGLI_GPU_BLEND_FACTOR_ZERO,
-    NGLI_GPU_BLEND_FACTOR_ONE,
-    NGLI_GPU_BLEND_FACTOR_SRC_COLOR,
-    NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,
-    NGLI_GPU_BLEND_FACTOR_DST_COLOR,
-    NGLI_GPU_BLEND_FACTOR_ONE_MINUS_DST_COLOR,
-    NGLI_GPU_BLEND_FACTOR_SRC_ALPHA,
-    NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-    NGLI_GPU_BLEND_FACTOR_DST_ALPHA,
-    NGLI_GPU_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,
-    NGLI_GPU_BLEND_FACTOR_CONSTANT_COLOR,
-    NGLI_GPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,
-    NGLI_GPU_BLEND_FACTOR_CONSTANT_ALPHA,
-    NGLI_GPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,
-    NGLI_GPU_BLEND_FACTOR_SRC_ALPHA_SATURATE,
-    NGLI_GPU_BLEND_FACTOR_NB
+    NGPU_BLEND_FACTOR_ZERO,
+    NGPU_BLEND_FACTOR_ONE,
+    NGPU_BLEND_FACTOR_SRC_COLOR,
+    NGPU_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,
+    NGPU_BLEND_FACTOR_DST_COLOR,
+    NGPU_BLEND_FACTOR_ONE_MINUS_DST_COLOR,
+    NGPU_BLEND_FACTOR_SRC_ALPHA,
+    NGPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+    NGPU_BLEND_FACTOR_DST_ALPHA,
+    NGPU_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,
+    NGPU_BLEND_FACTOR_CONSTANT_COLOR,
+    NGPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,
+    NGPU_BLEND_FACTOR_CONSTANT_ALPHA,
+    NGPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,
+    NGPU_BLEND_FACTOR_SRC_ALPHA_SATURATE,
+    NGPU_BLEND_FACTOR_NB
 };
 
 enum {
-    NGLI_GPU_BLEND_OP_ADD,
-    NGLI_GPU_BLEND_OP_SUBTRACT,
-    NGLI_GPU_BLEND_OP_REVERSE_SUBTRACT,
-    NGLI_GPU_BLEND_OP_MIN,
-    NGLI_GPU_BLEND_OP_MAX,
-    NGLI_GPU_BLEND_OP_NB
+    NGPU_BLEND_OP_ADD,
+    NGPU_BLEND_OP_SUBTRACT,
+    NGPU_BLEND_OP_REVERSE_SUBTRACT,
+    NGPU_BLEND_OP_MIN,
+    NGPU_BLEND_OP_MAX,
+    NGPU_BLEND_OP_NB
 };
 
 enum {
-    NGLI_GPU_COMPARE_OP_NEVER,
-    NGLI_GPU_COMPARE_OP_LESS,
-    NGLI_GPU_COMPARE_OP_EQUAL,
-    NGLI_GPU_COMPARE_OP_LESS_OR_EQUAL,
-    NGLI_GPU_COMPARE_OP_GREATER,
-    NGLI_GPU_COMPARE_OP_NOT_EQUAL,
-    NGLI_GPU_COMPARE_OP_GREATER_OR_EQUAL,
-    NGLI_GPU_COMPARE_OP_ALWAYS,
-    NGLI_GPU_COMPARE_OP_NB
+    NGPU_COMPARE_OP_NEVER,
+    NGPU_COMPARE_OP_LESS,
+    NGPU_COMPARE_OP_EQUAL,
+    NGPU_COMPARE_OP_LESS_OR_EQUAL,
+    NGPU_COMPARE_OP_GREATER,
+    NGPU_COMPARE_OP_NOT_EQUAL,
+    NGPU_COMPARE_OP_GREATER_OR_EQUAL,
+    NGPU_COMPARE_OP_ALWAYS,
+    NGPU_COMPARE_OP_NB
 };
 
 enum {
-    NGLI_GPU_STENCIL_OP_KEEP,
-    NGLI_GPU_STENCIL_OP_ZERO,
-    NGLI_GPU_STENCIL_OP_REPLACE,
-    NGLI_GPU_STENCIL_OP_INCREMENT_AND_CLAMP,
-    NGLI_GPU_STENCIL_OP_DECREMENT_AND_CLAMP,
-    NGLI_GPU_STENCIL_OP_INVERT,
-    NGLI_GPU_STENCIL_OP_INCREMENT_AND_WRAP,
-    NGLI_GPU_STENCIL_OP_DECREMENT_AND_WRAP,
-    NGLI_GPU_STENCIL_OP_NB
+    NGPU_STENCIL_OP_KEEP,
+    NGPU_STENCIL_OP_ZERO,
+    NGPU_STENCIL_OP_REPLACE,
+    NGPU_STENCIL_OP_INCREMENT_AND_CLAMP,
+    NGPU_STENCIL_OP_DECREMENT_AND_CLAMP,
+    NGPU_STENCIL_OP_INVERT,
+    NGPU_STENCIL_OP_INCREMENT_AND_WRAP,
+    NGPU_STENCIL_OP_DECREMENT_AND_WRAP,
+    NGPU_STENCIL_OP_NB
 };
 
 enum {
-    NGLI_GPU_CULL_MODE_NONE,
-    NGLI_GPU_CULL_MODE_FRONT_BIT,
-    NGLI_GPU_CULL_MODE_BACK_BIT,
-    NGLI_GPU_CULL_MODE_NB
+    NGPU_CULL_MODE_NONE,
+    NGPU_CULL_MODE_FRONT_BIT,
+    NGPU_CULL_MODE_BACK_BIT,
+    NGPU_CULL_MODE_NB
 };
 
 enum {
-    NGLI_GPU_COLOR_COMPONENT_R_BIT = 1 << 0,
-    NGLI_GPU_COLOR_COMPONENT_G_BIT = 1 << 1,
-    NGLI_GPU_COLOR_COMPONENT_B_BIT = 1 << 2,
-    NGLI_GPU_COLOR_COMPONENT_A_BIT = 1 << 3,
+    NGPU_COLOR_COMPONENT_R_BIT = 1 << 0,
+    NGPU_COLOR_COMPONENT_G_BIT = 1 << 1,
+    NGPU_COLOR_COMPONENT_B_BIT = 1 << 2,
+    NGPU_COLOR_COMPONENT_A_BIT = 1 << 3,
 };
 
-struct gpu_stencil_op_state {
+struct ngpu_stencil_op_state {
     int write_mask;
     int func;
     int ref;
@@ -101,7 +101,7 @@ struct gpu_stencil_op_state {
     int depth_pass;
 };
 
-struct gpu_graphics_state {
+struct ngpu_graphics_state {
     int blend;
     int blend_dst_factor;
     int blend_src_factor;
@@ -117,48 +117,48 @@ struct gpu_graphics_state {
     int depth_func;
 
     int stencil_test;
-    struct gpu_stencil_op_state stencil_front;
-    struct gpu_stencil_op_state stencil_back;
+    struct ngpu_stencil_op_state stencil_front;
+    struct ngpu_stencil_op_state stencil_back;
 
     int cull_mode;
 };
 
 /* Make sure to keep this in sync with the blending documentation */
-#define NGLI_GPU_GRAPHICS_STATE_DEFAULTS (struct gpu_graphics_state) { \
+#define NGPU_GRAPHICS_STATE_DEFAULTS (struct ngpu_graphics_state) {    \
     .blend              = 0,                                           \
-    .blend_src_factor   = NGLI_GPU_BLEND_FACTOR_ONE,                   \
-    .blend_dst_factor   = NGLI_GPU_BLEND_FACTOR_ZERO,                  \
-    .blend_src_factor_a = NGLI_GPU_BLEND_FACTOR_ONE,                   \
-    .blend_dst_factor_a = NGLI_GPU_BLEND_FACTOR_ZERO,                  \
-    .blend_op           = NGLI_GPU_BLEND_OP_ADD,                       \
-    .blend_op_a         = NGLI_GPU_BLEND_OP_ADD,                       \
-    .color_write_mask   = NGLI_GPU_COLOR_COMPONENT_R_BIT               \
-                        | NGLI_GPU_COLOR_COMPONENT_G_BIT               \
-                        | NGLI_GPU_COLOR_COMPONENT_B_BIT               \
-                        | NGLI_GPU_COLOR_COMPONENT_A_BIT,              \
+    .blend_src_factor   = NGPU_BLEND_FACTOR_ONE,                       \
+    .blend_dst_factor   = NGPU_BLEND_FACTOR_ZERO,                      \
+    .blend_src_factor_a = NGPU_BLEND_FACTOR_ONE,                       \
+    .blend_dst_factor_a = NGPU_BLEND_FACTOR_ZERO,                      \
+    .blend_op           = NGPU_BLEND_OP_ADD,                           \
+    .blend_op_a         = NGPU_BLEND_OP_ADD,                           \
+    .color_write_mask   = NGPU_COLOR_COMPONENT_R_BIT                   \
+                        | NGPU_COLOR_COMPONENT_G_BIT                   \
+                        | NGPU_COLOR_COMPONENT_B_BIT                   \
+                        | NGPU_COLOR_COMPONENT_A_BIT,                  \
     .depth_test         = 0,                                           \
     .depth_write_mask   = 1,                                           \
-    .depth_func         = NGLI_GPU_COMPARE_OP_LESS,                    \
+    .depth_func         = NGPU_COMPARE_OP_LESS,                        \
     .stencil_test       = 0,                                           \
     .stencil_front      = {                                            \
         .write_mask = 0xff,                                            \
-        .func       = NGLI_GPU_COMPARE_OP_ALWAYS,                      \
+        .func       = NGPU_COMPARE_OP_ALWAYS,                          \
         .ref        = 0,                                               \
         .read_mask  = 0xff,                                            \
-        .fail       = NGLI_GPU_STENCIL_OP_KEEP,                        \
-        .depth_fail = NGLI_GPU_STENCIL_OP_KEEP,                        \
-        .depth_pass = NGLI_GPU_STENCIL_OP_KEEP,                        \
+        .fail       = NGPU_STENCIL_OP_KEEP,                            \
+        .depth_fail = NGPU_STENCIL_OP_KEEP,                            \
+        .depth_pass = NGPU_STENCIL_OP_KEEP,                            \
     },                                                                 \
     .stencil_back = {                                                  \
          .write_mask = 0xff,                                           \
-         .func       = NGLI_GPU_COMPARE_OP_ALWAYS,                     \
+         .func       = NGPU_COMPARE_OP_ALWAYS,                         \
          .ref        = 0,                                              \
          .read_mask  = 0xff,                                           \
-         .fail       = NGLI_GPU_STENCIL_OP_KEEP,                       \
-         .depth_fail = NGLI_GPU_STENCIL_OP_KEEP,                       \
-         .depth_pass = NGLI_GPU_STENCIL_OP_KEEP,                       \
+         .fail       = NGPU_STENCIL_OP_KEEP,                           \
+         .depth_fail = NGPU_STENCIL_OP_KEEP,                           \
+         .depth_pass = NGPU_STENCIL_OP_KEEP,                           \
      },                                                                \
-    .cull_mode          = NGLI_GPU_CULL_MODE_NONE,                     \
+    .cull_mode          = NGPU_CULL_MODE_NONE,                         \
 }                                                                      \
 
 #endif

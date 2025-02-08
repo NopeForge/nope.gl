@@ -76,7 +76,7 @@ static int triangle_init(struct ngl_node *node)
     for (size_t i = 1; i < NB_VERTICES; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
-    struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
     s->geom = ngli_geometry_create(gpu_ctx);
     if (!s->geom)
@@ -88,7 +88,7 @@ static int triangle_init(struct ngl_node *node)
         (ret = ngli_geometry_set_normals(s->geom, NB_VERTICES, normals))   < 0)
         return ret;
 
-    return ngli_geometry_init(s->geom, NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    return ngli_geometry_init(s->geom, NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 }
 
 static void triangle_uninit(struct ngl_node *node)

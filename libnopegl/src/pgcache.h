@@ -26,14 +26,14 @@
 #include "gpu_program.h"
 
 struct pgcache {
-    struct gpu_ctx *gpu_ctx;
+    struct ngpu_ctx *gpu_ctx;
     struct hmap *graphics_cache;
     struct hmap *compute_cache;
 };
 
-int ngli_pgcache_init(struct pgcache *s, struct gpu_ctx *ctx);
-int ngli_pgcache_get_graphics_program(struct pgcache *s, struct gpu_program **dstp, const struct gpu_program_params *params);
-int ngli_pgcache_get_compute_program(struct pgcache *s, struct gpu_program **dstp, const struct gpu_program_params *params);
+int ngli_pgcache_init(struct pgcache *s, struct ngpu_ctx *ctx);
+int ngli_pgcache_get_graphics_program(struct pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params);
+int ngli_pgcache_get_compute_program(struct pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params);
 void ngli_pgcache_reset(struct pgcache *s);
 
 #endif

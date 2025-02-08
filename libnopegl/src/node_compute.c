@@ -124,8 +124,8 @@ static int check_params(const struct ngl_node *node)
         LOG(ERROR, "number of group must be > 0 for x, y and z");
         return NGL_ERROR_INVALID_ARG;
     }
-    const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct gpu_limits *limits = &gpu_ctx->limits;
+    const struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct ngpu_limits *limits = &gpu_ctx->limits;
 
     if (o->workgroup_count[0] > limits->max_compute_work_group_count[0] ||
         o->workgroup_count[1] > limits->max_compute_work_group_count[1] ||

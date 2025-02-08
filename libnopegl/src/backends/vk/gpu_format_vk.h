@@ -30,9 +30,9 @@
 #include "gpu_format.h"
 #include "vkcontext.h"
 
-VkFormat ngli_gpu_format_ngl_to_vk(int format);
-int ngli_gpu_format_vk_to_ngl(VkFormat format);
-VkFormatFeatureFlags ngli_gpu_format_feature_ngl_to_vk(uint32_t features);
-uint32_t ngli_gpu_format_feature_vk_to_ngl(VkFormatFeatureFlags features);
+VkFormat ngpu_format_ngl_to_vk(int format);
+int ngpu_format_vk_to_ngl(VkFormat format);
+VkFormatFeatureFlags ngpu_format_feature_ngl_to_vk(uint32_t features);
+uint32_t ngpu_format_feature_vk_to_ngl(VkFormatFeatureFlags features);
 
 #endif

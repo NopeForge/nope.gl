@@ -73,13 +73,13 @@ struct glcontext {
     uint64_t features;
 
     /* GL limits */
-    struct gpu_limits limits;
+    struct ngpu_limits limits;
 
     /* GL functions */
     struct glfunctions funcs;
 
     /* GL formats */
-    struct gpu_format_gl formats[NGLI_GPU_FORMAT_NB];
+    struct ngpu_format_gl formats[NGPU_FORMAT_NB];
 
     /*
      * Workaround a radeonsi sync issue between fbo writes and compute reads

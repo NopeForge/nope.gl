@@ -33,11 +33,11 @@ struct ngl_node;
 
 struct texture_info {
     int requested_format;
-    struct gpu_texture_params params;
+    struct ngpu_texture_params params;
     uint32_t supported_image_layouts;
     int clamp_video;
     int rtt;
-    struct gpu_texture *texture;
+    struct ngpu_texture *texture;
     struct image image;
     size_t image_rev;
 };

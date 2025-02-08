@@ -44,7 +44,7 @@
 
 struct hwmap_mc {
     struct android_image *android_image;
-    struct gpu_texture *texture;
+    struct ngpu_texture *texture;
     VkImage image;
     VkDeviceMemory memory;
     VkImageView image_view;
@@ -59,8 +59,8 @@ static int support_direct_rendering(struct hwmap *hwmap)
         LOG(WARNING, "samplers with YCbCr conversion enabled do not support mipmapping: "
             "disabling direct rendering");
         return 0;
-    } else if (params->texture_wrap_s != NGLI_GPU_WRAP_CLAMP_TO_EDGE ||
-               params->texture_wrap_t != NGLI_GPU_WRAP_CLAMP_TO_EDGE) {
+    } else if (params->texture_wrap_s != NGPU_WRAP_CLAMP_TO_EDGE ||
+               params->texture_wrap_t != NGPU_WRAP_CLAMP_TO_EDGE) {
         LOG(WARNING, "samplers with YCbCr conversion enabled only support clamp to edge wrapping: "
             "disabling direct rendering");
         return 0;
@@ -95,13 +95,13 @@ static void mc_release_frame_resources(struct hwmap *hwmap)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     hwmap->mapped_image.planes[0] = NULL;
     hwmap->mapped_image.samplers[0] = NULL;
-    ngli_gpu_texture_freep(&mc->texture);
+    ngpu_texture_freep(&mc->texture);
 
     vkDestroyImageView(vk->device, mc->image_view, NULL);
     mc->image_view = VK_NULL_HANDLE;
@@ -120,8 +120,8 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
@@ -266,7 +266,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         .x_chroma_offset         = ahb_format_props.suggestedXChromaOffset,
         .y_chroma_offset         = ahb_format_props.suggestedYChromaOffset,
         /* Sampler params */
-        .filter                  = ngli_gpu_vk_get_filter(params->texture_min_filter),
+        .filter                  = ngpu_vk_get_filter(params->texture_min_filter),
     };
 
     if (!mc->ycbcr_sampler || !ngli_ycbcr_sampler_vk_is_compat(mc->ycbcr_sampler, &sampler_params)) {
@@ -332,27 +332,27 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
                          0, NULL,
                          1, &barrier);
 
-    mc->texture = ngli_gpu_texture_create(gpu_ctx);
+    mc->texture = ngpu_texture_create(gpu_ctx);
     if (!mc->texture)
         return NGL_ERROR_MEMORY;
 
-    int ngl_format = NGLI_GPU_FORMAT_UNDEFINED;
+    int ngl_format = NGPU_FORMAT_UNDEFINED;
     if (ahb_format_props.format)
-        ngl_format = ngli_gpu_format_vk_to_ngl(ahb_format_props.format);
+        ngl_format = ngpu_format_vk_to_ngl(ahb_format_props.format);
 
-    const struct gpu_texture_params texture_params = {
-        .type             = NGLI_GPU_TEXTURE_TYPE_2D,
+    const struct ngpu_texture_params texture_params = {
+        .type             = NGPU_TEXTURE_TYPE_2D,
         .format           = ngl_format,
         .width            = desc.width,
         .height           = desc.height,
         .min_filter       = params->texture_min_filter,
         .mag_filter       = params->texture_min_filter,
-        .wrap_s           = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
-        .wrap_t           = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
+        .wrap_s           = NGPU_WRAP_CLAMP_TO_EDGE,
+        .wrap_t           = NGPU_WRAP_CLAMP_TO_EDGE,
         .usage            = params->texture_usage,
     };
 
-    const struct gpu_texture_vk_wrap_params wrap_params = {
+    const struct ngpu_texture_vk_wrap_params wrap_params = {
         .params        = &texture_params,
         .image         = mc->image,
         .image_layout  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -361,11 +361,11 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         .ycbcr_sampler = mc->ycbcr_sampler,
     };
 
-    res = ngli_gpu_texture_vk_wrap(mc->texture, &wrap_params);
+    res = ngpu_texture_vk_wrap(mc->texture, &wrap_params);
     if (res != VK_SUCCESS)
         return NGL_ERROR_GRAPHICS_GENERIC;
 
-    ngli_gpu_texture_vk_transition_to_default_layout(mc->texture);
+    ngpu_texture_vk_transition_to_default_layout(mc->texture);
 
     hwmap->mapped_image.planes[0] = mc->texture;
     hwmap->mapped_image.samplers[0] = mc->ycbcr_sampler;

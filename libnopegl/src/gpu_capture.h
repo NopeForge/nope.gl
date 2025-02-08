@@ -19,16 +19,16 @@
  * under the License.
  */
 
-#ifndef GPU_CAPTURE_H
-#define GPU_CAPTURE_H
+#ifndef NGPU_CAPTURE_H
+#define NGPU_CAPTURE_H
 
-struct gpu_ctx;
-struct gpu_capture_ctx;
+struct ngpu_ctx;
+struct ngpu_capture_ctx;
 
-struct gpu_capture_ctx *ngli_gpu_capture_ctx_create(struct gpu_ctx *s);
-int ngli_gpu_capture_init(struct gpu_capture_ctx *s);
-int ngli_gpu_capture_begin(struct gpu_capture_ctx *s);
-int ngli_gpu_capture_end(struct gpu_capture_ctx *s);
-void ngli_gpu_capture_freep(struct gpu_capture_ctx **sp);
+struct ngpu_capture_ctx *ngpu_capture_ctx_create(struct ngpu_ctx *s);
+int ngpu_capture_init(struct ngpu_capture_ctx *s);
+int ngpu_capture_begin(struct ngpu_capture_ctx *s);
+int ngpu_capture_end(struct ngpu_capture_ctx *s);
+void ngpu_capture_freep(struct ngpu_capture_ctx **sp);
 
 #endif

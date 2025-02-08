@@ -34,7 +34,7 @@
 
 #include <va/va.h>
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
 struct vaapi_ctx {
 #if defined(HAVE_VAAPI_X11)
@@ -47,7 +47,7 @@ struct vaapi_ctx {
     int va_version;
 };
 
-int ngli_vaapi_ctx_init(struct gpu_ctx *gpu_ctx, struct vaapi_ctx *s);
+int ngli_vaapi_ctx_init(struct ngpu_ctx *gpu_ctx, struct vaapi_ctx *s);
 void ngli_vaapi_ctx_reset(struct vaapi_ctx *vaapi_ctx);
 
 #endif
