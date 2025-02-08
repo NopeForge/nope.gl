@@ -69,7 +69,7 @@ struct colorstats_priv {
     int length_minus1;
     uint32_t group_size;
 
-    struct gpu_block stats_params_block;
+    struct ngpu_block stats_params_block;
 
     /* Init compute */
     struct {
@@ -106,7 +106,7 @@ static int setup_compute(struct colorstats_priv *s, struct pgcraft *crafter,
         return ret;
 
     const struct pipeline_compat_params params = {
-        .type        = NGLI_GPU_PIPELINE_TYPE_COMPUTE,
+        .type        = NGPU_PIPELINE_TYPE_COMPUTE,
         .program     = ngli_pgcraft_get_program(crafter),
         .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter),
         .resources   = ngli_pgcraft_get_bindgroup_resources(crafter),
@@ -142,7 +142,7 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
         {
             .name        = "source",
             .type        = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
-            .stage       = NGLI_GPU_PROGRAM_SHADER_COMP,
+            .stage       = NGPU_PROGRAM_SHADER_COMP,
             .image       = &texture_info->image,
             .format      = texture_info->params.format,
             .clamp_video = 0, /* clamping is done manually in the shader */
@@ -190,20 +190,20 @@ static int init_computes(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct colorstats_priv *s = node->priv_data;
     const struct colorstats_opts *o = node->opts;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
     /*
      * Define workgroup size using limits. We pick a value multiple of the
      * depth on purpose.
      *
      * The OpenGLES 3.1 and Vulkan core specifications mandate that
-     * gpu_limits.max_compute_work_group_size must be least [128,128,64], but
-     * gpu_limits.max_compute_work_group_invocations (x*y*z) minimum is only
+     * ngpu_limits.max_compute_work_group_size must be least [128,128,64], but
+     * ngpu_limits.max_compute_work_group_invocations (x*y*z) minimum is only
      * 128. Meaning that if we pick a work group size X=128, we will have to
      * use Y=1 and Z=1. 128 remains an always safe value so we use that as
      * a fallback.
      */
-    const struct gpu_limits *limits = &gpu_ctx->limits;
+    const struct ngpu_limits *limits = &gpu_ctx->limits;
     const int max_group_size_x = limits->max_compute_work_group_size[0];
     s->group_size = max_group_size_x >= 256 ? 256 : 128;
     LOG(DEBUG, "using a workgroup size of %u", s->group_size);
@@ -220,16 +220,16 @@ static int init_computes(struct ngl_node *node)
     if (!s->init.crafter || !s->waveform.crafter || !s->sumscale.crafter)
         return NGL_ERROR_MEMORY;
 
-    const struct gpu_block_field block_fields[] = {
-        NGLI_GPU_BLOCK_FIELD(struct stats_params_block, depth, NGLI_TYPE_I32, 0),
-        NGLI_GPU_BLOCK_FIELD(struct stats_params_block, length_minus1, NGLI_TYPE_I32, 0),
+    const struct ngpu_block_field block_fields[] = {
+        NGPU_BLOCK_FIELD(struct stats_params_block, depth, NGLI_TYPE_I32, 0),
+        NGPU_BLOCK_FIELD(struct stats_params_block, length_minus1, NGLI_TYPE_I32, 0),
     };
-    const struct gpu_block_params block_params = {
+    const struct ngpu_block_params block_params = {
         .count     = 1,
         .fields    = block_fields,
         .nb_fields = NGLI_ARRAY_NB(block_fields),
     };
-    int ret = ngli_gpu_block_init(gpu_ctx, &s->stats_params_block, &block_params);
+    int ret = ngpu_block_init(gpu_ctx, &s->stats_params_block, &block_params);
     if (ret < 0)
         return ret;
 
@@ -238,7 +238,7 @@ static int init_computes(struct ngl_node *node)
             .name     = "params",
             .instance_name = "",
             .type     = NGLI_TYPE_UNIFORM_BUFFER,
-            .stage    = NGLI_GPU_PROGRAM_SHADER_COMP,
+            .stage    = NGPU_PROGRAM_SHADER_COMP,
             .block    = &s->stats_params_block.block,
             .buffer   = {
                 .buffer = s->stats_params_block.buffer,
@@ -247,7 +247,7 @@ static int init_computes(struct ngl_node *node)
         }, {
             .name     = "stats",
             .type     = NGLI_TYPE_STORAGE_BUFFER,
-            .stage    = NGLI_GPU_PROGRAM_SHADER_COMP,
+            .stage    = NGPU_PROGRAM_SHADER_COMP,
             .writable = 1,
             .block    = &s->blk.block,
         },
@@ -262,7 +262,7 @@ static int init_computes(struct ngl_node *node)
     return 0;
 }
 
-static int init_block(struct colorstats_priv *s, struct gpu_ctx *gpu_ctx)
+static int init_block(struct colorstats_priv *s, struct ngpu_ctx *gpu_ctx)
 {
     struct block *block = &s->blk.block;
     ngli_block_init(gpu_ctx, block, NGLI_BLOCK_LAYOUT_STD430);
@@ -284,7 +284,7 @@ static int init_block(struct colorstats_priv *s, struct gpu_ctx *gpu_ctx)
     s->blk.data_size = 0;
 
     /* Colorstats needs to write into the block so we bind it as SSBO */
-    s->blk.usage = NGLI_GPU_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    s->blk.usage = NGPU_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 
     return 0;
 }
@@ -293,9 +293,9 @@ static int colorstats_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct colorstats_priv *s = node->priv_data;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
-    if (!(gpu_ctx->features & NGLI_GPU_FEATURE_COMPUTE)) {
+    if (!(gpu_ctx->features & NGPU_FEATURE_COMPUTE)) {
         LOG(ERROR, "ColorStats is not supported by this context (requires compute shaders and SSBO support)");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
@@ -320,7 +320,7 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
      */
     s->length_minus1 = length - 1;
 
-    ngli_gpu_block_update(&s->stats_params_block, 0, &(const struct stats_params_block) {
+    ngpu_block_update(&s->stats_params_block, 0, &(const struct stats_params_block) {
         .depth = s->depth,
         .length_minus1 = s->length_minus1,
     });
@@ -344,8 +344,8 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
     s->waveform.wg_count = length;
 
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    s->blk.buffer = ngli_gpu_buffer_create(gpu_ctx);
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    s->blk.buffer = ngpu_buffer_create(gpu_ctx);
     if (!s->blk.buffer)
         return NGL_ERROR_MEMORY;
 
@@ -355,7 +355,7 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
      */
     const size_t data_field_count = length * s->depth;
     s->blk.data_size = ngli_block_get_size(&s->blk.block, data_field_count);
-    int ret = ngli_gpu_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
+    int ret = ngpu_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
     if (ret < 0)
         return ret;
 
@@ -407,8 +407,8 @@ static void colorstats_draw(struct ngl_node *node)
 
     struct ngl_ctx *ctx = node->ctx;
     if (ctx->render_pass_started) {
-        struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-        ngli_gpu_ctx_end_render_pass(gpu_ctx);
+        struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+        ngpu_ctx_end_render_pass(gpu_ctx);
         ctx->render_pass_started = 0;
         ctx->current_rendertarget = ctx->available_rendertargets[1];
     }
@@ -437,9 +437,9 @@ static void colorstats_uninit(struct ngl_node *node)
     ngli_pipeline_compat_freep(&s->init.pipeline_compat);
     ngli_pipeline_compat_freep(&s->waveform.pipeline_compat);
     ngli_pipeline_compat_freep(&s->sumscale.pipeline_compat);
-    ngli_gpu_buffer_freep(&s->blk.buffer);
+    ngpu_buffer_freep(&s->blk.buffer);
     ngli_block_reset(&s->blk.block);
-    ngli_gpu_block_reset(&s->stats_params_block);
+    ngpu_block_reset(&s->stats_params_block);
 }
 
 const struct node_class ngli_colorstats_class = {

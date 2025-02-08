@@ -30,7 +30,7 @@
 #include "type.h"
 #include "utils.h"
 
-int ngli_gpu_pipeline_graphics_copy(struct gpu_pipeline_graphics *dst, const struct gpu_pipeline_graphics *src)
+int ngpu_pipeline_graphics_copy(struct ngpu_pipeline_graphics *dst, const struct ngpu_pipeline_graphics *src)
 {
     dst->topology = src->topology;
     dst->state    = src->state;
@@ -40,7 +40,7 @@ int ngli_gpu_pipeline_graphics_copy(struct gpu_pipeline_graphics *dst, const str
     return 0;
 }
 
-void ngli_gpu_pipeline_graphics_reset(struct gpu_pipeline_graphics *graphics)
+void ngpu_pipeline_graphics_reset(struct ngpu_pipeline_graphics *graphics)
 {
     ngli_freep(&graphics->vertex_state.buffers);
     memset(graphics, 0, sizeof(*graphics));
@@ -48,28 +48,28 @@ void ngli_gpu_pipeline_graphics_reset(struct gpu_pipeline_graphics *graphics)
 
 static void pipeline_freep(void **pipelinep)
 {
-    struct gpu_pipeline **sp = (struct gpu_pipeline **)pipelinep;
+    struct ngpu_pipeline **sp = (struct ngpu_pipeline **)pipelinep;
     if (!*sp)
         return;
 
-    struct gpu_pipeline *s = *sp;
-    ngli_gpu_pipeline_graphics_reset(&s->graphics);
+    struct ngpu_pipeline *s = *sp;
+    ngpu_pipeline_graphics_reset(&s->graphics);
 
     (*sp)->gpu_ctx->cls->pipeline_freep(sp);
 }
 
-struct gpu_pipeline *ngli_gpu_pipeline_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_pipeline *ngpu_pipeline_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_pipeline *s = gpu_ctx->cls->pipeline_create(gpu_ctx);
+    struct ngpu_pipeline *s = gpu_ctx->cls->pipeline_create(gpu_ctx);
     s->rc = NGLI_RC_CREATE(pipeline_freep);
     return s;
 }
 
-int ngli_gpu_pipeline_init(struct gpu_pipeline *s, const struct gpu_pipeline_params *params)
+int ngpu_pipeline_init(struct ngpu_pipeline *s, const struct ngpu_pipeline_params *params)
 {
     s->type     = params->type;
 
-    int ret = ngli_gpu_pipeline_graphics_copy(&s->graphics, &params->graphics);
+    int ret = ngpu_pipeline_graphics_copy(&s->graphics, &params->graphics);
     if (ret < 0)
         return ret;
 
@@ -79,7 +79,7 @@ int ngli_gpu_pipeline_init(struct gpu_pipeline *s, const struct gpu_pipeline_par
     return s->gpu_ctx->cls->pipeline_init(s);
 }
 
-void ngli_gpu_pipeline_freep(struct gpu_pipeline **sp)
+void ngpu_pipeline_freep(struct ngpu_pipeline **sp)
 {
     NGLI_RC_UNREFP(sp);
 }

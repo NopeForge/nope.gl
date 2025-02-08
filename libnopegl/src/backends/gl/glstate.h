@@ -27,7 +27,7 @@
 #include "glcontext.h"
 #include "gpu_ctx.h"
 
-struct gpu_graphics_state;
+struct ngpu_graphics_state;
 
 struct glstate_stencil_op {
     GLuint write_mask;
@@ -65,8 +65,8 @@ struct glstate {
     GLboolean scissor_test;
 
     /* Dynamic graphics state */
-    struct gpu_scissor scissor;
-    struct gpu_viewport viewport;
+    struct ngpu_scissor scissor;
+    struct ngpu_viewport viewport;
 
     /* Common state */
     GLuint program_id;
@@ -77,7 +77,7 @@ void ngli_glstate_reset(const struct glcontext *gl,
 
 void ngli_glstate_update(const struct glcontext *gl,
                          struct glstate *glstate,
-                         const struct gpu_graphics_state *state);
+                         const struct ngpu_graphics_state *state);
 
 void ngli_glstate_use_program(const struct glcontext *gl,
                               struct glstate *glstate,
@@ -85,11 +85,11 @@ void ngli_glstate_use_program(const struct glcontext *gl,
 
 void ngli_glstate_update_scissor(const struct glcontext *gl,
                                  struct glstate *glstate,
-                                 const struct gpu_scissor *scissor);
+                                 const struct ngpu_scissor *scissor);
 
 void ngli_glstate_update_viewport(const struct glcontext *gl,
                                   struct glstate *glstate,
-                                  const struct gpu_viewport *viewport);
+                                  const struct ngpu_viewport *viewport);
 
 void ngli_glstate_enable_scissor_test(const struct glcontext *gl,
                                       struct glstate *glstate,

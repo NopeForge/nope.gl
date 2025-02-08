@@ -47,13 +47,13 @@
 #include "utils.h"
 #include "vaapi_ctx.h"
 
-static int check_extensions(const struct gpu_ctx *gpu_ctx)
+static int check_extensions(const struct ngpu_ctx *gpu_ctx)
 {
     ngli_unused const struct ngl_config *config = &gpu_ctx->config;
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
         if (config->backend == NGL_BACKEND_OPENGL ||
             config->backend == NGL_BACKEND_OPENGLES) {
-        const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+        const struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
         const struct glcontext *gl = gpu_ctx_gl->glcontext;
         const uint64_t features = NGLI_FEATURE_GL_OES_EGL_IMAGE |
                                   NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR |
@@ -64,7 +64,7 @@ static int check_extensions(const struct gpu_ctx *gpu_ctx)
 #endif
 #if defined(BACKEND_VK)
     if (config->backend == NGL_BACKEND_VULKAN) {
-        const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+        const struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)gpu_ctx;
         const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
         static const char * const required_extensions[] = {
             VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
@@ -81,11 +81,11 @@ static int check_extensions(const struct gpu_ctx *gpu_ctx)
     return 0;
 }
 
-int ngli_vaapi_ctx_init(struct gpu_ctx *gpu_ctx, struct vaapi_ctx *s)
+int ngli_vaapi_ctx_init(struct ngpu_ctx *gpu_ctx, struct vaapi_ctx *s)
 {
     const struct ngl_config *config = &gpu_ctx->config;
 
-    if (gpu_ctx->features & NGLI_GPU_FEATURE_SOFTWARE)
+    if (gpu_ctx->features & NGPU_FEATURE_SOFTWARE)
         return -1;
 
     if (!check_extensions(gpu_ctx))

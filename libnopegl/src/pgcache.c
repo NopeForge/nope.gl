@@ -28,8 +28,8 @@
 
 static void reset_cached_program(void *user_arg, void *data)
 {
-    struct gpu_program *p = data;
-    ngli_gpu_program_freep(&p);
+    struct ngpu_program *p = data;
+    ngpu_program_freep(&p);
 }
 
 static void reset_cached_frag_map(void *user_arg, void *data)
@@ -38,7 +38,7 @@ static void reset_cached_frag_map(void *user_arg, void *data)
     ngli_hmap_freep(&p);
 }
 
-int ngli_pgcache_init(struct pgcache *s, struct gpu_ctx *gpu_ctx)
+int ngli_pgcache_init(struct pgcache *s, struct ngpu_ctx *gpu_ctx)
 {
     s->gpu_ctx = gpu_ctx;
     s->graphics_cache = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
@@ -50,13 +50,13 @@ int ngli_pgcache_init(struct pgcache *s, struct gpu_ctx *gpu_ctx)
     return 0;
 }
 
-static int query_cache(struct pgcache *s, struct gpu_program **dstp,
+static int query_cache(struct pgcache *s, struct ngpu_program **dstp,
                        struct hmap *cache, const char *cache_key,
-                       const struct gpu_program_params *params)
+                       const struct ngpu_program_params *params)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
-    struct gpu_program *cached_program = ngli_hmap_get_str(cache, cache_key);
+    struct ngpu_program *cached_program = ngli_hmap_get_str(cache, cache_key);
     if (cached_program) {
         /* make sure the cached program has not been reset by the user */
         ngli_assert(cached_program->gpu_ctx);
@@ -66,19 +66,19 @@ static int query_cache(struct pgcache *s, struct gpu_program **dstp,
     }
 
     /* this is free'd by the reset_cached_program() when destroying the cache */
-    struct gpu_program *new_program = ngli_gpu_program_create(gpu_ctx);
+    struct ngpu_program *new_program = ngpu_program_create(gpu_ctx);
     if (!new_program)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_gpu_program_init(new_program, params);
+    int ret = ngpu_program_init(new_program, params);
     if (ret < 0) {
-        ngli_gpu_program_freep(&new_program);
+        ngpu_program_freep(&new_program);
         return ret;
     }
 
     ret = ngli_hmap_set_str(cache, cache_key, new_program);
     if (ret < 0) {
-        ngli_gpu_program_freep(&new_program);
+        ngpu_program_freep(&new_program);
         return ret;
     }
 
@@ -86,7 +86,7 @@ static int query_cache(struct pgcache *s, struct gpu_program **dstp,
     return 0;
 }
 
-int ngli_pgcache_get_graphics_program(struct pgcache *s, struct gpu_program **dstp, const struct gpu_program_params *params)
+int ngli_pgcache_get_graphics_program(struct pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params)
 {
     /*
      * The first dimension of the graphics_cache hmap is another hmap: what we
@@ -110,7 +110,7 @@ int ngli_pgcache_get_graphics_program(struct pgcache *s, struct gpu_program **ds
     return query_cache(s, dstp, frag_map, params->fragment, params);
 }
 
-int ngli_pgcache_get_compute_program(struct pgcache *s, struct gpu_program **dstp, const struct gpu_program_params *params)
+int ngli_pgcache_get_compute_program(struct pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params)
 {
     return query_cache(s, dstp, s->compute_cache, params->compute, params);
 }

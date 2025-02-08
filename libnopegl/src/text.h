@@ -138,7 +138,7 @@ struct text {
     int32_t width;
     int32_t height;
     struct darray chars; // struct char_info
-    struct gpu_texture *atlas_texture;
+    struct ngpu_texture *atlas_texture;
     struct text_data_pointers data_ptrs; // set of effect data pointers (in chars_data)
 
     /* effects specific */

@@ -75,7 +75,7 @@ struct image_params {
 
 struct image {
     struct image_params params;
-    struct gpu_texture *planes[4];
+    struct ngpu_texture *planes[4];
     void *samplers[4];
     size_t nb_planes;
     NGLI_ALIGNED_MAT(color_matrix);
@@ -85,7 +85,7 @@ struct image {
     size_t rev;
 };
 
-void ngli_image_init(struct image *s, const struct image_params *params, struct gpu_texture **planes);
+void ngli_image_init(struct image *s, const struct image_params *params, struct ngpu_texture **planes);
 void ngli_image_reset(struct image *s);
 uint64_t ngli_image_get_memory_size(const struct image *s);
 

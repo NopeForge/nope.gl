@@ -32,28 +32,28 @@
 static GLbitfield get_gl_barriers(uint32_t usage)
 {
     GLbitfield barriers = 0;
-    if (usage & NGLI_GPU_BUFFER_USAGE_TRANSFER_SRC_BIT)
+    if (usage & NGPU_BUFFER_USAGE_TRANSFER_SRC_BIT)
         barriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
-    if (usage & NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT)
+    if (usage & NGPU_BUFFER_USAGE_TRANSFER_DST_BIT)
         barriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
-    if (usage & NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+    if (usage & NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
         barriers |= GL_UNIFORM_BARRIER_BIT;
-    if (usage & NGLI_GPU_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+    if (usage & NGPU_BUFFER_USAGE_STORAGE_BUFFER_BIT)
         barriers |= GL_SHADER_STORAGE_BARRIER_BIT;
-    if (usage & NGLI_GPU_BUFFER_USAGE_INDEX_BUFFER_BIT)
+    if (usage & NGPU_BUFFER_USAGE_INDEX_BUFFER_BIT)
         barriers |= GL_ELEMENT_ARRAY_BARRIER_BIT;
-    if (usage & NGLI_GPU_BUFFER_USAGE_VERTEX_BUFFER_BIT)
+    if (usage & NGPU_BUFFER_USAGE_VERTEX_BUFFER_BIT)
         barriers |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
-    if (usage & NGLI_GPU_BUFFER_USAGE_MAP_READ)
+    if (usage & NGPU_BUFFER_USAGE_MAP_READ)
         barriers |= GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT;
-    if (usage & NGLI_GPU_BUFFER_USAGE_MAP_WRITE)
+    if (usage & NGPU_BUFFER_USAGE_MAP_WRITE)
         barriers |= GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT;
     return barriers;
 }
 
 static GLenum get_gl_usage(uint32_t usage)
 {
-    if (usage & NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT)
+    if (usage & NGPU_BUFFER_USAGE_DYNAMIC_BIT)
         return GL_DYNAMIC_DRAW;
     return GL_STATIC_DRAW;
 }
@@ -61,27 +61,27 @@ static GLenum get_gl_usage(uint32_t usage)
 static GLbitfield get_gl_map_flags(uint32_t usage)
 {
     GLbitfield flags = 0;
-    if (usage & NGLI_GPU_BUFFER_USAGE_MAP_READ)
+    if (usage & NGPU_BUFFER_USAGE_MAP_READ)
         flags |= GL_MAP_READ_BIT;
-    if (usage & NGLI_GPU_BUFFER_USAGE_MAP_WRITE)
+    if (usage & NGPU_BUFFER_USAGE_MAP_WRITE)
         flags |= GL_MAP_WRITE_BIT;
     return flags;
 }
 
-struct gpu_buffer *ngli_gpu_buffer_gl_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_buffer *ngpu_buffer_gl_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_buffer_gl *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_buffer_gl *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->parent.gpu_ctx = gpu_ctx;
-    return (struct gpu_buffer *)s;
+    return (struct ngpu_buffer *)s;
 }
 
-int ngli_gpu_buffer_gl_init(struct gpu_buffer *s)
+int ngpu_buffer_gl_init(struct ngpu_buffer *s)
 {
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct gpu_buffer_gl *s_priv = (struct gpu_buffer_gl *)s;
+    struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
 
     s_priv->map_flags = get_gl_map_flags(s->usage);
     s_priv->barriers = get_gl_barriers(s->usage);
@@ -98,21 +98,21 @@ int ngli_gpu_buffer_gl_init(struct gpu_buffer *s)
     return 0;
 }
 
-int ngli_gpu_buffer_gl_upload(struct gpu_buffer *s, const void *data, size_t offset, size_t size)
+int ngpu_buffer_gl_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size)
 {
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct gpu_buffer_gl *s_priv = (struct gpu_buffer_gl *)s;
+    const struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
     gl->funcs.BindBuffer(GL_ARRAY_BUFFER, s_priv->id);
     gl->funcs.BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
     return 0;
 }
 
-int ngli_gpu_buffer_gl_map(struct gpu_buffer *s, size_t offset, size_t size, void **datap)
+int ngpu_buffer_gl_map(struct ngpu_buffer *s, size_t offset, size_t size, void **datap)
 {
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct gpu_buffer_gl *s_priv = (struct gpu_buffer_gl *)s;
+    const struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
     gl->funcs.BindBuffer(GL_ARRAY_BUFFER, s_priv->id);
     void *data = gl->funcs.MapBufferRange(GL_ARRAY_BUFFER, offset, size, s_priv->map_flags);
     if (!data)
@@ -121,23 +121,23 @@ int ngli_gpu_buffer_gl_map(struct gpu_buffer *s, size_t offset, size_t size, voi
     return 0;
 }
 
-void ngli_gpu_buffer_gl_unmap(struct gpu_buffer *s)
+void ngpu_buffer_gl_unmap(struct ngpu_buffer *s)
 {
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct gpu_buffer_gl *s_priv = (struct gpu_buffer_gl *)s;
+    const struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
     gl->funcs.BindBuffer(GL_ARRAY_BUFFER, s_priv->id);
     gl->funcs.UnmapBuffer(GL_ARRAY_BUFFER);
 }
 
-void ngli_gpu_buffer_gl_freep(struct gpu_buffer **sp)
+void ngpu_buffer_gl_freep(struct ngpu_buffer **sp)
 {
     if (!*sp)
         return;
-    struct gpu_buffer *s = *sp;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct ngpu_buffer *s = *sp;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct gpu_buffer_gl *s_priv = (struct gpu_buffer_gl *)s;
+    struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
     gl->funcs.DeleteBuffers(1, &s_priv->id);
     ngli_freep(sp);
 }

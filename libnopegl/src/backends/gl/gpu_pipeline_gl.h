@@ -20,28 +20,28 @@
  * under the License.
  */
 
-#ifndef GPU_PIPELINE_GL_H
-#define GPU_PIPELINE_GL_H
+#ifndef NGPU_PIPELINE_GL_H
+#define NGPU_PIPELINE_GL_H
 
 #include "gpu_pipeline.h"
 #include "glincludes.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 struct glcontext;
 
-struct gpu_pipeline_gl {
-    struct gpu_pipeline parent;
+struct ngpu_pipeline_gl {
+    struct ngpu_pipeline parent;
 
     struct darray attribute_bindings; // attribute_binding_gl
 
     GLuint vao_id;
 };
 
-struct gpu_pipeline *ngli_gpu_pipeline_gl_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_pipeline_gl_init(struct gpu_pipeline *s);
-void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex);
-void ngli_gpu_pipeline_gl_draw_indexed(struct gpu_pipeline *s, int nb_indices, int nb_instances);
-void ngli_gpu_pipeline_gl_dispatch(struct gpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
-void ngli_gpu_pipeline_gl_freep(struct gpu_pipeline **sp);
+struct ngpu_pipeline *ngpu_pipeline_gl_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_pipeline_gl_init(struct ngpu_pipeline *s);
+void ngpu_pipeline_gl_draw(struct ngpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex);
+void ngpu_pipeline_gl_draw_indexed(struct ngpu_pipeline *s, int nb_indices, int nb_instances);
+void ngpu_pipeline_gl_dispatch(struct ngpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
+void ngpu_pipeline_gl_freep(struct ngpu_pipeline **sp);
 
 #endif

@@ -21,8 +21,8 @@
  * under the License.
  */
 
-#ifndef GPU_FORMAT_GL_H
-#define GPU_FORMAT_GL_H
+#ifndef NGPU_FORMAT_GL_H
+#define NGPU_FORMAT_GL_H
 
 #include <stdint.h>
 
@@ -31,14 +31,14 @@
 
 struct glcontext;
 
-struct gpu_format_gl {
+struct ngpu_format_gl {
     GLint format;
     GLint internal_format;
     GLenum type;
     uint32_t features;
 };
 
-void ngli_gpu_format_gl_init(struct glcontext *gl);
-const struct gpu_format_gl *ngli_gpu_format_get_gl_texture_format(struct glcontext *gl, int format);
+void ngpu_format_gl_init(struct glcontext *gl);
+const struct ngpu_format_gl *ngpu_format_get_gl_texture_format(struct glcontext *gl, int format);
 
 #endif

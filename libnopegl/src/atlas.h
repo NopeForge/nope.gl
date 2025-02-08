@@ -40,7 +40,7 @@ int ngli_atlas_init(struct atlas *s);
 int ngli_atlas_add_bitmap(struct atlas *s, const struct bitmap *bitmap, int32_t *bitmap_id);
 int ngli_atlas_finalize(struct atlas *s);
 
-struct gpu_texture *ngli_atlas_get_texture(const struct atlas *s);
+struct ngpu_texture *ngli_atlas_get_texture(const struct atlas *s);
 void ngli_atlas_get_bitmap_coords(const struct atlas *s, int32_t bitmap_id, int32_t *dst);
 
 void ngli_atlas_freep(struct atlas **sp);

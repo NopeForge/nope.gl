@@ -134,8 +134,8 @@ static int update_matrices(struct ngl_node *node, double t)
         ngli_mat4_identity(s->projection_matrix);
     }
 
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    ngli_gpu_ctx_transform_projection_matrix(gpu_ctx, s->projection_matrix);
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    ngpu_ctx_transform_projection_matrix(gpu_ctx, s->projection_matrix);
 
     return 0;
 }
