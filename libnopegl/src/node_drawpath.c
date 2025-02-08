@@ -263,12 +263,12 @@ static int finalize_pipeline(struct ngl_node *node,
                              const struct pgcraft_params *crafter_params)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rnode *rnode = ctx->rnode_pos;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
     struct pipeline_desc *desc = &descs[rnode->id];
 
-    struct gpu_graphics_state state = rnode->graphics_state;
+    struct ngpu_graphics_state state = rnode->graphics_state;
     int ret = ngli_blending_apply_preset(&state, NGLI_BLENDING_SRC_OVER);
     if (ret < 0)
         return ret;
@@ -286,9 +286,9 @@ static int finalize_pipeline(struct ngl_node *node,
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_compat_params params = {
-        .type = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
+        .type = NGPU_PIPELINE_TYPE_GRAPHICS,
         .graphics = {
-            .topology     = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+            .topology     = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state        = state,
             .rt_layout    = rnode->rendertarget_layout,
             .vertex_state = ngli_pgcraft_get_vertex_state(desc->crafter),
@@ -308,12 +308,12 @@ static int finalize_pipeline(struct ngl_node *node,
     if (ret < 0)
         return ret;
 
-    desc->modelview_matrix_index  = ngli_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
-    desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "projection_matrix", NGLI_GPU_PROGRAM_SHADER_VERT);
-    desc->transform_index         = ngli_pgcraft_get_uniform_index(desc->crafter, "transform", NGLI_GPU_PROGRAM_SHADER_VERT);
+    desc->modelview_matrix_index  = ngli_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix", NGPU_PROGRAM_SHADER_VERT);
+    desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "projection_matrix", NGPU_PROGRAM_SHADER_VERT);
+    desc->transform_index         = ngli_pgcraft_get_uniform_index(desc->crafter, "transform", NGPU_PROGRAM_SHADER_VERT);
 
-    desc->coords_fill_index    = ngli_pgcraft_get_uniform_index(desc->crafter, "coords_fill", NGLI_GPU_PROGRAM_SHADER_FRAG);
-    desc->coords_outline_index = ngli_pgcraft_get_uniform_index(desc->crafter, "coords_outline", NGLI_GPU_PROGRAM_SHADER_FRAG);
+    desc->coords_fill_index    = ngli_pgcraft_get_uniform_index(desc->crafter, "coords_fill", NGPU_PROGRAM_SHADER_FRAG);
+    desc->coords_outline_index = ngli_pgcraft_get_uniform_index(desc->crafter, "coords_outline", NGPU_PROGRAM_SHADER_FRAG);
 
     return 0;
 }
@@ -325,30 +325,30 @@ static int drawpath_prepare(struct ngl_node *node)
     struct drawpath_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
-        {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_GPU_PROGRAM_SHADER_VERT},
-        {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_GPU_PROGRAM_SHADER_VERT},
-        {.name="transform",         .type=NGLI_TYPE_VEC4,  .stage=NGLI_GPU_PROGRAM_SHADER_VERT},
+        {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="transform",         .type=NGLI_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_VERT},
 
-        {.name="debug",             .type=NGLI_TYPE_BOOL,  .stage=NGLI_GPU_PROGRAM_SHADER_FRAG},
-        {.name="coords_fill",       .type=NGLI_TYPE_VEC4,  .stage=NGLI_GPU_PROGRAM_SHADER_FRAG},
-        {.name="coords_outline",    .type=NGLI_TYPE_VEC4,  .stage=NGLI_GPU_PROGRAM_SHADER_FRAG},
+        {.name="debug",             .type=NGLI_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG},
+        {.name="coords_fill",       .type=NGLI_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
+        {.name="coords_outline",    .type=NGLI_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
 
-        {.name="color",             .type=NGLI_TYPE_VEC3,  .stage=NGLI_GPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
-        {.name="opacity",           .type=NGLI_TYPE_F32,   .stage=NGLI_GPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
-        {.name="outline",           .type=NGLI_TYPE_F32,   .stage=NGLI_GPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_node, &o->outline)},
-        {.name="outline_color",     .type=NGLI_TYPE_VEC3,  .stage=NGLI_GPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_color_node, &o->outline_color)},
-        {.name="glow",              .type=NGLI_TYPE_F32,   .stage=NGLI_GPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_node, &o->glow)},
-        {.name="glow_color",        .type=NGLI_TYPE_VEC3,  .stage=NGLI_GPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_color_node, o->glow_color)},
-        {.name="blur",              .type=NGLI_TYPE_F32,   .stage=NGLI_GPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->blur_node, &o->blur)},
+        {.name="color",             .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
+        {.name="opacity",           .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
+        {.name="outline",           .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_node, &o->outline)},
+        {.name="outline_color",     .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_color_node, &o->outline_color)},
+        {.name="glow",              .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_node, &o->glow)},
+        {.name="glow_color",        .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_color_node, o->glow_color)},
+        {.name="blur",              .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->blur_node, &o->blur)},
     };
 
     int ret = init_desc(node, s, uniforms, NGLI_ARRAY_NB(uniforms));
     if (ret < 0)
         return ret;
 
-    struct gpu_texture *texture = ngli_distmap_get_texture(s->distmap);
+    struct ngpu_texture *texture = ngli_distmap_get_texture(s->distmap);
     const struct pgcraft_texture textures[] = {
-        {.name="tex", .type=NGLI_PGCRAFT_SHADER_TEX_TYPE_2D, .stage=NGLI_GPU_PROGRAM_SHADER_FRAG, .texture=texture},
+        {.name="tex", .type=NGLI_PGCRAFT_SHADER_TEX_TYPE_2D, .stage=NGPU_PROGRAM_SHADER_FRAG, .texture=texture},
     };
 
     static const struct pgcraft_iovar vert_out_vars[] = {
@@ -387,7 +387,7 @@ static void drawpath_draw(struct ngl_node *node)
     ngli_pipeline_compat_update_uniform(desc->pipeline_compat, desc->projection_matrix_index, projection_matrix);
     ngli_pipeline_compat_update_uniform(desc->pipeline_compat, desc->transform_index, s->transform);
 
-    const struct gpu_texture *texture = ngli_distmap_get_texture(s->distmap);
+    const struct ngpu_texture *texture = ngli_distmap_get_texture(s->distmap);
     const float atlas_coords_fill[] = {
         (float)s->atlas_coords_fill[0] / (float)texture->params.width,
         (float)s->atlas_coords_fill[1] / (float)texture->params.height,
@@ -408,14 +408,14 @@ static void drawpath_draw(struct ngl_node *node)
     for (size_t i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
         ngli_pipeline_compat_update_uniform(pl_compat, map[i].index, map[i].data);
 
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     if (!ctx->render_pass_started) {
-        ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
+        ngpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
         ctx->render_pass_started = 1;
     }
 
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
-    ngli_gpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
+    ngpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
+    ngpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
 
     ngli_pipeline_compat_draw(desc->pipeline_compat, 4, 1, 0);
 }

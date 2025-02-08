@@ -20,67 +20,67 @@
  * under the License.
  */
 
-#ifndef GPU_RENDERTARGET_H
-#define GPU_RENDERTARGET_H
+#ifndef NGPU_RENDERTARGET_H
+#define NGPU_RENDERTARGET_H
 
 #include "gpu_limits.h"
 #include "gpu_texture.h"
 #include "utils.h"
 
 enum {
-    NGLI_GPU_LOAD_OP_LOAD,
-    NGLI_GPU_LOAD_OP_CLEAR,
-    NGLI_GPU_LOAD_OP_DONT_CARE,
+    NGPU_LOAD_OP_LOAD,
+    NGPU_LOAD_OP_CLEAR,
+    NGPU_LOAD_OP_DONT_CARE,
 };
 
 enum {
-    NGLI_GPU_STORE_OP_STORE,
-    NGLI_GPU_STORE_OP_DONT_CARE,
+    NGPU_STORE_OP_STORE,
+    NGPU_STORE_OP_DONT_CARE,
 };
 
-struct gpu_rendertarget_layout_entry {
+struct ngpu_rendertarget_layout_entry {
     int format;
     int resolve;
 };
 
-struct gpu_rendertarget_layout {
+struct ngpu_rendertarget_layout {
     int32_t samples;
     size_t nb_colors;
-    struct gpu_rendertarget_layout_entry colors[NGLI_GPU_MAX_COLOR_ATTACHMENTS];
-    struct gpu_rendertarget_layout_entry depth_stencil;
+    struct ngpu_rendertarget_layout_entry colors[NGPU_MAX_COLOR_ATTACHMENTS];
+    struct ngpu_rendertarget_layout_entry depth_stencil;
 };
 
-struct gpu_attachment {
-    struct gpu_texture *attachment;
+struct ngpu_attachment {
+    struct ngpu_texture *attachment;
     int32_t attachment_layer;
-    struct gpu_texture *resolve_target;
+    struct ngpu_texture *resolve_target;
     int32_t resolve_target_layer;
     int load_op;
     float clear_value[4];
     int store_op;
 };
 
-struct gpu_rendertarget_params {
+struct ngpu_rendertarget_params {
     int32_t width;
     int32_t height;
     size_t nb_colors;
-    struct gpu_attachment colors[NGLI_GPU_MAX_COLOR_ATTACHMENTS];
-    struct gpu_attachment depth_stencil;
+    struct ngpu_attachment colors[NGPU_MAX_COLOR_ATTACHMENTS];
+    struct ngpu_attachment depth_stencil;
 };
 
-struct gpu_rendertarget {
+struct ngpu_rendertarget {
     struct ngli_rc rc;
-    struct gpu_ctx *gpu_ctx;
-    struct gpu_rendertarget_params params;
+    struct ngpu_ctx *gpu_ctx;
+    struct ngpu_rendertarget_params params;
     int32_t width;
     int32_t height;
-    struct gpu_rendertarget_layout layout;
+    struct ngpu_rendertarget_layout layout;
 };
 
-NGLI_RC_CHECK_STRUCT(gpu_rendertarget);
+NGLI_RC_CHECK_STRUCT(ngpu_rendertarget);
 
-struct gpu_rendertarget *ngli_gpu_rendertarget_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_rendertarget_init(struct gpu_rendertarget *s, const struct gpu_rendertarget_params *params);
-void ngli_gpu_rendertarget_freep(struct gpu_rendertarget **sp);
+struct ngpu_rendertarget *ngpu_rendertarget_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_rendertarget_init(struct ngpu_rendertarget *s, const struct ngpu_rendertarget_params *params);
+void ngpu_rendertarget_freep(struct ngpu_rendertarget **sp);
 
 #endif

@@ -20,26 +20,26 @@
  * under the License.
  */
 
-#ifndef GPU_BUFFER_GL_H
-#define GPU_BUFFER_GL_H
+#ifndef NGPU_BUFFER_GL_H
+#define NGPU_BUFFER_GL_H
 
 #include "gpu_buffer.h"
 #include "glincludes.h"
 
-struct gpu_buffer_gl {
-    struct gpu_buffer parent;
+struct ngpu_buffer_gl {
+    struct ngpu_buffer parent;
     GLuint id;
     GLbitfield map_flags;
     GLbitfield barriers;
 };
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
-struct gpu_buffer *ngli_gpu_buffer_gl_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_buffer_gl_init(struct gpu_buffer *s);
-int ngli_gpu_buffer_gl_upload(struct gpu_buffer *s, const void *data, size_t offset, size_t size);
-int ngli_gpu_buffer_gl_map(struct gpu_buffer *s, size_t offset, size_t size, void **datap);
-void ngli_gpu_buffer_gl_unmap(struct gpu_buffer *s);
-void ngli_gpu_buffer_gl_freep(struct gpu_buffer **sp);
+struct ngpu_buffer *ngpu_buffer_gl_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_buffer_gl_init(struct ngpu_buffer *s);
+int ngpu_buffer_gl_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size);
+int ngpu_buffer_gl_map(struct ngpu_buffer *s, size_t offset, size_t size, void **datap);
+void ngpu_buffer_gl_unmap(struct ngpu_buffer *s);
+void ngpu_buffer_gl_freep(struct ngpu_buffer **sp);
 
 #endif

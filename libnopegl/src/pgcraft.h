@@ -83,7 +83,7 @@ struct pgcraft_texture {
      * which textures to bind and the pgcraft_texture_info.fields describes
      * where to bind the textures and their associated data.
      */
-    struct gpu_texture *texture;
+    struct ngpu_texture *texture;
     /*
      * The image field is a bit special, it is not transmitted directly to the
      * pipeline but instead to the corresponding pgcraft_texture_info entry
@@ -104,7 +104,7 @@ struct pgcraft_block {
     int stage;
     int writable;
     const struct block *block;
-    struct gpu_buffer_binding buffer;
+    struct ngpu_buffer_binding buffer;
 };
 
 struct pgcraft_attribute {
@@ -115,7 +115,7 @@ struct pgcraft_attribute {
     size_t stride;
     size_t offset;
     int rate;
-    struct gpu_buffer *buffer;
+    struct ngpu_buffer *buffer;
 };
 
 struct pgcraft_iovar {
@@ -163,9 +163,9 @@ struct pgcraft_texture_info {
  * maps single uniforms to dedicated uniform blocks.
  */
 struct pgcraft_compat_info {
-    struct block ublocks[NGLI_GPU_PROGRAM_SHADER_NB];
-    int32_t ubindings[NGLI_GPU_PROGRAM_SHADER_NB];
-    int32_t uindices[NGLI_GPU_PROGRAM_SHADER_NB];
+    struct block ublocks[NGPU_PROGRAM_SHADER_NB];
+    int32_t ubindings[NGPU_PROGRAM_SHADER_NB];
+    int32_t uindices[NGPU_PROGRAM_SHADER_NB];
 
     const struct pgcraft_texture_info *texture_infos;
     const struct image **images;
@@ -204,12 +204,12 @@ int32_t ngli_pgcraft_get_block_index(const struct pgcraft *s, const char *name, 
 int32_t ngli_pgcraft_get_image_index(const struct pgcraft *s, const char *name);
 const struct pgcraft_compat_info *ngli_pgcraft_get_compat_info(const struct pgcraft *s);
 const char *ngli_pgcraft_get_symbol_name(const struct pgcraft *s, size_t id);
-struct gpu_vertex_state ngli_pgcraft_get_vertex_state(const struct pgcraft *s);
-struct gpu_vertex_resources ngli_pgcraft_get_vertex_resources(const struct pgcraft *s);
+struct ngpu_vertex_state ngli_pgcraft_get_vertex_state(const struct pgcraft *s);
+struct ngpu_vertex_resources ngli_pgcraft_get_vertex_resources(const struct pgcraft *s);
 int32_t ngli_pgcraft_get_vertex_buffer_index(const struct pgcraft *s, const char *name);
-struct gpu_program *ngli_pgcraft_get_program(const struct pgcraft *s);
-struct gpu_bindgroup_layout_desc ngli_pgcraft_get_bindgroup_layout_desc(const struct pgcraft *s);
-struct gpu_bindgroup_resources ngli_pgcraft_get_bindgroup_resources(const struct pgcraft *s);
+struct ngpu_program *ngli_pgcraft_get_program(const struct pgcraft *s);
+struct ngpu_bindgroup_layout_desc ngli_pgcraft_get_bindgroup_layout_desc(const struct pgcraft *s);
+struct ngpu_bindgroup_resources ngli_pgcraft_get_bindgroup_resources(const struct pgcraft *s);
 void ngli_pgcraft_freep(struct pgcraft **sp);
 
 #endif

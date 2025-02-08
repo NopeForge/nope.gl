@@ -43,10 +43,10 @@ static const struct node_param resourceprops_params[] = {
 static int resourceprops_init(struct ngl_node *node)
 {
     const struct ngl_ctx *ctx = node->ctx;
-    const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     const struct resourceprops_opts *o = node->opts;
 
-    if (o->as_image && !(gpu_ctx->features & NGLI_GPU_FEATURE_IMAGE_LOAD_STORE)) {
+    if (o->as_image && !(gpu_ctx->features & NGPU_FEATURE_IMAGE_LOAD_STORE)) {
         LOG(ERROR, "context does not support image load store operations");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }

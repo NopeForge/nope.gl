@@ -27,7 +27,7 @@
 #include "vkutils.h"
 #include "ycbcr_sampler_vk.h"
 
-struct ycbcr_sampler_vk *ngli_ycbcr_sampler_vk_create(struct gpu_ctx *gpu_ctx)
+struct ycbcr_sampler_vk *ngli_ycbcr_sampler_vk_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ycbcr_sampler_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
@@ -39,8 +39,8 @@ struct ycbcr_sampler_vk *ngli_ycbcr_sampler_vk_create(struct gpu_ctx *gpu_ctx)
 
 VkResult ngli_ycbcr_sampler_vk_init(struct ycbcr_sampler_vk *s, const struct ycbcr_sampler_vk_params *params)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     s->params = *params;
@@ -138,8 +138,8 @@ void ngli_ycbcr_sampler_vk_unrefp(struct ycbcr_sampler_vk **sp)
         return;
 
     if (s->refcount-- == 1) {
-        struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-        struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+        struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+        struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)gpu_ctx;
         struct vkcontext *vk = gpu_ctx_vk->vkcontext;
         vkDestroySampler(vk->device, s->sampler, NULL);
         vk->DestroySamplerYcbcrConversionKHR(vk->device, s->conv, NULL);

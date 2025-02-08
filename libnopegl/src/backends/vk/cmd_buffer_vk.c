@@ -25,7 +25,7 @@
 #include "gpu_ctx_vk.h"
 #include "memory.h"
 
-struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct gpu_ctx *gpu_ctx)
+struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct ngpu_ctx *gpu_ctx)
 {
     struct cmd_buffer_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
@@ -46,7 +46,7 @@ void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp)
     if (!s)
         return;
 
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     ngli_darray_reset(&s->refs);
@@ -63,7 +63,7 @@ void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp)
 
 VkResult ngli_cmd_buffer_vk_init(struct cmd_buffer_vk *s, int type)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     s->type = type;
@@ -138,7 +138,7 @@ VkResult ngli_cmd_buffer_vk_begin(struct cmd_buffer_vk *s)
 
 VkResult ngli_cmd_buffer_vk_submit(struct cmd_buffer_vk *s)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     VkResult res = vkEndCommandBuffer(s->cmd_buf);
@@ -176,7 +176,7 @@ VkResult ngli_cmd_buffer_vk_submit(struct cmd_buffer_vk *s)
 
 VkResult ngli_cmd_buffer_vk_wait(struct cmd_buffer_vk *s)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     VkResult res = vkWaitForFences(vk->device, 1, &s->fence, VK_TRUE, UINT64_MAX);
@@ -198,7 +198,7 @@ VkResult ngli_cmd_buffer_vk_wait(struct cmd_buffer_vk *s)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_buffer_vk_begin_transient(struct gpu_ctx *gpu_ctx, int type, struct cmd_buffer_vk **sp)
+VkResult ngli_cmd_buffer_vk_begin_transient(struct ngpu_ctx *gpu_ctx, int type, struct cmd_buffer_vk **sp)
 {
     struct cmd_buffer_vk *s = ngli_cmd_buffer_vk_create(gpu_ctx);
     if (!s)

@@ -19,15 +19,15 @@
  * under the License.
  */
 
-#ifndef GPU_CTX_VK_H
-#define GPU_CTX_VK_H
+#ifndef NGPU_CTX_VK_H
+#define NGPU_CTX_VK_H
 
 #include "gpu_ctx.h"
 #include "vkcontext.h"
 #include "cmd_buffer_vk.h"
 
-struct gpu_ctx_vk {
-    struct gpu_ctx parent;
+struct ngpu_ctx_vk {
+    struct ngpu_ctx parent;
     struct vkcontext *vkcontext;
 
     VkSemaphore *image_avail_sems;
@@ -66,13 +66,13 @@ struct gpu_ctx_vk {
     struct darray depth_stencils;
     struct darray rts;
     struct darray rts_load;
-    struct gpu_buffer *capture_buffer;
+    struct ngpu_buffer *capture_buffer;
     int capture_buffer_size;
     void *mapped_data;
 
-    struct gpu_rendertarget *default_rt;
-    struct gpu_rendertarget *default_rt_load;
-    struct gpu_rendertarget_layout default_rt_layout;
+    struct ngpu_rendertarget *default_rt;
+    struct ngpu_rendertarget *default_rt_load;
+    struct ngpu_rendertarget_layout default_rt_layout;
 
     /*
      * The nope.gl pipeline API allows executing a pipeline with unbound
@@ -80,7 +80,7 @@ struct gpu_ctx_vk {
      * restriction we allocate a dummy texture and bind it to any unbound
      * binding point of a pipeline.
      */
-    struct gpu_texture *dummy_texture;
+    struct ngpu_texture *dummy_texture;
 };
 
 #endif

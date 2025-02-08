@@ -20,24 +20,24 @@
  * under the License.
  */
 
-#ifndef GPU_TEXTURE_GL_H
-#define GPU_TEXTURE_GL_H
+#ifndef NGPU_TEXTURE_GL_H
+#define NGPU_TEXTURE_GL_H
 
 #include "glincludes.h"
 #include "gpu_texture.h"
 
-GLint ngli_gpu_texture_get_gl_min_filter(int min_filter, int mipmap_filter);
-GLint ngli_gpu_texture_get_gl_mag_filter(int mag_filter);
-GLint ngli_gpu_texture_get_gl_wrap(int wrap);
+GLint ngpu_texture_get_gl_min_filter(int min_filter, int mipmap_filter);
+GLint ngpu_texture_get_gl_mag_filter(int mag_filter);
+GLint ngpu_texture_get_gl_wrap(int wrap);
 
-struct gpu_texture_gl_wrap_params {
-    const struct gpu_texture_params *params;
+struct ngpu_texture_gl_wrap_params {
+    const struct ngpu_texture_params *params;
     GLuint texture;
     GLuint target;
 };
 
-struct gpu_texture_gl {
-    struct gpu_texture parent;
+struct ngpu_texture_gl {
+    struct ngpu_texture parent;
     GLenum target;
     GLuint id;
     GLint format;
@@ -48,13 +48,13 @@ struct gpu_texture_gl {
     GLbitfield barriers;
 };
 
-struct gpu_texture *ngli_gpu_texture_gl_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_texture_gl_init(struct gpu_texture *s, const struct gpu_texture_params *params);
-int ngli_gpu_texture_gl_wrap(struct gpu_texture *s, const struct gpu_texture_gl_wrap_params *wrap_params);
-void ngli_gpu_texture_gl_set_id(struct gpu_texture *s, GLuint id);
-void ngli_gpu_texture_gl_set_dimensions(struct gpu_texture *s, int32_t width, int32_t height, int depth);
-int ngli_gpu_texture_gl_upload(struct gpu_texture *s, const uint8_t *data, int linesize);
-int ngli_gpu_texture_gl_generate_mipmap(struct gpu_texture *s);
-void ngli_gpu_texture_gl_freep(struct gpu_texture **sp);
+struct ngpu_texture *ngpu_texture_gl_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_texture_gl_init(struct ngpu_texture *s, const struct ngpu_texture_params *params);
+int ngpu_texture_gl_wrap(struct ngpu_texture *s, const struct ngpu_texture_gl_wrap_params *wrap_params);
+void ngpu_texture_gl_set_id(struct ngpu_texture *s, GLuint id);
+void ngpu_texture_gl_set_dimensions(struct ngpu_texture *s, int32_t width, int32_t height, int depth);
+int ngpu_texture_gl_upload(struct ngpu_texture *s, const uint8_t *data, int linesize);
+int ngpu_texture_gl_generate_mipmap(struct ngpu_texture *s);
+void ngpu_texture_gl_freep(struct ngpu_texture **sp);
 
 #endif

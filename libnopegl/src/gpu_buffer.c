@@ -27,21 +27,21 @@
 
 static void buffer_freep(void **bufferp)
 {
-    struct gpu_buffer **sp = (struct gpu_buffer **)bufferp;
+    struct ngpu_buffer **sp = (struct ngpu_buffer **)bufferp;
     if (!*sp)
         return;
 
     (*sp)->gpu_ctx->cls->buffer_freep(sp);
 }
 
-struct gpu_buffer *ngli_gpu_buffer_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_buffer *ngpu_buffer_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_buffer *s = gpu_ctx->cls->buffer_create(gpu_ctx);
+    struct ngpu_buffer *s = gpu_ctx->cls->buffer_create(gpu_ctx);
     s->rc = NGLI_RC_CREATE(buffer_freep);
     return s;
 }
 
-int ngli_gpu_buffer_init(struct gpu_buffer *s, size_t size, uint32_t usage)
+int ngpu_buffer_init(struct ngpu_buffer *s, size_t size, uint32_t usage)
 {
     s->size = size;
     s->usage = usage;
@@ -49,22 +49,22 @@ int ngli_gpu_buffer_init(struct gpu_buffer *s, size_t size, uint32_t usage)
     return s->gpu_ctx->cls->buffer_init(s);
 }
 
-int ngli_gpu_buffer_upload(struct gpu_buffer *s, const void *data, size_t offset, size_t size)
+int ngpu_buffer_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size)
 {
     return s->gpu_ctx->cls->buffer_upload(s, data, offset, size);
 }
 
-int ngli_gpu_buffer_map(struct gpu_buffer *s, size_t offset, size_t size, void **datap)
+int ngpu_buffer_map(struct ngpu_buffer *s, size_t offset, size_t size, void **datap)
 {
     return s->gpu_ctx->cls->buffer_map(s, offset, size, datap);
 }
 
-void ngli_gpu_buffer_unmap(struct gpu_buffer *s)
+void ngpu_buffer_unmap(struct ngpu_buffer *s)
 {
     s->gpu_ctx->cls->buffer_unmap(s);
 }
 
-void ngli_gpu_buffer_freep(struct gpu_buffer **sp)
+void ngpu_buffer_freep(struct ngpu_buffer **sp)
 {
     NGLI_RC_UNREFP(sp);
 }

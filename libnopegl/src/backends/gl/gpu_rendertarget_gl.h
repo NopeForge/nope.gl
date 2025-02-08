@@ -20,32 +20,32 @@
  * under the License.
  */
 
-#ifndef GPU_RENDERTARGET_GL_H
-#define GPU_RENDERTARGET_GL_H
+#ifndef NGPU_RENDERTARGET_GL_H
+#define NGPU_RENDERTARGET_GL_H
 
 #include "glincludes.h"
 #include "gpu_rendertarget.h"
 
-struct gpu_rendertarget_gl {
-    struct gpu_rendertarget parent;
+struct ngpu_rendertarget_gl {
+    struct ngpu_rendertarget parent;
     int wrapped;
     GLuint id;
     GLuint resolve_id;
-    GLenum draw_buffers[NGLI_GPU_MAX_COLOR_ATTACHMENTS];
+    GLenum draw_buffers[NGPU_MAX_COLOR_ATTACHMENTS];
     GLenum clear_flags;
-    GLenum invalidate_attachments[NGLI_GPU_MAX_COLOR_ATTACHMENTS + 2]; // max color attachments + depth and stencil attachments
+    GLenum invalidate_attachments[NGPU_MAX_COLOR_ATTACHMENTS + 2]; // max color attachments + depth and stencil attachments
     int nb_invalidate_attachments;
-    void (*clear)(struct gpu_rendertarget *s);
-    void (*invalidate)(struct gpu_rendertarget *s);
-    void (*resolve)(struct gpu_rendertarget *s);
+    void (*clear)(struct ngpu_rendertarget *s);
+    void (*invalidate)(struct ngpu_rendertarget *s);
+    void (*resolve)(struct ngpu_rendertarget *s);
 };
 
-struct gpu_rendertarget *ngli_gpu_rendertarget_gl_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_rendertarget_gl_init(struct gpu_rendertarget *s);
-void ngli_gpu_rendertarget_gl_begin_pass(struct gpu_rendertarget *s);
-void ngli_gpu_rendertarget_gl_end_pass(struct gpu_rendertarget *s);
-void ngli_gpu_rendertarget_gl_freep(struct gpu_rendertarget **sp);
+struct ngpu_rendertarget *ngpu_rendertarget_gl_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_rendertarget_gl_init(struct ngpu_rendertarget *s);
+void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s);
+void ngpu_rendertarget_gl_end_pass(struct ngpu_rendertarget *s);
+void ngpu_rendertarget_gl_freep(struct ngpu_rendertarget **sp);
 
-int ngli_gpu_rendertarget_gl_wrap(struct gpu_rendertarget *s, const struct gpu_rendertarget_params *params, GLuint id);
+int ngpu_rendertarget_gl_wrap(struct ngpu_rendertarget *s, const struct ngpu_rendertarget_params *params, GLuint id);
 
 #endif

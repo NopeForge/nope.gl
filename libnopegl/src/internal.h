@@ -83,16 +83,16 @@ struct ngl_ctx {
     const struct api_impl *api_impl;
 
     /* Worker-only fields */
-    struct gpu_ctx *gpu_ctx;
+    struct ngpu_ctx *gpu_ctx;
     struct rnode rnode;
     struct rnode *rnode_pos;
     struct ngl_scene *scene;
-    struct gpu_viewport viewport;
-    struct gpu_scissor scissor;
+    struct ngpu_viewport viewport;
+    struct ngpu_scissor scissor;
     struct ngl_config config;
     struct ngl_backend backend;
-    struct gpu_rendertarget *available_rendertargets[2];
-    struct gpu_rendertarget *current_rendertarget;
+    struct ngpu_rendertarget *available_rendertargets[2];
+    struct ngpu_rendertarget *current_rendertarget;
     int render_pass_started;
     float default_modelview_matrix[16];
     float default_projection_matrix[16];
@@ -196,7 +196,7 @@ enum {
     NGLI_NODE_CATEGORY_BUFFER,
     NGLI_NODE_CATEGORY_BLOCK,
     NGLI_NODE_CATEGORY_IO,
-    NGLI_NODE_CATEGORY_DRAW, /* node executes a graphics gpu_pipeline */
+    NGLI_NODE_CATEGORY_DRAW, /* node executes a graphics ngpu_pipeline */
     NGLI_NODE_CATEGORY_TRANSFORM,
 };
 

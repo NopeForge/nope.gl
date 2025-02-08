@@ -59,7 +59,7 @@ struct pass {
     struct ngl_ctx *ctx;
     struct pass_params params;
 
-    struct gpu_buffer *indices;
+    struct ngpu_buffer *indices;
     const struct buffer_layout *indices_layout;
     int nb_vertices;
     int nb_instances;

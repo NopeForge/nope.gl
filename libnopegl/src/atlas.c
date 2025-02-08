@@ -39,7 +39,7 @@ struct atlas {
     int32_t texture_w, texture_h;
     int32_t nb_rows, nb_cols;
 
-    struct gpu_texture *texture;
+    struct ngpu_texture *texture;
     struct darray bitmaps; // struct bitmap
 };
 
@@ -139,24 +139,24 @@ int ngli_atlas_finalize(struct atlas *s)
     s->texture_w = s->max_bitmap_w * s->nb_cols;
     s->texture_h = s->max_bitmap_h * s->nb_rows;
 
-    const struct gpu_texture_params tex_params = {
-        .type       = NGLI_GPU_TEXTURE_TYPE_2D,
+    const struct ngpu_texture_params tex_params = {
+        .type       = NGPU_TEXTURE_TYPE_2D,
         .width      = s->texture_w,
         .height     = s->texture_h,
-        .format     = NGLI_GPU_FORMAT_R8_UNORM,
-        .min_filter = NGLI_GPU_FILTER_LINEAR,
-        .mag_filter = NGLI_GPU_FILTER_NEAREST,
-        .usage      = NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+        .format     = NGPU_FORMAT_R8_UNORM,
+        .min_filter = NGPU_FILTER_LINEAR,
+        .mag_filter = NGPU_FILTER_NEAREST,
+        .usage      = NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT
+                      | NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT
+                      | NGPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
 
-    struct gpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
-    s->texture = ngli_gpu_texture_create(gpu_ctx);
+    struct ngpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
+    s->texture = ngpu_texture_create(gpu_ctx);
     if (!s->texture)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_gpu_texture_init(s->texture, &tex_params);
+    int ret = ngpu_texture_init(s->texture, &tex_params);
     if (ret < 0)
         return ret;
 
@@ -168,13 +168,13 @@ int ngli_atlas_finalize(struct atlas *s)
         return NGL_ERROR_MEMORY;
 
     blend_bitmaps(s, data, linesize);
-    ret = ngli_gpu_texture_upload(s->texture, data, (int) linesize);
+    ret = ngpu_texture_upload(s->texture, data, (int) linesize);
     ngli_freep(&data);
 
     return ret;
 }
 
-struct gpu_texture *ngli_atlas_get_texture(const struct atlas *s)
+struct ngpu_texture *ngli_atlas_get_texture(const struct atlas *s)
 {
     return s->texture;
 }
@@ -198,6 +198,6 @@ void ngli_atlas_freep(struct atlas **sp)
     if (!s)
         return;
     ngli_darray_reset(&s->bitmaps);
-    ngli_gpu_texture_freep(&s->texture);
+    ngpu_texture_freep(&s->texture);
     ngli_freep(sp);
 }

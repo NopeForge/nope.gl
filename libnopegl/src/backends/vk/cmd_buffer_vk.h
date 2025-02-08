@@ -29,7 +29,7 @@
 #include "utils.h"
 
 struct cmd_buffer_vk {
-    struct gpu_ctx *gpu_ctx;
+    struct ngpu_ctx *gpu_ctx;
     int type;
     VkCommandPool pool;
     VkCommandBuffer cmd_buf;
@@ -40,7 +40,7 @@ struct cmd_buffer_vk {
     struct darray refs; // array of ngli_rc pointers
 };
 
-struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct gpu_ctx *gpu_ctx);
+struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct ngpu_ctx *gpu_ctx);
 void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp);
 VkResult ngli_cmd_buffer_vk_init(struct cmd_buffer_vk *s, int type);
 VkResult ngli_cmd_buffer_vk_add_wait_sem(struct cmd_buffer_vk *s, VkSemaphore *sem, VkPipelineStageFlags stage);
@@ -53,7 +53,7 @@ VkResult ngli_cmd_buffer_vk_begin(struct cmd_buffer_vk *s);
 VkResult ngli_cmd_buffer_vk_submit(struct cmd_buffer_vk *s);
 VkResult ngli_cmd_buffer_vk_wait(struct cmd_buffer_vk *s);
 
-VkResult ngli_cmd_buffer_vk_begin_transient(struct gpu_ctx *gpu_ctx, int type, struct cmd_buffer_vk **sp);
+VkResult ngli_cmd_buffer_vk_begin_transient(struct ngpu_ctx *gpu_ctx, int type, struct cmd_buffer_vk **sp);
 VkResult ngli_cmd_buffer_vk_execute_transient(struct cmd_buffer_vk **sp);
 
 #endif

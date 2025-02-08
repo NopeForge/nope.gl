@@ -34,9 +34,9 @@
 #include "vkutils.h"
 
 static const VkAttachmentLoadOp load_op_map[] = {
-    [NGLI_GPU_LOAD_OP_LOAD]      = VK_ATTACHMENT_LOAD_OP_LOAD,
-    [NGLI_GPU_LOAD_OP_CLEAR]     = VK_ATTACHMENT_LOAD_OP_CLEAR,
-    [NGLI_GPU_LOAD_OP_DONT_CARE] = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+    [NGPU_LOAD_OP_LOAD]      = VK_ATTACHMENT_LOAD_OP_LOAD,
+    [NGPU_LOAD_OP_CLEAR]     = VK_ATTACHMENT_LOAD_OP_CLEAR,
+    [NGPU_LOAD_OP_DONT_CARE] = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 };
 
 static VkAttachmentLoadOp get_vk_load_op(int load_op)
@@ -45,8 +45,8 @@ static VkAttachmentLoadOp get_vk_load_op(int load_op)
 }
 
 static const VkAttachmentStoreOp store_op_map[] = {
-    [NGLI_GPU_STORE_OP_STORE]     = VK_ATTACHMENT_STORE_OP_STORE,
-    [NGLI_GPU_STORE_OP_DONT_CARE] = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+    [NGPU_STORE_OP_STORE]     = VK_ATTACHMENT_STORE_OP_STORE,
+    [NGPU_STORE_OP_DONT_CARE] = VK_ATTACHMENT_STORE_OP_DONT_CARE,
 };
 
 static VkAttachmentStoreOp get_vk_store_op(int store_op)
@@ -54,7 +54,7 @@ static VkAttachmentStoreOp get_vk_store_op(int store_op)
     return store_op_map[store_op];
 }
 
-static int has_resolve(const struct gpu_rendertarget_layout *layout)
+static int has_resolve(const struct ngpu_rendertarget_layout *layout)
 {
     for (size_t i = 0; i < layout->nb_colors; i++) {
         if (layout->colors[i].resolve)
@@ -63,25 +63,25 @@ static int has_resolve(const struct gpu_rendertarget_layout *layout)
     return 0;
 }
 
-static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct gpu_rendertarget_layout *layout, const struct gpu_rendertarget_params *params, VkRenderPass *render_pass)
+static VkResult vk_create_compatible_renderpass(struct ngpu_ctx *s, const struct ngpu_rendertarget_layout *layout, const struct ngpu_rendertarget_params *params, VkRenderPass *render_pass)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
-    VkAttachmentDescription descs[2 * (NGLI_GPU_MAX_COLOR_ATTACHMENTS + 1)] = {0};
+    VkAttachmentDescription descs[2 * (NGPU_MAX_COLOR_ATTACHMENTS + 1)] = {0};
     size_t nb_descs = 0;
 
-    VkAttachmentReference color_refs[NGLI_GPU_MAX_COLOR_ATTACHMENTS] = {0};
-    VkAttachmentReference resolve_refs[NGLI_GPU_MAX_COLOR_ATTACHMENTS] = {0};
+    VkAttachmentReference color_refs[NGPU_MAX_COLOR_ATTACHMENTS] = {0};
+    VkAttachmentReference resolve_refs[NGPU_MAX_COLOR_ATTACHMENTS] = {0};
     const int has_resolve_ref = has_resolve(layout);
 
     VkAttachmentReference depth_stencil_ref = {0};
-    const int has_ds_ref = layout->depth_stencil.format != NGLI_GPU_FORMAT_UNDEFINED;
+    const int has_ds_ref = layout->depth_stencil.format != NGPU_FORMAT_UNDEFINED;
 
     const VkSampleCountFlags samples = ngli_ngl_samples_to_vk(layout->samples);
 
     for (size_t i = 0; i < layout->nb_colors; i++) {
-        VkFormat format = ngli_gpu_format_ngl_to_vk(layout->colors[i].format);
+        VkFormat format = ngpu_format_ngl_to_vk(layout->colors[i].format);
 
         VkFormatProperties properties;
         vkGetPhysicalDeviceFormatProperties(vk->phy_device, format, &properties);
@@ -134,7 +134,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
     }
 
     if (has_ds_ref) {
-        VkFormat format = ngli_gpu_format_ngl_to_vk(layout->depth_stencil.format);
+        VkFormat format = ngpu_format_ngl_to_vk(layout->depth_stencil.format);
 
         VkFormatProperties properties;
         vkGetPhysicalDeviceFormatProperties(vk->phy_device, format, &properties);
@@ -213,7 +213,7 @@ static VkResult vk_create_compatible_renderpass(struct gpu_ctx *s, const struct 
     return vkCreateRenderPass(vk->device, &render_pass_create_info, NULL, render_pass);
 }
 
-VkResult ngli_gpu_vk_create_compatible_renderpass(struct gpu_ctx *s, const struct gpu_rendertarget_layout *layout, VkRenderPass *render_pass)
+VkResult ngpu_vk_create_compatible_renderpass(struct ngpu_ctx *s, const struct ngpu_rendertarget_layout *layout, VkRenderPass *render_pass)
 {
     return vk_create_compatible_renderpass(s, layout, NULL, render_pass);
 }
@@ -234,16 +234,16 @@ static VkImageAspectFlags get_vk_image_aspect_flags(VkFormat format)
     }
 }
 
-static VkResult create_image_view(const struct gpu_rendertarget *s, const struct gpu_texture *texture, uint32_t layer, VkImageView *view)
+static VkResult create_image_view(const struct ngpu_rendertarget *s, const struct ngpu_texture *texture, uint32_t layer, VkImageView *view)
 {
-    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    const struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    const struct gpu_texture_vk *texture_vk = (struct gpu_texture_vk *)texture;
+    const struct ngpu_texture_vk *texture_vk = (struct ngpu_texture_vk *)texture;
 
     VkImageUsageFlags usage = 0;
-    if (texture->params.usage & NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT)
+    if (texture->params.usage & NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT)
         usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    if (texture->params.usage & NGLI_GPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+    if (texture->params.usage & NGPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
         usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
     const VkImageViewUsageCreateInfo usage_info = {
@@ -267,9 +267,9 @@ static VkResult create_image_view(const struct gpu_rendertarget *s, const struct
     return vkCreateImageView(vk->device, &view_info, NULL, view);
 }
 
-static VkResult add_attachment(struct gpu_rendertarget *s, const struct gpu_texture *texture, int32_t layer, const VkClearValue *clear_value)
+static VkResult add_attachment(struct ngpu_rendertarget *s, const struct ngpu_texture *texture, int32_t layer, const VkClearValue *clear_value)
 {
-    struct gpu_rendertarget_vk *s_priv = (struct gpu_rendertarget_vk *)s;
+    struct ngpu_rendertarget_vk *s_priv = (struct ngpu_rendertarget_vk *)s;
 
     VkImageView view;
     VkResult res = create_image_view(s, texture, layer, &view);
@@ -286,19 +286,19 @@ static VkResult add_attachment(struct gpu_rendertarget *s, const struct gpu_text
     return VK_SUCCESS;
 }
 
-struct gpu_rendertarget *ngli_gpu_rendertarget_vk_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_rendertarget *ngpu_rendertarget_vk_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_rendertarget_vk *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_rendertarget_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->parent.gpu_ctx = gpu_ctx;
-    return (struct gpu_rendertarget *)s;
+    return (struct ngpu_rendertarget *)s;
 }
 
-static VkResult rendertarget_vk_init(struct gpu_rendertarget *s)
+static VkResult rendertarget_vk_init(struct ngpu_rendertarget *s)
 {
-    struct gpu_rendertarget_vk *s_priv = (struct gpu_rendertarget_vk *)s;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_rendertarget_vk *s_priv = (struct ngpu_rendertarget_vk *)s;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     VkResult res = vk_create_compatible_renderpass(s->gpu_ctx, &s->layout, &s->params, &s_priv->render_pass);
@@ -306,7 +306,7 @@ static VkResult rendertarget_vk_init(struct gpu_rendertarget *s)
         return res;
 
     for (size_t i = 0; i < s->params.nb_colors; i++) {
-        const struct gpu_attachment *attachment = &s->params.colors[i];
+        const struct ngpu_attachment *attachment = &s->params.colors[i];
 
         const VkClearValue clear_value = {.color.float32 = {NGLI_ARG_VEC4(attachment->clear_value)}};
         res = add_attachment(s, attachment->attachment, attachment->attachment_layer, &clear_value);
@@ -320,7 +320,7 @@ static VkResult rendertarget_vk_init(struct gpu_rendertarget *s)
         }
     }
 
-    const struct gpu_attachment *attachment = &s->params.depth_stencil;
+    const struct ngpu_attachment *attachment = &s->params.depth_stencil;
     if (attachment->attachment) {
         const VkClearValue clear_value = {.depthStencil = {1.f, 0}};
         res = add_attachment(s, attachment->attachment, attachment->attachment_layer, &clear_value);
@@ -347,7 +347,7 @@ static VkResult rendertarget_vk_init(struct gpu_rendertarget *s)
     return vkCreateFramebuffer(vk->device, &framebuffer_create_info, NULL, &s_priv->framebuffer);
 }
 
-int ngli_gpu_rendertarget_vk_init(struct gpu_rendertarget *s)
+int ngpu_rendertarget_vk_init(struct ngpu_rendertarget *s)
 {
     VkResult res = rendertarget_vk_init(s);
     if (res != VK_SUCCESS)
@@ -355,14 +355,14 @@ int ngli_gpu_rendertarget_vk_init(struct gpu_rendertarget *s)
     return ngli_vk_res2ret(res);
 }
 
-void ngli_gpu_rendertarget_vk_freep(struct gpu_rendertarget **sp)
+void ngpu_rendertarget_vk_freep(struct ngpu_rendertarget **sp)
 {
-    struct gpu_rendertarget *s = *sp;
+    struct ngpu_rendertarget *s = *sp;
     if (!s)
         return;
 
-    struct gpu_rendertarget_vk *s_priv = (struct gpu_rendertarget_vk *)s;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_rendertarget_vk *s_priv = (struct ngpu_rendertarget_vk *)s;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
 
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     vkDestroyRenderPass(vk->device, s_priv->render_pass, NULL);

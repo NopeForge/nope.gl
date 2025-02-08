@@ -31,29 +31,29 @@
 #include "utils.h"
 #include "vkutils.h"
 
-struct gpu_program *ngli_gpu_program_vk_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_program *ngpu_program_vk_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_program_vk *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_program_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->parent.gpu_ctx = gpu_ctx;
-    return (struct gpu_program *)s;
+    return (struct ngpu_program *)s;
 }
 
-int ngli_gpu_program_vk_init(struct gpu_program *s, const struct gpu_program_params *params)
+int ngpu_program_vk_init(struct ngpu_program *s, const struct ngpu_program_params *params)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_program_vk *s_priv = (struct gpu_program_vk *)s;
+    struct ngpu_program_vk *s_priv = (struct ngpu_program_vk *)s;
 
     const struct {
         int stage;
         const char *src;
     } shaders[] = {
-        {NGLI_GPU_PROGRAM_SHADER_VERT, params->vertex},
-        {NGLI_GPU_PROGRAM_SHADER_FRAG, params->fragment},
-        {NGLI_GPU_PROGRAM_SHADER_COMP, params->compute},
+        {NGPU_PROGRAM_SHADER_VERT, params->vertex},
+        {NGPU_PROGRAM_SHADER_FRAG, params->fragment},
+        {NGPU_PROGRAM_SHADER_COMP, params->compute},
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
@@ -94,14 +94,14 @@ int ngli_gpu_program_vk_init(struct gpu_program *s, const struct gpu_program_par
     return 0;
 }
 
-void ngli_gpu_program_vk_freep(struct gpu_program **sp)
+void ngpu_program_vk_freep(struct ngpu_program **sp)
 {
-    struct gpu_program *s = *sp;
+    struct ngpu_program *s = *sp;
     if (!s)
         return;
 
-    struct gpu_program_vk *s_priv = (struct gpu_program_vk *)s;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_program_vk *s_priv = (struct ngpu_program_vk *)s;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(s_priv->shaders); i++)

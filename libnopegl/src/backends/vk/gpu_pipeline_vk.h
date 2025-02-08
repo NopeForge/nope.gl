@@ -19,18 +19,18 @@
  * under the License.
  */
 
-#ifndef GPU_PIPELINE_VK_H
-#define GPU_PIPELINE_VK_H
+#ifndef NGPU_PIPELINE_VK_H
+#define NGPU_PIPELINE_VK_H
 
 #include <vulkan/vulkan.h>
 
 #include "gpu_pipeline.h"
 #include "darray.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
-struct gpu_pipeline_vk {
-    struct gpu_pipeline parent;
+struct ngpu_pipeline_vk {
+    struct ngpu_pipeline parent;
 
     struct darray vertex_attribute_descs;   // array of VkVertexInputAttributeDescription
     struct darray vertex_binding_descs;     // array of VkVertexInputBindingDescription
@@ -40,13 +40,13 @@ struct gpu_pipeline_vk {
     VkPipeline pipeline;
 };
 
-struct gpu_pipeline *ngli_gpu_pipeline_vk_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_pipeline_vk_init(struct gpu_pipeline *s);
-int ngli_gpu_pipeline_vk_update_texture(struct gpu_pipeline *s, int32_t index, const struct gpu_texture *texture);
-int ngli_gpu_pipeline_vk_update_buffer(struct gpu_pipeline *s, int32_t index, const struct gpu_buffer *buffer, size_t offset, size_t size);
-void ngli_gpu_pipeline_vk_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex);
-void ngli_gpu_pipeline_vk_draw_indexed(struct gpu_pipeline *s, int nb_vertices, int nb_instances);
-void ngli_gpu_pipeline_vk_dispatch(struct gpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
-void ngli_gpu_pipeline_vk_freep(struct gpu_pipeline **sp);
+struct ngpu_pipeline *ngpu_pipeline_vk_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_pipeline_vk_init(struct ngpu_pipeline *s);
+int ngpu_pipeline_vk_update_texture(struct ngpu_pipeline *s, int32_t index, const struct ngpu_texture *texture);
+int ngpu_pipeline_vk_update_buffer(struct ngpu_pipeline *s, int32_t index, const struct ngpu_buffer *buffer, size_t offset, size_t size);
+void ngpu_pipeline_vk_draw(struct ngpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex);
+void ngpu_pipeline_vk_draw_indexed(struct ngpu_pipeline *s, int nb_vertices, int nb_instances);
+void ngpu_pipeline_vk_dispatch(struct ngpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
+void ngpu_pipeline_vk_freep(struct ngpu_pipeline **sp);
 
 #endif

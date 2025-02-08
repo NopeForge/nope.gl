@@ -20,26 +20,26 @@
  * under the License.
  */
 
-#ifndef GPU_BUFFER_VK_H
-#define GPU_BUFFER_VK_H
+#ifndef NGPU_BUFFER_VK_H
+#define NGPU_BUFFER_VK_H
 
 #include <vulkan/vulkan.h>
 
 #include "gpu_buffer.h"
 
-struct gpu_buffer_vk {
-    struct gpu_buffer parent;
+struct ngpu_buffer_vk {
+    struct ngpu_buffer parent;
     VkBuffer buffer;
     VkDeviceMemory memory;
     VkBuffer staging_buffer;
     VkDeviceMemory staging_memory;
 };
 
-struct gpu_buffer *ngli_gpu_buffer_vk_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_buffer_vk_init(struct gpu_buffer *s);
-int ngli_gpu_buffer_vk_upload(struct gpu_buffer *s, const void *data, size_t offset, size_t size);
-int ngli_gpu_buffer_vk_map(struct gpu_buffer *s, size_t offset, size_t size, void **data);
-void ngli_gpu_buffer_vk_unmap(struct gpu_buffer *s);
-void ngli_gpu_buffer_vk_freep(struct gpu_buffer **sp);
+struct ngpu_buffer *ngpu_buffer_vk_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_buffer_vk_init(struct ngpu_buffer *s);
+int ngpu_buffer_vk_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size);
+int ngpu_buffer_vk_map(struct ngpu_buffer *s, size_t offset, size_t size, void **data);
+void ngpu_buffer_vk_unmap(struct ngpu_buffer *s);
+void ngpu_buffer_vk_freep(struct ngpu_buffer **sp);
 
 #endif

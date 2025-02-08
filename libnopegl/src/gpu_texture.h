@@ -20,58 +20,58 @@
  * under the License.
  */
 
-#ifndef GPU_TEXTURE_H
-#define GPU_TEXTURE_H
+#ifndef NGPU_TEXTURE_H
+#define NGPU_TEXTURE_H
 
 #include "utils.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
 enum {
-    NGLI_GPU_MIPMAP_FILTER_NONE,
-    NGLI_GPU_MIPMAP_FILTER_NEAREST,
-    NGLI_GPU_MIPMAP_FILTER_LINEAR,
-    NGLI_GPU_NB_MIPMAP
-};
-
-enum {
-    NGLI_GPU_FILTER_NEAREST,
-    NGLI_GPU_FILTER_LINEAR,
-    NGLI_GPU_NB_FILTER
+    NGPU_MIPMAP_FILTER_NONE,
+    NGPU_MIPMAP_FILTER_NEAREST,
+    NGPU_MIPMAP_FILTER_LINEAR,
+    NGPU_NB_MIPMAP
 };
 
 enum {
-    NGLI_GPU_WRAP_CLAMP_TO_EDGE,
-    NGLI_GPU_WRAP_MIRRORED_REPEAT,
-    NGLI_GPU_WRAP_REPEAT,
-    NGLI_GPU_NB_WRAP
+    NGPU_FILTER_NEAREST,
+    NGPU_FILTER_LINEAR,
+    NGPU_NB_FILTER
 };
 
 enum {
-    NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             = 1 << 0,
-    NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT             = 1 << 1,
-    NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT                  = 1 << 2,
-    NGLI_GPU_TEXTURE_USAGE_STORAGE_BIT                  = 1 << 3,
-    NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT         = 1 << 4,
-    NGLI_GPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT = 1 << 5,
-    NGLI_GPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT     = 1 << 6,
+    NGPU_WRAP_CLAMP_TO_EDGE,
+    NGPU_WRAP_MIRRORED_REPEAT,
+    NGPU_WRAP_REPEAT,
+    NGPU_NB_WRAP
 };
 
-enum texture_type {
-    NGLI_GPU_TEXTURE_TYPE_2D,
-    NGLI_GPU_TEXTURE_TYPE_2D_ARRAY,
-    NGLI_GPU_TEXTURE_TYPE_3D,
-    NGLI_GPU_TEXTURE_TYPE_CUBE,
-    NGLI_GPU_TEXTURE_TYPE_NB
+enum {
+    NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             = 1 << 0,
+    NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT             = 1 << 1,
+    NGPU_TEXTURE_USAGE_SAMPLED_BIT                  = 1 << 2,
+    NGPU_TEXTURE_USAGE_STORAGE_BIT                  = 1 << 3,
+    NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT         = 1 << 4,
+    NGPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT = 1 << 5,
+    NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT     = 1 << 6,
 };
 
-NGLI_STATIC_ASSERT(texture_params_type_default, NGLI_GPU_TEXTURE_TYPE_2D == 0);
-NGLI_STATIC_ASSERT(texture_params_filter_default, NGLI_GPU_FILTER_NEAREST == 0);
-NGLI_STATIC_ASSERT(texture_params_mipmap_filter_default, NGLI_GPU_MIPMAP_FILTER_NONE == 0);
-NGLI_STATIC_ASSERT(texture_params_wrap_default, NGLI_GPU_WRAP_CLAMP_TO_EDGE == 0);
+enum ngpu_texture_type {
+    NGPU_TEXTURE_TYPE_2D,
+    NGPU_TEXTURE_TYPE_2D_ARRAY,
+    NGPU_TEXTURE_TYPE_3D,
+    NGPU_TEXTURE_TYPE_CUBE,
+    NGPU_TEXTURE_TYPE_NB
+};
 
-struct gpu_texture_params {
-    enum texture_type type;
+NGLI_STATIC_ASSERT(texture_params_type_default, NGPU_TEXTURE_TYPE_2D == 0);
+NGLI_STATIC_ASSERT(texture_params_filter_default, NGPU_FILTER_NEAREST == 0);
+NGLI_STATIC_ASSERT(texture_params_mipmap_filter_default, NGPU_MIPMAP_FILTER_NONE == 0);
+NGLI_STATIC_ASSERT(texture_params_wrap_default, NGPU_WRAP_CLAMP_TO_EDGE == 0);
+
+struct ngpu_texture_params {
+    enum ngpu_texture_type type;
     int format;
     int32_t width;
     int32_t height;
@@ -86,18 +86,18 @@ struct gpu_texture_params {
     uint32_t usage;
 };
 
-struct gpu_texture {
+struct ngpu_texture {
     struct ngli_rc rc;
-    struct gpu_ctx *gpu_ctx;
-    struct gpu_texture_params params;
+    struct ngpu_ctx *gpu_ctx;
+    struct ngpu_texture_params params;
 };
 
-NGLI_RC_CHECK_STRUCT(gpu_texture);
+NGLI_RC_CHECK_STRUCT(ngpu_texture);
 
-struct gpu_texture *ngli_gpu_texture_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_texture_init(struct gpu_texture *s, const struct gpu_texture_params *params);
-int ngli_gpu_texture_upload(struct gpu_texture *s, const uint8_t *data, int linesize);
-int ngli_gpu_texture_generate_mipmap(struct gpu_texture *s);
-void ngli_gpu_texture_freep(struct gpu_texture **sp);
+struct ngpu_texture *ngpu_texture_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_texture_init(struct ngpu_texture *s, const struct ngpu_texture_params *params);
+int ngpu_texture_upload(struct ngpu_texture *s, const uint8_t *data, int linesize);
+int ngpu_texture_generate_mipmap(struct ngpu_texture *s);
+void ngpu_texture_freep(struct ngpu_texture **sp);
 
 #endif
