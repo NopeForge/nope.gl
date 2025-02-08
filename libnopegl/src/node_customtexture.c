@@ -146,7 +146,7 @@ static void customtexture_uninit(struct ngl_node *node)
     struct customtexture_priv *s = node->priv_data;
     const struct ngl_node_funcs *funcs = &s->funcs;
 
-    ngli_gpu_texture_freep(&s->texture_info.texture);
+    ngpu_texture_freep(&s->texture_info.texture);
     ngli_image_reset(&s->texture_info.image);
 
     if (!funcs->uninit)
@@ -194,7 +194,7 @@ static int wrap_texture_gl(struct ngl_node *node, struct ngl_custom_texture_info
     struct customtexture_priv *s = node->priv_data;
     struct ngl_ctx *ctx = node->ctx;
     struct ngl_config *config = &ctx->config;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
     if (info->backend != NGL_BACKEND_OPENGL &&
         info->backend != NGL_BACKEND_OPENGLES) {
@@ -210,24 +210,24 @@ static int wrap_texture_gl(struct ngl_node *node, struct ngl_custom_texture_info
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
-    struct gpu_texture_gl_wrap_params wrap_params = {
-        .params = &(struct gpu_texture_params) {
-            .format     = NGLI_GPU_FORMAT_R8G8B8A8_UNORM,
+    struct ngpu_texture_gl_wrap_params wrap_params = {
+        .params = &(struct ngpu_texture_params) {
+            .format     = NGPU_FORMAT_R8G8B8A8_UNORM,
             .width      = info->width,
             .height     = info->height,
-            .min_filter = NGLI_GPU_FILTER_LINEAR,
-            .mag_filter = NGLI_GPU_FILTER_LINEAR,
-            .usage      = NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+            .min_filter = NGPU_FILTER_LINEAR,
+            .mag_filter = NGPU_FILTER_LINEAR,
+            .usage      = NGPU_TEXTURE_USAGE_SAMPLED_BIT,
         },
         .texture = info_gl->texture,
         .target  = info_gl->target,
     };
 
-    s->texture_info.texture = ngli_gpu_texture_create(gpu_ctx);
+    s->texture_info.texture = ngpu_texture_create(gpu_ctx);
     if (!s->texture_info.texture)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_gpu_texture_gl_wrap(s->texture_info.texture, &wrap_params);
+    int ret = ngpu_texture_gl_wrap(s->texture_info.texture, &wrap_params);
     if (ret < 0)
         return ret;
 
@@ -262,7 +262,7 @@ int ngl_custom_texture_set_texture_info(struct ngl_node *node, struct ngl_custom
         return NGL_ERROR_UNSUPPORTED;
 
     /* Cleanup previous texture/image */
-    ngli_gpu_texture_freep(&s->texture_info.texture);
+    ngpu_texture_freep(&s->texture_info.texture);
     ngli_image_reset(&s->texture_info.image);
     s->texture_info.image.rev = s->texture_info.image_rev++;
     if (!info) {

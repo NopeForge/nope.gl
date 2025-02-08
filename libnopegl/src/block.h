@@ -28,7 +28,7 @@
 #include "darray.h"
 #include "gpu_program.h" // MAX_ID_LEN
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
 enum block_layout {
     NGLI_BLOCK_LAYOUT_UNKNOWN,
@@ -51,7 +51,7 @@ void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uin
 void ngli_block_field_copy_count(const struct block_field *fi, uint8_t *dst, const uint8_t *src, size_t count);
 
 struct block {
-    struct gpu_ctx *gpu_ctx;
+    struct ngpu_ctx *gpu_ctx;
     enum block_layout layout;
     struct darray fields; // block_field
     size_t size;
@@ -66,7 +66,7 @@ void ngli_block_fields_copy(const struct block *s, const struct block_field_data
 
 #define NGLI_BLOCK_VARIADIC_COUNT -1
 
-void ngli_block_init(struct gpu_ctx *gpu_ctx, struct block *s, enum block_layout layout);
+void ngli_block_init(struct ngpu_ctx *gpu_ctx, struct block *s, enum block_layout layout);
 size_t ngli_block_get_size(const struct block *s, size_t variadic_count);
 
 /*

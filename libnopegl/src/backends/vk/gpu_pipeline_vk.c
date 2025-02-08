@@ -38,12 +38,12 @@
 #include "vkcontext.h"
 #include "vkutils.h"
 
-static const VkPrimitiveTopology vk_primitive_topology_map[NGLI_GPU_PRIMITIVE_TOPOLOGY_NB] = {
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_POINT_LIST]     = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_LINE_LIST]      = VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_LINE_STRIP]     = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP,
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST]  = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP] = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+static const VkPrimitiveTopology vk_primitive_topology_map[NGPU_PRIMITIVE_TOPOLOGY_NB] = {
+    [NGPU_PRIMITIVE_TOPOLOGY_POINT_LIST]     = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
+    [NGPU_PRIMITIVE_TOPOLOGY_LINE_LIST]      = VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
+    [NGPU_PRIMITIVE_TOPOLOGY_LINE_STRIP]     = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP,
+    [NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST]  = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+    [NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP] = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
 };
 
 static VkPrimitiveTopology get_vk_topology(int topology)
@@ -51,23 +51,23 @@ static VkPrimitiveTopology get_vk_topology(int topology)
     return vk_primitive_topology_map[topology];
 }
 
-static const VkBlendFactor vk_blend_factor_map[NGLI_GPU_BLEND_FACTOR_NB] = {
+static const VkBlendFactor vk_blend_factor_map[NGPU_BLEND_FACTOR_NB] = {
 
-    [NGLI_GPU_BLEND_FACTOR_ZERO]                     = VK_BLEND_FACTOR_ZERO,
-    [NGLI_GPU_BLEND_FACTOR_ONE]                      = VK_BLEND_FACTOR_ONE,
-    [NGLI_GPU_BLEND_FACTOR_SRC_COLOR]                = VK_BLEND_FACTOR_SRC_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_COLOR]      = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_DST_COLOR]                = VK_BLEND_FACTOR_DST_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_DST_COLOR]      = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_SRC_ALPHA]                = VK_BLEND_FACTOR_SRC_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA]      = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_DST_ALPHA]                = VK_BLEND_FACTOR_DST_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_DST_ALPHA]      = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_CONSTANT_COLOR]           = VK_BLEND_FACTOR_CONSTANT_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR] = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_CONSTANT_ALPHA]           = VK_BLEND_FACTOR_CONSTANT_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA] = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_SRC_ALPHA_SATURATE]       = VK_BLEND_FACTOR_SRC_ALPHA_SATURATE,
+    [NGPU_BLEND_FACTOR_ZERO]                     = VK_BLEND_FACTOR_ZERO,
+    [NGPU_BLEND_FACTOR_ONE]                      = VK_BLEND_FACTOR_ONE,
+    [NGPU_BLEND_FACTOR_SRC_COLOR]                = VK_BLEND_FACTOR_SRC_COLOR,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_SRC_COLOR]      = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,
+    [NGPU_BLEND_FACTOR_DST_COLOR]                = VK_BLEND_FACTOR_DST_COLOR,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_DST_COLOR]      = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,
+    [NGPU_BLEND_FACTOR_SRC_ALPHA]                = VK_BLEND_FACTOR_SRC_ALPHA,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA]      = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+    [NGPU_BLEND_FACTOR_DST_ALPHA]                = VK_BLEND_FACTOR_DST_ALPHA,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_DST_ALPHA]      = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,
+    [NGPU_BLEND_FACTOR_CONSTANT_COLOR]           = VK_BLEND_FACTOR_CONSTANT_COLOR,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR] = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,
+    [NGPU_BLEND_FACTOR_CONSTANT_ALPHA]           = VK_BLEND_FACTOR_CONSTANT_ALPHA,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA] = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,
+    [NGPU_BLEND_FACTOR_SRC_ALPHA_SATURATE]       = VK_BLEND_FACTOR_SRC_ALPHA_SATURATE,
 };
 
 static VkBlendFactor get_vk_blend_factor(int blend_factor)
@@ -75,12 +75,12 @@ static VkBlendFactor get_vk_blend_factor(int blend_factor)
     return vk_blend_factor_map[blend_factor];
 }
 
-static const VkBlendOp vk_blend_op_map[NGLI_GPU_BLEND_OP_NB] = {
-    [NGLI_GPU_BLEND_OP_ADD]              = VK_BLEND_OP_ADD,
-    [NGLI_GPU_BLEND_OP_SUBTRACT]         = VK_BLEND_OP_SUBTRACT,
-    [NGLI_GPU_BLEND_OP_REVERSE_SUBTRACT] = VK_BLEND_OP_REVERSE_SUBTRACT,
-    [NGLI_GPU_BLEND_OP_MIN]              = VK_BLEND_OP_MIN,
-    [NGLI_GPU_BLEND_OP_MAX]              = VK_BLEND_OP_MAX,
+static const VkBlendOp vk_blend_op_map[NGPU_BLEND_OP_NB] = {
+    [NGPU_BLEND_OP_ADD]              = VK_BLEND_OP_ADD,
+    [NGPU_BLEND_OP_SUBTRACT]         = VK_BLEND_OP_SUBTRACT,
+    [NGPU_BLEND_OP_REVERSE_SUBTRACT] = VK_BLEND_OP_REVERSE_SUBTRACT,
+    [NGPU_BLEND_OP_MIN]              = VK_BLEND_OP_MIN,
+    [NGPU_BLEND_OP_MAX]              = VK_BLEND_OP_MAX,
 };
 
 static VkBlendOp get_vk_blend_op(int blend_op)
@@ -88,15 +88,15 @@ static VkBlendOp get_vk_blend_op(int blend_op)
     return vk_blend_op_map[blend_op];
 }
 
-static const VkCompareOp vk_compare_op_map[NGLI_GPU_COMPARE_OP_NB] = {
-    [NGLI_GPU_COMPARE_OP_NEVER]            = VK_COMPARE_OP_NEVER,
-    [NGLI_GPU_COMPARE_OP_LESS]             = VK_COMPARE_OP_LESS,
-    [NGLI_GPU_COMPARE_OP_EQUAL]            = VK_COMPARE_OP_EQUAL,
-    [NGLI_GPU_COMPARE_OP_LESS_OR_EQUAL]    = VK_COMPARE_OP_LESS_OR_EQUAL,
-    [NGLI_GPU_COMPARE_OP_GREATER]          = VK_COMPARE_OP_GREATER,
-    [NGLI_GPU_COMPARE_OP_NOT_EQUAL]        = VK_COMPARE_OP_NOT_EQUAL,
-    [NGLI_GPU_COMPARE_OP_GREATER_OR_EQUAL] = VK_COMPARE_OP_GREATER_OR_EQUAL,
-    [NGLI_GPU_COMPARE_OP_ALWAYS]           = VK_COMPARE_OP_ALWAYS,
+static const VkCompareOp vk_compare_op_map[NGPU_COMPARE_OP_NB] = {
+    [NGPU_COMPARE_OP_NEVER]            = VK_COMPARE_OP_NEVER,
+    [NGPU_COMPARE_OP_LESS]             = VK_COMPARE_OP_LESS,
+    [NGPU_COMPARE_OP_EQUAL]            = VK_COMPARE_OP_EQUAL,
+    [NGPU_COMPARE_OP_LESS_OR_EQUAL]    = VK_COMPARE_OP_LESS_OR_EQUAL,
+    [NGPU_COMPARE_OP_GREATER]          = VK_COMPARE_OP_GREATER,
+    [NGPU_COMPARE_OP_NOT_EQUAL]        = VK_COMPARE_OP_NOT_EQUAL,
+    [NGPU_COMPARE_OP_GREATER_OR_EQUAL] = VK_COMPARE_OP_GREATER_OR_EQUAL,
+    [NGPU_COMPARE_OP_ALWAYS]           = VK_COMPARE_OP_ALWAYS,
 };
 
 static VkCompareOp get_vk_compare_op(int compare_op)
@@ -104,15 +104,15 @@ static VkCompareOp get_vk_compare_op(int compare_op)
     return vk_compare_op_map[compare_op];
 }
 
-static const VkStencilOp vk_stencil_op_map[NGLI_GPU_STENCIL_OP_NB] = {
-    [NGLI_GPU_STENCIL_OP_KEEP]                = VK_STENCIL_OP_KEEP,
-    [NGLI_GPU_STENCIL_OP_ZERO]                = VK_STENCIL_OP_ZERO,
-    [NGLI_GPU_STENCIL_OP_REPLACE]             = VK_STENCIL_OP_REPLACE,
-    [NGLI_GPU_STENCIL_OP_INCREMENT_AND_CLAMP] = VK_STENCIL_OP_INCREMENT_AND_CLAMP,
-    [NGLI_GPU_STENCIL_OP_DECREMENT_AND_CLAMP] = VK_STENCIL_OP_DECREMENT_AND_CLAMP,
-    [NGLI_GPU_STENCIL_OP_INVERT]              = VK_STENCIL_OP_INVERT,
-    [NGLI_GPU_STENCIL_OP_INCREMENT_AND_WRAP]  = VK_STENCIL_OP_INCREMENT_AND_WRAP,
-    [NGLI_GPU_STENCIL_OP_DECREMENT_AND_WRAP]  = VK_STENCIL_OP_DECREMENT_AND_WRAP,
+static const VkStencilOp vk_stencil_op_map[NGPU_STENCIL_OP_NB] = {
+    [NGPU_STENCIL_OP_KEEP]                = VK_STENCIL_OP_KEEP,
+    [NGPU_STENCIL_OP_ZERO]                = VK_STENCIL_OP_ZERO,
+    [NGPU_STENCIL_OP_REPLACE]             = VK_STENCIL_OP_REPLACE,
+    [NGPU_STENCIL_OP_INCREMENT_AND_CLAMP] = VK_STENCIL_OP_INCREMENT_AND_CLAMP,
+    [NGPU_STENCIL_OP_DECREMENT_AND_CLAMP] = VK_STENCIL_OP_DECREMENT_AND_CLAMP,
+    [NGPU_STENCIL_OP_INVERT]              = VK_STENCIL_OP_INVERT,
+    [NGPU_STENCIL_OP_INCREMENT_AND_WRAP]  = VK_STENCIL_OP_INCREMENT_AND_WRAP,
+    [NGPU_STENCIL_OP_DECREMENT_AND_WRAP]  = VK_STENCIL_OP_DECREMENT_AND_WRAP,
 };
 
 static VkStencilOp get_vk_stencil_op(int stencil_op)
@@ -120,10 +120,10 @@ static VkStencilOp get_vk_stencil_op(int stencil_op)
     return vk_stencil_op_map[stencil_op];
 }
 
-static const VkCullModeFlags vk_cull_mode_map[NGLI_GPU_CULL_MODE_NB] = {
-    [NGLI_GPU_CULL_MODE_NONE]           = VK_CULL_MODE_NONE,
-    [NGLI_GPU_CULL_MODE_FRONT_BIT]      = VK_CULL_MODE_FRONT_BIT,
-    [NGLI_GPU_CULL_MODE_BACK_BIT]       = VK_CULL_MODE_BACK_BIT,
+static const VkCullModeFlags vk_cull_mode_map[NGPU_CULL_MODE_NB] = {
+    [NGPU_CULL_MODE_NONE]           = VK_CULL_MODE_NONE,
+    [NGPU_CULL_MODE_FRONT_BIT]      = VK_CULL_MODE_FRONT_BIT,
+    [NGPU_CULL_MODE_BACK_BIT]       = VK_CULL_MODE_BACK_BIT,
 };
 
 static VkCullModeFlags get_vk_cull_mode(int cull_mode)
@@ -133,23 +133,23 @@ static VkCullModeFlags get_vk_cull_mode(int cull_mode)
 
 static VkColorComponentFlags get_vk_color_write_mask(int color_write_mask)
 {
-    return (color_write_mask & NGLI_GPU_COLOR_COMPONENT_R_BIT ? VK_COLOR_COMPONENT_R_BIT : 0)
-         | (color_write_mask & NGLI_GPU_COLOR_COMPONENT_G_BIT ? VK_COLOR_COMPONENT_G_BIT : 0)
-         | (color_write_mask & NGLI_GPU_COLOR_COMPONENT_B_BIT ? VK_COLOR_COMPONENT_B_BIT : 0)
-         | (color_write_mask & NGLI_GPU_COLOR_COMPONENT_A_BIT ? VK_COLOR_COMPONENT_A_BIT : 0);
+    return (color_write_mask & NGPU_COLOR_COMPONENT_R_BIT ? VK_COLOR_COMPONENT_R_BIT : 0)
+         | (color_write_mask & NGPU_COLOR_COMPONENT_G_BIT ? VK_COLOR_COMPONENT_G_BIT : 0)
+         | (color_write_mask & NGPU_COLOR_COMPONENT_B_BIT ? VK_COLOR_COMPONENT_B_BIT : 0)
+         | (color_write_mask & NGPU_COLOR_COMPONENT_A_BIT ? VK_COLOR_COMPONENT_A_BIT : 0);
 }
 
-static VkResult create_attribute_descs(struct gpu_pipeline *s)
+static VkResult create_attribute_descs(struct ngpu_pipeline *s)
 {
-    struct gpu_pipeline_vk *s_priv = (struct gpu_pipeline_vk *)s;
+    struct ngpu_pipeline_vk *s_priv = (struct ngpu_pipeline_vk *)s;
 
     ngli_darray_init(&s_priv->vertex_attribute_descs, sizeof(VkVertexInputAttributeDescription), 0);
     ngli_darray_init(&s_priv->vertex_binding_descs,   sizeof(VkVertexInputBindingDescription), 0);
 
-    const struct gpu_pipeline_graphics *graphics = &s->graphics;
-    const struct gpu_vertex_state *state = &graphics->vertex_state;
+    const struct ngpu_pipeline_graphics *graphics = &s->graphics;
+    const struct ngpu_vertex_state *state = &graphics->vertex_state;
     for (size_t i = 0; i < state->nb_buffers; i++) {
-        const struct gpu_vertex_buffer_layout *buffer = &state->buffers[i];
+        const struct ngpu_vertex_buffer_layout *buffer = &state->buffers[i];
 
         const VkVertexInputBindingDescription binding_desc = {
             .binding   = (uint32_t)i,
@@ -160,11 +160,11 @@ static VkResult create_attribute_descs(struct gpu_pipeline *s)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
         for (size_t j = 0; j < buffer->nb_attributes; j++) {
-            const struct gpu_vertex_attribute *attribute = &buffer->attributes[j];
+            const struct ngpu_vertex_attribute *attribute = &buffer->attributes[j];
             const VkVertexInputAttributeDescription attr_desc = {
                 .binding  = (uint32_t)i,
                 .location = attribute->location,
-                .format   = ngli_gpu_format_ngl_to_vk(attribute->format),
+                .format   = ngpu_format_ngl_to_vk(attribute->format),
                 .offset   = (uint32_t)attribute->offset,
             };
             if (!ngli_darray_push(&s_priv->vertex_attribute_descs, &attr_desc))
@@ -175,13 +175,13 @@ static VkResult create_attribute_descs(struct gpu_pipeline *s)
     return VK_SUCCESS;
 }
 
-static VkResult pipeline_graphics_init(struct gpu_pipeline *s)
+static VkResult pipeline_graphics_init(struct ngpu_pipeline *s)
 {
-    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    const struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    const struct gpu_pipeline_graphics *graphics = &s->graphics;
-    const struct gpu_graphics_state *state = &graphics->state;
-    struct gpu_pipeline_vk *s_priv = (struct gpu_pipeline_vk *)s;
+    const struct ngpu_pipeline_graphics *graphics = &s->graphics;
+    const struct ngpu_graphics_state *state = &graphics->state;
+    struct ngpu_pipeline_vk *s_priv = (struct ngpu_pipeline_vk *)s;
 
     s_priv->pipeline_bind_point = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
@@ -216,7 +216,7 @@ static VkResult pipeline_graphics_init(struct gpu_pipeline *s)
         .frontFace   = VK_FRONT_FACE_CLOCKWISE,
     };
 
-    const struct gpu_rendertarget_layout *layout = &graphics->rt_layout;
+    const struct ngpu_rendertarget_layout *layout = &graphics->rt_layout;
     const VkSampleCountFlagBits samples = ngli_ngl_samples_to_vk(layout->samples);
     const VkPipelineMultisampleStateCreateInfo multisampling_state_create_info = {
         .sType                = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
@@ -252,7 +252,7 @@ static VkResult pipeline_graphics_init(struct gpu_pipeline *s)
         .maxDepthBounds = 0.0f,
     };
 
-    VkPipelineColorBlendAttachmentState colorblend_attachment_states[NGLI_GPU_MAX_COLOR_ATTACHMENTS] = {0};
+    VkPipelineColorBlendAttachmentState colorblend_attachment_states[NGPU_MAX_COLOR_ATTACHMENTS] = {0};
     for (size_t i = 0; i < graphics->rt_layout.nb_colors; i++) {
         colorblend_attachment_states[i] = (VkPipelineColorBlendAttachmentState) {
             .blendEnable         = state->blend,
@@ -284,23 +284,23 @@ static VkResult pipeline_graphics_init(struct gpu_pipeline *s)
         .pDynamicStates    = dynamic_states,
     };
 
-    const struct gpu_program_vk *program_vk = (struct gpu_program_vk *)s->program;
+    const struct ngpu_program_vk *program_vk = (struct ngpu_program_vk *)s->program;
     const VkPipelineShaderStageCreateInfo shader_stage_create_info[2] = {
         {
             .sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage  = VK_SHADER_STAGE_VERTEX_BIT,
-            .module = program_vk->shaders[NGLI_GPU_PROGRAM_SHADER_VERT],
+            .module = program_vk->shaders[NGPU_PROGRAM_SHADER_VERT],
             .pName  = "main",
         }, {
             .sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage  = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .module = program_vk->shaders[NGLI_GPU_PROGRAM_SHADER_FRAG],
+            .module = program_vk->shaders[NGPU_PROGRAM_SHADER_FRAG],
             .pName  = "main",
         },
     };
 
     VkRenderPass render_pass;
-    VkResult res = ngli_gpu_vk_create_compatible_renderpass(s->gpu_ctx, &graphics->rt_layout, &render_pass);
+    VkResult res = ngpu_vk_create_compatible_renderpass(s->gpu_ctx, &graphics->rt_layout, &render_pass);
     if (res != VK_SUCCESS)
         return res;
 
@@ -327,19 +327,19 @@ static VkResult pipeline_graphics_init(struct gpu_pipeline *s)
     return res;
 }
 
-static VkResult pipeline_compute_init(struct gpu_pipeline *s)
+static VkResult pipeline_compute_init(struct ngpu_pipeline *s)
 {
-    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    const struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_pipeline_vk *s_priv = (struct gpu_pipeline_vk *)s;
+    struct ngpu_pipeline_vk *s_priv = (struct ngpu_pipeline_vk *)s;
 
     s_priv->pipeline_bind_point = VK_PIPELINE_BIND_POINT_COMPUTE;
 
-    const struct gpu_program_vk *program_vk = (struct gpu_program_vk *)s->program;
+    const struct ngpu_program_vk *program_vk = (struct ngpu_program_vk *)s->program;
     const VkPipelineShaderStageCreateInfo shader_stage_create_info = {
         .sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
         .stage  = VK_SHADER_STAGE_COMPUTE_BIT,
-        .module = program_vk->shaders[NGLI_GPU_PROGRAM_SHADER_COMP],
+        .module = program_vk->shaders[NGPU_PROGRAM_SHADER_COMP],
         .pName  = "main",
     };
 
@@ -352,13 +352,13 @@ static VkResult pipeline_compute_init(struct gpu_pipeline *s)
     return vkCreateComputePipelines(vk->device, VK_NULL_HANDLE, 1, &pipeline_create_info, NULL, &s_priv->pipeline);
 }
 
-static VkResult create_pipeline_layout(struct gpu_pipeline *s)
+static VkResult create_pipeline_layout(struct ngpu_pipeline *s)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_pipeline_vk *s_priv = (struct gpu_pipeline_vk *)s;
+    struct ngpu_pipeline_vk *s_priv = (struct ngpu_pipeline_vk *)s;
 
-    struct gpu_bindgroup_layout_vk *layout = (struct gpu_bindgroup_layout_vk *)s->layout.bindgroup_layout;
+    struct ngpu_bindgroup_layout_vk *layout = (struct ngpu_bindgroup_layout_vk *)s->layout.bindgroup_layout;
 
     const VkPipelineLayoutCreateInfo pipeline_layout_create_info = {
         .sType          = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
@@ -369,15 +369,15 @@ static VkResult create_pipeline_layout(struct gpu_pipeline *s)
     return vkCreatePipelineLayout(vk->device, &pipeline_layout_create_info, NULL, &s_priv->pipeline_layout);
 }
 
-static VkResult create_pipeline(struct gpu_pipeline *s)
+static VkResult create_pipeline(struct ngpu_pipeline *s)
 {
     VkResult res = create_pipeline_layout(s);
     if (res != VK_SUCCESS)
         return res;
 
-    if (s->type == NGLI_GPU_PIPELINE_TYPE_GRAPHICS) {
+    if (s->type == NGPU_PIPELINE_TYPE_GRAPHICS) {
         res = pipeline_graphics_init(s);
-    } else if (s->type == NGLI_GPU_PIPELINE_TYPE_COMPUTE) {
+    } else if (s->type == NGPU_PIPELINE_TYPE_COMPUTE) {
         res = pipeline_compute_init(s);
     } else {
         ngli_assert(0);
@@ -385,18 +385,18 @@ static VkResult create_pipeline(struct gpu_pipeline *s)
     return res;
 }
 
-struct gpu_pipeline *ngli_gpu_pipeline_vk_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_pipeline *ngpu_pipeline_vk_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_pipeline_vk *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_pipeline_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->parent.gpu_ctx = gpu_ctx;
-    return (struct gpu_pipeline *)s;
+    return (struct ngpu_pipeline *)s;
 }
 
-static VkResult pipeline_vk_init(struct gpu_pipeline *s)
+static VkResult pipeline_vk_init(struct ngpu_pipeline *s)
 {
-    if (s->type == NGLI_GPU_PIPELINE_TYPE_GRAPHICS) {
+    if (s->type == NGPU_PIPELINE_TYPE_GRAPHICS) {
         VkResult res = create_attribute_descs(s);
         if (res != VK_SUCCESS)
             return res;
@@ -405,7 +405,7 @@ static VkResult pipeline_vk_init(struct gpu_pipeline *s)
     return create_pipeline(s);
 }
 
-int ngli_gpu_pipeline_vk_init(struct gpu_pipeline *s)
+int ngpu_pipeline_vk_init(struct ngpu_pipeline *s)
 {
     VkResult res = pipeline_vk_init(s);
     if (res != VK_SUCCESS)
@@ -413,20 +413,20 @@ int ngli_gpu_pipeline_vk_init(struct gpu_pipeline *s)
     return ngli_vk_res2ret(res);
 }
 
-static int prepare_and_bind_descriptor_set(struct gpu_pipeline *s, VkCommandBuffer cmd_buf)
+static int prepare_and_bind_descriptor_set(struct ngpu_pipeline *s, VkCommandBuffer cmd_buf)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)gpu_ctx;
     struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
-    struct gpu_pipeline_vk *s_priv = (struct gpu_pipeline_vk *)s;
+    struct ngpu_pipeline_vk *s_priv = (struct ngpu_pipeline_vk *)s;
 
     if (!gpu_ctx->bindgroup)
         return 0;
 
-    ngli_gpu_bindgroup_vk_update_descriptor_set(gpu_ctx->bindgroup);
+    ngpu_bindgroup_vk_update_descriptor_set(gpu_ctx->bindgroup);
 
     NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, gpu_ctx->bindgroup);
-    struct gpu_bindgroup_vk *bindgroup_vk = (struct gpu_bindgroup_vk *)gpu_ctx->bindgroup;
+    struct ngpu_bindgroup_vk *bindgroup_vk = (struct ngpu_bindgroup_vk *)gpu_ctx->bindgroup;
     if (bindgroup_vk->desc_set)
         vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
                                 1, &bindgroup_vk->desc_set,
@@ -435,18 +435,18 @@ static int prepare_and_bind_descriptor_set(struct gpu_pipeline *s, VkCommandBuff
     return 0;
 }
 
-static int prepare_and_bind_graphics_pipeline(struct gpu_pipeline *s, VkCommandBuffer cmd_buf)
+static int prepare_and_bind_graphics_pipeline(struct ngpu_pipeline *s, VkCommandBuffer cmd_buf)
 {
-    struct gpu_pipeline_vk *s_priv = (struct gpu_pipeline_vk *)s;
+    struct ngpu_pipeline_vk *s_priv = (struct ngpu_pipeline_vk *)s;
 
     vkCmdBindPipeline(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline);
 
     return 0;
 }
 
-void ngli_gpu_pipeline_vk_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex)
+void ngpu_pipeline_vk_draw(struct ngpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
     VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
 
@@ -463,9 +463,9 @@ void ngli_gpu_pipeline_vk_draw(struct gpu_pipeline *s, int nb_vertices, int nb_i
     vkCmdDraw(cmd_buf, nb_vertices, nb_instances, first_vertex, 0);
 }
 
-void ngli_gpu_pipeline_vk_draw_indexed(struct gpu_pipeline *s, int nb_vertices, int nb_instances)
+void ngpu_pipeline_vk_draw_indexed(struct ngpu_pipeline *s, int nb_vertices, int nb_instances)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
     VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
     NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
@@ -481,10 +481,10 @@ void ngli_gpu_pipeline_vk_draw_indexed(struct gpu_pipeline *s, int nb_vertices, 
     vkCmdDrawIndexed(cmd_buf, nb_vertices, nb_instances, 0, 0, 0);
 }
 
-void ngli_gpu_pipeline_vk_dispatch(struct gpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
+void ngpu_pipeline_vk_dispatch(struct ngpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct gpu_pipeline_vk *s_priv = (struct gpu_pipeline_vk *)s;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_pipeline_vk *s_priv = (struct ngpu_pipeline_vk *)s;
 
     struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
     const int cmd_is_transient = cmd_buffer_vk ? 0 : 1;
@@ -526,18 +526,18 @@ void ngli_gpu_pipeline_vk_dispatch(struct gpu_pipeline *s, uint32_t nb_group_x, 
     }
 }
 
-void ngli_gpu_pipeline_vk_freep(struct gpu_pipeline **sp)
+void ngpu_pipeline_vk_freep(struct ngpu_pipeline **sp)
 {
     if (!*sp)
         return;
 
-    struct gpu_pipeline *s = *sp;
-    struct gpu_pipeline_vk *s_priv = (struct gpu_pipeline_vk *)s;
+    struct ngpu_pipeline *s = *sp;
+    struct ngpu_pipeline_vk *s_priv = (struct ngpu_pipeline_vk *)s;
 
     ngli_darray_reset(&s_priv->vertex_attribute_descs);
     ngli_darray_reset(&s_priv->vertex_binding_descs);
 
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     vkDestroyPipeline(vk->device, s_priv->pipeline, NULL);
     vkDestroyPipelineLayout(vk->device, s_priv->pipeline_layout, NULL);

@@ -90,36 +90,36 @@ fail:
 
 static VkBufferUsageFlags get_vk_buffer_usage_flags(uint32_t usage)
 {
-    return (usage & NGLI_GPU_BUFFER_USAGE_TRANSFER_SRC_BIT   ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT   : 0) |
-           (usage & NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT   ? VK_BUFFER_USAGE_TRANSFER_DST_BIT   : 0) |
-           (usage & NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT ? VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT : 0) |
-           (usage & NGLI_GPU_BUFFER_USAGE_STORAGE_BUFFER_BIT ? VK_BUFFER_USAGE_STORAGE_BUFFER_BIT : 0) |
-           (usage & NGLI_GPU_BUFFER_USAGE_INDEX_BUFFER_BIT   ? VK_BUFFER_USAGE_INDEX_BUFFER_BIT   : 0) |
-           (usage & NGLI_GPU_BUFFER_USAGE_VERTEX_BUFFER_BIT  ? VK_BUFFER_USAGE_VERTEX_BUFFER_BIT  : 0);
+    return (usage & NGPU_BUFFER_USAGE_TRANSFER_SRC_BIT   ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT   : 0) |
+           (usage & NGPU_BUFFER_USAGE_TRANSFER_DST_BIT   ? VK_BUFFER_USAGE_TRANSFER_DST_BIT   : 0) |
+           (usage & NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT ? VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT : 0) |
+           (usage & NGPU_BUFFER_USAGE_STORAGE_BUFFER_BIT ? VK_BUFFER_USAGE_STORAGE_BUFFER_BIT : 0) |
+           (usage & NGPU_BUFFER_USAGE_INDEX_BUFFER_BIT   ? VK_BUFFER_USAGE_INDEX_BUFFER_BIT   : 0) |
+           (usage & NGPU_BUFFER_USAGE_VERTEX_BUFFER_BIT  ? VK_BUFFER_USAGE_VERTEX_BUFFER_BIT  : 0);
 }
 
-struct gpu_buffer *ngli_gpu_buffer_vk_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_buffer *ngpu_buffer_vk_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_buffer_vk *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_buffer_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->parent.gpu_ctx = gpu_ctx;
-    return (struct gpu_buffer *)s;
+    return (struct ngpu_buffer *)s;
 }
 
-static VkResult buffer_vk_init(struct gpu_buffer *s)
+static VkResult buffer_vk_init(struct ngpu_buffer *s)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_buffer_vk *s_priv = (struct gpu_buffer_vk *)s;
+    struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 
     VkMemoryPropertyFlags mem_props;
-    if (s->usage & NGLI_GPU_BUFFER_USAGE_MAP_READ) {
+    if (s->usage & NGPU_BUFFER_USAGE_MAP_READ) {
         mem_props = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT  |
                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
                     VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-    } else if (s->usage & NGLI_GPU_BUFFER_USAGE_MAP_WRITE ||
-               s->usage & NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT) {
+    } else if (s->usage & NGPU_BUFFER_USAGE_MAP_WRITE ||
+               s->usage & NGPU_BUFFER_USAGE_DYNAMIC_BIT) {
         mem_props = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     } else {
@@ -130,7 +130,7 @@ static VkResult buffer_vk_init(struct gpu_buffer *s)
     return create_vk_buffer(vk, s->size, flags, mem_props, &s_priv->buffer, &s_priv->memory);
 }
 
-int ngli_gpu_buffer_vk_init(struct gpu_buffer *s)
+int ngpu_buffer_vk_init(struct ngpu_buffer *s)
 {
     VkResult res = buffer_vk_init(s);
     if (res != VK_SUCCESS)
@@ -138,15 +138,15 @@ int ngli_gpu_buffer_vk_init(struct gpu_buffer *s)
     return ngli_vk_res2ret(res);
 }
 
-static VkResult buffer_vk_upload(struct gpu_buffer *s, const void *data, size_t offset, size_t size)
+static VkResult buffer_vk_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_buffer_vk *s_priv = (struct gpu_buffer_vk *)s;
+    struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 
-    if (s->usage & NGLI_GPU_BUFFER_USAGE_MAP_READ ||
-        s->usage & NGLI_GPU_BUFFER_USAGE_MAP_WRITE ||
-        s->usage & NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT) {
+    if (s->usage & NGPU_BUFFER_USAGE_MAP_READ ||
+        s->usage & NGPU_BUFFER_USAGE_MAP_WRITE ||
+        s->usage & NGPU_BUFFER_USAGE_DYNAMIC_BIT) {
         void *mapped_data;
         VkResult res = vkMapMemory(vk->device, s_priv->memory, offset, size, 0, &mapped_data);
         if (res != VK_SUCCESS)
@@ -195,7 +195,7 @@ static VkResult buffer_vk_upload(struct gpu_buffer *s, const void *data, size_t 
     return VK_SUCCESS;
 }
 
-int ngli_gpu_buffer_vk_upload(struct gpu_buffer *s, const void *data, size_t offset, size_t size)
+int ngpu_buffer_vk_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size)
 {
     VkResult res = buffer_vk_upload(s, data, offset, size);
     if (res != VK_SUCCESS)
@@ -203,16 +203,16 @@ int ngli_gpu_buffer_vk_upload(struct gpu_buffer *s, const void *data, size_t off
     return ngli_vk_res2ret(res);
 }
 
-static VkResult buffer_vk_map(struct gpu_buffer *s, size_t offset, size_t size, void **data)
+static VkResult buffer_vk_map(struct ngpu_buffer *s, size_t offset, size_t size, void **data)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_buffer_vk *s_priv = (struct gpu_buffer_vk *)s;
+    struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 
     return vkMapMemory(vk->device, s_priv->memory, offset, size, 0, data);
 }
 
-int ngli_gpu_buffer_vk_map(struct gpu_buffer *s, size_t offset, size_t size, void **data)
+int ngpu_buffer_vk_map(struct ngpu_buffer *s, size_t offset, size_t size, void **data)
 {
     VkResult res = buffer_vk_map(s, offset, size, data);
     if (res != VK_SUCCESS)
@@ -220,24 +220,24 @@ int ngli_gpu_buffer_vk_map(struct gpu_buffer *s, size_t offset, size_t size, voi
     return ngli_vk_res2ret(res);
 }
 
-void ngli_gpu_buffer_vk_unmap(struct gpu_buffer *s)
+void ngpu_buffer_vk_unmap(struct ngpu_buffer *s)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_buffer_vk *s_priv = (struct gpu_buffer_vk *)s;
+    struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 
     vkUnmapMemory(vk->device, s_priv->memory);
 }
 
-void ngli_gpu_buffer_vk_freep(struct gpu_buffer **sp)
+void ngpu_buffer_vk_freep(struct ngpu_buffer **sp)
 {
     if (!*sp)
         return;
 
-    struct gpu_buffer *s = *sp;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_buffer *s = *sp;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_buffer_vk *s_priv = (struct gpu_buffer_vk *)s;
+    struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 
     vkDestroyBuffer(vk->device, s_priv->buffer, NULL);
     vkFreeMemory(vk->device, s_priv->memory, NULL);

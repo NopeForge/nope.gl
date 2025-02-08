@@ -27,12 +27,12 @@
 
 static int cmd_make_current(struct ngl_ctx *s, void *arg)
 {
-    return ngli_gpu_ctx_gl_make_current(s->gpu_ctx);
+    return ngpu_ctx_gl_make_current(s->gpu_ctx);
 }
 
 static int cmd_release_current(struct ngl_ctx *s, void *arg)
 {
-    return ngli_gpu_ctx_gl_release_current(s->gpu_ctx);
+    return ngpu_ctx_gl_release_current(s->gpu_ctx);
 }
 
 static int cmd_configure(struct ngl_ctx *s, void *arg)
@@ -49,7 +49,7 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
         if (ret < 0)
             return ret;
 
-        ngli_gpu_ctx_gl_release_current(s->gpu_ctx);
+        ngpu_ctx_gl_release_current(s->gpu_ctx);
 
         return ngli_ctx_dispatch_cmd(s, cmd_make_current, NULL);
     }
@@ -63,7 +63,7 @@ static int glw_configure(struct ngl_ctx *s, const struct ngl_config *config)
     if (ret < 0)
         return ret;
 
-    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    ngpu_ctx_gl_reset_state(s->gpu_ctx);
 
     return 0;
 }
@@ -94,11 +94,11 @@ static int gl_resize(struct ngl_ctx *s, int32_t width, int32_t height)
         if (ret < 0)
             return ret;
 
-        ngli_gpu_ctx_gl_make_current(s->gpu_ctx);
+        ngpu_ctx_gl_make_current(s->gpu_ctx);
         ret = ngli_ctx_resize(s, width, height);
         if (ret < 0)
             return ret;
-        ngli_gpu_ctx_gl_release_current(s->gpu_ctx);
+        ngpu_ctx_gl_release_current(s->gpu_ctx);
 
         return ngli_ctx_dispatch_cmd(s, cmd_make_current, NULL);
     }
@@ -154,9 +154,9 @@ static int gl_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 
 static int glw_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 {
-    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    ngpu_ctx_gl_reset_state(s->gpu_ctx);
     int ret = ngli_ctx_set_scene(s, scene);
-    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    ngpu_ctx_gl_reset_state(s->gpu_ctx);
     return ret;
 }
 
@@ -173,9 +173,9 @@ static int gl_prepare_draw(struct ngl_ctx *s, double t)
 
 static int glw_prepare_draw(struct ngl_ctx *s, double t)
 {
-    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    ngpu_ctx_gl_reset_state(s->gpu_ctx);
     int ret = ngli_ctx_prepare_draw(s, t);
-    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    ngpu_ctx_gl_reset_state(s->gpu_ctx);
     return ret;
 }
 
@@ -192,9 +192,9 @@ static int gl_draw(struct ngl_ctx *s, double t)
 
 static int glw_draw(struct ngl_ctx *s, double t)
 {
-    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    ngpu_ctx_gl_reset_state(s->gpu_ctx);
     int ret = ngli_ctx_draw(s, t);
-    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    ngpu_ctx_gl_reset_state(s->gpu_ctx);
     return ret;
 }
 
@@ -223,7 +223,7 @@ static int gl_wrap_framebuffer(struct ngl_ctx *s, uint32_t framebuffer)
 
 static int glw_wrap_framebuffer(struct ngl_ctx *s, uint32_t framebuffer)
 {
-    int ret = ngli_gpu_ctx_gl_wrap_framebuffer(s->gpu_ctx, framebuffer);
+    int ret = ngpu_ctx_gl_wrap_framebuffer(s->gpu_ctx, framebuffer);
     if (ret < 0) {
         ngli_ctx_reset(s, NGLI_ACTION_KEEP_SCENE);
         return ret;

@@ -28,8 +28,8 @@
 
 struct rnode {
     size_t id;
-    struct gpu_graphics_state graphics_state;
-    struct gpu_rendertarget_layout rendertarget_layout;
+    struct ngpu_graphics_state graphics_state;
+    struct ngpu_rendertarget_layout rendertarget_layout;
     struct darray children;
 };
 

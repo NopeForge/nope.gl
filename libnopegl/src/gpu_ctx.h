@@ -20,8 +20,8 @@
  * under the License.
  */
 
-#ifndef GPU_CTX_H
-#define GPU_CTX_H
+#ifndef NGPU_CTX_H
+#define NGPU_CTX_H
 
 #include <stdint.h>
 
@@ -37,176 +37,176 @@
 const char *ngli_backend_get_string_id(int backend);
 const char *ngli_backend_get_full_name(int backend);
 
-struct gpu_viewport {
+struct ngpu_viewport {
     int32_t x, y, width, height;
 };
 
-struct gpu_scissor {
+struct ngpu_scissor {
     int32_t x, y, width, height;
 };
 
-int ngli_gpu_viewport_is_valid(const struct gpu_viewport *viewport);
+int ngpu_viewport_is_valid(const struct ngpu_viewport *viewport);
 
 enum {
-    NGLI_GPU_PRIMITIVE_TOPOLOGY_POINT_LIST,
-    NGLI_GPU_PRIMITIVE_TOPOLOGY_LINE_LIST,
-    NGLI_GPU_PRIMITIVE_TOPOLOGY_LINE_STRIP,
-    NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-    NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-    NGLI_GPU_PRIMITIVE_TOPOLOGY_NB
+    NGPU_PRIMITIVE_TOPOLOGY_POINT_LIST,
+    NGPU_PRIMITIVE_TOPOLOGY_LINE_LIST,
+    NGPU_PRIMITIVE_TOPOLOGY_LINE_STRIP,
+    NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+    NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+    NGPU_PRIMITIVE_TOPOLOGY_NB
 };
 
-#define NGLI_GPU_FEATURE_SOFTWARE                          (1U << 0)
-#define NGLI_GPU_FEATURE_COMPUTE                           (1U << 1)
-#define NGLI_GPU_FEATURE_IMAGE_LOAD_STORE                  (1U << 2)
-#define NGLI_GPU_FEATURE_STORAGE_BUFFER                    (1U << 3)
-#define NGLI_GPU_FEATURE_BUFFER_MAP_PERSISTENT             (1U << 4)
-#define NGLI_GPU_FEATURE_DEPTH_STENCIL_RESOLVE             (1U << 5)
+#define NGPU_FEATURE_SOFTWARE                          (1U << 0)
+#define NGPU_FEATURE_COMPUTE                           (1U << 1)
+#define NGPU_FEATURE_IMAGE_LOAD_STORE                  (1U << 2)
+#define NGPU_FEATURE_STORAGE_BUFFER                    (1U << 3)
+#define NGPU_FEATURE_BUFFER_MAP_PERSISTENT             (1U << 4)
+#define NGPU_FEATURE_DEPTH_STENCIL_RESOLVE             (1U << 5)
 
-struct gpu_ctx_class {
+struct ngpu_ctx_class {
     uint32_t id;
 
-    struct gpu_ctx *(*create)(const struct ngl_config *config);
-    int (*init)(struct gpu_ctx *s);
-    int (*resize)(struct gpu_ctx *s, int32_t width, int32_t height);
-    int (*set_capture_buffer)(struct gpu_ctx *s, void *capture_buffer);
-    int (*begin_update)(struct gpu_ctx *s, double t);
-    int (*end_update)(struct gpu_ctx *s, double t);
-    int (*begin_draw)(struct gpu_ctx *s, double t);
-    int (*end_draw)(struct gpu_ctx *s, double t);
-    int (*query_draw_time)(struct gpu_ctx *s, int64_t *time);
-    void (*wait_idle)(struct gpu_ctx *s);
-    void (*destroy)(struct gpu_ctx *s);
+    struct ngpu_ctx *(*create)(const struct ngl_config *config);
+    int (*init)(struct ngpu_ctx *s);
+    int (*resize)(struct ngpu_ctx *s, int32_t width, int32_t height);
+    int (*set_capture_buffer)(struct ngpu_ctx *s, void *capture_buffer);
+    int (*begin_update)(struct ngpu_ctx *s, double t);
+    int (*end_update)(struct ngpu_ctx *s, double t);
+    int (*begin_draw)(struct ngpu_ctx *s, double t);
+    int (*end_draw)(struct ngpu_ctx *s, double t);
+    int (*query_draw_time)(struct ngpu_ctx *s, int64_t *time);
+    void (*wait_idle)(struct ngpu_ctx *s);
+    void (*destroy)(struct ngpu_ctx *s);
 
-    int (*transform_cull_mode)(struct gpu_ctx *s, int cull_mode);
-    void (*transform_projection_matrix)(struct gpu_ctx *s, float *dst);
-    void (*get_rendertarget_uvcoord_matrix)(struct gpu_ctx *s, float *dst);
+    int (*transform_cull_mode)(struct ngpu_ctx *s, int cull_mode);
+    void (*transform_projection_matrix)(struct ngpu_ctx *s, float *dst);
+    void (*get_rendertarget_uvcoord_matrix)(struct ngpu_ctx *s, float *dst);
 
-    struct gpu_rendertarget *(*get_default_rendertarget)(struct gpu_ctx *s, int load_op);
-    const struct gpu_rendertarget_layout *(*get_default_rendertarget_layout)(struct gpu_ctx *s);
-    void (*get_default_rendertarget_size)(struct gpu_ctx *s, int32_t *width, int32_t *height);
+    struct ngpu_rendertarget *(*get_default_rendertarget)(struct ngpu_ctx *s, int load_op);
+    const struct ngpu_rendertarget_layout *(*get_default_rendertarget_layout)(struct ngpu_ctx *s);
+    void (*get_default_rendertarget_size)(struct ngpu_ctx *s, int32_t *width, int32_t *height);
 
-    void (*begin_render_pass)(struct gpu_ctx *s, struct gpu_rendertarget *rt);
-    void (*end_render_pass)(struct gpu_ctx *s);
+    void (*begin_render_pass)(struct ngpu_ctx *s, struct ngpu_rendertarget *rt);
+    void (*end_render_pass)(struct ngpu_ctx *s);
 
-    void (*set_viewport)(struct gpu_ctx *s, const struct gpu_viewport *viewport);
-    void (*set_scissor)(struct gpu_ctx *s, const struct gpu_scissor *scissor);
+    void (*set_viewport)(struct ngpu_ctx *s, const struct ngpu_viewport *viewport);
+    void (*set_scissor)(struct ngpu_ctx *s, const struct ngpu_scissor *scissor);
 
-    int (*get_preferred_depth_format)(struct gpu_ctx *s);
-    int (*get_preferred_depth_stencil_format)(struct gpu_ctx *s);
-    uint32_t (*get_format_features)(struct gpu_ctx *s, int format);
+    int (*get_preferred_depth_format)(struct ngpu_ctx *s);
+    int (*get_preferred_depth_stencil_format)(struct ngpu_ctx *s);
+    uint32_t (*get_format_features)(struct ngpu_ctx *s, int format);
 
-    void (*set_vertex_buffer)(struct gpu_ctx *s, uint32_t index, const struct gpu_buffer *buffer);
-    void (*set_index_buffer)(struct gpu_ctx *s, const struct gpu_buffer *buffer, int format);
+    void (*set_vertex_buffer)(struct ngpu_ctx *s, uint32_t index, const struct ngpu_buffer *buffer);
+    void (*set_index_buffer)(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, int format);
 
-    void (*generate_texture_mipmap)(struct gpu_ctx *s, struct gpu_texture *texture);
+    void (*generate_texture_mipmap)(struct ngpu_ctx *s, struct ngpu_texture *texture);
 
-    void (*set_pipeline)(struct gpu_ctx *s, struct gpu_pipeline *pipeline);
-    void (*set_bindgroup)(struct gpu_ctx *s, struct gpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);
-    void (*draw)(struct gpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex);
-    void (*draw_indexed)(struct gpu_ctx *s, int nb_indices, int nb_instances);
-    void (*dispatch)(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
+    void (*set_pipeline)(struct ngpu_ctx *s, struct ngpu_pipeline *pipeline);
+    void (*set_bindgroup)(struct ngpu_ctx *s, struct ngpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);
+    void (*draw)(struct ngpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex);
+    void (*draw_indexed)(struct ngpu_ctx *s, int nb_indices, int nb_instances);
+    void (*dispatch)(struct ngpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 
-    struct gpu_buffer *(*buffer_create)(struct gpu_ctx *ctx);
-    int (*buffer_init)(struct gpu_buffer *s);
-    int (*buffer_upload)(struct gpu_buffer *s, const void *data, size_t offset, size_t size);
-    int (*buffer_map)(struct gpu_buffer *s, size_t offset, size_t size, void **datap);
-    void (*buffer_unmap)(struct gpu_buffer *s);
-    void (*buffer_freep)(struct gpu_buffer **sp);
+    struct ngpu_buffer *(*buffer_create)(struct ngpu_ctx *ctx);
+    int (*buffer_init)(struct ngpu_buffer *s);
+    int (*buffer_upload)(struct ngpu_buffer *s, const void *data, size_t offset, size_t size);
+    int (*buffer_map)(struct ngpu_buffer *s, size_t offset, size_t size, void **datap);
+    void (*buffer_unmap)(struct ngpu_buffer *s);
+    void (*buffer_freep)(struct ngpu_buffer **sp);
 
-    struct gpu_bindgroup_layout *(*bindgroup_layout_create)(struct gpu_ctx *gpu_ctx);
-    int (*bindgroup_layout_init)(struct gpu_bindgroup_layout *s);
-    void (*bindgroup_layout_freep)(struct gpu_bindgroup_layout **sp);
+    struct ngpu_bindgroup_layout *(*bindgroup_layout_create)(struct ngpu_ctx *gpu_ctx);
+    int (*bindgroup_layout_init)(struct ngpu_bindgroup_layout *s);
+    void (*bindgroup_layout_freep)(struct ngpu_bindgroup_layout **sp);
 
-    struct gpu_bindgroup *(*bindgroup_create)(struct gpu_ctx *gpu_ctx);
-    int (*bindgroup_init)(struct gpu_bindgroup *s, const struct gpu_bindgroup_params *params);
-    int (*bindgroup_update_texture)(struct gpu_bindgroup *s, int32_t index, const struct gpu_texture_binding *binding);
-    int (*bindgroup_update_buffer)(struct gpu_bindgroup *s, int32_t index, const struct gpu_buffer_binding *binding);
-    void (*bindgroup_freep)(struct gpu_bindgroup **sp);
+    struct ngpu_bindgroup *(*bindgroup_create)(struct ngpu_ctx *gpu_ctx);
+    int (*bindgroup_init)(struct ngpu_bindgroup *s, const struct ngpu_bindgroup_params *params);
+    int (*bindgroup_update_texture)(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_texture_binding *binding);
+    int (*bindgroup_update_buffer)(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_buffer_binding *binding);
+    void (*bindgroup_freep)(struct ngpu_bindgroup **sp);
 
-    struct gpu_pipeline *(*pipeline_create)(struct gpu_ctx *ctx);
-    int (*pipeline_init)(struct gpu_pipeline *s);
-    void (*pipeline_freep)(struct gpu_pipeline **sp);
+    struct ngpu_pipeline *(*pipeline_create)(struct ngpu_ctx *ctx);
+    int (*pipeline_init)(struct ngpu_pipeline *s);
+    void (*pipeline_freep)(struct ngpu_pipeline **sp);
 
-    struct gpu_program *(*program_create)(struct gpu_ctx *ctx);
-    int (*program_init)(struct gpu_program *s, const struct gpu_program_params *params);
-    void (*program_freep)(struct gpu_program **sp);
+    struct ngpu_program *(*program_create)(struct ngpu_ctx *ctx);
+    int (*program_init)(struct ngpu_program *s, const struct ngpu_program_params *params);
+    void (*program_freep)(struct ngpu_program **sp);
 
-    struct gpu_rendertarget *(*rendertarget_create)(struct gpu_ctx *ctx);
-    int (*rendertarget_init)(struct gpu_rendertarget *s);
-    void (*rendertarget_freep)(struct gpu_rendertarget **sp);
+    struct ngpu_rendertarget *(*rendertarget_create)(struct ngpu_ctx *ctx);
+    int (*rendertarget_init)(struct ngpu_rendertarget *s);
+    void (*rendertarget_freep)(struct ngpu_rendertarget **sp);
 
-    struct gpu_texture *(*texture_create)(struct gpu_ctx *ctx);
-    int (*texture_init)(struct gpu_texture *s, const struct gpu_texture_params *params);
-    int (*texture_upload)(struct gpu_texture *s, const uint8_t *data, int linesize);
-    int (*texture_generate_mipmap)(struct gpu_texture *s);
-    void (*texture_freep)(struct gpu_texture **sp);
+    struct ngpu_texture *(*texture_create)(struct ngpu_ctx *ctx);
+    int (*texture_init)(struct ngpu_texture *s, const struct ngpu_texture_params *params);
+    int (*texture_upload)(struct ngpu_texture *s, const uint8_t *data, int linesize);
+    int (*texture_generate_mipmap)(struct ngpu_texture *s);
+    void (*texture_freep)(struct ngpu_texture **sp);
 };
 
-struct gpu_ctx {
+struct ngpu_ctx {
     struct ngl_config config;
-    const struct gpu_ctx_class *cls;
+    const struct ngpu_ctx_class *cls;
 
     int version;
     int language_version;
     uint64_t features;
-    struct gpu_limits limits;
+    struct ngpu_limits limits;
 
 #if DEBUG_GPU_CAPTURE
-    struct gpu_capture_ctx *gpu_capture_ctx;
+    struct ngpu_capture_ctx *gpu_capture_ctx;
     int gpu_capture;
 #endif
 
     /* State */
-    struct gpu_rendertarget *rendertarget;
-    struct gpu_pipeline *pipeline;
-    struct gpu_bindgroup *bindgroup;
-    uint32_t dynamic_offsets[NGLI_GPU_MAX_DYNAMIC_OFFSETS];
+    struct ngpu_rendertarget *rendertarget;
+    struct ngpu_pipeline *pipeline;
+    struct ngpu_bindgroup *bindgroup;
+    uint32_t dynamic_offsets[NGPU_MAX_DYNAMIC_OFFSETS];
     size_t nb_dynamic_offsets;
-    const struct gpu_buffer *vertex_buffers[NGLI_GPU_MAX_VERTEX_BUFFERS];
-    const struct gpu_buffer *index_buffer;
+    const struct ngpu_buffer *vertex_buffers[NGPU_MAX_VERTEX_BUFFERS];
+    const struct ngpu_buffer *index_buffer;
     int index_format;
 };
 
-struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config);
-int ngli_gpu_ctx_init(struct gpu_ctx *s);
-int ngli_gpu_ctx_resize(struct gpu_ctx *s, int32_t width, int32_t height);
-int ngli_gpu_ctx_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer);
-int ngli_gpu_ctx_begin_update(struct gpu_ctx *s, double t);
-int ngli_gpu_ctx_end_update(struct gpu_ctx *s, double t);
-int ngli_gpu_ctx_begin_draw(struct gpu_ctx *s, double t);
-int ngli_gpu_ctx_query_draw_time(struct gpu_ctx *s, int64_t *time);
-int ngli_gpu_ctx_end_draw(struct gpu_ctx *s, double t);
-void ngli_gpu_ctx_wait_idle(struct gpu_ctx *s);
-void ngli_gpu_ctx_freep(struct gpu_ctx **sp);
+struct ngpu_ctx *ngpu_ctx_create(const struct ngl_config *config);
+int ngpu_ctx_init(struct ngpu_ctx *s);
+int ngpu_ctx_resize(struct ngpu_ctx *s, int32_t width, int32_t height);
+int ngpu_ctx_set_capture_buffer(struct ngpu_ctx *s, void *capture_buffer);
+int ngpu_ctx_begin_update(struct ngpu_ctx *s, double t);
+int ngpu_ctx_end_update(struct ngpu_ctx *s, double t);
+int ngpu_ctx_begin_draw(struct ngpu_ctx *s, double t);
+int ngpu_ctx_query_draw_time(struct ngpu_ctx *s, int64_t *time);
+int ngpu_ctx_end_draw(struct ngpu_ctx *s, double t);
+void ngpu_ctx_wait_idle(struct ngpu_ctx *s);
+void ngpu_ctx_freep(struct ngpu_ctx **sp);
 
-int ngli_gpu_ctx_transform_cull_mode(struct gpu_ctx *s, int cull_mode);
-void ngli_gpu_ctx_transform_projection_matrix(struct gpu_ctx *s, float *dst);
-void ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(struct gpu_ctx *s, float *dst);
+int ngpu_ctx_transform_cull_mode(struct ngpu_ctx *s, int cull_mode);
+void ngpu_ctx_transform_projection_matrix(struct ngpu_ctx *s, float *dst);
+void ngpu_ctx_get_rendertarget_uvcoord_matrix(struct ngpu_ctx *s, float *dst);
 
-struct gpu_rendertarget *ngli_gpu_ctx_get_default_rendertarget(struct gpu_ctx *s, int load_op);
-const struct gpu_rendertarget_layout *ngli_gpu_ctx_get_default_rendertarget_layout(struct gpu_ctx *s);
-void ngli_gpu_ctx_get_default_rendertarget_size(struct gpu_ctx *s, int32_t *width, int32_t *height);
+struct ngpu_rendertarget *ngpu_ctx_get_default_rendertarget(struct ngpu_ctx *s, int load_op);
+const struct ngpu_rendertarget_layout *ngpu_ctx_get_default_rendertarget_layout(struct ngpu_ctx *s);
+void ngpu_ctx_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, int32_t *height);
 
-void ngli_gpu_ctx_begin_render_pass(struct gpu_ctx *s, struct gpu_rendertarget *rt);
-void ngli_gpu_ctx_end_render_pass(struct gpu_ctx *s);
+void ngpu_ctx_begin_render_pass(struct ngpu_ctx *s, struct ngpu_rendertarget *rt);
+void ngpu_ctx_end_render_pass(struct ngpu_ctx *s);
 
-void ngli_gpu_ctx_set_viewport(struct gpu_ctx *s, const struct gpu_viewport *viewport);
-void ngli_gpu_ctx_set_scissor(struct gpu_ctx *s, const struct gpu_scissor *scissor);
+void ngpu_ctx_set_viewport(struct ngpu_ctx *s, const struct ngpu_viewport *viewport);
+void ngpu_ctx_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scissor);
 
-int ngli_gpu_ctx_get_preferred_depth_format(struct gpu_ctx *s);
-int ngli_gpu_ctx_get_preferred_depth_stencil_format(struct gpu_ctx *s);
-uint32_t ngli_gpu_ctx_get_format_features(struct gpu_ctx *s, int format);
+int ngpu_ctx_get_preferred_depth_format(struct ngpu_ctx *s);
+int ngpu_ctx_get_preferred_depth_stencil_format(struct ngpu_ctx *s);
+uint32_t ngpu_ctx_get_format_features(struct ngpu_ctx *s, int format);
 
-void ngli_gpu_ctx_generate_texture_mipmap(struct gpu_ctx *s, struct gpu_texture *texture);
+void ngpu_ctx_generate_texture_mipmap(struct ngpu_ctx *s, struct ngpu_texture *texture);
 
-void ngli_gpu_ctx_set_pipeline(struct gpu_ctx *s, struct gpu_pipeline *pipeline);
-void ngli_gpu_ctx_set_bindgroup(struct gpu_ctx *s, struct gpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);
-void ngli_gpu_ctx_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex);
-void ngli_gpu_ctx_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances);
-void ngli_gpu_ctx_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
+void ngpu_ctx_set_pipeline(struct ngpu_ctx *s, struct ngpu_pipeline *pipeline);
+void ngpu_ctx_set_bindgroup(struct ngpu_ctx *s, struct ngpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);
+void ngpu_ctx_draw(struct ngpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex);
+void ngpu_ctx_draw_indexed(struct ngpu_ctx *s, int nb_indices, int nb_instances);
+void ngpu_ctx_dispatch(struct ngpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 
-void ngli_gpu_ctx_set_vertex_buffer(struct gpu_ctx *s, uint32_t index, const struct gpu_buffer *buffer);
-void ngli_gpu_ctx_set_index_buffer(struct gpu_ctx *s, const struct gpu_buffer *buffer, int format);
+void ngpu_ctx_set_vertex_buffer(struct ngpu_ctx *s, uint32_t index, const struct ngpu_buffer *buffer);
+void ngpu_ctx_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, int format);
 
 #endif

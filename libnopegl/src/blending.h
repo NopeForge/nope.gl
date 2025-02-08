@@ -38,6 +38,6 @@ enum ngli_blending {
 };
 
 extern const struct param_choices ngli_blending_choices;
-int ngli_blending_apply_preset(struct gpu_graphics_state *state, enum ngli_blending preset);
+int ngli_blending_apply_preset(struct ngpu_graphics_state *state, enum ngli_blending preset);
 
 #endif

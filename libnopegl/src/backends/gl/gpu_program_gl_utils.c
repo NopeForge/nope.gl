@@ -30,27 +30,27 @@
 #include "type.h"
 #include "pgcraft.h"
 
-int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
+int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
                                                    const struct pgcraft *crafter)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct gpu_program_gl *s_priv = (struct gpu_program_gl *)s;
+    struct ngpu_program_gl *s_priv = (struct ngpu_program_gl *)s;
 
     const char *name = NULL;
     int need_relink = 0;
-    const struct gpu_vertex_state vertex_state = ngli_pgcraft_get_vertex_state(crafter);
+    const struct ngpu_vertex_state vertex_state = ngli_pgcraft_get_vertex_state(crafter);
     for (size_t i = 0; i < vertex_state.nb_buffers; i++) {
-        const struct gpu_vertex_buffer_layout *layout = &vertex_state.buffers[i];
+        const struct ngpu_vertex_buffer_layout *layout = &vertex_state.buffers[i];
         for (size_t j = 0; j < layout->nb_attributes; j++) {
-            const struct gpu_vertex_attribute *attribute = &layout->attributes[j];
+            const struct ngpu_vertex_attribute *attribute = &layout->attributes[j];
             const char *attribute_name = ngli_pgcraft_get_symbol_name(crafter, attribute->id);
             if (name && !strcmp(name, attribute_name))
                 continue;
             name = attribute_name;
             gl->funcs.BindAttribLocation(s_priv->id, attribute->location, attribute_name);
-            struct gpu_program_variable_info *info = ngli_hmap_get_str(s->attributes, attribute_name);
+            struct ngpu_program_variable_info *info = ngli_hmap_get_str(s->attributes, attribute_name);
             if (info && info->location != attribute->location) {
                 info->location = attribute->location;
                 need_relink = 1;
@@ -60,9 +60,9 @@ int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
     if (need_relink)
         gl->funcs.LinkProgram(s_priv->id);
 
-    const struct gpu_bindgroup_layout_desc layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter);
+    const struct ngpu_bindgroup_layout_desc layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter);
     for (size_t i = 0; i < layout_desc.nb_buffers; i++) {
-        const struct gpu_bindgroup_layout_entry *entry = &layout_desc.buffers[i];
+        const struct ngpu_bindgroup_layout_entry *entry = &layout_desc.buffers[i];
         if (entry->type != NGLI_TYPE_UNIFORM_BUFFER &&
             entry->type != NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC)
             continue;
@@ -75,7 +75,7 @@ int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
         }
         const GLuint block_index = gl->funcs.GetUniformBlockIndex(s_priv->id, block_name);
         gl->funcs.UniformBlockBinding(s_priv->id, block_index, entry->binding);
-        struct gpu_program_variable_info *info = ngli_hmap_get_str(s->buffer_blocks, block_name);
+        struct ngpu_program_variable_info *info = ngli_hmap_get_str(s->buffer_blocks, block_name);
         if (info)
             info->binding = entry->binding;
     }
@@ -83,11 +83,11 @@ int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s,
     struct glstate *glstate = &gpu_ctx_gl->glstate;
     ngli_glstate_use_program(gl, glstate, s_priv->id);
     for (size_t i = 0; i < layout_desc.nb_textures; i++) {
-        const struct gpu_bindgroup_layout_entry *entry = &layout_desc.textures[i];
+        const struct ngpu_bindgroup_layout_entry *entry = &layout_desc.textures[i];
         const char *texture_name = ngli_pgcraft_get_symbol_name(crafter, entry->id);
         const GLint location = gl->funcs.GetUniformLocation(s_priv->id, texture_name);
         gl->funcs.Uniform1i(location, entry->binding);
-        struct gpu_program_variable_info *info = ngli_hmap_get_str(s->uniforms, texture_name);
+        struct ngpu_program_variable_info *info = ngli_hmap_get_str(s->uniforms, texture_name);
         if (info)
             info->binding = entry->binding;
     }

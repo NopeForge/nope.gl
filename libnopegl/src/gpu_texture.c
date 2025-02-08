@@ -24,36 +24,36 @@
 
 static void texture_freep(void **texturep)
 {
-    struct gpu_texture **sp = (struct gpu_texture **)texturep;
+    struct ngpu_texture **sp = (struct ngpu_texture **)texturep;
     if (!*sp)
         return;
 
     (*sp)->gpu_ctx->cls->texture_freep(sp);
 }
 
-struct gpu_texture *ngli_gpu_texture_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_texture *ngpu_texture_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_texture *s = gpu_ctx->cls->texture_create(gpu_ctx);
+    struct ngpu_texture *s = gpu_ctx->cls->texture_create(gpu_ctx);
     s->rc = NGLI_RC_CREATE(texture_freep);
     return s;
 }
 
-int ngli_gpu_texture_init(struct gpu_texture *s, const struct gpu_texture_params *params)
+int ngpu_texture_init(struct ngpu_texture *s, const struct ngpu_texture_params *params)
 {
     return s->gpu_ctx->cls->texture_init(s, params);
 }
 
-int ngli_gpu_texture_upload(struct gpu_texture *s, const uint8_t *data, int linesize)
+int ngpu_texture_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
 {
     return s->gpu_ctx->cls->texture_upload(s, data, linesize);
 }
 
-int ngli_gpu_texture_generate_mipmap(struct gpu_texture *s)
+int ngpu_texture_generate_mipmap(struct ngpu_texture *s)
 {
     return s->gpu_ctx->cls->texture_generate_mipmap(s);
 }
 
-void ngli_gpu_texture_freep(struct gpu_texture **sp)
+void ngpu_texture_freep(struct ngpu_texture **sp)
 {
     NGLI_RC_UNREFP(sp);
 }

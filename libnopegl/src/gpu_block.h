@@ -20,8 +20,8 @@
  * under the License.
  */
 
-#ifndef GPU_BLOCK_H
-#define GPU_BLOCK_H
+#ifndef NGPU_BLOCK_H
+#define NGPU_BLOCK_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -29,34 +29,34 @@
 #include "block.h"
 #include "gpu_buffer.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
-#define NGLI_GPU_BLOCK_FIELD(_st, _name, _type, _count) \
+#define NGPU_BLOCK_FIELD(_st, _name, _type, _count) \
     {.field={.name= #_name, .type=_type, .count=_count}, .offset=offsetof(_st, _name)}
 
-struct gpu_block_field {
+struct ngpu_block_field {
     struct block_field field;
     size_t offset;
 };
 
-struct gpu_block_params {
+struct ngpu_block_params {
     int layout;
     uint32_t usage;
     size_t count;
-    const struct gpu_block_field *fields;
+    const struct ngpu_block_field *fields;
     size_t nb_fields;
 };
 
-struct gpu_block {
-    struct gpu_ctx *gpu_ctx;
+struct ngpu_block {
+    struct ngpu_ctx *gpu_ctx;
     struct block block;
     size_t block_size;
     struct darray offsets; // array of size_t
-    struct gpu_buffer *buffer;
+    struct ngpu_buffer *buffer;
 };
 
-int ngli_gpu_block_init(struct gpu_ctx *gpu_ctx, struct gpu_block *s, const struct gpu_block_params *params);
-int ngli_gpu_block_update(struct gpu_block *s, size_t index, const void *data);
-void ngli_gpu_block_reset(struct gpu_block *s);
+int ngpu_block_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block *s, const struct ngpu_block_params *params);
+int ngpu_block_update(struct ngpu_block *s, size_t index, const void *data);
+void ngpu_block_reset(struct ngpu_block *s);
 
 #endif

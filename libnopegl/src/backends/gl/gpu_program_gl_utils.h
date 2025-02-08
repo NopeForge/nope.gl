@@ -20,13 +20,13 @@
  * under the License.
  */
 
-#ifndef GPU_PROGRAM_GL_UTILS_H
-#define GPU_PROGRAM_GL_UTILS_H
+#ifndef NGPU_PROGRAM_GL_UTILS_H
+#define NGPU_PROGRAM_GL_UTILS_H
 
 #include "gpu_program.h"
 #include "pgcraft.h"
 
 /* Set locations and bindings according to the given resources layout */
-int ngli_gpu_program_gl_set_locations_and_bindings(struct gpu_program *s, const struct pgcraft *crafter);
+int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s, const struct pgcraft *crafter);
 
 #endif

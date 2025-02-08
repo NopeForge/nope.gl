@@ -42,7 +42,7 @@
 
 struct hwmap_vaapi {
     struct nmd_frame *frame;
-    struct gpu_texture *planes[2];
+    struct ngpu_texture *planes[2];
 
     GLuint gl_planes[2];
     EGLImageKHR egl_images[2];
@@ -71,8 +71,8 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     const struct hwmap_params *params = &hwmap->params;
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
@@ -86,11 +86,11 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
     gl->funcs.GenTextures(2, vaapi->gl_planes);
 
     for (size_t i = 0; i < 2; i++) {
-        const GLint min_filter = ngli_gpu_texture_get_gl_min_filter(params->texture_min_filter,
-                                                                    NGLI_GPU_MIPMAP_FILTER_NONE);
-        const GLint mag_filter = ngli_gpu_texture_get_gl_mag_filter(params->texture_mag_filter);
-        const GLint wrap_s = ngli_gpu_texture_get_gl_wrap(params->texture_wrap_s);
-        const GLint wrap_t = ngli_gpu_texture_get_gl_wrap(params->texture_wrap_t);
+        const GLint min_filter = ngpu_texture_get_gl_min_filter(params->texture_min_filter,
+                                                                    NGPU_MIPMAP_FILTER_NONE);
+        const GLint mag_filter = ngpu_texture_get_gl_mag_filter(params->texture_mag_filter);
+        const GLint wrap_s = ngpu_texture_get_gl_wrap(params->texture_wrap_s);
+        const GLint wrap_t = ngpu_texture_get_gl_wrap(params->texture_wrap_t);
 
         gl->funcs.BindTexture(GL_TEXTURE_2D, vaapi->gl_planes[i]);
         gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
@@ -99,28 +99,28 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
         gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
         gl->funcs.BindTexture(GL_TEXTURE_2D, 0);
 
-        const int format = i == 0 ? NGLI_GPU_FORMAT_R8_UNORM : NGLI_GPU_FORMAT_R8G8_UNORM;
+        const int format = i == 0 ? NGPU_FORMAT_R8_UNORM : NGPU_FORMAT_R8G8_UNORM;
 
-        const struct gpu_texture_params plane_params = {
-            .type             = NGLI_GPU_TEXTURE_TYPE_2D,
+        const struct ngpu_texture_params plane_params = {
+            .type             = NGPU_TEXTURE_TYPE_2D,
             .format           = format,
             .min_filter       = params->texture_min_filter,
             .mag_filter       = params->texture_mag_filter,
             .wrap_s           = params->texture_wrap_s,
             .wrap_t           = params->texture_wrap_t,
-            .usage            = NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+            .usage            = NGPU_TEXTURE_USAGE_SAMPLED_BIT,
         };
 
-        const struct gpu_texture_gl_wrap_params wrap_params = {
+        const struct ngpu_texture_gl_wrap_params wrap_params = {
             .params  = &plane_params,
             .texture = vaapi->gl_planes[i],
         };
 
-        vaapi->planes[i] = ngli_gpu_texture_create(gpu_ctx);
+        vaapi->planes[i] = ngpu_texture_create(gpu_ctx);
         if (!vaapi->planes[i])
             return NGL_ERROR_MEMORY;
 
-        int ret = ngli_gpu_texture_gl_wrap(vaapi->planes[i], &wrap_params);
+        int ret = ngpu_texture_gl_wrap(vaapi->planes[i], &wrap_params);
         if (ret < 0)
             return ret;
     }
@@ -142,8 +142,8 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
 static void vaapi_release_frame_resources(struct hwmap *hwmap)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
@@ -166,13 +166,13 @@ static void vaapi_release_frame_resources(struct hwmap *hwmap)
 static void vaapi_uninit(struct hwmap *hwmap)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
     for (size_t i = 0; i < 2; i++)
-        ngli_gpu_texture_freep(&vaapi->planes[i]);
+        ngpu_texture_freep(&vaapi->planes[i]);
 
     gl->funcs.DeleteTextures(2, vaapi->gl_planes);
 
@@ -183,8 +183,8 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct vaapi_ctx *vaapi_ctx = &ctx->vaapi_ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
@@ -267,9 +267,9 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
             return NGL_ERROR_EXTERNAL;
         }
 
-        struct gpu_texture *plane = vaapi->planes[i];
-        struct gpu_texture_gl *plane_gl = (struct gpu_texture_gl *)plane;
-        ngli_gpu_texture_gl_set_dimensions(plane, width, height, 0);
+        struct ngpu_texture *plane = vaapi->planes[i];
+        struct ngpu_texture_gl *plane_gl = (struct ngpu_texture_gl *)plane;
+        ngpu_texture_gl_set_dimensions(plane, width, height, 0);
 
         gl->funcs.BindTexture(plane_gl->target, plane_gl->id);
         gl->funcs.EGLImageTargetTexture2DOES(plane_gl->target, vaapi->egl_images[i]);

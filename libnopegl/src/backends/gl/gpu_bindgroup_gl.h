@@ -19,37 +19,37 @@
  * under the License.
  */
 
-#ifndef GPU_BINDGROUP_GL_H
-#define GPU_BINDGROUP_GL_H
+#ifndef NGPU_BINDGROUP_GL_H
+#define NGPU_BINDGROUP_GL_H
 
 #include <stdlib.h>
 
 #include "gpu_bindgroup.h"
 #include "glincludes.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
-struct gpu_bindgroup_layout_gl {
-    struct gpu_bindgroup_layout parent;
+struct ngpu_bindgroup_layout_gl {
+    struct ngpu_bindgroup_layout parent;
 };
 
-struct gpu_bindgroup_gl {
-    struct gpu_bindgroup parent;
+struct ngpu_bindgroup_gl {
+    struct ngpu_bindgroup parent;
     struct darray texture_bindings;   // texture_binding_gl
     struct darray buffer_bindings;    // buffer_binding_gl
     int use_barriers;
 };
 
-struct gpu_bindgroup_layout *ngli_gpu_bindgroup_layout_gl_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_bindgroup_layout_gl_init(struct gpu_bindgroup_layout *s);
-void ngli_gpu_bindgroup_layout_gl_freep(struct gpu_bindgroup_layout **sp);
+struct ngpu_bindgroup_layout *ngpu_bindgroup_layout_gl_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_bindgroup_layout_gl_init(struct ngpu_bindgroup_layout *s);
+void ngpu_bindgroup_layout_gl_freep(struct ngpu_bindgroup_layout **sp);
 
-struct gpu_bindgroup *ngli_gpu_bindgroup_gl_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_bindgroup_gl_init(struct gpu_bindgroup *s, const struct gpu_bindgroup_params *params);
-int ngli_gpu_bindgroup_gl_update_texture(struct gpu_bindgroup *s, int32_t index, const struct gpu_texture_binding *binding);
-int ngli_gpu_bindgroup_gl_update_buffer(struct gpu_bindgroup *s, int32_t index, const struct gpu_buffer_binding *binding);
-GLbitfield ngli_gpu_bindgroup_gl_get_memory_barriers(struct gpu_bindgroup *s);
-void ngli_gpu_bindgroup_gl_bind(struct gpu_bindgroup *s, const uint32_t *dynamic_offsets, size_t nb_dynamic_offsets);
-void ngli_gpu_bindgroup_gl_freep(struct gpu_bindgroup **sp);
+struct ngpu_bindgroup *ngpu_bindgroup_gl_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_bindgroup_gl_init(struct ngpu_bindgroup *s, const struct ngpu_bindgroup_params *params);
+int ngpu_bindgroup_gl_update_texture(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_texture_binding *binding);
+int ngpu_bindgroup_gl_update_buffer(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_buffer_binding *binding);
+GLbitfield ngpu_bindgroup_gl_get_memory_barriers(struct ngpu_bindgroup *s);
+void ngpu_bindgroup_gl_bind(struct ngpu_bindgroup *s, const uint32_t *dynamic_offsets, size_t nb_dynamic_offsets);
+void ngpu_bindgroup_gl_freep(struct ngpu_bindgroup **sp);
 
 #endif

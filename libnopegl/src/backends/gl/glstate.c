@@ -27,22 +27,22 @@
 #include "glstate.h"
 #include "gpu_graphics_state.h"
 
-static const GLenum gl_blend_factor_map[NGLI_GPU_BLEND_FACTOR_NB] = {
-    [NGLI_GPU_BLEND_FACTOR_ZERO]                     = GL_ZERO,
-    [NGLI_GPU_BLEND_FACTOR_ONE]                      = GL_ONE,
-    [NGLI_GPU_BLEND_FACTOR_SRC_COLOR]                = GL_SRC_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_COLOR]      = GL_ONE_MINUS_SRC_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_DST_COLOR]                = GL_DST_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_DST_COLOR]      = GL_ONE_MINUS_DST_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_SRC_ALPHA]                = GL_SRC_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA]      = GL_ONE_MINUS_SRC_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_DST_ALPHA]                = GL_DST_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_DST_ALPHA]      = GL_ONE_MINUS_DST_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_CONSTANT_COLOR]           = GL_CONSTANT_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR] = GL_ONE_MINUS_CONSTANT_COLOR,
-    [NGLI_GPU_BLEND_FACTOR_CONSTANT_ALPHA]           = GL_CONSTANT_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA] = GL_ONE_MINUS_CONSTANT_ALPHA,
-    [NGLI_GPU_BLEND_FACTOR_SRC_ALPHA_SATURATE]       = GL_SRC_ALPHA_SATURATE,
+static const GLenum gl_blend_factor_map[NGPU_BLEND_FACTOR_NB] = {
+    [NGPU_BLEND_FACTOR_ZERO]                     = GL_ZERO,
+    [NGPU_BLEND_FACTOR_ONE]                      = GL_ONE,
+    [NGPU_BLEND_FACTOR_SRC_COLOR]                = GL_SRC_COLOR,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_SRC_COLOR]      = GL_ONE_MINUS_SRC_COLOR,
+    [NGPU_BLEND_FACTOR_DST_COLOR]                = GL_DST_COLOR,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_DST_COLOR]      = GL_ONE_MINUS_DST_COLOR,
+    [NGPU_BLEND_FACTOR_SRC_ALPHA]                = GL_SRC_ALPHA,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA]      = GL_ONE_MINUS_SRC_ALPHA,
+    [NGPU_BLEND_FACTOR_DST_ALPHA]                = GL_DST_ALPHA,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_DST_ALPHA]      = GL_ONE_MINUS_DST_ALPHA,
+    [NGPU_BLEND_FACTOR_CONSTANT_COLOR]           = GL_CONSTANT_COLOR,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR] = GL_ONE_MINUS_CONSTANT_COLOR,
+    [NGPU_BLEND_FACTOR_CONSTANT_ALPHA]           = GL_CONSTANT_ALPHA,
+    [NGPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA] = GL_ONE_MINUS_CONSTANT_ALPHA,
+    [NGPU_BLEND_FACTOR_SRC_ALPHA_SATURATE]       = GL_SRC_ALPHA_SATURATE,
 };
 
 static GLenum get_gl_blend_factor(int blend_factor)
@@ -50,12 +50,12 @@ static GLenum get_gl_blend_factor(int blend_factor)
     return gl_blend_factor_map[blend_factor];
 }
 
-static const GLenum gl_blend_op_map[NGLI_GPU_BLEND_OP_NB] = {
-    [NGLI_GPU_BLEND_OP_ADD]              = GL_FUNC_ADD,
-    [NGLI_GPU_BLEND_OP_SUBTRACT]         = GL_FUNC_SUBTRACT,
-    [NGLI_GPU_BLEND_OP_REVERSE_SUBTRACT] = GL_FUNC_REVERSE_SUBTRACT,
-    [NGLI_GPU_BLEND_OP_MIN]              = GL_MIN,
-    [NGLI_GPU_BLEND_OP_MAX]              = GL_MAX,
+static const GLenum gl_blend_op_map[NGPU_BLEND_OP_NB] = {
+    [NGPU_BLEND_OP_ADD]              = GL_FUNC_ADD,
+    [NGPU_BLEND_OP_SUBTRACT]         = GL_FUNC_SUBTRACT,
+    [NGPU_BLEND_OP_REVERSE_SUBTRACT] = GL_FUNC_REVERSE_SUBTRACT,
+    [NGPU_BLEND_OP_MIN]              = GL_MIN,
+    [NGPU_BLEND_OP_MAX]              = GL_MAX,
 };
 
 static GLenum get_gl_blend_op(int blend_op)
@@ -63,15 +63,15 @@ static GLenum get_gl_blend_op(int blend_op)
     return gl_blend_op_map[blend_op];
 }
 
-static const GLenum gl_compare_op_map[NGLI_GPU_COMPARE_OP_NB] = {
-    [NGLI_GPU_COMPARE_OP_NEVER]            = GL_NEVER,
-    [NGLI_GPU_COMPARE_OP_LESS]             = GL_LESS,
-    [NGLI_GPU_COMPARE_OP_EQUAL]            = GL_EQUAL,
-    [NGLI_GPU_COMPARE_OP_LESS_OR_EQUAL]    = GL_LEQUAL,
-    [NGLI_GPU_COMPARE_OP_GREATER]          = GL_GREATER,
-    [NGLI_GPU_COMPARE_OP_NOT_EQUAL]        = GL_NOTEQUAL,
-    [NGLI_GPU_COMPARE_OP_GREATER_OR_EQUAL] = GL_GEQUAL,
-    [NGLI_GPU_COMPARE_OP_ALWAYS]           = GL_ALWAYS,
+static const GLenum gl_compare_op_map[NGPU_COMPARE_OP_NB] = {
+    [NGPU_COMPARE_OP_NEVER]            = GL_NEVER,
+    [NGPU_COMPARE_OP_LESS]             = GL_LESS,
+    [NGPU_COMPARE_OP_EQUAL]            = GL_EQUAL,
+    [NGPU_COMPARE_OP_LESS_OR_EQUAL]    = GL_LEQUAL,
+    [NGPU_COMPARE_OP_GREATER]          = GL_GREATER,
+    [NGPU_COMPARE_OP_NOT_EQUAL]        = GL_NOTEQUAL,
+    [NGPU_COMPARE_OP_GREATER_OR_EQUAL] = GL_GEQUAL,
+    [NGPU_COMPARE_OP_ALWAYS]           = GL_ALWAYS,
 };
 
 static GLenum get_gl_compare_op(int compare_op)
@@ -79,15 +79,15 @@ static GLenum get_gl_compare_op(int compare_op)
     return gl_compare_op_map[compare_op];
 }
 
-static const GLenum gl_stencil_op_map[NGLI_GPU_STENCIL_OP_NB] = {
-    [NGLI_GPU_STENCIL_OP_KEEP]                = GL_KEEP,
-    [NGLI_GPU_STENCIL_OP_ZERO]                = GL_ZERO,
-    [NGLI_GPU_STENCIL_OP_REPLACE]             = GL_REPLACE,
-    [NGLI_GPU_STENCIL_OP_INCREMENT_AND_CLAMP] = GL_INCR,
-    [NGLI_GPU_STENCIL_OP_DECREMENT_AND_CLAMP] = GL_DECR,
-    [NGLI_GPU_STENCIL_OP_INVERT]              = GL_INVERT,
-    [NGLI_GPU_STENCIL_OP_INCREMENT_AND_WRAP]  = GL_INCR_WRAP,
-    [NGLI_GPU_STENCIL_OP_DECREMENT_AND_WRAP]  = GL_DECR_WRAP,
+static const GLenum gl_stencil_op_map[NGPU_STENCIL_OP_NB] = {
+    [NGPU_STENCIL_OP_KEEP]                = GL_KEEP,
+    [NGPU_STENCIL_OP_ZERO]                = GL_ZERO,
+    [NGPU_STENCIL_OP_REPLACE]             = GL_REPLACE,
+    [NGPU_STENCIL_OP_INCREMENT_AND_CLAMP] = GL_INCR,
+    [NGPU_STENCIL_OP_DECREMENT_AND_CLAMP] = GL_DECR,
+    [NGPU_STENCIL_OP_INVERT]              = GL_INVERT,
+    [NGPU_STENCIL_OP_INCREMENT_AND_WRAP]  = GL_INCR_WRAP,
+    [NGPU_STENCIL_OP_DECREMENT_AND_WRAP]  = GL_DECR_WRAP,
 };
 
 static GLenum get_gl_stencil_op(int stencil_op)
@@ -95,10 +95,10 @@ static GLenum get_gl_stencil_op(int stencil_op)
     return gl_stencil_op_map[stencil_op];
 }
 
-static const GLenum gl_cull_mode_map[NGLI_GPU_CULL_MODE_NB] = {
-    [NGLI_GPU_CULL_MODE_NONE]           = GL_BACK,
-    [NGLI_GPU_CULL_MODE_FRONT_BIT]      = GL_FRONT,
-    [NGLI_GPU_CULL_MODE_BACK_BIT]       = GL_BACK,
+static const GLenum gl_cull_mode_map[NGPU_CULL_MODE_NB] = {
+    [NGPU_CULL_MODE_NONE]           = GL_BACK,
+    [NGPU_CULL_MODE_FRONT_BIT]      = GL_FRONT,
+    [NGPU_CULL_MODE_BACK_BIT]       = GL_BACK,
 };
 
 static GLenum get_gl_cull_mode(int cull_mode)
@@ -191,7 +191,7 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
     gl->funcs.BindVertexArray(0);
 }
 
-void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct gpu_graphics_state *state)
+void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct ngpu_graphics_state *state)
 {
     /* Blend */
     const int blend = state->blend;
@@ -341,7 +341,7 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     }
 
     /* Face Culling */
-    const GLboolean cull_face = state->cull_mode != NGLI_GPU_CULL_MODE_NONE;
+    const GLboolean cull_face = state->cull_mode != NGPU_CULL_MODE_NONE;
     if (cull_face != glstate->cull_face) {
         if (cull_face)
             gl->funcs.Enable(GL_CULL_FACE);
@@ -365,7 +365,7 @@ void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstat
     }
 }
 
-void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *glstate, const struct gpu_scissor *scissor)
+void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *glstate, const struct ngpu_scissor *scissor)
 {
     if (glstate->scissor.x == scissor->x &&
         glstate->scissor.y == scissor->y &&
@@ -376,7 +376,7 @@ void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *gls
     gl->funcs.Scissor(scissor->x, scissor->y, scissor->width, scissor->height);
 }
 
-void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *glstate, const struct gpu_viewport *viewport)
+void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *glstate, const struct ngpu_viewport *viewport)
 {
     if (glstate->viewport.x == viewport->x &&
         glstate->viewport.y == viewport->y &&

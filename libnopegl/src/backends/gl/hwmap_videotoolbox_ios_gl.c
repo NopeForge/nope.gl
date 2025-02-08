@@ -59,14 +59,14 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
     case kCVPixelFormatType_32BGRA:
         desc->layout = NGLI_IMAGE_LAYOUT_DEFAULT;
         desc->nb_planes = 1;
-        desc->planes[0].format = NGLI_GPU_FORMAT_B8G8R8A8_UNORM;
+        desc->planes[0].format = NGPU_FORMAT_B8G8R8A8_UNORM;
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         desc->layout = NGLI_IMAGE_LAYOUT_NV12;
         desc->nb_planes = 2;
-        desc->planes[0].format = NGLI_GPU_FORMAT_R8_UNORM;
-        desc->planes[1].format = NGLI_GPU_FORMAT_R8G8_UNORM;
+        desc->planes[0].format = NGPU_FORMAT_R8_UNORM;
+        desc->planes[1].format = NGPU_FORMAT_R8G8_UNORM;
         break;
     default:
         LOG(ERROR, "unsupported pixel format %d", format);
@@ -77,7 +77,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 }
 
 struct hwmap_vt_ios {
-    struct gpu_texture *planes[2];
+    struct ngpu_texture *planes[2];
     int32_t width;
     int32_t height;
     OSType format;
@@ -88,13 +88,13 @@ struct hwmap_vt_ios {
 static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, size_t index)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vt_ios *vt = hwmap->hwmap_priv_data;
-    struct gpu_texture *plane = vt->planes[index];
-    struct gpu_texture_gl *plane_gl = (struct gpu_texture_gl *)plane;
-    const struct gpu_texture_params *plane_params = &plane->params;
+    struct ngpu_texture *plane = vt->planes[index];
+    struct ngpu_texture_gl *plane_gl = (struct ngpu_texture_gl *)plane;
+    const struct ngpu_texture_params *plane_params = &plane->params;
 
     NGLI_CFRELEASE(vt->ios_textures[index]);
 
@@ -123,10 +123,10 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, size
     }
 
     GLint id = CVOpenGLESTextureGetName(vt->ios_textures[index]);
-    const GLint min_filter = ngli_gpu_texture_get_gl_min_filter(plane_params->min_filter, plane_params->mipmap_filter);
-    const GLint mag_filter = ngli_gpu_texture_get_gl_mag_filter(plane_params->mag_filter);
-    const GLint wrap_s = ngli_gpu_texture_get_gl_wrap(plane_params->wrap_s);
-    const GLint wrap_t = ngli_gpu_texture_get_gl_wrap(plane_params->wrap_t);
+    const GLint min_filter = ngpu_texture_get_gl_min_filter(plane_params->min_filter, plane_params->mipmap_filter);
+    const GLint mag_filter = ngpu_texture_get_gl_mag_filter(plane_params->mag_filter);
+    const GLint wrap_s = ngpu_texture_get_gl_wrap(plane_params->wrap_s);
+    const GLint wrap_t = ngpu_texture_get_gl_wrap(plane_params->wrap_t);
 
     gl->funcs.BindTexture(GL_TEXTURE_2D, id);
     gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
@@ -135,8 +135,8 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, size
     gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
     gl->funcs.BindTexture(GL_TEXTURE_2D, 0);
 
-    ngli_gpu_texture_gl_set_id(plane, id);
-    ngli_gpu_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
+    ngpu_texture_gl_set_id(plane, id);
+    ngpu_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
 
     return 0;
 }
@@ -165,8 +165,8 @@ static void vt_ios_uninit(struct hwmap *hwmap)
 {
     struct hwmap_vt_ios *vt = hwmap->hwmap_priv_data;
 
-    ngli_gpu_texture_freep(&vt->planes[0]);
-    ngli_gpu_texture_freep(&vt->planes[1]);
+    ngpu_texture_freep(&vt->planes[0]);
+    ngpu_texture_freep(&vt->planes[1]);
 
     NGLI_CFRELEASE(vt->ios_textures[0]);
     NGLI_CFRELEASE(vt->ios_textures[1]);
@@ -203,7 +203,7 @@ static int support_direct_rendering(struct hwmap *hwmap, struct nmd_frame *frame
 static int vt_ios_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct hwmap_vt_ios *vt = hwmap->hwmap_priv_data;
     const struct hwmap_params *params = &hwmap->params;
 
@@ -215,25 +215,25 @@ static int vt_ios_init(struct hwmap *hwmap, struct nmd_frame *frame)
         return ret;
 
     for (size_t i = 0; i < vt->format_desc.nb_planes; i++) {
-        const struct gpu_texture_params plane_params = {
-            .type             = NGLI_GPU_TEXTURE_TYPE_2D,
+        const struct ngpu_texture_params plane_params = {
+            .type             = NGPU_TEXTURE_TYPE_2D,
             .format           = vt->format_desc.planes[i].format,
             .min_filter       = params->texture_min_filter,
             .mag_filter       = params->texture_mag_filter,
             .wrap_s           = params->texture_wrap_s,
             .wrap_t           = params->texture_wrap_t,
-            .usage            = NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+            .usage            = NGPU_TEXTURE_USAGE_SAMPLED_BIT,
         };
 
-        const struct gpu_texture_gl_wrap_params wrap_params = {
+        const struct ngpu_texture_gl_wrap_params wrap_params = {
             .params = &plane_params,
         };
 
-        vt->planes[i] = ngli_gpu_texture_create(gpu_ctx);
+        vt->planes[i] = ngpu_texture_create(gpu_ctx);
         if (!vt->planes[i])
             return NGL_ERROR_MEMORY;
 
-        ret = ngli_gpu_texture_gl_wrap(vt->planes[i], &wrap_params);
+        ret = ngpu_texture_gl_wrap(vt->planes[i], &wrap_params);
         if (ret < 0)
             return ret;
     }

@@ -48,54 +48,54 @@
 #include "gpu_capture.h"
 #endif
 
-static VkResult create_dummy_texture(struct gpu_ctx *s)
+static VkResult create_dummy_texture(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
-    s_priv->dummy_texture = ngli_gpu_texture_create(s);
+    s_priv->dummy_texture = ngpu_texture_create(s);
     if (!s_priv->dummy_texture)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    const struct gpu_texture_params params = {
-        .type    = NGLI_GPU_TEXTURE_TYPE_2D,
-        .format  = NGLI_GPU_FORMAT_R8G8B8A8_UNORM,
+    const struct ngpu_texture_params params = {
+        .type    = NGPU_TEXTURE_TYPE_2D,
+        .format  = NGPU_FORMAT_R8G8B8A8_UNORM,
         .width   = 1,
         .height  = 1,
         .samples = 1,
-        .usage   = NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT |
-                   NGLI_GPU_TEXTURE_USAGE_STORAGE_BIT |
-                   NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT,
+        .usage   = NGPU_TEXTURE_USAGE_SAMPLED_BIT |
+                   NGPU_TEXTURE_USAGE_STORAGE_BIT |
+                   NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT,
     };
 
-    int ret = ngli_gpu_texture_init(s_priv->dummy_texture, &params);
+    int ret = ngpu_texture_init(s_priv->dummy_texture, &params);
     if (ret < 0)
         return VK_ERROR_UNKNOWN;
 
     const uint8_t buf[4] = {0};
-    ret = ngli_gpu_texture_upload(s_priv->dummy_texture, buf, 0);
+    ret = ngpu_texture_upload(s_priv->dummy_texture, buf, 0);
     if (ret < 0)
         return VK_ERROR_UNKNOWN;
 
     return VK_SUCCESS;
 }
 
-static void destroy_dummy_texture(struct gpu_ctx *s)
+static void destroy_dummy_texture(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
-    ngli_gpu_texture_freep(&s_priv->dummy_texture);
+    ngpu_texture_freep(&s_priv->dummy_texture);
 }
 
-static VkResult create_texture(struct gpu_ctx *s, int format, int32_t samples, uint32_t usage, struct gpu_texture **texturep)
+static VkResult create_texture(struct ngpu_ctx *s, int format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
-    struct gpu_texture *texture = ngli_gpu_texture_create(s);
+    struct ngpu_texture *texture = ngpu_texture_create(s);
     if (!texture)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    const struct gpu_texture_params params = {
-        .type    = NGLI_GPU_TEXTURE_TYPE_2D,
+    const struct ngpu_texture_params params = {
+        .type    = NGPU_TEXTURE_TYPE_2D,
         .format  = format,
         .width   = s_priv->width,
         .height  = s_priv->height,
@@ -103,9 +103,9 @@ static VkResult create_texture(struct gpu_ctx *s, int format, int32_t samples, u
         .usage   = usage,
     };
 
-    int ret = ngli_gpu_texture_init(texture, &params);
+    int ret = ngpu_texture_init(texture, &params);
     if (ret < 0) {
-        ngli_gpu_texture_freep(&texture);
+        ngpu_texture_freep(&texture);
         return VK_ERROR_UNKNOWN;
     }
 
@@ -114,20 +114,20 @@ static VkResult create_texture(struct gpu_ctx *s, int format, int32_t samples, u
     return VK_SUCCESS;
 }
 
-static VkResult create_rendertarget(struct gpu_ctx *s,
-                                    struct gpu_texture *color,
-                                    struct gpu_texture *resolve_color,
-                                    struct gpu_texture *depth_stencil,
+static VkResult create_rendertarget(struct ngpu_ctx *s,
+                                    struct ngpu_texture *color,
+                                    struct ngpu_texture *resolve_color,
+                                    struct ngpu_texture *depth_stencil,
                                     int load_op,
-                                    struct gpu_rendertarget **rendertargetp)
+                                    struct ngpu_rendertarget **rendertargetp)
 {
     const struct ngl_config *config = &s->config;
 
-    struct gpu_rendertarget *rendertarget = ngli_gpu_rendertarget_create(s);
+    struct ngpu_rendertarget *rendertarget = ngpu_rendertarget_create(s);
     if (!rendertarget)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    const struct gpu_rendertarget_params params = {
+    const struct ngpu_rendertarget_params params = {
         .width = config->width,
         .height = config->height,
         .nb_colors = 1,
@@ -139,18 +139,18 @@ static VkResult create_rendertarget(struct gpu_ctx *s,
             .clear_value[1] = config->clear_color[1],
             .clear_value[2] = config->clear_color[2],
             .clear_value[3] = config->clear_color[3],
-            .store_op       = NGLI_GPU_STORE_OP_STORE,
+            .store_op       = NGPU_STORE_OP_STORE,
         },
         .depth_stencil = {
             .attachment = depth_stencil,
             .load_op    = load_op,
-            .store_op   = NGLI_GPU_STORE_OP_STORE,
+            .store_op   = NGPU_STORE_OP_STORE,
         },
     };
 
-    int ret = ngli_gpu_rendertarget_init(rendertarget, &params);
+    int ret = ngpu_rendertarget_init(rendertarget, &params);
     if (ret < 0) {
-        ngli_gpu_rendertarget_freep(&rendertarget);
+        ngpu_rendertarget_freep(&rendertarget);
         return VK_ERROR_UNKNOWN;
     }
 
@@ -159,118 +159,118 @@ static VkResult create_rendertarget(struct gpu_ctx *s,
     return VK_SUCCESS;
 }
 
-#define COLOR_USAGE (NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT)
-#define DEPTH_USAGE NGLI_GPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+#define COLOR_USAGE (NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT)
+#define DEPTH_USAGE NGPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
 
-static VkResult create_render_resources(struct gpu_ctx *s)
+static VkResult create_render_resources(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
     const struct ngl_config *config = &s->config;
 
     const int color_format = config->offscreen
-                           ? NGLI_GPU_FORMAT_R8G8B8A8_UNORM
-                           : ngli_gpu_format_vk_to_ngl(s_priv->surface_format.format);
+                           ? NGPU_FORMAT_R8G8B8A8_UNORM
+                           : ngpu_format_vk_to_ngl(s_priv->surface_format.format);
     const int ds_format = vk->preferred_depth_stencil_format;
 
     const uint32_t nb_images = config->offscreen ? s_priv->nb_in_flight_frames : s_priv->nb_images;
     for (uint32_t i = 0; i < nb_images; i++) {
-        struct gpu_texture *color = NULL;
+        struct ngpu_texture *color = NULL;
         if (config->offscreen) {
             VkResult res = create_texture(s, color_format, 0, COLOR_USAGE, &color);
             if (res != VK_SUCCESS)
                 return res;
         } else {
-            color = ngli_gpu_texture_create(s);
+            color = ngpu_texture_create(s);
             if (!color)
                 return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-            const struct gpu_texture_params params = {
-                .type             = NGLI_GPU_TEXTURE_TYPE_2D,
+            const struct ngpu_texture_params params = {
+                .type             = NGPU_TEXTURE_TYPE_2D,
                 .format           = color_format,
                 .width            = s_priv->width,
                 .height           = s_priv->height,
                 .usage            = COLOR_USAGE,
             };
 
-            const struct gpu_texture_vk_wrap_params wrap_params = {
+            const struct ngpu_texture_vk_wrap_params wrap_params = {
                 .params       = &params,
                 .image        = s_priv->images[i],
                 .image_layout = VK_IMAGE_LAYOUT_UNDEFINED,
             };
 
-            VkResult res = ngli_gpu_texture_vk_wrap(color, &wrap_params);
+            VkResult res = ngpu_texture_vk_wrap(color, &wrap_params);
             if (res != VK_SUCCESS) {
-                ngli_gpu_texture_vk_freep(&color);
+                ngpu_texture_vk_freep(&color);
                 return res;
             }
         }
 
         if (!ngli_darray_push(&s_priv->colors, &color)) {
-            ngli_gpu_texture_freep(&color);
+            ngpu_texture_freep(&color);
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
 
-        struct gpu_texture *depth_stencil = NULL;
+        struct ngpu_texture *depth_stencil = NULL;
         VkResult res = create_texture(s, ds_format, config->samples, DEPTH_USAGE, &depth_stencil);
         if (res != VK_SUCCESS)
             return res;
 
         if (!ngli_darray_push(&s_priv->depth_stencils, &depth_stencil)) {
-            ngli_gpu_texture_freep(&depth_stencil);
+            ngpu_texture_freep(&depth_stencil);
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
 
-        struct gpu_texture *ms_color = NULL;
+        struct ngpu_texture *ms_color = NULL;
         if (config->samples) {
             res = create_texture(s, color_format, config->samples, COLOR_USAGE, &ms_color);
             if (res != VK_SUCCESS)
                 return res;
 
             if (!ngli_darray_push(&s_priv->ms_colors, &ms_color)) {
-                ngli_gpu_texture_freep(&ms_color);
+                ngpu_texture_freep(&ms_color);
                 return VK_ERROR_OUT_OF_HOST_MEMORY;
             }
         }
 
-        struct gpu_texture *target_color = ms_color ? ms_color : color;
-        struct gpu_texture *resolve_color = ms_color ? color : NULL;
+        struct ngpu_texture *target_color = ms_color ? ms_color : color;
+        struct ngpu_texture *resolve_color = ms_color ? color : NULL;
 
-        struct gpu_rendertarget *rt = NULL;
-        res = create_rendertarget(s, target_color, resolve_color, depth_stencil, NGLI_GPU_LOAD_OP_CLEAR, &rt);
+        struct ngpu_rendertarget *rt = NULL;
+        res = create_rendertarget(s, target_color, resolve_color, depth_stencil, NGPU_LOAD_OP_CLEAR, &rt);
         if (res != VK_SUCCESS)
             return res;
 
         if (!ngli_darray_push(&s_priv->rts, &rt)) {
-            ngli_gpu_rendertarget_freep(&rt);
+            ngpu_rendertarget_freep(&rt);
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
 
-        struct gpu_rendertarget *rt_load = NULL;
-        res = create_rendertarget(s, target_color, resolve_color, depth_stencil, NGLI_GPU_LOAD_OP_LOAD, &rt_load);
+        struct ngpu_rendertarget *rt_load = NULL;
+        res = create_rendertarget(s, target_color, resolve_color, depth_stencil, NGPU_LOAD_OP_LOAD, &rt_load);
         if (res != VK_SUCCESS)
             return res;
 
         if (!ngli_darray_push(&s_priv->rts_load, &rt_load)) {
-            ngli_gpu_rendertarget_freep(&rt_load);
+            ngpu_rendertarget_freep(&rt_load);
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
     }
 
     if (config->offscreen) {
-        s_priv->capture_buffer = ngli_gpu_buffer_create(s);
+        s_priv->capture_buffer = ngpu_buffer_create(s);
         if (!s_priv->capture_buffer)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        s_priv->capture_buffer_size = s_priv->width * s_priv->height * ngli_gpu_format_get_bytes_per_pixel(color_format);
-        int ret = ngli_gpu_buffer_init(s_priv->capture_buffer,
+        s_priv->capture_buffer_size = s_priv->width * s_priv->height * ngpu_format_get_bytes_per_pixel(color_format);
+        int ret = ngpu_buffer_init(s_priv->capture_buffer,
                                        s_priv->capture_buffer_size,
-                                       NGLI_GPU_BUFFER_USAGE_MAP_READ |
-                                       NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT);
+                                       NGPU_BUFFER_USAGE_MAP_READ |
+                                       NGPU_BUFFER_USAGE_TRANSFER_DST_BIT);
         if (ret < 0)
             return VK_ERROR_UNKNOWN;
 
-        ret = ngli_gpu_buffer_map(s_priv->capture_buffer, 0, s_priv->capture_buffer_size, &s_priv->mapped_data);
+        ret = ngpu_buffer_map(s_priv->capture_buffer, 0, s_priv->capture_buffer_size, &s_priv->mapped_data);
         if (ret < 0)
             return VK_ERROR_UNKNOWN;
     }
@@ -278,9 +278,9 @@ static VkResult create_render_resources(struct gpu_ctx *s)
     return VK_SUCCESS;
 }
 
-static void destroy_render_resources(struct gpu_ctx *s)
+static void destroy_render_resources(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
     ngli_darray_reset(&s_priv->colors);
     ngli_darray_reset(&s_priv->ms_colors);
@@ -289,15 +289,15 @@ static void destroy_render_resources(struct gpu_ctx *s)
     ngli_darray_reset(&s_priv->rts_load);
 
     if (s_priv->mapped_data) {
-        ngli_gpu_buffer_unmap(s_priv->capture_buffer);
+        ngpu_buffer_unmap(s_priv->capture_buffer);
         s_priv->mapped_data = NULL;
     }
-    ngli_gpu_buffer_freep(&s_priv->capture_buffer);
+    ngpu_buffer_freep(&s_priv->capture_buffer);
 }
 
-static VkResult create_query_pool(struct gpu_ctx *s)
+static VkResult create_query_pool(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     const VkQueryPoolCreateInfo create_info = {
@@ -309,17 +309,17 @@ static VkResult create_query_pool(struct gpu_ctx *s)
     return vkCreateQueryPool(vk->device, &create_info, NULL, &s_priv->query_pool);
 }
 
-static void destroy_query_pool(struct gpu_ctx *s)
+static void destroy_query_pool(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     vkDestroyQueryPool(vk->device, s_priv->query_pool, NULL);
 }
 
-static VkResult create_command_pool_and_buffers(struct gpu_ctx *s)
+static VkResult create_command_pool_and_buffers(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     const VkCommandPoolCreateInfo cmd_pool_create_info = {
@@ -358,9 +358,9 @@ static VkResult create_command_pool_and_buffers(struct gpu_ctx *s)
     return VK_SUCCESS;
 }
 
-static void destroy_command_pool_and_buffers(struct gpu_ctx *s)
+static void destroy_command_pool_and_buffers(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     if (s_priv->cmd_buffers) {
@@ -380,9 +380,9 @@ static void destroy_command_pool_and_buffers(struct gpu_ctx *s)
     ngli_darray_reset(&s_priv->pending_cmd_buffers);
 }
 
-static VkResult create_semaphores(struct gpu_ctx *s)
+static VkResult create_semaphores(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     s_priv->image_avail_sems = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(VkSemaphore));
@@ -418,9 +418,9 @@ static VkResult create_semaphores(struct gpu_ctx *s)
     return VK_SUCCESS;
 }
 
-static void destroy_semaphores(struct gpu_ctx *s)
+static void destroy_semaphores(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     if (s_priv->update_finished_sems) {
@@ -515,9 +515,9 @@ static VkCompositeAlphaFlagBitsKHR select_swapchain_composite_alpha(struct vkcon
     ngli_assert(0);
 }
 
-static VkResult create_swapchain(struct gpu_ctx *s)
+static VkResult create_swapchain(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
     struct ngl_config *config = &s->config;
 
@@ -591,9 +591,9 @@ static VkResult create_swapchain(struct gpu_ctx *s)
     return res;
 }
 
-static void destroy_swapchain(struct gpu_ctx *s)
+static void destroy_swapchain(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     vkDestroySwapchainKHR(vk->device, s_priv->swapchain, NULL);
@@ -601,9 +601,9 @@ static void destroy_swapchain(struct gpu_ctx *s)
     s_priv->nb_images = 0;
 }
 
-static VkResult recreate_swapchain(struct gpu_ctx *gpu_ctx, struct vkcontext *vk)
+static VkResult recreate_swapchain(struct ngpu_ctx *gpu_ctx, struct vkcontext *vk)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)gpu_ctx;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)gpu_ctx;
 
     VkResult res = vkDeviceWaitIdle(vk->device);
     if (res != VK_SUCCESS)
@@ -639,9 +639,9 @@ static VkResult recreate_swapchain(struct gpu_ctx *gpu_ctx, struct vkcontext *vk
     return VK_SUCCESS;
 }
 
-static VkResult swapchain_acquire_image(struct gpu_ctx *s, uint32_t *image_index)
+static VkResult swapchain_acquire_image(struct ngpu_ctx *s, uint32_t *image_index)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     if (s_priv->recreate_swapchain) {
@@ -684,10 +684,10 @@ static VkResult swapchain_acquire_image(struct gpu_ctx *s, uint32_t *image_index
     return VK_SUCCESS;
 }
 
-static VkResult swapchain_present_buffer(struct gpu_ctx *s, double t)
+static VkResult swapchain_present_buffer(struct ngpu_ctx *s, double t)
 {
     const struct ngl_config *config = &s->config;
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     VkSemaphore sem = s_priv->render_finished_sems[s_priv->cur_frame_index];
@@ -746,12 +746,12 @@ static VkResult swapchain_present_buffer(struct gpu_ctx *s, double t)
     return VK_SUCCESS;
 }
 
-static struct gpu_ctx *vk_create(const struct ngl_config *config)
+static struct ngpu_ctx *vk_create(const struct ngl_config *config)
 {
-    struct gpu_ctx_vk *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_ctx_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
-    return (struct gpu_ctx *)s;
+    return (struct ngpu_ctx *)s;
 }
 
 static int get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
@@ -764,30 +764,30 @@ static int get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
 
 static uint32_t get_max_color_attachments(const VkPhysicalDeviceLimits *limits)
 {
-    return NGLI_MIN(limits->maxColorAttachments, NGLI_GPU_MAX_COLOR_ATTACHMENTS);
+    return NGLI_MIN(limits->maxColorAttachments, NGPU_MAX_COLOR_ATTACHMENTS);
 }
 
 static uint32_t get_max_vertex_attributes(const VkPhysicalDeviceLimits *limits)
 {
-    return NGLI_MIN(limits->maxVertexInputAttributes, NGLI_GPU_MAX_VERTEX_BUFFERS);
+    return NGLI_MIN(limits->maxVertexInputAttributes, NGPU_MAX_VERTEX_BUFFERS);
 }
 
 static void free_texture(void *user_arg, void *data)
 {
-    struct gpu_texture **texturep = data;
-    ngli_gpu_texture_freep(texturep);
+    struct ngpu_texture **texturep = data;
+    ngpu_texture_freep(texturep);
 }
 
 static void free_rendertarget(void *user_arg, void *data)
 {
-    struct gpu_rendertarget **rtp = data;
-    ngli_gpu_rendertarget_freep(rtp);
+    struct ngpu_rendertarget **rtp = data;
+    ngpu_rendertarget_freep(rtp);
 }
 
-static int vk_init(struct gpu_ctx *s)
+static int vk_init(struct ngpu_ctx *s)
 {
     const struct ngl_config *config = &s->config;
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
     if (config->offscreen) {
         if (config->width <= 0 || config->height <= 0) {
@@ -806,12 +806,12 @@ static int vk_init(struct gpu_ctx *s)
     const char *var = getenv("NGL_GPU_CAPTURE");
     s->gpu_capture = var && !strcmp(var, "yes");
     if (s->gpu_capture) {
-        s->gpu_capture_ctx = ngli_gpu_capture_ctx_create(s);
+        s->gpu_capture_ctx = ngpu_capture_ctx_create(s);
         if (!s->gpu_capture_ctx) {
             LOG(ERROR, "could not create GPU capture context");
             return NGL_ERROR_MEMORY;
         }
-        int ret = ngli_gpu_capture_init(s->gpu_capture_ctx);
+        int ret = ngpu_capture_init(s->gpu_capture_ctx);
         if (ret < 0) {
             LOG(ERROR, "could not initialize GPU capture");
             s->gpu_capture = 0;
@@ -820,16 +820,16 @@ static int vk_init(struct gpu_ctx *s)
     }
 #endif
 
-    ngli_darray_init(&s_priv->colors, sizeof(struct gpu_texture *), 0);
-    ngli_darray_init(&s_priv->ms_colors, sizeof(struct gpu_texture *), 0);
-    ngli_darray_init(&s_priv->depth_stencils, sizeof(struct gpu_texture *), 0);
+    ngli_darray_init(&s_priv->colors, sizeof(struct ngpu_texture *), 0);
+    ngli_darray_init(&s_priv->ms_colors, sizeof(struct ngpu_texture *), 0);
+    ngli_darray_init(&s_priv->depth_stencils, sizeof(struct ngpu_texture *), 0);
 
     ngli_darray_set_free_func(&s_priv->colors, free_texture, NULL);
     ngli_darray_set_free_func(&s_priv->ms_colors, free_texture, NULL);
     ngli_darray_set_free_func(&s_priv->depth_stencils, free_texture, NULL);
 
-    ngli_darray_init(&s_priv->rts, sizeof(struct gpu_rendertarget *), 0);
-    ngli_darray_init(&s_priv->rts_load, sizeof(struct gpu_rendertarget *), 0);
+    ngli_darray_init(&s_priv->rts, sizeof(struct ngpu_rendertarget *), 0);
+    ngli_darray_init(&s_priv->rts_load, sizeof(struct ngpu_rendertarget *), 0);
 
     ngli_darray_set_free_func(&s_priv->rts, free_rendertarget, NULL);
     ngli_darray_set_free_func(&s_priv->rts_load, free_rendertarget, NULL);
@@ -844,7 +844,7 @@ static int vk_init(struct gpu_ctx *s)
         /*
          * Reset the failed vkcontext so if we do not end up calling vulkan
          * functions on a partially initialized vkcontext in
-         * ngli_gpu_ctx_freep() / vk_destroy().
+         * ngpu_ctx_freep() / vk_destroy().
          */
         ngli_vkcontext_freep(&s_priv->vkcontext);
         return ngli_vk_res2ret(res);
@@ -852,7 +852,7 @@ static int vk_init(struct gpu_ctx *s)
 
 #if DEBUG_GPU_CAPTURE
     if (s->gpu_capture)
-        ngli_gpu_capture_begin(s->gpu_capture_ctx);
+        ngpu_capture_begin(s->gpu_capture_ctx);
 #endif
 
     struct vkcontext *vk = s_priv->vkcontext;
@@ -861,10 +861,10 @@ static int vk_init(struct gpu_ctx *s)
                +  10 * VK_API_VERSION_MINOR(vk->api_version);
     s->language_version = 450;
 
-    s->features = NGLI_GPU_FEATURE_COMPUTE |
-                  NGLI_GPU_FEATURE_IMAGE_LOAD_STORE |
-                  NGLI_GPU_FEATURE_STORAGE_BUFFER |
-                  NGLI_GPU_FEATURE_BUFFER_MAP_PERSISTENT;
+    s->features = NGPU_FEATURE_COMPUTE |
+                  NGPU_FEATURE_IMAGE_LOAD_STORE |
+                  NGPU_FEATURE_STORAGE_BUFFER |
+                  NGPU_FEATURE_BUFFER_MAP_PERSISTENT;
 
     const VkPhysicalDeviceLimits *limits = &vk->phy_device_props.limits;
     s->limits.max_vertex_attributes              = get_max_vertex_attributes(limits);
@@ -942,14 +942,14 @@ static int vk_init(struct gpu_ctx *s)
     if (config->offscreen) {
         s_priv->default_rt_layout.samples               = config->samples;
         s_priv->default_rt_layout.nb_colors             = 1;
-        s_priv->default_rt_layout.colors[0].format      = NGLI_GPU_FORMAT_R8G8B8A8_UNORM;
+        s_priv->default_rt_layout.colors[0].format      = NGPU_FORMAT_R8G8B8A8_UNORM;
         s_priv->default_rt_layout.colors[0].resolve     = config->samples > 0 ? 1 : 0;
         s_priv->default_rt_layout.depth_stencil.format  = vk->preferred_depth_stencil_format;
         s_priv->default_rt_layout.depth_stencil.resolve = 0;
     } else {
         s_priv->default_rt_layout.samples               = config->samples;
         s_priv->default_rt_layout.nb_colors             = 1;
-        s_priv->default_rt_layout.colors[0].format      = ngli_gpu_format_vk_to_ngl(s_priv->surface_format.format);
+        s_priv->default_rt_layout.colors[0].format      = ngpu_format_vk_to_ngl(s_priv->surface_format.format);
         s_priv->default_rt_layout.colors[0].resolve     = config->samples > 0 ? 1 : 0;
         s_priv->default_rt_layout.depth_stencil.format  = vk->preferred_depth_stencil_format;
         s_priv->default_rt_layout.depth_stencil.resolve = 0;
@@ -958,10 +958,10 @@ static int vk_init(struct gpu_ctx *s)
     return 0;
 }
 
-static int vk_resize(struct gpu_ctx *s, int32_t width, int32_t height)
+static int vk_resize(struct ngpu_ctx *s, int32_t width, int32_t height)
 {
     const struct ngl_config *config = &s->config;
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
     if (config->offscreen) {
         LOG(ERROR, "resize operation is not supported by offscreen context");
@@ -975,7 +975,7 @@ static int vk_resize(struct gpu_ctx *s, int32_t width, int32_t height)
     return 0;
 }
 
-static int vk_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
+static int vk_set_capture_buffer(struct ngpu_ctx *s, void *capture_buffer)
 {
     struct ngl_config *config = &s->config;
 
@@ -988,9 +988,9 @@ static int vk_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
     return 0;
 }
 
-static VkResult vk_add_pending_wait_semaphores(struct gpu_ctx *s)
+static VkResult vk_add_pending_wait_semaphores(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
     VkSemaphore *wait_sems = ngli_darray_data(&s_priv->pending_wait_sems);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->pending_wait_sems); i++) {
@@ -1007,9 +1007,9 @@ static VkResult vk_add_pending_wait_semaphores(struct gpu_ctx *s)
     return VK_SUCCESS;
 }
 
-static int vk_begin_update(struct gpu_ctx *s, double t)
+static int vk_begin_update(struct ngpu_ctx *s, double t)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
     struct cmd_buffer_vk **cmd_buffers = ngli_darray_data(&s_priv->pending_cmd_buffers);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->pending_cmd_buffers); i++) {
@@ -1038,9 +1038,9 @@ static int vk_begin_update(struct gpu_ctx *s, double t)
     return 0;
 }
 
-static int vk_end_update(struct gpu_ctx *s, double t)
+static int vk_end_update(struct ngpu_ctx *s, double t)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
     VkSemaphore update_finished_sem = s_priv->update_finished_sems[s_priv->cur_frame_index];
     VkResult res = ngli_cmd_buffer_vk_add_signal_sem(s_priv->cur_cmd_buffer, &update_finished_sem);
@@ -1059,9 +1059,9 @@ static int vk_end_update(struct gpu_ctx *s, double t)
     return 0;
 }
 
-static int vk_begin_draw(struct gpu_ctx *s, double t)
+static int vk_begin_draw(struct ngpu_ctx *s, double t)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     const struct ngl_config *config = &s->config;
 
     s_priv->cur_cmd_buffer = s_priv->cmd_buffers[s_priv->cur_frame_index];
@@ -1074,22 +1074,22 @@ static int vk_begin_draw(struct gpu_ctx *s, double t)
         return ngli_vk_res2ret(res);
 
     if (config->offscreen) {
-        struct gpu_rendertarget **rts = ngli_darray_data(&s_priv->rts);
+        struct ngpu_rendertarget **rts = ngli_darray_data(&s_priv->rts);
         s_priv->default_rt = rts[s_priv->cur_frame_index];
 
-        struct gpu_rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
+        struct ngpu_rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
         s_priv->default_rt_load = rts_load[s_priv->cur_frame_index];
     } else {
         res = swapchain_acquire_image(s, &s_priv->cur_image_index);
         if (res != VK_SUCCESS)
             return ngli_vk_res2ret(res);
 
-        struct gpu_rendertarget **rts = ngli_darray_data(&s_priv->rts);
+        struct ngpu_rendertarget **rts = ngli_darray_data(&s_priv->rts);
         s_priv->default_rt = rts[s_priv->cur_image_index];
         s_priv->default_rt->width = s_priv->width;
         s_priv->default_rt->height = s_priv->height;
 
-        struct gpu_rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
+        struct ngpu_rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
         s_priv->default_rt_load = rts_load[s_priv->cur_image_index];
         s_priv->default_rt_load->width = s_priv->width;
         s_priv->default_rt_load->height = s_priv->height;
@@ -1103,9 +1103,9 @@ static int vk_begin_draw(struct gpu_ctx *s, double t)
     return 0;
 }
 
-static int vk_query_draw_time(struct gpu_ctx *s, int64_t *time)
+static int vk_query_draw_time(struct ngpu_ctx *s, int64_t *time)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
     const struct ngl_config *config = &s->config;
 
@@ -1139,16 +1139,16 @@ static int vk_query_draw_time(struct gpu_ctx *s, int64_t *time)
     return 0;
 }
 
-static int vk_end_draw(struct gpu_ctx *s, double t)
+static int vk_end_draw(struct ngpu_ctx *s, double t)
 {
     const struct ngl_config *config = &s->config;
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
     if (config->offscreen) {
         if (config->capture_buffer) {
-            struct gpu_texture **colors = ngli_darray_data(&s_priv->colors);
-            struct gpu_texture *color = colors[s_priv->cur_frame_index];
-            ngli_gpu_texture_vk_copy_to_buffer(color, s_priv->capture_buffer);
+            struct ngpu_texture **colors = ngli_darray_data(&s_priv->colors);
+            struct ngpu_texture *color = colors[s_priv->cur_frame_index];
+            ngpu_texture_vk_copy_to_buffer(color, s_priv->capture_buffer);
 
             VkResult res = ngli_cmd_buffer_vk_submit(s_priv->cur_cmd_buffer);
             if (res != VK_SUCCESS)
@@ -1165,8 +1165,8 @@ static int vk_end_draw(struct gpu_ctx *s, double t)
                 return ngli_vk_res2ret(res);
         }
     } else {
-        struct gpu_texture **colors = ngli_darray_data(&s_priv->colors);
-        ngli_gpu_texture_vk_transition_layout(colors[s_priv->cur_image_index], VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+        struct ngpu_texture **colors = ngli_darray_data(&s_priv->colors);
+        ngpu_texture_vk_transition_layout(colors[s_priv->cur_image_index], VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
         VkResult res = ngli_cmd_buffer_vk_submit(s_priv->cur_cmd_buffer);
         if (res != VK_SUCCESS)
             return ngli_vk_res2ret(res);
@@ -1181,9 +1181,9 @@ static int vk_end_draw(struct gpu_ctx *s, double t)
     return 0;
 }
 
-static void vk_destroy(struct gpu_ctx *s)
+static void vk_destroy(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     if (!vk)
@@ -1193,8 +1193,8 @@ static void vk_destroy(struct gpu_ctx *s)
 
 #if DEBUG_GPU_CAPTURE
     if (s->gpu_capture)
-        ngli_gpu_capture_end(s->gpu_capture_ctx);
-    ngli_gpu_capture_freep(&s->gpu_capture_ctx);
+        ngpu_capture_end(s->gpu_capture_ctx);
+    ngpu_capture_freep(&s->gpu_capture_ctx);
 #endif
 
     destroy_command_pool_and_buffers(s);
@@ -1209,24 +1209,24 @@ static void vk_destroy(struct gpu_ctx *s)
     ngli_vkcontext_freep(&s_priv->vkcontext);
 }
 
-static void vk_wait_idle(struct gpu_ctx *s)
+static void vk_wait_idle(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
     vkDeviceWaitIdle(vk->device);
 }
 
-static int vk_transform_cull_mode(struct gpu_ctx *s, int cull_mode)
+static int vk_transform_cull_mode(struct ngpu_ctx *s, int cull_mode)
 {
-    static const int cull_mode_map[NGLI_GPU_CULL_MODE_NB] = {
-        [NGLI_GPU_CULL_MODE_NONE]      = NGLI_GPU_CULL_MODE_NONE,
-        [NGLI_GPU_CULL_MODE_FRONT_BIT] = NGLI_GPU_CULL_MODE_BACK_BIT,
-        [NGLI_GPU_CULL_MODE_BACK_BIT]  = NGLI_GPU_CULL_MODE_FRONT_BIT,
+    static const int cull_mode_map[NGPU_CULL_MODE_NB] = {
+        [NGPU_CULL_MODE_NONE]      = NGPU_CULL_MODE_NONE,
+        [NGPU_CULL_MODE_FRONT_BIT] = NGPU_CULL_MODE_BACK_BIT,
+        [NGPU_CULL_MODE_BACK_BIT]  = NGPU_CULL_MODE_FRONT_BIT,
     };
     return cull_mode_map[cull_mode];
 }
 
-static void vk_transform_projection_matrix(struct gpu_ctx *s, float *dst)
+static void vk_transform_projection_matrix(struct ngpu_ctx *s, float *dst)
 {
     static const NGLI_ALIGNED_MAT(matrix) = {
         1.0f, 0.0f, 0.0f, 0.0f,
@@ -1237,44 +1237,44 @@ static void vk_transform_projection_matrix(struct gpu_ctx *s, float *dst)
     ngli_mat4_mul(dst, matrix, dst);
 }
 
-static void vk_get_rendertarget_uvcoord_matrix(struct gpu_ctx *s, float *dst)
+static void vk_get_rendertarget_uvcoord_matrix(struct ngpu_ctx *s, float *dst)
 {
     static const NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;
     memcpy(dst, matrix, 4 * 4 * sizeof(float));
 }
 
-static struct gpu_rendertarget *vk_get_default_rendertarget(struct gpu_ctx *s, int load_op)
+static struct ngpu_rendertarget *vk_get_default_rendertarget(struct ngpu_ctx *s, int load_op)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     switch (load_op) {
-    case NGLI_GPU_LOAD_OP_DONT_CARE:
-    case NGLI_GPU_LOAD_OP_CLEAR:
+    case NGPU_LOAD_OP_DONT_CARE:
+    case NGPU_LOAD_OP_CLEAR:
         return s_priv->default_rt;
-    case NGLI_GPU_LOAD_OP_LOAD:
+    case NGPU_LOAD_OP_LOAD:
         return s_priv->default_rt_load;
     default:
         ngli_assert(0);
     }
 }
 
-static const struct gpu_rendertarget_layout *vk_get_default_rendertarget_layout(struct gpu_ctx *s)
+static const struct ngpu_rendertarget_layout *vk_get_default_rendertarget_layout(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     return &s_priv->default_rt_layout;
 }
 
-static void vk_get_default_rendertarget_size(struct gpu_ctx *s, int32_t *width, int32_t *height)
+static void vk_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, int32_t *height)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     *width = s_priv->width;
     *height = s_priv->height;
 }
 
-static void vk_begin_render_pass(struct gpu_ctx *s, struct gpu_rendertarget *rt)
+static void vk_begin_render_pass(struct ngpu_ctx *s, struct ngpu_rendertarget *rt)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
-    const struct gpu_rendertarget_params *params = &rt->params;
-    const struct gpu_rendertarget_vk *rt_vk = (struct gpu_rendertarget_vk *)rt;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
+    const struct ngpu_rendertarget_params *params = &rt->params;
+    const struct ngpu_rendertarget_vk *rt_vk = (struct ngpu_rendertarget_vk *)rt;
 
     if (!s_priv->cur_cmd_buffer) {
         VkResult res = ngli_cmd_buffer_vk_begin_transient(s, 0, &s_priv->cur_cmd_buffer);
@@ -1283,19 +1283,19 @@ static void vk_begin_render_pass(struct gpu_ctx *s, struct gpu_rendertarget *rt)
     }
 
     for (size_t i = 0; i < params->nb_colors; i++) {
-        struct gpu_texture *attachment = params->colors[i].attachment;
-        ngli_gpu_texture_vk_transition_layout(attachment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-        struct gpu_texture *resolve_target = params->colors[i].resolve_target;
+        struct ngpu_texture *attachment = params->colors[i].attachment;
+        ngpu_texture_vk_transition_layout(attachment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        struct ngpu_texture *resolve_target = params->colors[i].resolve_target;
         if (resolve_target)
-            ngli_gpu_texture_vk_transition_layout(resolve_target, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+            ngpu_texture_vk_transition_layout(resolve_target, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     }
 
-    struct gpu_texture *attachment = params->depth_stencil.attachment;
+    struct ngpu_texture *attachment = params->depth_stencil.attachment;
     if (attachment) {
-        ngli_gpu_texture_vk_transition_layout(attachment, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-        struct gpu_texture *resolve_target = params->depth_stencil.resolve_target;
+        ngpu_texture_vk_transition_layout(attachment, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+        struct ngpu_texture *resolve_target = params->depth_stencil.resolve_target;
         if (resolve_target) {
-            ngli_gpu_texture_vk_transition_layout(resolve_target, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+            ngpu_texture_vk_transition_layout(resolve_target, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
         }
     }
 
@@ -1336,31 +1336,31 @@ static void vk_begin_render_pass(struct gpu_ctx *s, struct gpu_rendertarget *rt)
     vkCmdSetLineWidth(cmd_buf, 1.0f);
 }
 
-static void vk_end_render_pass(struct gpu_ctx *s)
+static void vk_end_render_pass(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
     VkCommandBuffer cmd_buf = s_priv->cur_cmd_buffer->cmd_buf;
     vkCmdEndRenderPass(cmd_buf);
 
-    const struct gpu_rendertarget *rt = s->rendertarget;
-    const struct gpu_rendertarget_params *params = &rt->params;
+    const struct ngpu_rendertarget *rt = s->rendertarget;
+    const struct ngpu_rendertarget_params *params = &rt->params;
 
     for (size_t i = 0; i < params->nb_colors; i++) {
-        struct gpu_texture *texture = params->colors[i].attachment;
-        ngli_gpu_texture_vk_transition_to_default_layout(texture);
-        struct gpu_texture *resolve_target = params->colors[i].resolve_target;
+        struct ngpu_texture *texture = params->colors[i].attachment;
+        ngpu_texture_vk_transition_to_default_layout(texture);
+        struct ngpu_texture *resolve_target = params->colors[i].resolve_target;
         if (resolve_target) {
-            ngli_gpu_texture_vk_transition_to_default_layout(resolve_target);
+            ngpu_texture_vk_transition_to_default_layout(resolve_target);
         }
     }
 
-    struct gpu_texture *attachment = params->depth_stencil.attachment;
+    struct ngpu_texture *attachment = params->depth_stencil.attachment;
     if (attachment) {
-        ngli_gpu_texture_vk_transition_to_default_layout(attachment);
-        struct gpu_texture *resolve_target = params->depth_stencil.resolve_target;
+        ngpu_texture_vk_transition_to_default_layout(attachment);
+        struct ngpu_texture *resolve_target = params->depth_stencil.resolve_target;
         if (resolve_target) {
-            ngli_gpu_texture_vk_transition_to_default_layout(resolve_target);
+            ngpu_texture_vk_transition_to_default_layout(resolve_target);
         }
     }
 
@@ -1370,9 +1370,9 @@ static void vk_end_render_pass(struct gpu_ctx *s)
     }
 }
 
-static void vk_set_viewport(struct gpu_ctx *s, const struct gpu_viewport *viewport)
+static void vk_set_viewport(struct ngpu_ctx *s, const struct ngpu_viewport *viewport)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     VkCommandBuffer cmd_buf = s_priv->cur_cmd_buffer->cmd_buf;
 
     const VkViewport vp = {
@@ -1386,12 +1386,12 @@ static void vk_set_viewport(struct gpu_ctx *s, const struct gpu_viewport *viewpo
     vkCmdSetViewport(cmd_buf, 0, 1, &vp);
 }
 
-static void vk_set_scissor(struct gpu_ctx *s, const struct gpu_scissor *scissor)
+static void vk_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scissor)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     VkCommandBuffer cmd_buf = s_priv->cur_cmd_buffer->cmd_buf;
 
-    struct gpu_rendertarget *rt = s->rendertarget;
+    struct ngpu_rendertarget *rt = s->rendertarget;
 
     const VkRect2D sc = {
         .offset.x      = scissor->x,
@@ -1402,84 +1402,84 @@ static void vk_set_scissor(struct gpu_ctx *s, const struct gpu_scissor *scissor)
     vkCmdSetScissor(cmd_buf, 0, 1, &sc);
 }
 
-static int vk_get_preferred_depth_format(struct gpu_ctx *s)
+static int vk_get_preferred_depth_format(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
     return vk->preferred_depth_format;
 }
 
-static int vk_get_preferred_depth_stencil_format(struct gpu_ctx *s)
+static int vk_get_preferred_depth_stencil_format(struct ngpu_ctx *s)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
     return vk->preferred_depth_stencil_format;
 }
 
-static uint32_t vk_get_format_features(struct gpu_ctx *s, int format)
+static uint32_t vk_get_format_features(struct ngpu_ctx *s, int format)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
-    VkFormat vk_format = ngli_gpu_format_ngl_to_vk(format);
+    VkFormat vk_format = ngpu_format_ngl_to_vk(format);
     VkFormatProperties properties;
     vkGetPhysicalDeviceFormatProperties(vk->phy_device, vk_format, &properties);
 
-    return ngli_gpu_format_feature_vk_to_ngl(properties.optimalTilingFeatures);
+    return ngpu_format_feature_vk_to_ngl(properties.optimalTilingFeatures);
 }
 
-static void vk_generate_texture_mipmap(struct gpu_ctx *s, struct gpu_texture *texture)
+static void vk_generate_texture_mipmap(struct ngpu_ctx *s, struct ngpu_texture *texture)
 {
-    ngli_gpu_texture_generate_mipmap(texture);
+    ngpu_texture_generate_mipmap(texture);
 }
 
-static void vk_set_bindgroup(struct gpu_ctx *s, struct gpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
-{
-}
-
-static void vk_set_pipeline(struct gpu_ctx *s, struct gpu_pipeline *pipeline)
+static void vk_set_bindgroup(struct ngpu_ctx *s, struct ngpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets)
 {
 }
 
-static void vk_draw(struct gpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex)
+static void vk_set_pipeline(struct ngpu_ctx *s, struct ngpu_pipeline *pipeline)
 {
-    struct gpu_pipeline *pipeline = s->pipeline;
-
-    ngli_gpu_pipeline_vk_draw(pipeline, nb_vertices, nb_instances, first_vertex);
 }
 
-static void vk_draw_indexed(struct gpu_ctx *s, int nb_indices, int nb_instances)
+static void vk_draw(struct ngpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex)
 {
-    struct gpu_pipeline *pipeline = s->pipeline;
+    struct ngpu_pipeline *pipeline = s->pipeline;
 
-    ngli_gpu_pipeline_vk_draw_indexed(pipeline, nb_indices, nb_instances);
+    ngpu_pipeline_vk_draw(pipeline, nb_vertices, nb_instances, first_vertex);
 }
 
-static void vk_dispatch(struct gpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
+static void vk_draw_indexed(struct ngpu_ctx *s, int nb_indices, int nb_instances)
 {
-    struct gpu_pipeline *pipeline = s->pipeline;
+    struct ngpu_pipeline *pipeline = s->pipeline;
 
-    ngli_gpu_pipeline_vk_dispatch(pipeline, nb_group_x, nb_group_y, nb_group_z);
+    ngpu_pipeline_vk_draw_indexed(pipeline, nb_indices, nb_instances);
 }
 
-static void vk_set_vertex_buffer(struct gpu_ctx *s, uint32_t index, const struct gpu_buffer *buffer)
+static void vk_dispatch(struct ngpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_pipeline *pipeline = s->pipeline;
+
+    ngpu_pipeline_vk_dispatch(pipeline, nb_group_x, nb_group_y, nb_group_z);
+}
+
+static void vk_set_vertex_buffer(struct ngpu_ctx *s, uint32_t index, const struct ngpu_buffer *buffer)
+{
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     ngli_assert(index < s->limits.max_vertex_attributes);
 
     struct cmd_buffer_vk *cmd_buffer = s_priv->cur_cmd_buffer;
     ngli_assert(cmd_buffer);
 
     VkCommandBuffer cmd_buf = cmd_buffer->cmd_buf;
-    const struct gpu_buffer_vk *buffer_vk = (const struct gpu_buffer_vk *)buffer;
+    const struct ngpu_buffer_vk *buffer_vk = (const struct ngpu_buffer_vk *)buffer;
     const VkBuffer vertex_buffer = buffer_vk->buffer;
     const VkDeviceSize vertex_offset = 0;
     vkCmdBindVertexBuffers(cmd_buf, index, 1, &vertex_buffer, &vertex_offset);
 }
 
-static const VkIndexType vk_indices_type_map[NGLI_GPU_FORMAT_NB] = {
-    [NGLI_GPU_FORMAT_R16_UNORM] = VK_INDEX_TYPE_UINT16,
-    [NGLI_GPU_FORMAT_R32_UINT]  = VK_INDEX_TYPE_UINT32,
+static const VkIndexType vk_indices_type_map[NGPU_FORMAT_NB] = {
+    [NGPU_FORMAT_R16_UNORM] = VK_INDEX_TYPE_UINT16,
+    [NGPU_FORMAT_R32_UINT]  = VK_INDEX_TYPE_UINT32,
 };
 
 static VkIndexType get_vk_indices_type(int indices_format)
@@ -1487,20 +1487,20 @@ static VkIndexType get_vk_indices_type(int indices_format)
     return vk_indices_type_map[indices_format];
 }
 
-static void vk_set_index_buffer(struct gpu_ctx *s, const struct gpu_buffer *buffer, int format)
+static void vk_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, int format)
 {
-    struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+    struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
     struct cmd_buffer_vk *cmd_buffer = s_priv->cur_cmd_buffer;
     ngli_assert(cmd_buffer);
 
     VkCommandBuffer cmd_buf = cmd_buffer->cmd_buf;
-    const struct gpu_buffer_vk *index_buffer = (const struct gpu_buffer_vk *)buffer;
+    const struct ngpu_buffer_vk *index_buffer = (const struct ngpu_buffer_vk *)buffer;
     const VkIndexType indices_type = get_vk_indices_type(format);
     vkCmdBindIndexBuffer(cmd_buf, index_buffer->buffer, 0, indices_type);
 }
 
-const struct gpu_ctx_class ngli_gpu_ctx_vk = {
+const struct ngpu_ctx_class ngpu_ctx_vk = {
     .id                                 = NGL_BACKEND_VULKAN,
     .create                             = vk_create,
     .init                               = vk_init,
@@ -1544,38 +1544,38 @@ const struct gpu_ctx_class ngli_gpu_ctx_vk = {
     .set_vertex_buffer                  = vk_set_vertex_buffer,
     .set_index_buffer                   = vk_set_index_buffer,
 
-    .buffer_create                      = ngli_gpu_buffer_vk_create,
-    .buffer_init                        = ngli_gpu_buffer_vk_init,
-    .buffer_upload                      = ngli_gpu_buffer_vk_upload,
-    .buffer_map                         = ngli_gpu_buffer_vk_map,
-    .buffer_unmap                       = ngli_gpu_buffer_vk_unmap,
-    .buffer_freep                       = ngli_gpu_buffer_vk_freep,
+    .buffer_create                      = ngpu_buffer_vk_create,
+    .buffer_init                        = ngpu_buffer_vk_init,
+    .buffer_upload                      = ngpu_buffer_vk_upload,
+    .buffer_map                         = ngpu_buffer_vk_map,
+    .buffer_unmap                       = ngpu_buffer_vk_unmap,
+    .buffer_freep                       = ngpu_buffer_vk_freep,
 
-    .bindgroup_layout_create            = ngli_gpu_bindgroup_layout_vk_create,
-    .bindgroup_layout_init              = ngli_gpu_bindgroup_layout_vk_init,
-    .bindgroup_layout_freep             = ngli_gpu_bindgroup_layout_vk_freep,
+    .bindgroup_layout_create            = ngpu_bindgroup_layout_vk_create,
+    .bindgroup_layout_init              = ngpu_bindgroup_layout_vk_init,
+    .bindgroup_layout_freep             = ngpu_bindgroup_layout_vk_freep,
 
-    .bindgroup_create                   = ngli_gpu_bindgroup_vk_create,
-    .bindgroup_init                     = ngli_gpu_bindgroup_vk_init,
-    .bindgroup_update_texture           = ngli_gpu_bindgroup_vk_update_texture,
-    .bindgroup_update_buffer            = ngli_gpu_bindgroup_vk_update_buffer,
-    .bindgroup_freep                    = ngli_gpu_bindgroup_vk_freep,
+    .bindgroup_create                   = ngpu_bindgroup_vk_create,
+    .bindgroup_init                     = ngpu_bindgroup_vk_init,
+    .bindgroup_update_texture           = ngpu_bindgroup_vk_update_texture,
+    .bindgroup_update_buffer            = ngpu_bindgroup_vk_update_buffer,
+    .bindgroup_freep                    = ngpu_bindgroup_vk_freep,
 
-    .pipeline_create                    = ngli_gpu_pipeline_vk_create,
-    .pipeline_init                      = ngli_gpu_pipeline_vk_init,
-    .pipeline_freep                     = ngli_gpu_pipeline_vk_freep,
+    .pipeline_create                    = ngpu_pipeline_vk_create,
+    .pipeline_init                      = ngpu_pipeline_vk_init,
+    .pipeline_freep                     = ngpu_pipeline_vk_freep,
 
-    .program_create                     = ngli_gpu_program_vk_create,
-    .program_init                       = ngli_gpu_program_vk_init,
-    .program_freep                      = ngli_gpu_program_vk_freep,
+    .program_create                     = ngpu_program_vk_create,
+    .program_init                       = ngpu_program_vk_init,
+    .program_freep                      = ngpu_program_vk_freep,
 
-    .rendertarget_create                = ngli_gpu_rendertarget_vk_create,
-    .rendertarget_init                  = ngli_gpu_rendertarget_vk_init,
-    .rendertarget_freep                 = ngli_gpu_rendertarget_vk_freep,
+    .rendertarget_create                = ngpu_rendertarget_vk_create,
+    .rendertarget_init                  = ngpu_rendertarget_vk_init,
+    .rendertarget_freep                 = ngpu_rendertarget_vk_freep,
 
-    .texture_create                     = ngli_gpu_texture_vk_create,
-    .texture_init                       = ngli_gpu_texture_vk_init,
-    .texture_upload                     = ngli_gpu_texture_vk_upload,
-    .texture_generate_mipmap            = ngli_gpu_texture_vk_generate_mipmap,
-    .texture_freep                      = ngli_gpu_texture_vk_freep,
+    .texture_create                     = ngpu_texture_vk_create,
+    .texture_init                       = ngpu_texture_vk_init,
+    .texture_upload                     = ngpu_texture_vk_upload,
+    .texture_generate_mipmap            = ngpu_texture_vk_generate_mipmap,
+    .texture_freep                      = ngpu_texture_vk_freep,
 };

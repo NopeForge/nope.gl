@@ -19,41 +19,41 @@
  * under the License.
  */
 
-#ifndef GPU_BINDGROUP_VK_H
-#define GPU_BINDGROUP_VK_H
+#ifndef NGPU_BINDGROUP_VK_H
+#define NGPU_BINDGROUP_VK_H
 
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
 
 #include "gpu_bindgroup.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
-struct gpu_bindgroup_layout_vk {
-    struct gpu_bindgroup_layout parent;
+struct ngpu_bindgroup_layout_vk {
+    struct ngpu_bindgroup_layout parent;
     struct darray desc_set_layout_bindings; // array of VkDescriptorSetLayoutBinding
     struct darray immutable_samplers;       // array of ycbcr_sampler_vk pointers
     VkDescriptorSetLayout desc_set_layout;
     VkDescriptorPool desc_pool;
 };
 
-struct gpu_bindgroup_vk {
-    struct gpu_bindgroup parent;
+struct ngpu_bindgroup_vk {
+    struct ngpu_bindgroup parent;
     struct darray texture_bindings;   // array of texture_binding_vk
     struct darray buffer_bindings;    // array of buffer_binding_vk
     VkDescriptorSet desc_set;
     struct darray write_desc_sets;    // array of VkWriteDescriptrSet
 };
 
-struct gpu_bindgroup_layout *ngli_gpu_bindgroup_layout_vk_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_bindgroup_layout_vk_init(struct gpu_bindgroup_layout *s);
-void ngli_gpu_bindgroup_layout_vk_freep(struct gpu_bindgroup_layout **sp);
+struct ngpu_bindgroup_layout *ngpu_bindgroup_layout_vk_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_bindgroup_layout_vk_init(struct ngpu_bindgroup_layout *s);
+void ngpu_bindgroup_layout_vk_freep(struct ngpu_bindgroup_layout **sp);
 
-struct gpu_bindgroup *ngli_gpu_bindgroup_vk_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_bindgroup_vk_init(struct gpu_bindgroup *s, const struct gpu_bindgroup_params *params);
-int ngli_gpu_bindgroup_vk_update_texture(struct gpu_bindgroup *s, int32_t index, const struct gpu_texture_binding *binding);
-int ngli_gpu_bindgroup_vk_update_buffer(struct gpu_bindgroup *s, int32_t index, const struct gpu_buffer_binding *binding);
-int ngli_gpu_bindgroup_vk_update_descriptor_set(struct gpu_bindgroup *s);
-void ngli_gpu_bindgroup_vk_freep(struct gpu_bindgroup **sp);
+struct ngpu_bindgroup *ngpu_bindgroup_vk_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_bindgroup_vk_init(struct ngpu_bindgroup *s, const struct ngpu_bindgroup_params *params);
+int ngpu_bindgroup_vk_update_texture(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_texture_binding *binding);
+int ngpu_bindgroup_vk_update_buffer(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_buffer_binding *binding);
+int ngpu_bindgroup_vk_update_descriptor_set(struct ngpu_bindgroup *s);
+void ngpu_bindgroup_vk_freep(struct ngpu_bindgroup **sp);
 
 #endif

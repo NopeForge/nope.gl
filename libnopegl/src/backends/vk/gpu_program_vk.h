@@ -19,22 +19,22 @@
  * under the License.
  */
 
-#ifndef GPU_PROGRAM_VK_H
-#define GPU_PROGRAM_VK_H
+#ifndef NGPU_PROGRAM_VK_H
+#define NGPU_PROGRAM_VK_H
 
 #include <vulkan/vulkan.h>
 
 #include "gpu_program.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
-struct gpu_program_vk {
-    struct gpu_program parent;
-    VkShaderModule shaders[NGLI_GPU_PROGRAM_SHADER_NB];
+struct ngpu_program_vk {
+    struct ngpu_program parent;
+    VkShaderModule shaders[NGPU_PROGRAM_SHADER_NB];
 };
 
-struct gpu_program *ngli_gpu_program_vk_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_program_vk_init(struct gpu_program *s, const struct gpu_program_params *params);
-void ngli_gpu_program_vk_freep(struct gpu_program **sp);
+struct ngpu_program *ngpu_program_vk_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_program_vk_init(struct ngpu_program *s, const struct ngpu_program_params *params);
+void ngpu_program_vk_freep(struct ngpu_program **sp);
 
 #endif

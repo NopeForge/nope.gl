@@ -79,9 +79,9 @@ static void free_pinfo(void *user_arg, void *data)
     ngli_free(data);
 }
 
-static struct gpu_program_variable_info *program_variable_info_create()
+static struct ngpu_program_variable_info *program_variable_info_create()
 {
-    struct gpu_program_variable_info *info = ngli_calloc(1, sizeof(*info));
+    struct ngpu_program_variable_info *info = ngli_calloc(1, sizeof(*info));
     if (!info)
         return NULL;
     info->binding  = -1;
@@ -100,7 +100,7 @@ static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
     gl->funcs.GetProgramiv(pid, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
     for (GLint i = 0; i < nb_active_uniforms; i++) {
         char name[MAX_ID_LEN];
-        struct gpu_program_variable_info *info = program_variable_info_create();
+        struct ngpu_program_variable_info *info = program_variable_info_create();
         if (!info) {
             ngli_hmap_freep(&umap);
             return NULL;
@@ -145,7 +145,7 @@ static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
     gl->funcs.GetProgramiv(pid, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
     for (GLint i = 0; i < nb_active_attributes; i++) {
         char name[MAX_ID_LEN];
-        struct gpu_program_variable_info *info = program_variable_info_create();
+        struct ngpu_program_variable_info *info = program_variable_info_create();
         if (!info) {
             ngli_hmap_freep(&amap);
             return NULL;
@@ -180,7 +180,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
     GLint nb_active_uniform_buffers;
     gl->funcs.GetProgramiv(pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
     for (GLint i = 0; i < nb_active_uniform_buffers; i++) {
-        struct gpu_program_variable_info *info = program_variable_info_create();
+        struct ngpu_program_variable_info *info = program_variable_info_create();
         if (!info) {
             ngli_hmap_freep(&bmap);
             return NULL;
@@ -216,7 +216,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
                                  GL_ACTIVE_RESOURCES, &nb_active_buffers);
     for (GLint i = 0; i < nb_active_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
-        struct gpu_program_variable_info *info = program_variable_info_create();
+        struct ngpu_program_variable_info *info = program_variable_info_create();
         if (!info) {
             ngli_hmap_freep(&bmap);
             return NULL;
@@ -242,18 +242,18 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
     return bmap;
 }
 
-struct gpu_program *ngli_gpu_program_gl_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_program *ngpu_program_gl_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_program_gl *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_program_gl *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->parent.gpu_ctx = gpu_ctx;
-    return (struct gpu_program *)s;
+    return (struct ngpu_program *)s;
 }
 
-int ngli_gpu_program_gl_init(struct gpu_program *s, const struct gpu_program_params *params)
+int ngpu_program_gl_init(struct ngpu_program *s, const struct ngpu_program_params *params)
 {
-    struct gpu_program_gl *s_priv = (struct gpu_program_gl *)s;
+    struct ngpu_program_gl *s_priv = (struct ngpu_program_gl *)s;
 
     int ret = 0;
     struct {
@@ -262,12 +262,12 @@ int ngli_gpu_program_gl_init(struct gpu_program *s, const struct gpu_program_par
         const char *src;
         GLuint id;
     } shaders[] = {
-        [NGLI_GPU_PROGRAM_SHADER_VERT] = {"vertex", GL_VERTEX_SHADER, params->vertex, 0},
-        [NGLI_GPU_PROGRAM_SHADER_FRAG] = {"fragment", GL_FRAGMENT_SHADER, params->fragment, 0},
-        [NGLI_GPU_PROGRAM_SHADER_COMP] = {"compute", GL_COMPUTE_SHADER, params->compute, 0},
+        [NGPU_PROGRAM_SHADER_VERT] = {"vertex", GL_VERTEX_SHADER, params->vertex, 0},
+        [NGPU_PROGRAM_SHADER_FRAG] = {"fragment", GL_FRAGMENT_SHADER, params->fragment, 0},
+        [NGPU_PROGRAM_SHADER_COMP] = {"compute", GL_COMPUTE_SHADER, params->compute, 0},
     };
 
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const uint64_t features = NGLI_FEATURE_GL_COMPUTE_SHADER_ALL;
@@ -340,16 +340,16 @@ fail:
     return ret;
 }
 
-void ngli_gpu_program_gl_freep(struct gpu_program **sp)
+void ngpu_program_gl_freep(struct ngpu_program **sp)
 {
     if (!*sp)
         return;
-    struct gpu_program *s = *sp;
-    struct gpu_program_gl *s_priv = (struct gpu_program_gl *)s;
+    struct ngpu_program *s = *sp;
+    struct ngpu_program_gl *s_priv = (struct ngpu_program_gl *)s;
     ngli_hmap_freep(&s->uniforms);
     ngli_hmap_freep(&s->attributes);
     ngli_hmap_freep(&s->buffer_blocks);
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     gl->funcs.DeleteProgram(s_priv->id);
     ngli_freep(sp);

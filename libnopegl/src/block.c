@@ -30,7 +30,7 @@
 #include "type.h"
 #include "utils.h"
 
-void ngli_block_init(struct gpu_ctx *gpu_ctx, struct block *s, enum block_layout layout)
+void ngli_block_init(struct ngpu_ctx *gpu_ctx, struct block *s, enum block_layout layout)
 {
     s->gpu_ctx = gpu_ctx;
     s->layout = layout;
@@ -181,7 +181,7 @@ size_t ngli_block_get_size(const struct block *s, size_t variadic_field_count)
 
 size_t ngli_block_get_aligned_size(const struct block *s, size_t variadic_field_count)
 {
-    const struct gpu_limits *limits = &s->gpu_ctx->limits;
+    const struct ngpu_limits *limits = &s->gpu_ctx->limits;
     const size_t alignment = NGLI_MAX(limits->min_uniform_block_offset_alignment,
                                       limits->min_storage_block_offset_alignment);
     return NGLI_ALIGN(ngli_block_get_size(s, variadic_field_count), alignment);

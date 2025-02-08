@@ -58,7 +58,7 @@ struct hwmap {
     struct image mapped_image;
     int require_hwconv;
     struct hwconv hwconv;
-    struct gpu_texture *hwconv_texture;
+    struct ngpu_texture *hwconv_texture;
     struct image hwconv_image;
     int hwconv_initialized;
 };

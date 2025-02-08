@@ -175,8 +175,8 @@ static int check_params(const struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     const struct draw_opts *o = node->opts;
 
-    const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct gpu_limits *limits = &gpu_ctx->limits;
+    const struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct ngpu_limits *limits = &gpu_ctx->limits;
 
     if (o->nb_instances < 1) {
         LOG(ERROR, "nb_instances must be > 0");

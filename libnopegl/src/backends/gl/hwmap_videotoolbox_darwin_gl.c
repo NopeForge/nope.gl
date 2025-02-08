@@ -53,21 +53,21 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
     case kCVPixelFormatType_32BGRA:
         desc->layout = NGLI_IMAGE_LAYOUT_RECTANGLE;
         desc->nb_planes = 1;
-        desc->planes[0].format = NGLI_GPU_FORMAT_B8G8R8A8_UNORM;
+        desc->planes[0].format = NGPU_FORMAT_B8G8R8A8_UNORM;
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         desc->layout = NGLI_IMAGE_LAYOUT_NV12_RECTANGLE;
         desc->nb_planes = 2;
-        desc->planes[0].format = NGLI_GPU_FORMAT_R8_UNORM;
-        desc->planes[1].format = NGLI_GPU_FORMAT_R8G8_UNORM;
+        desc->planes[0].format = NGPU_FORMAT_R8_UNORM;
+        desc->planes[1].format = NGPU_FORMAT_R8G8_UNORM;
         break;
     case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange:
     case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
         desc->layout = NGLI_IMAGE_LAYOUT_NV12_RECTANGLE;
         desc->nb_planes = 2;
-        desc->planes[0].format = NGLI_GPU_FORMAT_R16_UNORM;
-        desc->planes[1].format = NGLI_GPU_FORMAT_R16G16_UNORM;
+        desc->planes[0].format = NGPU_FORMAT_R16_UNORM;
+        desc->planes[1].format = NGPU_FORMAT_R16G16_UNORM;
         break;
     default:
         LOG(ERROR, "unsupported pixel format %d", format);
@@ -79,7 +79,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 
 struct hwmap_vt_darwin {
     struct nmd_frame *frame;
-    struct gpu_texture *planes[2];
+    struct ngpu_texture *planes[2];
     GLuint gl_planes[2];
     OSType format;
     struct format_desc format_desc;
@@ -88,11 +88,11 @@ struct hwmap_vt_darwin {
 static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t index)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)ctx->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
-    struct gpu_texture *plane = vt->planes[index];
-    struct gpu_texture_gl *plane_gl = (struct gpu_texture_gl *)plane;
+    struct ngpu_texture *plane = vt->planes[index];
+    struct ngpu_texture_gl *plane_gl = (struct ngpu_texture_gl *)plane;
 
     gl->funcs.BindTexture(GL_TEXTURE_RECTANGLE, plane_gl->id);
 
@@ -100,7 +100,7 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t
     size_t height = IOSurfaceGetHeightOfPlane(surface, index);
     if (width > INT_MAX || height > INT_MAX)
         return NGL_ERROR_LIMIT_EXCEEDED;
-    ngli_gpu_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
+    ngpu_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
 
     /* CGLTexImageIOSurface2D() requires GL_UNSIGNED_INT_8_8_8_8_REV instead of GL_UNSIGNED_SHORT to map BGRA IOSurface2D */
     const GLenum format_type = plane_gl->format == GL_BGRA ? GL_UNSIGNED_INT_8_8_8_8_REV : plane_gl->format_type;
@@ -170,8 +170,8 @@ static int support_direct_rendering(struct hwmap *hwmap, struct nmd_frame *frame
             LOG(WARNING, "Videotoolbox textures do not support mipmapping: "
                 "disabling direct rendering");
             direct_rendering = 0;
-        } else if (params->texture_wrap_s != NGLI_GPU_WRAP_CLAMP_TO_EDGE ||
-                   params->texture_wrap_t != NGLI_GPU_WRAP_CLAMP_TO_EDGE) {
+        } else if (params->texture_wrap_s != NGPU_WRAP_CLAMP_TO_EDGE ||
+                   params->texture_wrap_t != NGPU_WRAP_CLAMP_TO_EDGE) {
             LOG(WARNING, "Videotoolbox textures only support clamp to edge wrapping: "
                 "disabling direct rendering");
             direct_rendering = 0;
@@ -184,8 +184,8 @@ static int support_direct_rendering(struct hwmap *hwmap, struct nmd_frame *frame
 static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
     const struct hwmap_params *params = &hwmap->params;
@@ -200,8 +200,8 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
     gl->funcs.GenTextures(2, vt->gl_planes);
 
     for (size_t i = 0; i < vt->format_desc.nb_planes; i++) {
-        const GLint min_filter = ngli_gpu_texture_get_gl_min_filter(params->texture_min_filter, NGLI_GPU_MIPMAP_FILTER_NONE);
-        const GLint mag_filter = ngli_gpu_texture_get_gl_mag_filter(params->texture_mag_filter);
+        const GLint min_filter = ngpu_texture_get_gl_min_filter(params->texture_min_filter, NGPU_MIPMAP_FILTER_NONE);
+        const GLint mag_filter = ngpu_texture_get_gl_mag_filter(params->texture_mag_filter);
 
         gl->funcs.BindTexture(GL_TEXTURE_RECTANGLE, vt->gl_planes[i]);
         gl->funcs.TexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, min_filter);
@@ -210,27 +210,27 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
         gl->funcs.TexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         gl->funcs.BindTexture(GL_TEXTURE_RECTANGLE, 0);
 
-        const struct gpu_texture_params plane_params = {
-            .type             = NGLI_GPU_TEXTURE_TYPE_2D,
+        const struct ngpu_texture_params plane_params = {
+            .type             = NGPU_TEXTURE_TYPE_2D,
             .format           = vt->format_desc.planes[i].format,
             .min_filter       = params->texture_min_filter,
             .mag_filter       = params->texture_mag_filter,
-            .wrap_s           = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
-            .wrap_t           = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
-            .usage            = NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+            .wrap_s           = NGPU_WRAP_CLAMP_TO_EDGE,
+            .wrap_t           = NGPU_WRAP_CLAMP_TO_EDGE,
+            .usage            = NGPU_TEXTURE_USAGE_SAMPLED_BIT,
         };
 
-        const struct gpu_texture_gl_wrap_params wrap_params = {
+        const struct ngpu_texture_gl_wrap_params wrap_params = {
             .params  = &plane_params,
             .texture = vt->gl_planes[i],
             .target  = GL_TEXTURE_RECTANGLE,
         };
 
-        vt->planes[i] = ngli_gpu_texture_create(gpu_ctx);
+        vt->planes[i] = ngpu_texture_create(gpu_ctx);
         if (!vt->planes[i])
             return NGL_ERROR_MEMORY;
 
-        ret = ngli_gpu_texture_gl_wrap(vt->planes[i], &wrap_params);
+        ret = ngpu_texture_gl_wrap(vt->planes[i], &wrap_params);
         if (ret < 0)
             return ret;
     }
@@ -252,13 +252,13 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
 static void vt_darwin_uninit(struct hwmap *hwmap)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
 
     for (size_t i = 0; i < 2; i++)
-        ngli_gpu_texture_freep(&vt->planes[i]);
+        ngpu_texture_freep(&vt->planes[i]);
 
     gl->funcs.DeleteTextures(2, vt->gl_planes);
 

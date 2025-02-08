@@ -33,20 +33,20 @@
 #include "utils.h"
 #include "vkutils.h"
 
-static const VkFilter vk_filter_map[NGLI_GPU_NB_FILTER] = {
-    [NGLI_GPU_FILTER_NEAREST] = VK_FILTER_NEAREST,
-    [NGLI_GPU_FILTER_LINEAR]  = VK_FILTER_LINEAR,
+static const VkFilter vk_filter_map[NGPU_NB_FILTER] = {
+    [NGPU_FILTER_NEAREST] = VK_FILTER_NEAREST,
+    [NGPU_FILTER_LINEAR]  = VK_FILTER_LINEAR,
 };
 
-VkFilter ngli_gpu_vk_get_filter(int filter)
+VkFilter ngpu_vk_get_filter(int filter)
 {
     return vk_filter_map[filter];
 }
 
-static const VkSamplerMipmapMode vk_mipmap_mode_map[NGLI_GPU_NB_MIPMAP] = {
-    [NGLI_GPU_MIPMAP_FILTER_NONE]    = VK_SAMPLER_MIPMAP_MODE_NEAREST,
-    [NGLI_GPU_MIPMAP_FILTER_NEAREST] = VK_SAMPLER_MIPMAP_MODE_NEAREST,
-    [NGLI_GPU_MIPMAP_FILTER_LINEAR]  = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+static const VkSamplerMipmapMode vk_mipmap_mode_map[NGPU_NB_MIPMAP] = {
+    [NGPU_MIPMAP_FILTER_NONE]    = VK_SAMPLER_MIPMAP_MODE_NEAREST,
+    [NGPU_MIPMAP_FILTER_NEAREST] = VK_SAMPLER_MIPMAP_MODE_NEAREST,
+    [NGPU_MIPMAP_FILTER_LINEAR]  = VK_SAMPLER_MIPMAP_MODE_LINEAR,
 };
 
 static VkSamplerMipmapMode get_vk_mipmap_mode(int mipmap_filter)
@@ -54,10 +54,10 @@ static VkSamplerMipmapMode get_vk_mipmap_mode(int mipmap_filter)
     return vk_mipmap_mode_map[mipmap_filter];
 }
 
-static const VkSamplerAddressMode vk_wrap_map[NGLI_GPU_NB_WRAP] = {
-    [NGLI_GPU_WRAP_CLAMP_TO_EDGE]   = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-    [NGLI_GPU_WRAP_MIRRORED_REPEAT] = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT,
-    [NGLI_GPU_WRAP_REPEAT]          = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+static const VkSamplerAddressMode vk_wrap_map[NGPU_NB_WRAP] = {
+    [NGPU_WRAP_CLAMP_TO_EDGE]   = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+    [NGPU_WRAP_MIRRORED_REPEAT] = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT,
+    [NGPU_WRAP_REPEAT]          = VK_SAMPLER_ADDRESS_MODE_REPEAT,
 };
 
 static VkSamplerAddressMode get_vk_wrap(int wrap)
@@ -81,11 +81,11 @@ static VkImageAspectFlags get_vk_image_aspect_flags(VkFormat format)
     }
 }
 
-static const VkImageType image_type_map[NGLI_GPU_TEXTURE_TYPE_NB] = {
-    [NGLI_GPU_TEXTURE_TYPE_2D]       = VK_IMAGE_TYPE_2D,
-    [NGLI_GPU_TEXTURE_TYPE_2D_ARRAY] = VK_IMAGE_TYPE_2D,
-    [NGLI_GPU_TEXTURE_TYPE_3D]       = VK_IMAGE_TYPE_3D,
-    [NGLI_GPU_TEXTURE_TYPE_CUBE]     = VK_IMAGE_TYPE_2D,
+static const VkImageType image_type_map[NGPU_TEXTURE_TYPE_NB] = {
+    [NGPU_TEXTURE_TYPE_2D]       = VK_IMAGE_TYPE_2D,
+    [NGPU_TEXTURE_TYPE_2D_ARRAY] = VK_IMAGE_TYPE_2D,
+    [NGPU_TEXTURE_TYPE_3D]       = VK_IMAGE_TYPE_3D,
+    [NGPU_TEXTURE_TYPE_CUBE]     = VK_IMAGE_TYPE_2D,
 };
 
 static VkImageType get_vk_image_type(int type)
@@ -93,11 +93,11 @@ static VkImageType get_vk_image_type(int type)
     return image_type_map[type];
 }
 
-static const VkImageViewType image_view_type_map[NGLI_GPU_TEXTURE_TYPE_NB] = {
-    [NGLI_GPU_TEXTURE_TYPE_2D]       = VK_IMAGE_VIEW_TYPE_2D,
-    [NGLI_GPU_TEXTURE_TYPE_2D_ARRAY] = VK_IMAGE_VIEW_TYPE_2D_ARRAY,
-    [NGLI_GPU_TEXTURE_TYPE_3D]       = VK_IMAGE_VIEW_TYPE_3D,
-    [NGLI_GPU_TEXTURE_TYPE_CUBE]     = VK_IMAGE_VIEW_TYPE_CUBE,
+static const VkImageViewType image_view_type_map[NGPU_TEXTURE_TYPE_NB] = {
+    [NGPU_TEXTURE_TYPE_2D]       = VK_IMAGE_VIEW_TYPE_2D,
+    [NGPU_TEXTURE_TYPE_2D_ARRAY] = VK_IMAGE_VIEW_TYPE_2D_ARRAY,
+    [NGPU_TEXTURE_TYPE_3D]       = VK_IMAGE_VIEW_TYPE_3D,
+    [NGPU_TEXTURE_TYPE_CUBE]     = VK_IMAGE_VIEW_TYPE_CUBE,
 };
 
 static VkImageViewType get_vk_image_view_type(int type)
@@ -192,34 +192,34 @@ static void transition_image_layout(VkCommandBuffer cmd_buf,
     vkCmdPipelineBarrier(cmd_buf, src_stage, dst_stage, 0, 0, NULL, 0, NULL, 1, &barrier);
 }
 
-VkImageUsageFlags ngli_gpu_vk_get_image_usage_flags(uint32_t usage)
+VkImageUsageFlags ngpu_vk_get_image_usage_flags(uint32_t usage)
 {
-    return (usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT             : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT             ? VK_IMAGE_USAGE_TRANSFER_DST_BIT             : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT                  ? VK_IMAGE_USAGE_SAMPLED_BIT                  : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_STORAGE_BIT                  ? VK_IMAGE_USAGE_STORAGE_BIT                  : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT         ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT         : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT     ? VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT     : 0);
+    return (usage & NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT             : 0)
+         | (usage & NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT             ? VK_IMAGE_USAGE_TRANSFER_DST_BIT             : 0)
+         | (usage & NGPU_TEXTURE_USAGE_SAMPLED_BIT                  ? VK_IMAGE_USAGE_SAMPLED_BIT                  : 0)
+         | (usage & NGPU_TEXTURE_USAGE_STORAGE_BIT                  ? VK_IMAGE_USAGE_STORAGE_BIT                  : 0)
+         | (usage & NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT         ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT         : 0)
+         | (usage & NGPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : 0)
+         | (usage & NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT     ? VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT     : 0);
 }
 
 static VkFormatFeatureFlags get_vk_format_features(uint32_t usage)
 {
-    return (usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             ? VK_FORMAT_FEATURE_TRANSFER_SRC_BIT             : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT             ? VK_FORMAT_FEATURE_TRANSFER_DST_BIT             : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT                  ? VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT            : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_STORAGE_BIT                  ? VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT            : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT         ? VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT         : 0)
-         | (usage & NGLI_GPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ? VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT : 0);
+    return (usage & NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             ? VK_FORMAT_FEATURE_TRANSFER_SRC_BIT             : 0)
+         | (usage & NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT             ? VK_FORMAT_FEATURE_TRANSFER_DST_BIT             : 0)
+         | (usage & NGPU_TEXTURE_USAGE_SAMPLED_BIT                  ? VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT            : 0)
+         | (usage & NGPU_TEXTURE_USAGE_STORAGE_BIT                  ? VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT            : 0)
+         | (usage & NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT         ? VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT         : 0)
+         | (usage & NGPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ? VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT : 0);
 }
 
-static VkFormatFeatureFlags get_vk_texture_format_features(const struct gpu_texture_params *params)
+static VkFormatFeatureFlags get_vk_texture_format_features(const struct ngpu_texture_params *params)
 {
     VkFormatFeatureFlags features = get_vk_format_features(params->usage);
 
-    if (params->usage & NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT && (
-            params->min_filter != NGLI_GPU_FILTER_NEAREST ||
-            params->mag_filter != NGLI_GPU_FILTER_NEAREST))
+    if (params->usage & NGPU_TEXTURE_USAGE_SAMPLED_BIT && (
+            params->min_filter != NGPU_FILTER_NEAREST ||
+            params->mag_filter != NGPU_FILTER_NEAREST))
         features |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
 
     return features;
@@ -230,37 +230,37 @@ static int get_mipmap_levels(int32_t width, int32_t height)
     return ngli_log2(width | height | 1);
 }
 
-static int init_fields(struct gpu_texture *s, const struct gpu_texture_params *params)
+static int init_fields(struct ngpu_texture *s, const struct ngpu_texture_params *params)
 {
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
 
     s->params = *params;
 
     ngli_assert(params->width && params->height);
 
     uint32_t depth = 1;
-    if (params->type == NGLI_GPU_TEXTURE_TYPE_3D) {
+    if (params->type == NGPU_TEXTURE_TYPE_3D) {
         ngli_assert(params->depth);
         depth = params->depth;
     }
     s->params.depth = depth;
 
-    s_priv->format = ngli_gpu_format_ngl_to_vk(s->params.format);
-    s_priv->bytes_per_pixel = ngli_gpu_format_get_bytes_per_pixel(s->params.format);
+    s_priv->format = ngpu_format_ngl_to_vk(s->params.format);
+    s_priv->bytes_per_pixel = ngpu_format_get_bytes_per_pixel(s->params.format);
 
     s_priv->array_layers = 1;
-    if (params->type == NGLI_GPU_TEXTURE_TYPE_CUBE) {
+    if (params->type == NGPU_TEXTURE_TYPE_CUBE) {
         s_priv->array_layers = 6;
-    } else if (params->type == NGLI_GPU_TEXTURE_TYPE_2D_ARRAY) {
+    } else if (params->type == NGPU_TEXTURE_TYPE_2D_ARRAY) {
         s_priv->array_layers = params->depth;
     }
 
     s_priv->mipmap_levels = 1;
-    if (params->mipmap_filter != NGLI_GPU_MIPMAP_FILTER_NONE) {
+    if (params->mipmap_filter != NGPU_MIPMAP_FILTER_NONE) {
         s_priv->mipmap_levels = get_mipmap_levels(params->width, params->height);
     }
 
-    const VkImageUsageFlags usage = ngli_gpu_vk_get_image_usage_flags(s->params.usage);
+    const VkImageUsageFlags usage = ngpu_vk_get_image_usage_flags(s->params.usage);
     s_priv->default_image_layout = VK_IMAGE_LAYOUT_GENERAL;
     if (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
         s_priv->default_image_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -274,11 +274,11 @@ static int init_fields(struct gpu_texture *s, const struct gpu_texture_params *p
     return 0;
 }
 
-static VkResult create_image_view(struct gpu_texture *s)
+static VkResult create_image_view(struct ngpu_texture *s)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
 
     const VkImageViewCreateInfo view_info = {
         .sType    = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -297,16 +297,16 @@ static VkResult create_image_view(struct gpu_texture *s)
     return vkCreateImageView(vk->device, &view_info, NULL, &s_priv->image_view);
 }
 
-static VkResult create_sampler(struct gpu_texture *s)
+static VkResult create_sampler(struct ngpu_texture *s)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
 
     const VkSamplerCreateInfo sampler_info = {
         .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-        .magFilter               = ngli_gpu_vk_get_filter(s->params.mag_filter),
-        .minFilter               = ngli_gpu_vk_get_filter(s->params.min_filter),
+        .magFilter               = ngpu_vk_get_filter(s->params.mag_filter),
+        .minFilter               = ngpu_vk_get_filter(s->params.min_filter),
         .addressModeU            = get_vk_wrap(s->params.wrap_s),
         .addressModeV            = get_vk_wrap(s->params.wrap_t),
         .addressModeW            = get_vk_wrap(s->params.wrap_r),
@@ -324,20 +324,20 @@ static VkResult create_sampler(struct gpu_texture *s)
     return vkCreateSampler(vk->device, &sampler_info, NULL, &s_priv->sampler);
 }
 
-struct gpu_texture *ngli_gpu_texture_vk_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_texture *ngpu_texture_vk_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_texture_vk *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_texture_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->parent.gpu_ctx = gpu_ctx;
-    return (struct gpu_texture *)s;
+    return (struct ngpu_texture *)s;
 }
 
-static VkResult texture_vk_init(struct gpu_texture *s, const struct gpu_texture_params *params)
+static VkResult texture_vk_init(struct ngpu_texture *s, const struct ngpu_texture_params *params)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
 
     VkResult res = init_fields(s, params);
     if (res != VK_SUCCESS)
@@ -363,9 +363,9 @@ static VkResult texture_vk_init(struct gpu_texture *s, const struct gpu_texture_
     }
 
     VkImageCreateFlags flags = 0;
-    if (s->params.type == NGLI_GPU_TEXTURE_TYPE_CUBE) {
+    if (s->params.type == NGPU_TEXTURE_TYPE_CUBE) {
         flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-    } else if (s->params.type == NGLI_GPU_TEXTURE_TYPE_3D) {
+    } else if (s->params.type == NGPU_TEXTURE_TYPE_3D) {
         flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
     }
 
@@ -380,7 +380,7 @@ static VkResult texture_vk_init(struct gpu_texture *s, const struct gpu_texture_
         .format        = s_priv->format,
         .tiling        = tiling,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .usage         = ngli_gpu_vk_get_image_usage_flags(s->params.usage),
+        .usage         = ngpu_vk_get_image_usage_flags(s->params.usage),
         .samples       = ngli_ngl_samples_to_vk(s->params.samples),
         .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
         .flags         = flags,
@@ -396,7 +396,7 @@ static VkResult texture_vk_init(struct gpu_texture *s, const struct gpu_texture_
     vkGetImageMemoryRequirements(vk->device, s_priv->image, &mem_reqs);
 
     int mem_type_index = NGL_ERROR_NOT_FOUND;
-    if (s->params.usage & NGLI_GPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT) {
+    if (s->params.usage & NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT) {
         const VkMemoryPropertyFlags mem_props = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
                                                 VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
         mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_props);
@@ -454,7 +454,7 @@ static VkResult texture_vk_init(struct gpu_texture *s, const struct gpu_texture_
     return create_sampler(s);
 }
 
-int ngli_gpu_texture_vk_init(struct gpu_texture *s, const struct gpu_texture_params *params)
+int ngpu_texture_vk_init(struct ngpu_texture *s, const struct ngpu_texture_params *params)
 {
     VkResult res = texture_vk_init(s, params);
     if (res != VK_SUCCESS)
@@ -462,9 +462,9 @@ int ngli_gpu_texture_vk_init(struct gpu_texture *s, const struct gpu_texture_par
     return ngli_vk_res2ret(res);
 }
 
-VkResult ngli_gpu_texture_vk_wrap(struct gpu_texture *s, const struct gpu_texture_vk_wrap_params *wrap_params)
+VkResult ngpu_texture_vk_wrap(struct ngpu_texture *s, const struct ngpu_texture_vk_wrap_params *wrap_params)
 {
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
 
     VkResult res = init_fields(s, wrap_params->params);
     if (res != VK_SUCCESS)
@@ -498,10 +498,10 @@ VkResult ngli_gpu_texture_vk_wrap(struct gpu_texture *s, const struct gpu_textur
     return VK_SUCCESS;
 }
 
-void ngli_gpu_texture_vk_transition_layout(struct gpu_texture *s, VkImageLayout layout)
+void ngpu_texture_vk_transition_layout(struct ngpu_texture *s, VkImageLayout layout)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
 
     if (s_priv->image_layout == layout)
         return;
@@ -522,19 +522,19 @@ void ngli_gpu_texture_vk_transition_layout(struct gpu_texture *s, VkImageLayout 
     s_priv->image_layout = layout;
 }
 
-void ngli_gpu_texture_vk_transition_to_default_layout(struct gpu_texture *s)
+void ngpu_texture_vk_transition_to_default_layout(struct ngpu_texture *s)
 {
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
-    ngli_gpu_texture_vk_transition_layout(s, s_priv->default_image_layout);
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
+    ngpu_texture_vk_transition_layout(s, s_priv->default_image_layout);
 }
 
-void ngli_gpu_texture_vk_copy_to_buffer(struct gpu_texture *s, struct gpu_buffer *buffer)
+void ngpu_texture_vk_copy_to_buffer(struct ngpu_texture *s, struct ngpu_buffer *buffer)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
-    struct gpu_buffer_vk *buffer_vk = (struct gpu_buffer_vk *)buffer;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
+    struct ngpu_buffer_vk *buffer_vk = (struct ngpu_buffer_vk *)buffer;
 
-    ngli_gpu_texture_vk_transition_layout(s, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    ngpu_texture_vk_transition_layout(s, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
     const VkBufferImageCopy region = {
         .bufferOffset      = 0,
@@ -555,15 +555,15 @@ void ngli_gpu_texture_vk_copy_to_buffer(struct gpu_texture *s, struct gpu_buffer
                            buffer_vk->buffer, 1, &region);
 }
 
-static VkResult texture_vk_upload(struct gpu_texture *s, const uint8_t *data, int linesize)
+static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    const struct gpu_texture_params *params = &s->params;
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
+    const struct ngpu_texture_params *params = &s->params;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
 
     /* Wrapped textures cannot update their content with this function */
     ngli_assert(!s_priv->wrapped_image);
-    ngli_assert(params->usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT);
+    ngli_assert(params->usage & NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT);
 
     if (!data)
         return VK_SUCCESS;
@@ -574,26 +574,26 @@ static VkResult texture_vk_upload(struct gpu_texture *s, const uint8_t *data, in
 
         if (s_priv->staging_buffer) {
             if (s_priv->staging_buffer_ptr) {
-                ngli_gpu_buffer_unmap(s_priv->staging_buffer);
+                ngpu_buffer_unmap(s_priv->staging_buffer);
                 s_priv->staging_buffer_ptr = NULL;
             }
-            ngli_gpu_buffer_freep(&s_priv->staging_buffer);
+            ngpu_buffer_freep(&s_priv->staging_buffer);
         }
 
-        s_priv->staging_buffer = ngli_gpu_buffer_create(s->gpu_ctx);
+        s_priv->staging_buffer = ngpu_buffer_create(s->gpu_ctx);
         if (!s_priv->staging_buffer)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        const uint32_t usage = NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT |
-                               NGLI_GPU_BUFFER_USAGE_TRANSFER_SRC_BIT |
-                               NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
-        int ret = ngli_gpu_buffer_init(s_priv->staging_buffer, staging_buffer_size, usage);
+        const uint32_t usage = NGPU_BUFFER_USAGE_DYNAMIC_BIT |
+                               NGPU_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                               NGPU_BUFFER_USAGE_MAP_WRITE;
+        int ret = ngpu_buffer_init(s_priv->staging_buffer, staging_buffer_size, usage);
         if (ret < 0)
             return VK_ERROR_UNKNOWN;
 
         s_priv->staging_buffer_row_length = linesize;
 
-        ret = ngli_gpu_buffer_map(s_priv->staging_buffer, 0, staging_buffer_size, &s_priv->staging_buffer_ptr);
+        ret = ngpu_buffer_map(s_priv->staging_buffer, 0, staging_buffer_size, &s_priv->staging_buffer_ptr);
         if (ret < 0)
             return VK_ERROR_UNKNOWN;
     }
@@ -655,7 +655,7 @@ static VkResult texture_vk_upload(struct gpu_texture *s, const uint8_t *data, in
         }
     }
 
-    struct gpu_buffer_vk *staging_buffer_vk = (struct gpu_buffer_vk *)s_priv->staging_buffer;
+    struct ngpu_buffer_vk *staging_buffer_vk = (struct ngpu_buffer_vk *)s_priv->staging_buffer;
     vkCmdCopyBufferToImage(cmd_buf,
                            staging_buffer_vk->buffer,
                            s_priv->image,
@@ -677,13 +677,13 @@ static VkResult texture_vk_upload(struct gpu_texture *s, const uint8_t *data, in
             return res;
     }
 
-    if (params->mipmap_filter != NGLI_GPU_MIPMAP_FILTER_NONE)
-        ngli_gpu_texture_generate_mipmap(s);
+    if (params->mipmap_filter != NGPU_MIPMAP_FILTER_NONE)
+        ngpu_texture_generate_mipmap(s);
 
     return VK_SUCCESS;
 }
 
-int ngli_gpu_texture_vk_upload(struct gpu_texture *s, const uint8_t *data, int linesize)
+int ngpu_texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
 {
     VkResult res = texture_vk_upload(s, data, linesize);
     if (res != VK_SUCCESS)
@@ -691,14 +691,14 @@ int ngli_gpu_texture_vk_upload(struct gpu_texture *s, const uint8_t *data, int l
     return ngli_vk_res2ret(res);
 }
 
-static VkResult texture_vk_generate_mipmap(struct gpu_texture *s)
+static VkResult texture_vk_generate_mipmap(struct ngpu_texture *s)
 {
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    const struct gpu_texture_params *params = &s->params;
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
+    const struct ngpu_texture_params *params = &s->params;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
 
-    ngli_assert(params->usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT);
-    ngli_assert(params->usage & NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT);
+    ngli_assert(params->usage & NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT);
+    ngli_assert(params->usage & NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT);
 
     struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
     const int cmd_is_transient = cmd_buffer_vk ? 0 : 1;
@@ -822,7 +822,7 @@ static VkResult texture_vk_generate_mipmap(struct gpu_texture *s)
     return VK_SUCCESS;
 }
 
-int ngli_gpu_texture_vk_generate_mipmap(struct gpu_texture *s)
+int ngpu_texture_vk_generate_mipmap(struct ngpu_texture *s)
 {
     VkResult res = texture_vk_generate_mipmap(s);
     if (res != VK_SUCCESS)
@@ -830,14 +830,14 @@ int ngli_gpu_texture_vk_generate_mipmap(struct gpu_texture *s)
     return ngli_vk_res2ret(res);
 }
 
-void ngli_gpu_texture_vk_freep(struct gpu_texture **sp)
+void ngpu_texture_vk_freep(struct ngpu_texture **sp)
 {
     if (!*sp)
         return;
 
-    struct gpu_texture *s = *sp;
-    struct gpu_texture_vk *s_priv = (struct gpu_texture_vk *)s;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct ngpu_texture *s = *sp;
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
+    struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     ngli_ycbcr_sampler_vk_unrefp(&s_priv->ycbcr_sampler);
@@ -850,8 +850,8 @@ void ngli_gpu_texture_vk_freep(struct gpu_texture **sp)
     vkFreeMemory(vk->device, s_priv->image_memory, NULL);
 
     if (s_priv->staging_buffer_ptr)
-        ngli_gpu_buffer_unmap(s_priv->staging_buffer);
-    ngli_gpu_buffer_freep(&s_priv->staging_buffer);
+        ngpu_buffer_unmap(s_priv->staging_buffer);
+    ngpu_buffer_freep(&s_priv->staging_buffer);
 
     ngli_freep(sp);
 }

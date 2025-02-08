@@ -19,21 +19,21 @@
  * under the License.
  */
 
-#ifndef GPU_PROGRAM_GL_H
-#define GPU_PROGRAM_GL_H
+#ifndef NGPU_PROGRAM_GL_H
+#define NGPU_PROGRAM_GL_H
 
 #include "glincludes.h"
 #include "gpu_program.h"
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
-struct gpu_program_gl {
-    struct gpu_program parent;
+struct ngpu_program_gl {
+    struct ngpu_program parent;
     GLuint id;
 };
 
-struct gpu_program *ngli_gpu_program_gl_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_program_gl_init(struct gpu_program *s, const struct gpu_program_params *params);
-void ngli_gpu_program_gl_freep(struct gpu_program **sp);
+struct ngpu_program *ngpu_program_gl_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_program_gl_init(struct ngpu_program *s, const struct ngpu_program_params *params);
+void ngpu_program_gl_freep(struct ngpu_program **sp);
 
 #endif

@@ -35,29 +35,29 @@
 #define NB_BINDGROUPS 16
 
 struct pipeline_compat {
-    struct gpu_ctx *gpu_ctx;
+    struct ngpu_ctx *gpu_ctx;
     int type; // any of NGLI_PIPELINE_TYPE_*
-    struct gpu_pipeline_graphics graphics;
-    const struct gpu_program *program;
-    struct gpu_pipeline *pipeline;
-    struct gpu_bindgroup_layout_desc bindgroup_layout_desc;
-    struct gpu_bindgroup_layout *bindgroup_layout;
+    struct ngpu_pipeline_graphics graphics;
+    const struct ngpu_program *program;
+    struct ngpu_pipeline *pipeline;
+    struct ngpu_bindgroup_layout_desc bindgroup_layout_desc;
+    struct ngpu_bindgroup_layout *bindgroup_layout;
     struct darray bindgroups;
-    struct gpu_bindgroup *cur_bindgroup;
+    struct ngpu_bindgroup *cur_bindgroup;
     size_t cur_bindgroup_index;
-    const struct gpu_buffer **vertex_buffers;
+    const struct ngpu_buffer **vertex_buffers;
     size_t nb_vertex_buffers;
-    struct gpu_texture_binding *textures;
+    struct ngpu_texture_binding *textures;
     size_t nb_textures;
-    struct gpu_buffer_binding *buffers;
+    struct ngpu_buffer_binding *buffers;
     size_t nb_buffers;
-    uint32_t dynamic_offsets[NGLI_GPU_MAX_DYNAMIC_OFFSETS];
+    uint32_t dynamic_offsets[NGPU_MAX_DYNAMIC_OFFSETS];
     size_t nb_dynamic_offsets;
     int updated;
     int need_pipeline_recreation;
     const struct pgcraft_compat_info *compat_info;
-    struct gpu_buffer *ubuffers[NGLI_GPU_PROGRAM_SHADER_NB];
-    uint8_t *mapped_datas[NGLI_GPU_PROGRAM_SHADER_NB];
+    struct ngpu_buffer *ubuffers[NGPU_PROGRAM_SHADER_NB];
+    uint8_t *mapped_datas[NGPU_PROGRAM_SHADER_NB];
 };
 
 static int map_buffer(struct pipeline_compat *s, int stage)
@@ -65,21 +65,21 @@ static int map_buffer(struct pipeline_compat *s, int stage)
     if (s->mapped_datas[stage])
         return 0;
 
-    struct gpu_buffer *buffer = s->ubuffers[stage];
-    return ngli_gpu_buffer_map(buffer, 0, buffer->size, (void **) &s->mapped_datas[stage]);
+    struct ngpu_buffer *buffer = s->ubuffers[stage];
+    return ngpu_buffer_map(buffer, 0, buffer->size, (void **) &s->mapped_datas[stage]);
 }
 
 static void unmap_buffers(struct pipeline_compat *s)
 {
-    for (size_t i = 0; i < NGLI_GPU_PROGRAM_SHADER_NB; i++) {
+    for (size_t i = 0; i < NGPU_PROGRAM_SHADER_NB; i++) {
         if (s->mapped_datas[i]) {
-            ngli_gpu_buffer_unmap(s->ubuffers[i]);
+            ngpu_buffer_unmap(s->ubuffers[i]);
             s->mapped_datas[i] = NULL;
         }
     }
 }
 
-struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx)
+struct pipeline_compat *ngli_pipeline_compat_create(struct ngpu_ctx *gpu_ctx)
 {
     struct pipeline_compat *s = ngli_calloc(1, sizeof(*s));
     if (!s)
@@ -90,28 +90,28 @@ struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx)
 
 static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_compat_params *params)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
-    for (size_t i = 0; i < NGLI_GPU_PROGRAM_SHADER_NB; i++) {
+    for (size_t i = 0; i < NGPU_PROGRAM_SHADER_NB; i++) {
         const size_t block_size = ngli_block_get_size(&s->compat_info->ublocks[i], 0);
         if (!block_size)
             continue;
 
-        struct gpu_buffer *buffer = ngli_gpu_buffer_create(gpu_ctx);
+        struct ngpu_buffer *buffer = ngpu_buffer_create(gpu_ctx);
         if (!buffer)
             return NGL_ERROR_MEMORY;
         s->ubuffers[i] = buffer;
 
-        int ret = ngli_gpu_buffer_init(buffer,
+        int ret = ngpu_buffer_init(buffer,
                                        block_size,
-                                       NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT |
-                                       NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
-                                       NGLI_GPU_BUFFER_USAGE_MAP_WRITE);
+                                       NGPU_BUFFER_USAGE_DYNAMIC_BIT |
+                                       NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
+                                       NGPU_BUFFER_USAGE_MAP_WRITE);
         if (ret < 0)
             return ret;
 
-        if (gpu_ctx->features & NGLI_GPU_FEATURE_BUFFER_MAP_PERSISTENT) {
-            ret = ngli_gpu_buffer_map(buffer, 0, buffer->size, (void **) &s->mapped_datas[i]);
+        if (gpu_ctx->features & NGPU_FEATURE_BUFFER_MAP_PERSISTENT) {
+            ret = ngpu_buffer_map(buffer, 0, buffer->size, (void **) &s->mapped_datas[i]);
             if (ret < 0)
                 return ret;
         }
@@ -124,27 +124,27 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
 
 static void free_bindgroup(void *user_arg, void *data)
 {
-    struct gpu_bindgroup **bindgroup = data;
-    ngli_gpu_bindgroup_freep(bindgroup);
+    struct ngpu_bindgroup **bindgroup = data;
+    ngpu_bindgroup_freep(bindgroup);
 }
 
 static int grow_bindgroup_array(struct pipeline_compat *s)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
     size_t count = ngli_darray_count(&s->bindgroups);
     if (count == 0) {
-        ngli_darray_init(&s->bindgroups, sizeof(struct gpu_bindgroup *), 0);
+        ngli_darray_init(&s->bindgroups, sizeof(struct ngpu_bindgroup *), 0);
         ngli_darray_set_free_func(&s->bindgroups, free_bindgroup, NULL);
         count = NB_BINDGROUPS;
     }
 
     for (size_t i = 0; i < count; i++) {
-        struct gpu_bindgroup *bindgroup = ngli_gpu_bindgroup_create(gpu_ctx);
+        struct ngpu_bindgroup *bindgroup = ngpu_bindgroup_create(gpu_ctx);
         if (!bindgroup)
             return NGL_ERROR_MEMORY;
 
-        struct gpu_bindgroup_params params = {
+        struct ngpu_bindgroup_params params = {
             .layout    = s->bindgroup_layout,
             .resources = {
                 .textures    = s->textures,
@@ -154,14 +154,14 @@ static int grow_bindgroup_array(struct pipeline_compat *s)
             },
         };
 
-        int ret = ngli_gpu_bindgroup_init(bindgroup, &params);
+        int ret = ngpu_bindgroup_init(bindgroup, &params);
         if (ret < 0) {
-            ngli_gpu_bindgroup_freep(&bindgroup);
+            ngpu_bindgroup_freep(&bindgroup);
             return ret;
         }
 
         if (!ngli_darray_push(&s->bindgroups, &bindgroup)) {
-            ngli_gpu_bindgroup_freep(&bindgroup);
+            ngpu_bindgroup_freep(&bindgroup);
             return NGL_ERROR_MEMORY;
         }
     }
@@ -171,21 +171,21 @@ static int grow_bindgroup_array(struct pipeline_compat *s)
 
 static int create_pipeline(struct pipeline_compat *s)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
-    s->bindgroup_layout = ngli_gpu_bindgroup_layout_create(gpu_ctx);
+    s->bindgroup_layout = ngpu_bindgroup_layout_create(gpu_ctx);
     if (!s->bindgroup_layout)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_gpu_bindgroup_layout_init(s->bindgroup_layout, &s->bindgroup_layout_desc);
+    int ret = ngpu_bindgroup_layout_init(s->bindgroup_layout, &s->bindgroup_layout_desc);
     if (ret < 0)
         return ret;
 
-    s->pipeline = ngli_gpu_pipeline_create(gpu_ctx);
+    s->pipeline = ngpu_pipeline_create(gpu_ctx);
     if (!s->pipeline)
         return NGL_ERROR_MEMORY;
 
-    const struct gpu_pipeline_params pipeline_params = {
+    const struct ngpu_pipeline_params pipeline_params = {
         .type     = s->type,
         .graphics = s->graphics,
         .program  = s->program,
@@ -194,7 +194,7 @@ static int create_pipeline(struct pipeline_compat *s)
         }
     };
 
-    ret = ngli_gpu_pipeline_init(s->pipeline, &pipeline_params);
+    ret = ngpu_pipeline_init(s->pipeline, &pipeline_params);
     if (ret < 0)
         return ret;
 
@@ -202,7 +202,7 @@ static int create_pipeline(struct pipeline_compat *s)
     if (ret < 0)
         return ret;
 
-    s->cur_bindgroup = *(struct gpu_bindgroup **)ngli_darray_get(&s->bindgroups, 0);
+    s->cur_bindgroup = *(struct ngpu_bindgroup **)ngli_darray_get(&s->bindgroups, 0);
     s->cur_bindgroup_index = 0;
 
     /* Initialize bindgroup before first pipeline execution */
@@ -213,18 +213,18 @@ static int create_pipeline(struct pipeline_compat *s)
 
 static void reset_pipeline(struct pipeline_compat *s)
 {
-    ngli_gpu_pipeline_freep(&s->pipeline);
+    ngpu_pipeline_freep(&s->pipeline);
     ngli_darray_clear(&s->bindgroups);
     s->cur_bindgroup = NULL;
     s->cur_bindgroup_index = 0;
-    ngli_gpu_bindgroup_layout_freep(&s->bindgroup_layout);
+    ngpu_bindgroup_layout_freep(&s->bindgroup_layout);
 }
 
 int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_compat_params *params)
 {
     s->type = params->type;
 
-    int ret = ngli_gpu_pipeline_graphics_copy(&s->graphics, &params->graphics);
+    int ret = ngpu_pipeline_graphics_copy(&s->graphics, &params->graphics);
     if (ret < 0)
         return ret;
 
@@ -233,11 +233,11 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_desc, &params->layout_desc, textures);
     NGLI_ARRAY_MEMDUP(&s->bindgroup_layout_desc, &params->layout_desc, buffers);
 
-    const struct gpu_bindgroup_resources *bindgroup_resources = &params->resources;
+    const struct ngpu_bindgroup_resources *bindgroup_resources = &params->resources;
     NGLI_ARRAY_MEMDUP(s, bindgroup_resources, buffers);
     NGLI_ARRAY_MEMDUP(s, bindgroup_resources, textures);
 
-    const struct gpu_vertex_resources *vertex_resources = &params->vertex_resources;
+    const struct ngpu_vertex_resources *vertex_resources = &params->vertex_resources;
     NGLI_ARRAY_MEMDUP(s, vertex_resources, vertex_buffers);
 
     s->compat_info = params->compat_info;
@@ -252,7 +252,7 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
     return 0;
 }
 
-int ngli_pipeline_compat_update_vertex_buffer(struct pipeline_compat *s, int32_t index, const struct gpu_buffer *buffer)
+int ngli_pipeline_compat_update_vertex_buffer(struct pipeline_compat *s, int32_t index, const struct ngpu_buffer *buffer)
 {
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
@@ -264,7 +264,7 @@ int ngli_pipeline_compat_update_vertex_buffer(struct pipeline_compat *s, int32_t
 
 int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t index, const void *value, size_t count)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
@@ -275,7 +275,7 @@ int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t
     const struct block_field *fields = ngli_darray_data(&block->fields);
     const struct block_field *field = &fields[field_index];
     if (value) {
-        if (!(gpu_ctx->features & NGLI_GPU_FEATURE_BUFFER_MAP_PERSISTENT)) {
+        if (!(gpu_ctx->features & NGPU_FEATURE_BUFFER_MAP_PERSISTENT)) {
             int ret = map_buffer(s, stage);
             if (ret < 0)
                 return ret;
@@ -292,7 +292,7 @@ int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int32_t index
     return ngli_pipeline_compat_update_uniform_count(s, index, value, 0);
 }
 
-static int update_texture(struct pipeline_compat *s, int32_t index, const struct gpu_texture_binding *binding)
+static int update_texture(struct pipeline_compat *s, int32_t index, const struct ngpu_texture_binding *binding)
 {
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
@@ -300,7 +300,7 @@ static int update_texture(struct pipeline_compat *s, int32_t index, const struct
     ngli_assert(index >= 0 && index < s->nb_textures);
 
     if (s->textures[index].immutable_sampler != binding->immutable_sampler) {
-        struct gpu_bindgroup_layout_entry *entry = &s->bindgroup_layout_desc.textures[index];
+        struct ngpu_bindgroup_layout_entry *entry = &s->bindgroup_layout_desc.textures[index];
         entry->immutable_sampler = binding->immutable_sampler;
         s->need_pipeline_recreation = 1;
     }
@@ -311,9 +311,9 @@ static int update_texture(struct pipeline_compat *s, int32_t index, const struct
     return 0;
 }
 
-int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct gpu_texture *texture)
+int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int32_t index, const struct ngpu_texture *texture)
 {
-    const struct gpu_texture_binding binding = {.texture = texture};
+    const struct ngpu_texture_binding binding = {.texture = texture};
     return update_texture(s, index, &binding);
 }
 
@@ -382,7 +382,7 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
         ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
     }
 
-    struct gpu_texture_binding bindings[NGLI_INFO_FIELD_NB] = {0};
+    struct ngpu_texture_binding bindings[NGLI_INFO_FIELD_NB] = {0};
     switch (image->params.layout) {
     case NGLI_IMAGE_LAYOUT_DEFAULT:
         bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
@@ -433,7 +433,7 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
     for (size_t i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
         const int sampler = samplers[i];
         const int32_t binding_index = fields[sampler].index;
-        const struct gpu_texture_binding *binding = &bindings[sampler];
+        const struct ngpu_texture_binding *binding = &bindings[sampler];
         ret &= update_texture(s, binding_index, binding);
     };
 
@@ -441,13 +441,13 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
     ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &layout);
 }
 
-int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct gpu_buffer *buffer, size_t offset, size_t size)
+int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct ngpu_buffer *buffer, size_t offset, size_t size)
 {
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
     ngli_assert(index >= 0 && index < s->nb_buffers);
-    s->buffers[index] = (struct gpu_buffer_binding) {
+    s->buffers[index] = (struct ngpu_buffer_binding) {
         .buffer = buffer,
         .offset = offset,
         .size   = size ? size : buffer->size,
@@ -464,7 +464,7 @@ static int select_next_available_bindgroup(struct pipeline_compat *s)
 
     /* Otherwhise, check if next bindgroup is available  */
     size_t bindgroup_index = (s->cur_bindgroup_index + 1) % ngli_darray_count(&s->bindgroups);
-    struct gpu_bindgroup *bindgroup = *(struct gpu_bindgroup **)ngli_darray_get(&s->bindgroups, bindgroup_index);
+    struct ngpu_bindgroup *bindgroup = *(struct ngpu_bindgroup **)ngli_darray_get(&s->bindgroups, bindgroup_index);
     if (bindgroup->rc.count == 1) {
         s->cur_bindgroup = bindgroup;
         s->cur_bindgroup_index = bindgroup_index;
@@ -482,7 +482,7 @@ static int select_next_available_bindgroup(struct pipeline_compat *s)
         return ret;
 
     /* Select bindgroup and assert that it is not in use */
-    s->cur_bindgroup = *(struct gpu_bindgroup **)ngli_darray_get(&s->bindgroups, bindgroup_index);
+    s->cur_bindgroup = *(struct ngpu_bindgroup **)ngli_darray_get(&s->bindgroups, bindgroup_index);
     s->cur_bindgroup_index = bindgroup_index;
     ngli_assert(s->cur_bindgroup->rc.count == 1);
 
@@ -509,13 +509,13 @@ static int prepare_bindgroup(struct pipeline_compat *s)
         return ret;
 
     for (size_t i = 0; i < s->nb_textures; i++) {
-        ret = ngli_gpu_bindgroup_update_texture(s->cur_bindgroup, (int32_t) i, &s->textures[i]);
+        ret = ngpu_bindgroup_update_texture(s->cur_bindgroup, (int32_t) i, &s->textures[i]);
         if (ret < 0)
             return ret;
     }
 
     for (size_t i = 0; i < s->nb_buffers; i++) {
-        ret = ngli_gpu_bindgroup_update_buffer(s->cur_bindgroup, (int32_t) i, &s->buffers[i]);
+        ret = ngpu_bindgroup_update_buffer(s->cur_bindgroup, (int32_t) i, &s->buffers[i]);
         if (ret < 0)
             return ret;
     }
@@ -525,9 +525,9 @@ static int prepare_bindgroup(struct pipeline_compat *s)
 
 static int prepare_pipeline(struct pipeline_compat *s)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
-    if (!(gpu_ctx->features & NGLI_GPU_FEATURE_BUFFER_MAP_PERSISTENT))
+    if (!(gpu_ctx->features & NGPU_FEATURE_BUFFER_MAP_PERSISTENT))
        unmap_buffers(s);
 
     int ret = prepare_bindgroup(s);
@@ -539,46 +539,46 @@ static int prepare_pipeline(struct pipeline_compat *s)
 
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances, int first_vertex)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
     int ret = prepare_pipeline(s);
     if (ret < 0)
         return;
 
-    ngli_gpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
+    ngpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
     for (size_t i = 0; i < s->nb_vertex_buffers; i++)
-        ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
-    ngli_gpu_ctx_set_bindgroup(gpu_ctx, s->cur_bindgroup, s->dynamic_offsets, s->nb_dynamic_offsets);
-    ngli_gpu_ctx_draw(gpu_ctx, nb_vertices, nb_instances, first_vertex);
+        ngpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
+    ngpu_ctx_set_bindgroup(gpu_ctx, s->cur_bindgroup, s->dynamic_offsets, s->nb_dynamic_offsets);
+    ngpu_ctx_draw(gpu_ctx, nb_vertices, nb_instances, first_vertex);
 }
 
-void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct gpu_buffer *indices, int indices_format, int nb_indices, int nb_instances)
+void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct ngpu_buffer *indices, int indices_format, int nb_indices, int nb_instances)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
     int ret = prepare_pipeline(s);
     if (ret < 0)
         return;
 
-    ngli_gpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
+    ngpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
     for (size_t i = 0; i < s->nb_vertex_buffers; i++)
-        ngli_gpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
-    ngli_gpu_ctx_set_index_buffer(gpu_ctx, indices, indices_format);
-    ngli_gpu_ctx_set_bindgroup(gpu_ctx, s->cur_bindgroup, s->dynamic_offsets, s->nb_dynamic_offsets);
-    ngli_gpu_ctx_draw_indexed(gpu_ctx, nb_indices, nb_instances);
+        ngpu_ctx_set_vertex_buffer(gpu_ctx, (uint32_t)i, s->vertex_buffers[i]);
+    ngpu_ctx_set_index_buffer(gpu_ctx, indices, indices_format);
+    ngpu_ctx_set_bindgroup(gpu_ctx, s->cur_bindgroup, s->dynamic_offsets, s->nb_dynamic_offsets);
+    ngpu_ctx_draw_indexed(gpu_ctx, nb_indices, nb_instances);
 }
 
 void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
     int ret = prepare_pipeline(s);
     if (ret < 0)
         return;
 
-    ngli_gpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
-    ngli_gpu_ctx_set_bindgroup(gpu_ctx, s->cur_bindgroup, s->dynamic_offsets, s->nb_dynamic_offsets);
-    ngli_gpu_ctx_dispatch(gpu_ctx, nb_group_x, nb_group_y, nb_group_z);
+    ngpu_ctx_set_pipeline(gpu_ctx, s->pipeline);
+    ngpu_ctx_set_bindgroup(gpu_ctx, s->cur_bindgroup, s->dynamic_offsets, s->nb_dynamic_offsets);
+    ngpu_ctx_dispatch(gpu_ctx, nb_group_x, nb_group_y, nb_group_z);
 }
 
 void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
@@ -590,7 +590,7 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
     reset_pipeline(s);
     ngli_darray_reset(&s->bindgroups);
 
-    ngli_gpu_pipeline_graphics_reset(&s->graphics);
+    ngpu_pipeline_graphics_reset(&s->graphics);
 
     ngli_freep(&s->bindgroup_layout_desc.textures);
     ngli_freep(&s->bindgroup_layout_desc.buffers);
@@ -600,11 +600,11 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
     ngli_freep(&s->buffers);
 
     if (s->compat_info) {
-        for (size_t i = 0; i < NGLI_GPU_PROGRAM_SHADER_NB; i++) {
+        for (size_t i = 0; i < NGPU_PROGRAM_SHADER_NB; i++) {
             if (s->ubuffers[i]) {
                 if (s->mapped_datas[i])
-                    ngli_gpu_buffer_unmap(s->ubuffers[i]);
-                ngli_gpu_buffer_freep(&s->ubuffers[i]);
+                    ngpu_buffer_unmap(s->ubuffers[i]);
+                ngpu_buffer_freep(&s->ubuffers[i]);
             }
         }
     }

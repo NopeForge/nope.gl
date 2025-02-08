@@ -93,12 +93,12 @@ done:
     return NGL_ERROR_UNSUPPORTED;
 }
 
-static int has_native_imagereader_api_support(struct gpu_ctx *gpu_ctx)
+static int has_native_imagereader_api_support(struct ngpu_ctx *gpu_ctx)
 {
     ngli_unused const struct ngl_config *config = &gpu_ctx->config;
 #if defined(BACKEND_GLES)
     if (config->backend == NGL_BACKEND_OPENGLES) {
-        const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+        const struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
         const struct glcontext *gl = gpu_ctx_gl->glcontext;
         const uint64_t features = NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE |
                                   NGLI_FEATURE_GL_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
@@ -107,7 +107,7 @@ static int has_native_imagereader_api_support(struct gpu_ctx *gpu_ctx)
 #endif
 #if defined(BACKEND_VK)
     if (config->backend == NGL_BACKEND_VULKAN) {
-        const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+        const struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)gpu_ctx;
         const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
         static const char * const required_extensions[] = {
             VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
@@ -124,7 +124,7 @@ static int has_native_imagereader_api_support(struct gpu_ctx *gpu_ctx)
     return 0;
 }
 
-int ngli_android_ctx_init(struct gpu_ctx *gpu_ctx, struct android_ctx *s)
+int ngli_android_ctx_init(struct ngpu_ctx *gpu_ctx, struct android_ctx *s)
 {
     memset(s, 0, sizeof(*s));
 

@@ -40,21 +40,21 @@ struct attribute_binding_gl {
     size_t offset;
 };
 
-static int build_attribute_bindings(struct gpu_pipeline *s)
+static int build_attribute_bindings(struct ngpu_pipeline *s)
 {
-    struct gpu_pipeline_gl *s_priv = (struct gpu_pipeline_gl *)s;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct ngpu_pipeline_gl *s_priv = (struct ngpu_pipeline_gl *)s;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     gl->funcs.GenVertexArrays(1, &s_priv->vao_id);
     gl->funcs.BindVertexArray(s_priv->vao_id);
 
-    const struct gpu_pipeline_graphics *graphics = &s->graphics;
-    const struct gpu_vertex_state *state = &graphics->vertex_state;
+    const struct ngpu_pipeline_graphics *graphics = &s->graphics;
+    const struct ngpu_vertex_state *state = &graphics->vertex_state;
     for (size_t i = 0; i < state->nb_buffers; i++) {
-        const struct gpu_vertex_buffer_layout *buffer = &state->buffers[i];
+        const struct ngpu_vertex_buffer_layout *buffer = &state->buffers[i];
         for (size_t j = 0; j < buffer->nb_attributes; j++) {
-            const struct gpu_vertex_attribute *attribute = &buffer->attributes[j];
+            const struct ngpu_vertex_attribute *attribute = &buffer->attributes[j];
 
             struct attribute_binding_gl binding = {
                 .binding  = i,
@@ -77,12 +77,12 @@ static int build_attribute_bindings(struct gpu_pipeline *s)
     return 0;
 }
 
-static const GLenum gl_primitive_topology_map[NGLI_GPU_PRIMITIVE_TOPOLOGY_NB] = {
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_POINT_LIST]     = GL_POINTS,
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_LINE_LIST]      = GL_LINES,
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_LINE_STRIP]     = GL_LINE_STRIP,
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST]  = GL_TRIANGLES,
-    [NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP] = GL_TRIANGLE_STRIP,
+static const GLenum gl_primitive_topology_map[NGPU_PRIMITIVE_TOPOLOGY_NB] = {
+    [NGPU_PRIMITIVE_TOPOLOGY_POINT_LIST]     = GL_POINTS,
+    [NGPU_PRIMITIVE_TOPOLOGY_LINE_LIST]      = GL_LINES,
+    [NGPU_PRIMITIVE_TOPOLOGY_LINE_STRIP]     = GL_LINE_STRIP,
+    [NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST]  = GL_TRIANGLES,
+    [NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP] = GL_TRIANGLE_STRIP,
 };
 
 static GLenum get_gl_topology(int topology)
@@ -90,9 +90,9 @@ static GLenum get_gl_topology(int topology)
     return gl_primitive_topology_map[topology];
 }
 
-static const GLenum gl_indices_type_map[NGLI_GPU_FORMAT_NB] = {
-    [NGLI_GPU_FORMAT_R16_UNORM] = GL_UNSIGNED_SHORT,
-    [NGLI_GPU_FORMAT_R32_UINT]  = GL_UNSIGNED_INT,
+static const GLenum gl_indices_type_map[NGPU_FORMAT_NB] = {
+    [NGPU_FORMAT_R16_UNORM] = GL_UNSIGNED_SHORT,
+    [NGPU_FORMAT_R32_UINT]  = GL_UNSIGNED_INT,
 };
 
 static GLenum get_gl_indices_type(int indices_format)
@@ -100,29 +100,29 @@ static GLenum get_gl_indices_type(int indices_format)
     return gl_indices_type_map[indices_format];
 }
 
-static void bind_vertex_attribs(const struct gpu_pipeline *s, struct glcontext *gl)
+static void bind_vertex_attribs(const struct ngpu_pipeline *s, struct glcontext *gl)
 {
-    const struct gpu_pipeline_gl *s_priv = (const struct gpu_pipeline_gl *)s;
-    struct gpu_ctx *gpu_ctx = (struct gpu_ctx *)s->gpu_ctx;
+    const struct ngpu_pipeline_gl *s_priv = (const struct ngpu_pipeline_gl *)s;
+    struct ngpu_ctx *gpu_ctx = (struct ngpu_ctx *)s->gpu_ctx;
 
     gl->funcs.BindVertexArray(s_priv->vao_id);
 
-    const struct gpu_buffer **vertex_buffers = gpu_ctx->vertex_buffers;
+    const struct ngpu_buffer **vertex_buffers = gpu_ctx->vertex_buffers;
     const struct attribute_binding_gl *bindings = ngli_darray_data(&s_priv->attribute_bindings);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->attribute_bindings); i++) {
         const struct attribute_binding_gl *attribute_binding = &bindings[i];
         const size_t binding = attribute_binding->binding;
         const GLuint location = attribute_binding->location;
-        const GLuint size = ngli_gpu_format_get_nb_comp(attribute_binding->format);
+        const GLuint size = ngpu_format_get_nb_comp(attribute_binding->format);
         const GLsizei stride = (GLsizei)attribute_binding->stride;
         const void *offset = (void *)(uintptr_t)attribute_binding->offset;
-        const struct gpu_buffer_gl *buffer_gl = (const struct gpu_buffer_gl *)vertex_buffers[binding];
+        const struct ngpu_buffer_gl *buffer_gl = (const struct ngpu_buffer_gl *)vertex_buffers[binding];
         gl->funcs.BindBuffer(GL_ARRAY_BUFFER, buffer_gl->id);
         gl->funcs.VertexAttribPointer(location, size, GL_FLOAT, GL_FALSE, stride, offset);
     }
 }
 
-static int pipeline_graphics_init(struct gpu_pipeline *s)
+static int pipeline_graphics_init(struct ngpu_pipeline *s)
 {
     int ret = build_attribute_bindings(s);
     if (ret < 0)
@@ -131,9 +131,9 @@ static int pipeline_graphics_init(struct gpu_pipeline *s)
     return 0;
 }
 
-static int pipeline_compute_init(struct gpu_pipeline *s)
+static int pipeline_compute_init(struct ngpu_pipeline *s)
 {
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     ngli_assert(NGLI_HAS_ALL_FLAGS(gl->features, NGLI_FEATURE_GL_COMPUTE_SHADER_ALL));
@@ -141,26 +141,26 @@ static int pipeline_compute_init(struct gpu_pipeline *s)
     return 0;
 }
 
-struct gpu_pipeline *ngli_gpu_pipeline_gl_create(struct gpu_ctx *gpu_ctx)
+struct ngpu_pipeline *ngpu_pipeline_gl_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct gpu_pipeline_gl *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_pipeline_gl *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->parent.gpu_ctx = gpu_ctx;
-    return (struct gpu_pipeline *)s;
+    return (struct ngpu_pipeline *)s;
 }
 
-int ngli_gpu_pipeline_gl_init(struct gpu_pipeline *s)
+int ngpu_pipeline_gl_init(struct ngpu_pipeline *s)
 {
-    struct gpu_pipeline_gl *s_priv = (struct gpu_pipeline_gl *)s;
+    struct ngpu_pipeline_gl *s_priv = (struct ngpu_pipeline_gl *)s;
 
     ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding_gl), 0);
 
-    if (s->type == NGLI_GPU_PIPELINE_TYPE_GRAPHICS) {
+    if (s->type == NGPU_PIPELINE_TYPE_GRAPHICS) {
         int ret = pipeline_graphics_init(s);
         if (ret < 0)
             return ret;
-    } else if (s->type == NGLI_GPU_PIPELINE_TYPE_COMPUTE) {
+    } else if (s->type == NGPU_PIPELINE_TYPE_COMPUTE) {
         int ret = pipeline_compute_init(s);
         if (ret < 0)
             return ret;
@@ -171,32 +171,32 @@ int ngli_gpu_pipeline_gl_init(struct gpu_pipeline *s)
     return 0;
 }
 
-static void set_graphics_state(struct gpu_pipeline *s)
+static void set_graphics_state(struct ngpu_pipeline *s)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct glstate *glstate = &gpu_ctx_gl->glstate;
-    struct gpu_pipeline_graphics *graphics = &s->graphics;
+    struct ngpu_pipeline_graphics *graphics = &s->graphics;
 
     ngli_glstate_update(gl, glstate, &graphics->state);
 }
 
-void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex)
+void ngpu_pipeline_gl_draw(struct ngpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct glstate *glstate = &gpu_ctx_gl->glstate;
-    struct gpu_pipeline_graphics *graphics = &s->graphics;
-    struct gpu_program_gl *program_gl = (struct gpu_program_gl *)s->program;
+    struct ngpu_pipeline_graphics *graphics = &s->graphics;
+    struct ngpu_program_gl *program_gl = (struct ngpu_program_gl *)s->program;
 
     set_graphics_state(s);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
     bind_vertex_attribs(s, gl);
 
-    const GLbitfield barriers = ngli_gpu_bindgroup_gl_get_memory_barriers(gpu_ctx->bindgroup);
+    const GLbitfield barriers = ngpu_bindgroup_gl_get_memory_barriers(gpu_ctx->bindgroup);
     if (barriers)
         gl->funcs.MemoryBarrier(barriers);
 
@@ -207,25 +207,25 @@ void ngli_gpu_pipeline_gl_draw(struct gpu_pipeline *s, int nb_vertices, int nb_i
         gl->funcs.MemoryBarrier(barriers);
 }
 
-void ngli_gpu_pipeline_gl_draw_indexed(struct gpu_pipeline *s, int nb_indices, int nb_instances)
+void ngpu_pipeline_gl_draw_indexed(struct ngpu_pipeline *s, int nb_indices, int nb_instances)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct glstate *glstate = &gpu_ctx_gl->glstate;
-    struct gpu_pipeline_graphics *graphics = &s->graphics;
-    struct gpu_program_gl *program_gl = (struct gpu_program_gl *)s->program;
+    struct ngpu_pipeline_graphics *graphics = &s->graphics;
+    struct ngpu_program_gl *program_gl = (struct ngpu_program_gl *)s->program;
 
     set_graphics_state(s);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
     bind_vertex_attribs(s, gl);
 
-    const struct gpu_buffer_gl *indices_gl = (const struct gpu_buffer_gl *)gpu_ctx->index_buffer;
+    const struct ngpu_buffer_gl *indices_gl = (const struct ngpu_buffer_gl *)gpu_ctx->index_buffer;
     const GLenum gl_indices_type = get_gl_indices_type(gpu_ctx->index_format);
     gl->funcs.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_gl->id);
 
-    const GLbitfield barriers = ngli_gpu_bindgroup_gl_get_memory_barriers(gpu_ctx->bindgroup);
+    const GLbitfield barriers = ngpu_bindgroup_gl_get_memory_barriers(gpu_ctx->bindgroup);
     if (barriers)
         gl->funcs.MemoryBarrier(barriers);
 
@@ -236,17 +236,17 @@ void ngli_gpu_pipeline_gl_draw_indexed(struct gpu_pipeline *s, int nb_indices, i
         gl->funcs.MemoryBarrier(barriers);
 }
 
-void ngli_gpu_pipeline_gl_dispatch(struct gpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
+void ngpu_pipeline_gl_dispatch(struct ngpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z)
 {
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct glstate *glstate = &gpu_ctx_gl->glstate;
-    struct gpu_program_gl *program_gl = (struct gpu_program_gl *)s->program;
+    struct ngpu_program_gl *program_gl = (struct ngpu_program_gl *)s->program;
 
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
-    const GLbitfield barriers = ngli_gpu_bindgroup_gl_get_memory_barriers(gpu_ctx->bindgroup);
+    const GLbitfield barriers = ngpu_bindgroup_gl_get_memory_barriers(gpu_ctx->bindgroup);
     if (barriers)
         gl->funcs.MemoryBarrier(barriers);
 
@@ -257,18 +257,18 @@ void ngli_gpu_pipeline_gl_dispatch(struct gpu_pipeline *s, uint32_t nb_group_x, 
         gl->funcs.MemoryBarrier(barriers);
 }
 
-void ngli_gpu_pipeline_gl_freep(struct gpu_pipeline **sp)
+void ngpu_pipeline_gl_freep(struct ngpu_pipeline **sp)
 {
     if (!*sp)
         return;
 
-    struct gpu_pipeline *s = *sp;
-    struct gpu_pipeline_gl *s_priv = (struct gpu_pipeline_gl *)s;
+    struct ngpu_pipeline *s = *sp;
+    struct ngpu_pipeline_gl *s_priv = (struct ngpu_pipeline_gl *)s;
 
     ngli_darray_reset(&s_priv->attribute_bindings);
 
-    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     gl->funcs.DeleteVertexArrays(1, &s_priv->vao_id);
 

@@ -19,8 +19,8 @@
  * under the License.
  */
 
-#ifndef GPU_TEXTURE_VK_H
-#define GPU_TEXTURE_VK_H
+#ifndef NGPU_TEXTURE_VK_H
+#define NGPU_TEXTURE_VK_H
 
 #include <vulkan/vulkan.h>
 
@@ -29,8 +29,8 @@
 #include "vkcontext.h"
 #include "ycbcr_sampler_vk.h"
 
-struct gpu_texture_vk_wrap_params {
-    const struct gpu_texture_params *params;
+struct ngpu_texture_vk_wrap_params {
+    const struct ngpu_texture_params *params;
     VkImage image;
     VkImageLayout image_layout;
     VkImageView image_view;
@@ -38,8 +38,8 @@ struct gpu_texture_vk_wrap_params {
     struct ycbcr_sampler_vk *ycbcr_sampler;
 };
 
-struct gpu_texture_vk {
-    struct gpu_texture parent;
+struct ngpu_texture_vk {
+    struct ngpu_texture parent;
     VkFormat format;
     int bytes_per_pixel;
     int array_layers;
@@ -55,22 +55,22 @@ struct gpu_texture_vk {
     int wrapped_sampler;
     int use_ycbcr_sampler;
     struct ycbcr_sampler_vk *ycbcr_sampler;
-    struct gpu_buffer *staging_buffer;
+    struct ngpu_buffer *staging_buffer;
     VkDeviceSize staging_buffer_row_length;
     void *staging_buffer_ptr;
 };
 
-struct gpu_texture *ngli_gpu_texture_vk_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_texture_vk_init(struct gpu_texture *s, const struct gpu_texture_params *params);
-VkResult ngli_gpu_texture_vk_wrap(struct gpu_texture *s, const struct gpu_texture_vk_wrap_params *wrap_params);
-int ngli_gpu_texture_vk_upload(struct gpu_texture *s, const uint8_t *data, int linesize);
-int ngli_gpu_texture_vk_generate_mipmap(struct gpu_texture *s);
-void ngli_gpu_texture_vk_transition_layout(struct gpu_texture *s, VkImageLayout layout);
-void ngli_gpu_texture_vk_transition_to_default_layout(struct gpu_texture *s);
-void ngli_gpu_texture_vk_copy_to_buffer(struct gpu_texture *s, struct gpu_buffer *buffer);
-void ngli_gpu_texture_vk_freep(struct gpu_texture **sp);
+struct ngpu_texture *ngpu_texture_vk_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_texture_vk_init(struct ngpu_texture *s, const struct ngpu_texture_params *params);
+VkResult ngpu_texture_vk_wrap(struct ngpu_texture *s, const struct ngpu_texture_vk_wrap_params *wrap_params);
+int ngpu_texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, int linesize);
+int ngpu_texture_vk_generate_mipmap(struct ngpu_texture *s);
+void ngpu_texture_vk_transition_layout(struct ngpu_texture *s, VkImageLayout layout);
+void ngpu_texture_vk_transition_to_default_layout(struct ngpu_texture *s);
+void ngpu_texture_vk_copy_to_buffer(struct ngpu_texture *s, struct ngpu_buffer *buffer);
+void ngpu_texture_vk_freep(struct ngpu_texture **sp);
 
-VkFilter ngli_gpu_vk_get_filter(int filter);
-VkImageUsageFlags ngli_gpu_vk_get_image_usage_flags(uint32_t usage);
+VkFilter ngpu_vk_get_filter(int filter);
+VkImageUsageFlags ngpu_vk_get_image_usage_flags(uint32_t usage);
 
 #endif

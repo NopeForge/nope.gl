@@ -127,12 +127,12 @@ static const char *get_cap_string_id(unsigned cap_id)
 
 #define CAP(cap_id, value) {cap_id, get_cap_string_id(cap_id), value}
 
-static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
+static int load_caps(struct ngl_backend *backend, const struct ngpu_ctx *gpu_ctx)
 {
-    const uint32_t has_compute    = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_GPU_FEATURE_COMPUTE);
-    const uint32_t has_ds_resolve = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_GPU_FEATURE_DEPTH_STENCIL_RESOLVE);
+    const uint32_t has_compute    = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGPU_FEATURE_COMPUTE);
+    const uint32_t has_ds_resolve = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGPU_FEATURE_DEPTH_STENCIL_RESOLVE);
 
-    const struct gpu_limits *limits = &gpu_ctx->limits;
+    const struct ngpu_limits *limits = &gpu_ctx->limits;
     const struct ngl_cap caps[] = {
         CAP(NGL_CAP_COMPUTE,                       has_compute),
         CAP(NGL_CAP_DEPTH_STENCIL_RESOLVE,         has_ds_resolve),
@@ -162,7 +162,7 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
     return 0;
 }
 
-static int backend_init(struct ngl_backend *backend, struct gpu_ctx *gpu_ctx)
+static int backend_init(struct ngl_backend *backend, struct ngpu_ctx *gpu_ctx)
 {
     struct ngl_config *config = &gpu_ctx->config;
 
@@ -217,9 +217,9 @@ static void reset_scene(struct ngl_ctx *s, int action)
     ngli_rnode_reset(&s->rnode);
 }
 
-static struct gpu_viewport compute_scene_viewport(const struct ngl_scene *scene, int32_t width, int32_t height)
+static struct ngpu_viewport compute_scene_viewport(const struct ngl_scene *scene, int32_t width, int32_t height)
 {
-    struct gpu_viewport vp = {0, 0, width, height};
+    struct ngpu_viewport vp = {0, 0, width, height};
 
     if (!scene)
         return vp;
@@ -244,13 +244,13 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 {
     int ret = 0;
 
-    ngli_gpu_ctx_wait_idle(s->gpu_ctx);
+    ngpu_ctx_wait_idle(s->gpu_ctx);
     reset_scene(s, NGLI_ACTION_UNREF_SCENE);
 
     ngli_rnode_init(&s->rnode);
     s->rnode_pos = &s->rnode;
-    s->rnode_pos->graphics_state = NGLI_GPU_GRAPHICS_STATE_DEFAULTS;
-    s->rnode_pos->rendertarget_layout = *ngli_gpu_ctx_get_default_rendertarget_layout(s->gpu_ctx);
+    s->rnode_pos->graphics_state = NGPU_GRAPHICS_STATE_DEFAULTS;
+    s->rnode_pos->rendertarget_layout = *ngpu_ctx_get_default_rendertarget_layout(s->gpu_ctx);
 
     if (scene) {
         if (!scene->params.root) {
@@ -276,9 +276,9 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
 
     // Re-compute the viewport according to the new scene aspect ratio
     int32_t width, height;
-    ngli_gpu_ctx_get_default_rendertarget_size(s->gpu_ctx, &width, &height);
+    ngpu_ctx_get_default_rendertarget_size(s->gpu_ctx, &width, &height);
     s->viewport = compute_scene_viewport(s->scene, width, height);
-    s->scissor = (struct gpu_scissor){0, 0, width, height};
+    s->scissor = (struct ngpu_scissor){0, 0, width, height};
 
     const struct ngl_config *config = &s->config;
     if (config->hud) {
@@ -303,7 +303,7 @@ fail:
 void ngli_ctx_reset(struct ngl_ctx *s, int action)
 {
     if (s->gpu_ctx)
-        ngli_gpu_ctx_wait_idle(s->gpu_ctx);
+        ngpu_ctx_wait_idle(s->gpu_ctx);
     reset_scene(s, action);
 #if defined(HAVE_VAAPI)
     ngli_vaapi_ctx_reset(&s->vaapi_ctx);
@@ -316,7 +316,7 @@ void ngli_ctx_reset(struct ngl_ctx *s, int action)
     FT_Done_FreeType(s->ft_library);
 #endif
     ngli_pgcache_reset(&s->pgcache);
-    ngli_gpu_ctx_freep(&s->gpu_ctx);
+    ngpu_ctx_freep(&s->gpu_ctx);
     ngli_config_reset(&s->config);
     backend_reset(&s->backend);
 }
@@ -338,16 +338,16 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
     if (ret < 0)
         return ret;
 
-    s->gpu_ctx = ngli_gpu_ctx_create(&s->config);
+    s->gpu_ctx = ngpu_ctx_create(&s->config);
     if (!s->gpu_ctx) {
         ngli_config_reset(&s->config);
         return NGL_ERROR_MEMORY;
     }
 
-    ret = ngli_gpu_ctx_init(s->gpu_ctx);
+    ret = ngpu_ctx_init(s->gpu_ctx);
     if (ret < 0) {
         LOG(ERROR, "could not initialize gpu context: %s", NGLI_RET_STR(ret));
-        ngli_gpu_ctx_freep(&s->gpu_ctx);
+        ngpu_ctx_freep(&s->gpu_ctx);
         ngli_config_reset(&s->config);
         return ret;
     }
@@ -386,7 +386,7 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
 #endif
 
     NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;
-    ngli_gpu_ctx_transform_projection_matrix(s->gpu_ctx, matrix);
+    ngpu_ctx_transform_projection_matrix(s->gpu_ctx, matrix);
     memcpy(s->default_projection_matrix, matrix, sizeof(matrix));
 
     ngli_darray_clear(&s->projection_matrix_stack);
@@ -413,12 +413,12 @@ fail:
 
 int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height)
 {
-    int ret = ngli_gpu_ctx_resize(s->gpu_ctx, width, height);
+    int ret = ngpu_ctx_resize(s->gpu_ctx, width, height);
     if (ret < 0)
         return ret;
 
     s->viewport = compute_scene_viewport(s->scene, width, height);
-    s->scissor = (struct gpu_scissor){0, 0, width, height};
+    s->scissor = (struct ngpu_scissor){0, 0, width, height};
 
     return 0;
 }
@@ -434,7 +434,7 @@ int ngli_ctx_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 {
     struct ngl_config *config = &s->config;
 
-    int ret = ngli_gpu_ctx_set_capture_buffer(s->gpu_ctx, capture_buffer);
+    int ret = ngpu_ctx_set_capture_buffer(s->gpu_ctx, capture_buffer);
     if (ret < 0) {
         ngli_ctx_reset(s, NGLI_ACTION_KEEP_SCENE);
         return ret;
@@ -449,13 +449,13 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
 {
     const int64_t start_time = s->hud ? ngli_gettime_relative() : 0;
 
-    int ret = ngli_gpu_ctx_begin_update(s->gpu_ctx, t);
+    int ret = ngpu_ctx_begin_update(s->gpu_ctx, t);
     if (ret < 0)
         return ret;
 
     struct ngl_scene *scene = s->scene;
     if (!scene) {
-        return ngli_gpu_ctx_end_update(s->gpu_ctx, t);
+        return ngpu_ctx_end_update(s->gpu_ctx, t);
     }
 
     struct ngl_node *root = scene->params.root;
@@ -469,7 +469,7 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
     if (ret < 0)
         return ret;
 
-    ret = ngli_gpu_ctx_end_update(s->gpu_ctx, t);
+    ret = ngpu_ctx_end_update(s->gpu_ctx, t);
     if (ret < 0)
         return ret;
 
@@ -484,14 +484,14 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
     if (ret < 0)
         return ret;
 
-    ret = ngli_gpu_ctx_begin_draw(s->gpu_ctx, t);
+    ret = ngpu_ctx_begin_draw(s->gpu_ctx, t);
     if (ret < 0)
         return ret;
 
     const int64_t cpu_start_time = s->hud ? ngli_gettime_relative() : 0;
 
-    struct gpu_rendertarget *rt = ngli_gpu_ctx_get_default_rendertarget(s->gpu_ctx, NGLI_GPU_LOAD_OP_CLEAR);
-    struct gpu_rendertarget *rt_resume = ngli_gpu_ctx_get_default_rendertarget(s->gpu_ctx, NGLI_GPU_LOAD_OP_LOAD);
+    struct ngpu_rendertarget *rt = ngpu_ctx_get_default_rendertarget(s->gpu_ctx, NGPU_LOAD_OP_CLEAR);
+    struct ngpu_rendertarget *rt_resume = ngpu_ctx_get_default_rendertarget(s->gpu_ctx, NGPU_LOAD_OP_LOAD);
     s->available_rendertargets[0] = rt;
     s->available_rendertargets[1] = rt_resume;
     s->current_rendertarget = rt;
@@ -504,7 +504,7 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
     }
 
     if (!s->render_pass_started) {
-        ngli_gpu_ctx_begin_render_pass(s->gpu_ctx, s->current_rendertarget);
+        ngpu_ctx_begin_render_pass(s->gpu_ctx, s->current_rendertarget);
         s->render_pass_started = 1;
     }
 
@@ -512,21 +512,21 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
         s->cpu_draw_time = ngli_gettime_relative() - cpu_start_time;
 
         if (s->render_pass_started) {
-            ngli_gpu_ctx_end_render_pass(s->gpu_ctx);
+            ngpu_ctx_end_render_pass(s->gpu_ctx);
             s->current_rendertarget = s->available_rendertargets[1];
             s->render_pass_started = 0;
         }
-        ngli_gpu_ctx_query_draw_time(s->gpu_ctx, &s->gpu_draw_time);
+        ngpu_ctx_query_draw_time(s->gpu_ctx, &s->gpu_draw_time);
 
         ngli_hud_draw(s->hud);
     }
 
     if (s->render_pass_started) {
-        ngli_gpu_ctx_end_render_pass(s->gpu_ctx);
+        ngpu_ctx_end_render_pass(s->gpu_ctx);
         s->render_pass_started = 0;
     }
 
-    return ngli_gpu_ctx_end_draw(s->gpu_ctx, t);
+    return ngpu_ctx_end_draw(s->gpu_ctx, t);
 }
 
 int ngli_ctx_dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg)
@@ -576,12 +576,12 @@ static int backend_probe(struct ngl_backend *backend, const struct ngl_config *c
 {
     int ret = 0;
 
-    struct gpu_ctx *gpu_ctx = ngli_gpu_ctx_create(config);
+    struct ngpu_ctx *gpu_ctx = ngpu_ctx_create(config);
     if (!gpu_ctx)
         return NGL_ERROR_MEMORY;
 
     if (mode == PROBE_MODE_FULL) {
-        ret = ngli_gpu_ctx_init(gpu_ctx);
+        ret = ngpu_ctx_init(gpu_ctx);
         if (ret < 0)
             goto end;
     }
@@ -591,7 +591,7 @@ static int backend_probe(struct ngl_backend *backend, const struct ngl_config *c
         goto end;
 
 end:
-    ngli_gpu_ctx_freep(&gpu_ctx);
+    ngpu_ctx_freep(&gpu_ctx);
     return ret;
 }
 

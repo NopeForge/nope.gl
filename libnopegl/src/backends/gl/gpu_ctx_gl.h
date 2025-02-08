@@ -21,8 +21,8 @@
  * under the License.
  */
 
-#ifndef GPU_CTX_GL_H
-#define GPU_CTX_GL_H
+#ifndef NGPU_CTX_GL_H
+#define NGPU_CTX_GL_H
 
 #include "config.h"
 
@@ -35,28 +35,28 @@
 #include "gpu_ctx.h"
 
 struct ngl_ctx;
-struct gpu_rendertarget;
+struct ngpu_rendertarget;
 
-typedef void (*capture_func_type)(struct gpu_ctx *s);
+typedef void (*capture_func_type)(struct ngpu_ctx *s);
 
-struct gpu_ctx_gl {
-    struct gpu_ctx parent;
+struct ngpu_ctx_gl {
+    struct ngpu_ctx parent;
     struct glcontext *glcontext;
     struct glstate glstate;
-    struct gpu_rendertarget_layout default_rt_layout;
+    struct ngpu_rendertarget_layout default_rt_layout;
     /* Default rendertarget with load op set to clear */
-    struct gpu_rendertarget *default_rt;
+    struct ngpu_rendertarget *default_rt;
     /* Default rendertarget with load op set to load, useful for resuming the
      * associated renderpass (without discarding its attachments) */
-    struct gpu_rendertarget *default_rt_load;
+    struct ngpu_rendertarget *default_rt_load;
     /* Offscreen render target resources */
-    struct gpu_texture *color;
-    struct gpu_texture *ms_color;
-    struct gpu_texture *depth_stencil;
+    struct ngpu_texture *color;
+    struct ngpu_texture *ms_color;
+    struct ngpu_texture *depth_stencil;
     /* Offscreen capture callback and resources */
     capture_func_type capture_func;
-    struct gpu_rendertarget *capture_rt;
-    struct gpu_texture *capture_texture;
+    struct ngpu_rendertarget *capture_rt;
+    struct ngpu_texture *capture_texture;
 #if defined(TARGET_IPHONE)
     CVPixelBufferRef capture_cvbuffer;
     CVOpenGLESTextureRef capture_cvtexture;
@@ -71,9 +71,9 @@ struct gpu_ctx_gl {
     void (NGLI_GL_APIENTRY *glGetQueryObjectui64v)(GLuint id, GLenum pname, GLuint64 *params);
 };
 
-int ngli_gpu_ctx_gl_make_current(struct gpu_ctx *s);
-int ngli_gpu_ctx_gl_release_current(struct gpu_ctx *s);
-void ngli_gpu_ctx_gl_reset_state(struct gpu_ctx *s);
-int ngli_gpu_ctx_gl_wrap_framebuffer(struct gpu_ctx *s, GLuint fbo);
+int ngpu_ctx_gl_make_current(struct ngpu_ctx *s);
+int ngpu_ctx_gl_release_current(struct ngpu_ctx *s);
+void ngpu_ctx_gl_reset_state(struct ngpu_ctx *s);
+int ngpu_ctx_gl_wrap_framebuffer(struct ngpu_ctx *s, GLuint fbo);
 
 #endif

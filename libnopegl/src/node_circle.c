@@ -100,7 +100,7 @@ static int circle_init(struct ngl_node *node)
     for (size_t i = 1; i < nb_vertices; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
-    struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
     s->geom = ngli_geometry_create(gpu_ctx);
     if (!s->geom) {
@@ -123,7 +123,7 @@ end:
     if (ret < 0)
         return ret;
 
-    return ngli_geometry_init(s->geom, NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    return ngli_geometry_init(s->geom, NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 }
 
 static void circle_uninit(struct ngl_node *node)

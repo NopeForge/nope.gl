@@ -20,31 +20,31 @@
  * under the License.
  */
 
-#ifndef GPU_RENDERTARGET_VK_H
-#define GPU_RENDERTARGET_VK_H
+#ifndef NGPU_RENDERTARGET_VK_H
+#define NGPU_RENDERTARGET_VK_H
 
 #include <vulkan/vulkan.h>
 
 #include "gpu_rendertarget.h"
 
-struct gpu_rendertarget_vk {
-    struct gpu_rendertarget parent;
+struct ngpu_rendertarget_vk {
+    struct ngpu_rendertarget parent;
     uint32_t nb_attachments;
-    VkImageView attachments[2*(NGLI_GPU_MAX_COLOR_ATTACHMENTS + 1)];
-    struct gpu_texture *attachments_refs[2*(NGLI_GPU_MAX_COLOR_ATTACHMENTS + 1)];
+    VkImageView attachments[2*(NGPU_MAX_COLOR_ATTACHMENTS + 1)];
+    struct ngpu_texture *attachments_refs[2*(NGPU_MAX_COLOR_ATTACHMENTS + 1)];
     VkFramebuffer framebuffer;
     VkRenderPass render_pass;
-    VkClearValue clear_values[2*(NGLI_GPU_MAX_COLOR_ATTACHMENTS + 1)];
+    VkClearValue clear_values[2*(NGPU_MAX_COLOR_ATTACHMENTS + 1)];
     uint32_t nb_clear_values;
     VkBuffer staging_buffer;
     int staging_buffer_size;
     VkDeviceMemory staging_memory;
 };
 
-struct gpu_rendertarget *ngli_gpu_rendertarget_vk_create(struct gpu_ctx *gpu_ctx);
-int ngli_gpu_rendertarget_vk_init(struct gpu_rendertarget *s);
-void ngli_gpu_rendertarget_vk_freep(struct gpu_rendertarget **sp);
+struct ngpu_rendertarget *ngpu_rendertarget_vk_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_rendertarget_vk_init(struct ngpu_rendertarget *s);
+void ngpu_rendertarget_vk_freep(struct ngpu_rendertarget **sp);
 
-VkResult ngli_gpu_vk_create_compatible_renderpass(struct gpu_ctx *s, const struct gpu_rendertarget_layout *layout, VkRenderPass *render_pass);
+VkResult ngpu_vk_create_compatible_renderpass(struct ngpu_ctx *s, const struct ngpu_rendertarget_layout *layout, VkRenderPass *render_pass);
 
 #endif
