@@ -25,17 +25,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gpu_block.h"
-#include "gpu_ctx.h"
-#include "gpu_graphics_state.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/block.h"
+#include "ngpu/ctx.h"
+#include "ngpu/graphics_state.h"
+#include "ngpu/rendertarget.h"
 #include "node_texture.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_rendertarget.h"
 #include "rtt.h"
 #include "utils.h"
 

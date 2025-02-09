@@ -21,9 +21,9 @@
 
 #include <stddef.h>
 
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
 #include "node_resourceprops.h"
 #include "nopegl.h"
 #include "precision.h"

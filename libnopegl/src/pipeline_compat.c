@@ -22,12 +22,12 @@
 
 #include <string.h>
 
-#include "gpu_bindgroup.h"
 #include "darray.h"
-#include "gpu_ctx.h"
-#include "gpu_limits.h"
 #include "math_utils.h"
 #include "memory.h"
+#include "ngpu/bindgroup.h"
+#include "ngpu/ctx.h"
+#include "ngpu/limits.h"
 #include "nopegl.h"
 #include "pipeline_compat.h"
 #include "utils.h"

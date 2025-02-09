@@ -27,10 +27,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gpu_buffer.h"
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
+#include "ngpu/buffer.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "nopegl.h"

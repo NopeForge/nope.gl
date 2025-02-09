@@ -20,16 +20,16 @@
  * under the License.
  */
 
-#include "block.h"
-#include "gpu_block.h"
-#include "gpu_ctx.h"
-#include "gpu_limits.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/block.h"
+#include "ngpu/ctx.h"
+#include "ngpu/limits.h"
 #include "node_block.h"
 #include "node_texture.h"
 #include "nopegl.h"
 #include "pipeline_compat.h"
+#include "src/ngpu/block_desc.h"
 #include "type.h"
 
 /* Compute shaders */

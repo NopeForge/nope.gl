@@ -40,14 +40,14 @@
 #include <sys/types.h>
 
 #include "drawutils.h"
-#include "gpu_ctx.h"
-#include "gpu_block.h"
-#include "gpu_graphics_state.h"
 #include "hud.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
+#include "ngpu/block.h"
+#include "ngpu/ctx.h"
+#include "ngpu/graphics_state.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_texture.h"

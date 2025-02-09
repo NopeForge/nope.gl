@@ -25,23 +25,23 @@
 #include <string.h>
 #include <math.h>
 
-#include "gpu_buffer.h"
 #include "darray.h"
 #include "distmap.h"
 #include "distmap_frag.h"
 #include "distmap_vert.h"
-#include "gpu_format.h"
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
+#include "ngpu/buffer.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
+#include "ngpu/rendertarget.h"
+#include "ngpu/texture.h"
 #include "nopegl.h"
 #include "path.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_rendertarget.h"
-#include "gpu_texture.h"
 #include "type.h"
 #include "utils.h"
 

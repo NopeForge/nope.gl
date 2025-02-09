@@ -19,11 +19,11 @@
  * under the License.
  */
 
-#include "gpu_buffer.h"
-#include "gpu_format.h"
 #include "geometry.h"
 #include "log.h"
 #include "memory.h"
+#include "ngpu/buffer.h"
+#include "ngpu/format.h"
 #include "nopegl.h"
 #include "type.h"
 #include "utils.h"

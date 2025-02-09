@@ -39,15 +39,15 @@
 #include FT_OUTLINE_H
 #endif
 
-#include "gpu_ctx.h"
+#include "darray.h"
 #include "hmap.h"
 #include "hud.h"
+#include "ngpu/ctx.h"
+#include "ngpu/rendertarget.h"
 #include "nopegl.h"
 #include "params.h"
 #include "pgcache.h"
 #include "pthread_compat.h"
-#include "darray.h"
-#include "gpu_rendertarget.h"
 #include "rnode.h"
 #include "utils.h"
 
