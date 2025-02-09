@@ -25,19 +25,19 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gpu_format.h"
-#include "gpu_block.h"
-#include "gpu_ctx.h"
-#include "gpu_graphics_state.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/block.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
+#include "ngpu/graphics_state.h"
+#include "ngpu/rendertarget.h"
 #include "node_texture.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_rendertarget.h"
 #include "rtt.h"
 #include "utils.h"
 
@@ -210,7 +210,7 @@ static int setup_pass1_pipeline(struct ngl_node *node)
             .name          = "blur",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->blur_params_block.block,
+            .block         = &s->blur_params_block.block_desc,
             .buffer        = {
                 .buffer    = s->blur_params_block.buffer,
                 .size      = s->blur_params_block.block_size,
@@ -305,7 +305,7 @@ static int setup_pass2_pipeline(struct ngl_node *node)
             .name          = "blur",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->blur_params_block.block,
+            .block         = &s->blur_params_block.block_desc,
             .buffer        = {
                 .buffer = s->blur_params_block.buffer,
                 .size   = s->blur_params_block.block_size,
@@ -403,14 +403,14 @@ static int hblur_init(struct ngl_node *node)
     s->pass2.layout.colors[0].format = dst_info->params.format;
     s->pass2.layout.nb_colors = 1;
 
-    const struct ngpu_block_field block_fields[] = {
+    const struct ngpu_block_entry block_fields[] = {
         NGPU_BLOCK_FIELD(struct blur_params_block, radius, NGLI_TYPE_I32, 0),
         NGPU_BLOCK_FIELD(struct blur_params_block, nb_samples, NGLI_TYPE_I32, 0),
     };
 
     const struct ngpu_block_params block_params = {
-        .fields    = block_fields,
-        .nb_fields = NGLI_ARRAY_NB(block_fields),
+        .entries = block_fields,
+        .nb_entries = NGLI_ARRAY_NB(block_fields),
     };
 
     int ret = ngpu_block_init(gpu_ctx, &s->blur_params_block, &block_params);

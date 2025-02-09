@@ -25,18 +25,18 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gpu_block.h"
-#include "gpu_ctx.h"
-#include "gpu_graphics_state.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/block.h"
+#include "ngpu/ctx.h"
+#include "ngpu/graphics_state.h"
+#include "ngpu/rendertarget.h"
 #include "node_texture.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_rendertarget.h"
 #include "rtt.h"
 #include "utils.h"
 
@@ -245,13 +245,13 @@ static int gblur_init(struct ngl_node *node)
     s->dst_layout.colors[0].format = dst_info->params.format;
     s->dst_layout.nb_colors = 1;
 
-    const struct ngpu_block_field direction_block_fields[] = {
+    const struct ngpu_block_entry direction_block_fields[] = {
         NGPU_BLOCK_FIELD(struct direction_block, direction, NGLI_TYPE_VEC2, 0),
     };
     const struct ngpu_block_params direction_block_params = {
         .count     = 2,
-        .fields    = direction_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(direction_block_fields),
+        .entries = direction_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(direction_block_fields),
     };
     int ret = ngpu_block_init(gpu_ctx, &s->direction_block, &direction_block_params);
     if (ret < 0)
@@ -259,13 +259,13 @@ static int gblur_init(struct ngl_node *node)
     ngpu_block_update(&s->direction_block, 0, &(struct direction_block){.direction = {1.f, 0.f}});
     ngpu_block_update(&s->direction_block, 1, &(struct direction_block){.direction = {0.f, 1.f}});
 
-    const struct ngpu_block_field kernel_block_fields[] = {
+    const struct ngpu_block_entry kernel_block_fields[] = {
         NGPU_BLOCK_FIELD(struct kernel_block, weights,    NGLI_TYPE_VEC2, MAX_KERNEL_SIZE),
         NGPU_BLOCK_FIELD(struct kernel_block, nb_weights, NGLI_TYPE_I32,  0),
     };
     const struct ngpu_block_params kernel_block_params = {
-        .fields    = kernel_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(kernel_block_fields),
+        .entries = kernel_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(kernel_block_fields),
     };
     ngpu_block_init(gpu_ctx, &s->kernel_block, &kernel_block_params);
 
@@ -287,7 +287,7 @@ static int gblur_init(struct ngl_node *node)
             .name          = "direction",
             .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->direction_block.block,
+            .block         = &s->direction_block.block_desc,
             .buffer        = {
                 .buffer = s->direction_block.buffer,
                 .size   = s->direction_block.block_size,
@@ -296,7 +296,7 @@ static int gblur_init(struct ngl_node *node)
             .name          = "kernel",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->kernel_block.block,
+            .block         = &s->kernel_block.block_desc,
             .buffer        = {
                 .buffer = s->kernel_block.buffer,
                 .size   = s->kernel_block.block_size,

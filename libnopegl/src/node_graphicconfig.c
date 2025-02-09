@@ -23,12 +23,12 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "gpu_ctx.h"
-#include "gpu_graphics_state.h"
+#include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
+#include "ngpu/graphics_state.h"
 #include "node_graphicconfig.h"
 #include "nopegl.h"
-#include "internal.h"
 #include "utils.h"
 
 struct graphicconfig_opts {

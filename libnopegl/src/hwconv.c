@@ -22,15 +22,15 @@
 
 #include <string.h>
 
-#include "gpu_buffer.h"
 #include "hwconv.h"
-#include "gpu_ctx.h"
 #include "image.h"
-#include "log.h"
 #include "internal.h"
+#include "log.h"
+#include "ngpu/buffer.h"
+#include "ngpu/ctx.h"
+#include "ngpu/texture.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_texture.h"
 #include "type.h"
 #include "utils.h"
 

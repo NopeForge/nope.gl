@@ -23,8 +23,8 @@
 #define RNODE_H
 
 #include "darray.h"
-#include "gpu_graphics_state.h"
-#include "gpu_rendertarget.h"
+#include "ngpu/graphics_state.h"
+#include "ngpu/rendertarget.h"
 
 struct rnode {
     size_t id;

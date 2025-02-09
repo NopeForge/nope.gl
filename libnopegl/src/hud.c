@@ -40,14 +40,14 @@
 #include <sys/types.h>
 
 #include "drawutils.h"
-#include "gpu_ctx.h"
-#include "gpu_block.h"
-#include "gpu_graphics_state.h"
 #include "hud.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
+#include "ngpu/block.h"
+#include "ngpu/ctx.h"
+#include "ngpu/graphics_state.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_texture.h"
@@ -1241,14 +1241,14 @@ int ngli_hud_init(struct hud *s)
     if (ret < 0)
         return ret;
 
-    const struct ngpu_block_field block_fields[] = {
+    const struct ngpu_block_entry block_fields[] = {
         NGPU_BLOCK_FIELD(struct transforms_block, modelview_matrix, NGLI_TYPE_MAT4, 0),
         NGPU_BLOCK_FIELD(struct transforms_block, projection_matrix, NGLI_TYPE_MAT4, 0),
     };
     const struct ngpu_block_params block_params = {
         .count     = 1,
-        .fields    = block_fields,
-        .nb_fields = NGLI_ARRAY_NB(block_fields),
+        .entries = block_fields,
+        .nb_entries = NGLI_ARRAY_NB(block_fields),
     };
     ret = ngpu_block_init(gpu_ctx, &s->transforms_block, &block_params);
     if (ret < 0)
@@ -1264,7 +1264,7 @@ int ngli_hud_init(struct hud *s)
             .instance_name = "",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_VERT,
-            .block         = &s->transforms_block.block,
+            .block         = &s->transforms_block.block_desc,
             .buffer = {
                 .buffer = s->transforms_block.buffer,
                 .size   = s->transforms_block.buffer->size,

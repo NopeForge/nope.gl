@@ -26,19 +26,19 @@
 #include <string.h>
 #include <nopemd.h>
 
-#include "gpu_format.h"
-#include "gpu_ctx.h"
 #include "hwmap.h"
 #include "image.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
+#include "ngpu/texture.h"
 #include "node_buffer.h"
 #include "node_media.h"
 #include "node_rtt.h"
 #include "node_texture.h"
 #include "nopegl.h"
 #include "rtt.h"
-#include "gpu_texture.h"
 
 struct texture_opts {
     int requested_format;

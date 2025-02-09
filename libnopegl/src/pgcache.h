@@ -23,7 +23,7 @@
 #define PGCACHE_H
 
 #include "hmap.h"
-#include "gpu_program.h"
+#include "ngpu/program.h"
 
 struct pgcache {
     struct ngpu_ctx *gpu_ctx;

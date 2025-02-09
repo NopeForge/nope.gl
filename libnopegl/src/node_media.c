@@ -39,8 +39,8 @@
 #include "nopegl.h"
 
 #if defined(TARGET_ANDROID)
-#include "gpu_ctx.h"
-#include "backends/gl/gpu_texture_gl.h"
+#include "ngpu/ctx.h"
+#include "ngpu/opengl/texture_gl.h"
 #endif
 
 struct media_opts {

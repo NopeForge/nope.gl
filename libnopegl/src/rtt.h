@@ -25,9 +25,9 @@
 
 #include <stdint.h>
 
-#include "gpu_limits.h"
-#include "gpu_rendertarget.h"
 #include "image.h"
+#include "ngpu/limits.h"
+#include "ngpu/rendertarget.h"
 
 struct ngl_ctx;
 struct rtt_ctx;

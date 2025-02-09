@@ -28,16 +28,16 @@
 #include <va/va.h>
 #include <va/va_drmcommon.h>
 
-#include "egl.h"
-#include "gpu_ctx.h"
-#include "gpu_ctx_gl.h"
-#include "glincludes.h"
 #include "hwmap.h"
 #include "image.h"
-#include "log.h"
-#include "nopegl.h"
 #include "internal.h"
-#include "gpu_texture_gl.h"
+#include "log.h"
+#include "ngpu/ctx.h"
+#include "ngpu/opengl/ctx_gl.h"
+#include "ngpu/opengl/egl.h"
+#include "ngpu/opengl/glincludes.h"
+#include "ngpu/opengl/texture_gl.h"
+#include "nopegl.h"
 #include "utils.h"
 
 struct hwmap_vaapi {
