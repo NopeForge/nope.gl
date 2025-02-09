@@ -24,10 +24,10 @@
 #include <string.h>
 
 #include "darray.h"
-#include "gpu_format.h"
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "math_utils.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
 #include "params.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"

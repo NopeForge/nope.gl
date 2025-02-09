@@ -23,7 +23,7 @@
 #define NODE_DRAW_H
 
 #include "aabb.h"
-#include "gpu_ctx.h"
+#include "ngpu/ctx.h"
 
 struct ngl_node;
 

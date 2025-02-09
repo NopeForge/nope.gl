@@ -28,17 +28,17 @@
 #include <android/hardware_buffer_jni.h>
 
 #include "android_imagereader.h"
-#include "egl.h"
-#include "gpu_format.h"
-#include "gpu_ctx_gl.h"
-#include "glincludes.h"
 #include "hwmap.h"
 #include "image.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/format.h"
+#include "ngpu/opengl/ctx_gl.h"
+#include "ngpu/opengl/egl.h"
+#include "ngpu/opengl/glincludes.h"
+#include "ngpu/opengl/texture_gl.h"
 #include "nopegl.h"
-#include "internal.h"
-#include "gpu_texture_gl.h"
 
 struct hwmap_mc {
     struct android_image *android_image;

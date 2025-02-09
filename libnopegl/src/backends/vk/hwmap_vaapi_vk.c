@@ -29,18 +29,18 @@
 #include <va/va_drmcommon.h>
 #include <libdrm/drm_fourcc.h>
 
-#include "gpu_format_vk.h"
-#include "gpu_ctx.h"
-#include "gpu_ctx_vk.h"
 #include "hwmap.h"
 #include "image.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/ctx.h"
+#include "ngpu/vulkan/ctx_vk.h"
+#include "ngpu/vulkan/format_vk.h"
+#include "ngpu/vulkan/texture_vk.h"
+#include "ngpu/vulkan/vkutils.h"
 #include "nopegl.h"
-#include "gpu_texture_vk.h"
 #include "utils.h"
-#include "vkutils.h"
 
 struct format_desc {
     int layout;

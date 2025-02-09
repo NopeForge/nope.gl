@@ -25,17 +25,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gpu_block.h"
-#include "gpu_ctx.h"
-#include "gpu_graphics_state.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/block.h"
+#include "ngpu/ctx.h"
+#include "ngpu/graphics_state.h"
+#include "ngpu/rendertarget.h"
 #include "node_texture.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_rendertarget.h"
 #include "rtt.h"
 #include "utils.h"
 
@@ -149,7 +149,7 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
             .instance_name = "",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &block->block,
+            .block         = &block->block_desc,
             .buffer        = {
                 .buffer    = block->buffer,
                 .size      = block->block_size,
@@ -219,12 +219,12 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
         },
     };
 
-    const struct ngpu_block_field interpolate_block_fields[] = {
+    const struct ngpu_block_entry interpolate_block_fields[] = {
         NGPU_BLOCK_FIELD(struct interpolate_block, lod, NGLI_TYPE_F32, 0),
     };
     const struct ngpu_block_params interpolate_block_params = {
-        .fields    = interpolate_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(interpolate_block_fields),
+        .entries = interpolate_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(interpolate_block_fields),
     };
     int ret = ngpu_block_init(gpu_ctx, &s->interpolate.block, &interpolate_block_params);
     if (ret < 0)
@@ -235,7 +235,7 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
             .name          = "interpolate",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->interpolate.block.block,
+            .block         = &s->interpolate.block.block_desc,
             .buffer        = {
                 .buffer    = s->interpolate.block.buffer,
                 .size      = s->interpolate.block.block_size,
@@ -308,12 +308,12 @@ static int fgblur_init(struct ngl_node *node)
     s->dst_layout.colors[0].format = dst_info->params.format;
     s->dst_layout.nb_colors = 1;
 
-    const struct ngpu_block_field down_up_data_block_fields[] = {
+    const struct ngpu_block_entry down_up_data_block_fields[] = {
         NGPU_BLOCK_FIELD(struct down_up_data_block, offset, NGLI_TYPE_F32, 0),
     };
     const struct ngpu_block_params down_up_data_block_params = {
-        .fields    = down_up_data_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(down_up_data_block_fields),
+        .entries = down_up_data_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(down_up_data_block_fields),
     };
     int ret = ngpu_block_init(gpu_ctx, &s->down_up_data_block, &down_up_data_block_params);
     if (ret < 0)

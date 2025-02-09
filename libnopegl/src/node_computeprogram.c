@@ -21,12 +21,12 @@
 
 #include <stddef.h>
 
-#include "gpu_ctx.h"
-#include "gpu_limits.h"
+#include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
+#include "ngpu/limits.h"
 #include "node_program.h"
 #include "nopegl.h"
-#include "internal.h"
 
 #define OFFSET(x) offsetof(struct program_opts, x)
 static const struct node_param computeprogram_params[] = {

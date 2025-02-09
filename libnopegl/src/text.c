@@ -23,13 +23,13 @@
 #include <string.h>
 
 #include "darray.h"
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
-#include "node_texteffect.h"
+#include "ngpu/ctx.h"
 #include "node_text.h"
+#include "node_texteffect.h"
 #include "node_uniform.h"
 #include "text.h"
 #include "transforms.h"
@@ -174,7 +174,7 @@ struct default_data {
 static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
 {
     struct ngl_ctx *ctx = s->ctx;
-    
+
     /* Text/Box ratio */
     const struct ngli_box box = s->config.box;
     const int32_t ar[] = {ctx->viewport.width, ctx->viewport.height};

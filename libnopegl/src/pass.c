@@ -27,16 +27,17 @@
 #include <inttypes.h>
 
 #include "blending.h"
-#include "block.h"
-#include "gpu_buffer.h"
 #include "darray.h"
 #include "geometry.h"
-#include "gpu_ctx.h"
 #include "hmap.h"
 #include "image.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/buffer.h"
+#include "ngpu/ctx.h"
+#include "ngpu/program.h"
+#include "ngpu/texture.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_resourceprops.h"
@@ -46,8 +47,7 @@
 #include "pass.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_program.h"
-#include "gpu_texture.h"
+#include "src/ngpu/block_desc.h"
 #include "type.h"
 #include "utils.h"
 
@@ -180,15 +180,15 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     const struct ngpu_limits *limits = &gpu_ctx->limits;
 
     struct block_info *block_info = block_node->priv_data;
-    struct block *block = &block_info->block;
-    const size_t block_size = ngli_block_get_size(block, 0);
+    struct ngpu_block_desc *block = &block_info->block;
+    const size_t block_size = ngpu_block_desc_get_size(block, 0);
 
     /*
      * Select buffer type. We prefer UBO over SSBO, but in the following
      * situations, UBO is not possible.
      */
     int type = NGLI_TYPE_UNIFORM_BUFFER;
-    if (block->layout == NGLI_BLOCK_LAYOUT_STD430) {
+    if (block->layout == NGPU_BLOCK_LAYOUT_STD430) {
         LOG(DEBUG, "block %s has a std430 layout, declaring it as SSBO", name);
         type = NGLI_TYPE_STORAGE_BUFFER;
     } else if (block_size > limits->max_uniform_block_size) {

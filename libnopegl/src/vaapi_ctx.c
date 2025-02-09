@@ -24,11 +24,11 @@
 #include "config.h"
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
-#include "backends/gl/gpu_ctx_gl.h"
+#include "ngpu/opengl/ctx_gl.h"
 #endif
 
 #if defined(BACKEND_VK)
-#include "backends/vk/gpu_ctx_vk.h"
+#include "ngpu/vulkan/ctx_vk.h"
 #endif
 
 #if defined(HAVE_VAAPI_X11)
@@ -41,9 +41,9 @@
 #include <va/va_wayland.h>
 #endif
 
-#include "gpu_ctx.h"
-#include "log.h"
 #include "internal.h"
+#include "log.h"
+#include "ngpu/ctx.h"
 #include "utils.h"
 #include "vaapi_ctx.h"
 

@@ -21,9 +21,9 @@
 
 #include "config.h"
 
-#include "backends/gl/gpu_ctx_gl.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/opengl/ctx_gl.h"
 
 static int cmd_make_current(struct ngl_ctx *s, void *arg)
 {

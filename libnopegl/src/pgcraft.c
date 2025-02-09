@@ -26,22 +26,22 @@
 #include <stddef.h>
 
 #include "config.h"
-#include "gpu_ctx.h"
-#include "gpu_format.h"
 #include "hmap.h"
 #include "hwmap.h"
+#include "internal.h"
 #include "log.h"
 #include "memory.h"
-#include "internal.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
 #include "pgcraft.h"
 #include "precision.h"
 #include "type.h"
 #include "utils.h"
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
-#include "backends/gl/gpu_ctx_gl.h"
-#include "backends/gl/feature_gl.h"
-#include "backends/gl/gpu_program_gl_utils.h"
+#include "ngpu/opengl/ctx_gl.h"
+#include "ngpu/opengl/feature_gl.h"
+#include "ngpu/opengl/program_gl_utils.h"
 #endif
 
 enum {
@@ -280,7 +280,7 @@ static const char *get_precision_qualifier(const struct pgcraft *s, int type, in
 
 static const char *get_array_suffix(size_t count, char *buf, size_t len)
 {
-    if (count == NGLI_BLOCK_VARIADIC_COUNT)
+    if (count == NGPU_BLOCK_DESC_VARIADIC_COUNT)
         snprintf(buf, len, "[]");
     else if (count > 0)
         snprintf(buf, len, "[%zu]", count);
@@ -293,9 +293,9 @@ static int inject_block_uniform(struct pgcraft *s, struct bstr *b,
                                 const struct pgcraft_uniform *uniform, int stage)
 {
     struct pgcraft_compat_info *compat_info = &s->compat_info;
-    struct block *block = &compat_info->ublocks[stage];
+    struct ngpu_block_desc *block = &compat_info->ublocks[stage];
 
-    return ngli_block_add_field(block, uniform->name, uniform->type, uniform->count);
+    return ngpu_block_desc_add_field(block, uniform->name, uniform->type, uniform->count);
 }
 
 static int inject_uniform(struct pgcraft *s, struct bstr *b,
@@ -554,9 +554,9 @@ static int inject_textures(struct pgcraft *s, const struct pgcraft_params *param
     return 0;
 }
 
-static const char *glsl_layout_str_map[NGLI_BLOCK_NB_LAYOUTS] = {
-    [NGLI_BLOCK_LAYOUT_STD140] = "std140",
-    [NGLI_BLOCK_LAYOUT_STD430] = "std430",
+static const char *glsl_layout_str_map[NGPU_BLOCK_NB_LAYOUTS] = {
+    [NGPU_BLOCK_LAYOUT_STD140] = "std140",
+    [NGPU_BLOCK_LAYOUT_STD430] = "std430",
 };
 
 static int inject_block(struct pgcraft *s, struct bstr *b,
@@ -573,7 +573,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
         .stage_flags = 1U << named_block->stage,
     };
 
-    const struct block *block = named_block->block;
+    const struct ngpu_block_desc *block = named_block->block;
     const char *layout = glsl_layout_str_map[block->layout];
     if (s->has_explicit_bindings) {
         ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, layout_entry.binding);
@@ -586,9 +586,9 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
 
     const char *keyword = get_glsl_type(named_block->type);
     ngli_bstr_printf(b, " %s %s_block {\n", keyword, named_block->name);
-    const struct block_field *field_info = ngli_darray_data(&block->fields);
+    const struct ngpu_block_field *field_info = ngli_darray_data(&block->fields);
     for (size_t i = 0; i < ngli_darray_count(&block->fields); i++) {
-        const struct block_field *fi = &field_info[i];
+        const struct ngpu_block_field *fi = &field_info[i];
         const char *type = get_glsl_type(fi->type);
         const char *precision = get_precision_qualifier(s, fi->type, fi->precision, "");
         const char *array_suffix = GET_ARRAY_SUFFIX(fi->count);
@@ -692,8 +692,8 @@ static int inject_ublock(struct pgcraft *s, struct bstr *b, int stage)
 {
     struct pgcraft_compat_info *compat_info = &s->compat_info;
 
-    struct block *block = &compat_info->ublocks[stage];
-    const size_t block_size = ngli_block_get_size(block, 0);
+    struct ngpu_block_desc *block = &compat_info->ublocks[stage];
+    const size_t block_size = ngpu_block_desc_get_size(block, 0);
     if (!block_size)
         return 0;
 
@@ -1160,7 +1160,7 @@ static int32_t get_ublock_index(const struct pgcraft *s, const char *name, int s
 {
     const struct pgcraft_compat_info *compat_info = &s->compat_info;
     const struct darray *fields_array = &compat_info->ublocks[stage].fields;
-    const struct block_field *fields = ngli_darray_data(fields_array);
+    const struct ngpu_block_field *fields = ngli_darray_data(fields_array);
     for (int32_t i = 0; i < (int32_t)ngli_darray_count(fields_array); i++)
         if (!strcmp(fields[i].name, name))
             return stage << 16 | i;
@@ -1214,10 +1214,10 @@ static void probe_ublocks(struct pgcraft *s)
 
     struct pgcraft_compat_info *info = &s->compat_info;
     for (size_t i = 0; i < NGPU_PROGRAM_SHADER_NB; i++) {
-        const struct block *block = &info->ublocks[i];
+        const struct ngpu_block_desc *block = &info->ublocks[i];
         const int32_t binding = info->ubindings[i];
 
-        const size_t block_size = ngli_block_get_size(block, 0);
+        const size_t block_size = ngpu_block_desc_get_size(block, 0);
         if (!block_size)
             continue;
 
@@ -1340,7 +1340,7 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
 
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     for (size_t i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
-        ngli_block_init(ctx->gpu_ctx, &compat_info->ublocks[i], NGLI_BLOCK_LAYOUT_STD140);
+        ngpu_block_desc_init(ctx->gpu_ctx, &compat_info->ublocks[i], NGPU_BLOCK_LAYOUT_STD140);
         compat_info->ubindings[i] = -1;
         compat_info->uindices[i] = -1;
     }
@@ -1562,7 +1562,7 @@ void ngli_pgcraft_freep(struct pgcraft **sp)
 
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     for (size_t i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
-        ngli_block_reset(&compat_info->ublocks[i]);
+        ngpu_block_desc_reset(&compat_info->ublocks[i]);
     }
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(s->shaders); i++)

@@ -28,17 +28,17 @@
 #include <string.h>
 
 #include "android_ctx.h"
-#include "gpu_ctx.h"
-#include "log.h"
 #include "internal.h"
+#include "log.h"
+#include "ngpu/ctx.h"
 #include "utils.h"
 
 #if defined(BACKEND_GLES)
-#include "backends/gl/gpu_ctx_gl.h"
+#include "ngpu/opengl/ctx_gl.h"
 #endif
 
 #if defined(BACKEND_VK)
-#include "backends/vk/gpu_ctx_vk.h"
+#include "ngpu/vulkan/ctx_vk.h"
 #endif
 
 #define NDK_LOAD_FUNC(handle, name) do {       \

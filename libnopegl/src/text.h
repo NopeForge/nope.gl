@@ -23,8 +23,8 @@
 #define TEXT_H
 
 #include "darray.h"
+#include "ngpu/texture.h"
 #include "nopegl.h"
-#include "gpu_texture.h"
 #include "utils.h"
 
 #define NGLI_I32_TO_I26D6(x) ((x) * (1 << 6))     // convert i32 to 26.6 fixed point

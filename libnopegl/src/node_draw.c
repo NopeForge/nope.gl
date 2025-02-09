@@ -27,11 +27,11 @@
 
 #include "blending.h"
 #include "geometry.h"
-#include "gpu_ctx.h"
-#include "gpu_limits.h"
 #include "hmap.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
+#include "ngpu/limits.h"
 #include "node_buffer.h"
 #include "node_program.h"
 #include "nopegl.h"

@@ -24,13 +24,13 @@
 #include <string.h>
 #include <nopemd.h>
 
-#include "gpu_format.h"
 #include "hwmap.h"
 #include "image.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/format.h"
 #include "nopegl.h"
-#include "internal.h"
 
 struct hwmap_common {
     int32_t width;

@@ -28,19 +28,19 @@
 #include <android/hardware_buffer.h>
 
 #include "android_imagereader.h"
-#include "gpu_format.h"
-#include "gpu_format_vk.h"
-#include "gpu_ctx_vk.h"
 #include "hwmap.h"
 #include "image.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/format.h"
+#include "ngpu/vulkan/ctx_vk.h"
+#include "ngpu/vulkan/format_vk.h"
+#include "ngpu/vulkan/texture_vk.h"
+#include "ngpu/vulkan/vkcontext.h"
+#include "ngpu/vulkan/vkutils.h"
+#include "ngpu/vulkan/ycbcr_sampler_vk.h"
 #include "nopegl.h"
-#include "gpu_texture_vk.h"
-#include "vkcontext.h"
-#include "vkutils.h"
-#include "ycbcr_sampler_vk.h"
 
 struct hwmap_mc {
     struct android_image *android_image;

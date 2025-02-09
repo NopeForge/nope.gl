@@ -24,7 +24,7 @@
 
 #include <nopemd.h>
 
-#include "gpu_texture.h"
+#include "ngpu/texture.h"
 #include "utils.h"
 
 #define NGLI_COLOR_INFO_DEFAULTS {             \

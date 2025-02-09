@@ -27,10 +27,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gpu_buffer.h"
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
+#include "ngpu/buffer.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "nopegl.h"
@@ -180,11 +180,11 @@ static int buffer_init_from_count(struct ngl_node *node)
     return 0;
 }
 
-static const struct block_field *get_block_field(const struct darray *fields_array, const char *name)
+static const struct ngpu_block_field *get_block_field(const struct darray *fields_array, const char *name)
 {
-    const struct block_field *fields = ngli_darray_data(fields_array);
+    const struct ngpu_block_field *fields = ngli_darray_data(fields_array);
     for (size_t i = 0; i < ngli_darray_count(fields_array); i++) {
-        const struct block_field *field = &fields[i];
+        const struct ngpu_block_field *field = &fields[i];
         if (!strcmp(field->name, name))
             return field;
     }
@@ -198,14 +198,14 @@ static int buffer_init_from_block(struct ngl_node *node)
     const struct buffer_opts *o = node->opts;
 
     const struct block_info *block_info = o->block->priv_data;
-    const struct block *block = &block_info->block;
+    const struct ngpu_block_desc *block = &block_info->block;
 
     if (!o->block_field) {
         LOG(ERROR, "`block_field` must be set when setting a block");
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    const struct block_field *fi = get_block_field(&block->fields, o->block_field);
+    const struct ngpu_block_field *fi = get_block_field(&block->fields, o->block_field);
     if (!fi) {
         LOG(ERROR, "field %s not found in %s", o->block_field, o->block->label);
         return NGL_ERROR_NOT_FOUND;

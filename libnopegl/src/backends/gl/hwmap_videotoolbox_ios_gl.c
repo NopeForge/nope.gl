@@ -26,17 +26,17 @@
 
 #include <CoreVideo/CoreVideo.h>
 
-#include "gpu_format.h"
-#include "gpu_ctx_gl.h"
-#include "glincludes.h"
 #include "hwmap.h"
 #include "image.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
+#include "ngpu/format.h"
+#include "ngpu/opengl/ctx_gl.h"
+#include "ngpu/opengl/glincludes.h"
+#include "ngpu/opengl/texture_gl.h"
 #include "nopegl.h"
-#include "internal.h"
-#include "gpu_texture_gl.h"
 
 #define NGLI_CFRELEASE(ref) do { \
     if (ref) {                   \

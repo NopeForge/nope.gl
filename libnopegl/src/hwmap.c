@@ -25,12 +25,12 @@
 #include <nopemd.h>
 
 #include "config.h"
-#include "gpu_format.h"
-#include "gpu_ctx.h"
 #include "hwmap.h"
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
 #include "nopegl.h"
 
 extern const struct hwmap_class ngli_hwmap_common_class;

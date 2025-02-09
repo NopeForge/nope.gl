@@ -27,9 +27,9 @@
 #include "geometry.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
 #include "node_buffer.h"
 #include "nopegl.h"
-#include "gpu_ctx.h"
 
 static const struct param_choices topology_choices = {
     .name = "topology",

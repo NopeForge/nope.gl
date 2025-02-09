@@ -25,14 +25,14 @@
 
 #include "blending.h"
 #include "distmap.h"
-#include "gpu_ctx.h"
 #include "internal.h"
+#include "ngpu/ctx.h"
+#include "ngpu/texture.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "path.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_texture.h"
 #include "type.h"
 #include "utils.h"
 

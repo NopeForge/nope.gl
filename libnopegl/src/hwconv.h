@@ -22,11 +22,11 @@
 #ifndef HWCONV_H
 #define HWCONV_H
 
-#include "gpu_buffer.h"
-#include "gpu_rendertarget.h"
 #include "image.h"
+#include "ngpu/buffer.h"
+#include "ngpu/rendertarget.h"
+#include "ngpu/texture.h"
 #include "pgcraft.h"
-#include "gpu_texture.h"
 #include "pipeline_compat.h"
 
 struct ngl_ctx;

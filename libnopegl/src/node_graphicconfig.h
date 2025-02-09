@@ -22,7 +22,7 @@
 #ifndef NODE_GRAPHICCONFIG_H
 #define NODE_GRAPHICCONFIG_H
 
-#include "gpu_graphics_state.h"
+#include "ngpu/graphics_state.h"
 
 struct ngl_node;
 

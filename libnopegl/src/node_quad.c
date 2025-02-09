@@ -25,10 +25,10 @@
 #include <string.h>
 
 #include "geometry.h"
-#include "math_utils.h"
-#include "nopegl.h"
 #include "internal.h"
-#include "gpu_ctx.h"
+#include "math_utils.h"
+#include "ngpu/ctx.h"
+#include "nopegl.h"
 #include "utils.h"
 
 struct quad_opts {

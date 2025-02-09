@@ -24,8 +24,8 @@
 
 #include <stdint.h>
 #include "darray.h"
+#include "ngpu/pipeline.h"
 #include "pgcraft.h"
-#include "gpu_pipeline.h"
 
 struct ngl_ctx;
 
