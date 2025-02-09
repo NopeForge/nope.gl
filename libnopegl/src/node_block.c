@@ -22,16 +22,16 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "block.h"
-#include "gpu_buffer.h"
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
+#include "ngpu/buffer.h"
+#include "ngpu/ctx.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_uniform.h"
 #include "nopegl.h"
+#include "src/ngpu/block_desc.h"
 
 static const struct param_choices layout_choices = {
     .name = "memory_layout",

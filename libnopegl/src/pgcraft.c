@@ -26,22 +26,22 @@
 #include <stddef.h>
 
 #include "config.h"
-#include "gpu_ctx.h"
-#include "gpu_format.h"
 #include "hmap.h"
 #include "hwmap.h"
+#include "internal.h"
 #include "log.h"
 #include "memory.h"
-#include "internal.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
 #include "pgcraft.h"
 #include "precision.h"
 #include "type.h"
 #include "utils.h"
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
-#include "backends/gl/gpu_ctx_gl.h"
-#include "backends/gl/feature_gl.h"
-#include "backends/gl/gpu_program_gl_utils.h"
+#include "ngpu/opengl/ctx_gl.h"
+#include "ngpu/opengl/feature_gl.h"
+#include "ngpu/opengl/program_gl_utils.h"
 #endif
 
 enum {

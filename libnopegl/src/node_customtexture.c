@@ -32,8 +32,8 @@
 #endif
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
-#include "backends/gl/gpu_ctx_gl.h"
-#include "backends/gl/gpu_texture_gl.h"
+#include "ngpu/opengl/ctx_gl.h"
+#include "ngpu/opengl/texture_gl.h"
 #endif
 
 struct customtexture_opts {

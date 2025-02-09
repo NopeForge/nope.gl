@@ -25,11 +25,11 @@
 #include <string.h>
 
 #include "geometry.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/ctx.h"
 #include "nopegl.h"
-#include "internal.h"
-#include "gpu_ctx.h"
 #include "utils.h"
 
 struct triangle_opts {

@@ -24,13 +24,13 @@
 #ifndef PGCRAFT_H
 #define PGCRAFT_H
 
-#include "block.h"
 #include "bstr.h"
-#include "gpu_buffer.h"
 #include "image.h"
-#include "gpu_pipeline.h"
+#include "ngpu/buffer.h"
+#include "ngpu/pipeline.h"
+#include "ngpu/texture.h"
 #include "precision.h"
-#include "gpu_texture.h"
+#include "src/ngpu/block_desc.h"
 
 struct ngl_ctx;
 

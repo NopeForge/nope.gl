@@ -24,11 +24,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "gpu_format.h"
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "memory.h"
-#include "gpu_rendertarget.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
+#include "ngpu/rendertarget.h"
 #include "rtt.h"
 
 struct rtt_ctx {

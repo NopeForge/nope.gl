@@ -24,12 +24,12 @@
 
 #include "atlas.h"
 #include "darray.h"
-#include "gpu_format.h"
 #include "internal.h"
 #include "log.h"
 #include "memory.h"
+#include "ngpu/format.h"
+#include "ngpu/texture.h"
 #include "nopegl.h"
-#include "gpu_texture.h"
 #include "utils.h"
 
 struct atlas {

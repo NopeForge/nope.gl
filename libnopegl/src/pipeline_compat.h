@@ -23,9 +23,9 @@
 #ifndef PIPELINE_COMPAT_H
 #define PIPELINE_COMPAT_H
 
-#include "gpu_bindgroup.h"
+#include "ngpu/bindgroup.h"
+#include "ngpu/pipeline.h"
 #include "pgcraft.h"
-#include "gpu_pipeline.h"
 
 struct pipeline_compat_params {
     int type; // NGLI_PIPELINE_TYPE_*

@@ -24,10 +24,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/ctx.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "transforms.h"

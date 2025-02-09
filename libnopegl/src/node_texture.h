@@ -25,9 +25,9 @@
 #include <stdint.h>
 
 #include "image.h"
+#include "ngpu/texture.h"
 #include "nopegl.h"
 #include "params.h"
-#include "gpu_texture.h"
 
 struct ngl_node;
 
