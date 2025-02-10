@@ -91,6 +91,12 @@ enum {
     NGPU_COLOR_COMPONENT_A_BIT = 1 << 3,
 };
 
+enum {
+    NGPU_FRONT_FACE_COUNTER_CLOCKWISE,
+    NGPU_FRONT_FACE_CLOCKWISE,
+    NGPU_FRONT_FACE_NB
+};
+
 struct ngpu_stencil_op_state {
     int write_mask;
     int func;
@@ -121,6 +127,7 @@ struct ngpu_graphics_state {
     struct ngpu_stencil_op_state stencil_back;
 
     int cull_mode;
+    int front_face;
 };
 
 /* Make sure to keep this in sync with the blending documentation */
@@ -159,6 +166,7 @@ struct ngpu_graphics_state {
          .depth_pass = NGPU_STENCIL_OP_KEEP,                           \
      },                                                                \
     .cull_mode          = NGPU_CULL_MODE_NONE,                         \
+    .front_face         = NGPU_FRONT_FACE_COUNTER_CLOCKWISE            \
 }                                                                      \
 
 #endif

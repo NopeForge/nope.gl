@@ -62,6 +62,8 @@ struct glstate {
     GLboolean cull_face;
     GLenum cull_face_mode;
 
+    GLenum front_face;
+
     GLboolean scissor_test;
 
     /* Dynamic graphics state */
