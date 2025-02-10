@@ -131,6 +131,16 @@ static VkCullModeFlags get_vk_cull_mode(int cull_mode)
     return vk_cull_mode_map[cull_mode];
 }
 
+static const VkFrontFace vk_front_face_map[NGPU_FRONT_FACE_NB] = {
+    [NGPU_FRONT_FACE_COUNTER_CLOCKWISE] = VK_FRONT_FACE_CLOCKWISE,
+    [NGPU_FRONT_FACE_CLOCKWISE]         = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+};
+
+static VkFrontFace get_vk_front_face(int front_face)
+{
+    return vk_front_face_map[front_face];
+}
+
 static VkColorComponentFlags get_vk_color_write_mask(int color_write_mask)
 {
     return (color_write_mask & NGPU_COLOR_COMPONENT_R_BIT ? VK_COLOR_COMPONENT_R_BIT : 0)
@@ -213,7 +223,7 @@ static VkResult pipeline_graphics_init(struct ngpu_pipeline *s)
         .polygonMode = VK_POLYGON_MODE_FILL,
         .lineWidth   = 1.f,
         .cullMode    = get_vk_cull_mode(state->cull_mode),
-        .frontFace   = VK_FRONT_FACE_CLOCKWISE,
+        .frontFace   = get_vk_front_face(state->front_face),
     };
 
     const struct ngpu_rendertarget_layout *layout = &graphics->rt_layout;
