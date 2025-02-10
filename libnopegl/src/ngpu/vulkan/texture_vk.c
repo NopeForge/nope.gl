@@ -555,7 +555,53 @@ void ngpu_texture_vk_copy_to_buffer(struct ngpu_texture *s, struct ngpu_buffer *
                            buffer_vk->buffer, 1, &region);
 }
 
-static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
+static void destroy_staging_buffer(struct ngpu_texture *s)
+{
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
+
+    if (s_priv->staging_buffer_ptr) {
+        ngpu_buffer_unmap(s_priv->staging_buffer);
+        s_priv->staging_buffer_ptr = NULL;
+    }
+    ngpu_buffer_freep(&s_priv->staging_buffer);
+}
+
+static int create_staging_buffer(struct ngpu_texture *s, size_t size)
+{
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
+
+    s_priv->staging_buffer = ngpu_buffer_create(s->gpu_ctx);
+    if (!s_priv->staging_buffer)
+        return NGL_ERROR_MEMORY;
+
+    const uint32_t usage = NGPU_BUFFER_USAGE_DYNAMIC_BIT |
+                           NGPU_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                           NGPU_BUFFER_USAGE_MAP_WRITE;
+    int ret = ngpu_buffer_init(s_priv->staging_buffer, size, usage);
+    if (ret < 0)
+        return ret;
+
+    ret = ngpu_buffer_map(s_priv->staging_buffer, 0, size, &s_priv->staging_buffer_ptr);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+static int texture_transfer_params_are_equal(const struct ngpu_texture_transfer_params *a, const struct ngpu_texture_transfer_params *b)
+{
+    return a->x              == b->x              &&
+           a->y              == b->y              &&
+           a->z              == b->z              &&
+           a->width          == b->width          &&
+           a->height         == b->height         &&
+           a->depth          == b->depth          &&
+           a->pixels_per_row == b->pixels_per_row &&
+           a->base_layer     == b->base_layer     &&
+           a->layer_count    == b->layer_count;
+}
+
+static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params)
 {
     struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     const struct ngpu_texture_params *params = &s->params;
@@ -568,34 +614,17 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, i
     if (!data)
         return VK_SUCCESS;
 
-    if (!s_priv->staging_buffer || s_priv->staging_buffer_row_length != linesize) {
-        const int32_t width = linesize ? linesize : s->params.width;
-        const int32_t staging_buffer_size = width * s->params.height * s->params.depth * s_priv->bytes_per_pixel * s_priv->array_layers;
+    const size_t transfer_layer_size = transfer_params->pixels_per_row * transfer_params->height * transfer_params->depth * s_priv->bytes_per_pixel;
+    const size_t transfer_size = transfer_layer_size * transfer_params->layer_count;
 
-        if (s_priv->staging_buffer) {
-            if (s_priv->staging_buffer_ptr) {
-                ngpu_buffer_unmap(s_priv->staging_buffer);
-                s_priv->staging_buffer_ptr = NULL;
-            }
-            ngpu_buffer_freep(&s_priv->staging_buffer);
-        }
+    if (!texture_transfer_params_are_equal(&s_priv->last_transfer_params, transfer_params)) {
+        destroy_staging_buffer(s);
 
-        s_priv->staging_buffer = ngpu_buffer_create(s->gpu_ctx);
-        if (!s_priv->staging_buffer)
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-        const uint32_t usage = NGPU_BUFFER_USAGE_DYNAMIC_BIT |
-                               NGPU_BUFFER_USAGE_TRANSFER_SRC_BIT |
-                               NGPU_BUFFER_USAGE_MAP_WRITE;
-        int ret = ngpu_buffer_init(s_priv->staging_buffer, staging_buffer_size, usage);
+        int ret = create_staging_buffer(s, transfer_size);
         if (ret < 0)
             return VK_ERROR_UNKNOWN;
 
-        s_priv->staging_buffer_row_length = linesize;
-
-        ret = ngpu_buffer_map(s_priv->staging_buffer, 0, staging_buffer_size, &s_priv->staging_buffer_ptr);
-        if (ret < 0)
-            return VK_ERROR_UNKNOWN;
+        s_priv->last_transfer_params = *transfer_params;
     }
 
     memcpy(s_priv->staging_buffer_ptr, data, s_priv->staging_buffer->size);
@@ -609,6 +638,7 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, i
     }
     VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
     NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
+    NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s_priv->staging_buffer);
 
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
@@ -626,12 +656,11 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, i
     struct darray copy_regions;
     ngli_darray_init(&copy_regions, sizeof(VkBufferImageCopy), 0);
 
-    const VkDeviceSize layer_size = s->params.width * s->params.height * s_priv->bytes_per_pixel;
-    for (int32_t i = 0; i < s_priv->array_layers; i++) {
-        const VkDeviceSize offset = i * layer_size;
+    for (int32_t i = transfer_params->base_layer; i < transfer_params->layer_count; i++) {
+        const VkDeviceSize offset = i * transfer_layer_size;
         const VkBufferImageCopy region = {
             .bufferOffset      = offset,
-            .bufferRowLength   = linesize,
+            .bufferRowLength   = transfer_params->pixels_per_row,
             .bufferImageHeight = 0,
             .imageSubresource = {
                 .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
@@ -639,11 +668,16 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, i
                 .baseArrayLayer = i,
                 .layerCount     = 1,
             },
+            .imageOffset = {
+                transfer_params->x,
+                transfer_params->y,
+                transfer_params->z,
+            },
             .imageExtent = {
-                params->width,
-                params->height,
-                params->depth,
-            }
+                transfer_params->width,
+                transfer_params->height,
+                transfer_params->depth,
+            },
         };
 
         if (!ngli_darray_push(&copy_regions, &region)) {
@@ -685,7 +719,22 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, i
 
 int ngpu_texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
 {
-    VkResult res = texture_vk_upload(s, data, linesize);
+    struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
+    const struct ngpu_texture_params *params = &s->params;
+    const struct ngpu_texture_transfer_params transfer_params = {
+        .width = params->width,
+        .height = params->height,
+        .depth = params->depth,
+        .base_layer = 0,
+        .layer_count = s_priv->array_layers,
+        .pixels_per_row = linesize ? linesize : params->width,
+    };
+    return ngpu_texture_vk_upload_with_params(s, data, &transfer_params);
+}
+
+int ngpu_texture_vk_upload_with_params(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params)
+{
+    VkResult res = texture_vk_upload(s, data, transfer_params);
     if (res != VK_SUCCESS)
         LOG(ERROR, "unable to upload texture: %s", ngli_vk_res2str(res));
     return ngli_vk_res2ret(res);
@@ -849,9 +898,7 @@ void ngpu_texture_vk_freep(struct ngpu_texture **sp)
         vkDestroyImage(vk->device, s_priv->image, NULL);
     vkFreeMemory(vk->device, s_priv->image_memory, NULL);
 
-    if (s_priv->staging_buffer_ptr)
-        ngpu_buffer_unmap(s_priv->staging_buffer);
-    ngpu_buffer_freep(&s_priv->staging_buffer);
+    destroy_staging_buffer(s);
 
     ngli_freep(sp);
 }

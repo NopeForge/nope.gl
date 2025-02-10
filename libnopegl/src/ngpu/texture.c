@@ -48,6 +48,11 @@ int ngpu_texture_upload(struct ngpu_texture *s, const uint8_t *data, int linesiz
     return s->gpu_ctx->cls->texture_upload(s, data, linesize);
 }
 
+int ngpu_texture_upload_with_params(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params)
+{
+    return s->gpu_ctx->cls->texture_upload_with_params(s, data, transfer_params);
+}
+
 int ngpu_texture_generate_mipmap(struct ngpu_texture *s)
 {
     return s->gpu_ctx->cls->texture_generate_mipmap(s);

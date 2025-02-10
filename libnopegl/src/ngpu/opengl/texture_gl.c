@@ -92,6 +92,8 @@ static void texture_allocate(struct ngpu_texture *s)
         gl->funcs.TexImage2D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
         break;
     case GL_TEXTURE_2D_ARRAY:
+        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, s_priv->array_layers, 0, s_priv->format, s_priv->format_type, NULL);
+        break;
     case GL_TEXTURE_3D:
         gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, NULL);
         break;
@@ -127,7 +129,7 @@ static void texture_allocate_storage(struct ngpu_texture *s)
         gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
         break;
     case GL_TEXTURE_2D_ARRAY:
-        gl->funcs.TexStorage3D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height, params->depth);
+        gl->funcs.TexStorage3D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height, s_priv->array_layers);
         break;
     case GL_TEXTURE_3D:
         gl->funcs.TexStorage3D(s_priv->target, 1, s_priv->internal_format, params->width, params->height, params->depth);
@@ -139,40 +141,41 @@ static void texture_allocate_storage(struct ngpu_texture *s)
     }
 }
 
-static void texture_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
+static void texture_upload(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct ngpu_texture_params *params = &s->params;
 
-    if (!linesize)
-        linesize = params->width;
-
-    const int bytes_per_row = linesize * s_priv->bytes_per_pixel;
+    const int bytes_per_row = transfer_params->pixels_per_row * s_priv->bytes_per_pixel;
     const int alignment = NGLI_MIN(bytes_per_row & ~(bytes_per_row - 1), 8);
     gl->funcs.PixelStorei(GL_UNPACK_ALIGNMENT, alignment);
-    gl->funcs.PixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
+    gl->funcs.PixelStorei(GL_UNPACK_ROW_LENGTH, transfer_params->pixels_per_row);
 
     switch (s_priv->target) {
     case GL_TEXTURE_2D:
-        gl->funcs.TexSubImage2D(s_priv->target, 0, 0, 0,
-                                params->width, params->height,
+        gl->funcs.TexSubImage2D(s_priv->target, 0, transfer_params->x, transfer_params->y,
+                                transfer_params->width, transfer_params->height,
                                 s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_2D_ARRAY:
+        gl->funcs.TexSubImage3D(s_priv->target, 0, transfer_params->x, transfer_params->y, transfer_params->base_layer,
+                                transfer_params->width, transfer_params->height, transfer_params->layer_count,
+                                s_priv->format, s_priv->format_type, data);
+        break;
     case GL_TEXTURE_3D:
-        gl->funcs.TexSubImage3D(s_priv->target, 0, 0, 0, 0,
-                                params->width, params->height, params->depth,
+        gl->funcs.TexSubImage3D(s_priv->target, 0, transfer_params->x, transfer_params->y, transfer_params->z,
+                                transfer_params->width, transfer_params->height, transfer_params->depth,
                                 s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_CUBE_MAP: {
-        const int face_size = s_priv->bytes_per_pixel * linesize * params->height;
-        for (int face = 0; face < 6; face++) {
+        const int layer_size = s_priv->bytes_per_pixel * transfer_params->pixels_per_row * transfer_params->height;
+        const uint8_t *layer_data = data + (transfer_params->base_layer * layer_size);
+        for (int face = transfer_params->base_layer; face < transfer_params->layer_count; face++) {
             gl->funcs.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0,
-                                    params->width, params->height,
-                                    s_priv->format, s_priv->format_type, data);
-            data += face_size;
+                                    transfer_params->width, transfer_params->height,
+                                    s_priv->format, s_priv->format_type, layer_data);
+            layer_data += layer_size;
         }
         break;
     }
@@ -221,12 +224,31 @@ static void renderbuffer_allocate_storage(struct ngpu_texture *s)
 #define TRANSIENT_COLOR_USAGE (COLOR_USAGE | NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT)
 #define TRANSIENT_DEPTH_USAGE (DEPTH_USAGE | NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT)
 
-static int texture_init_fields(struct ngpu_texture *s)
+static int texture_init_fields(struct ngpu_texture *s, const struct ngpu_texture_params *params)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct ngpu_texture_params *params = &s->params;
+
+    s->params = *params;
+
+    if (!s_priv->wrapped)
+        ngli_assert(params->width && params->height);
+
+    int32_t depth = 1;
+    if (params->type == NGPU_TEXTURE_TYPE_3D) {
+        if (!s_priv->wrapped)
+            ngli_assert(params->depth);
+        depth = params->depth;
+    }
+    s->params.depth = depth;
+
+    s_priv->array_layers = 1;
+    if (params->type == NGPU_TEXTURE_TYPE_CUBE) {
+        s_priv->array_layers = 6;
+    } else if (params->type == NGPU_TEXTURE_TYPE_2D_ARRAY) {
+        s_priv->array_layers = params->depth;
+    }
 
     if (!s_priv->wrapped &&
         (params->usage == COLOR_USAGE ||
@@ -284,14 +306,7 @@ int ngpu_texture_gl_init(struct ngpu_texture *s, const struct ngpu_texture_param
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    ngli_assert(params->width && params->height);
-    if (params->type == NGPU_TEXTURE_TYPE_2D_ARRAY ||
-        params->type == NGPU_TEXTURE_TYPE_3D)
-        ngli_assert(params->depth);
-
-    s->params = *params;
-
-    int ret = texture_init_fields(s);
+    int ret = texture_init_fields(s, params);
     if (ret < 0)
         return ret;
 
@@ -328,12 +343,10 @@ int ngpu_texture_gl_init(struct ngpu_texture *s, const struct ngpu_texture_param
 
 int ngpu_texture_gl_wrap(struct ngpu_texture *s, const struct ngpu_texture_gl_wrap_params *wrap_params)
 {
-    s->params = *wrap_params->params;
-
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
     s_priv->wrapped = 1;
 
-    int ret = texture_init_fields(s);
+    int ret = texture_init_fields(s, wrap_params->params);
     if (ret < 0)
         return ret;
 
@@ -370,6 +383,22 @@ void ngpu_texture_gl_set_dimensions(struct ngpu_texture *s, int32_t width, int32
 int ngpu_texture_gl_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
+    const struct ngpu_texture_params *params = &s->params;
+    const struct ngpu_texture_transfer_params transfer_params = {
+        .width = params->width,
+        .height = params->height,
+        .depth = params->depth,
+        .base_layer = 0,
+        .layer_count = s_priv->array_layers,
+        .pixels_per_row = linesize ? linesize : params->width,
+    };
+
+    return ngpu_texture_gl_upload_with_params(s, data, &transfer_params);
+}
+
+int ngpu_texture_gl_upload_with_params(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params)
+{
+    struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct ngpu_texture_params *params = &s->params;
@@ -381,7 +410,7 @@ int ngpu_texture_gl_upload(struct ngpu_texture *s, const uint8_t *data, int line
 
     gl->funcs.BindTexture(s_priv->target, s_priv->id);
     if (data) {
-        texture_upload(s, data, linesize);
+        texture_upload(s, data, transfer_params);
         if (params->mipmap_filter != NGPU_MIPMAP_FILTER_NONE)
             gl->funcs.GenerateMipmap(s_priv->target);
     }
