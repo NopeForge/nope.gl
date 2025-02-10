@@ -71,6 +71,7 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *FramebufferRenderbuffer)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
     void (NGLI_GL_APIENTRY *FramebufferTexture2D)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
     void (NGLI_GL_APIENTRY *FramebufferTextureLayer)(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
+    void (NGLI_GL_APIENTRY *FrontFace)(GLenum mode);
     void (NGLI_GL_APIENTRY *GenBuffers)(GLsizei n, GLuint * buffers);
     void (NGLI_GL_APIENTRY *GenFramebuffers)(GLsizei n, GLuint * framebuffers);
     void (NGLI_GL_APIENTRY *GenQueries)(GLsizei n, GLuint * ids);
