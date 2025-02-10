@@ -195,6 +195,8 @@ cmds = [
     "glStencilOpSeparate",
     # Face Culling
     "glCullFace",
+    # Front Face
+    "glFrontFace",
     # Sync
     "glFlush",
     "glFinish",

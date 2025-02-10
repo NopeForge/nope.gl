@@ -79,6 +79,7 @@ static const struct gldefinition {
     {"glFramebufferRenderbuffer", offsetof(struct glfunctions, FramebufferRenderbuffer), M},
     {"glFramebufferTexture2D", offsetof(struct glfunctions, FramebufferTexture2D), M},
     {"glFramebufferTextureLayer", offsetof(struct glfunctions, FramebufferTextureLayer), M},
+    {"glFrontFace", offsetof(struct glfunctions, FrontFace), M},
     {"glGenBuffers", offsetof(struct glfunctions, GenBuffers), M},
     {"glGenFramebuffers", offsetof(struct glfunctions, GenFramebuffers), M},
     {"glGenQueries", offsetof(struct glfunctions, GenQueries), 0},
