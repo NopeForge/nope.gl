@@ -106,6 +106,16 @@ static GLenum get_gl_cull_mode(int cull_mode)
     return gl_cull_mode_map[cull_mode];
 }
 
+static const GLenum gl_front_face_map[NGPU_FRONT_FACE_NB] = {
+    [NGPU_FRONT_FACE_COUNTER_CLOCKWISE] = GL_CCW,
+    [NGPU_FRONT_FACE_CLOCKWISE]         = GL_CW,
+};
+
+static GLenum get_gl_front_face(int front_face)
+{
+    return gl_front_face_map[front_face];
+}
+
 void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
 {
     memset(glstate, 0, sizeof(*glstate));
@@ -178,6 +188,9 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
 
     gl->funcs.CullFace(GL_BACK);
     glstate->cull_face_mode = GL_BACK;
+
+    gl->funcs.FrontFace(GL_CCW);
+    glstate->front_face = GL_CCW;
 
     /* Scissor */
     gl->funcs.Disable(GL_SCISSOR_TEST);
@@ -354,6 +367,13 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     if (cull_face_mode != glstate->cull_face_mode) {
         gl->funcs.CullFace(cull_face_mode);
         glstate->cull_face_mode = cull_face_mode;
+    }
+
+    /* Front Face */
+    const GLenum front_face = get_gl_front_face(state->front_face);
+    if (front_face != glstate->front_face) {
+        gl->funcs.FrontFace(front_face);
+        glstate->front_face = front_face;
     }
 }
 
