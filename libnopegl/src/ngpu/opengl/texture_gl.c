@@ -80,7 +80,7 @@ static GLbitfield get_gl_barriers(uint32_t usage)
     return barriers;
 }
 
-static void texture_set_image(struct ngpu_texture *s, const uint8_t *data)
+static void texture_allocate(struct ngpu_texture *s)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
@@ -89,24 +89,57 @@ static void texture_set_image(struct ngpu_texture *s, const uint8_t *data)
 
     switch (s_priv->target) {
     case GL_TEXTURE_2D:
-        gl->funcs.TexImage2D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, data);
+        gl->funcs.TexImage2D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
         break;
     case GL_TEXTURE_2D_ARRAY:
     case GL_TEXTURE_3D:
-        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, data);
+        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, NULL);
         break;
     case GL_TEXTURE_CUBE_MAP: {
-        const int face_size = data ? s_priv->bytes_per_pixel * params->width * params->height : 0;
         for (int face = 0; face < 6; face++) {
-            gl->funcs.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, data);
-            data += face_size;
+            gl->funcs.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
         }
         break;
     }
     }
 }
 
-static void texture_set_sub_image(struct ngpu_texture *s, const uint8_t *data, int linesize)
+static int get_mipmap_levels(const struct ngpu_texture *s)
+{
+    const struct ngpu_texture_params *params = &s->params;
+
+    int mipmap_levels = 1;
+    if (params->mipmap_filter != NGPU_MIPMAP_FILTER_NONE)
+        mipmap_levels = ngli_log2(params->width | params->height | 1);
+    return mipmap_levels;
+}
+
+static void texture_allocate_storage(struct ngpu_texture *s)
+{
+    struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
+    const struct ngpu_texture_params *params = &s->params;
+
+    const int mipmap_levels = get_mipmap_levels(s);
+    switch (s_priv->target) {
+    case GL_TEXTURE_2D:
+        gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
+        break;
+    case GL_TEXTURE_2D_ARRAY:
+        gl->funcs.TexStorage3D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height, params->depth);
+        break;
+    case GL_TEXTURE_3D:
+        gl->funcs.TexStorage3D(s_priv->target, 1, s_priv->internal_format, params->width, params->height, params->depth);
+        break;
+    case GL_TEXTURE_CUBE_MAP:
+        /* glTexStorage2D automatically accomodates for 6 faces when using the cubemap target */
+        gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
+        break;
+    }
+}
+
+static void texture_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
@@ -149,41 +182,6 @@ static void texture_set_sub_image(struct ngpu_texture *s, const uint8_t *data, i
     gl->funcs.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
-static int get_mipmap_levels(const struct ngpu_texture *s)
-{
-    const struct ngpu_texture_params *params = &s->params;
-
-    int mipmap_levels = 1;
-    if (params->mipmap_filter != NGPU_MIPMAP_FILTER_NONE)
-        mipmap_levels = ngli_log2(params->width | params->height | 1);
-    return mipmap_levels;
-}
-
-static void texture_set_storage(struct ngpu_texture *s)
-{
-    struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
-    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct ngpu_texture_params *params = &s->params;
-
-    const int mipmap_levels = get_mipmap_levels(s);
-    switch (s_priv->target) {
-    case GL_TEXTURE_2D:
-        gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
-        break;
-    case GL_TEXTURE_2D_ARRAY:
-        gl->funcs.TexStorage3D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height, params->depth);
-        break;
-    case GL_TEXTURE_3D:
-        gl->funcs.TexStorage3D(s_priv->target, 1, s_priv->internal_format, params->width, params->height, params->depth);
-        break;
-    case GL_TEXTURE_CUBE_MAP:
-        /* glTexStorage2D automatically accomodates for 6 faces when using the cubemap target */
-        gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
-        break;
-    }
-}
-
 static int renderbuffer_check_samples(struct ngpu_texture *s)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
@@ -205,7 +203,7 @@ static int renderbuffer_check_samples(struct ngpu_texture *s)
     return 0;
 }
 
-static void renderbuffer_set_storage(struct ngpu_texture *s)
+static void renderbuffer_allocate_storage(struct ngpu_texture *s)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
@@ -300,7 +298,7 @@ int ngpu_texture_gl_init(struct ngpu_texture *s, const struct ngpu_texture_param
     if (s_priv->target == GL_RENDERBUFFER) {
         gl->funcs.GenRenderbuffers(1, &s_priv->id);
         gl->funcs.BindRenderbuffer(s_priv->target, s_priv->id);
-        renderbuffer_set_storage(s);
+        renderbuffer_allocate_storage(s);
         return 0;
     }
 
@@ -320,9 +318,9 @@ int ngpu_texture_gl_init(struct ngpu_texture *s, const struct ngpu_texture_param
         s_priv->target == GL_TEXTURE_CUBE_MAP)
         gl->funcs.TexParameteri(s_priv->target, GL_TEXTURE_WRAP_R, wrap_r);
     if (gl->features & NGLI_FEATURE_GL_TEXTURE_STORAGE) {
-        texture_set_storage(s);
+        texture_allocate_storage(s);
     } else {
-        texture_set_image(s, NULL);
+        texture_allocate(s);
     }
 
     return 0;
@@ -383,7 +381,7 @@ int ngpu_texture_gl_upload(struct ngpu_texture *s, const uint8_t *data, int line
 
     gl->funcs.BindTexture(s_priv->target, s_priv->id);
     if (data) {
-        texture_set_sub_image(s, data, linesize);
+        texture_upload(s, data, linesize);
         if (params->mipmap_filter != NGPU_MIPMAP_FILTER_NONE)
             gl->funcs.GenerateMipmap(s_priv->target);
     }
