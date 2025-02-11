@@ -116,7 +116,7 @@ static void texture_set_sub_image(struct ngpu_texture *s, const uint8_t *data, i
     if (!linesize)
         linesize = params->width;
 
-    const int bytes_per_row = linesize * ngpu_format_get_bytes_per_pixel(params->format);
+    const int bytes_per_row = linesize * s_priv->bytes_per_pixel;
     const int alignment = NGLI_MIN(bytes_per_row & ~(bytes_per_row - 1), 8);
     gl->funcs.PixelStorei(GL_UNPACK_ALIGNMENT, alignment);
     gl->funcs.PixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
