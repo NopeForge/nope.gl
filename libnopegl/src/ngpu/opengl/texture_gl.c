@@ -106,40 +106,6 @@ static void texture_set_image(struct ngpu_texture *s, const uint8_t *data)
     }
 }
 
-static void texture2d_set_sub_image(struct ngpu_texture *s, const uint8_t *data, int linesize)
-{
-    struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
-    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct ngpu_texture_params *params = &s->params;
-
-    gl->funcs.TexSubImage2D(s_priv->target, 0, 0, 0, params->width, params->height, s_priv->format, s_priv->format_type, data);
-}
-
-static void texture3d_set_sub_image(struct ngpu_texture *s, const uint8_t *data, int linesize)
-{
-    struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
-    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct ngpu_texture_params *params = &s->params;
-
-    gl->funcs.TexSubImage3D(s_priv->target, 0, 0, 0, 0, params->width, params->height, params->depth, s_priv->format, s_priv->format_type, data);
-}
-
-static void texturecube_set_sub_image(struct ngpu_texture *s, const uint8_t *data, int linesize)
-{
-    struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
-    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct ngpu_texture_params *params = &s->params;
-
-    const int face_size = data ? s_priv->bytes_per_pixel * linesize * params->height : 0;
-    for (int face = 0; face < 6; face++) {
-        gl->funcs.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0, params->width, params->height, s_priv->format, s_priv->format_type, data);
-        data += face_size;
-    }
-}
-
 static void texture_set_sub_image(struct ngpu_texture *s, const uint8_t *data, int linesize)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
@@ -157,15 +123,26 @@ static void texture_set_sub_image(struct ngpu_texture *s, const uint8_t *data, i
 
     switch (s_priv->target) {
     case GL_TEXTURE_2D:
-        texture2d_set_sub_image(s, data, linesize);
+        gl->funcs.TexSubImage2D(s_priv->target, 0, 0, 0,
+                                params->width, params->height,
+                                s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_2D_ARRAY:
     case GL_TEXTURE_3D:
-        texture3d_set_sub_image(s, data, linesize);
+        gl->funcs.TexSubImage3D(s_priv->target, 0, 0, 0, 0,
+                                params->width, params->height, params->depth,
+                                s_priv->format, s_priv->format_type, data);
         break;
-    case GL_TEXTURE_CUBE_MAP:
-        texturecube_set_sub_image(s, data, linesize);
+    case GL_TEXTURE_CUBE_MAP: {
+        const int face_size = data ? s_priv->bytes_per_pixel * linesize * params->height : 0;
+        for (int face = 0; face < 6; face++) {
+            gl->funcs.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0,
+                                    params->width, params->height,
+                                    s_priv->format, s_priv->format_type, data);
+            data += face_size;
+        }
         break;
+    }
     }
 
     gl->funcs.PixelStorei(GL_UNPACK_ALIGNMENT, 4);
