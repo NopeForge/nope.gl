@@ -1069,7 +1069,7 @@ static void gl_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *bu
 }
 
 #define DECLARE_GPU_CTX_CLASS(cls_suffix, cls_id)                                \
-const struct ngpu_ctx_class ngpu_ctx_##cls_suffix = {                         \
+const struct ngpu_ctx_class ngpu_ctx_##cls_suffix = {                            \
     .id                                 = cls_id,                                \
     .create                             = gl_create,                             \
     .init                               = gl_init,                               \
@@ -1113,41 +1113,41 @@ const struct ngpu_ctx_class ngpu_ctx_##cls_suffix = {                         \
     .set_vertex_buffer                  = gl_set_vertex_buffer,                  \
     .set_index_buffer                   = gl_set_index_buffer,                   \
                                                                                  \
-    .buffer_create                      = ngpu_buffer_gl_create,             \
-    .buffer_init                        = ngpu_buffer_gl_init,               \
-    .buffer_upload                      = ngpu_buffer_gl_upload,             \
-    .buffer_map                         = ngpu_buffer_gl_map,                \
-    .buffer_unmap                       = ngpu_buffer_gl_unmap,              \
-    .buffer_freep                       = ngpu_buffer_gl_freep,              \
+    .buffer_create                      = ngpu_buffer_gl_create,                 \
+    .buffer_init                        = ngpu_buffer_gl_init,                   \
+    .buffer_upload                      = ngpu_buffer_gl_upload,                 \
+    .buffer_map                         = ngpu_buffer_gl_map,                    \
+    .buffer_unmap                       = ngpu_buffer_gl_unmap,                  \
+    .buffer_freep                       = ngpu_buffer_gl_freep,                  \
                                                                                  \
-    .bindgroup_layout_create            = ngpu_bindgroup_layout_gl_create,   \
-    .bindgroup_layout_init              = ngpu_bindgroup_layout_gl_init,     \
-    .bindgroup_layout_freep             = ngpu_bindgroup_layout_gl_freep,    \
+    .bindgroup_layout_create            = ngpu_bindgroup_layout_gl_create,       \
+    .bindgroup_layout_init              = ngpu_bindgroup_layout_gl_init,         \
+    .bindgroup_layout_freep             = ngpu_bindgroup_layout_gl_freep,        \
                                                                                  \
-    .bindgroup_create                   = ngpu_bindgroup_gl_create,          \
-    .bindgroup_init                     = ngpu_bindgroup_gl_init,            \
-    .bindgroup_update_texture           = ngpu_bindgroup_gl_update_texture,  \
-    .bindgroup_update_buffer            = ngpu_bindgroup_gl_update_buffer,   \
-    .bindgroup_freep                    = ngpu_bindgroup_gl_freep,           \
+    .bindgroup_create                   = ngpu_bindgroup_gl_create,              \
+    .bindgroup_init                     = ngpu_bindgroup_gl_init,                \
+    .bindgroup_update_texture           = ngpu_bindgroup_gl_update_texture,      \
+    .bindgroup_update_buffer            = ngpu_bindgroup_gl_update_buffer,       \
+    .bindgroup_freep                    = ngpu_bindgroup_gl_freep,               \
                                                                                  \
-    .pipeline_create                    = ngpu_pipeline_gl_create,           \
-    .pipeline_init                      = ngpu_pipeline_gl_init,             \
-    .pipeline_freep                     = ngpu_pipeline_gl_freep,            \
+    .pipeline_create                    = ngpu_pipeline_gl_create,               \
+    .pipeline_init                      = ngpu_pipeline_gl_init,                 \
+    .pipeline_freep                     = ngpu_pipeline_gl_freep,                \
                                                                                  \
-    .program_create                     = ngpu_program_gl_create,            \
-    .program_init                       = ngpu_program_gl_init,              \
-    .program_freep                      = ngpu_program_gl_freep,             \
+    .program_create                     = ngpu_program_gl_create,                \
+    .program_init                       = ngpu_program_gl_init,                  \
+    .program_freep                      = ngpu_program_gl_freep,                 \
                                                                                  \
-    .rendertarget_create                = ngpu_rendertarget_gl_create,       \
-    .rendertarget_init                  = ngpu_rendertarget_gl_init,         \
-    .rendertarget_freep                 = ngpu_rendertarget_gl_freep,        \
+    .rendertarget_create                = ngpu_rendertarget_gl_create,           \
+    .rendertarget_init                  = ngpu_rendertarget_gl_init,             \
+    .rendertarget_freep                 = ngpu_rendertarget_gl_freep,            \
                                                                                  \
-    .texture_create                     = ngpu_texture_gl_create,            \
-    .texture_init                       = ngpu_texture_gl_init,              \
-    .texture_upload                     = ngpu_texture_gl_upload,            \
+    .texture_create                     = ngpu_texture_gl_create,                \
+    .texture_init                       = ngpu_texture_gl_init,                  \
+    .texture_upload                     = ngpu_texture_gl_upload,                \
     .texture_upload_with_params         = ngpu_texture_gl_upload_with_params,    \
-    .texture_generate_mipmap            = ngpu_texture_gl_generate_mipmap,   \
-    .texture_freep                      = ngpu_texture_gl_freep,             \
+    .texture_generate_mipmap            = ngpu_texture_gl_generate_mipmap,       \
+    .texture_freep                      = ngpu_texture_gl_freep,                 \
 }                                                                                \
 
 #ifdef BACKEND_GL
