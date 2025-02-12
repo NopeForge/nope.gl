@@ -65,6 +65,7 @@ struct pgcraft_texture {
     int writable;
     enum ngpu_format format;
     int clamp_video;
+    int no_metadata;
     /*
      * Just like the other types (uniforms, blocks, attributes), this field
      * exists in order to be transmitted to the pipeline (through the
