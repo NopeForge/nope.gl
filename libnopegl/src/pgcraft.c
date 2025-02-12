@@ -527,7 +527,7 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
             };
             if (!ngli_darray_push(&s->pipeline_info.data.textures, &texture_binding))
                 return NGL_ERROR_MEMORY;
-        } else {
+        } else if (!texture->no_metadata) {
             struct pgcraft_uniform uniform = {
                 .stage = field->stage,
                 .type = field->type,
