@@ -167,7 +167,7 @@ static void texture_upload(struct ngpu_texture *s, const uint8_t *data, int line
                                 s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_CUBE_MAP: {
-        const int face_size = data ? s_priv->bytes_per_pixel * linesize * params->height : 0;
+        const int face_size = s_priv->bytes_per_pixel * linesize * params->height;
         for (int face = 0; face < 6; face++) {
             gl->funcs.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0,
                                     params->width, params->height,
