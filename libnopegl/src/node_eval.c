@@ -215,6 +215,10 @@ static int eval_update(struct ngl_node *node, double t)
 
     for (size_t i = 0; i < s->nb_expr; i++) {
         if (!s->eval[i]) {
+            // expr0 is always mandatory (NGLI_PARAM_FLAG_NON_NULL) while the
+            // other expr* are optional
+            ngli_assert(i > 0);
+
             s->vector[i] = s->vector[i - 1];
             continue;
         }
