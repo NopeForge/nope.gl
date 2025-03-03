@@ -24,6 +24,7 @@
 /* WARNING: this file must only be included once */
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include "glcontext.h"
 
@@ -45,7 +46,7 @@ static const struct glfeature {
         .es_version     = 310,
         .funcs_offsets  = (const size_t[]){OFFSET(TexStorage2D),
                                            OFFSET(TexStorage3D),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "compute_shader",
         .flag           = NGLI_FEATURE_GL_COMPUTE_SHADER,
@@ -53,7 +54,7 @@ static const struct glfeature {
         .es_version     = 310,
         .extensions     = (const char*[]){"GL_ARB_compute_shader", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(DispatchCompute),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "program_interface_query",
         .flag           = NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY,
@@ -65,7 +66,7 @@ static const struct glfeature {
                                            OFFSET(GetProgramResourceLocation),
                                            OFFSET(GetProgramInterfaceiv),
                                            OFFSET(GetProgramResourceName),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "shader_image_load_store",
         .flag           = NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE,
@@ -74,7 +75,7 @@ static const struct glfeature {
         .extensions     = (const char*[]){"GL_ARB_shader_image_load_store", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(BindImageTexture),
                                            OFFSET(MemoryBarrier),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "shader_storage_buffer_object",
         .flag           = NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT,
@@ -83,7 +84,7 @@ static const struct glfeature {
         .extensions     = (const char*[]){"GL_ARB_shader_storage_buffer_object", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(TexStorage2D),
                                            OFFSET(TexStorage3D),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "internalformat_query",
         .flag           = NGLI_FEATURE_GL_INTERNALFORMAT_QUERY,
@@ -91,7 +92,7 @@ static const struct glfeature {
         .es_version     = 300,
         .extensions     = (const char*[]){"ARB_internalformat_query", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(GetInternalformativ),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "timer_query",
         .flag           = NGLI_FEATURE_GL_TIMER_QUERY,
@@ -107,7 +108,7 @@ static const struct glfeature {
                                            OFFSET(DeleteQueriesEXT),
                                            OFFSET(QueryCounterEXT),
                                            OFFSET(GetQueryObjectui64vEXT),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "invalidate_subdata",
         .flag           = NGLI_FEATURE_GL_INVALIDATE_SUBDATA,
@@ -115,7 +116,7 @@ static const struct glfeature {
         .es_version     = 300,
         .extensions     = (const char*[]){"GL_ARB_invalidate_subdata"},
         .funcs_offsets  = (const size_t[]){OFFSET(InvalidateFramebuffer),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "oes_egl_external_image",
         .flag           = NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE,
@@ -123,14 +124,14 @@ static const struct glfeature {
                                           "GL_OES_EGL_image_external_essl3",
                                           NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(EGLImageTargetTexture2DOES),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "oes_egl_image",
         .flag           = NGLI_FEATURE_GL_OES_EGL_IMAGE,
         .extensions     = (const char*[]){"GL_OES_EGL_image", NULL},
         .es_extensions  = (const char*[]){"GL_OES_EGL_image", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(EGLImageTargetTexture2DOES),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "yuv_target",
         .flag           = NGLI_FEATURE_GL_YUV_TARGET,
@@ -142,7 +143,7 @@ static const struct glfeature {
         .es_version     = 320,
         .es_extensions  = (const char*[]){"GL_KHR_debug", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(DebugMessageCallback),
-                                        -1}
+                                        SIZE_MAX}
     }, {
         .name           = "shader_image_size",
         .flag           = NGLI_FEATURE_GL_SHADER_IMAGE_SIZE,
@@ -173,7 +174,7 @@ static const struct glfeature {
         .es_version     = 320,
         .extensions     = (const char*[]){"GL_ARB_buffer_storage", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(BufferStorage),
-                                           -1}
+                                           SIZE_MAX}
     }, {
         .name           = "texture_norm16",
         .flag           = NGLI_FEATURE_GL_TEXTURE_NORM16,
