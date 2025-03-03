@@ -64,7 +64,7 @@ struct ngpu_block_desc {
 
 void ngpu_block_desc_fields_copy(const struct ngpu_block_desc *s, const struct ngpu_block_field_data *src_array, uint8_t *dst);
 
-#define NGPU_BLOCK_DESC_VARIADIC_COUNT -1
+#define NGPU_BLOCK_DESC_VARIADIC_COUNT SIZE_MAX
 
 void ngpu_block_desc_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block_desc *s, enum ngpu_block_layout layout);
 size_t ngpu_block_desc_get_size(const struct ngpu_block_desc *s, size_t variadic_count);
