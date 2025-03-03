@@ -392,15 +392,15 @@ static int rtt_resize(struct ngl_node *node)
         goto fail;
     }
 
-    struct rtt_params rtt_params = s->rtt_params;
-    rtt_params.width  = width;
-    rtt_params.height = height;
+    struct rtt_params params = s->rtt_params;
+    params.width  = width;
+    params.height = height;
 
     for (size_t i = 0; i < o->nb_color_textures; i++)
-        rtt_params.colors[i].attachment = textures[i];
-    rtt_params.depth_stencil.attachment = depth_texture;
+        params.colors[i].attachment = textures[i];
+    params.depth_stencil.attachment = depth_texture;
 
-    ret = ngli_rtt_init(rtt_ctx, &rtt_params);
+    ret = ngli_rtt_init(rtt_ctx, &params);
     if (ret < 0)
         goto fail;
 
@@ -408,7 +408,7 @@ static int rtt_resize(struct ngl_node *node)
 
     s->width = width;
     s->height = height;
-    s->rtt_params = rtt_params;
+    s->rtt_params = params;
     s->rtt_ctx = rtt_ctx;
 
     for (size_t i = 0; i < o->nb_color_textures; i++) {
