@@ -700,7 +700,7 @@ static int texture2d_init(struct ngl_node *node)
 
     i->params = o->params;
 
-    const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
+    const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
     if (i->params.width  < 0 || i->params.width  > max_dimension ||
         i->params.height < 0 || i->params.height > max_dimension) {
         LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
@@ -770,8 +770,8 @@ static int texture2d_array_init(struct ngl_node *node)
 
     i->params = o->params;
 
-    const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
-    const int max_layers = gpu_ctx->limits.max_texture_array_layers;
+    const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
+    const uint32_t max_layers = gpu_ctx->limits.max_texture_array_layers;
     if (i->params.width  <= 0 || i->params.width  > max_dimension ||
         i->params.height <= 0 || i->params.height > max_dimension ||
         i->params.depth  <= 0 || i->params.depth  > max_layers) {
@@ -796,7 +796,7 @@ static int texture3d_init(struct ngl_node *node)
 
     i->params = o->params;
 
-    const int max_dimension = gpu_ctx->limits.max_texture_dimension_3d;
+    const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_3d;
     if (i->params.width  <= 0 || i->params.width  > max_dimension ||
         i->params.height <= 0 || i->params.height > max_dimension ||
         i->params.depth  <= 0 || i->params.depth  > max_dimension) {
@@ -822,7 +822,7 @@ static int texturecube_init(struct ngl_node *node)
     i->params = o->params;
     i->params.height = i->params.width;
 
-    const int max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
+    const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
     if (i->params.width  <= 0 || i->params.width  > max_dimension ||
         i->params.height <= 0 || i->params.height > max_dimension) {
         LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
