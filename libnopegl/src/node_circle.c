@@ -90,7 +90,7 @@ static int circle_init(struct ngl_node *node)
         uvcoords[i*2 + 1] = (1.0f - y) / 2.0f;
         indices[(i - 1) * 3 + 0]  = 0; // point to center coordinate
         indices[(i - 1) * 3 + 1]  = (uint16_t)i;
-        indices[(i - 1) * 3 + 2]  = (uint16_t)i + 1;
+        indices[(i - 1) * 3 + 2]  = (uint16_t)(i + 1);
     }
     /* Fix overflowing vertex reference back to the start for sealing the
      * circle */
