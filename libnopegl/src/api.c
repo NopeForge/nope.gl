@@ -129,8 +129,8 @@ static const char *get_cap_string_id(unsigned cap_id)
 
 static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
 {
-    const int has_compute        = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_GPU_FEATURE_COMPUTE);
-    const int has_ds_resolve     = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_GPU_FEATURE_DEPTH_STENCIL_RESOLVE);
+    const uint32_t has_compute    = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_GPU_FEATURE_COMPUTE);
+    const uint32_t has_ds_resolve = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGLI_GPU_FEATURE_DEPTH_STENCIL_RESOLVE);
 
     const struct gpu_limits *limits = &gpu_ctx->limits;
     const struct ngl_cap caps[] = {
