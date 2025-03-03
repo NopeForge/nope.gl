@@ -174,7 +174,7 @@ static inline uint32_t ngli_clz(uint32_t x)
     _BitScanReverse(&ret, x);
     return 31 - ret;
 #else
-    return __builtin_clz(x);
+    return (uint32_t)__builtin_clz(x);
 #endif
 }
 
