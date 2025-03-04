@@ -26,7 +26,6 @@
 
 #include "block_desc.h"
 #include "ngpu/ctx.h"
-#include "nopegl.h"
 #include "type.h"
 #include "utils.h"
 
