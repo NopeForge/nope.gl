@@ -258,7 +258,7 @@ static int render_init(struct ngl_node *node)
         .properties = program_opts->properties,
         .attributes = o->attributes,
         .instance_attributes = o->instance_attributes,
-        .nb_instances = o->nb_instances,
+        .nb_instances = (uint32_t)o->nb_instances,
         .vert_out_vars = ngli_darray_data(&program_priv->vert_out_vars_array),
         .nb_vert_out_vars = ngli_darray_count(&program_priv->vert_out_vars_array),
         .nb_frag_output = program_opts->nb_frag_output,
