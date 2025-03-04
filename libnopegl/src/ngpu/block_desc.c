@@ -109,24 +109,24 @@ static const size_t aligns_map[NGPU_TYPE_NB] = {
     [NGPU_TYPE_MAT4]   = sizeof(float) * 4,
 };
 
-static size_t get_buffer_stride(const struct ngpu_block_field *field, int layout)
+static size_t get_buffer_stride(const struct ngpu_block_field *field, enum ngpu_block_layout layout)
 {
     return strides_map[layout][field->type];
 }
 
-static size_t get_buffer_size(const struct ngpu_block_field *field, int layout)
+static size_t get_buffer_size(const struct ngpu_block_field *field, enum ngpu_block_layout layout)
 {
     return field->count * get_buffer_stride(field, layout);
 }
 
-static size_t get_field_size(const struct ngpu_block_field *field, int layout)
+static size_t get_field_size(const struct ngpu_block_field *field, enum ngpu_block_layout layout)
 {
     if (field->count)
         return get_buffer_size(field, layout);
     return sizes_map[field->type];
 }
 
-static size_t get_field_align(const struct ngpu_block_field *field, int layout)
+static size_t get_field_align(const struct ngpu_block_field *field, enum ngpu_block_layout layout)
 {
     if (field->count && field->type != NGPU_TYPE_MAT3 && field->type != NGPU_TYPE_MAT4)
         return get_buffer_stride(field, layout);
@@ -186,7 +186,7 @@ size_t ngpu_block_desc_get_aligned_size(const struct ngpu_block_desc *s, size_t 
     return NGLI_ALIGN(ngpu_block_desc_get_size(s, variadic_count), alignment);
 }
 
-int ngpu_block_desc_add_field(struct ngpu_block_desc *s, const char *name, int type, size_t count)
+int ngpu_block_desc_add_field(struct ngpu_block_desc *s, const char *name, enum ngpu_type type, size_t count)
 {
     ngli_assert(s->layout != NGPU_BLOCK_LAYOUT_UNKNOWN);
 

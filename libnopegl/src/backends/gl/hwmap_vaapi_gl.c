@@ -99,7 +99,7 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
         gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
         gl->funcs.BindTexture(GL_TEXTURE_2D, 0);
 
-        const int format = i == 0 ? NGPU_FORMAT_R8_UNORM : NGPU_FORMAT_R8G8_UNORM;
+        const enum ngpu_format format = i == 0 ? NGPU_FORMAT_R8_UNORM : NGPU_FORMAT_R8G8_UNORM;
 
         const struct ngpu_texture_params plane_params = {
             .type             = NGPU_TEXTURE_TYPE_2D,

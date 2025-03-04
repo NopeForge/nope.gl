@@ -35,11 +35,11 @@
 struct hwmap_params {
     const char *label;
     uint32_t image_layouts;
-    int texture_min_filter;
-    int texture_mag_filter;
-    int texture_mipmap_filter;
-    int texture_wrap_s;
-    int texture_wrap_t;
+    enum ngpu_filter texture_min_filter;
+    enum ngpu_filter texture_mag_filter;
+    enum ngpu_mipmap_filter texture_mipmap_filter;
+    enum ngpu_wrap texture_wrap_s;
+    enum ngpu_wrap texture_wrap_t;
     uint32_t texture_usage;
 #if defined(TARGET_ANDROID)
     struct android_imagereader *android_imagereader;

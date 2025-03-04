@@ -1,4 +1,5 @@
 /*
+ * Copyright 2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -22,7 +23,7 @@
 #ifndef NGPU_FORMAT_H
 #define NGPU_FORMAT_H
 
-enum {
+enum ngpu_format {
     NGPU_FORMAT_UNDEFINED,
     NGPU_FORMAT_R8_UNORM,
     NGPU_FORMAT_R8_SNORM,
@@ -88,7 +89,7 @@ enum {
     NGPU_FORMAT_NB
 };
 
-enum {
+enum ngpu_format_feature {
     NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_BIT               = 1 << 0,
     NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT = 1 << 1,
     NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT            = 1 << 2,
@@ -96,12 +97,12 @@ enum {
     NGPU_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT    = 1 << 4,
 };
 
-int ngpu_format_get_bytes_per_pixel(int format);
+int ngpu_format_get_bytes_per_pixel(enum ngpu_format format);
 
-int ngpu_format_get_nb_comp(int format);
+int ngpu_format_get_nb_comp(enum ngpu_format format);
 
-int ngpu_format_has_depth(int format);
+int ngpu_format_has_depth(enum ngpu_format format);
 
-int ngpu_format_has_stencil(int format);
+int ngpu_format_has_stencil(enum ngpu_format format);
 
 #endif

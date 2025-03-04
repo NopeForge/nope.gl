@@ -52,7 +52,7 @@ struct format_desc {
     int layout;
     size_t nb_planes;
     struct {
-        int format;
+        enum ngpu_format format;
     } planes[2];
 };
 
@@ -132,7 +132,7 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 
         const size_t width = CVPixelBufferGetWidthOfPlane(cvpixbuf, i);
         const size_t height = CVPixelBufferGetHeightOfPlane(cvpixbuf, i);
-        const int format = vt->format_desc.planes[i].format;
+        const enum ngpu_format format = vt->format_desc.planes[i].format;
         const int vk_format = ngpu_format_ngl_to_vk(format);
         const MTLPixelFormat mtl_format = vt_get_mtl_format(vk_format);
 

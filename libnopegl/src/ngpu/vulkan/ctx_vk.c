@@ -86,7 +86,7 @@ static void destroy_dummy_texture(struct ngpu_ctx *s)
     ngpu_texture_freep(&s_priv->dummy_texture);
 }
 
-static VkResult create_texture(struct ngpu_ctx *s, int format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
+static VkResult create_texture(struct ngpu_ctx *s, enum ngpu_format format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
@@ -118,7 +118,7 @@ static VkResult create_rendertarget(struct ngpu_ctx *s,
                                     struct ngpu_texture *color,
                                     struct ngpu_texture *resolve_color,
                                     struct ngpu_texture *depth_stencil,
-                                    int load_op,
+                                    enum ngpu_load_op load_op,
                                     struct ngpu_rendertarget **rendertargetp)
 {
     const struct ngl_config *config = &s->config;
@@ -168,10 +168,10 @@ static VkResult create_render_resources(struct ngpu_ctx *s)
     struct vkcontext *vk = s_priv->vkcontext;
     const struct ngl_config *config = &s->config;
 
-    const int color_format = config->offscreen
+    const enum ngpu_format color_format = config->offscreen
                            ? NGPU_FORMAT_R8G8B8A8_UNORM
                            : ngpu_format_vk_to_ngl(s_priv->surface_format.format);
-    const int ds_format = vk->preferred_depth_stencil_format;
+    const enum ngpu_format ds_format = vk->preferred_depth_stencil_format;
 
     const uint32_t nb_images = config->offscreen ? s_priv->nb_in_flight_frames : s_priv->nb_images;
     for (uint32_t i = 0; i < nb_images; i++) {
@@ -1243,7 +1243,7 @@ static void vk_get_rendertarget_uvcoord_matrix(struct ngpu_ctx *s, float *dst)
     memcpy(dst, matrix, 4 * 4 * sizeof(float));
 }
 
-static struct ngpu_rendertarget *vk_get_default_rendertarget(struct ngpu_ctx *s, int load_op)
+static struct ngpu_rendertarget *vk_get_default_rendertarget(struct ngpu_ctx *s, enum ngpu_load_op load_op)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     switch (load_op) {
@@ -1402,21 +1402,21 @@ static void vk_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scisso
     vkCmdSetScissor(cmd_buf, 0, 1, &sc);
 }
 
-static int vk_get_preferred_depth_format(struct ngpu_ctx *s)
+static enum ngpu_format vk_get_preferred_depth_format(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
     return vk->preferred_depth_format;
 }
 
-static int vk_get_preferred_depth_stencil_format(struct ngpu_ctx *s)
+static enum ngpu_format vk_get_preferred_depth_stencil_format(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
     return vk->preferred_depth_stencil_format;
 }
 
-static uint32_t vk_get_format_features(struct ngpu_ctx *s, int format)
+static uint32_t vk_get_format_features(struct ngpu_ctx *s, enum ngpu_format format)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
@@ -1482,12 +1482,12 @@ static const VkIndexType vk_indices_type_map[NGPU_FORMAT_NB] = {
     [NGPU_FORMAT_R32_UINT]  = VK_INDEX_TYPE_UINT32,
 };
 
-static VkIndexType get_vk_indices_type(int indices_format)
+static VkIndexType get_vk_indices_type(enum ngpu_format indices_format)
 {
     return vk_indices_type_map[indices_format];
 }
 
-static void vk_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, int format)
+static void vk_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, enum ngpu_format format)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 

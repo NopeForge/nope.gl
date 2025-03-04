@@ -71,7 +71,7 @@ void ngpu_texture_vk_transition_to_default_layout(struct ngpu_texture *s);
 void ngpu_texture_vk_copy_to_buffer(struct ngpu_texture *s, struct ngpu_buffer *buffer);
 void ngpu_texture_vk_freep(struct ngpu_texture **sp);
 
-VkFilter ngpu_vk_get_filter(int filter);
+VkFilter ngpu_vk_get_filter(enum ngpu_filter filter);
 VkImageUsageFlags ngpu_vk_get_image_usage_flags(uint32_t usage);
 
 #endif

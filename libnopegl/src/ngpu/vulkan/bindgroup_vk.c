@@ -83,7 +83,7 @@ static const VkDescriptorType descriptor_type_map[NGPU_TYPE_NB] = {
     [NGPU_TYPE_IMAGE_CUBE]             = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
 };
 
-static VkDescriptorType get_vk_descriptor_type(int type)
+static VkDescriptorType get_vk_descriptor_type(enum ngpu_type type)
 {
     const VkDescriptorType descriptor_type = descriptor_type_map[type];
     ngli_assert(descriptor_type);

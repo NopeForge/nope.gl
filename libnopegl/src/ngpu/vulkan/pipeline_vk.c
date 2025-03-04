@@ -46,7 +46,7 @@ static const VkPrimitiveTopology vk_primitive_topology_map[NGPU_PRIMITIVE_TOPOLO
     [NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP] = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
 };
 
-static VkPrimitiveTopology get_vk_topology(int topology)
+static VkPrimitiveTopology get_vk_topology(enum ngpu_primitive_topology topology)
 {
     return vk_primitive_topology_map[topology];
 }
@@ -70,7 +70,7 @@ static const VkBlendFactor vk_blend_factor_map[NGPU_BLEND_FACTOR_NB] = {
     [NGPU_BLEND_FACTOR_SRC_ALPHA_SATURATE]       = VK_BLEND_FACTOR_SRC_ALPHA_SATURATE,
 };
 
-static VkBlendFactor get_vk_blend_factor(int blend_factor)
+static VkBlendFactor get_vk_blend_factor(enum ngpu_blend_factor blend_factor)
 {
     return vk_blend_factor_map[blend_factor];
 }
@@ -83,7 +83,7 @@ static const VkBlendOp vk_blend_op_map[NGPU_BLEND_OP_NB] = {
     [NGPU_BLEND_OP_MAX]              = VK_BLEND_OP_MAX,
 };
 
-static VkBlendOp get_vk_blend_op(int blend_op)
+static VkBlendOp get_vk_blend_op(enum ngpu_blend_op blend_op)
 {
     return vk_blend_op_map[blend_op];
 }
@@ -99,7 +99,7 @@ static const VkCompareOp vk_compare_op_map[NGPU_COMPARE_OP_NB] = {
     [NGPU_COMPARE_OP_ALWAYS]           = VK_COMPARE_OP_ALWAYS,
 };
 
-static VkCompareOp get_vk_compare_op(int compare_op)
+static VkCompareOp get_vk_compare_op(enum ngpu_compare_op compare_op)
 {
     return vk_compare_op_map[compare_op];
 }
@@ -115,7 +115,7 @@ static const VkStencilOp vk_stencil_op_map[NGPU_STENCIL_OP_NB] = {
     [NGPU_STENCIL_OP_DECREMENT_AND_WRAP]  = VK_STENCIL_OP_DECREMENT_AND_WRAP,
 };
 
-static VkStencilOp get_vk_stencil_op(int stencil_op)
+static VkStencilOp get_vk_stencil_op(enum ngpu_stencil_op stencil_op)
 {
     return vk_stencil_op_map[stencil_op];
 }
@@ -126,7 +126,7 @@ static const VkCullModeFlags vk_cull_mode_map[NGPU_CULL_MODE_NB] = {
     [NGPU_CULL_MODE_BACK_BIT]       = VK_CULL_MODE_BACK_BIT,
 };
 
-static VkCullModeFlags get_vk_cull_mode(int cull_mode)
+static VkCullModeFlags get_vk_cull_mode(enum ngpu_cull_mode cull_mode)
 {
     return vk_cull_mode_map[cull_mode];
 }
@@ -136,7 +136,7 @@ static const VkFrontFace vk_front_face_map[NGPU_FRONT_FACE_NB] = {
     [NGPU_FRONT_FACE_CLOCKWISE]         = VK_FRONT_FACE_COUNTER_CLOCKWISE,
 };
 
-static VkFrontFace get_vk_front_face(int front_face)
+static VkFrontFace get_vk_front_face(enum ngpu_front_face front_face)
 {
     return vk_front_face_map[front_face];
 }

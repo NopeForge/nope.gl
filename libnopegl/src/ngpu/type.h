@@ -23,7 +23,7 @@
 #ifndef NGPU_TYPE_H
 #define NGPU_TYPE_H
 
-enum {
+enum ngpu_precision {
     NGPU_PRECISION_AUTO,
     NGPU_PRECISION_HIGH,
     NGPU_PRECISION_MEDIUM,
@@ -31,7 +31,7 @@ enum {
     NGPU_PRECISION_NB
 };
 
-enum {
+enum ngpu_type {
     NGPU_TYPE_NONE,
     NGPU_TYPE_I32,
     NGPU_TYPE_IVEC2,
@@ -66,6 +66,6 @@ enum {
     NGPU_TYPE_NB
 };
 
-const char *ngpu_type_get_name(int type);
+const char *ngpu_type_get_name(enum ngpu_type type);
 
 #endif
