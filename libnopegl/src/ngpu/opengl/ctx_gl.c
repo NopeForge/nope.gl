@@ -1039,14 +1039,14 @@ static void gl_set_pipeline(struct ngpu_ctx *s, struct ngpu_pipeline *pipeline)
 {
 }
 
-static void gl_draw(struct ngpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex)
+static void gl_draw(struct ngpu_ctx *s, uint32_t nb_vertices, uint32_t nb_instances, uint32_t first_vertex)
 {
     struct ngpu_pipeline *pipeline = s->pipeline;
 
     ngpu_pipeline_gl_draw(pipeline, nb_vertices, nb_instances, first_vertex);
 }
 
-static void gl_draw_indexed(struct ngpu_ctx *s, int nb_indices, int nb_instances)
+static void gl_draw_indexed(struct ngpu_ctx *s, uint32_t nb_indices, uint32_t nb_instances)
 {
     struct ngpu_pipeline *pipeline = s->pipeline;
 

@@ -42,8 +42,8 @@ struct ngpu_pipeline_vk {
 
 struct ngpu_pipeline *ngpu_pipeline_vk_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_pipeline_vk_init(struct ngpu_pipeline *s);
-void ngpu_pipeline_vk_draw(struct ngpu_pipeline *s, int nb_vertices, int nb_instances, int first_vertex);
-void ngpu_pipeline_vk_draw_indexed(struct ngpu_pipeline *s, int nb_vertices, int nb_instances);
+void ngpu_pipeline_vk_draw(struct ngpu_pipeline *s, uint32_t nb_vertices, uint32_t nb_instances, uint32_t first_vertex);
+void ngpu_pipeline_vk_draw_indexed(struct ngpu_pipeline *s, uint32_t nb_vertices, uint32_t nb_instances);
 void ngpu_pipeline_vk_dispatch(struct ngpu_pipeline *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 void ngpu_pipeline_vk_freep(struct ngpu_pipeline **sp);
 

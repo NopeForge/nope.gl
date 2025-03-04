@@ -344,7 +344,7 @@ static int pass_graphics_init(struct pass *s)
         s->indices = geometry->indices_buffer;
         s->indices_layout = &geometry->indices_layout;
     } else {
-        s->nb_vertices = (int)geometry->vertices_layout.count;
+        s->nb_vertices = (uint32_t)geometry->vertices_layout.count;
     }
     s->nb_instances = s->params.nb_instances;
 
@@ -680,7 +680,7 @@ int ngli_pass_exec(struct pass *s)
 
         if (s->indices)
             ngli_pipeline_compat_draw_indexed(pipeline_compat, s->indices, s->indices_layout->format,
-                                              (int)s->indices_layout->count, s->nb_instances);
+                                              (uint32_t)s->indices_layout->count, s->nb_instances);
         else
             ngli_pipeline_compat_draw(pipeline_compat, s->nb_vertices, s->nb_instances, 0);
     } else {
