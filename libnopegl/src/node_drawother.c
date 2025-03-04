@@ -127,7 +127,7 @@ struct draw_common {
     char *combined_fragment;
     struct pgcraft_attribute position_attr;
     struct pgcraft_attribute uvcoord_attr;
-    int nb_vertices;
+    uint32_t nb_vertices;
     enum ngpu_primitive_topology topology;
     struct geometry *geometry;
     int own_geometry;
@@ -547,7 +547,7 @@ static void draw_indexed(struct draw_common *s, struct pipeline_compat *pl_compa
     ngli_pipeline_compat_draw_indexed(pl_compat,
                                       s->geometry->indices_buffer,
                                       s->geometry->indices_layout.format,
-                                      (int)s->geometry->indices_layout.count, 1);
+                                      (uint32_t)s->geometry->indices_layout.count, 1);
 }
 
 static void reset_pipeline_desc(void *user_arg, void *data)
@@ -624,7 +624,7 @@ static int init(struct ngl_node *node,
     s->uvcoord_attr.offset = uvcoords_layout.offset;
     s->uvcoord_attr.buffer = uvcoords;
 
-    s->nb_vertices = (int)vertices_layout.count;
+    s->nb_vertices = (uint32_t)vertices_layout.count;
     s->topology = s->geometry->topology;
     s->draw = s->geometry->indices_buffer ? draw_indexed : draw_simple;
 

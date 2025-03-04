@@ -537,7 +537,7 @@ static int prepare_pipeline(struct pipeline_compat *s)
     return 0;
 }
 
-void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances, int first_vertex)
+void ngli_pipeline_compat_draw(struct pipeline_compat *s, uint32_t nb_vertices, uint32_t nb_instances, uint32_t first_vertex)
 {
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
@@ -552,7 +552,7 @@ void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int n
     ngpu_ctx_draw(gpu_ctx, nb_vertices, nb_instances, first_vertex);
 }
 
-void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct ngpu_buffer *indices, enum ngpu_format indices_format, int nb_indices, int nb_instances)
+void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct ngpu_buffer *indices, enum ngpu_format indices_format, uint32_t nb_indices, uint32_t nb_instances)
 {
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 

@@ -40,7 +40,7 @@ struct pass_params {
     struct hmap *frag_resources;
     const struct hmap *properties;
     const struct geometry *geometry;
-    int32_t nb_instances;
+    uint32_t nb_instances;
     struct hmap *attributes;
     struct hmap *instance_attributes;
     struct pgcraft_iovar *vert_out_vars;
@@ -61,8 +61,8 @@ struct pass {
 
     struct ngpu_buffer *indices;
     const struct buffer_layout *indices_layout;
-    int nb_vertices;
-    int nb_instances;
+    uint32_t nb_vertices;
+    uint32_t nb_instances;
     enum ngpu_primitive_topology topology;
     enum ngpu_pipeline_type pipeline_type;
     struct darray crafter_attributes;
