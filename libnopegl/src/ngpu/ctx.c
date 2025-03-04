@@ -190,7 +190,7 @@ void ngpu_ctx_get_rendertarget_uvcoord_matrix(struct ngpu_ctx *s, float *dst)
     s->cls->get_rendertarget_uvcoord_matrix(s, dst);
 }
 
-struct ngpu_rendertarget *ngpu_ctx_get_default_rendertarget(struct ngpu_ctx *s, int load_op)
+struct ngpu_rendertarget *ngpu_ctx_get_default_rendertarget(struct ngpu_ctx *s, enum ngpu_load_op load_op)
 {
     return s->cls->get_default_rendertarget(s, load_op);
 }
@@ -217,17 +217,17 @@ void ngpu_ctx_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scissor
     s->cls->set_scissor(s, scissor);
 }
 
-int ngpu_ctx_get_preferred_depth_format(struct ngpu_ctx *s)
+enum ngpu_format ngpu_ctx_get_preferred_depth_format(struct ngpu_ctx *s)
 {
     return s->cls->get_preferred_depth_format(s);
 }
 
-int ngpu_ctx_get_preferred_depth_stencil_format(struct ngpu_ctx *s)
+enum ngpu_format ngpu_ctx_get_preferred_depth_stencil_format(struct ngpu_ctx *s)
 {
     return s->cls->get_preferred_depth_stencil_format(s);
 }
 
-uint32_t ngpu_ctx_get_format_features(struct ngpu_ctx *s, int format)
+uint32_t ngpu_ctx_get_format_features(struct ngpu_ctx *s, enum ngpu_format format)
 {
     return s->cls->get_format_features(s, format);
 }
@@ -308,7 +308,7 @@ void ngpu_ctx_set_vertex_buffer(struct ngpu_ctx *s, uint32_t index, const struct
     s->cls->set_vertex_buffer(s, index, buffer);
 }
 
-void ngpu_ctx_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, int format)
+void ngpu_ctx_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, enum ngpu_format format)
 {
     s->index_buffer = buffer;
     s->index_format = format;

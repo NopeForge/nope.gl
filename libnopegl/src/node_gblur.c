@@ -277,7 +277,7 @@ static int gblur_init(struct ngl_node *node)
         {
             .name      = "tex",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
+            .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         },
     };

@@ -26,9 +26,9 @@
 #include "glincludes.h"
 #include "ngpu/texture.h"
 
-GLint ngpu_texture_get_gl_min_filter(int min_filter, int mipmap_filter);
-GLint ngpu_texture_get_gl_mag_filter(int mag_filter);
-GLint ngpu_texture_get_gl_wrap(int wrap);
+GLint ngpu_texture_get_gl_min_filter(enum ngpu_filter min_filter, enum ngpu_mipmap_filter mipmap_filter);
+GLint ngpu_texture_get_gl_mag_filter(enum ngpu_filter mag_filter);
+GLint ngpu_texture_get_gl_wrap(enum ngpu_wrap wrap);
 
 struct ngpu_texture_gl_wrap_params {
     const struct ngpu_texture_params *params;

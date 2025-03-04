@@ -22,15 +22,8 @@
 #ifndef PRECISION_H
 #define PRECISION_H
 
+#include "ngpu/type.h"
 #include "params.h"
-
-enum {
-    NGLI_PRECISION_AUTO,
-    NGLI_PRECISION_HIGH,
-    NGLI_PRECISION_MEDIUM,
-    NGLI_PRECISION_LOW,
-    NGLI_PRECISION_NB
-};
 
 extern const struct param_choices ngli_precision_choices;
 

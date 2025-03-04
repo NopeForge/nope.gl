@@ -26,6 +26,7 @@
 
 #include "bindgroup.h"
 #include "buffer.h"
+#include "format.h"
 #include "graphics_state.h"
 #include "limits.h"
 #include "program.h"
@@ -38,7 +39,7 @@ struct ngpu_ctx;
 struct ngpu_vertex_attribute {
     size_t id;
     int location;
-    int format;
+    enum ngpu_format format;
     size_t offset;
 };
 
@@ -59,14 +60,23 @@ struct ngpu_vertex_resources {
     size_t nb_vertex_buffers;
 };
 
+enum ngpu_primitive_topology {
+    NGPU_PRIMITIVE_TOPOLOGY_POINT_LIST,
+    NGPU_PRIMITIVE_TOPOLOGY_LINE_LIST,
+    NGPU_PRIMITIVE_TOPOLOGY_LINE_STRIP,
+    NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+    NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+    NGPU_PRIMITIVE_TOPOLOGY_NB
+};
+
 struct ngpu_pipeline_graphics {
-    int topology;
+    enum ngpu_primitive_topology topology;
     struct ngpu_graphics_state state;
     struct ngpu_rendertarget_layout rt_layout;
     struct ngpu_vertex_state vertex_state;
 };
 
-enum {
+enum ngpu_pipeline_type {
     NGPU_PIPELINE_TYPE_GRAPHICS,
     NGPU_PIPELINE_TYPE_COMPUTE,
 };
@@ -76,7 +86,7 @@ struct ngpu_pipeline_layout {
 };
 
 struct ngpu_pipeline_params {
-    int type;
+    enum ngpu_pipeline_type type;
     const struct ngpu_pipeline_graphics graphics;
     const struct ngpu_program *program;
     const struct ngpu_pipeline_layout layout;
@@ -86,7 +96,7 @@ struct ngpu_pipeline {
     struct ngli_rc rc;
     struct ngpu_ctx *gpu_ctx;
 
-    int type;
+    enum ngpu_pipeline_type type;
     struct ngpu_pipeline_graphics graphics;
     const struct ngpu_program *program;
     struct ngpu_pipeline_layout layout;

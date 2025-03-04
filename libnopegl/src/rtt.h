@@ -41,7 +41,7 @@ struct rtt_params {
     size_t nb_colors;
     struct ngpu_attachment colors[NGPU_MAX_COLOR_ATTACHMENTS];
 
-    int depth_stencil_format;
+    enum ngpu_format depth_stencil_format;
     struct ngpu_attachment depth_stencil;
 };
 

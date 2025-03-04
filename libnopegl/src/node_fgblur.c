@@ -138,7 +138,7 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
         {
             .name      = "tex",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
+            .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         },
     };
@@ -209,12 +209,12 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
         {
             .name      = "tex0",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
+            .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG
         }, {
             .name      = "tex1",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
+            .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG
         },
     };

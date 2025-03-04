@@ -29,7 +29,7 @@ int ngpu_block_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block *s, const struct
 {
     s->gpu_ctx = gpu_ctx;
 
-    const int layout = params->layout ? params->layout : NGPU_BLOCK_LAYOUT_STD140;
+    const enum ngpu_block_layout layout = (params->layout != NGPU_BLOCK_LAYOUT_UNKNOWN) ? params->layout : NGPU_BLOCK_LAYOUT_STD140;
     ngpu_block_desc_init(gpu_ctx, &s->block_desc, layout);
     ngli_darray_init(&s->offsets, sizeof(size_t), 0);
 

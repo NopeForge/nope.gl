@@ -27,6 +27,7 @@
 #include <vulkan/vulkan_android.h>
 
 #include "config.h"
+#include "ngpu/format.h"
 #include "nopegl.h"
 
 #define VK_FUNC(name) PFN_vk##name
@@ -63,8 +64,8 @@ struct vkcontext {
     VkQueue present_queue;
     VkDevice device;
 
-    int preferred_depth_format;
-    int preferred_depth_stencil_format;
+    enum ngpu_format preferred_depth_format;
+    enum ngpu_format preferred_depth_stencil_format;
 
     VkPhysicalDeviceFeatures dev_features;
     VkPhysicalDeviceMemoryProperties phydev_mem_props;

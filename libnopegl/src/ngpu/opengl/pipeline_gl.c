@@ -35,7 +35,7 @@
 struct attribute_binding_gl {
     size_t binding;
     int location;
-    int format;
+    enum ngpu_format format;
     size_t stride;
     size_t offset;
 };
@@ -85,7 +85,7 @@ static const GLenum gl_primitive_topology_map[NGPU_PRIMITIVE_TOPOLOGY_NB] = {
     [NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP] = GL_TRIANGLE_STRIP,
 };
 
-static GLenum get_gl_topology(int topology)
+static GLenum get_gl_topology(enum ngpu_primitive_topology topology)
 {
     return gl_primitive_topology_map[topology];
 }
@@ -95,7 +95,7 @@ static const GLenum gl_indices_type_map[NGPU_FORMAT_NB] = {
     [NGPU_FORMAT_R32_UINT]  = GL_UNSIGNED_INT,
 };
 
-static GLenum get_gl_indices_type(int indices_format)
+static GLenum get_gl_indices_type(enum ngpu_format indices_format)
 {
     return gl_indices_type_map[indices_format];
 }

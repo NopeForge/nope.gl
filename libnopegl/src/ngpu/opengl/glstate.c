@@ -45,7 +45,7 @@ static const GLenum gl_blend_factor_map[NGPU_BLEND_FACTOR_NB] = {
     [NGPU_BLEND_FACTOR_SRC_ALPHA_SATURATE]       = GL_SRC_ALPHA_SATURATE,
 };
 
-static GLenum get_gl_blend_factor(int blend_factor)
+static GLenum get_gl_blend_factor(enum ngpu_blend_factor blend_factor)
 {
     return gl_blend_factor_map[blend_factor];
 }
@@ -58,7 +58,7 @@ static const GLenum gl_blend_op_map[NGPU_BLEND_OP_NB] = {
     [NGPU_BLEND_OP_MAX]              = GL_MAX,
 };
 
-static GLenum get_gl_blend_op(int blend_op)
+static GLenum get_gl_blend_op(enum ngpu_blend_op blend_op)
 {
     return gl_blend_op_map[blend_op];
 }
@@ -74,7 +74,7 @@ static const GLenum gl_compare_op_map[NGPU_COMPARE_OP_NB] = {
     [NGPU_COMPARE_OP_ALWAYS]           = GL_ALWAYS,
 };
 
-static GLenum get_gl_compare_op(int compare_op)
+static GLenum get_gl_compare_op(enum ngpu_compare_op compare_op)
 {
     return gl_compare_op_map[compare_op];
 }
@@ -90,7 +90,7 @@ static const GLenum gl_stencil_op_map[NGPU_STENCIL_OP_NB] = {
     [NGPU_STENCIL_OP_DECREMENT_AND_WRAP]  = GL_DECR_WRAP,
 };
 
-static GLenum get_gl_stencil_op(int stencil_op)
+static GLenum get_gl_stencil_op(enum ngpu_stencil_op stencil_op)
 {
     return gl_stencil_op_map[stencil_op];
 }
@@ -101,7 +101,7 @@ static const GLenum gl_cull_mode_map[NGPU_CULL_MODE_NB] = {
     [NGPU_CULL_MODE_BACK_BIT]       = GL_BACK,
 };
 
-static GLenum get_gl_cull_mode(int cull_mode)
+static GLenum get_gl_cull_mode(enum ngpu_cull_mode cull_mode)
 {
     return gl_cull_mode_map[cull_mode];
 }
@@ -111,7 +111,7 @@ static const GLenum gl_front_face_map[NGPU_FRONT_FACE_NB] = {
     [NGPU_FRONT_FACE_CLOCKWISE]         = GL_CW,
 };
 
-static GLenum get_gl_front_face(int front_face)
+static GLenum get_gl_front_face(enum ngpu_front_face front_face)
 {
     return gl_front_face_map[front_face];
 }
