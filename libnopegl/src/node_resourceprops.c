@@ -30,7 +30,7 @@
 
 #define OFFSET(x) offsetof(struct resourceprops_opts, x)
 static const struct node_param resourceprops_params[] = {
-    {"precision", NGLI_PARAM_TYPE_SELECT, OFFSET(precision), {.i32=NGLI_PRECISION_AUTO},
+    {"precision", NGLI_PARAM_TYPE_SELECT, OFFSET(precision), {.i32=NGPU_PRECISION_AUTO},
                   .choices=&ngli_precision_choices,
                   .desc=NGLI_DOCSTRING("precision qualifier for the shader")},
     {"as_image", NGLI_PARAM_TYPE_BOOL, OFFSET(as_image),
@@ -55,9 +55,9 @@ static int resourceprops_init(struct ngl_node *node)
 }
 
 static const char * const precisions_map[] = {
-    [NGLI_PRECISION_HIGH]   = "high",
-    [NGLI_PRECISION_MEDIUM] = "medium",
-    [NGLI_PRECISION_LOW]    = "low",
+    [NGPU_PRECISION_HIGH]   = "high",
+    [NGPU_PRECISION_MEDIUM] = "medium",
+    [NGPU_PRECISION_LOW]    = "low",
 };
 
 static char *resourceprops_info_str(const struct ngl_node *node)
@@ -68,7 +68,7 @@ static char *resourceprops_info_str(const struct ngl_node *node)
     if (!b)
         return NULL;
 
-    if (o->precision != NGLI_PRECISION_AUTO)
+    if (o->precision != NGPU_PRECISION_AUTO)
         ngli_bstr_printf(b, "precision:%s", precisions_map[o->precision]);
     if (o->as_image)
         ngli_bstr_printf(b, "%sas_image", ngli_bstr_len(b) ? " " : "");

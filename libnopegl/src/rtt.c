@@ -110,7 +110,7 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
             rt_params.colors[rt_params.nb_colors].load_op = NGPU_LOAD_OP_CLEAR;
             float *clear_value = rt_params.colors[rt_params.nb_colors].clear_value;
             memcpy(clear_value, attachment->clear_value, sizeof(attachment->clear_value));
-            const int store_op = s->params.nb_interruptions ? NGPU_STORE_OP_STORE : NGPU_STORE_OP_DONT_CARE;
+            const enum ngpu_store_op store_op = s->params.nb_interruptions ? NGPU_STORE_OP_STORE : NGPU_STORE_OP_DONT_CARE;
             rt_params.colors[rt_params.nb_colors].store_op = store_op;
         } else {
             rt_params.colors[rt_params.nb_colors] = s->params.colors[i];
@@ -155,7 +155,7 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
             rt_params.depth_stencil.resolve_target = texture;
             rt_params.depth_stencil.resolve_target_layer = texture_layer;
             rt_params.depth_stencil.load_op = NGPU_LOAD_OP_CLEAR;
-            const int store_op = s->params.nb_interruptions ? NGPU_STORE_OP_STORE : NGPU_STORE_OP_DONT_CARE;
+            const enum ngpu_store_op store_op = s->params.nb_interruptions ? NGPU_STORE_OP_STORE : NGPU_STORE_OP_DONT_CARE;
             rt_params.depth_stencil.store_op = store_op;
         } else {
             rt_params.depth_stencil = s->params.depth_stencil;
@@ -187,7 +187,7 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
          * interrupted we can discard the depth attachment at the end of
          * the renderpass.
          */
-        const int store_op = s->params.nb_interruptions ? NGPU_STORE_OP_STORE : NGPU_STORE_OP_DONT_CARE;
+        const enum ngpu_store_op store_op = s->params.nb_interruptions ? NGPU_STORE_OP_STORE : NGPU_STORE_OP_DONT_CARE;
         rt_params.depth_stencil.store_op = store_op;
     }
 
@@ -217,7 +217,7 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
              * *once*, we can discard the depth attachment at the end of the
              * renderpass.
              */
-            const int store_op = s->params.nb_interruptions > 1 ? NGPU_STORE_OP_STORE : NGPU_STORE_OP_DONT_CARE;
+            const enum ngpu_store_op store_op = s->params.nb_interruptions > 1 ? NGPU_STORE_OP_STORE : NGPU_STORE_OP_DONT_CARE;
             rt_params.depth_stencil.store_op = store_op;
         }
 

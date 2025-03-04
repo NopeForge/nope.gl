@@ -741,7 +741,7 @@ static VkResult query_swapchain_support(struct vkcontext *s)
     return VK_SUCCESS;
 }
 
-static int ngli_format_from_vk_format(VkFormat format)
+static enum ngpu_format ngli_format_from_vk_format(VkFormat format)
 {
     switch (format) {
     case VK_FORMAT_D32_SFLOAT:         return NGPU_FORMAT_D32_SFLOAT;

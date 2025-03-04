@@ -225,34 +225,34 @@ static const int type_binding_map[NGPU_TYPE_NB] = {
     [NGPU_TYPE_STORAGE_BUFFER_DYNAMIC]      = NGLI_BINDING_TYPE_SSBO,
 };
 
-static int is_sampler(int type)
+static int is_sampler(enum ngpu_type type)
 {
     return type_flags_map[type] & TYPE_FLAG_IS_SAMPLER;
 }
 
-static int is_image(int type)
+static int is_image(enum ngpu_type type)
 {
     return type_flags_map[type] & TYPE_FLAG_IS_IMAGE;
 }
 
-static int type_has_precision(int type)
+static int type_has_precision(enum ngpu_type type)
 {
     return type_flags_map[type] & TYPE_FLAG_HAS_PRECISION;
 }
 
-static int type_is_int(int type)
+static int type_is_int(enum ngpu_type type)
 {
     return type_flags_map[type] & TYPE_FLAG_IS_INT;
 }
 
-static const char *get_glsl_type(int type)
+static const char *get_glsl_type(enum ngpu_type type)
 {
     const char *ret = ngpu_type_get_name(type);
     ngli_assert(ret);
     return ret;
 }
 
-static int request_next_binding(struct pgcraft *s, int type)
+static int request_next_binding(struct pgcraft *s, enum ngpu_type type)
 {
     ngli_assert(type >= 0 && type < NGPU_TYPE_NB);
     const int binding_type = type_binding_map[type];
@@ -263,15 +263,15 @@ static int request_next_binding(struct pgcraft *s, int type)
     return (*next_bind)++;
 }
 
-static const char *get_precision_qualifier(const struct pgcraft *s, int type, int precision, const char *defaultp)
+static const char *get_precision_qualifier(const struct pgcraft *s, enum ngpu_type type, enum ngpu_precision precision, const char *defaultp)
 {
     if (!s->has_precision_qualifiers || !type_has_precision(type))
         return "";
-    static const char *precision_qualifiers[NGLI_PRECISION_NB] = {
-        [NGLI_PRECISION_AUTO]   = NULL,
-        [NGLI_PRECISION_HIGH]   = "highp",
-        [NGLI_PRECISION_MEDIUM] = "mediump",
-        [NGLI_PRECISION_LOW]    = "lowp",
+    static const char *precision_qualifiers[NGPU_PRECISION_NB] = {
+        [NGPU_PRECISION_AUTO]   = NULL,
+        [NGPU_PRECISION_HIGH]   = "highp",
+        [NGPU_PRECISION_MEDIUM] = "mediump",
+        [NGPU_PRECISION_LOW]    = "lowp",
     };
     const char *ret = precision_qualifiers[precision];
     return ret ? ret : defaultp;
@@ -331,7 +331,7 @@ static const char * const texture_info_suffixes[NGLI_INFO_FIELD_NB] = {
     [NGLI_INFO_FIELD_SAMPLER_RECT_1]    = "_rect_1",
 };
 
-static const int texture_types_map[NGLI_PGCRAFT_SHADER_TEX_TYPE_NB][NGLI_INFO_FIELD_NB] = {
+static const enum ngpu_type texture_types_map[NGLI_PGCRAFT_SHADER_TEX_TYPE_NB][NGLI_INFO_FIELD_NB] = {
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO] = {
         [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
         [NGLI_INFO_FIELD_DIMENSIONS]        = NGPU_TYPE_VEC2,
@@ -384,7 +384,7 @@ static const int texture_types_map[NGLI_PGCRAFT_SHADER_TEX_TYPE_NB][NGLI_INFO_FI
     },
 };
 
-static int is_type_supported(struct pgcraft *s, int type)
+static int is_type_supported(struct pgcraft *s, enum ngpu_type type)
 {
     const struct ngl_ctx *ctx = s->ctx;
     const struct ngl_config *config = &ctx->config;
@@ -405,11 +405,11 @@ static int prepare_texture_info_fields(struct pgcraft *s, const struct pgcraft_p
                                         const struct pgcraft_texture *texture,
                                         struct pgcraft_texture_info *info)
 {
-    const int *types_map = texture_types_map[texture->type];
+    const enum ngpu_type *types_map = texture_types_map[texture->type];
 
     for (size_t i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         struct pgcraft_texture_info_field *field = &info->fields[i];
-        const int type = types_map[i];
+        const enum ngpu_type type = types_map[i];
         if (type == NGPU_TYPE_NONE || !is_type_supported(s, type))
             continue;
         field->type = type;
@@ -479,7 +479,7 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
 
             const char *prefix = "";
             if (is_image(field->type)) {
-                if (texture->format == NGPU_TYPE_NONE) {
+                if (texture->format == NGPU_FORMAT_UNDEFINED) {
                     LOG(ERROR, "texture format must be set when accessing it as an image");
                     return NGL_ERROR_INVALID_ARG;
                 }
@@ -618,7 +618,7 @@ static int inject_blocks(struct pgcraft *s, struct bstr *b,
     return 0;
 }
 
-static int get_location_count(int type)
+static int get_location_count(enum ngpu_type type)
 {
     switch (type) {
     case NGPU_TYPE_MAT3: return 3;

@@ -56,7 +56,7 @@ static const char * const type_map[NGPU_TYPE_NB] = {
     [NGPU_TYPE_STORAGE_BUFFER_DYNAMIC]      = "buffer",
 };
 
-const char *ngpu_type_get_name(int type)
+const char *ngpu_type_get_name(enum ngpu_type type)
 {
     return type_map[type];
 }

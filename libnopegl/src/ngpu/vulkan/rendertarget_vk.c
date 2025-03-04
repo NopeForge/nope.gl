@@ -39,7 +39,7 @@ static const VkAttachmentLoadOp load_op_map[] = {
     [NGPU_LOAD_OP_DONT_CARE] = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 };
 
-static VkAttachmentLoadOp get_vk_load_op(int load_op)
+static VkAttachmentLoadOp get_vk_load_op(enum ngpu_load_op load_op)
 {
     return load_op_map[load_op];
 }
@@ -49,7 +49,7 @@ static const VkAttachmentStoreOp store_op_map[] = {
     [NGPU_STORE_OP_DONT_CARE] = VK_ATTACHMENT_STORE_OP_DONT_CARE,
 };
 
-static VkAttachmentStoreOp get_vk_store_op(int store_op)
+static VkAttachmentStoreOp get_vk_store_op(enum ngpu_store_op store_op)
 {
     return store_op_map[store_op];
 }

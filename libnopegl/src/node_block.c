@@ -151,7 +151,7 @@ size_t ngli_node_block_get_gpu_size(struct ngl_node *node)
     return s->data_size;
 }
 
-static int get_node_data_type(const struct ngl_node *node)
+static enum ngpu_type get_node_data_type(const struct ngl_node *node)
 {
     if (node->cls->category == NGLI_NODE_CATEGORY_VARIABLE) {
         const struct variable_info *variable = node->priv_data;
@@ -300,7 +300,7 @@ static int block_init(struct ngl_node *node)
             }
         }
 
-        const int type  = get_node_data_type(field_node);
+        const enum ngpu_type type = get_node_data_type(field_node);
         const size_t count = get_node_data_count(field_node);
 
         ret = ngpu_block_desc_add_field(&info->block, field_node->label, type, count);

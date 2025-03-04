@@ -1,4 +1,5 @@
 /*
+ * Copyright 2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2018-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -88,17 +89,17 @@ static const struct {
     [NGPU_FORMAT_S8_UINT]             = {1, 1},
 };
 
-int ngpu_format_get_bytes_per_pixel(int format)
+int ngpu_format_get_bytes_per_pixel(enum ngpu_format format)
 {
     return format_comp_sizes[format].size;
 }
 
-int ngpu_format_get_nb_comp(int format)
+int ngpu_format_get_nb_comp(enum ngpu_format format)
 {
     return format_comp_sizes[format].nb_comp;
 }
 
-int ngpu_format_has_depth(int format)
+int ngpu_format_has_depth(enum ngpu_format format)
 {
     switch (format) {
     case NGPU_FORMAT_D16_UNORM:
@@ -112,7 +113,7 @@ int ngpu_format_has_depth(int format)
     }
 }
 
-int ngpu_format_has_stencil(int format)
+int ngpu_format_has_stencil(enum ngpu_format format)
 {
     switch (format) {
     case NGPU_FORMAT_X8_D24_UNORM_PACK32:

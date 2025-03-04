@@ -34,14 +34,14 @@ struct ngpu_program_variable_info {
     int location;
 };
 
-enum {
+enum ngpu_program_shader {
     NGPU_PROGRAM_SHADER_VERT,
     NGPU_PROGRAM_SHADER_FRAG,
     NGPU_PROGRAM_SHADER_COMP,
     NGPU_PROGRAM_SHADER_NB
 };
 
-enum {
+enum ngpu_program_stage {
     NGPU_PROGRAM_STAGE_VERTEX_BIT   = 1U << NGPU_PROGRAM_SHADER_VERT,
     NGPU_PROGRAM_STAGE_FRAGMENT_BIT = 1U << NGPU_PROGRAM_SHADER_FRAG,
     NGPU_PROGRAM_STAGE_COMPUTE_BIT  = 1U << NGPU_PROGRAM_SHADER_COMP,

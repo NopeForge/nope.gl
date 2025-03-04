@@ -27,19 +27,19 @@
 #include "texture.h"
 #include "utils.h"
 
-enum {
+enum ngpu_load_op {
     NGPU_LOAD_OP_LOAD,
     NGPU_LOAD_OP_CLEAR,
     NGPU_LOAD_OP_DONT_CARE,
 };
 
-enum {
+enum ngpu_store_op {
     NGPU_STORE_OP_STORE,
     NGPU_STORE_OP_DONT_CARE,
 };
 
 struct ngpu_rendertarget_layout_entry {
-    int format;
+    enum ngpu_format format;
     int resolve;
 };
 
@@ -55,9 +55,9 @@ struct ngpu_attachment {
     int32_t attachment_layer;
     struct ngpu_texture *resolve_target;
     int32_t resolve_target_layer;
-    int load_op;
+    enum ngpu_load_op load_op;
     float clear_value[4];
-    int store_op;
+    enum ngpu_store_op store_op;
 };
 
 struct ngpu_rendertarget_params {

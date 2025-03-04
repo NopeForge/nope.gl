@@ -112,7 +112,7 @@ static const GLenum gl_target_map[NGPU_TYPE_NB] = {
     [NGPU_TYPE_STORAGE_BUFFER_DYNAMIC] = GL_SHADER_STORAGE_BUFFER,
 };
 
-static GLenum get_gl_target(int type)
+static GLenum get_gl_target(enum ngpu_type type)
 {
     return gl_target_map[type];
 }
@@ -126,7 +126,7 @@ static int build_buffer_bindings(struct ngpu_bindgroup *s)
     const struct ngpu_bindgroup_layout *layout = s->layout;
     for (size_t i = 0; i < layout->nb_buffers; i++) {
         const struct ngpu_bindgroup_layout_entry *layout_entry = &layout->buffers[i];
-        const int type = layout_entry->type;
+        const enum ngpu_type type = layout_entry->type;
 
         if (type == NGPU_TYPE_STORAGE_BUFFER ||
             type == NGPU_TYPE_STORAGE_BUFFER_DYNAMIC)
@@ -242,7 +242,7 @@ static const GLenum gl_access_map[NGPU_ACCESS_NB] = {
     [NGPU_ACCESS_READ_WRITE] = GL_READ_WRITE,
 };
 
-static GLenum get_gl_access(int access)
+static GLenum get_gl_access(enum ngpu_access access)
 {
     return gl_access_map[access];
 }

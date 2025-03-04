@@ -159,7 +159,7 @@ void ngpu_format_gl_init(struct glcontext *gl)
     }
 }
 
-const struct ngpu_format_gl *ngpu_format_get_gl_texture_format(struct glcontext *gl, int format)
+const struct ngpu_format_gl *ngpu_format_get_gl_texture_format(struct glcontext *gl, enum ngpu_format format)
 {
     ngli_assert(format >= 0 && format < NGLI_ARRAY_NB(gl->formats));
     const struct ngpu_format_gl *format_gl = &gl->formats[format];
