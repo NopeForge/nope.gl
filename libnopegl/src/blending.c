@@ -28,7 +28,8 @@
  * by Thomas Porter and Tom Duff
  */
 static const struct {
-    int srcf, dstf;
+    enum ngpu_blend_factor srcf;
+    enum ngpu_blend_factor dstf;
 } blend_factors[] = {
     [NGLI_BLENDING_SRC_OVER] = {NGPU_BLEND_FACTOR_ONE,                 NGPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA},
     [NGLI_BLENDING_DST_OVER] = {NGPU_BLEND_FACTOR_ONE_MINUS_DST_ALPHA, NGPU_BLEND_FACTOR_ONE},
@@ -64,8 +65,8 @@ int ngli_blending_apply_preset(struct ngpu_graphics_state *state, enum ngli_blen
         return 0;
     if (preset < 0 || preset >= NGLI_ARRAY_NB(blend_factors))
         return NGL_ERROR_INVALID_ARG;
-    const int srcf = blend_factors[preset].srcf;
-    const int dstf = blend_factors[preset].dstf;
+    const enum ngpu_blend_factor srcf = blend_factors[preset].srcf;
+    const enum ngpu_blend_factor dstf = blend_factors[preset].dstf;
     state->blend = 1;
     state->blend_src_factor   = srcf;
     state->blend_dst_factor   = dstf;

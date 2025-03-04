@@ -137,7 +137,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
     const struct pass_params *params = &s->params;
 
     enum pgcraft_shader_tex_type type = ngli_node_texture_get_pgcraft_shader_tex_type(texture);
-    int precision = 0;
+    enum ngpu_precision precision = 0;
     int writable = 0;
     int as_image = 0;
     if (params->properties) {
@@ -187,7 +187,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
      * Select buffer type. We prefer UBO over SSBO, but in the following
      * situations, UBO is not possible.
      */
-    int type = NGPU_TYPE_UNIFORM_BUFFER;
+    enum ngpu_type type = NGPU_TYPE_UNIFORM_BUFFER;
     if (block->layout == NGPU_BLOCK_LAYOUT_STD430) {
         LOG(DEBUG, "block %s has a std430 layout, declaring it as SSBO", name);
         type = NGPU_TYPE_STORAGE_BUFFER;
@@ -478,7 +478,7 @@ int ngli_pass_prepare(struct pass *s)
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rnode *rnode = ctx->rnode_pos;
 
-    const int format = rnode->rendertarget_layout.depth_stencil.format;
+    const enum ngpu_format format = rnode->rendertarget_layout.depth_stencil.format;
     if (rnode->graphics_state.depth_test && !ngpu_format_has_depth(format)) {
         LOG(ERROR, "depth testing is not supported on rendertargets with no depth attachment");
         return NGL_ERROR_INVALID_USAGE;

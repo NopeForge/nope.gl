@@ -128,7 +128,7 @@ struct draw_common {
     struct pgcraft_attribute position_attr;
     struct pgcraft_attribute uvcoord_attr;
     int nb_vertices;
-    int topology;
+    enum ngpu_primitive_topology topology;
     struct geometry *geometry;
     int own_geometry;
     struct darray pipeline_descs;

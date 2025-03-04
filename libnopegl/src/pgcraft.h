@@ -36,7 +36,7 @@ struct ngl_ctx;
 
 struct pgcraft_uniform { // also buffers (for arrays)
     char name[MAX_ID_LEN];
-    int type;
+    enum ngpu_type type;
     int stage;
     int precision;
     const void *data;
@@ -61,9 +61,9 @@ struct pgcraft_texture {
     char name[MAX_ID_LEN];
     enum pgcraft_shader_tex_type type;
     int stage;
-    int precision;
+    enum ngpu_precision precision;
     int writable;
-    int format;
+    enum ngpu_format format;
     int clamp_video;
     /*
      * Just like the other types (uniforms, blocks, attributes), this field
@@ -100,7 +100,7 @@ struct pgcraft_texture {
 struct pgcraft_block {
     char name[MAX_ID_LEN];
     const char *instance_name;
-    int type;
+    enum ngpu_type type;
     int stage;
     int writable;
     const struct ngpu_block_desc *block;
@@ -109,9 +109,9 @@ struct pgcraft_block {
 
 struct pgcraft_attribute {
     char name[MAX_ID_LEN];
-    int type;
-    int precision;
-    int format;
+    enum ngpu_type type;
+    enum ngpu_precision precision;
+    enum ngpu_format format;
     size_t stride;
     size_t offset;
     int rate;
@@ -120,9 +120,9 @@ struct pgcraft_attribute {
 
 struct pgcraft_iovar {
     char name[MAX_ID_LEN];
-    int precision_out;
-    int precision_in;
-    int type;
+    enum ngpu_precision precision_out;
+    enum ngpu_precision precision_in;
+    enum ngpu_type type;
 };
 
 enum {
@@ -141,7 +141,7 @@ enum {
 };
 
 struct pgcraft_texture_info_field {
-    int type;
+    enum ngpu_type type;
     int32_t index;
     int stage;
 };

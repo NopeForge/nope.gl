@@ -28,7 +28,7 @@
 #include "pgcraft.h"
 
 struct pipeline_compat_params {
-    int type; // NGLI_PIPELINE_TYPE_*
+    enum ngpu_pipeline_type type;
     struct ngpu_pipeline_graphics graphics;
     const struct ngpu_program *program;
     struct ngpu_bindgroup_layout_desc layout_desc;
@@ -50,7 +50,7 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
 int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct ngpu_buffer *buffer, size_t offset, size_t size);
 int ngli_pipeline_compat_update_dynamic_offsets(struct pipeline_compat *s, const uint32_t *offsets, size_t nb_offsets);
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances, int first_vertex);
-void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct ngpu_buffer *indices, int indices_format, int nb_indices, int nb_instances);
+void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct ngpu_buffer *indices, enum ngpu_format indices_format, int nb_indices, int nb_instances);
 void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 void ngli_pipeline_compat_freep(struct pipeline_compat **sp);
 

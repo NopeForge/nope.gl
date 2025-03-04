@@ -30,26 +30,24 @@
 #include "program.h"
 #include "rendertarget.h"
 #include "texture.h"
-#include "type.h"
+#include "ngpu/type.h"
 #include "utils.h"
 
 struct ngpu_ctx;
 
-enum {
-    NGPU_ACCESS_UNDEFINED,
-    NGPU_ACCESS_READ_BIT,
-    NGPU_ACCESS_WRITE_BIT,
-    NGPU_ACCESS_READ_WRITE,
+enum ngpu_access {
+    NGPU_ACCESS_UNDEFINED  = 0,
+    NGPU_ACCESS_READ_BIT   = 1 << 0,
+    NGPU_ACCESS_WRITE_BIT  = 1 << 1,
+    NGPU_ACCESS_READ_WRITE = NGPU_ACCESS_READ_BIT | NGPU_ACCESS_WRITE_BIT,
     NGPU_ACCESS_NB
 };
 
-NGLI_STATIC_ASSERT(access, (NGPU_ACCESS_READ_BIT | NGPU_ACCESS_WRITE_BIT) == NGPU_ACCESS_READ_WRITE);
-
 struct ngpu_bindgroup_layout_entry {
     size_t id;
-    int type;
+    enum ngpu_type type;
     int binding;
-    int access;
+    enum ngpu_access access;
     uint32_t stage_flags;
     void *immutable_sampler;
 };

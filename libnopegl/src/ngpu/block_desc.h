@@ -27,6 +27,7 @@
 #include "darray.h"
 #include "ngpu/buffer.h"
 #include "ngpu/program.h" // MAX_ID_LEN
+#include "ngpu/type.h"
 
 struct ngpu_ctx;
 
@@ -39,12 +40,12 @@ enum ngpu_block_layout {
 
 struct ngpu_block_field {
     char name[MAX_ID_LEN];
-    int type;
+    enum ngpu_type type;
     size_t count;
     size_t offset;
     size_t size;
     size_t stride;
-    int precision;
+    enum ngpu_precision precision;
 };
 
 void ngpu_block_field_copy(const struct ngpu_block_field *fi, uint8_t *dst, const uint8_t *src);
@@ -77,7 +78,7 @@ size_t ngpu_block_desc_get_size(const struct ngpu_block_desc *s, size_t variadic
  */
 size_t ngpu_block_desc_get_aligned_size(const struct ngpu_block_desc *s, size_t variadic_count);
 
-int ngpu_block_desc_add_field(struct ngpu_block_desc *s, const char *name, int type, size_t count);
+int ngpu_block_desc_add_field(struct ngpu_block_desc *s, const char *name, enum ngpu_type type, size_t count);
 int ngpu_block_desc_add_fields(struct ngpu_block_desc *s, const struct ngpu_block_field *fields, size_t count);
 
 void ngpu_block_desc_reset(struct ngpu_block_desc *s);

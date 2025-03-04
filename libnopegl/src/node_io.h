@@ -28,7 +28,7 @@ struct io_opts {
 };
 
 struct io_priv {
-    int type;
+    enum ngpu_type type;
 };
 
 #endif

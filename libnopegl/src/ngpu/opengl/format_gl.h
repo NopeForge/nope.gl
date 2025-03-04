@@ -39,6 +39,6 @@ struct ngpu_format_gl {
 };
 
 void ngpu_format_gl_init(struct glcontext *gl);
-const struct ngpu_format_gl *ngpu_format_get_gl_texture_format(struct glcontext *gl, int format);
+const struct ngpu_format_gl *ngpu_format_get_gl_texture_format(struct glcontext *gl, enum ngpu_format format);
 
 #endif

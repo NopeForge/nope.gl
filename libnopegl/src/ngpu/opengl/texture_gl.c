@@ -45,12 +45,12 @@ static const GLint gl_filter_map[NGPU_NB_FILTER][NGPU_NB_MIPMAP] = {
     },
 };
 
-GLint ngpu_texture_get_gl_min_filter(int min_filter, int mipmap_filter)
+GLint ngpu_texture_get_gl_min_filter(enum ngpu_filter min_filter, enum ngpu_mipmap_filter mipmap_filter)
 {
     return gl_filter_map[min_filter][mipmap_filter];
 }
 
-GLint ngpu_texture_get_gl_mag_filter(int mag_filter)
+GLint ngpu_texture_get_gl_mag_filter(enum ngpu_filter mag_filter)
 {
     return gl_filter_map[mag_filter][NGPU_MIPMAP_FILTER_NONE];
 }
@@ -61,7 +61,7 @@ static const GLint gl_wrap_map[NGPU_NB_WRAP] = {
     [NGPU_WRAP_REPEAT]          = GL_REPEAT,
 };
 
-GLint ngpu_texture_get_gl_wrap(int wrap)
+GLint ngpu_texture_get_gl_wrap(enum ngpu_wrap wrap)
 {
     return gl_wrap_map[wrap];
 }

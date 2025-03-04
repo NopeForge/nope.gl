@@ -47,15 +47,6 @@ struct ngpu_scissor {
 
 int ngpu_viewport_is_valid(const struct ngpu_viewport *viewport);
 
-enum {
-    NGPU_PRIMITIVE_TOPOLOGY_POINT_LIST,
-    NGPU_PRIMITIVE_TOPOLOGY_LINE_LIST,
-    NGPU_PRIMITIVE_TOPOLOGY_LINE_STRIP,
-    NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-    NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-    NGPU_PRIMITIVE_TOPOLOGY_NB
-};
-
 #define NGPU_FEATURE_SOFTWARE                          (1U << 0)
 #define NGPU_FEATURE_COMPUTE                           (1U << 1)
 #define NGPU_FEATURE_IMAGE_LOAD_STORE                  (1U << 2)
@@ -82,7 +73,7 @@ struct ngpu_ctx_class {
     void (*transform_projection_matrix)(struct ngpu_ctx *s, float *dst);
     void (*get_rendertarget_uvcoord_matrix)(struct ngpu_ctx *s, float *dst);
 
-    struct ngpu_rendertarget *(*get_default_rendertarget)(struct ngpu_ctx *s, int load_op);
+    struct ngpu_rendertarget *(*get_default_rendertarget)(struct ngpu_ctx *s, enum ngpu_load_op load_op);
     const struct ngpu_rendertarget_layout *(*get_default_rendertarget_layout)(struct ngpu_ctx *s);
     void (*get_default_rendertarget_size)(struct ngpu_ctx *s, int32_t *width, int32_t *height);
 
@@ -92,12 +83,12 @@ struct ngpu_ctx_class {
     void (*set_viewport)(struct ngpu_ctx *s, const struct ngpu_viewport *viewport);
     void (*set_scissor)(struct ngpu_ctx *s, const struct ngpu_scissor *scissor);
 
-    int (*get_preferred_depth_format)(struct ngpu_ctx *s);
-    int (*get_preferred_depth_stencil_format)(struct ngpu_ctx *s);
-    uint32_t (*get_format_features)(struct ngpu_ctx *s, int format);
+    enum ngpu_format (*get_preferred_depth_format)(struct ngpu_ctx *s);
+    enum ngpu_format (*get_preferred_depth_stencil_format)(struct ngpu_ctx *s);
+    uint32_t (*get_format_features)(struct ngpu_ctx *s, enum ngpu_format format);
 
     void (*set_vertex_buffer)(struct ngpu_ctx *s, uint32_t index, const struct ngpu_buffer *buffer);
-    void (*set_index_buffer)(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, int format);
+    void (*set_index_buffer)(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, enum ngpu_format format);
 
     void (*generate_texture_mipmap)(struct ngpu_ctx *s, struct ngpu_texture *texture);
 
@@ -166,7 +157,7 @@ struct ngpu_ctx {
     size_t nb_dynamic_offsets;
     const struct ngpu_buffer *vertex_buffers[NGPU_MAX_VERTEX_BUFFERS];
     const struct ngpu_buffer *index_buffer;
-    int index_format;
+    enum ngpu_format index_format;
 };
 
 struct ngpu_ctx *ngpu_ctx_create(const struct ngl_config *config);
@@ -185,7 +176,7 @@ int ngpu_ctx_transform_cull_mode(struct ngpu_ctx *s, int cull_mode);
 void ngpu_ctx_transform_projection_matrix(struct ngpu_ctx *s, float *dst);
 void ngpu_ctx_get_rendertarget_uvcoord_matrix(struct ngpu_ctx *s, float *dst);
 
-struct ngpu_rendertarget *ngpu_ctx_get_default_rendertarget(struct ngpu_ctx *s, int load_op);
+struct ngpu_rendertarget *ngpu_ctx_get_default_rendertarget(struct ngpu_ctx *s, enum ngpu_load_op load_op);
 const struct ngpu_rendertarget_layout *ngpu_ctx_get_default_rendertarget_layout(struct ngpu_ctx *s);
 void ngpu_ctx_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, int32_t *height);
 
@@ -195,9 +186,9 @@ void ngpu_ctx_end_render_pass(struct ngpu_ctx *s);
 void ngpu_ctx_set_viewport(struct ngpu_ctx *s, const struct ngpu_viewport *viewport);
 void ngpu_ctx_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scissor);
 
-int ngpu_ctx_get_preferred_depth_format(struct ngpu_ctx *s);
-int ngpu_ctx_get_preferred_depth_stencil_format(struct ngpu_ctx *s);
-uint32_t ngpu_ctx_get_format_features(struct ngpu_ctx *s, int format);
+enum ngpu_format ngpu_ctx_get_preferred_depth_format(struct ngpu_ctx *s);
+enum ngpu_format ngpu_ctx_get_preferred_depth_stencil_format(struct ngpu_ctx *s);
+uint32_t ngpu_ctx_get_format_features(struct ngpu_ctx *s, enum ngpu_format format);
 
 void ngpu_ctx_generate_texture_mipmap(struct ngpu_ctx *s, struct ngpu_texture *texture);
 
@@ -208,6 +199,6 @@ void ngpu_ctx_draw_indexed(struct ngpu_ctx *s, int nb_indices, int nb_instances)
 void ngpu_ctx_dispatch(struct ngpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 
 void ngpu_ctx_set_vertex_buffer(struct ngpu_ctx *s, uint32_t index, const struct ngpu_buffer *buffer);
-void ngpu_ctx_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, int format);
+void ngpu_ctx_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, enum ngpu_format format);
 
 #endif

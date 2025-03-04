@@ -63,8 +63,8 @@ struct pass {
     const struct buffer_layout *indices_layout;
     int nb_vertices;
     int nb_instances;
-    int topology;
-    int pipeline_type;
+    enum ngpu_primitive_topology topology;
+    enum ngpu_pipeline_type pipeline_type;
     struct darray crafter_attributes;
     struct darray crafter_uniforms;
     struct darray crafter_textures;

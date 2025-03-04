@@ -74,7 +74,7 @@ struct hblur_priv {
 
     struct ngpu_block blur_params_block;
 
-    int preferred_format;
+    enum ngpu_format preferred_format;
     struct ngpu_texture *tex0;
     struct ngpu_texture *tex1;
 
@@ -119,9 +119,9 @@ static const struct node_param hblur_params[] = {
                                  NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
                                  NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
 
-static int get_preferred_format(struct ngpu_ctx *gpu_ctx)
+static enum ngpu_format get_preferred_format(struct ngpu_ctx *gpu_ctx)
 {
-    static const int formats[] = {
+    static const enum ngpu_format formats[] = {
         NGPU_FORMAT_R32G32B32A32_SFLOAT,
         NGPU_FORMAT_R16G16B16A16_SFLOAT,
         NGPU_FORMAT_R8G8B8A8_UNORM,

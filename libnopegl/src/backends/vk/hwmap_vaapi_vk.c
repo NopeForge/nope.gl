@@ -47,7 +47,7 @@ struct format_desc {
     size_t nb_planes;
     int log2_chroma_width;
     int log2_chroma_height;
-    int formats[2];
+    enum ngpu_format formats[2];
 };
 
 static int vaapi_get_format_desc(uint32_t format, struct format_desc *desc)
@@ -212,7 +212,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     }
 
     for (size_t i = 0; i < nb_layers; i++) {
-        const int ngl_format = desc.formats[i];
+        const enum ngpu_format ngl_format = desc.formats[i];
         const VkFormat format = ngpu_format_ngl_to_vk(ngl_format);
         const int32_t width = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc.log2_chroma_width);
         const int32_t height = i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc.log2_chroma_height);

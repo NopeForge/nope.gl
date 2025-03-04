@@ -203,7 +203,7 @@ static int rtt_init(struct ngl_node *node)
         s->layout.depth_stencil.format = params->format;
         s->layout.depth_stencil.resolve = o->samples > 1;
     } else {
-        int depth_format = NGPU_FORMAT_UNDEFINED;
+        enum ngpu_format depth_format = NGPU_FORMAT_UNDEFINED;
         if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
             depth_format = ngpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
         else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
@@ -303,7 +303,7 @@ static int rtt_prefetch(struct ngl_node *node)
         ngpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, image->coordinates_matrix);
     }
 
-    int depth_format = NGPU_FORMAT_UNDEFINED;
+    enum ngpu_format depth_format = NGPU_FORMAT_UNDEFINED;
     if (o->depth_texture) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
         struct texture_info *depth_texture_info = info.info;

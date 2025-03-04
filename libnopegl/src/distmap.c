@@ -469,11 +469,11 @@ static void normalize_coordinates(struct distmap *s)
                           NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
                           NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
 
-static int get_preferred_distmap_format(const struct distmap *s)
+static enum ngpu_format get_preferred_distmap_format(const struct distmap *s)
 {
     struct ngpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
 
-    static const int formats[] = {
+    static const enum ngpu_format formats[] = {
             NGPU_FORMAT_R32_SFLOAT,
             NGPU_FORMAT_R16_SFLOAT,
             NGPU_FORMAT_R8_UNORM,

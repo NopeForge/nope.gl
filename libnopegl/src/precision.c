@@ -25,10 +25,10 @@
 const struct param_choices ngli_precision_choices = {
     .name = "precision",
     .consts = {
-        {"auto",   NGLI_PRECISION_AUTO,   .desc=NGLI_DOCSTRING("automatic")},
-        {"high",   NGLI_PRECISION_HIGH,   .desc=NGLI_DOCSTRING("high")},
-        {"medium", NGLI_PRECISION_MEDIUM, .desc=NGLI_DOCSTRING("medium")},
-        {"low",    NGLI_PRECISION_LOW,    .desc=NGLI_DOCSTRING("low")},
+        {"auto",   NGPU_PRECISION_AUTO,   .desc=NGLI_DOCSTRING("automatic")},
+        {"high",   NGPU_PRECISION_HIGH,   .desc=NGLI_DOCSTRING("high")},
+        {"medium", NGPU_PRECISION_MEDIUM, .desc=NGLI_DOCSTRING("medium")},
+        {"low",    NGPU_PRECISION_LOW,    .desc=NGLI_DOCSTRING("low")},
         {NULL}
     }
 };

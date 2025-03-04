@@ -32,8 +32,8 @@
  * Helper structure to specify the content (or a slice) of a buffer
  */
 struct buffer_layout {
-    int type;       // any of NGPU_TYPE_*
-    int format;     // any of NGLI_FORMAT_*
+    enum ngpu_type type;
+    enum ngpu_format format;
     size_t stride;  // stride of 1 element, in bytes
     size_t comp;    // number of components per element
     size_t count;   // number of elements

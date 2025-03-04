@@ -24,7 +24,7 @@
 #include "format_vk.h"
 #include "utils.h"
 
-VkFormat ngpu_format_ngl_to_vk(int format)
+VkFormat ngpu_format_ngl_to_vk(enum ngpu_format format)
 {
     static const VkFormat format_map[] = {
         [NGPU_FORMAT_UNDEFINED]            = VK_FORMAT_UNDEFINED,
@@ -96,7 +96,7 @@ VkFormat ngpu_format_ngl_to_vk(int format)
     return ret;
 }
 
-int ngpu_format_vk_to_ngl(VkFormat format)
+enum ngpu_format ngpu_format_vk_to_ngl(VkFormat format)
 {
     switch (format) {
     case VK_FORMAT_R8_UNORM:            return NGPU_FORMAT_R8_UNORM;

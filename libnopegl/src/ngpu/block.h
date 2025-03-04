@@ -40,7 +40,7 @@ struct ngpu_block_entry {
 };
 
 struct ngpu_block_params {
-    int layout;
+    enum ngpu_block_layout layout;
     uint32_t usage;
     size_t count;
     const struct ngpu_block_entry *entries;
