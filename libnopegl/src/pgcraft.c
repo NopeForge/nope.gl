@@ -35,7 +35,7 @@
 #include "ngpu/format.h"
 #include "pgcraft.h"
 #include "precision.h"
-#include "type.h"
+#include "ngpu/type.h"
 #include "utils.h"
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
@@ -175,87 +175,87 @@ enum {
     TYPE_FLAG_IS_IMAGE            = 1 << 3,
 };
 
-static const int type_flags_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_I32]                         = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
-    [NGLI_TYPE_IVEC2]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
-    [NGLI_TYPE_IVEC3]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
-    [NGLI_TYPE_IVEC4]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
-    [NGLI_TYPE_U32]                         = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
-    [NGLI_TYPE_UVEC2]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
-    [NGLI_TYPE_UVEC3]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
-    [NGLI_TYPE_UVEC4]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
-    [NGLI_TYPE_F32]                         = TYPE_FLAG_HAS_PRECISION,
-    [NGLI_TYPE_VEC2]                        = TYPE_FLAG_HAS_PRECISION,
-    [NGLI_TYPE_VEC3]                        = TYPE_FLAG_HAS_PRECISION,
-    [NGLI_TYPE_VEC4]                        = TYPE_FLAG_HAS_PRECISION,
-    [NGLI_TYPE_MAT3]                        = TYPE_FLAG_HAS_PRECISION,
-    [NGLI_TYPE_MAT4]                        = TYPE_FLAG_HAS_PRECISION,
-    [NGLI_TYPE_BOOL]                        = 0,
-    [NGLI_TYPE_SAMPLER_2D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
-    [NGLI_TYPE_SAMPLER_2D_ARRAY]            = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
-    [NGLI_TYPE_SAMPLER_2D_RECT]             = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
-    [NGLI_TYPE_SAMPLER_3D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
-    [NGLI_TYPE_SAMPLER_CUBE]                = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
-    [NGLI_TYPE_SAMPLER_EXTERNAL_OES]        = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
-    [NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
-    [NGLI_TYPE_IMAGE_2D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
-    [NGLI_TYPE_IMAGE_2D_ARRAY]              = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
-    [NGLI_TYPE_IMAGE_3D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
-    [NGLI_TYPE_IMAGE_CUBE]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
-    [NGLI_TYPE_UNIFORM_BUFFER]              = 0,
-    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC]      = 0,
-    [NGLI_TYPE_STORAGE_BUFFER]              = 0,
-    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC]      = 0,
+static const int type_flags_map[NGPU_TYPE_NB] = {
+    [NGPU_TYPE_I32]                         = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGPU_TYPE_IVEC2]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGPU_TYPE_IVEC3]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGPU_TYPE_IVEC4]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGPU_TYPE_U32]                         = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGPU_TYPE_UVEC2]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGPU_TYPE_UVEC3]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGPU_TYPE_UVEC4]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGPU_TYPE_F32]                         = TYPE_FLAG_HAS_PRECISION,
+    [NGPU_TYPE_VEC2]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGPU_TYPE_VEC3]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGPU_TYPE_VEC4]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGPU_TYPE_MAT3]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGPU_TYPE_MAT4]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGPU_TYPE_BOOL]                        = 0,
+    [NGPU_TYPE_SAMPLER_2D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGPU_TYPE_SAMPLER_2D_ARRAY]            = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGPU_TYPE_SAMPLER_2D_RECT]             = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGPU_TYPE_SAMPLER_3D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGPU_TYPE_SAMPLER_CUBE]                = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGPU_TYPE_SAMPLER_EXTERNAL_OES]        = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGPU_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
+    [NGPU_TYPE_IMAGE_2D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
+    [NGPU_TYPE_IMAGE_2D_ARRAY]              = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
+    [NGPU_TYPE_IMAGE_3D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
+    [NGPU_TYPE_IMAGE_CUBE]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_IMAGE,
+    [NGPU_TYPE_UNIFORM_BUFFER]              = 0,
+    [NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC]      = 0,
+    [NGPU_TYPE_STORAGE_BUFFER]              = 0,
+    [NGPU_TYPE_STORAGE_BUFFER_DYNAMIC]      = 0,
 };
 
-static const int type_binding_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_SAMPLER_2D]                  = NGLI_BINDING_TYPE_TEXTURE,
-    [NGLI_TYPE_SAMPLER_2D_ARRAY]            = NGLI_BINDING_TYPE_TEXTURE,
-    [NGLI_TYPE_SAMPLER_2D_RECT]             = NGLI_BINDING_TYPE_TEXTURE,
-    [NGLI_TYPE_SAMPLER_3D]                  = NGLI_BINDING_TYPE_TEXTURE,
-    [NGLI_TYPE_SAMPLER_CUBE]                = NGLI_BINDING_TYPE_TEXTURE,
-    [NGLI_TYPE_SAMPLER_EXTERNAL_OES]        = NGLI_BINDING_TYPE_TEXTURE,
-    [NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = NGLI_BINDING_TYPE_TEXTURE,
-    [NGLI_TYPE_IMAGE_2D]                    = NGLI_BINDING_TYPE_IMAGE,
-    [NGLI_TYPE_IMAGE_2D_ARRAY]              = NGLI_BINDING_TYPE_IMAGE,
-    [NGLI_TYPE_IMAGE_3D]                    = NGLI_BINDING_TYPE_IMAGE,
-    [NGLI_TYPE_IMAGE_CUBE]                  = NGLI_BINDING_TYPE_IMAGE,
-    [NGLI_TYPE_UNIFORM_BUFFER]              = NGLI_BINDING_TYPE_UBO,
-    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC]      = NGLI_BINDING_TYPE_UBO,
-    [NGLI_TYPE_STORAGE_BUFFER]              = NGLI_BINDING_TYPE_SSBO,
-    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC]      = NGLI_BINDING_TYPE_SSBO,
+static const int type_binding_map[NGPU_TYPE_NB] = {
+    [NGPU_TYPE_SAMPLER_2D]                  = NGLI_BINDING_TYPE_TEXTURE,
+    [NGPU_TYPE_SAMPLER_2D_ARRAY]            = NGLI_BINDING_TYPE_TEXTURE,
+    [NGPU_TYPE_SAMPLER_2D_RECT]             = NGLI_BINDING_TYPE_TEXTURE,
+    [NGPU_TYPE_SAMPLER_3D]                  = NGLI_BINDING_TYPE_TEXTURE,
+    [NGPU_TYPE_SAMPLER_CUBE]                = NGLI_BINDING_TYPE_TEXTURE,
+    [NGPU_TYPE_SAMPLER_EXTERNAL_OES]        = NGLI_BINDING_TYPE_TEXTURE,
+    [NGPU_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = NGLI_BINDING_TYPE_TEXTURE,
+    [NGPU_TYPE_IMAGE_2D]                    = NGLI_BINDING_TYPE_IMAGE,
+    [NGPU_TYPE_IMAGE_2D_ARRAY]              = NGLI_BINDING_TYPE_IMAGE,
+    [NGPU_TYPE_IMAGE_3D]                    = NGLI_BINDING_TYPE_IMAGE,
+    [NGPU_TYPE_IMAGE_CUBE]                  = NGLI_BINDING_TYPE_IMAGE,
+    [NGPU_TYPE_UNIFORM_BUFFER]              = NGLI_BINDING_TYPE_UBO,
+    [NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC]      = NGLI_BINDING_TYPE_UBO,
+    [NGPU_TYPE_STORAGE_BUFFER]              = NGLI_BINDING_TYPE_SSBO,
+    [NGPU_TYPE_STORAGE_BUFFER_DYNAMIC]      = NGLI_BINDING_TYPE_SSBO,
 };
 
-static int is_sampler(int type)
+static int is_sampler(enum ngpu_type type)
 {
     return type_flags_map[type] & TYPE_FLAG_IS_SAMPLER;
 }
 
-static int is_image(int type)
+static int is_image(enum ngpu_type type)
 {
     return type_flags_map[type] & TYPE_FLAG_IS_IMAGE;
 }
 
-static int type_has_precision(int type)
+static int type_has_precision(enum ngpu_type type)
 {
     return type_flags_map[type] & TYPE_FLAG_HAS_PRECISION;
 }
 
-static int type_is_int(int type)
+static int type_is_int(enum ngpu_type type)
 {
     return type_flags_map[type] & TYPE_FLAG_IS_INT;
 }
 
-static const char *get_glsl_type(int type)
+static const char *get_glsl_type(enum ngpu_type type)
 {
-    const char *ret = ngli_type_get_name(type);
+    const char *ret = ngpu_type_get_name(type);
     ngli_assert(ret);
     return ret;
 }
 
-static int request_next_binding(struct pgcraft *s, int type)
+static int request_next_binding(struct pgcraft *s, enum ngpu_type type)
 {
-    ngli_assert(type >= 0 && type < NGLI_TYPE_NB);
+    ngli_assert(type >= 0 && type < NGPU_TYPE_NB);
     const int binding_type = type_binding_map[type];
 
     int *next_bind = s->next_bindings[binding_type];
@@ -264,15 +264,15 @@ static int request_next_binding(struct pgcraft *s, int type)
     return (*next_bind)++;
 }
 
-static const char *get_precision_qualifier(const struct pgcraft *s, int type, int precision, const char *defaultp)
+static const char *get_precision_qualifier(const struct pgcraft *s, enum ngpu_type type, enum ngpu_precision precision, const char *defaultp)
 {
     if (!s->has_precision_qualifiers || !type_has_precision(type))
         return "";
-    static const char *precision_qualifiers[NGLI_PRECISION_NB] = {
-        [NGLI_PRECISION_AUTO]   = NULL,
-        [NGLI_PRECISION_HIGH]   = "highp",
-        [NGLI_PRECISION_MEDIUM] = "mediump",
-        [NGLI_PRECISION_LOW]    = "lowp",
+    static const char *precision_qualifiers[NGPU_PRECISION_NB] = {
+        [NGPU_PRECISION_AUTO]   = NULL,
+        [NGPU_PRECISION_HIGH]   = "highp",
+        [NGPU_PRECISION_MEDIUM] = "mediump",
+        [NGPU_PRECISION_LOW]    = "lowp",
     };
     const char *ret = precision_qualifiers[precision];
     return ret ? ret : defaultp;
@@ -332,70 +332,70 @@ static const char * const texture_info_suffixes[NGLI_INFO_FIELD_NB] = {
     [NGLI_INFO_FIELD_SAMPLER_RECT_1]    = "_rect_1",
 };
 
-static const int texture_types_map[NGLI_PGCRAFT_SHADER_TEX_TYPE_NB][NGLI_INFO_FIELD_NB] = {
+static const enum ngpu_type texture_types_map[NGLI_PGCRAFT_SHADER_TEX_TYPE_NB][NGLI_INFO_FIELD_NB] = {
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO] = {
-        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGLI_TYPE_MAT4,
-        [NGLI_INFO_FIELD_DIMENSIONS]        = NGLI_TYPE_VEC2,
-        [NGLI_INFO_FIELD_TIMESTAMP]         = NGLI_TYPE_F32,
-        [NGLI_INFO_FIELD_COLOR_MATRIX]      = NGLI_TYPE_MAT4,
-        [NGLI_INFO_FIELD_SAMPLING_MODE]     = NGLI_TYPE_I32,
-        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_SAMPLER_2D,
-        [NGLI_INFO_FIELD_SAMPLER_1]         = NGLI_TYPE_SAMPLER_2D,
-        [NGLI_INFO_FIELD_SAMPLER_2]         = NGLI_TYPE_SAMPLER_2D,
+        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
+        [NGLI_INFO_FIELD_DIMENSIONS]        = NGPU_TYPE_VEC2,
+        [NGLI_INFO_FIELD_TIMESTAMP]         = NGPU_TYPE_F32,
+        [NGLI_INFO_FIELD_COLOR_MATRIX]      = NGPU_TYPE_MAT4,
+        [NGLI_INFO_FIELD_SAMPLING_MODE]     = NGPU_TYPE_I32,
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_SAMPLER_2D,
+        [NGLI_INFO_FIELD_SAMPLER_1]         = NGPU_TYPE_SAMPLER_2D,
+        [NGLI_INFO_FIELD_SAMPLER_2]         = NGPU_TYPE_SAMPLER_2D,
 #if defined(TARGET_ANDROID)
-        [NGLI_INFO_FIELD_SAMPLER_OES]       = NGLI_TYPE_SAMPLER_EXTERNAL_OES,
+        [NGLI_INFO_FIELD_SAMPLER_OES]       = NGPU_TYPE_SAMPLER_EXTERNAL_OES,
 #elif defined(TARGET_DARWIN)
-        [NGLI_INFO_FIELD_SAMPLER_RECT_0]    = NGLI_TYPE_SAMPLER_2D_RECT,
-        [NGLI_INFO_FIELD_SAMPLER_RECT_1]    = NGLI_TYPE_SAMPLER_2D_RECT,
+        [NGLI_INFO_FIELD_SAMPLER_RECT_0]    = NGPU_TYPE_SAMPLER_2D_RECT,
+        [NGLI_INFO_FIELD_SAMPLER_RECT_1]    = NGPU_TYPE_SAMPLER_2D_RECT,
 #endif
     },
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_2D] = {
-        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_SAMPLER_2D,
-        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGLI_TYPE_MAT4,
-        [NGLI_INFO_FIELD_DIMENSIONS]        = NGLI_TYPE_VEC2,
-        [NGLI_INFO_FIELD_TIMESTAMP]         = NGLI_TYPE_F32,
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_SAMPLER_2D,
+        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
+        [NGLI_INFO_FIELD_DIMENSIONS]        = NGPU_TYPE_VEC2,
+        [NGLI_INFO_FIELD_TIMESTAMP]         = NGPU_TYPE_F32,
     },
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_2D_ARRAY] = {
-        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_SAMPLER_2D_ARRAY,
-        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGLI_TYPE_MAT4,
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_SAMPLER_2D_ARRAY,
+        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
     },
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D] = {
-        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_IMAGE_2D,
-        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGLI_TYPE_MAT4,
-        [NGLI_INFO_FIELD_DIMENSIONS]        = NGLI_TYPE_VEC2,
-        [NGLI_INFO_FIELD_TIMESTAMP]         = NGLI_TYPE_F32,
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_IMAGE_2D,
+        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
+        [NGLI_INFO_FIELD_DIMENSIONS]        = NGPU_TYPE_VEC2,
+        [NGLI_INFO_FIELD_TIMESTAMP]         = NGPU_TYPE_F32,
     },
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D_ARRAY] = {
-        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_IMAGE_2D_ARRAY,
-        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGLI_TYPE_MAT4,
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_IMAGE_2D_ARRAY,
+        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
     },
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_3D] = {
-        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_SAMPLER_3D,
-        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGLI_TYPE_MAT4,
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_SAMPLER_3D,
+        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
     },
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D] = {
-        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_IMAGE_3D,
-        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGLI_TYPE_MAT4,
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_IMAGE_3D,
+        [NGLI_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
     },
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_CUBE] = {
-        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_SAMPLER_CUBE,
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_SAMPLER_CUBE,
     },
     [NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE] = {
-        [NGLI_INFO_FIELD_SAMPLER_0]         = NGLI_TYPE_IMAGE_CUBE,
+        [NGLI_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_IMAGE_CUBE,
     },
 };
 
-static int is_type_supported(struct pgcraft *s, int type)
+static int is_type_supported(struct pgcraft *s, enum ngpu_type type)
 {
     const struct ngl_ctx *ctx = s->ctx;
     const struct ngl_config *config = &ctx->config;
 
     switch(type) {
-    case NGLI_TYPE_SAMPLER_2D_RECT:
+    case NGPU_TYPE_SAMPLER_2D_RECT:
         return ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_RECTANGLE) ||
                ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
-    case NGLI_TYPE_SAMPLER_EXTERNAL_OES:
-    case NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT:
+    case NGPU_TYPE_SAMPLER_EXTERNAL_OES:
+    case NGPU_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT:
         return ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_MEDIACODEC);
     default:
         return 1;
@@ -406,12 +406,12 @@ static int prepare_texture_info_fields(struct pgcraft *s, const struct pgcraft_p
                                         const struct pgcraft_texture *texture,
                                         struct pgcraft_texture_info *info)
 {
-    const int *types_map = texture_types_map[texture->type];
+    const enum ngpu_type *types_map = texture_types_map[texture->type];
 
     for (size_t i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         struct pgcraft_texture_info_field *field = &info->fields[i];
-        const int type = types_map[i];
-        if (type == NGLI_TYPE_NONE || !is_type_supported(s, type))
+        const enum ngpu_type type = types_map[i];
+        if (type == NGPU_TYPE_NONE || !is_type_supported(s, type))
             continue;
         field->type = type;
         if (graphics && i == NGLI_INFO_FIELD_COORDINATE_MATRIX)
@@ -454,7 +454,7 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
     for (size_t i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         const struct pgcraft_texture_info_field *field = &info->fields[i];
 
-        if (field->type == NGLI_TYPE_NONE || field->stage != stage)
+        if (field->type == NGPU_TYPE_NONE || field->stage != stage)
             continue;
 
         char name[MAX_ID_LEN];
@@ -480,7 +480,7 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
 
             const char *prefix = "";
             if (is_image(field->type)) {
-                if (texture->format == NGLI_TYPE_NONE) {
+                if (texture->format == NGPU_FORMAT_UNDEFINED) {
                     LOG(ERROR, "texture format must be set when accessing it as an image");
                     return NGL_ERROR_INVALID_ARG;
                 }
@@ -581,7 +581,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
         ngli_bstr_printf(b, "layout(%s)", layout);
     }
 
-    if (named_block->type == NGLI_TYPE_STORAGE_BUFFER && !named_block->writable)
+    if (named_block->type == NGPU_TYPE_STORAGE_BUFFER && !named_block->writable)
         ngli_bstr_print(b, " readonly");
 
     const char *keyword = get_glsl_type(named_block->type);
@@ -619,11 +619,11 @@ static int inject_blocks(struct pgcraft *s, struct bstr *b,
     return 0;
 }
 
-static int get_location_count(int type)
+static int get_location_count(enum ngpu_type type)
 {
     switch (type) {
-    case NGLI_TYPE_MAT3: return 3;
-    case NGLI_TYPE_MAT4: return 4;
+    case NGPU_TYPE_MAT3: return 3;
+    case NGPU_TYPE_MAT4: return 4;
     default:             return 1;
     }
 }
@@ -700,7 +700,7 @@ static int inject_ublock(struct pgcraft *s, struct bstr *b, int stage)
     struct pgcraft_block pgcraft_block = {
         /* instance name is empty to make field accesses identical to uniform accesses */
         .instance_name = "",
-        .type          = NGLI_TYPE_UNIFORM_BUFFER,
+        .type          = NGPU_TYPE_UNIFORM_BUFFER,
         .stage         = stage,
         .block         = block,
     };
@@ -718,7 +718,7 @@ static int params_have_ssbos(struct pgcraft *s, const struct pgcraft_params *par
 {
     for (size_t i = 0; i < params->nb_blocks; i++) {
         const struct pgcraft_block *pgcraft_block = &params->blocks[i];
-        if (pgcraft_block->stage == stage && pgcraft_block->type == NGLI_TYPE_STORAGE_BUFFER)
+        if (pgcraft_block->stage == stage && pgcraft_block->type == NGPU_TYPE_STORAGE_BUFFER)
             return 1;
     }
     return 0;
@@ -733,10 +733,10 @@ static int params_have_images(struct pgcraft *s, const struct pgcraft_params *pa
         for (size_t j = 0; j < NGLI_INFO_FIELD_NB; j++) {
             const struct pgcraft_texture_info_field *field = &info->fields[j];
             if (field->stage == stage &&
-                (field->type == NGLI_TYPE_IMAGE_2D ||
-                 field->type == NGLI_TYPE_IMAGE_2D_ARRAY ||
-                 field->type == NGLI_TYPE_IMAGE_3D ||
-                 field->type == NGLI_TYPE_IMAGE_CUBE))
+                (field->type == NGPU_TYPE_IMAGE_2D ||
+                 field->type == NGPU_TYPE_IMAGE_2D_ARRAY ||
+                 field->type == NGPU_TYPE_IMAGE_3D ||
+                 field->type == NGPU_TYPE_IMAGE_CUBE))
                 return 1;
         }
     }
@@ -1188,7 +1188,7 @@ static void probe_texture_info_elems(const struct pgcraft *s,
         char name[MAX_ID_LEN];
         int len = snprintf(name, sizeof(name), "%s%s", texture->name, texture_info_suffixes[i]);
         ngli_assert(len < sizeof(name));
-        if (field->type == NGLI_TYPE_NONE)
+        if (field->type == NGPU_TYPE_NONE)
             field->index = -1;
         else if (is_sampler(field->type) || is_image(field->type))
             field->index = get_texture_index(s, name);
@@ -1224,7 +1224,7 @@ static void probe_ublocks(struct pgcraft *s)
         const struct ngpu_bindgroup_layout_entry *entries = ngli_darray_data(array);
         for (size_t j = 0; j < ngli_darray_count(array); j++) {
             const struct ngpu_bindgroup_layout_entry *entry = &entries[j];
-            if (entry->type == NGLI_TYPE_UNIFORM_BUFFER &&
+            if (entry->type == NGPU_TYPE_UNIFORM_BUFFER &&
                 entry->binding == binding &&
                 entry->stage_flags == (1U << i)) {
                 info->uindices[i] = (int32_t)j;

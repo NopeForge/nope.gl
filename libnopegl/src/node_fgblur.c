@@ -131,14 +131,14 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
                                   struct ngpu_block *block)
 {
     const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
+        {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
     };
 
     const struct pgcraft_texture textures[] = {
         {
             .name      = "tex",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
+            .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         },
     };
@@ -147,7 +147,7 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
         {
             .name          = "data",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
             .block         = &block->block_desc,
             .buffer        = {
@@ -202,25 +202,25 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
     struct fgblur_priv *s = node->priv_data;
 
     const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
+        {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
     };
 
     struct pgcraft_texture interpolate_textures[] = {
         {
             .name      = "tex0",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
+            .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG
         }, {
             .name      = "tex1",
             .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
+            .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG
         },
     };
 
     const struct ngpu_block_entry interpolate_block_fields[] = {
-        NGPU_BLOCK_FIELD(struct interpolate_block, lod, NGLI_TYPE_F32, 0),
+        NGPU_BLOCK_FIELD(struct interpolate_block, lod, NGPU_TYPE_F32, 0),
     };
     const struct ngpu_block_params interpolate_block_params = {
         .entries = interpolate_block_fields,
@@ -233,7 +233,7 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
     const struct pgcraft_block crafter_blocks[] = {
         {
             .name          = "interpolate",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
             .block         = &s->interpolate.block.block_desc,
             .buffer        = {
@@ -309,7 +309,7 @@ static int fgblur_init(struct ngl_node *node)
     s->dst_layout.nb_colors = 1;
 
     const struct ngpu_block_entry down_up_data_block_fields[] = {
-        NGPU_BLOCK_FIELD(struct down_up_data_block, offset, NGLI_TYPE_F32, 0),
+        NGPU_BLOCK_FIELD(struct down_up_data_block, offset, NGPU_TYPE_F32, 0),
     };
     const struct ngpu_block_params down_up_data_block_params = {
         .entries = down_up_data_block_fields,

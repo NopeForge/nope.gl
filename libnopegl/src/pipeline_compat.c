@@ -36,7 +36,7 @@
 
 struct pipeline_compat {
     struct ngpu_ctx *gpu_ctx;
-    int type; // any of NGLI_PIPELINE_TYPE_*
+    enum ngpu_pipeline_type type; // any of NGLI_PIPELINE_TYPE_*
     struct ngpu_pipeline_graphics graphics;
     const struct ngpu_program *program;
     struct ngpu_pipeline *pipeline;
@@ -552,7 +552,7 @@ void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int n
     ngpu_ctx_draw(gpu_ctx, nb_vertices, nb_instances, first_vertex);
 }
 
-void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct ngpu_buffer *indices, int indices_format, int nb_indices, int nb_instances)
+void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct ngpu_buffer *indices, enum ngpu_format indices_format, int nb_indices, int nb_instances)
 {
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 

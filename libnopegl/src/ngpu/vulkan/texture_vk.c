@@ -38,7 +38,7 @@ static const VkFilter vk_filter_map[NGPU_NB_FILTER] = {
     [NGPU_FILTER_LINEAR]  = VK_FILTER_LINEAR,
 };
 
-VkFilter ngpu_vk_get_filter(int filter)
+VkFilter ngpu_vk_get_filter(enum ngpu_filter filter)
 {
     return vk_filter_map[filter];
 }
@@ -49,7 +49,7 @@ static const VkSamplerMipmapMode vk_mipmap_mode_map[NGPU_NB_MIPMAP] = {
     [NGPU_MIPMAP_FILTER_LINEAR]  = VK_SAMPLER_MIPMAP_MODE_LINEAR,
 };
 
-static VkSamplerMipmapMode get_vk_mipmap_mode(int mipmap_filter)
+static VkSamplerMipmapMode get_vk_mipmap_mode(enum ngpu_mipmap_filter mipmap_filter)
 {
     return vk_mipmap_mode_map[mipmap_filter];
 }
@@ -60,7 +60,7 @@ static const VkSamplerAddressMode vk_wrap_map[NGPU_NB_WRAP] = {
     [NGPU_WRAP_REPEAT]          = VK_SAMPLER_ADDRESS_MODE_REPEAT,
 };
 
-static VkSamplerAddressMode get_vk_wrap(int wrap)
+static VkSamplerAddressMode get_vk_wrap(enum ngpu_wrap wrap)
 {
     return vk_wrap_map[wrap];
 }
@@ -88,7 +88,7 @@ static const VkImageType image_type_map[NGPU_TEXTURE_TYPE_NB] = {
     [NGPU_TEXTURE_TYPE_CUBE]     = VK_IMAGE_TYPE_2D,
 };
 
-static VkImageType get_vk_image_type(int type)
+static VkImageType get_vk_image_type(enum ngpu_texture_type type)
 {
     return image_type_map[type];
 }
@@ -100,7 +100,7 @@ static const VkImageViewType image_view_type_map[NGPU_TEXTURE_TYPE_NB] = {
     [NGPU_TEXTURE_TYPE_CUBE]     = VK_IMAGE_VIEW_TYPE_CUBE,
 };
 
-static VkImageViewType get_vk_image_view_type(int type)
+static VkImageViewType get_vk_image_view_type(enum ngpu_texture_type type)
 {
     return image_view_type_map[type];
 }

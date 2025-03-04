@@ -29,7 +29,7 @@
 #include "log.h"
 #include "memory.h"
 #include "program_gl.h"
-#include "type.h"
+#include "ngpu/type.h"
 
 static int program_check_status(const struct glcontext *gl, GLuint id, GLenum status)
 {

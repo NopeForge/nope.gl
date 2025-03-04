@@ -393,7 +393,7 @@ static int texture_prefetch(struct ngl_node *node)
                 return NGL_ERROR_UNSUPPORTED;
             }
 
-            if (buffer->layout.type == NGLI_TYPE_VEC3) {
+            if (buffer->layout.type == NGPU_TYPE_VEC3) {
                 LOG(ERROR, "3-components texture formats are not supported");
                 return NGL_ERROR_UNSUPPORTED;
             }
@@ -453,7 +453,7 @@ static int texture_prefetch(struct ngl_node *node)
          * graphics context uv coordinate system works regarding render targets */
         ngpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, i->image.coordinates_matrix);
 
-        int depth_format = NGPU_FORMAT_UNDEFINED;
+        enum ngpu_format depth_format = NGPU_FORMAT_UNDEFINED;
         if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
             depth_format = ngpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
         else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
@@ -678,7 +678,7 @@ static void texture_release(struct ngl_node *node)
     i->image.rev = i->image_rev++;
 }
 
-static int get_preferred_format(struct ngpu_ctx *gpu_ctx, int format)
+static enum ngpu_format get_preferred_format(struct ngpu_ctx *gpu_ctx, int format)
 {
     switch (format) {
     case NGLI_FORMAT_AUTO_DEPTH:
@@ -735,7 +735,7 @@ static int texture2d_init(struct ngl_node *node)
         s->rendertarget_layout.colors[s->rendertarget_layout.nb_colors].format = i->params.format;
         s->rendertarget_layout.nb_colors++;
 
-        int depth_format = NGPU_FORMAT_UNDEFINED;
+        enum ngpu_format depth_format = NGPU_FORMAT_UNDEFINED;
         if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
             depth_format = ngpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
         else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)

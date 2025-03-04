@@ -33,7 +33,7 @@
 #include "node_velocity.h"
 #include "nopegl.h"
 #include "path.h"
-#include "type.h"
+#include "ngpu/type.h"
 
 #define OFFSET(x) offsetof(struct variable_opts, x)
 static const struct node_param animatedtime_params[] = {
@@ -362,11 +362,11 @@ static int animated##suffix##_init(struct ngl_node *node)                       
     return animation_init(node);                                                \
 }
 
-DECLARE_INIT_FUNC(float, s->vector,  1 * sizeof(*s->vector), NGLI_TYPE_F32)
-DECLARE_INIT_FUNC(vec2,  s->vector,  2 * sizeof(*s->vector), NGLI_TYPE_VEC2)
-DECLARE_INIT_FUNC(vec3,  s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
-DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
-DECLARE_INIT_FUNC(color, s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
+DECLARE_INIT_FUNC(float, s->vector,  1 * sizeof(*s->vector), NGPU_TYPE_F32)
+DECLARE_INIT_FUNC(vec2,  s->vector,  2 * sizeof(*s->vector), NGPU_TYPE_VEC2)
+DECLARE_INIT_FUNC(vec3,  s->vector,  3 * sizeof(*s->vector), NGPU_TYPE_VEC3)
+DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGPU_TYPE_VEC4)
+DECLARE_INIT_FUNC(color, s->vector,  3 * sizeof(*s->vector), NGPU_TYPE_VEC3)
 
 static int animatedtime_init(struct ngl_node *node)
 {
@@ -375,7 +375,7 @@ static int animatedtime_init(struct ngl_node *node)
 
     s->var.data = &s->dval;
     s->var.data_size = sizeof(s->dval);
-    s->var.data_type = NGLI_TYPE_NONE;
+    s->var.data_type = NGPU_TYPE_NONE;
 
     // Sanity checks for time animation keyframe
     double prev_time = 0;
@@ -403,11 +403,11 @@ static int animatedquat_init(struct ngl_node *node)
 
     s->var.data = s->vector;
     s->var.data_size = 4 * sizeof(*s->vector);
-    s->var.data_type = NGLI_TYPE_VEC4;
+    s->var.data_type = NGPU_TYPE_VEC4;
     if (o->as_mat4) {
         s->var.data = s->matrix;
         s->var.data_size = sizeof(s->matrix);
-        s->var.data_type = NGLI_TYPE_MAT4;
+        s->var.data_type = NGPU_TYPE_MAT4;
     }
     return animation_init(node);
 }
@@ -417,7 +417,7 @@ static int animatedpath_init(struct ngl_node *node)
     struct animated_priv *s = node->priv_data;
     s->var.data = s->vector;
     s->var.data_size = 3 * sizeof(*s->vector);
-    s->var.data_type = NGLI_TYPE_VEC3;
+    s->var.data_type = NGPU_TYPE_VEC3;
     return animation_init(node);
 }
 

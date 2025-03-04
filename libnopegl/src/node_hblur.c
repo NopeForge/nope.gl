@@ -74,7 +74,7 @@ struct hblur_priv {
 
     struct ngpu_block blur_params_block;
 
-    int preferred_format;
+    enum ngpu_format preferred_format;
     struct ngpu_texture *tex0;
     struct ngpu_texture *tex1;
 
@@ -119,9 +119,9 @@ static const struct node_param hblur_params[] = {
                                  NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
                                  NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
 
-static int get_preferred_format(struct ngpu_ctx *gpu_ctx)
+static enum ngpu_format get_preferred_format(struct ngpu_ctx *gpu_ctx)
 {
-    static const int formats[] = {
+    static const enum ngpu_format formats[] = {
         NGPU_FORMAT_R32G32B32A32_SFLOAT,
         NGPU_FORMAT_R16G16B16A16_SFLOAT,
         NGPU_FORMAT_R8G8B8A8_UNORM,
@@ -189,8 +189,8 @@ static int setup_pass1_pipeline(struct ngl_node *node)
     struct hblur_priv *s = node->priv_data;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
-        {.name = "map_coord", .type = NGLI_TYPE_VEC2},
+        {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
+        {.name = "map_coord", .type = NGPU_TYPE_VEC2},
     };
 
     static const struct pgcraft_texture textures[] = {
@@ -208,7 +208,7 @@ static int setup_pass1_pipeline(struct ngl_node *node)
     const struct pgcraft_block blocks[] = {
         {
             .name          = "blur",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
             .block         = &s->blur_params_block.block_desc,
             .buffer        = {
@@ -280,8 +280,8 @@ static int setup_pass2_pipeline(struct ngl_node *node)
     struct hblur_priv *s = node->priv_data;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
-        {.name = "map_coord", .type = NGLI_TYPE_VEC2},
+        {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
+        {.name = "map_coord", .type = NGPU_TYPE_VEC2},
     };
 
     static const struct pgcraft_texture textures[] = {
@@ -303,7 +303,7 @@ static int setup_pass2_pipeline(struct ngl_node *node)
     const struct pgcraft_block crafter_blocks[] = {
         {
             .name          = "blur",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
             .block         = &s->blur_params_block.block_desc,
             .buffer        = {
@@ -404,8 +404,8 @@ static int hblur_init(struct ngl_node *node)
     s->pass2.layout.nb_colors = 1;
 
     const struct ngpu_block_entry block_fields[] = {
-        NGPU_BLOCK_FIELD(struct blur_params_block, radius, NGLI_TYPE_I32, 0),
-        NGPU_BLOCK_FIELD(struct blur_params_block, nb_samples, NGLI_TYPE_I32, 0),
+        NGPU_BLOCK_FIELD(struct blur_params_block, radius, NGPU_TYPE_I32, 0),
+        NGPU_BLOCK_FIELD(struct blur_params_block, nb_samples, NGPU_TYPE_I32, 0),
     };
 
     const struct ngpu_block_params block_params = {

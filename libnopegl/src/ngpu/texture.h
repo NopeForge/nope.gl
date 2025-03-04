@@ -23,31 +23,32 @@
 #ifndef NGPU_TEXTURE_H
 #define NGPU_TEXTURE_H
 
+#include "format.h"
 #include "utils.h"
 
 struct ngpu_ctx;
 
-enum {
-    NGPU_MIPMAP_FILTER_NONE,
+enum ngpu_mipmap_filter {
+    NGPU_MIPMAP_FILTER_NONE = 0,
     NGPU_MIPMAP_FILTER_NEAREST,
     NGPU_MIPMAP_FILTER_LINEAR,
     NGPU_NB_MIPMAP
 };
 
-enum {
-    NGPU_FILTER_NEAREST,
+enum ngpu_filter {
+    NGPU_FILTER_NEAREST = 0,
     NGPU_FILTER_LINEAR,
     NGPU_NB_FILTER
 };
 
-enum {
-    NGPU_WRAP_CLAMP_TO_EDGE,
+enum ngpu_wrap {
+    NGPU_WRAP_CLAMP_TO_EDGE = 0,
     NGPU_WRAP_MIRRORED_REPEAT,
     NGPU_WRAP_REPEAT,
     NGPU_NB_WRAP
 };
 
-enum {
+enum ngpu_texture_usage {
     NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             = 1 << 0,
     NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT             = 1 << 1,
     NGPU_TEXTURE_USAGE_SAMPLED_BIT                  = 1 << 2,
@@ -58,31 +59,26 @@ enum {
 };
 
 enum ngpu_texture_type {
-    NGPU_TEXTURE_TYPE_2D,
+    NGPU_TEXTURE_TYPE_2D = 0,
     NGPU_TEXTURE_TYPE_2D_ARRAY,
     NGPU_TEXTURE_TYPE_3D,
     NGPU_TEXTURE_TYPE_CUBE,
     NGPU_TEXTURE_TYPE_NB
 };
 
-NGLI_STATIC_ASSERT(texture_params_type_default, NGPU_TEXTURE_TYPE_2D == 0);
-NGLI_STATIC_ASSERT(texture_params_filter_default, NGPU_FILTER_NEAREST == 0);
-NGLI_STATIC_ASSERT(texture_params_mipmap_filter_default, NGPU_MIPMAP_FILTER_NONE == 0);
-NGLI_STATIC_ASSERT(texture_params_wrap_default, NGPU_WRAP_CLAMP_TO_EDGE == 0);
-
 struct ngpu_texture_params {
     enum ngpu_texture_type type;
-    int format;
+    enum ngpu_format format;
     int32_t width;
     int32_t height;
     int32_t depth;
     int32_t samples;
-    int min_filter;
-    int mag_filter;
-    int mipmap_filter;
-    int wrap_s;
-    int wrap_t;
-    int wrap_r;
+    enum ngpu_filter min_filter;
+    enum ngpu_filter mag_filter;
+    enum ngpu_mipmap_filter mipmap_filter;
+    enum ngpu_wrap wrap_s;
+    enum ngpu_wrap wrap_t;
+    enum ngpu_wrap wrap_r;
     uint32_t usage;
 };
 

@@ -49,7 +49,7 @@ struct format_desc {
     int layout;
     size_t nb_planes;
     struct {
-        int format;
+        enum ngpu_format format;
     } planes[2];
 };
 

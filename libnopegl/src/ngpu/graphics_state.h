@@ -25,7 +25,7 @@
 
 #include "utils.h"
 
-enum {
+enum ngpu_blend_factor {
     NGPU_BLEND_FACTOR_ZERO,
     NGPU_BLEND_FACTOR_ONE,
     NGPU_BLEND_FACTOR_SRC_COLOR,
@@ -44,7 +44,7 @@ enum {
     NGPU_BLEND_FACTOR_NB
 };
 
-enum {
+enum ngpu_blend_op {
     NGPU_BLEND_OP_ADD,
     NGPU_BLEND_OP_SUBTRACT,
     NGPU_BLEND_OP_REVERSE_SUBTRACT,
@@ -53,7 +53,7 @@ enum {
     NGPU_BLEND_OP_NB
 };
 
-enum {
+enum ngpu_compare_op {
     NGPU_COMPARE_OP_NEVER,
     NGPU_COMPARE_OP_LESS,
     NGPU_COMPARE_OP_EQUAL,
@@ -65,7 +65,7 @@ enum {
     NGPU_COMPARE_OP_NB
 };
 
-enum {
+enum ngpu_stencil_op {
     NGPU_STENCIL_OP_KEEP,
     NGPU_STENCIL_OP_ZERO,
     NGPU_STENCIL_OP_REPLACE,
@@ -77,21 +77,21 @@ enum {
     NGPU_STENCIL_OP_NB
 };
 
-enum {
+enum ngpu_cull_mode {
     NGPU_CULL_MODE_NONE,
     NGPU_CULL_MODE_FRONT_BIT,
     NGPU_CULL_MODE_BACK_BIT,
     NGPU_CULL_MODE_NB
 };
 
-enum {
+enum ngpu_color_component {
     NGPU_COLOR_COMPONENT_R_BIT = 1 << 0,
     NGPU_COLOR_COMPONENT_G_BIT = 1 << 1,
     NGPU_COLOR_COMPONENT_B_BIT = 1 << 2,
     NGPU_COLOR_COMPONENT_A_BIT = 1 << 3,
 };
 
-enum {
+enum ngpu_front_face {
     NGPU_FRONT_FACE_COUNTER_CLOCKWISE,
     NGPU_FRONT_FACE_CLOCKWISE,
     NGPU_FRONT_FACE_NB,
@@ -99,35 +99,35 @@ enum {
 
 struct ngpu_stencil_op_state {
     int write_mask;
-    int func;
+    enum ngpu_compare_op func;
     int ref;
     int read_mask;
-    int fail;
-    int depth_fail;
-    int depth_pass;
+    enum ngpu_stencil_op fail;
+    enum ngpu_stencil_op depth_fail;
+    enum ngpu_stencil_op depth_pass;
 };
 
 struct ngpu_graphics_state {
     int blend;
-    int blend_dst_factor;
-    int blend_src_factor;
-    int blend_dst_factor_a;
-    int blend_src_factor_a;
-    int blend_op;
-    int blend_op_a;
+    enum ngpu_blend_factor blend_dst_factor;
+    enum ngpu_blend_factor blend_src_factor;
+    enum ngpu_blend_factor blend_dst_factor_a;
+    enum ngpu_blend_factor blend_src_factor_a;
+    enum ngpu_blend_op blend_op;
+    enum ngpu_blend_op blend_op_a;
 
     int color_write_mask;
 
     int depth_test;
     int depth_write_mask;
-    int depth_func;
+    enum ngpu_compare_op depth_func;
 
     int stencil_test;
     struct ngpu_stencil_op_state stencil_front;
     struct ngpu_stencil_op_state stencil_back;
 
-    int cull_mode;
-    int front_face;
+    enum ngpu_cull_mode cull_mode;
+    enum ngpu_front_face front_face;
 };
 
 /* Make sure to keep this in sync with the blending documentation */

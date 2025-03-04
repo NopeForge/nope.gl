@@ -151,7 +151,7 @@ static void reset_capture_cvpixelbuffer(struct ngpu_ctx *s)
 }
 #endif
 
-static int create_texture(struct ngpu_ctx *s, int format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
+static int create_texture(struct ngpu_ctx *s, enum ngpu_format format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
 {
     const struct ngl_config *config = &s->config;
 
@@ -182,7 +182,7 @@ static int create_rendertarget(struct ngpu_ctx *s,
                                struct ngpu_texture *color,
                                struct ngpu_texture *resolve_color,
                                struct ngpu_texture *depth_stencil,
-                               int load_op,
+                               enum ngpu_load_op load_op,
                                struct ngpu_rendertarget **rendertargetp)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
@@ -952,7 +952,7 @@ static void gl_get_rendertarget_uvcoord_matrix(struct ngpu_ctx *s, float *dst)
     memcpy(dst, matrix, 4 * 4 * sizeof(float));
 }
 
-static struct ngpu_rendertarget *gl_get_default_rendertarget(struct ngpu_ctx *s, int load_op)
+static struct ngpu_rendertarget *gl_get_default_rendertarget(struct ngpu_ctx *s, enum ngpu_load_op load_op)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     switch (load_op) {
@@ -1006,17 +1006,17 @@ static void gl_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scisso
     ngli_glstate_update_scissor(gl, glstate, scissor);
 }
 
-static int gl_get_preferred_depth_format(struct ngpu_ctx *s)
+static enum ngpu_format gl_get_preferred_depth_format(struct ngpu_ctx *s)
 {
     return NGPU_FORMAT_D16_UNORM;
 }
 
-static int gl_get_preferred_depth_stencil_format(struct ngpu_ctx *s)
+static enum ngpu_format gl_get_preferred_depth_stencil_format(struct ngpu_ctx *s)
 {
     return NGPU_FORMAT_D24_UNORM_S8_UINT;
 }
 
-static uint32_t gl_get_format_features(struct ngpu_ctx *s, int format)
+static uint32_t gl_get_format_features(struct ngpu_ctx *s, enum ngpu_format format)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
@@ -1064,7 +1064,7 @@ static void gl_set_vertex_buffer(struct ngpu_ctx *s, uint32_t index, const struc
 {
 }
 
-static void gl_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, int format)
+static void gl_set_index_buffer(struct ngpu_ctx *s, const struct ngpu_buffer *buffer, enum ngpu_format format)
 {
 }
 

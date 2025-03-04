@@ -47,7 +47,7 @@ static const struct format_desc {
     int log2_chroma_width;
     int log2_chroma_height;
     int format_depth;
-    int formats[4];
+    enum ngpu_format formats[4];
 } format_descs[] = {
     [NMD_PIXFMT_RGBA] = {
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,

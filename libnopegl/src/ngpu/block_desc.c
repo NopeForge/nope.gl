@@ -26,7 +26,7 @@
 
 #include "block_desc.h"
 #include "ngpu/ctx.h"
-#include "type.h"
+#include "ngpu/type.h"
 #include "utils.h"
 
 void ngpu_block_desc_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block_desc *s, enum ngpu_block_layout layout)
@@ -36,99 +36,99 @@ void ngpu_block_desc_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block_desc *s, e
     ngli_darray_init(&s->fields, sizeof(struct ngpu_block_field), 0);
 }
 
-static const size_t strides_map[NGPU_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
+static const size_t strides_map[NGPU_BLOCK_NB_LAYOUTS][NGPU_TYPE_NB] = {
     [NGPU_BLOCK_LAYOUT_STD140] = {
-        [NGLI_TYPE_BOOL]   = sizeof(int)   * 4,
-        [NGLI_TYPE_I32]    = sizeof(int32_t)  * 4,
-        [NGLI_TYPE_IVEC2]  = sizeof(int32_t)  * 4,
-        [NGLI_TYPE_IVEC3]  = sizeof(int32_t)  * 4,
-        [NGLI_TYPE_IVEC4]  = sizeof(int32_t)  * 4,
-        [NGLI_TYPE_U32]    = sizeof(uint32_t) * 4,
-        [NGLI_TYPE_UVEC2]  = sizeof(uint32_t) * 4,
-        [NGLI_TYPE_UVEC3]  = sizeof(uint32_t) * 4,
-        [NGLI_TYPE_UVEC4]  = sizeof(uint32_t) * 4,
-        [NGLI_TYPE_F32]    = sizeof(float) * 4,
-        [NGLI_TYPE_VEC2]   = sizeof(float) * 4,
-        [NGLI_TYPE_VEC3]   = sizeof(float) * 4,
-        [NGLI_TYPE_VEC4]   = sizeof(float) * 4,
-        [NGLI_TYPE_MAT3]   = sizeof(float) * 4 * 3,
-        [NGLI_TYPE_MAT4]   = sizeof(float) * 4 * 4,
+        [NGPU_TYPE_BOOL]   = sizeof(int)   * 4,
+        [NGPU_TYPE_I32]    = sizeof(int32_t)  * 4,
+        [NGPU_TYPE_IVEC2]  = sizeof(int32_t)  * 4,
+        [NGPU_TYPE_IVEC3]  = sizeof(int32_t)  * 4,
+        [NGPU_TYPE_IVEC4]  = sizeof(int32_t)  * 4,
+        [NGPU_TYPE_U32]    = sizeof(uint32_t) * 4,
+        [NGPU_TYPE_UVEC2]  = sizeof(uint32_t) * 4,
+        [NGPU_TYPE_UVEC3]  = sizeof(uint32_t) * 4,
+        [NGPU_TYPE_UVEC4]  = sizeof(uint32_t) * 4,
+        [NGPU_TYPE_F32]    = sizeof(float) * 4,
+        [NGPU_TYPE_VEC2]   = sizeof(float) * 4,
+        [NGPU_TYPE_VEC3]   = sizeof(float) * 4,
+        [NGPU_TYPE_VEC4]   = sizeof(float) * 4,
+        [NGPU_TYPE_MAT3]   = sizeof(float) * 4 * 3,
+        [NGPU_TYPE_MAT4]   = sizeof(float) * 4 * 4,
     },
     [NGPU_BLOCK_LAYOUT_STD430] = {
-        [NGLI_TYPE_BOOL]   = sizeof(int)   * 1,
-        [NGLI_TYPE_I32]    = sizeof(int32_t)  * 1,
-        [NGLI_TYPE_IVEC2]  = sizeof(int32_t)  * 2,
-        [NGLI_TYPE_IVEC3]  = sizeof(int32_t)  * 4,
-        [NGLI_TYPE_IVEC4]  = sizeof(int32_t)  * 4,
-        [NGLI_TYPE_U32]    = sizeof(uint32_t) * 1,
-        [NGLI_TYPE_UVEC2]  = sizeof(uint32_t) * 2,
-        [NGLI_TYPE_UVEC3]  = sizeof(uint32_t) * 4,
-        [NGLI_TYPE_UVEC4]  = sizeof(uint32_t) * 4,
-        [NGLI_TYPE_F32]    = sizeof(float) * 1,
-        [NGLI_TYPE_VEC2]   = sizeof(float) * 2,
-        [NGLI_TYPE_VEC3]   = sizeof(float) * 4,
-        [NGLI_TYPE_VEC4]   = sizeof(float) * 4,
-        [NGLI_TYPE_MAT3]   = sizeof(float) * 4 * 3,
-        [NGLI_TYPE_MAT4]   = sizeof(float) * 4 * 4,
+        [NGPU_TYPE_BOOL]   = sizeof(int)   * 1,
+        [NGPU_TYPE_I32]    = sizeof(int32_t)  * 1,
+        [NGPU_TYPE_IVEC2]  = sizeof(int32_t)  * 2,
+        [NGPU_TYPE_IVEC3]  = sizeof(int32_t)  * 4,
+        [NGPU_TYPE_IVEC4]  = sizeof(int32_t)  * 4,
+        [NGPU_TYPE_U32]    = sizeof(uint32_t) * 1,
+        [NGPU_TYPE_UVEC2]  = sizeof(uint32_t) * 2,
+        [NGPU_TYPE_UVEC3]  = sizeof(uint32_t) * 4,
+        [NGPU_TYPE_UVEC4]  = sizeof(uint32_t) * 4,
+        [NGPU_TYPE_F32]    = sizeof(float) * 1,
+        [NGPU_TYPE_VEC2]   = sizeof(float) * 2,
+        [NGPU_TYPE_VEC3]   = sizeof(float) * 4,
+        [NGPU_TYPE_VEC4]   = sizeof(float) * 4,
+        [NGPU_TYPE_MAT3]   = sizeof(float) * 4 * 3,
+        [NGPU_TYPE_MAT4]   = sizeof(float) * 4 * 4,
     },
 };
 
-static const size_t sizes_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_BOOL]   = sizeof(int)   * 1,
-    [NGLI_TYPE_I32]    = sizeof(int32_t)  * 1,
-    [NGLI_TYPE_IVEC2]  = sizeof(int32_t)  * 2,
-    [NGLI_TYPE_IVEC3]  = sizeof(int32_t)  * 3,
-    [NGLI_TYPE_IVEC4]  = sizeof(int32_t)  * 4,
-    [NGLI_TYPE_U32]    = sizeof(uint32_t) * 1,
-    [NGLI_TYPE_UVEC2]  = sizeof(uint32_t) * 2,
-    [NGLI_TYPE_UVEC3]  = sizeof(uint32_t) * 3,
-    [NGLI_TYPE_UVEC4]  = sizeof(uint32_t) * 4,
-    [NGLI_TYPE_F32]    = sizeof(float) * 1,
-    [NGLI_TYPE_VEC2]   = sizeof(float) * 2,
-    [NGLI_TYPE_VEC3]   = sizeof(float) * 3,
-    [NGLI_TYPE_VEC4]   = sizeof(float) * 4,
-    [NGLI_TYPE_MAT3]   = sizeof(float) * 4 * 3,
-    [NGLI_TYPE_MAT4]   = sizeof(float) * 4 * 4,
+static const size_t sizes_map[NGPU_TYPE_NB] = {
+    [NGPU_TYPE_BOOL]   = sizeof(int)   * 1,
+    [NGPU_TYPE_I32]    = sizeof(int32_t)  * 1,
+    [NGPU_TYPE_IVEC2]  = sizeof(int32_t)  * 2,
+    [NGPU_TYPE_IVEC3]  = sizeof(int32_t)  * 3,
+    [NGPU_TYPE_IVEC4]  = sizeof(int32_t)  * 4,
+    [NGPU_TYPE_U32]    = sizeof(uint32_t) * 1,
+    [NGPU_TYPE_UVEC2]  = sizeof(uint32_t) * 2,
+    [NGPU_TYPE_UVEC3]  = sizeof(uint32_t) * 3,
+    [NGPU_TYPE_UVEC4]  = sizeof(uint32_t) * 4,
+    [NGPU_TYPE_F32]    = sizeof(float) * 1,
+    [NGPU_TYPE_VEC2]   = sizeof(float) * 2,
+    [NGPU_TYPE_VEC3]   = sizeof(float) * 3,
+    [NGPU_TYPE_VEC4]   = sizeof(float) * 4,
+    [NGPU_TYPE_MAT3]   = sizeof(float) * 4 * 3,
+    [NGPU_TYPE_MAT4]   = sizeof(float) * 4 * 4,
 };
 
-static const size_t aligns_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_BOOL]   = sizeof(int)   * 1,
-    [NGLI_TYPE_I32]    = sizeof(int32_t)  * 1,
-    [NGLI_TYPE_IVEC2]  = sizeof(int32_t)  * 2,
-    [NGLI_TYPE_IVEC3]  = sizeof(int32_t)  * 4,
-    [NGLI_TYPE_IVEC4]  = sizeof(int32_t)  * 4,
-    [NGLI_TYPE_U32]    = sizeof(uint32_t) * 1,
-    [NGLI_TYPE_UVEC2]  = sizeof(uint32_t) * 2,
-    [NGLI_TYPE_UVEC3]  = sizeof(uint32_t) * 4,
-    [NGLI_TYPE_UVEC4]  = sizeof(uint32_t) * 4,
-    [NGLI_TYPE_F32]    = sizeof(float) * 1,
-    [NGLI_TYPE_VEC2]   = sizeof(float) * 2,
-    [NGLI_TYPE_VEC3]   = sizeof(float) * 4,
-    [NGLI_TYPE_VEC4]   = sizeof(float) * 4,
-    [NGLI_TYPE_MAT3]   = sizeof(float) * 4,
-    [NGLI_TYPE_MAT4]   = sizeof(float) * 4,
+static const size_t aligns_map[NGPU_TYPE_NB] = {
+    [NGPU_TYPE_BOOL]   = sizeof(int)   * 1,
+    [NGPU_TYPE_I32]    = sizeof(int32_t)  * 1,
+    [NGPU_TYPE_IVEC2]  = sizeof(int32_t)  * 2,
+    [NGPU_TYPE_IVEC3]  = sizeof(int32_t)  * 4,
+    [NGPU_TYPE_IVEC4]  = sizeof(int32_t)  * 4,
+    [NGPU_TYPE_U32]    = sizeof(uint32_t) * 1,
+    [NGPU_TYPE_UVEC2]  = sizeof(uint32_t) * 2,
+    [NGPU_TYPE_UVEC3]  = sizeof(uint32_t) * 4,
+    [NGPU_TYPE_UVEC4]  = sizeof(uint32_t) * 4,
+    [NGPU_TYPE_F32]    = sizeof(float) * 1,
+    [NGPU_TYPE_VEC2]   = sizeof(float) * 2,
+    [NGPU_TYPE_VEC3]   = sizeof(float) * 4,
+    [NGPU_TYPE_VEC4]   = sizeof(float) * 4,
+    [NGPU_TYPE_MAT3]   = sizeof(float) * 4,
+    [NGPU_TYPE_MAT4]   = sizeof(float) * 4,
 };
 
-static size_t get_buffer_stride(const struct ngpu_block_field *field, int layout)
+static size_t get_buffer_stride(const struct ngpu_block_field *field, enum ngpu_block_layout layout)
 {
     return strides_map[layout][field->type];
 }
 
-static size_t get_buffer_size(const struct ngpu_block_field *field, int layout)
+static size_t get_buffer_size(const struct ngpu_block_field *field, enum ngpu_block_layout layout)
 {
     return field->count * get_buffer_stride(field, layout);
 }
 
-static size_t get_field_size(const struct ngpu_block_field *field, int layout)
+static size_t get_field_size(const struct ngpu_block_field *field, enum ngpu_block_layout layout)
 {
     if (field->count)
         return get_buffer_size(field, layout);
     return sizes_map[field->type];
 }
 
-static size_t get_field_align(const struct ngpu_block_field *field, int layout)
+static size_t get_field_align(const struct ngpu_block_field *field, enum ngpu_block_layout layout)
 {
-    if (field->count && field->type != NGLI_TYPE_MAT3 && field->type != NGLI_TYPE_MAT4)
+    if (field->count && field->type != NGPU_TYPE_MAT3 && field->type != NGPU_TYPE_MAT4)
         return get_buffer_stride(field, layout);
     return aligns_map[field->type];
 }
@@ -146,7 +146,7 @@ static size_t fill_tail_field_info(const struct ngpu_block_desc *s, struct ngpu_
     const size_t size  = get_field_size(field, s->layout);
     const size_t align = get_field_align(field, s->layout);
 
-    ngli_assert(field->type != NGLI_TYPE_NONE);
+    ngli_assert(field->type != NGPU_TYPE_NONE);
     ngli_assert(size);
     ngli_assert(align);
 
@@ -162,7 +162,7 @@ static size_t fill_tail_field_info(const struct ngpu_block_desc *s, struct ngpu_
 size_t ngpu_block_desc_get_size(const struct ngpu_block_desc *s, size_t variadic_count)
 {
     if (variadic_count == 0)
-        return NGLI_ALIGN(s->size, aligns_map[NGLI_TYPE_VEC4]);
+        return NGLI_ALIGN(s->size, aligns_map[NGPU_TYPE_VEC4]);
 
     /*
      * If the last field is variadic, we create an identical artificial field
@@ -175,7 +175,7 @@ size_t ngpu_block_desc_get_size(const struct ngpu_block_desc *s, size_t variadic
     struct ngpu_block_field tmp = *last;
     tmp.count = variadic_count;
     size_t size = fill_tail_field_info(s, &tmp);
-    return NGLI_ALIGN(size, aligns_map[NGLI_TYPE_VEC4]);
+    return NGLI_ALIGN(size, aligns_map[NGPU_TYPE_VEC4]);
 }
 
 size_t ngpu_block_desc_get_aligned_size(const struct ngpu_block_desc *s, size_t variadic_count)
@@ -186,7 +186,7 @@ size_t ngpu_block_desc_get_aligned_size(const struct ngpu_block_desc *s, size_t 
     return NGLI_ALIGN(ngpu_block_desc_get_size(s, variadic_count), alignment);
 }
 
-int ngpu_block_desc_add_field(struct ngpu_block_desc *s, const char *name, int type, size_t count)
+int ngpu_block_desc_add_field(struct ngpu_block_desc *s, const char *name, enum ngpu_type type, size_t count)
 {
     ngli_assert(s->layout != NGPU_BLOCK_LAYOUT_UNKNOWN);
 
@@ -232,9 +232,9 @@ void ngpu_block_field_copy_count(const struct ngpu_block_field *fi, uint8_t * re
     uint8_t *dstp = dst;
     const uint8_t *srcp = src;
 
-    if (fi->type == NGLI_TYPE_MAT3) {
+    if (fi->type == NGPU_TYPE_MAT3) {
         const size_t dst_vec_stride = fi->stride / 3;
-        const size_t src_vec_stride = sizes_map[NGLI_TYPE_VEC3];
+        const size_t src_vec_stride = sizes_map[NGPU_TYPE_VEC3];
         const size_t n = 3 * NGLI_MAX(count ? count : fi->count, 1);
         for (size_t i = 0; i < n; i++) {
             memcpy(dstp, srcp, src_vec_stride);

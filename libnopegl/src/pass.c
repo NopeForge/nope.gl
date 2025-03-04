@@ -48,7 +48,7 @@
 #include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "src/ngpu/block_desc.h"
-#include "type.h"
+#include "ngpu/type.h"
 #include "utils.h"
 
 struct uniform_map {
@@ -115,10 +115,10 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
 static int register_builtin_uniforms(struct pass *s)
 {
     struct pgcraft_uniform crafter_uniforms[] = {
-        {.name = "ngl_modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_projection_matrix", .type = NGLI_TYPE_MAT4, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_normal_matrix",     .type = NGLI_TYPE_MAT3, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_resolution",        .type = NGLI_TYPE_VEC2, .stage=NGPU_PROGRAM_SHADER_FRAG, .data = NULL},
+        {.name = "ngl_modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "ngl_projection_matrix", .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "ngl_normal_matrix",     .type = NGPU_TYPE_MAT3, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "ngl_resolution",        .type = NGPU_TYPE_VEC2, .stage=NGPU_PROGRAM_SHADER_FRAG, .data = NULL},
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(crafter_uniforms); i++) {
@@ -137,7 +137,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
     const struct pass_params *params = &s->params;
 
     enum pgcraft_shader_tex_type type = ngli_node_texture_get_pgcraft_shader_tex_type(texture);
-    int precision = 0;
+    enum ngpu_precision precision = 0;
     int writable = 0;
     int as_image = 0;
     if (params->properties) {
@@ -187,10 +187,10 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
      * Select buffer type. We prefer UBO over SSBO, but in the following
      * situations, UBO is not possible.
      */
-    int type = NGLI_TYPE_UNIFORM_BUFFER;
+    enum ngpu_type type = NGPU_TYPE_UNIFORM_BUFFER;
     if (block->layout == NGPU_BLOCK_LAYOUT_STD430) {
         LOG(DEBUG, "block %s has a std430 layout, declaring it as SSBO", name);
-        type = NGLI_TYPE_STORAGE_BUFFER;
+        type = NGPU_TYPE_STORAGE_BUFFER;
     } else if (block_size > limits->max_uniform_block_size) {
         LOG(DEBUG, "block %s is larger than the max UBO size (%zu > %d), declaring it as SSBO",
             name, block_size, limits->max_uniform_block_size);
@@ -199,7 +199,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
                 name, block_size, limits->max_storage_block_size);
             return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
         }
-        type = NGLI_TYPE_STORAGE_BUFFER;
+        type = NGPU_TYPE_STORAGE_BUFFER;
     }
 
     int writable = 0;
@@ -209,14 +209,14 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
         if (resprops_node) {
             const struct resourceprops_opts *resprops = resprops_node->opts;
             if (resprops->writable)
-                type = NGLI_TYPE_STORAGE_BUFFER;
+                type = NGPU_TYPE_STORAGE_BUFFER;
             writable = resprops->writable;
         }
     }
 
-    if (type == NGLI_TYPE_UNIFORM_BUFFER)
+    if (type == NGPU_TYPE_UNIFORM_BUFFER)
         ngli_node_block_extend_usage(block_node, NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-    else if (type == NGLI_TYPE_STORAGE_BUFFER)
+    else if (type == NGPU_TYPE_STORAGE_BUFFER)
         ngli_node_block_extend_usage(block_node, NGPU_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     else
         ngli_assert(0);
@@ -478,7 +478,7 @@ int ngli_pass_prepare(struct pass *s)
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rnode *rnode = ctx->rnode_pos;
 
-    const int format = rnode->rendertarget_layout.depth_stencil.format;
+    const enum ngpu_format format = rnode->rendertarget_layout.depth_stencil.format;
     if (rnode->graphics_state.depth_test && !ngpu_format_has_depth(format)) {
         LOG(ERROR, "depth testing is not supported on rendertargets with no depth attachment");
         return NGL_ERROR_INVALID_USAGE;

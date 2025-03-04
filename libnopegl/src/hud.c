@@ -55,7 +55,7 @@
 #include "pgcache.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "type.h"
+#include "ngpu/type.h"
 
 struct transforms_block {
     NGLI_ALIGNED_MAT(modelview_matrix);
@@ -1143,7 +1143,7 @@ static const char * const fragment_data =
     "}";
 
 static const struct pgcraft_iovar vert_out_vars[] = {
-    {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
+    {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
 };
 
 struct hud *ngli_hud_create(struct ngl_ctx *ctx)
@@ -1242,8 +1242,8 @@ int ngli_hud_init(struct hud *s)
         return ret;
 
     const struct ngpu_block_entry block_fields[] = {
-        NGPU_BLOCK_FIELD(struct transforms_block, modelview_matrix, NGLI_TYPE_MAT4, 0),
-        NGPU_BLOCK_FIELD(struct transforms_block, projection_matrix, NGLI_TYPE_MAT4, 0),
+        NGPU_BLOCK_FIELD(struct transforms_block, modelview_matrix, NGPU_TYPE_MAT4, 0),
+        NGPU_BLOCK_FIELD(struct transforms_block, projection_matrix, NGPU_TYPE_MAT4, 0),
     };
     const struct ngpu_block_params block_params = {
         .count     = 1,
@@ -1262,7 +1262,7 @@ int ngli_hud_init(struct hud *s)
         {
             .name          = "transforms",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_VERT,
             .block         = &s->transforms_block.block_desc,
             .buffer = {
@@ -1284,7 +1284,7 @@ int ngli_hud_init(struct hud *s)
     const struct pgcraft_attribute attributes[] = {
         {
             .name     = "coords",
-            .type     = NGLI_TYPE_VEC4,
+            .type     = NGPU_TYPE_VEC4,
             .format   = NGPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->coords,

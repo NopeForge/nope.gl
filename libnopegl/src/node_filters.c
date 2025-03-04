@@ -33,7 +33,7 @@
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "pgcraft.h"
-#include "type.h"
+#include "ngpu/type.h"
 
 /* GLSL filters as string */
 #include "filter_alpha.h"
@@ -277,7 +277,7 @@ static const struct node_param filterselector_params[] = {
 #define filtersrgb2linear_params NULL
 
 static int register_resource(struct darray *resources, const char *name,
-                             const struct ngl_node *pnode, void *data, int data_type)
+                             const struct ngl_node *pnode, void *data, enum ngpu_type data_type)
 {
     struct pgcraft_uniform res = {
         .type  = data_type,
@@ -306,7 +306,7 @@ static int filteralpha_init(struct ngl_node *node)
     struct filteralpha_opts *o = node->opts;
     s->filter.name = "alpha";
     s->filter.code = filter_alpha_glsl;
-    return register_resource(&s->filter.resources, "alpha", o->alpha_node, &o->alpha, NGLI_TYPE_F32);
+    return register_resource(&s->filter.resources, "alpha", o->alpha_node, &o->alpha, NGPU_TYPE_F32);
 }
 
 static int filtercolormap_init(struct ngl_node *node)
@@ -388,9 +388,9 @@ static int filtercolormap_init(struct ngl_node *node)
         snprintf(color_name,   sizeof(color_name),   "color%zu",    i);
         snprintf(opacity_name, sizeof(opacity_name), "opacity%zu",  i);
 
-        if ((ret = register_resource(&s->filter.resources, pos_name,     key_o->position_node, &key_o->position, NGLI_TYPE_F32))  < 0 ||
-            (ret = register_resource(&s->filter.resources, color_name,   key_o->color_node,    key_o->color,     NGLI_TYPE_VEC3)) < 0 ||
-            (ret = register_resource(&s->filter.resources, opacity_name, key_o->opacity_node,  &key_o->opacity,  NGLI_TYPE_F32))  < 0)
+        if ((ret = register_resource(&s->filter.resources, pos_name,     key_o->position_node, &key_o->position, NGPU_TYPE_F32))  < 0 ||
+            (ret = register_resource(&s->filter.resources, color_name,   key_o->color_node,    key_o->color,     NGPU_TYPE_VEC3)) < 0 ||
+            (ret = register_resource(&s->filter.resources, opacity_name, key_o->opacity_node,  &key_o->opacity,  NGPU_TYPE_F32))  < 0)
             goto end;
     }
 
@@ -410,8 +410,8 @@ static int filtercontrast_init(struct ngl_node *node)
     s->filter.name = "contrast";
     s->filter.code = filter_contrast_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS;
-    if ((ret = register_resource(&s->filter.resources, "contrast", o->contrast_node, &o->contrast, NGLI_TYPE_F32)) < 0 ||
-        (ret = register_resource(&s->filter.resources, "pivot", o->pivot_node, &o->pivot, NGLI_TYPE_F32)) < 0)
+    if ((ret = register_resource(&s->filter.resources, "contrast", o->contrast_node, &o->contrast, NGPU_TYPE_F32)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "pivot", o->pivot_node, &o->pivot, NGPU_TYPE_F32)) < 0)
         return ret;
     return 0;
 }
@@ -426,7 +426,7 @@ static int filterexposure_init(struct ngl_node *node)
     s->filter.name = "exposure";
     s->filter.code = filter_exposure_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS;
-    return register_resource(&s->filter.resources, "exposure", o->exposure_node, &o->exposure, NGLI_TYPE_F32);
+    return register_resource(&s->filter.resources, "exposure", o->exposure_node, &o->exposure, NGPU_TYPE_F32);
 }
 
 static int filterinversealpha_init(struct ngl_node *node)
@@ -461,7 +461,7 @@ static int filteropacity_init(struct ngl_node *node)
     struct filteropacity_opts *o = node->opts;
     s->filter.name = "opacity";
     s->filter.code = filter_opacity_glsl;
-    return register_resource(&s->filter.resources, "opacity", o->opacity_node, &o->opacity, NGLI_TYPE_F32);
+    return register_resource(&s->filter.resources, "opacity", o->opacity_node, &o->opacity, NGPU_TYPE_F32);
 }
 
 static int filterpremult_init(struct ngl_node *node)
@@ -485,7 +485,7 @@ static int filtersaturation_init(struct ngl_node *node)
     s->filter.name = "saturation";
     s->filter.code = filter_saturation_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_SRGB;
-    return register_resource(&s->filter.resources, "saturation", o->saturation_node, &o->saturation, NGLI_TYPE_F32);
+    return register_resource(&s->filter.resources, "saturation", o->saturation_node, &o->saturation, NGPU_TYPE_F32);
 }
 
 static int filterselector_init(struct ngl_node *node)
@@ -498,11 +498,11 @@ static int filterselector_init(struct ngl_node *node)
     s->filter.name = "selector";
     s->filter.code = filter_selector_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_SRGB | NGLI_FILTER_HELPER_OKLAB;
-    if ((ret = register_resource(&s->filter.resources, "range", o->range_node, &o->range, NGLI_TYPE_VEC2)) < 0 ||
-        (ret = register_resource(&s->filter.resources, "component", NULL, &o->component, NGLI_TYPE_I32)) < 0 ||
-        (ret = register_resource(&s->filter.resources, "drop_mode", NULL, &o->drop_mode, NGLI_TYPE_I32)) < 0 ||
-        (ret = register_resource(&s->filter.resources, "output_mode", NULL, &o->output_mode, NGLI_TYPE_I32)) < 0 ||
-        (ret = register_resource(&s->filter.resources, "smoothedges", o->smoothedges_node, &o->smoothedges, NGLI_TYPE_I32)) < 0)
+    if ((ret = register_resource(&s->filter.resources, "range", o->range_node, &o->range, NGPU_TYPE_VEC2)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "component", NULL, &o->component, NGPU_TYPE_I32)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "drop_mode", NULL, &o->drop_mode, NGPU_TYPE_I32)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "output_mode", NULL, &o->output_mode, NGPU_TYPE_I32)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "smoothedges", o->smoothedges_node, &o->smoothedges, NGPU_TYPE_I32)) < 0)
         return ret;
     return 0;
 }

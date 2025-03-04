@@ -28,7 +28,7 @@
 #include "pipeline_compat.h"
 #include "program_gl.h"
 #include "program_gl_utils.h"
-#include "type.h"
+#include "ngpu/type.h"
 
 int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
                                                    const struct pgcraft *crafter)
@@ -63,8 +63,8 @@ int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
     const struct ngpu_bindgroup_layout_desc layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter);
     for (size_t i = 0; i < layout_desc.nb_buffers; i++) {
         const struct ngpu_bindgroup_layout_entry *entry = &layout_desc.buffers[i];
-        if (entry->type != NGLI_TYPE_UNIFORM_BUFFER &&
-            entry->type != NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC)
+        if (entry->type != NGPU_TYPE_UNIFORM_BUFFER &&
+            entry->type != NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC)
             continue;
         const char *buffer_name = ngli_pgcraft_get_symbol_name(crafter, entry->id);
         char block_name[MAX_ID_LEN];
