@@ -265,7 +265,7 @@ static void validate_vertex_buffers(struct ngpu_ctx *s)
     }
 }
 
-void ngpu_ctx_draw(struct ngpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex)
+void ngpu_ctx_draw(struct ngpu_ctx *s, uint32_t nb_vertices, uint32_t nb_instances, uint32_t first_vertex)
 {
     ngli_assert(s->pipeline);
     validate_vertex_buffers(s);
@@ -277,7 +277,7 @@ void ngpu_ctx_draw(struct ngpu_ctx *s, int nb_vertices, int nb_instances, int fi
     s->cls->draw(s, nb_vertices, nb_instances, first_vertex);
 }
 
-void ngpu_ctx_draw_indexed(struct ngpu_ctx *s, int nb_indices, int nb_instances)
+void ngpu_ctx_draw_indexed(struct ngpu_ctx *s, uint32_t nb_indices, uint32_t nb_instances)
 {
     ngli_assert(s->pipeline);
     validate_vertex_buffers(s);

@@ -94,8 +94,8 @@ struct ngpu_ctx_class {
 
     void (*set_pipeline)(struct ngpu_ctx *s, struct ngpu_pipeline *pipeline);
     void (*set_bindgroup)(struct ngpu_ctx *s, struct ngpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);
-    void (*draw)(struct ngpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex);
-    void (*draw_indexed)(struct ngpu_ctx *s, int nb_indices, int nb_instances);
+    void (*draw)(struct ngpu_ctx *s, uint32_t nb_vertices, uint32_t nb_instances, uint32_t first_vertex);
+    void (*draw_indexed)(struct ngpu_ctx *s, uint32_t nb_indices, uint32_t nb_instances);
     void (*dispatch)(struct ngpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 
     struct ngpu_buffer *(*buffer_create)(struct ngpu_ctx *ctx);
@@ -194,8 +194,8 @@ void ngpu_ctx_generate_texture_mipmap(struct ngpu_ctx *s, struct ngpu_texture *t
 
 void ngpu_ctx_set_pipeline(struct ngpu_ctx *s, struct ngpu_pipeline *pipeline);
 void ngpu_ctx_set_bindgroup(struct ngpu_ctx *s, struct ngpu_bindgroup *bindgroup, const uint32_t *offsets, size_t nb_offsets);
-void ngpu_ctx_draw(struct ngpu_ctx *s, int nb_vertices, int nb_instances, int first_vertex);
-void ngpu_ctx_draw_indexed(struct ngpu_ctx *s, int nb_indices, int nb_instances);
+void ngpu_ctx_draw(struct ngpu_ctx *s, uint32_t nb_vertices, uint32_t nb_instances, uint32_t first_vertex);
+void ngpu_ctx_draw_indexed(struct ngpu_ctx *s, uint32_t nb_indices, uint32_t nb_instances);
 void ngpu_ctx_dispatch(struct ngpu_ctx *s, uint32_t nb_group_x, uint32_t nb_group_y, uint32_t nb_group_z);
 
 void ngpu_ctx_set_vertex_buffer(struct ngpu_ctx *s, uint32_t index, const struct ngpu_buffer *buffer);
