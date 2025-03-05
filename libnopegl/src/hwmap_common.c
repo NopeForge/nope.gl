@@ -40,7 +40,7 @@ struct hwmap_common {
 };
 
 static const struct format_desc {
-    int layout;
+    enum image_layout layout;
     int depth;
     int shift;
     size_t nb_planes;
