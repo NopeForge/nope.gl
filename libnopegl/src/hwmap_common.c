@@ -163,7 +163,7 @@ static const struct format_desc *common_get_format_desc(int pix_fmt)
         return NULL;
 
     const struct format_desc *desc = &format_descs[pix_fmt];
-    if (!desc->layout)
+    if (desc->layout == NGLI_IMAGE_LAYOUT_NONE)
         return NULL;
 
     return desc;
@@ -176,7 +176,7 @@ static int support_direct_rendering(struct hwmap *hwmap, const struct format_des
     int direct_rendering = 1;
     if (desc->layout != NGLI_IMAGE_LAYOUT_DEFAULT) {
         direct_rendering = (params->image_layouts & (1 << desc->layout));
-        if (params->texture_mipmap_filter)
+        if (params->texture_mipmap_filter != NGLI_GPU_MIPMAP_FILTER_NONE)
             direct_rendering = 0;
     }
 
