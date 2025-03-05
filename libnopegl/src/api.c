@@ -567,12 +567,12 @@ static void *worker_thread(void *arg)
     return NULL;
 }
 
-enum {
+enum probe_mode {
     PROBE_MODE_FULL,
     PROBE_MODE_NO_GRAPHICS,
 };
 
-static int backend_probe(struct ngl_backend *backend, const struct ngl_config *config, int mode)
+static int backend_probe(struct ngl_backend *backend, const struct ngl_config *config, enum probe_mode mode)
 {
     int ret = 0;
 
@@ -595,7 +595,7 @@ end:
     return ret;
 }
 
-static int backends_probe(const struct ngl_config *user_config, size_t *nb_backendsp, struct ngl_backend **backendsp, int mode)
+static int backends_probe(const struct ngl_config *user_config, size_t *nb_backendsp, struct ngl_backend **backendsp, enum probe_mode mode)
 {
     static const struct ngl_config default_config = {
         .width     = 1,
