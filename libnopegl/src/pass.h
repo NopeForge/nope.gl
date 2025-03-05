@@ -70,7 +70,6 @@ struct pass {
     int nb_instances;
     int topology;
     int pipeline_type;
-    struct gpu_pipeline_graphics pipeline_graphics;
     struct darray crafter_attributes;
     struct darray crafter_uniforms;
     struct darray crafter_textures;
