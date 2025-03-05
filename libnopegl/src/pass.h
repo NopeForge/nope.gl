@@ -55,11 +55,6 @@ struct pass_params {
     uint32_t workgroup_size[3];
 };
 
-enum {
-    NGLI_PASS_TYPE_GRAPHIC,
-    NGLI_PASS_TYPE_COMPUTE,
-};
-
 struct pass {
     struct ngl_ctx *ctx;
     struct pass_params params;
