@@ -437,7 +437,7 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
         ret &= update_texture(s, binding_index, binding);
     };
 
-    const int layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->params.layout;
+    const enum image_layout layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->params.layout;
     ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &layout);
 }
 
