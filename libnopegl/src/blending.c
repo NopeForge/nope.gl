@@ -58,7 +58,7 @@ const struct param_choices ngli_blending_choices = {
     }
 };
 
-int ngli_blending_apply_preset(struct gpu_graphics_state *state, int preset)
+int ngli_blending_apply_preset(struct gpu_graphics_state *state, enum ngli_blending preset)
 {
     if (preset == NGLI_BLENDING_DEFAULT)
         return 0;

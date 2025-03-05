@@ -24,7 +24,7 @@
 
 #include "gpu_graphics_state.h"
 
-enum {
+enum ngli_blending {
     NGLI_BLENDING_DEFAULT,
     NGLI_BLENDING_SRC_OVER,
     NGLI_BLENDING_DST_OVER,
@@ -38,6 +38,6 @@ enum {
 };
 
 extern const struct param_choices ngli_blending_choices;
-int ngli_blending_apply_preset(struct gpu_graphics_state *state, int preset);
+int ngli_blending_apply_preset(struct gpu_graphics_state *state, enum ngli_blending preset);
 
 #endif
