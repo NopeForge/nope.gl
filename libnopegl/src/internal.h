@@ -87,10 +87,10 @@ struct ngl_ctx {
     struct rnode rnode;
     struct rnode *rnode_pos;
     struct ngl_scene *scene;
-    struct ngpu_viewport viewport;
-    struct ngpu_scissor scissor;
     struct ngl_config config;
     struct ngl_backend backend;
+    struct ngpu_viewport viewport;
+    struct ngpu_scissor scissor;
     struct ngpu_rendertarget *available_rendertargets[2];
     struct ngpu_rendertarget *current_rendertarget;
     int render_pass_started;
