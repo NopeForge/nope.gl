@@ -211,27 +211,6 @@ static int drawpath_init(struct ngl_node *node)
     return 0;
 }
 
-static int init_desc(struct ngl_node *node, struct drawpath_priv *s,
-                     const struct pgcraft_uniform *uniforms, size_t nb_uniforms)
-{
-    struct rnode *rnode = node->ctx->rnode_pos;
-
-    struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
-    if (!desc)
-        return NGL_ERROR_MEMORY;
-    rnode->id = ngli_darray_count(&s->pipeline_descs) - 1;
-
-    ngli_darray_init(&desc->uniforms, sizeof(struct pgcraft_uniform), 0);
-    ngli_darray_init(&desc->uniforms_map, sizeof(struct uniform_map), 0);
-
-    /* register source uniforms */
-    for (size_t i = 0; i < nb_uniforms; i++)
-        if (!ngli_darray_push(&desc->uniforms, &uniforms[i]))
-            return NGL_ERROR_MEMORY;
-
-    return 0;
-}
-
 // TODO factor out with drawother and pass
 static int build_uniforms_map(struct pipeline_desc *desc)
 {
@@ -258,15 +237,66 @@ static int build_uniforms_map(struct pipeline_desc *desc)
     return 0;
 }
 
-static int finalize_pipeline(struct ngl_node *node,
-                             struct drawpath_priv *s, const struct drawpath_opts *o,
-                             const struct pgcraft_params *crafter_params)
+static int drawpath_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct rnode *rnode = ctx->rnode_pos;
-    struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
-    struct pipeline_desc *desc = &descs[rnode->id];
+    struct drawpath_priv *s = node->priv_data;
+    struct drawpath_opts *o = node->opts;
+
+    const struct pgcraft_uniform uniforms[] = {
+        {.name="modelview_matrix",  .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="projection_matrix", .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="transform",         .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+
+        {.name="debug",             .type=NGPU_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG},
+        {.name="coords_fill",       .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
+        {.name="coords_outline",    .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
+
+        {.name="color",             .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
+        {.name="opacity",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
+        {.name="outline",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_node, &o->outline)},
+        {.name="outline_color",     .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_color_node, &o->outline_color)},
+        {.name="glow",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_node, &o->glow)},
+        {.name="glow_color",        .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_color_node, o->glow_color)},
+        {.name="blur",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->blur_node, &o->blur)},
+    };
+
+    struct rnode *rnode = node->ctx->rnode_pos;
+
+    struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
+    if (!desc)
+        return NGL_ERROR_MEMORY;
+    rnode->id = ngli_darray_count(&s->pipeline_descs) - 1;
+
+    ngli_darray_init(&desc->uniforms, sizeof(struct pgcraft_uniform), 0);
+    ngli_darray_init(&desc->uniforms_map, sizeof(struct uniform_map), 0);
+
+    /* register source uniforms */
+    for (size_t i = 0; i < NGLI_ARRAY_NB(uniforms); i++)
+        if (!ngli_darray_push(&desc->uniforms, &uniforms[i]))
+            return NGL_ERROR_MEMORY;
+
+    struct ngpu_texture *texture = ngli_distmap_get_texture(s->distmap);
+    const struct pgcraft_texture textures[] = {
+        {.name="tex", .type=NGLI_PGCRAFT_SHADER_TEX_TYPE_2D, .stage=NGPU_PROGRAM_SHADER_FRAG, .texture=texture},
+    };
+
+    static const struct pgcraft_iovar vert_out_vars[] = {
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
+    };
+
+    const struct pgcraft_params crafter_params = {
+        .program_label    = "nopegl/path",
+        .vert_base        = path_vert,
+        .frag_base        = path_frag,
+        .textures         = textures,
+        .nb_textures      = NGLI_ARRAY_NB(textures),
+        .uniforms         = ngli_darray_data(&desc->uniforms),
+        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .vert_out_vars    = vert_out_vars,
+        .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
+    };
 
     struct ngpu_graphics_state state = rnode->graphics_state;
     int ret = ngli_blending_apply_preset(&state, NGLI_BLENDING_SRC_OVER);
@@ -277,7 +307,7 @@ static int finalize_pipeline(struct ngl_node *node,
     if (!desc->crafter)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_pgcraft_craft(desc->crafter, crafter_params);
+    ret = ngli_pgcraft_craft(desc->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -316,60 +346,6 @@ static int finalize_pipeline(struct ngl_node *node,
     desc->coords_outline_index = ngli_pgcraft_get_uniform_index(desc->crafter, "coords_outline", NGPU_PROGRAM_SHADER_FRAG);
 
     return 0;
-}
-
-static int drawpath_prepare(struct ngl_node *node)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct drawpath_priv *s = node->priv_data;
-    struct drawpath_opts *o = node->opts;
-
-    const struct pgcraft_uniform uniforms[] = {
-        {.name="modelview_matrix",  .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
-        {.name="projection_matrix", .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
-        {.name="transform",         .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_VERT},
-
-        {.name="debug",             .type=NGPU_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG},
-        {.name="coords_fill",       .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
-        {.name="coords_outline",    .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
-
-        {.name="color",             .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
-        {.name="opacity",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
-        {.name="outline",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_node, &o->outline)},
-        {.name="outline_color",     .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_color_node, &o->outline_color)},
-        {.name="glow",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_node, &o->glow)},
-        {.name="glow_color",        .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_color_node, o->glow_color)},
-        {.name="blur",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->blur_node, &o->blur)},
-    };
-
-    int ret = init_desc(node, s, uniforms, NGLI_ARRAY_NB(uniforms));
-    if (ret < 0)
-        return ret;
-
-    struct ngpu_texture *texture = ngli_distmap_get_texture(s->distmap);
-    const struct pgcraft_texture textures[] = {
-        {.name="tex", .type=NGLI_PGCRAFT_SHADER_TEX_TYPE_2D, .stage=NGPU_PROGRAM_SHADER_FRAG, .texture=texture},
-    };
-
-    static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGPU_TYPE_VEC2},
-    };
-
-    const struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
-    const struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
-    const struct pgcraft_params crafter_params = {
-        .program_label    = "nopegl/path",
-        .vert_base        = path_vert,
-        .frag_base        = path_frag,
-        .textures         = textures,
-        .nb_textures      = NGLI_ARRAY_NB(textures),
-        .uniforms         = ngli_darray_data(&desc->uniforms),
-        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
-        .vert_out_vars    = vert_out_vars,
-        .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
-    };
-
-    return finalize_pipeline(node, s, o, &crafter_params);
 }
 
 static void drawpath_draw(struct ngl_node *node)
