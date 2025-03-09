@@ -24,7 +24,7 @@
 #include <math.h>
 
 #include "noise.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 static const struct noise_test {
     struct noise_params p;

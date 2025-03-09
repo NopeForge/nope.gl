@@ -31,8 +31,9 @@
 #include "limits.h"
 #include "program.h"
 #include "rendertarget.h"
+#include "utils/utils.h"
 #include "texture.h"
-#include "utils.h"
+#include "utils/refcount.h"
 
 struct ngpu_ctx;
 

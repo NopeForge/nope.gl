@@ -20,7 +20,7 @@
  */
 
 #include "precision.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 const struct param_choices ngli_precision_choices = {
     .name = "precision",

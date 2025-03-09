@@ -39,17 +39,17 @@
 #include FT_OUTLINE_H
 #endif
 
-#include "darray.h"
-#include "hmap.h"
 #include "hud.h"
 #include "ngpu/ctx.h"
 #include "ngpu/rendertarget.h"
 #include "nopegl.h"
 #include "params.h"
 #include "pgcache.h"
-#include "pthread_compat.h"
 #include "rnode.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/hmap.h"
+#include "utils/pthread_compat.h"
+#include "utils/utils.h"
 
 struct node_class;
 

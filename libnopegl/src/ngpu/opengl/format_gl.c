@@ -26,7 +26,7 @@
 #include "feature_gl.h"
 #include "format_gl.h"
 #include "glcontext.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #define S  NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_BIT
 #define SL NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT

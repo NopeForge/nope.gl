@@ -22,18 +22,19 @@
 
 #include <string.h>
 
-#include "darray.h"
+#include "box.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "ngpu/ctx.h"
 #include "node_text.h"
 #include "node_texteffect.h"
 #include "node_uniform.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
 #include "text.h"
 #include "transforms.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 extern const struct text_cls ngli_text_builtin;
 extern const struct text_cls ngli_text_external;

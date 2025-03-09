@@ -27,11 +27,11 @@
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
+#include "ngpu/type.h"
 #include "node_animkeyframe.h"
 #include "node_buffer.h"
 #include "nopegl.h"
-#include "ngpu/type.h"
+#include "utils/memory.h"
 
 struct animatedbuffer_opts {
     struct ngl_node **animkf;

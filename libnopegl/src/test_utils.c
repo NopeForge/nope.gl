@@ -19,8 +19,10 @@
  * under the License.
  */
 
-#include "utils.h"
-#include "memory.h"
+#include "utils/crc32.h"
+#include "utils/memory.h"
+#include "utils/string.h"
+#include "utils/utils.h"
 
 static void test_numbered_line(uint32_t crc, const char *s)
 {

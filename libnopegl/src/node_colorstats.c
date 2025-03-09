@@ -29,7 +29,7 @@
 #include "node_texture.h"
 #include "nopegl.h"
 #include "pipeline_compat.h"
-#include "src/ngpu/block_desc.h"
+#include "ngpu/block_desc.h"
 #include "ngpu/type.h"
 
 /* Compute shaders */

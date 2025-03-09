@@ -44,7 +44,6 @@
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "ngpu/block.h"
 #include "ngpu/ctx.h"
 #include "ngpu/graphics_state.h"
@@ -56,6 +55,8 @@
 #include "pgcache.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
+#include "utils/memory.h"
+#include "utils/time.h"
 
 struct transforms_block {
     NGLI_ALIGNED_MAT(modelview_matrix);
