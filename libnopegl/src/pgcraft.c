@@ -26,17 +26,17 @@
 #include <stddef.h>
 
 #include "config.h"
-#include "hmap.h"
 #include "hwmap.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "ngpu/ctx.h"
 #include "ngpu/format.h"
+#include "ngpu/type.h"
 #include "pgcraft.h"
 #include "precision.h"
-#include "ngpu/type.h"
-#include "utils.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
 #include "ngpu/opengl/ctx_gl.h"

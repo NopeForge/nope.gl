@@ -26,7 +26,8 @@
 #include <sys/stat.h>
 
 #include "drawutils.h"
-#include "utils.h"
+#include "utils/utils.h"
+#include "utils/crc32.h"
 
 static int save_ppm(const char *filename, uint8_t *data, int32_t width, int32_t height)
 {

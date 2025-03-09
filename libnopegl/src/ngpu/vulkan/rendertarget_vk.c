@@ -27,9 +27,9 @@
 #include "ctx_vk.h"
 #include "format_vk.h"
 #include "log.h"
-#include "memory.h"
 #include "ngpu/format.h"
 #include "rendertarget_vk.h"
+#include "utils/memory.h"
 #include "texture_vk.h"
 #include "vkutils.h"
 

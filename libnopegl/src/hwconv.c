@@ -29,10 +29,10 @@
 #include "ngpu/buffer.h"
 #include "ngpu/ctx.h"
 #include "ngpu/texture.h"
+#include "ngpu/type.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "ngpu/type.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 /* GLSL fragments as string */
 #include "hdr_hlg2sdr_frag.h"

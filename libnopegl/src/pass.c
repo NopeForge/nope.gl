@@ -27,17 +27,17 @@
 #include <inttypes.h>
 
 #include "blending.h"
-#include "darray.h"
 #include "geometry.h"
-#include "hmap.h"
 #include "image.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/block_desc.h"
 #include "ngpu/buffer.h"
 #include "ngpu/ctx.h"
 #include "ngpu/program.h"
 #include "ngpu/texture.h"
+#include "ngpu/type.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_resourceprops.h"
@@ -47,9 +47,9 @@
 #include "pass.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "src/ngpu/block_desc.h"
-#include "ngpu/type.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/hmap.h"
+#include "utils/utils.h"
 
 struct uniform_map {
     int32_t index;

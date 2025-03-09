@@ -30,8 +30,8 @@
 #include "android_imagereader.h"
 #include "jni_utils.h"
 #include "log.h"
-#include "memory.h"
-#include "pthread_compat.h"
+#include "utils/memory.h"
+#include "utils/pthread_compat.h"
 
 struct android_image {
     struct android_ctx *android_ctx;

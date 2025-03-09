@@ -24,8 +24,9 @@
 #define NGPU_RENDERTARGET_H
 
 #include "limits.h"
+#include "utils/utils.h"
 #include "texture.h"
-#include "utils.h"
+#include "utils/refcount.h"
 
 enum ngpu_load_op {
     NGPU_LOAD_OP_LOAD,

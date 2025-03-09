@@ -24,8 +24,9 @@
 
 #include "ctx.h"
 #include "log.h"
-#include "memory.h"
+#include "ngl_config.h"
 #include "rendertarget.h"
+#include "utils/memory.h"
 
 const char *ngli_backend_get_string_id(int backend)
 {

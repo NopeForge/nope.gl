@@ -165,9 +165,7 @@ lib_src = files(
   'src/api.c',
   'src/atlas.c',
   'src/blending.c',
-  'src/bstr.c',
   'src/colorconv.c',
-  'src/darray.c',
   'src/deserialize.c',
   'src/distmap.c',
   'src/dot.c',
@@ -175,14 +173,12 @@ lib_src = files(
   'src/eval.c',
   'src/filterschain.c',
   'src/geometry.c',
-  'src/hmap.c',
   'src/hud.c',
   'src/hwconv.c',
   'src/hwmap.c',
   'src/hwmap_common.c',
   'src/image.c',
   'src/log.c',
-  'src/memory.c',
   'src/ngpu/bindgroup.c',
   'src/ngpu/block.c',
   'src/ngpu/block_desc.c',
@@ -194,6 +190,7 @@ lib_src = files(
   'src/ngpu/rendertarget.c',
   'src/ngpu/texture.c',
   'src/ngpu/type.c',
+  'src/ngl_config.c',
   'src/node_animatedbuffer.c',
   'src/node_animated.c',
   'src/node_animkeyframe.c',
@@ -265,7 +262,16 @@ lib_src = files(
   'src/text_builtin.c',
   'src/text_external.c',
   'src/transforms.c',
-  'src/utils.c',
+  'src/utils/bstr.c',
+  'src/utils/crc32.c',
+  'src/utils/darray.c',
+  'src/utils/file.c',
+  'src/utils/hmap.c',
+  'src/utils/memory.c',
+  'src/utils/refcount.c',
+  'src/utils/string.c',
+  'src/utils/thread.c',
+  'src/utils/time.c',
 )
 
 math_utils_src = files('src/math_utils.c')
@@ -888,6 +894,15 @@ run_target(
 # Tests
 #
 
+utils_src = files(
+  'src/utils/bstr.c',
+  'src/utils/crc32.c',
+  'src/utils/darray.c',
+  'src/utils/hmap.c',
+  'src/utils/memory.c',
+  'src/utils/string.c',
+)
+
 test_progs = {
   'Assembly': {
     'exe': 'test_asm',
@@ -895,36 +910,36 @@ test_progs = {
   },
   'Color convertion': {
     'exe': 'test_colorconv',
-    'src': files('src/test_colorconv.c', 'src/colorconv.c', 'src/log.c', 'src/memory.c'),
+    'src': files('src/test_colorconv.c', 'src/colorconv.c', 'src/log.c') + utils_src,
   },
   'Dynamic array': {
     'exe': 'test_darray',
-    'src': files('src/test_darray.c', 'src/darray.c', 'src/memory.c'),
+    'src': files('src/test_darray.c') + utils_src,
   },
   'Draw utils': {
     'exe': 'test_draw',
-    'src': files('src/test_draw.c', 'src/drawutils.c', 'src/bstr.c', 'src/log.c', 'src/utils.c', 'src/memory.c'),
+    'src': files('src/test_draw.c', 'src/drawutils.c', 'src/log.c', ) + utils_src,
     'args': ['ngl-test.ppm']
   },
   'Eval': {
     'exe': 'test_eval',
-    'src': files('src/test_eval.c', 'src/eval.c', 'src/darray.c', 'src/memory.c', 'src/hmap.c', 'src/bstr.c', 'src/log.c', 'src/utils.c'),
+    'src': files('src/test_eval.c', 'src/eval.c', 'src/log.c') + utils_src,
   },
   'Hash map': {
     'exe': 'test_hmap',
-    'src': files('src/test_hmap.c', 'src/bstr.c', 'src/log.c', 'src/utils.c', 'src/memory.c'),
+    'src': files('src/test_hmap.c', 'src/log.c') + utils_src,
   },
   'Noise': {
     'exe': 'test_noise',
-    'src': files('src/test_noise.c', 'src/noise.c', 'src/log.c', 'src/memory.c'),
+    'src': files('src/test_noise.c', 'src/noise.c', 'src/log.c') + utils_src,
   },
   'Path': {
     'exe': 'test_path',
-    'src': files('src/test_path.c', 'src/darray.c', 'src/path.c', 'src/log.c', 'src/memory.c') + math_utils_src,
+    'src': files('src/test_path.c', 'src/path.c', 'src/log.c', ) + math_utils_src + utils_src,
   },
   'Utils': {
     'exe': 'test_utils',
-    'src': files('src/test_utils.c', 'src/bstr.c', 'src/log.c', 'src/utils.c', 'src/memory.c'),
+    'src': files('src/test_utils.c', 'src/log.c') + utils_src,
   },
 }
 

@@ -22,7 +22,7 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#include "bstr.h"
+#include "utils/bstr.h"
 
 enum {
     NGLI_PARAM_TYPE_I32,

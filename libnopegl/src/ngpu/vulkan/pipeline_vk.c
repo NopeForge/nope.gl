@@ -26,15 +26,15 @@
 
 #include "bindgroup_vk.h"
 #include "ctx_vk.h"
-#include "darray.h"
 #include "format_vk.h"
 #include "log.h"
-#include "memory.h"
 #include "nopegl.h"
 #include "pipeline_vk.h"
 #include "program_vk.h"
 #include "rendertarget_vk.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 #include "vkcontext.h"
 #include "vkutils.h"
 

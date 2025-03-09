@@ -24,15 +24,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "bstr.h"
 #include "config.h"
 #include "glcontext.h"
 #include "glincludes.h"
 #include "log.h"
-#include "memory.h"
 #include "ngpu/limits.h"
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/bstr.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 #include "gldefinitions_data.h"
 #include "glfeatures_data.h"

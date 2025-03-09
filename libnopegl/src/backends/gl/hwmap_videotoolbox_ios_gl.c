@@ -31,12 +31,12 @@
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "ngpu/format.h"
 #include "ngpu/opengl/ctx_gl.h"
 #include "ngpu/opengl/glincludes.h"
 #include "ngpu/opengl/texture_gl.h"
 #include "nopegl.h"
+#include "utils/memory.h"
 
 #define NGLI_CFRELEASE(ref) do { \
     if (ref) {                   \

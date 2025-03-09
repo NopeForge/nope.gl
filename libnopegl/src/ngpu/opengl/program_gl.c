@@ -23,13 +23,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "bstr.h"
 #include "ctx_gl.h"
 #include "glincludes.h"
 #include "log.h"
-#include "memory.h"
-#include "program_gl.h"
 #include "ngpu/type.h"
+#include "program_gl.h"
+#include "utils/bstr.h"
+#include "utils/memory.h"
+#include "utils/string.h"
 
 static int program_check_status(const struct glcontext *gl, GLuint id, GLenum status)
 {

@@ -28,9 +28,10 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "log.h"
-#include "memory.h"
+#include "utils/memory.h"
 #include "texture_gl.h"
-#include "utils.h"
+#include "utils/bits.h"
+#include "utils/utils.h"
 
 static const GLint gl_filter_map[NGPU_NB_FILTER][NGPU_NB_MIPMAP] = {
     [NGPU_FILTER_NEAREST] = {

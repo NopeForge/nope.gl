@@ -21,12 +21,12 @@
 
 #include "geometry.h"
 #include "log.h"
-#include "memory.h"
 #include "ngpu/buffer.h"
 #include "ngpu/format.h"
-#include "nopegl.h"
 #include "ngpu/type.h"
-#include "utils.h"
+#include "nopegl.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 #define OWN_VERTICES (1 << 0)
 #define OWN_UVCOORDS (1 << 1)

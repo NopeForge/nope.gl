@@ -21,13 +21,14 @@
 
 #include <string.h>
 
-#include "darray.h"
-#include "hmap.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "params.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
+#include "utils/string.h"
+#include "utils/utils.h"
 
 NGLI_RC_CHECK_STRUCT(ngl_scene);
 
