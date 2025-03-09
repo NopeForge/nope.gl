@@ -23,7 +23,7 @@
 #ifndef NGPU_PROGRAM_H
 #define NGPU_PROGRAM_H
 
-#include "hmap.h"
+#include "utils/hmap.h"
 
 struct ngpu_ctx;
 

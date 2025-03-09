@@ -27,10 +27,11 @@
 #include "ctx_vk.h"
 #include "format_vk.h"
 #include "log.h"
-#include "memory.h"
 #include "ngpu/format.h"
+#include "utils/memory.h"
 #include "texture_vk.h"
-#include "utils.h"
+#include "utils/bits.h"
+#include "utils/utils.h"
 #include "vkutils.h"
 
 static const VkFilter vk_filter_map[NGPU_NB_FILTER] = {

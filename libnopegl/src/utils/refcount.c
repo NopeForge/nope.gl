@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 GoPro Inc.
+ * Copyright 2023-2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,22 +19,22 @@
  * under the License.
  */
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#include "refcount.h"
 
-#include <stddef.h>
+struct ngli_rc *ngli_rc_ref(struct ngli_rc *s)
+{
+    s->count++;
+    return s;
+}
 
-void *ngli_malloc(size_t size);
-void *ngli_calloc(size_t n, size_t size);
-void *ngli_malloc_aligned(size_t size);
+void ngli_rc_unrefp(struct ngli_rc **sp)
+{
+    struct ngli_rc *s = *sp;
+    if (!s)
+        return;
 
-void *ngli_realloc(void *ptr, size_t n, size_t size);
+    if (s->count-- == 1)
+        s->freep((void **)sp);
 
-void ngli_free(void *ptr);
-void ngli_freep(void *ptr);
-void ngli_free_aligned(void *ptr);
-void ngli_freep_aligned(void *ptr);
-
-void *ngli_memdup(const void *src, size_t n);
-
-#endif
+    *sp = NULL;
+}

@@ -29,17 +29,17 @@
 #include <fribidi.h>
 #endif
 
-#include "darray.h"
 #include "distmap.h"
-#include "hmap.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "node_text.h"
 #include "nopegl.h"
 #include "path.h"
+#include "utils/darray.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
 #include "text.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #if HAVE_TEXT_LIBRARIES
 struct text_external {

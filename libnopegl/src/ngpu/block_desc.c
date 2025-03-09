@@ -27,7 +27,7 @@
 #include "block_desc.h"
 #include "ngpu/ctx.h"
 #include "ngpu/type.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 void ngpu_block_desc_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block_desc *s, enum ngpu_block_layout layout)
 {

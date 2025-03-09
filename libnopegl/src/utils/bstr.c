@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023-2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -20,12 +21,11 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "bstr.h"
 #include "memory.h"
-#include "nopegl.h"
+#include "string.h"
 
 #define BUFFER_PADDING 1024
 

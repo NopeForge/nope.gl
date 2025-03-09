@@ -29,13 +29,14 @@
 
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "ngpu/buffer.h"
+#include "ngpu/type.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "nopegl.h"
-#include "ngpu/type.h"
-#include "utils.h"
+#include "utils/memory.h"
+#include "utils/file.h"
+#include "utils/utils.h"
 
 struct buffer_opts {
     int32_t count;

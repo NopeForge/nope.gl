@@ -22,8 +22,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "utils.h"
 #include "math_utils.h"
+#include "utils/utils.h"
 
 static void flt_diff(float *dst, const float *a, const float *b, size_t size)
 {

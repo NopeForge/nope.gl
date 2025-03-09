@@ -25,22 +25,23 @@
 #include <string.h>
 
 #include "blending.h"
-#include "darray.h"
 #include "filterschain.h"
 #include "geometry.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
+#include "math_utils.h"
 #include "ngpu/ctx.h"
+#include "ngpu/type.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_texture.h"
 #include "node_uniform.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
 #include "transforms.h"
-#include "ngpu/type.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 /* GLSL fragments as string */
 #include "source_color_frag.h"

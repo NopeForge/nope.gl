@@ -24,7 +24,7 @@
 #include <string.h>
 
 #include "path.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #define NB_REFS (16 + 2)
 #define MAX_ERR 1e-5

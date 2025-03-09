@@ -27,6 +27,7 @@
 #include "params.h"
 #include "precision.h"
 #include "ngpu/type.h"
+#include "utils/string.h"
 
 #define OFFSET(x) offsetof(struct io_opts, x)
 static const struct node_param io_params[] = {

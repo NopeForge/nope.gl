@@ -24,13 +24,13 @@
 #include <string.h>
 
 #include "eval.h"
-#include "hmap.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
+#include "ngpu/type.h"
 #include "node_uniform.h"
 #include "nopegl.h"
-#include "ngpu/type.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
 
 struct eval_opts {
     char *expr[4];

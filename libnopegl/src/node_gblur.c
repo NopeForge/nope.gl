@@ -38,7 +38,7 @@
 #include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "rtt.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 /* GLSL shaders */
 #include "blur_gaussian_vert.h"

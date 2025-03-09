@@ -23,15 +23,17 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "bstr.h"
-#include "hmap.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "params.h"
-#include "utils.h"
+#include "utils/bstr.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
+#include "utils/crc32.h"
+#include "utils/string.h"
+#include "utils/utils.h"
 
 /* We depend on the monotonically incrementing by 1 property of these fields */
 NGLI_STATIC_ASSERT(param_vec,  NGLI_PARAM_TYPE_VEC4  - NGLI_PARAM_TYPE_VEC2 == 2);

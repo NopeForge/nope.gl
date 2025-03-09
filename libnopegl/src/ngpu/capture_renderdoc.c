@@ -21,8 +21,8 @@
 
 #include "capture.h"
 #include "log.h"
-#include "memory.h"
-#include "utils.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef _WIN32
