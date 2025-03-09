@@ -23,7 +23,7 @@
 #include "buffer_vk.h"
 #include "ctx_vk.h"
 #include "log.h"
-#include "memory.h"
+#include "utils/memory.h"
 #include "texture_vk.h"
 #include "vkcontext.h"
 #include "vkutils.h"

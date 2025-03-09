@@ -31,7 +31,8 @@
 #include "glslang_utils.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
+#include "utils/memory.h"
+#include "utils/time.h"
 
 #include "bindgroup_vk.h"
 #include "buffer_vk.h"

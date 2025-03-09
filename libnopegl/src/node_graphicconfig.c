@@ -29,7 +29,7 @@
 #include "ngpu/graphics_state.h"
 #include "node_graphicconfig.h"
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 struct graphicconfig_opts {
     struct ngl_node *child;

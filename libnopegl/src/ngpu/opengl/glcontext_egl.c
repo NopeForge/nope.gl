@@ -45,7 +45,7 @@
 #include "log.h"
 #include "ngpu/format.h"
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #define EGL_PLATFORM_DEVICE_EXT 0x313F
 #define EGL_PLATFORM_X11 0x31D5

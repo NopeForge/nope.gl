@@ -1,4 +1,5 @@
 /*
+ * Copyright 2024-2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2017-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -25,8 +26,9 @@
 
 #include "hmap.h"
 #include "memory.h"
-#include "nopegl.h"
 #include "utils.h"
+#include "crc32.h"
+#include "string.h"
 
 struct bucket {
     struct hmap_entry *entries;

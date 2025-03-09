@@ -23,17 +23,17 @@
 
 #include <stddef.h>
 
-#include "bstr.h"
-#include "darray.h"
 #include "filterschain.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
+#include "ngpu/type.h"
 #include "node_colorkey.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "pgcraft.h"
-#include "ngpu/type.h"
+#include "utils/bstr.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
 
 /* GLSL filters as string */
 #include "filter_alpha.h"

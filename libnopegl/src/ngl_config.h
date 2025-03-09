@@ -1,5 +1,6 @@
 /*
- * Copyright 2024 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023-2024 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,26 +20,13 @@
  * under the License.
  */
 
-#ifndef NODE_DRAW_H
-#define NODE_DRAW_H
+#ifndef NGL_CONFIG_H
+#define NGL_CONFIG_H
 
-#include "aabb.h"
-#include "ngpu/ctx.h"
+#include "nopegl.h"
 
-struct ngl_node;
-
-struct draw_info {
-    int compute_bounds;
-    NGLI_ATTR_ALIGNED struct aabb aabb;
-
-    struct ngpu_viewport viewport;
-    NGLI_ALIGNED_MAT(transform_matrix);
-
-    NGLI_ATTR_ALIGNED struct aabb screen_aabb;
-    NGLI_ATTR_ALIGNED struct obb2d screen_obb;
-    int screen_obb_computed;
-};
-
-int ngli_node_compute_oriented_bounding_box(struct ngl_node *node);
+int ngli_config_set_debug_defaults(struct ngl_config *config);
+int ngli_config_copy(struct ngl_config *dst, const struct ngl_config *src);
+void ngli_config_reset(struct ngl_config *config);
 
 #endif

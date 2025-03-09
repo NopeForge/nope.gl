@@ -22,9 +22,11 @@
 #include <string.h>
 
 #define HMAP_SIZE_NBIT 1
-#include "hmap.c"
-#include "memory.h"
-#include "utils.h"
+#include "utils/crc32.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
+#include "utils/string.h"
+#include "utils/utils.h"
 
 #define PRINT_HMAP(...) do {                                    \
     printf(__VA_ARGS__);                                        \

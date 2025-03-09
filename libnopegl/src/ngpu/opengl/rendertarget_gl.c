@@ -27,10 +27,10 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "log.h"
-#include "memory.h"
 #include "rendertarget_gl.h"
+#include "utils/memory.h"
 #include "texture_gl.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 static GLenum get_gl_attachment_index(GLenum format)
 {

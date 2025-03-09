@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "hmap.h"
 #include "internal.h"
 #include "log.h"
 #include "ngpu/ctx.h"
@@ -32,7 +31,8 @@
 #include "node_program.h"
 #include "nopegl.h"
 #include "pass.h"
-#include "utils.h"
+#include "utils/hmap.h"
+#include "utils/utils.h"
 
 struct compute_opts {
     uint32_t workgroup_count[3];

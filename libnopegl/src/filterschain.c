@@ -21,11 +21,11 @@
  * under the License.
  */
 
-#include "bstr.h"
-#include "darray.h"
 #include "filterschain.h"
-#include "memory.h"
 #include "pgcraft.h"
+#include "utils/bstr.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
 
 /* Shader helpers */
 #include "helper_misc_utils_glsl.h"

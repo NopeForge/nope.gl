@@ -22,9 +22,9 @@
 #ifndef RNODE_H
 #define RNODE_H
 
-#include "darray.h"
 #include "ngpu/graphics_state.h"
 #include "ngpu/rendertarget.h"
+#include "utils/darray.h"
 
 struct rnode {
     size_t id;

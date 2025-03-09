@@ -28,10 +28,10 @@
 #include "hwmap.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "ngpu/ctx.h"
 #include "ngpu/format.h"
 #include "nopegl.h"
+#include "utils/memory.h"
 
 extern const struct hwmap_class ngli_hwmap_common_class;
 extern const struct hwmap_class *ngli_hwmap_gl_classes[];

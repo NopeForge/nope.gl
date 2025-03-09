@@ -44,7 +44,7 @@
 #include "internal.h"
 #include "log.h"
 #include "ngpu/ctx.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "vaapi_ctx.h"
 
 static int check_extensions(const struct ngpu_ctx *gpu_ctx)

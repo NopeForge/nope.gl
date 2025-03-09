@@ -24,7 +24,7 @@
 
 #include "math_utils.h"
 #include "noise.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 static float curve_linear(float t)
 {

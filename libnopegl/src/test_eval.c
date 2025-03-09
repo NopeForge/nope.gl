@@ -24,8 +24,8 @@
 #include <stdlib.h>
 
 #include "eval.h"
-#include "hmap.h"
-#include "utils.h"
+#include "utils/hmap.h"
+#include "utils/utils.h"
 
 struct test_expr {
     int is_valid;

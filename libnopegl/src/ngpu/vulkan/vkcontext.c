@@ -38,15 +38,15 @@
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
 
-#include "bstr.h"
-#include "darray.h"
 #include "log.h"
-#include "memory.h"
 #include "ngpu/format.h"
 #include "ngpu/vulkan/vkcontext.h"
 #include "ngpu/vulkan/vkutils.h"
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/bstr.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
                                                      VkDebugUtilsMessageTypeFlagsEXT type,

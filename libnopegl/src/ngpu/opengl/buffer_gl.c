@@ -27,7 +27,7 @@
 #include "ctx_gl.h"
 #include "glcontext.h"
 #include "glincludes.h"
-#include "memory.h"
+#include "utils/memory.h"
 
 static GLbitfield get_gl_barriers(uint32_t usage)
 {

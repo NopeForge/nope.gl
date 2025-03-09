@@ -25,11 +25,11 @@
 #include <string.h>
 
 #include "internal.h"
-#include "memory.h"
 #include "ngpu/ctx.h"
 #include "ngpu/format.h"
 #include "ngpu/rendertarget.h"
 #include "rtt.h"
+#include "utils/memory.h"
 
 struct rtt_ctx {
     struct ngl_ctx *ctx;

@@ -35,14 +35,14 @@
 #include "glcontext.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "ngpu/ctx.h"
 #include "ngpu/format.h"
 #include "pipeline_gl.h"
 #include "program_gl.h"
 #include "rendertarget_gl.h"
+#include "utils/memory.h"
 #include "texture_gl.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #if DEBUG_GPU_CAPTURE
 #include "ngpu/capture.h"

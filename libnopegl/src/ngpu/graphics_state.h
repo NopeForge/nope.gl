@@ -23,7 +23,7 @@
 #ifndef NGPU_GRAPHICS_STATE_H
 #define NGPU_GRAPHICS_STATE_H
 
-#include "utils.h"
+#include "utils/utils.h"
 
 enum ngpu_blend_factor {
     NGPU_BLEND_FACTOR_ZERO,
