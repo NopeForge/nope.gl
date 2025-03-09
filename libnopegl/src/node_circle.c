@@ -24,12 +24,12 @@
 #include <string.h>
 
 #include "geometry.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "nopegl.h"
-#include "internal.h"
-#include "utils.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 struct circle_opts {
     float radius;

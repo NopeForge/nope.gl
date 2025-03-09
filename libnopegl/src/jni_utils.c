@@ -23,13 +23,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "bstr.h"
 #include "jni_utils.h"
 #include "log.h"
-#include "memory.h"
 #include "nopegl.h"
-#include "pthread_compat.h"
-#include "utils.h"
+#include "utils/bstr.h"
+#include "utils/memory.h"
+#include "utils/pthread_compat.h"
+#include "utils/string.h"
+#include "utils/utils.h"
 
 static JavaVM *java_vm;
 static pthread_key_t current_env;

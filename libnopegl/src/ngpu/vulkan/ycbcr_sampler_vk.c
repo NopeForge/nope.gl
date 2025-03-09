@@ -22,8 +22,8 @@
 #include <stddef.h>
 
 #include "log.h"
-#include "memory.h"
 #include "ngpu/vulkan/ctx_vk.h"
+#include "utils/memory.h"
 #include "vkutils.h"
 #include "ycbcr_sampler_vk.h"
 

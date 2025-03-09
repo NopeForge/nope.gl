@@ -25,7 +25,7 @@
 #include <nopemd.h>
 
 #include "ngpu/texture.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #define NGLI_COLOR_INFO_DEFAULTS {             \
     .space     = NMD_COL_SPC_UNSPECIFIED,      \

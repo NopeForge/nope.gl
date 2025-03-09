@@ -23,9 +23,10 @@
 #define PASS_H
 
 #include <stdint.h>
-#include "darray.h"
+
 #include "ngpu/pipeline.h"
 #include "pgcraft.h"
+#include "utils/darray.h"
 
 struct ngl_ctx;
 

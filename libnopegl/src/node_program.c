@@ -21,13 +21,13 @@
 
 #include <stddef.h>
 
-#include "darray.h"
 #include "internal.h"
 #include "log.h"
 #include "node_io.h"
 #include "node_program.h"
 #include "nopegl.h"
 #include "pgcraft.h"
+#include "utils/darray.h"
 
 #define IO_NODES (const uint32_t[]){NGL_NODE_IOINT,        \
                                     NGL_NODE_IOIVEC2,      \

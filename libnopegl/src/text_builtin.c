@@ -19,13 +19,14 @@
  * under the License.
  */
 
+#include "box.h"
 #include "distmap.h"
-#include "hmap.h"
 #include "internal.h"
-#include "memory.h"
 #include "path.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
 #include "text.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 struct text_builtin {
     int32_t chr_w, chr_h;

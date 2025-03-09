@@ -31,7 +31,7 @@
 #include "internal.h"
 #include "log.h"
 #include "ngpu/ctx.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #if defined(BACKEND_GLES)
 #include "ngpu/opengl/ctx_gl.h"

@@ -25,14 +25,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "darray.h"
 #include "eval.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "ngpu/program.h" // for MAX_ID_LEN
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 #define WHITESPACES " \r\n\t"
 

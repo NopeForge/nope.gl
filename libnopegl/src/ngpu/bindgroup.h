@@ -25,13 +25,13 @@
 #include <stdlib.h>
 
 #include "buffer.h"
-#include "darray.h"
 #include "graphics_state.h"
+#include "ngpu/type.h"
 #include "program.h"
 #include "rendertarget.h"
+#include "utils/darray.h"
 #include "texture.h"
-#include "ngpu/type.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 struct ngpu_ctx;
 

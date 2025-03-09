@@ -27,6 +27,9 @@
 #include <string.h>
 
 #include "config.h"
+#include "ngl_config.h"
+#include "utils/thread.h"
+#include "utils/time.h"
 
 #if defined(TARGET_ANDROID)
 #include <jni.h>
@@ -34,19 +37,19 @@
 #include "jni_utils.h"
 #endif
 
-#include "darray.h"
 #include "distmap.h"
-#include "hmap.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "ngpu/ctx.h"
 #include "ngpu/graphics_state.h"
 #include "nopegl.h"
 #include "pgcache.h"
-#include "pthread_compat.h"
 #include "rnode.h"
+#include "utils/pthread_compat.h"
+#include "utils/darray.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
 
 #if defined(HAVE_VAAPI)
 #include "vaapi_ctx.h"

@@ -22,11 +22,11 @@
 
 #include <string.h>
 
-#include "darray.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "path.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
 
 #define STEP_FLAG_DISCONTINUITY (1 << 0) /* a discontinuity happens after this step */
 

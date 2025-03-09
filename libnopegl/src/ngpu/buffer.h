@@ -25,7 +25,8 @@
 
 #include <stdlib.h>
 
-#include "utils.h"
+#include "utils/utils.h"
+#include "utils/refcount.h"
 
 struct ngpu_ctx;
 

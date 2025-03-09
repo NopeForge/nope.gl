@@ -25,8 +25,9 @@
 
 #include <vulkan/vulkan.h>
 
-#include "darray.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/refcount.h"
+#include "utils/utils.h"
 
 struct cmd_buffer_vk {
     struct ngpu_ctx *gpu_ctx;

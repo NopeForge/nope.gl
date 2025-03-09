@@ -29,7 +29,7 @@
 #include "math_utils.h"
 #include "ngpu/ctx.h"
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 struct quad_opts {
     float corner[3];

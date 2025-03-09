@@ -24,17 +24,19 @@
 #include <math.h>
 
 #include "blending.h"
+#include "box.h"
 #include "distmap.h"
 #include "internal.h"
 #include "ngpu/ctx.h"
 #include "ngpu/texture.h"
+#include "ngpu/type.h"
+#include "node_draw.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "path.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "ngpu/type.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 /* GLSL fragments as string */
 #include "path_frag.h"

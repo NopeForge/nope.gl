@@ -24,7 +24,8 @@
 #define NGPU_TEXTURE_H
 
 #include "format.h"
-#include "utils.h"
+#include "utils/utils.h"
+#include "utils/refcount.h"
 
 struct ngpu_ctx;
 

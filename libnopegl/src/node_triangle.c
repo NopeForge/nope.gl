@@ -30,7 +30,7 @@
 #include "math_utils.h"
 #include "ngpu/ctx.h"
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 struct triangle_opts {
     float edges[9];

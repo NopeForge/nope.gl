@@ -24,14 +24,14 @@
 
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
+#include "ngpu/block_desc.h"
 #include "ngpu/buffer.h"
 #include "ngpu/ctx.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_uniform.h"
 #include "nopegl.h"
-#include "src/ngpu/block_desc.h"
+#include "utils/memory.h"
 
 static const struct param_choices layout_choices = {
     .name = "memory_layout",

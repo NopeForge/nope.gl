@@ -27,10 +27,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef _MSC_VER
-#include <intrin.h>
-#endif
-
 #include "config.h"
 
 #include "nopegl.h"
@@ -128,62 +124,8 @@
                          NGLI_ARG_VEC4((v)+4*2),    \
                          NGLI_ARG_VEC4((v)+4*3)
 
-struct ngli_box {
-    float x, y, w, h;
-};
-
 #define NGLI_HAS_ALL_FLAGS(a, b) (((a) & (b)) == (b))
 
-typedef void (*ngli_freep_func)(void **sp);
-
-struct ngli_rc {
-    size_t count;
-    ngli_freep_func freep;
-};
-
-#define NGLI_RC_CHECK_STRUCT(name) NGLI_STATIC_ASSERT(name ## _rc, offsetof(struct name, rc) == 0)
-#define NGLI_RC_CREATE(fn) (struct ngli_rc) { .count=1, .freep=(ngli_freep_func)fn }
-#define NGLI_RC_REF(s) (void *)ngli_rc_ref((struct ngli_rc *)(s))
-#define NGLI_RC_UNREFP(sp) ngli_rc_unrefp((struct ngli_rc **)(sp))
-
-struct ngli_rc *ngli_rc_ref(struct ngli_rc *s);
-void ngli_rc_unrefp(struct ngli_rc **sp);
-
 typedef void (*ngli_user_free_func_type)(void *user_arg, void *data);
-
-char *ngli_strdup(const char *s);
-int64_t ngli_gettime_relative(void);
-char *ngli_asprintf(const char *fmt, ...) ngli_printf_format(1, 2);
-uint32_t ngli_crc32(const char *s);
-uint32_t ngli_crc32_mem(const uint8_t *s, size_t size);
-void ngli_thread_set_name(const char *name);
-int ngli_get_filesize(const char *name, int64_t *size);
-char *ngli_numbered_lines(const char *s);
-int ngli_config_set_debug_defaults(struct ngl_config *config);
-int ngli_config_copy(struct ngl_config *dst, const struct ngl_config *src);
-void ngli_config_reset(struct ngl_config *config);
-
-/*
- * Returns the number of leading 0-bits in x, starting at the most significant
- * bit position. If x is 0, the result is undefined.
- */
-static inline uint32_t ngli_clz(uint32_t x)
-{
-#ifdef _MSC_VER
-    unsigned long ret;
-    _BitScanReverse(&ret, x);
-    return 31 - ret;
-#else
-    return (uint32_t)__builtin_clz(x);
-#endif
-}
-
-/*
- * Return the base-2 logarithm of x. If x is 0, the result is undefined.
- */
-static inline uint32_t ngli_log2(uint32_t x)
-{
-    return 31 - ngli_clz(x);
-}
 
 #endif /* UTILS_H */

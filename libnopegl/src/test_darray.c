@@ -21,8 +21,8 @@
 
 #include <string.h>
 
-#include "darray.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/utils.h"
 
 struct my_item {
     int id;

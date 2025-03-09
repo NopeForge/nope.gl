@@ -24,10 +24,10 @@
 
 #include <stdint.h>
 
-#include "darray.h"
 #include "ngpu/buffer.h"
 #include "ngpu/program.h" // MAX_ID_LEN
 #include "ngpu/type.h"
+#include "utils/darray.h"
 
 struct ngpu_ctx;
 

@@ -38,7 +38,7 @@
 #include "node_textureview.h"
 #include "nopegl.h"
 #include "rtt.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 struct rtt_opts {
     struct ngl_node *child;
