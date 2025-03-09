@@ -22,8 +22,8 @@
 #include "bindgroup.h"
 #include "ctx.h"
 #include "log.h"
-#include "memory.h"
-#include "utils.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 static int layout_entry_is_compatible(const struct ngpu_bindgroup_layout_entry *a,
                                       const struct ngpu_bindgroup_layout_entry *b)

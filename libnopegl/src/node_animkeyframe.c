@@ -25,14 +25,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "bstr.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "node_animkeyframe.h"
 #include "nopegl.h"
 #include "params.h"
-#include "utils.h"
+#include "utils/bstr.h"
+#include "utils/utils.h"
 
 #define CONSTS_4_IN_OUT(name, caps_name, formula, args, argsval)                                                                                                \
         {name "_in",     EASING_##caps_name##_IN,                                                                                                               \

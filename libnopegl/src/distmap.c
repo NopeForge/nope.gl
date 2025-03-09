@@ -25,25 +25,25 @@
 #include <string.h>
 #include <math.h>
 
-#include "darray.h"
 #include "distmap.h"
 #include "distmap_frag.h"
 #include "distmap_vert.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "ngpu/buffer.h"
 #include "ngpu/ctx.h"
 #include "ngpu/format.h"
 #include "ngpu/rendertarget.h"
 #include "ngpu/texture.h"
+#include "ngpu/type.h"
 #include "nopegl.h"
 #include "path.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "ngpu/type.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 /*
  * Padding percent is arbitrary: it represents how far an effect such as glowing

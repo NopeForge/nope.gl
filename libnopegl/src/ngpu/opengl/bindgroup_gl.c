@@ -23,7 +23,7 @@
 #include "buffer_gl.h"
 #include "ctx_gl.h"
 #include "log.h"
-#include "memory.h"
+#include "utils/memory.h"
 #include "texture_gl.h"
 
 struct texture_binding_gl {

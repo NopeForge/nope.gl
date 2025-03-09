@@ -38,7 +38,7 @@
 #include "ngpu/opengl/glincludes.h"
 #include "ngpu/opengl/texture_gl.h"
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 struct hwmap_vaapi {
     struct nmd_frame *frame;

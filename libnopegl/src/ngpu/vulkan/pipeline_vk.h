@@ -24,8 +24,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include "darray.h"
 #include "ngpu/pipeline.h"
+#include "utils/darray.h"
 
 struct ngpu_ctx;
 

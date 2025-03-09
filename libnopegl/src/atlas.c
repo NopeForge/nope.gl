@@ -23,14 +23,14 @@
 #include <string.h>
 
 #include "atlas.h"
-#include "darray.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "ngpu/format.h"
 #include "ngpu/texture.h"
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 struct atlas {
     struct ngl_ctx *ctx;

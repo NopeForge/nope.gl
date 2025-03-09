@@ -28,12 +28,13 @@
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
-#include "nodes_register.h"
 #include "node_uniform.h"
+#include "nodes_register.h"
 #include "nopegl.h"
 #include "params.h"
-#include "utils.h"
+#include "utils/memory.h"
+#include "utils/string.h"
+#include "utils/utils.h"
 
 enum {
     STATE_INIT_FAILED   = -1,

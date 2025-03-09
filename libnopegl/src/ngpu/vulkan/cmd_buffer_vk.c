@@ -22,8 +22,8 @@
 
 #include "cmd_buffer_vk.h"
 #include "ctx_vk.h"
-#include "darray.h"
-#include "memory.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
 
 struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct ngpu_ctx *gpu_ctx)
 {

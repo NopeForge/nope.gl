@@ -23,17 +23,18 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "darray.h"
+#include "box.h"
 #include "internal.h"
 #include "math_utils.h"
 #include "ngpu/ctx.h"
 #include "ngpu/format.h"
+#include "ngpu/type.h"
 #include "params.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "text.h"
-#include "ngpu/type.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/utils.h"
 
 /* GLSL fragments as string */
 #include "text_bg_frag.h"

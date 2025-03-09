@@ -22,7 +22,7 @@
  */
 
 #include "format_vk.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 VkFormat ngpu_format_ngl_to_vk(enum ngpu_format format)
 {
