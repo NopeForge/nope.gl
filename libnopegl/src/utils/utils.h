@@ -22,6 +22,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -55,7 +56,7 @@
     }                                                   \
 } while (0)
 
-#define NGLI_STATIC_ASSERT(id, c) _Static_assert(c, #id)
+#define NGLI_STATIC_ASSERT(id, c) static_assert(c, #id)
 
 #define NGLI_FIELD_SIZEOF(name, field) (sizeof(((name *)0)->field))
 
