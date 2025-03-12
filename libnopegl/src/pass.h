@@ -69,6 +69,12 @@ struct pass {
     struct darray crafter_uniforms;
     struct darray crafter_textures;
     struct darray crafter_blocks;
+    struct pgcraft *crafter;
+    int32_t modelview_matrix_index;
+    int32_t projection_matrix_index;
+    int32_t normal_matrix_index;
+    int32_t resolution_index;
+    struct darray uniforms_map;
     struct darray pipeline_descs;
 };
 
