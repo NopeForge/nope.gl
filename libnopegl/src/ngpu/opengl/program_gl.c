@@ -207,10 +207,6 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         }
     }
 
-    if (!((gl->features & NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY) &&
-          (gl->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT)))
-        return bmap;
-
     /* Shader Storage Buffers */
     GLint nb_active_buffers;
     gl->funcs.GetProgramInterfaceiv(pid, GL_SHADER_STORAGE_BLOCK,
@@ -270,12 +266,6 @@ int ngpu_program_gl_init(struct ngpu_program *s, const struct ngpu_program_param
 
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-
-    const uint64_t features = NGLI_FEATURE_GL_COMPUTE_SHADER_ALL;
-    if (params->compute && (gl->features & features) != features) {
-        LOG(ERROR, "context does not support compute shaders");
-        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
-    }
 
     s_priv->id = gl->funcs.CreateProgram();
 

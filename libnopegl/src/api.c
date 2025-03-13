@@ -55,7 +55,9 @@
 #include "vaapi_ctx.h"
 #endif
 
-#if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
+#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
+# define DEFAULT_BACKEND NGL_BACKEND_VULKAN
+#elif defined(TARGET_ANDROID)
 # define DEFAULT_BACKEND NGL_BACKEND_OPENGLES
 #else
 # define DEFAULT_BACKEND NGL_BACKEND_OPENGL
@@ -132,12 +134,11 @@ static const char *get_cap_string_id(unsigned cap_id)
 
 static int load_caps(struct ngl_backend *backend, const struct ngpu_ctx *gpu_ctx)
 {
-    const uint32_t has_compute    = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGPU_FEATURE_COMPUTE);
     const uint32_t has_ds_resolve = NGLI_HAS_ALL_FLAGS(gpu_ctx->features, NGPU_FEATURE_DEPTH_STENCIL_RESOLVE);
 
     const struct ngpu_limits *limits = &gpu_ctx->limits;
     const struct ngl_cap caps[] = {
-        CAP(NGL_CAP_COMPUTE,                       has_compute),
+        CAP(NGL_CAP_COMPUTE,                       1),
         CAP(NGL_CAP_DEPTH_STENCIL_RESOLVE,         has_ds_resolve),
         CAP(NGL_CAP_MAX_COLOR_ATTACHMENTS,         limits->max_color_attachments),
         CAP(NGL_CAP_MAX_COMPUTE_GROUP_COUNT_X,     limits->max_compute_work_group_count[0]),

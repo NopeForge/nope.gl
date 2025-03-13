@@ -176,6 +176,7 @@ int ngl_node_set_funcs(struct ngl_node *node, void *user_data, struct ngl_node_f
     return 0;
 }
 
+#if defined(BACKEND_GL) || defined(BACKEND_GLES)
 static int target_to_layout(GLuint target)
 {
     switch (target) {
@@ -190,7 +191,6 @@ static int target_to_layout(GLuint target)
 
 static int wrap_texture_gl(struct ngl_node *node, struct ngl_custom_texture_info *info)
 {
-#if defined(BACKEND_GL) || defined(BACKEND_GLES)
     struct customtexture_priv *s = node->priv_data;
     struct ngl_ctx *ctx = node->ctx;
     struct ngl_config *config = &ctx->config;
@@ -243,10 +243,13 @@ static int wrap_texture_gl(struct ngl_node *node, struct ngl_custom_texture_info
     s->texture_info.image.rev = s->texture_info.image_rev++;
 
     return 0;
-#else
-    return NGL_ERROR_UNSUPPORTED;
-#endif
 }
+#else
+static int wrap_texture_gl(struct ngl_node *node, struct ngl_custom_texture_info *info)
+{
+    return NGL_ERROR_UNSUPPORTED;
+}
+#endif
 
 int ngl_custom_texture_set_texture_info(struct ngl_node *node, struct ngl_custom_texture_info *info)
 {

@@ -20,8 +20,6 @@
  * under the License.
  */
 
-#include <string.h>
-
 #include "bindgroup_gl.h"
 #include "buffer_gl.h"
 #include "ctx_gl.h"
@@ -135,11 +133,6 @@ static int pipeline_graphics_init(struct ngpu_pipeline *s)
 
 static int pipeline_compute_init(struct ngpu_pipeline *s)
 {
-    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-
-    ngli_assert(NGLI_HAS_ALL_FLAGS(gl->features, NGLI_FEATURE_GL_COMPUTE_SHADER_ALL));
-
     return 0;
 }
 
@@ -252,7 +245,6 @@ void ngpu_pipeline_gl_dispatch(struct ngpu_pipeline *s, uint32_t nb_group_x, uin
     if (barriers)
         gl->funcs.MemoryBarrier(barriers);
 
-    ngli_assert(gl->features & NGLI_FEATURE_GL_COMPUTE_SHADER);
     gl->funcs.DispatchCompute(nb_group_x, nb_group_y, nb_group_z);
 
     if (barriers)

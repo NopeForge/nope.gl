@@ -26,10 +26,6 @@
 
 #include "config.h"
 
-#if defined(TARGET_IPHONE)
-#include <CoreVideo/CoreVideo.h>
-#endif
-
 #include "cmd_buffer_gl.h"
 #include "glstate.h"
 #include "ngpu/ctx.h"
@@ -61,10 +57,6 @@ struct ngpu_ctx_gl {
     capture_func_type capture_func;
     struct ngpu_rendertarget *capture_rt;
     struct ngpu_texture *capture_texture;
-#if defined(TARGET_IPHONE)
-    CVPixelBufferRef capture_cvbuffer;
-    CVOpenGLESTextureRef capture_cvtexture;
-#endif
     /* Timer */
     GLuint queries[2];
     void (NGLI_GL_APIENTRY *glGenQueries)(GLsizei n, GLuint * ids);

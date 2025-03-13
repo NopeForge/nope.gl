@@ -200,10 +200,6 @@ static void clear_buffers(struct ngpu_rendertarget *s)
     }
 }
 
-static void invalidate_noop(struct ngpu_rendertarget *s)
-{
-}
-
 static void invalidate(struct ngpu_rendertarget *s)
 {
     struct ngpu_rendertarget_gl *s_priv = (struct ngpu_rendertarget_gl *)s;
@@ -242,13 +238,8 @@ int ngpu_rendertarget_gl_init(struct ngpu_rendertarget *s)
     if (ret < 0)
         goto done;
 
-    if (gl->features & NGLI_FEATURE_GL_INVALIDATE_SUBDATA) {
-        s_priv->invalidate = invalidate;
-    } else {
-        s_priv->invalidate = invalidate_noop;
-    }
-
     s_priv->clear = clear_buffers;
+    s_priv->invalidate = invalidate;
     s_priv->resolve = resolve_no_draw_buffers;
 
     ngli_assert(s->params.nb_colors <= limits->max_draw_buffers);
@@ -386,8 +377,6 @@ void ngpu_rendertarget_gl_freep(struct ngpu_rendertarget **sp)
 int ngpu_rendertarget_gl_wrap(struct ngpu_rendertarget *s, const struct ngpu_rendertarget_params *params, GLuint id)
 {
     struct ngpu_rendertarget_gl *s_priv = (struct ngpu_rendertarget_gl *)s;
-    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     ngli_assert(params->nb_colors == 1);
     ngli_assert(!params->colors[0].attachment);
@@ -402,11 +391,7 @@ int ngpu_rendertarget_gl_wrap(struct ngpu_rendertarget *s, const struct ngpu_ren
     s_priv->wrapped = 1;
     s_priv->id = id;
 
-    if (gl->features & NGLI_FEATURE_GL_INVALIDATE_SUBDATA) {
-        s_priv->invalidate = invalidate;
-    } else {
-        s_priv->invalidate = invalidate_noop;
-    }
+    s_priv->invalidate = invalidate;
 
     s_priv->clear = clear_buffers;
     s_priv->resolve = resolve_no_draw_buffers;

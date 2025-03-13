@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023-2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -52,17 +52,11 @@ NGLI_STATIC_ASSERT(gl_bool,      GL_FALSE == 0 && GL_TRUE == 1);
 
 enum {
     GLPLATFORM_EGL,
-    GLPLATFORM_NSGL,
-    GLPLATFORM_EAGL,
     GLPLATFORM_WGL,
 };
 
 extern const struct glcontext_class ngli_glcontext_egl_class;
 extern const struct glcontext_class ngli_glcontext_egl_external_class;
-extern const struct glcontext_class ngli_glcontext_nsgl_class;
-extern const struct glcontext_class ngli_glcontext_nsgl_external_class;
-extern const struct glcontext_class ngli_glcontext_eagl_class;
-extern const struct glcontext_class ngli_glcontext_eagl_external_class;
 extern const struct glcontext_class ngli_glcontext_wgl_class;
 extern const struct glcontext_class ngli_glcontext_wgl_external_class;
 
@@ -76,18 +70,6 @@ static const struct {
         .external_cls = &ngli_glcontext_egl_external_class,
     },
 #endif
-#ifdef HAVE_GLPLATFORM_NSGL
-    [GLPLATFORM_NSGL] = {
-        .cls = &ngli_glcontext_nsgl_class,
-        .external_cls = &ngli_glcontext_nsgl_external_class,
-    },
-#endif
-#ifdef HAVE_GLPLATFORM_EAGL
-    [GLPLATFORM_EAGL] = {
-        .cls = &ngli_glcontext_eagl_class,
-        .external_cls = &ngli_glcontext_eagl_external_class,
-    },
-#endif
 #ifdef HAVE_GLPLATFORM_WGL
     [GLPLATFORM_WGL] = {
         .cls = &ngli_glcontext_wgl_class,
@@ -99,8 +81,6 @@ static const struct {
 static const int platform_to_glplatform[] = {
     [NGL_PLATFORM_XLIB]    = GLPLATFORM_EGL,
     [NGL_PLATFORM_ANDROID] = GLPLATFORM_EGL,
-    [NGL_PLATFORM_MACOS]   = GLPLATFORM_NSGL,
-    [NGL_PLATFORM_IOS]     = GLPLATFORM_EAGL,
     [NGL_PLATFORM_WINDOWS] = GLPLATFORM_WGL,
     [NGL_PLATFORM_WAYLAND] = GLPLATFORM_EGL,
 };
@@ -188,11 +168,11 @@ static int glcontext_probe_version(struct glcontext *glcontext)
 
     glcontext->version = major_version * 100 + minor_version * 10;
 
-    if (glcontext->backend == NGL_BACKEND_OPENGL && glcontext->version < 330) {
-        LOG(ERROR, "nope.gl only supports OpenGL >= 3.3");
+    if (glcontext->backend == NGL_BACKEND_OPENGL && glcontext->version < 450) {
+        LOG(ERROR, "nope.gl only supports OpenGL >= 4.5");
         return NGL_ERROR_UNSUPPORTED;
-    } else if (glcontext->backend == NGL_BACKEND_OPENGLES && glcontext->version < 300) {
-        LOG(ERROR, "nope.gl only supports OpenGL ES >= 3.0");
+    } else if (glcontext->backend == NGL_BACKEND_OPENGLES && glcontext->version < 310) {
+        LOG(ERROR, "nope.gl only supports OpenGL ES >= 3.1");
         return NGL_ERROR_UNSUPPORTED;
     }
 
@@ -359,30 +339,17 @@ static int glcontext_probe_limits(struct glcontext *glcontext)
     limits->max_color_attachments = NGLI_MIN(limits->max_color_attachments, NGPU_MAX_COLOR_ATTACHMENTS);
     GET(GL_MAX_UNIFORM_BLOCK_SIZE, &limits->max_uniform_block_size);
     GET(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &limits->min_uniform_block_offset_alignment);
-
-    if (glcontext->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT) {
-        GET(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &limits->max_storage_block_size);
-        GET(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &limits->min_storage_block_offset_alignment);
+    GET(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &limits->max_storage_block_size);
+    GET(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &limits->min_storage_block_offset_alignment);
+    GET(GL_MAX_IMAGE_UNITS, &limits->max_image_units);
+    for (GLuint i = 0; i < (GLuint)NGLI_ARRAY_NB(limits->max_compute_work_group_count); i++) {
+        GET_I(GL_MAX_COMPUTE_WORK_GROUP_COUNT, i, &limits->max_compute_work_group_count[i]);
     }
-
-    if (glcontext->features & NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE) {
-        GET(GL_MAX_IMAGE_UNITS, &limits->max_image_units);
+    GET(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &limits->max_compute_work_group_invocations);
+    for (GLuint i = 0; i < (GLuint)NGLI_ARRAY_NB(limits->max_compute_work_group_size); i++) {
+        GET_I(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &limits->max_compute_work_group_size[i]);
     }
-
-    if (glcontext->features & NGLI_FEATURE_GL_COMPUTE_SHADER) {
-        for (GLuint i = 0; i < (GLuint)NGLI_ARRAY_NB(limits->max_compute_work_group_count); i++) {
-            GET_I(GL_MAX_COMPUTE_WORK_GROUP_COUNT, i, &limits->max_compute_work_group_count[i]);
-        }
-
-        GET(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &limits->max_compute_work_group_invocations);
-
-        for (GLuint i = 0; i < (GLuint)NGLI_ARRAY_NB(limits->max_compute_work_group_size); i++) {
-            GET_I(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &limits->max_compute_work_group_size[i]);
-        }
-
-        GET(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &limits->max_compute_shared_memory_size);
-    }
-
+    GET(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &limits->max_compute_shared_memory_size);
     GET(GL_MAX_DRAW_BUFFERS, &limits->max_draw_buffers);
 
     return 0;
