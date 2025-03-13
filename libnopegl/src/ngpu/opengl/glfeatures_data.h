@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2023-2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2023 Nope Forge
  * Copyright 2018-2022 GoPro Inc.
  *
@@ -40,60 +40,6 @@ static const struct glfeature {
     const size_t *funcs_offsets;
 } glfeatures[] = {
     {
-        .name           = "texture_storage",
-        .flag           = NGLI_FEATURE_GL_TEXTURE_STORAGE,
-        .version        = 420,
-        .es_version     = 310,
-        .funcs_offsets  = (const size_t[]){OFFSET(TexStorage2D),
-                                           OFFSET(TexStorage3D),
-                                           SIZE_MAX}
-    }, {
-        .name           = "compute_shader",
-        .flag           = NGLI_FEATURE_GL_COMPUTE_SHADER,
-        .version        = 430,
-        .es_version     = 310,
-        .extensions     = (const char*[]){"GL_ARB_compute_shader", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(DispatchCompute),
-                                           SIZE_MAX}
-    }, {
-        .name           = "program_interface_query",
-        .flag           = NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY,
-        .version        = 430,
-        .es_version     = 310,
-        .extensions     = (const char*[]){"GL_ARB_program_interface_query", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(GetProgramResourceIndex),
-                                           OFFSET(GetProgramResourceiv),
-                                           OFFSET(GetProgramResourceLocation),
-                                           OFFSET(GetProgramInterfaceiv),
-                                           OFFSET(GetProgramResourceName),
-                                           SIZE_MAX}
-    }, {
-        .name           = "shader_image_load_store",
-        .flag           = NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE,
-        .version        = 420,
-        .es_version     = 310,
-        .extensions     = (const char*[]){"GL_ARB_shader_image_load_store", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(BindImageTexture),
-                                           OFFSET(MemoryBarrier),
-                                           SIZE_MAX}
-    }, {
-        .name           = "shader_storage_buffer_object",
-        .flag           = NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT,
-        .version        = 430,
-        .es_version     = 310,
-        .extensions     = (const char*[]){"GL_ARB_shader_storage_buffer_object", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(TexStorage2D),
-                                           OFFSET(TexStorage3D),
-                                           SIZE_MAX}
-    }, {
-        .name           = "internalformat_query",
-        .flag           = NGLI_FEATURE_GL_INTERNALFORMAT_QUERY,
-        .version        = 420,
-        .es_version     = 300,
-        .extensions     = (const char*[]){"ARB_internalformat_query", NULL},
-        .funcs_offsets  = (const size_t[]){OFFSET(GetInternalformativ),
-                                           SIZE_MAX}
-    }, {
         .name           = "timer_query",
         .flag           = NGLI_FEATURE_GL_TIMER_QUERY,
         .version        = 330,
@@ -108,14 +54,6 @@ static const struct glfeature {
                                            OFFSET(DeleteQueriesEXT),
                                            OFFSET(QueryCounterEXT),
                                            OFFSET(GetQueryObjectui64vEXT),
-                                           SIZE_MAX}
-    }, {
-        .name           = "invalidate_subdata",
-        .flag           = NGLI_FEATURE_GL_INVALIDATE_SUBDATA,
-        .version        = 430,
-        .es_version     = 300,
-        .extensions     = (const char*[]){"GL_ARB_invalidate_subdata"},
-        .funcs_offsets  = (const size_t[]){OFFSET(InvalidateFramebuffer),
                                            SIZE_MAX}
     }, {
         .name           = "oes_egl_external_image",
@@ -144,17 +82,6 @@ static const struct glfeature {
         .es_extensions  = (const char*[]){"GL_KHR_debug", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(DebugMessageCallback),
                                         SIZE_MAX}
-    }, {
-        .name           = "shader_image_size",
-        .flag           = NGLI_FEATURE_GL_SHADER_IMAGE_SIZE,
-        .version        = 430,
-        .es_version     = 310,
-        .extensions     = (const char*[]){"GL_ARB_shader_image_size", NULL},
-    }, {
-        .name           = "shading_language_420pack",
-        .flag           = NGLI_FEATURE_GL_SHADING_LANGUAGE_420PACK,
-        .version        = 420,
-        .extensions     = (const char*[]){"GL_ARB_shading_language_420pack", NULL},
     }, {
         .name           = "color_buffer_float",
         .flag           = NGLI_FEATURE_GL_COLOR_BUFFER_FLOAT,

@@ -23,9 +23,6 @@ jobs:
           - backend: "opengles"
             custom_env: ""
             custom_args: --suite opengles
-          - backend: "opengles 3.0"
-            custom_env: MESA_GLES_VERSION_OVERRIDE=3.0
-            custom_args: --suite opengles
           - backend: "vulkan"
             custom_env: ""
             custom_args: --suite vulkan

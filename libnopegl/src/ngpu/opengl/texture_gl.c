@@ -21,8 +21,6 @@
  * under the License.
  */
 
-#include <string.h>
-
 #include "ctx_gl.h"
 #include "format_gl.h"
 #include "glcontext.h"
@@ -79,32 +77,6 @@ static GLbitfield get_gl_barriers(uint32_t usage)
     if (usage & NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT)
         barriers |= GL_FRAMEBUFFER_BARRIER_BIT;
     return barriers;
-}
-
-static void texture_allocate(struct ngpu_texture *s)
-{
-    struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
-    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct ngpu_texture_params *params = &s->params;
-
-    switch (s_priv->target) {
-    case GL_TEXTURE_2D:
-        gl->funcs.TexImage2D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
-        break;
-    case GL_TEXTURE_2D_ARRAY:
-        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, s_priv->array_layers, 0, s_priv->format, s_priv->format_type, NULL);
-        break;
-    case GL_TEXTURE_3D:
-        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, NULL);
-        break;
-    case GL_TEXTURE_CUBE_MAP: {
-        for (int face = 0; face < 6; face++) {
-            gl->funcs.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
-        }
-        break;
-    }
-    }
 }
 
 static int get_mipmap_levels(const struct ngpu_texture *s)
@@ -195,8 +167,7 @@ static int renderbuffer_check_samples(struct ngpu_texture *s)
     const struct ngpu_texture_params *params = &s->params;
 
     int max_samples = limits->max_samples;
-    if (gl->features & NGLI_FEATURE_GL_INTERNALFORMAT_QUERY)
-        gl->funcs.GetInternalformativ(GL_RENDERBUFFER, s_priv->format, GL_SAMPLES, 1, &max_samples);
+    gl->funcs.GetInternalformativ(GL_RENDERBUFFER, s_priv->format, GL_SAMPLES, 1, &max_samples);
 
     if (params->samples > max_samples) {
         LOG(WARNING, "renderbuffer format 0x%x does not support samples %d (maximum %d)",
@@ -333,11 +304,7 @@ int ngpu_texture_gl_init(struct ngpu_texture *s, const struct ngpu_texture_param
         s_priv->target == GL_TEXTURE_3D ||
         s_priv->target == GL_TEXTURE_CUBE_MAP)
         gl->funcs.TexParameteri(s_priv->target, GL_TEXTURE_WRAP_R, wrap_r);
-    if (gl->features & NGLI_FEATURE_GL_TEXTURE_STORAGE) {
-        texture_allocate_storage(s);
-    } else {
-        texture_allocate(s);
-    }
+    texture_allocate_storage(s);
 
     return 0;
 }

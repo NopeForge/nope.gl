@@ -419,7 +419,6 @@ gbackends_cfg = {
       'src/ngpu/opengl/format_gl.c',
       'src/ngpu/opengl/pipeline_gl.c',
       'src/ngpu/opengl/program_gl.c',
-      'src/ngpu/opengl/program_gl_utils.c',
       'src/ngpu/opengl/rendertarget_gl.c',
       'src/ngpu/opengl/texture_gl.c',
     ),
@@ -429,11 +428,6 @@ gbackends_cfg = {
         'src': files('src/ngpu/opengl/glcontext_egl.c'),
         'cfg': 'HAVE_GLPLATFORM_EGL',
         'deps': ['gl', 'egl'],
-      },
-      'darwin': {
-        'src': files('src/ngpu/opengl/glcontext_nsgl.m', 'src/backends/gl/hwmap_videotoolbox_darwin_gl.c'),
-        'cfg': 'HAVE_GLPLATFORM_NSGL',
-        'frameworks': ['OpenGL'],
       },
       'windows': {
         'src': files('src/ngpu/opengl/glcontext_wgl.c'),
@@ -456,7 +450,6 @@ gbackends_cfg = {
       'src/ngpu/opengl/ctx_gl.c',
       'src/ngpu/opengl/pipeline_gl.c',
       'src/ngpu/opengl/program_gl.c',
-      'src/ngpu/opengl/program_gl_utils.c',
       'src/ngpu/opengl/rendertarget_gl.c',
       'src/ngpu/opengl/texture_gl.c',
     ),
@@ -471,11 +464,6 @@ gbackends_cfg = {
         'src': files('src/ngpu/opengl/glcontext_egl.c', 'src/backends/gl/hwmap_mediacodec_gl.c'),
         'cfg': 'HAVE_GLPLATFORM_EGL',
         'libs': ['EGL'],
-      },
-      'iphone': {
-        'src': files('src/ngpu/opengl/glcontext_eagl.m', 'src/backends/gl/hwmap_videotoolbox_ios_gl.c'),
-        'cfg': 'HAVE_GLPLATFORM_EAGL',
-        'frameworks': ['OpenGLES'],
       },
       'windows': {
         'src': files('src/ngpu/opengl/glcontext_wgl.c'),
@@ -765,13 +753,6 @@ else
 endif
 
 lib_objc_args = []
-if host_system == 'darwin'
-  lib_c_args += '-DGL_SILENCE_DEPRECATION'
-  lib_objc_args += '-DGL_SILENCE_DEPRECATION'
-elif host_system == 'iphone'
-  lib_c_args += '-DGLES_SILENCE_DEPRECATION'
-  lib_objc_args += '-DGLES_SILENCE_DEPRECATION'
-endif
 
 
 # Create nopegl version data for rc

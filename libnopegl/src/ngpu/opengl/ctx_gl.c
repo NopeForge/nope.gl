@@ -25,10 +25,6 @@
 
 #include "config.h"
 
-#if defined(TARGET_IPHONE)
-#include <CoreVideo/CoreVideo.h>
-#endif
-
 #include "bindgroup_gl.h"
 #include "buffer_gl.h"
 #include "ctx_gl.h"
@@ -59,97 +55,6 @@ static void capture_cpu(struct ngpu_ctx *s)
     gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, rt_gl->id);
     gl->funcs.ReadPixels(0, 0, rt->width, rt->height, GL_RGBA, GL_UNSIGNED_BYTE, config->capture_buffer);
 }
-
-static void capture_corevideo(struct ngpu_ctx *s)
-{
-    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
-
-    gl->funcs.Finish();
-}
-
-#if defined(TARGET_IPHONE)
-static int wrap_capture_cvpixelbuffer(struct ngpu_ctx *s,
-                                      CVPixelBufferRef buffer,
-                                      struct ngpu_texture **texturep,
-                                      CVOpenGLESTextureRef *cv_texturep)
-{
-    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
-
-    CVOpenGLESTextureRef cv_texture = NULL;
-    CVOpenGLESTextureCacheRef *cache = ngli_glcontext_get_texture_cache(gl);
-    const size_t width = CVPixelBufferGetWidth(buffer);
-    const size_t height = CVPixelBufferGetHeight(buffer);
-    CVReturn cv_ret = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                                                   *cache,
-                                                                   buffer,
-                                                                   NULL,
-                                                                   GL_TEXTURE_2D,
-                                                                   GL_RGBA,
-                                                                   (GLsizei)width,
-                                                                   (GLsizei)height,
-                                                                   GL_BGRA,
-                                                                   GL_UNSIGNED_BYTE,
-                                                                   0,
-                                                                   &cv_texture);
-    if (cv_ret != kCVReturnSuccess) {
-        LOG(ERROR, "could not create CoreVideo texture from CVPixelBuffer: %d", cv_ret);
-        return NGL_ERROR_EXTERNAL;
-    }
-
-    GLuint id = CVOpenGLESTextureGetName(cv_texture);
-    gl->funcs.BindTexture(GL_TEXTURE_2D, id);
-    gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    gl->funcs.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    gl->funcs.BindTexture(GL_TEXTURE_2D, 0);
-
-    struct ngpu_texture *texture = ngpu_texture_create(s);
-    if (!texture) {
-        CFRelease(cv_texture);
-        return NGL_ERROR_MEMORY;
-    }
-
-    const struct ngpu_texture_params attachment_params = {
-        .type   = NGPU_TEXTURE_TYPE_2D,
-        .format = NGPU_FORMAT_B8G8R8A8_UNORM,
-        .width  = (int32_t)width,
-        .height = (int32_t)height,
-        .usage  = NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
-    };
-
-    const struct ngpu_texture_gl_wrap_params wrap_params = {
-        .params  = &attachment_params,
-        .texture = id,
-    };
-
-    int ret = ngpu_texture_gl_wrap(texture, &wrap_params);
-    if (ret < 0) {
-        CFRelease(cv_texture);
-        ngpu_texture_freep(&texture);
-        return ret;
-    }
-
-    *texturep = texture;
-    *cv_texturep = cv_texture;
-
-    return 0;
-}
-
-static void reset_capture_cvpixelbuffer(struct ngpu_ctx *s)
-{
-    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
-
-    if (s_priv->capture_cvbuffer) {
-        CFRelease(s_priv->capture_cvbuffer);
-        s_priv->capture_cvbuffer = NULL;
-    }
-    if (s_priv->capture_cvtexture) {
-        CFRelease(s_priv->capture_cvtexture);
-        s_priv->capture_cvtexture = NULL;
-    }
-}
-#endif
 
 static int create_texture(struct ngpu_ctx *s, enum ngpu_format format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
 {
@@ -241,24 +146,7 @@ static int offscreen_rendertarget_init(struct ngpu_ctx *s)
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     struct ngl_config *config = &s->config;
 
-    if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_COREVIDEO) {
-#if defined(TARGET_IPHONE)
-        if (config->capture_buffer) {
-            s_priv->capture_cvbuffer = (CVPixelBufferRef)CFRetain(config->capture_buffer);
-            int ret = wrap_capture_cvpixelbuffer(s, s_priv->capture_cvbuffer,
-                                                 &s_priv->capture_texture, &s_priv->capture_cvtexture);
-            if (ret < 0)
-                return ret;
-        } else {
-            int ret = create_texture(s, NGPU_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->capture_texture);
-            if (ret < 0)
-                return ret;
-        }
-#else
-        LOG(ERROR, "CoreVideo capture is only supported on iOS");
-        return NGL_ERROR_UNSUPPORTED;
-#endif
-    } else if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_CPU) {
+    if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_CPU) {
         int ret = create_texture(s, NGPU_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->capture_texture);
         if (ret < 0)
             return ret;
@@ -298,7 +186,6 @@ static int offscreen_rendertarget_init(struct ngpu_ctx *s)
 
     static const capture_func_type capture_func_map[] = {
         [NGL_CAPTURE_BUFFER_TYPE_CPU]       = capture_cpu,
-        [NGL_CAPTURE_BUFFER_TYPE_COREVIDEO] = capture_corevideo,
     };
     s_priv->capture_func = capture_func_map[config->capture_buffer_type];
 
@@ -330,9 +217,6 @@ static void rendertarget_reset(struct ngpu_ctx *s)
 
     ngpu_rendertarget_freep(&s_priv->capture_rt);
     ngpu_texture_freep(&s_priv->capture_texture);
-#if defined(TARGET_IPHONE)
-    reset_capture_cvpixelbuffer(s);
-#endif
     s_priv->capture_func = NULL;
 }
 
@@ -471,10 +355,7 @@ static const struct {
     uint64_t feature;
     uint64_t feature_gl;
 } feature_map[] = {
-    {NGPU_FEATURE_COMPUTE,               NGLI_FEATURE_GL_COMPUTE_SHADER_ALL},
     {NGPU_FEATURE_SOFTWARE,              NGLI_FEATURE_GL_SOFTWARE},
-    {NGPU_FEATURE_IMAGE_LOAD_STORE,      NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE | NGLI_FEATURE_GL_SHADER_IMAGE_SIZE},
-    {NGPU_FEATURE_STORAGE_BUFFER,        NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT},
     {NGPU_FEATURE_DEPTH_STENCIL_RESOLVE, 0},
 };
 
@@ -698,43 +579,6 @@ static int gl_resize(struct ngpu_ctx *s, int32_t width, int32_t height)
     return 0;
 }
 
-#if defined(TARGET_IPHONE)
-static int update_capture_cvpixelbuffer(struct ngpu_ctx *s, CVPixelBufferRef capture_buffer)
-{
-    struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
-
-    ngpu_rendertarget_freep(&s_priv->default_rt);
-    ngpu_rendertarget_freep(&s_priv->default_rt_load);
-    ngpu_texture_freep(&s_priv->color);
-    reset_capture_cvpixelbuffer(s);
-
-    if (capture_buffer) {
-        s_priv->capture_cvbuffer = (CVPixelBufferRef)CFRetain(capture_buffer);
-        int ret = wrap_capture_cvpixelbuffer(s, s_priv->capture_cvbuffer,
-                                             &s_priv->color, &s_priv->capture_cvtexture);
-        if (ret < 0)
-            return ret;
-    } else {
-        int ret = create_texture(s, NGPU_FORMAT_R8G8B8A8_UNORM, 0, COLOR_USAGE, &s_priv->color);
-        if (ret < 0)
-            return ret;
-    }
-
-    struct ngpu_texture *color         = s_priv->ms_color ? s_priv->ms_color : s_priv->color;
-    struct ngpu_texture *resolve_color = s_priv->ms_color ? s_priv->color : NULL;
-    struct ngpu_texture *depth_stencil = s_priv->depth_stencil;
-
-    int ret;
-    if ((ret = create_rendertarget(s, color, resolve_color, depth_stencil,
-                                   NGPU_LOAD_OP_CLEAR, &s_priv->default_rt)) < 0 ||
-        (ret = create_rendertarget(s, color, resolve_color, depth_stencil,
-                                   NGPU_LOAD_OP_LOAD, &s_priv->default_rt_load)) < 0)
-        return ret;
-
-    return 0;
-}
-#endif
-
 static int gl_set_capture_buffer(struct ngpu_ctx *s, void *capture_buffer)
 {
     struct ngl_config *config = &s->config;
@@ -752,13 +596,7 @@ static int gl_set_capture_buffer(struct ngpu_ctx *s, void *capture_buffer)
     }
 
     if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_COREVIDEO) {
-#if defined(TARGET_IPHONE)
-        int ret = update_capture_cvpixelbuffer(s, capture_buffer);
-        if (ret < 0)
-            return ret;
-#else
         return NGL_ERROR_UNSUPPORTED;
-#endif
     }
 
     config->capture_buffer = capture_buffer;
@@ -894,11 +732,7 @@ static int gl_begin_draw(struct ngpu_ctx *s)
     const struct ngl_config *config = &s->config;
 
     if (config->hud)
-#if defined(TARGET_DARWIN)
-        s_priv->glBeginQuery(GL_TIME_ELAPSED, s_priv->queries[0]);
-#else
         s_priv->glQueryCounter(s_priv->queries[0], GL_TIMESTAMP);
-#endif
 
     s_priv->cur_cmd_buffer = s_priv->draw_cmd_buffers[s->current_frame_index];
     int ret = ngpu_cmd_buffer_gl_wait(s_priv->cur_cmd_buffer);
@@ -981,12 +815,6 @@ static int gl_query_draw_time(struct ngpu_ctx *s, int64_t *time)
     if (ret < 0)
         return ret;
 
-#if defined(TARGET_DARWIN)
-    GLuint64 time_elapsed = 0;
-    s_priv->glEndQuery(GL_TIME_ELAPSED);
-    s_priv->glGetQueryObjectui64v(s_priv->queries[0], GL_QUERY_RESULT, &time_elapsed);
-    *time = time_elapsed;
-#else
     s_priv->glQueryCounter(s_priv->queries[1], GL_TIMESTAMP);
 
     GLuint64 start_time = 0;
@@ -996,7 +824,7 @@ static int gl_query_draw_time(struct ngpu_ctx *s, int64_t *time)
     s_priv->glGetQueryObjectui64v(s_priv->queries[1], GL_QUERY_RESULT, &end_time);
 
     *time = end_time - start_time;
-#endif
+
     ret = ngpu_cmd_buffer_gl_begin(cmd_buffer);
     if (ret < 0)
         return ret;
