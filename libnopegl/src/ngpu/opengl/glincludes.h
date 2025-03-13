@@ -148,4 +148,10 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_MAX_IMAGE_UNITS                    0x8F38
 # define GL_DYNAMIC_STORAGE_BIT                0x0100
 
+/* Persistent buffer mapping */
+# define GL_MAP_PERSISTENT_BIT                 0x0040
+# define GL_MAP_COHERENT_BIT                   0x0080
+# define GL_DYNAMIC_STORAGE_BIT                0x0100
+# define GL_CLIENT_STORAGE_BIT                 0x0200
+
 #endif /* GLINCLUDES_H */

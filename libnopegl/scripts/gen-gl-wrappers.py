@@ -45,6 +45,10 @@ cmds_optional = [
     "glGetProgramResourceName",
     # Internal format
     "glGetInternalformativ",
+    # Buffer Storage EXT
+    "glBufferStorageEXT",
+    # Debug
+    "glDebugMessageCallback",
     # Query
     "glBeginQuery",
     "glEndQuery",

@@ -91,6 +91,9 @@ int ngpu_buffer_gl_init(struct ngpu_buffer *s)
     if (gl->features & NGLI_FEATURE_GL_BUFFER_STORAGE) {
         const GLbitfield storage_flags = GL_DYNAMIC_STORAGE_BIT;
         gl->funcs.BufferStorage(GL_ARRAY_BUFFER, s->size, NULL, storage_flags | s_priv->map_flags);
+    } else if (gl->features & NGLI_FEATURE_GL_EXT_BUFFER_STORAGE) {
+        const GLbitfield storage_flags = GL_DYNAMIC_STORAGE_BIT;
+        gl->funcs.BufferStorageEXT(GL_ARRAY_BUFFER, s->size, NULL, storage_flags | s_priv->map_flags);
     } else {
         gl->funcs.BufferData(GL_ARRAY_BUFFER, s->size, NULL, get_gl_usage(s->usage));
     }

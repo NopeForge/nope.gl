@@ -171,9 +171,14 @@ static const struct glfeature {
         .name           = "buffer_storage",
         .flag           = NGLI_FEATURE_GL_BUFFER_STORAGE,
         .version        = 440,
-        .es_version     = 320,
         .extensions     = (const char*[]){"GL_ARB_buffer_storage", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(BufferStorage),
+                                           SIZE_MAX}
+    }, {
+        .name           = "ext_buffer_storage",
+        .flag           = NGLI_FEATURE_GL_EXT_BUFFER_STORAGE,
+        .es_extensions  = (const char*[]){"EXT_buffer_storage", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(BufferStorageEXT),
                                            SIZE_MAX}
     }, {
         .name           = "texture_norm16",
