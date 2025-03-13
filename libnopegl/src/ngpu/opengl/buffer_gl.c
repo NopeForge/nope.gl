@@ -65,6 +65,10 @@ static GLbitfield get_gl_map_flags(uint32_t usage)
         flags |= GL_MAP_READ_BIT;
     if (usage & NGPU_BUFFER_USAGE_MAP_WRITE)
         flags |= GL_MAP_WRITE_BIT;
+    if (usage & NGPU_BUFFER_USAGE_MAP_PERSISTENT) {
+        flags |= GL_MAP_COHERENT_BIT;
+        flags |= GL_MAP_PERSISTENT_BIT;
+    }
     return flags;
 }
 
@@ -104,6 +108,7 @@ int ngpu_buffer_gl_init(struct ngpu_buffer *s)
         const GLbitfield storage_flags = GL_DYNAMIC_STORAGE_BIT;
         gl->funcs.BufferStorageEXT(GL_ARRAY_BUFFER, s->size, NULL, storage_flags | s_priv->map_flags);
     } else {
+        ngli_assert(!NGLI_HAS_ALL_FLAGS(s->usage, NGPU_BUFFER_USAGE_MAP_PERSISTENT));
         gl->funcs.BufferData(GL_ARRAY_BUFFER, s->size, NULL, get_gl_usage(s->usage));
     }
 
