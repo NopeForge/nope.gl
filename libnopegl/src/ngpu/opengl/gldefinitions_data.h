@@ -35,6 +35,7 @@ static const struct gldefinition {
     {"glBlitFramebuffer", offsetof(struct glfunctions, BlitFramebuffer), M},
     {"glBufferData", offsetof(struct glfunctions, BufferData), M},
     {"glBufferStorage", offsetof(struct glfunctions, BufferStorage), 0},
+    {"glBufferStorageEXT", offsetof(struct glfunctions, BufferStorageEXT), 0},
     {"glBufferSubData", offsetof(struct glfunctions, BufferSubData), M},
     {"glCheckFramebufferStatus", offsetof(struct glfunctions, CheckFramebufferStatus), M},
     {"glClear", offsetof(struct glfunctions, Clear), M},

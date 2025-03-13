@@ -27,6 +27,7 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *BlitFramebuffer)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
     void (NGLI_GL_APIENTRY *BufferData)(GLenum target, GLsizeiptr size, const void * data, GLenum usage);
     void (NGLI_GL_APIENTRY *BufferStorage)(GLenum target, GLsizeiptr size, const void * data, GLbitfield flags);
+    void (NGLI_GL_APIENTRY *BufferStorageEXT)(GLenum target, GLsizeiptr size, const void * data, GLbitfield flags);
     void (NGLI_GL_APIENTRY *BufferSubData)(GLenum target, GLintptr offset, GLsizeiptr size, const void * data);
     GLenum (NGLI_GL_APIENTRY *CheckFramebufferStatus)(GLenum target);
     void (NGLI_GL_APIENTRY *Clear)(GLbitfield mask);
