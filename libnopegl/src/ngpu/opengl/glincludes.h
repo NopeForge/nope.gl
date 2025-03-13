@@ -1,4 +1,5 @@
 /*
+ * Copyright 2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,19 +25,8 @@
 
 #include "config.h"
 
-#ifdef __APPLE__
-# include <TargetConditionals.h>
-# if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
-#  include <OpenGLES/ES3/gl.h>
-#  include <OpenGLES/ES3/glext.h>
-# elif TARGET_OS_MAC
-#  include <OpenGL/gl3.h>
-#  include <OpenGL/glext.h>
-# endif
-#endif
-
 #ifdef __ANDROID__
-# include <GLES3/gl3.h>
+# include <GLES3/gl31.h>
 # include <GLES3/gl3ext.h>
 #endif
 
@@ -93,7 +83,7 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 /* OES external images */
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
 
-/* Desktop formats and features */
+/* Desktop formats */
 # define GL_STENCIL_INDEX                      0x1901
 # define GL_R16                                0x822A
 # define GL_RG16                               0x822C
@@ -105,47 +95,19 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_RGBA16_SNORM                       0x8F9B
 # define GL_BGRA                               0x80E1
 # define GL_BGRA_INTEGER                       0x8D9B
-# define GL_READ_ONLY                          0x88B8
-# define GL_WRITE_ONLY                         0x88B9
-# define GL_READ_WRITE                         0x88BA
+
+/* Desktop features */
 # define GL_TIMESTAMP                          0x8E28
 # define GL_TEXTURE_CUBE_MAP_SEAMLESS          0x884F
 # define GL_FRONT_LEFT                         0x0400
 
-/* Compute shaders */
-# define GL_COMPUTE_SHADER                     0x91B9
-# define GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS 0x90EB
-# define GL_MAX_COMPUTE_WORK_GROUP_COUNT       0x91BE
-# define GL_MAX_COMPUTE_WORK_GROUP_SIZE        0x91BF
-# define GL_MAX_COMPUTE_SHARED_MEMORY_SIZE     0x8262
-# define GL_COMPUTE_WORK_GROUP_SIZE            0x8267
-# define GL_SHADER_STORAGE_BUFFER              0x90D2
-# define GL_SHADER_STORAGE_BUFFER_BINDING      0x90D3
-# define GL_SHADER_STORAGE_BUFFER_START        0x90D4
-# define GL_SHADER_STORAGE_BUFFER_SIZE         0x90D5
-# define GL_MAX_SHADER_STORAGE_BLOCK_SIZE      0x90DE
-# define GL_UNIFORM_BLOCK                      0x92E2
-# define GL_SHADER_STORAGE_BLOCK               0x92E6
-# define GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT 0x90DF
-# define GL_BUFFER_BINDING                     0x9302
-# define GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT    0x00000001
-# define GL_ELEMENT_ARRAY_BARRIER_BIT          0x00000002
-# define GL_UNIFORM_BARRIER_BIT                0x00000004
-# define GL_TEXTURE_FETCH_BARRIER_BIT          0x00000008
-# define GL_SHADER_IMAGE_ACCESS_BARRIER_BIT    0x00000020
-# define GL_COMMAND_BARRIER_BIT                0x00000040
-# define GL_PIXEL_BUFFER_BARRIER_BIT           0x00000080
-# define GL_TEXTURE_UPDATE_BARRIER_BIT         0x00000100
-# define GL_BUFFER_UPDATE_BARRIER_BIT          0x00000200
-# define GL_FRAMEBUFFER_BARRIER_BIT            0x00000400
-# define GL_TRANSFORM_FEEDBACK_BARRIER_BIT     0x00000800
-# define GL_ATOMIC_COUNTER_BARRIER_BIT         0x00001000
-# define GL_SHADER_STORAGE_BARRIER_BIT         0x00002000
-# define GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT   0x00004000
-# define GL_ALL_BARRIER_BITS                   0xFFFFFFFF
-# define GL_IMAGE_2D                           0x904D
-# define GL_ACTIVE_RESOURCES                   0x92F5
-# define GL_MAX_IMAGE_UNITS                    0x8F38
+/* Buffer storage */
+# define GL_MAP_PERSISTENT_BIT                 0x0040
+# define GL_MAP_COHERENT_BIT                   0x0080
 # define GL_DYNAMIC_STORAGE_BIT                0x0100
+# define GL_CLIENT_STORAGE_BIT                 0x0200
+# define GL_BUFFER_IMMUTABLE_STORAGE           0x821F
+# define GL_BUFFER_STORAGE_FLAGS               0x8220
+# define GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT   0x00004000
 
 #endif /* GLINCLUDES_H */

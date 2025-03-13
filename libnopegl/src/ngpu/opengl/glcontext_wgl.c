@@ -201,15 +201,28 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     HGLRC shared_context = (HGLRC)other;
 
     if (ctx->backend == NGL_BACKEND_OPENGL) {
-        const int flags = ctx->debug ? WGL_CONTEXT_DEBUG_BIT_ARB : 0;
-        const int context_attributes[] = {
-            WGL_CONTEXT_MAJOR_VERSION_ARB, 1,
-            WGL_CONTEXT_MINOR_VERSION_ARB, 0,
-            WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-            WGL_CONTEXT_FLAGS_ARB, flags,
-            0
+        static const struct {
+            int major;
+            int minor;
+        } gl_versions[] ={
+            {4, 6},
+            {4, 5},
         };
-        wgl->rendering_context = wgl->CreateContextAttribsARB(wgl->device_context, shared_context, context_attributes);
+
+        const int flags = ctx->debug ? WGL_CONTEXT_DEBUG_BIT_ARB : 0;
+
+        for (size_t i = 0; i < NGLI_ARRAY_NB(gl_versions); i++) {
+            const int context_attributes[] = {
+                WGL_CONTEXT_MAJOR_VERSION_ARB, gl_versions[i].major,
+                WGL_CONTEXT_MINOR_VERSION_ARB, gl_versions[i].minor,
+                WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                WGL_CONTEXT_FLAGS_ARB, flags,
+                0
+            };
+            wgl->rendering_context = wgl->CreateContextAttribsARB(wgl->device_context, shared_context, context_attributes);
+            if (wgl->rendering_context)
+                break;
+        }
     } else if (ctx->backend == NGL_BACKEND_OPENGLES) {
         const char *extensions = wgl->GetExtensionsStringARB(wgl->device_context);
         if (!ngli_glcontext_check_extension("WGL_EXT_create_context_es2_profile", extensions) &&
@@ -219,7 +232,7 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         }
         static const int context_attributes[] = {
             WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-            WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+            WGL_CONTEXT_MINOR_VERSION_ARB, 1,
             WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_ES2_PROFILE_BIT_EXT,
             0
         };

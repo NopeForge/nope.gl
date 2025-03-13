@@ -64,7 +64,6 @@ static int build_texture_bindings(struct ngpu_bindgroup *s)
 {
     struct ngpu_bindgroup_gl *s_priv = (struct ngpu_bindgroup_gl *)s;
     const struct ngpu_limits *limits = &s->gpu_ctx->limits;
-    const struct glcontext *gl = ((const struct ngpu_ctx_gl *)s->gpu_ctx)->glcontext;
 
     size_t nb_textures = 0;
     size_t nb_images = 0;
@@ -94,9 +93,6 @@ static int build_texture_bindings(struct ngpu_bindgroup *s)
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
 
-    if (nb_images)
-        ngli_assert(gl->features & NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE);
-
     if (nb_images > limits->max_image_units) {
         LOG(ERROR, "number of image units (%zu) exceeds device limits (%u)", nb_images, limits->max_image_units);
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
@@ -120,17 +116,10 @@ static GLenum get_gl_target(enum ngpu_type type)
 static int build_buffer_bindings(struct ngpu_bindgroup *s)
 {
     struct ngpu_bindgroup_gl *s_priv = (struct ngpu_bindgroup_gl *)s;
-    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const struct ngpu_bindgroup_layout *layout = s->layout;
     for (size_t i = 0; i < layout->nb_buffers; i++) {
         const struct ngpu_bindgroup_layout_entry *layout_entry = &layout->buffers[i];
-        const enum ngpu_type type = layout_entry->type;
-
-        if (type == NGPU_TYPE_STORAGE_BUFFER ||
-            type == NGPU_TYPE_STORAGE_BUFFER_DYNAMIC)
-            ngli_assert(gl->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT);
 
         if (layout_entry->access & NGPU_ACCESS_WRITE_BIT) {
             s_priv->use_barriers = 1;
