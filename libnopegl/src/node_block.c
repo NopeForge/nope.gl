@@ -261,8 +261,6 @@ static int check_dup_labels(const char *block_name, struct ngl_node * const *nod
     return 0;
 }
 
-#define FEATURES_STD430 (NGPU_FEATURE_STORAGE_BUFFER)
-
 static int block_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -270,11 +268,6 @@ static int block_init(struct ngl_node *node)
     struct block_priv *s = node->priv_data;
     struct block_info *info = &s->blk;
     const struct block_opts *o = node->opts;
-
-    if (o->layout == NGPU_BLOCK_LAYOUT_STD430 && !(gpu_ctx->features & FEATURES_STD430)) {
-        LOG(ERROR, "std430 blocks are not supported by this context");
-        return NGL_ERROR_UNSUPPORTED;
-    }
 
     if (!o->nb_fields) {
         LOG(ERROR, "block fields must not be empty");

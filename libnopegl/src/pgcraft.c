@@ -21,7 +21,6 @@
  * under the License.
  */
 
-#include <limits.h>
 #include <string.h>
 #include <stddef.h>
 
@@ -34,15 +33,8 @@
 #include "ngpu/type.h"
 #include "pgcraft.h"
 #include "precision.h"
-#include "utils/hmap.h"
 #include "utils/memory.h"
 #include "utils/utils.h"
-
-#if defined(BACKEND_GL) || defined(BACKEND_GLES)
-#include "ngpu/opengl/ctx_gl.h"
-#include "ngpu/opengl/feature_gl.h"
-#include "ngpu/opengl/program_gl_utils.h"
-#endif
 
 enum {
     NGLI_BINDING_TYPE_UBO,
@@ -94,9 +86,7 @@ struct pgcraft {
     const char *glsl_version_suffix;
     const char *sym_vertex_index;
     const char *sym_instance_index;
-    int has_in_out_layout_qualifiers;
     int has_precision_qualifiers;
-    int has_explicit_bindings;
 };
 
 /*
@@ -491,10 +481,7 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
                     return NGL_ERROR_UNSUPPORTED;
                 }
 
-                ngli_bstr_printf(b, "layout(%s", format);
-
-                if (s->has_explicit_bindings)
-                    ngli_bstr_printf(b, ", binding=%d", layout_entry.binding);
+                ngli_bstr_printf(b, "layout(%s, binding=%d)", format, layout_entry.binding);
 
                 /*
                  * Restrict memory qualifier according to the OpenGLES 3.2 spec
@@ -510,8 +497,8 @@ static int inject_texture(struct pgcraft *s, const struct pgcraft_texture *textu
                     texture->format != NGPU_FORMAT_R32_UINT) {
                     writable_qualifier = "writeonly";
                 }
-                ngli_bstr_printf(b, ") %s ", texture->writable ? writable_qualifier : "readonly");
-            } else if (s->has_explicit_bindings) {
+                ngli_bstr_printf(b, " %s ", texture->writable ? writable_qualifier : "readonly");
+            } else {
                 ngli_bstr_printf(b, "layout(binding=%d) ", layout_entry.binding);
             }
 
@@ -575,11 +562,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
 
     const struct ngpu_block_desc *block = named_block->block;
     const char *layout = glsl_layout_str_map[block->layout];
-    if (s->has_explicit_bindings) {
-        ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, layout_entry.binding);
-    } else {
-        ngli_bstr_printf(b, "layout(%s)", layout);
-    }
+    ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, layout_entry.binding);
 
     if (named_block->type == NGPU_TYPE_STORAGE_BUFFER && !named_block->writable)
         ngli_bstr_print(b, " readonly");
@@ -637,9 +620,7 @@ static int inject_attribute(struct pgcraft *s, struct bstr *b,
     const int base_location = s->next_in_locations[NGPU_PROGRAM_SHADER_VERT];
     s->next_in_locations[NGPU_PROGRAM_SHADER_VERT] += attribute_count;
 
-    if (s->has_in_out_layout_qualifiers) {
-        ngli_bstr_printf(b, "layout(location=%d) ", base_location);
-    }
+    ngli_bstr_printf(b, "layout(location=%d) ", base_location);
 
     const char *precision = get_precision_qualifier(s, attribute->type, attribute->precision, "highp");
     ngli_bstr_printf(b, "in %s %s %s;\n", precision, type, attribute->name);
@@ -714,35 +695,6 @@ static int inject_ublock(struct pgcraft *s, struct bstr *b, int stage)
     return 0;
 }
 
-static int params_have_ssbos(struct pgcraft *s, const struct pgcraft_params *params, int stage)
-{
-    for (size_t i = 0; i < params->nb_blocks; i++) {
-        const struct pgcraft_block *pgcraft_block = &params->blocks[i];
-        if (pgcraft_block->stage == stage && pgcraft_block->type == NGPU_TYPE_STORAGE_BUFFER)
-            return 1;
-    }
-    return 0;
-}
-
-static int params_have_images(struct pgcraft *s, const struct pgcraft_params *params, int stage)
-{
-    const struct darray *texture_infos_array = &s->texture_infos;
-    const struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
-    for (size_t i = 0; i < ngli_darray_count(texture_infos_array); i++) {
-        const struct pgcraft_texture_info *info = &texture_infos[i];
-        for (size_t j = 0; j < NGLI_INFO_FIELD_NB; j++) {
-            const struct pgcraft_texture_info_field *field = &info->fields[j];
-            if (field->stage == stage &&
-                (field->type == NGPU_TYPE_IMAGE_2D ||
-                 field->type == NGPU_TYPE_IMAGE_2D_ARRAY ||
-                 field->type == NGPU_TYPE_IMAGE_3D ||
-                 field->type == NGPU_TYPE_IMAGE_CUBE))
-                return 1;
-        }
-    }
-    return 0;
-}
-
 static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcraft_params *params, int stage)
 {
     struct ngl_ctx *ctx = s->ctx;
@@ -751,28 +703,15 @@ static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcr
 
     ngli_bstr_printf(b, "#version %d%s\n", s->glsl_version, s->glsl_version_suffix);
 
-    const int require_ssbo_feature = params_have_ssbos(s, params, stage);
-    const int require_image_feature = params_have_images(s, params, stage);
-#if defined(TARGET_ANDROID)
-    const int require_image_external_essl3_feature = ngli_darray_count(&s->texture_infos) > 0;
-#endif
-
     const struct {
         int backend;
         const char *extension;
         int glsl_version;
         int required;
     } features[] = {
-        /* OpenGL */
-        {NGL_BACKEND_OPENGL, "GL_ARB_shading_language_420pack",       420, s->has_explicit_bindings},
-        {NGL_BACKEND_OPENGL, "GL_ARB_shader_image_load_store",        420, require_image_feature},
-        {NGL_BACKEND_OPENGL, "GL_ARB_shader_image_size",              430, require_image_feature},
-        {NGL_BACKEND_OPENGL, "GL_ARB_shader_storage_buffer_object",   430, require_ssbo_feature},
-        {NGL_BACKEND_OPENGL, "GL_ARB_compute_shader",                 430, stage == NGPU_PROGRAM_SHADER_COMP},
-
         /* OpenGLES */
 #if defined(TARGET_ANDROID)
-        {NGL_BACKEND_OPENGLES, "GL_OES_EGL_image_external_essl3", INT_MAX, require_image_external_essl3_feature},
+        {NGL_BACKEND_OPENGLES, "GL_OES_EGL_image_external_essl3", INT_MAX, ngli_darray_count(&s->texture_infos) > 0},
 #endif
     };
 
@@ -1043,8 +982,7 @@ static int inject_iovars(struct pgcraft *s, struct bstr *b, int stage)
     const struct pgcraft_iovar *iovars = ngli_darray_data(&s->vert_out_vars);
     int location = 0;
     for (size_t i = 0; i < ngli_darray_count(&s->vert_out_vars); i++) {
-        if (s->has_in_out_layout_qualifiers)
-            ngli_bstr_printf(b, "layout(location=%d) ", location);
+        ngli_bstr_printf(b, "layout(location=%d) ", location);
         const struct pgcraft_iovar *iovar = &iovars[i];
         const char *precision = stage == NGPU_PROGRAM_SHADER_VERT
                               ? get_precision_qualifier(s, iovar->type, iovar->precision_out, "highp")
@@ -1111,10 +1049,8 @@ static int craft_frag(struct pgcraft *s, const struct pgcraft_params *params)
 
     ngli_bstr_print(b, "\n");
 
-    if (s->has_in_out_layout_qualifiers) {
-        const int out_location = s->next_out_locations[NGPU_PROGRAM_SHADER_FRAG]++;
-        ngli_bstr_printf(b, "layout(location=%d) ", out_location);
-    }
+    const int out_location = s->next_out_locations[NGPU_PROGRAM_SHADER_FRAG]++;
+    ngli_bstr_printf(b, "layout(location=%d) ", out_location);
     if (params->nb_frag_output)
         ngli_bstr_printf(b, "out vec4 ngl_out_color[%zu];\n", params->nb_frag_output);
     else
@@ -1252,8 +1188,6 @@ static void setup_glsl_info_gl(struct pgcraft *s)
     struct ngl_ctx *ctx = s->ctx;
     const struct ngl_config *config = &ctx->config;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
-    const struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     s->sym_vertex_index   = "gl_VertexID";
     s->sym_instance_index = "gl_InstanceID";
@@ -1263,11 +1197,7 @@ static void setup_glsl_info_gl(struct pgcraft *s)
     if (config->backend == NGL_BACKEND_OPENGLES)
         s->glsl_version_suffix = " es";
 
-    s->has_in_out_layout_qualifiers = IS_GLSL_ES_MIN(310) || IS_GLSL_MIN(410);
-    s->has_precision_qualifiers     = IS_GLSL_ES_MIN(100);
-
-    s->has_explicit_bindings = IS_GLSL_ES_MIN(310) || IS_GLSL_MIN(420) ||
-                               (gl->features & NGLI_FEATURE_GL_SHADING_LANGUAGE_420PACK);
+    s->has_precision_qualifiers = IS_GLSL_ES_MIN(100);
 
     /*
      * Bindings are shared across all stages. UBO, SSBO, texture and image
@@ -1291,9 +1221,7 @@ static void setup_glsl_info_vk(struct pgcraft *s)
     s->sym_vertex_index   = "gl_VertexIndex";
     s->sym_instance_index = "gl_InstanceIndex";
 
-    s->has_explicit_bindings        = 1;
-    s->has_in_out_layout_qualifiers = 1;
-    s->has_precision_qualifiers     = 0;
+    s->has_precision_qualifiers = 0;
 
     /* Bindings are shared across stages and types */
     for (size_t i = 0; i < NGLI_BINDING_TYPE_NB; i++)
@@ -1429,21 +1357,6 @@ int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params)
     s->compat_info.texture_infos    = ngli_darray_data(&s->texture_infos);
     s->compat_info.images           = ngli_darray_data(&s->images);
     s->compat_info.nb_texture_infos = ngli_darray_count(&s->texture_infos);
-
-#if defined(BACKEND_GL) || defined(BACKEND_GLES)
-    struct ngl_ctx *ctx = s->ctx;
-    struct ngl_config *config = &ctx->config;
-    if (config->backend == NGL_BACKEND_OPENGL ||
-        config->backend == NGL_BACKEND_OPENGLES) {
-        if (!s->has_explicit_bindings) {
-            /* Force locations and bindings for contexts that do not support
-             * explicit locations and bindings */
-            ret = ngpu_program_gl_set_locations_and_bindings(s->program, s);
-            if (ret < 0)
-                return ret;
-        }
-    }
-#endif
 
     return 0;
 }

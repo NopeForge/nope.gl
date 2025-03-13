@@ -30,7 +30,6 @@
 #include "ngpu/ctx.h"
 #include "ngpu/texture.h"
 #include "ngpu/type.h"
-#include "node_draw.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "path.h"

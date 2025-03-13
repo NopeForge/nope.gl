@@ -393,8 +393,8 @@ try_again:;
                 int major;
                 int minor;
             } gl_versions[] ={
-                {4, 1}, // OpenGL 4.1
-                {3, 3}, // OpenGL 3.3 (Mesa software renderers: llvmpipe, softpipe, swrast)
+                {4, 6},
+                {4, 5},
             };
             for (size_t i = 0; i < NGLI_ARRAY_NB(gl_versions); i++) {
                 const EGLint ctx_attribs[] = {
@@ -411,8 +411,8 @@ try_again:;
             }
         } else if (ctx->backend == NGL_BACKEND_OPENGLES) {
             const EGLint ctx_attribs[] = {
-                EGL_CONTEXT_MAJOR_VERSION_KHR, 2,
-                EGL_CONTEXT_MINOR_VERSION_KHR, 0,
+                EGL_CONTEXT_MAJOR_VERSION_KHR, 3,
+                EGL_CONTEXT_MINOR_VERSION_KHR, 1,
                 EGL_CONTEXT_FLAGS_KHR, context_flags,
                 EGL_NONE,
             };

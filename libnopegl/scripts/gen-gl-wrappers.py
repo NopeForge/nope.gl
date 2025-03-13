@@ -25,26 +25,10 @@ import textwrap
 from xml.etree import ElementTree as ET
 
 cmds_optional = [
-    # Texture
-    "glTexStorage2D",
-    "glTexStorage3D",
-    "glBindImageTexture",
-    # Barrier
-    "glMemoryBarrier",
-    #  Buffers
-    "glBindBufferBase",
-    "glBindBufferRange",
+    # Buffer
     "glBufferStorage",
-    # Compute shaders
-    "glDispatchCompute",
-    # Shaders
-    "glGetProgramResourceLocation",
-    "glGetProgramResourceIndex",
-    "glGetProgramResourceiv",
-    "glGetProgramInterfaceiv",
-    "glGetProgramResourceName",
-    # Internal format
-    "glGetInternalformativ",
+    # Debug
+    "glDebugMessageCallback",
     # Query
     "glBeginQuery",
     "glEndQuery",
@@ -52,8 +36,6 @@ cmds_optional = [
     "glDeleteQueries",
     "glQueryCounter",
     "glGetQueryObjectui64v",
-    # Debug
-    "glDebugMessageCallback",
     # Query EXT
     "glBeginQueryEXT",
     "glEndQueryEXT",
@@ -63,8 +45,6 @@ cmds_optional = [
     "glGetQueryObjectui64vEXT",
     # EGL OES image
     "glEGLImageTargetTexture2DOES",
-    # Invalidate subdat
-    "glInvalidateFramebuffer",
 ]
 
 cmds = [
@@ -115,6 +95,9 @@ cmds = [
     "glTexSubImage2D",
     "glTexImage3D",
     "glTexSubImage3D",
+    "glTexStorage2D",
+    "glTexStorage3D",
+    "glBindImageTexture",
     # Framebuffer
     "glCheckFramebufferStatus",
     "glBindFramebuffer",
@@ -126,6 +109,7 @@ cmds = [
     "glBlitFramebuffer",
     "glGetFramebufferAttachmentParameteriv",
     "glFramebufferTextureLayer",
+    "glInvalidateFramebuffer",
     # Renderbuffer
     "glRenderbufferStorageMultisample",
     # Buffer
@@ -134,6 +118,8 @@ cmds = [
     "glBufferSubData",
     "glDeleteBuffers",
     "glGenBuffers",
+    "glBindBufferBase",
+    "glBindBufferRange",
     # Render buffer
     "glBindRenderbuffer",
     "glDeleteRenderbuffers",
@@ -159,6 +145,11 @@ cmds = [
     "glShaderBinary",
     "glShaderSource",
     "glUseProgram",
+    "glGetProgramResourceLocation",
+    "glGetProgramResourceIndex",
+    "glGetProgramResourceiv",
+    "glGetProgramInterfaceiv",
+    "glGetProgramResourceName",
     # Shader Attributes
     "glGetAttribLocation",
     "glBindAttribLocation",
@@ -223,6 +214,12 @@ cmds = [
     #  Map buffer range
     "glMapBufferRange",
     "glUnmapBuffer",
+    # Barrier
+    "glMemoryBarrier",
+    # Compute shaders
+    "glDispatchCompute",
+    # Internal format
+    "glGetInternalformativ",
 ] + cmds_optional
 
 
