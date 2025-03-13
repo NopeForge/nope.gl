@@ -25,8 +25,10 @@ import textwrap
 from xml.etree import ElementTree as ET
 
 cmds_optional = [
-    # Buffer
+    # Buffer Storage
     "glBufferStorage",
+    # Buffer Storage EXT
+    "glBufferStorageEXT",
     # Debug
     "glDebugMessageCallback",
     # Query
