@@ -111,11 +111,14 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
             return NGL_ERROR_MEMORY;
         s->ubuffers[i] = buffer;
 
-        int ret = ngpu_buffer_init(buffer,
-                                       block_size,
-                                       NGPU_BUFFER_USAGE_DYNAMIC_BIT |
-                                       NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
-                                       NGPU_BUFFER_USAGE_MAP_WRITE);
+        uint32_t usage = NGPU_BUFFER_USAGE_DYNAMIC_BIT
+                       | NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT
+                       | NGPU_BUFFER_USAGE_MAP_WRITE;
+
+        if (gpu_ctx->features & NGPU_FEATURE_BUFFER_MAP_PERSISTENT)
+            usage |= NGPU_BUFFER_USAGE_MAP_PERSISTENT;
+
+        int ret = ngpu_buffer_init(buffer, block_size, usage);
         if (ret < 0)
             return ret;
 
