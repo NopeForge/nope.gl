@@ -359,10 +359,7 @@ void ngpu_rendertarget_gl_end_pass(struct ngpu_rendertarget *s)
 
         ngli_glstate_enable_scissor_test(gl, glstate, 1);
 
-        struct ngpu_rendertarget *rt = gpu_ctx->rendertarget;
-        struct ngpu_rendertarget_gl *rt_gl = (struct ngpu_rendertarget_gl *)rt;
-        const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
-        gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, fbo_id);
+        gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, s_priv->id);
     }
 
     s_priv->invalidate(s);
