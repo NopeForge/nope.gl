@@ -58,9 +58,6 @@ struct ngpu_ctx_vk {
     int32_t width;
     int32_t height;
 
-    uint32_t nb_in_flight_frames;
-    uint32_t cur_frame_index;
-
     struct darray colors;
     struct darray ms_colors;
     struct darray depth_stencils;
