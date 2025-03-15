@@ -213,6 +213,7 @@ cmds = [
     "glFenceSync",
     "glWaitSync",
     "glClientWaitSync",
+    "glDeleteSync",
     # Read/Draw Buffer
     "glReadBuffer",
     "glDrawBuffers",
