@@ -144,6 +144,9 @@ struct ngpu_ctx {
     uint64_t features;
     struct ngpu_limits limits;
 
+    uint32_t nb_in_flight_frames;
+    uint32_t current_frame_index;
+
 #if DEBUG_GPU_CAPTURE
     struct ngpu_capture_ctx *gpu_capture_ctx;
     int gpu_capture;
@@ -164,6 +167,9 @@ struct ngpu_ctx *ngpu_ctx_create(const struct ngl_config *config);
 int ngpu_ctx_init(struct ngpu_ctx *s);
 int ngpu_ctx_resize(struct ngpu_ctx *s, int32_t width, int32_t height);
 int ngpu_ctx_set_capture_buffer(struct ngpu_ctx *s, void *capture_buffer);
+uint32_t ngpu_ctx_advance_frame(struct ngpu_ctx *s);
+uint32_t ngpu_ctx_get_current_frame_index(struct ngpu_ctx *s);
+uint32_t ngpu_ctx_get_nb_in_flight_frames(struct ngpu_ctx *s);
 int ngpu_ctx_begin_update(struct ngpu_ctx *s);
 int ngpu_ctx_end_update(struct ngpu_ctx *s);
 int ngpu_ctx_begin_draw(struct ngpu_ctx *s);

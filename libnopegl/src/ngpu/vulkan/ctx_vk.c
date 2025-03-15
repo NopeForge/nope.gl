@@ -174,7 +174,7 @@ static VkResult create_render_resources(struct ngpu_ctx *s)
                            : ngpu_format_vk_to_ngl(s_priv->surface_format.format);
     const enum ngpu_format ds_format = vk->preferred_depth_stencil_format;
 
-    const uint32_t nb_images = config->offscreen ? s_priv->nb_in_flight_frames : s_priv->nb_images;
+    const uint32_t nb_images = config->offscreen ? s->nb_in_flight_frames : s_priv->nb_images;
     for (uint32_t i = 0; i < nb_images; i++) {
         struct ngpu_texture *color = NULL;
         if (config->offscreen) {
@@ -333,12 +333,12 @@ static VkResult create_command_pool_and_buffers(struct ngpu_ctx *s)
     if (res != VK_SUCCESS)
         return res;
 
-    s_priv->cmd_buffers = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(struct cmd_buffer_vk *));
-    s_priv->update_cmd_buffers = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(struct cmd_buffer_vk *));
+    s_priv->cmd_buffers = ngli_calloc(s->nb_in_flight_frames, sizeof(struct cmd_buffer_vk *));
+    s_priv->update_cmd_buffers = ngli_calloc(s->nb_in_flight_frames, sizeof(struct cmd_buffer_vk *));
     if (!s_priv->cmd_buffers || !s_priv->update_cmd_buffers)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++) {
+    for (uint32_t i = 0; i < s->nb_in_flight_frames; i++) {
         s_priv->cmd_buffers[i] = ngli_cmd_buffer_vk_create(s);
         if (!s_priv->cmd_buffers[i])
             return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -365,13 +365,13 @@ static void destroy_command_pool_and_buffers(struct ngpu_ctx *s)
     struct vkcontext *vk = s_priv->vkcontext;
 
     if (s_priv->cmd_buffers) {
-        for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++)
+        for (uint32_t i = 0; i < s->nb_in_flight_frames; i++)
             ngli_cmd_buffer_vk_freep(&s_priv->cmd_buffers[i]);
         ngli_freep(&s_priv->cmd_buffers);
     }
 
     if (s_priv->update_cmd_buffers) {
-        for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++)
+        for (uint32_t i = 0; i < s->nb_in_flight_frames; i++)
             ngli_cmd_buffer_vk_freep(&s_priv->update_cmd_buffers[i]);
         ngli_freep(&s_priv->update_cmd_buffers);
     }
@@ -386,15 +386,15 @@ static VkResult create_semaphores(struct ngpu_ctx *s)
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
-    s_priv->image_avail_sems = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(VkSemaphore));
+    s_priv->image_avail_sems = ngli_calloc(s->nb_in_flight_frames, sizeof(VkSemaphore));
     if (!s_priv->image_avail_sems)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    s_priv->update_finished_sems = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(VkSemaphore));
+    s_priv->update_finished_sems = ngli_calloc(s->nb_in_flight_frames, sizeof(VkSemaphore));
     if (!s_priv->update_finished_sems)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    s_priv->render_finished_sems = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(VkSemaphore));
+    s_priv->render_finished_sems = ngli_calloc(s->nb_in_flight_frames, sizeof(VkSemaphore));
     if (!s_priv->render_finished_sems)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
@@ -403,7 +403,7 @@ static VkResult create_semaphores(struct ngpu_ctx *s)
     };
 
     VkResult res;
-    for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++) {
+    for (uint32_t i = 0; i < s->nb_in_flight_frames; i++) {
         if ((res = vkCreateSemaphore(vk->device, &sem_create_info, NULL,
                                      &s_priv->image_avail_sems[i])) != VK_SUCCESS ||
             (res = vkCreateSemaphore(vk->device, &sem_create_info, NULL,
@@ -425,19 +425,19 @@ static void destroy_semaphores(struct ngpu_ctx *s)
     struct vkcontext *vk = s_priv->vkcontext;
 
     if (s_priv->update_finished_sems) {
-        for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++)
+        for (uint32_t i = 0; i < s->nb_in_flight_frames; i++)
             vkDestroySemaphore(vk->device, s_priv->update_finished_sems[i], NULL);
         ngli_freep(&s_priv->update_finished_sems);
     }
 
     if (s_priv->render_finished_sems) {
-        for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++)
+        for (uint32_t i = 0; i < s->nb_in_flight_frames; i++)
             vkDestroySemaphore(vk->device, s_priv->render_finished_sems[i], NULL);
         ngli_freep(&s_priv->render_finished_sems);
     }
 
     if (s_priv->image_avail_sems) {
-        for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++)
+        for (uint32_t i = 0; i < s->nb_in_flight_frames; i++)
             vkDestroySemaphore(vk->device, s_priv->image_avail_sems[i], NULL);
         ngli_freep(&s_priv->image_avail_sems);
     }
@@ -652,7 +652,7 @@ static VkResult swapchain_acquire_image(struct ngpu_ctx *s, uint32_t *image_inde
         s_priv->recreate_swapchain = 0;
     }
 
-    VkSemaphore sem = s_priv->image_avail_sems[s_priv->cur_frame_index];
+    VkSemaphore sem = s_priv->image_avail_sems[s->current_frame_index];
     VkResult res = vkAcquireNextImageKHR(vk->device, s_priv->swapchain,
                                          UINT64_MAX, sem, VK_NULL_HANDLE, image_index);
     switch (res) {
@@ -678,7 +678,7 @@ static VkResult swapchain_acquire_image(struct ngpu_ctx *s, uint32_t *image_inde
     if (res != VK_SUCCESS)
         return res;
 
-    res = ngli_cmd_buffer_vk_add_signal_sem(s_priv->cur_cmd_buffer, &s_priv->render_finished_sems[s_priv->cur_frame_index]);
+    res = ngli_cmd_buffer_vk_add_signal_sem(s_priv->cur_cmd_buffer, &s_priv->render_finished_sems[s->current_frame_index]);
     if (res != VK_SUCCESS)
         return res;
 
@@ -691,7 +691,7 @@ static VkResult swapchain_present_buffer(struct ngpu_ctx *s, double t)
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
-    VkSemaphore sem = s_priv->render_finished_sems[s_priv->cur_frame_index];
+    VkSemaphore sem = s_priv->render_finished_sems[s->current_frame_index];
 
     VkPresentInfoKHR present_info = {
         .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -903,7 +903,7 @@ static int vk_init(struct ngpu_ctx *s)
 
     s_priv->width = config->width;
     s_priv->height = config->height;
-    s_priv->nb_in_flight_frames = 1;
+    s->nb_in_flight_frames = 1;
 
     int ret = ngli_glslang_init();
     if (ret < 0)
@@ -1020,14 +1020,12 @@ static int vk_begin_update(struct ngpu_ctx *s)
     }
     ngli_darray_clear(&s_priv->pending_cmd_buffers);
 
-    struct cmd_buffer_vk *cmd_buffer_vk = s_priv->cmd_buffers[s_priv->cur_frame_index];
+    struct cmd_buffer_vk *cmd_buffer_vk = s_priv->cmd_buffers[s->current_frame_index];
     VkResult res = ngli_cmd_buffer_vk_wait(cmd_buffer_vk);
     if (res != VK_SUCCESS)
         return ngli_vk_res2ret(res);
 
-    s_priv->cur_frame_index = (s_priv->cur_frame_index + 1) % s_priv->nb_in_flight_frames;
-
-    s_priv->cur_cmd_buffer = s_priv->update_cmd_buffers[s_priv->cur_frame_index];
+    s_priv->cur_cmd_buffer = s_priv->update_cmd_buffers[s->current_frame_index];
     res = ngli_cmd_buffer_vk_begin(s_priv->cur_cmd_buffer);
     if (res != VK_SUCCESS)
         return ngli_vk_res2ret(res);
@@ -1043,7 +1041,7 @@ static int vk_end_update(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
-    VkSemaphore update_finished_sem = s_priv->update_finished_sems[s_priv->cur_frame_index];
+    VkSemaphore update_finished_sem = s_priv->update_finished_sems[s->current_frame_index];
     VkResult res = ngli_cmd_buffer_vk_add_signal_sem(s_priv->cur_cmd_buffer, &update_finished_sem);
     if (res != VK_SUCCESS)
         return ngli_vk_res2ret(res);
@@ -1065,7 +1063,7 @@ static int vk_begin_draw(struct ngpu_ctx *s)
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     const struct ngl_config *config = &s->config;
 
-    s_priv->cur_cmd_buffer = s_priv->cmd_buffers[s_priv->cur_frame_index];
+    s_priv->cur_cmd_buffer = s_priv->cmd_buffers[s->current_frame_index];
     VkResult res = ngli_cmd_buffer_vk_begin(s_priv->cur_cmd_buffer);
     if (res != VK_SUCCESS)
         return ngli_vk_res2ret(res);
@@ -1076,10 +1074,10 @@ static int vk_begin_draw(struct ngpu_ctx *s)
 
     if (config->offscreen) {
         struct ngpu_rendertarget **rts = ngli_darray_data(&s_priv->rts);
-        s_priv->default_rt = rts[s_priv->cur_frame_index];
+        s_priv->default_rt = rts[s->current_frame_index];
 
         struct ngpu_rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
-        s_priv->default_rt_load = rts_load[s_priv->cur_frame_index];
+        s_priv->default_rt_load = rts_load[s->current_frame_index];
     } else {
         res = swapchain_acquire_image(s, &s_priv->cur_image_index);
         if (res != VK_SUCCESS)
@@ -1148,7 +1146,7 @@ static int vk_end_draw(struct ngpu_ctx *s, double t)
     if (config->offscreen) {
         if (config->capture_buffer) {
             struct ngpu_texture **colors = ngli_darray_data(&s_priv->colors);
-            struct ngpu_texture *color = colors[s_priv->cur_frame_index];
+            struct ngpu_texture *color = colors[s->current_frame_index];
             ngpu_texture_vk_copy_to_buffer(color, s_priv->capture_buffer);
 
             VkResult res = ngli_cmd_buffer_vk_submit(s_priv->cur_cmd_buffer);
