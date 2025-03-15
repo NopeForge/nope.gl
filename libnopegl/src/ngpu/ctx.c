@@ -117,19 +117,19 @@ int ngpu_ctx_set_capture_buffer(struct ngpu_ctx *s, void *capture_buffer)
     return cls->set_capture_buffer(s, capture_buffer);
 }
 
-int ngpu_ctx_begin_update(struct ngpu_ctx *s, double t)
+int ngpu_ctx_begin_update(struct ngpu_ctx *s)
 {
-    return s->cls->begin_update(s, t);
+    return s->cls->begin_update(s);
 }
 
-int ngpu_ctx_end_update(struct ngpu_ctx *s, double t)
+int ngpu_ctx_end_update(struct ngpu_ctx *s)
 {
-    return s->cls->end_update(s, t);
+    return s->cls->end_update(s);
 }
 
-int ngpu_ctx_begin_draw(struct ngpu_ctx *s, double t)
+int ngpu_ctx_begin_draw(struct ngpu_ctx *s)
 {
-    return s->cls->begin_draw(s, t);
+    return s->cls->begin_draw(s);
 }
 
 int ngpu_ctx_end_draw(struct ngpu_ctx *s, double t)

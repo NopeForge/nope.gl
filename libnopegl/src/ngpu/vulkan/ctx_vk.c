@@ -1008,7 +1008,7 @@ static VkResult vk_add_pending_wait_semaphores(struct ngpu_ctx *s)
     return VK_SUCCESS;
 }
 
-static int vk_begin_update(struct ngpu_ctx *s, double t)
+static int vk_begin_update(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
@@ -1039,7 +1039,7 @@ static int vk_begin_update(struct ngpu_ctx *s, double t)
     return 0;
 }
 
-static int vk_end_update(struct ngpu_ctx *s, double t)
+static int vk_end_update(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
@@ -1060,7 +1060,7 @@ static int vk_end_update(struct ngpu_ctx *s, double t)
     return 0;
 }
 
-static int vk_begin_draw(struct ngpu_ctx *s, double t)
+static int vk_begin_draw(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     const struct ngl_config *config = &s->config;
