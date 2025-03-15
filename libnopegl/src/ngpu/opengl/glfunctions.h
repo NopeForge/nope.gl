@@ -47,6 +47,7 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *DeleteQueriesEXT)(GLsizei n, const GLuint * ids);
     void (NGLI_GL_APIENTRY *DeleteRenderbuffers)(GLsizei n, const GLuint * renderbuffers);
     void (NGLI_GL_APIENTRY *DeleteShader)(GLuint shader);
+    void (NGLI_GL_APIENTRY *DeleteSync)(GLsync sync);
     void (NGLI_GL_APIENTRY *DeleteTextures)(GLsizei n, const GLuint * textures);
     void (NGLI_GL_APIENTRY *DeleteVertexArrays)(GLsizei n, const GLuint * arrays);
     void (NGLI_GL_APIENTRY *DepthFunc)(GLenum func);
