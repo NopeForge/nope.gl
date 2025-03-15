@@ -44,8 +44,6 @@ struct ngpu_ctx_gl {
     struct ngpu_ctx parent;
     struct glcontext *glcontext;
     struct glstate glstate;
-    uint32_t nb_in_flight_frames;
-    uint32_t current_frame_index;
     struct ngpu_cmd_buffer_gl **update_cmd_buffers;
     struct ngpu_cmd_buffer_gl **draw_cmd_buffers;
     struct ngpu_cmd_buffer_gl *cur_cmd_buffer;

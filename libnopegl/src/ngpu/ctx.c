@@ -117,6 +117,22 @@ int ngpu_ctx_set_capture_buffer(struct ngpu_ctx *s, void *capture_buffer)
     return cls->set_capture_buffer(s, capture_buffer);
 }
 
+uint32_t ngpu_ctx_advance_frame(struct ngpu_ctx *s)
+{
+    s->current_frame_index = (s->current_frame_index + 1) % s->nb_in_flight_frames;
+    return s->current_frame_index;
+}
+
+uint32_t ngpu_ctx_get_current_frame_index(struct ngpu_ctx *s)
+{
+    return s->current_frame_index;
+}
+
+uint32_t ngpu_ctx_get_nb_in_flight_frames(struct ngpu_ctx *s)
+{
+    return s->nb_in_flight_frames;
+}
+
 int ngpu_ctx_begin_update(struct ngpu_ctx *s)
 {
     return s->cls->begin_update(s);

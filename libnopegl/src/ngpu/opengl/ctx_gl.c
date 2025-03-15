@@ -492,18 +492,19 @@ static void ngpu_ctx_info_init(struct ngpu_ctx *s)
             s->features |= feature;
     }
     s->limits = gl->limits;
+    s->nb_in_flight_frames = 1;
 }
 
 static int create_command_buffers(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
 
-    s_priv->update_cmd_buffers = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(struct ngpu_cmd_buffer_gl *));
-    s_priv->draw_cmd_buffers = ngli_calloc(s_priv->nb_in_flight_frames, sizeof(struct ngpu_cmd_buffer_gl *));
+    s_priv->update_cmd_buffers = ngli_calloc(s->nb_in_flight_frames, sizeof(struct ngpu_cmd_buffer_gl *));
+    s_priv->draw_cmd_buffers = ngli_calloc(s->nb_in_flight_frames, sizeof(struct ngpu_cmd_buffer_gl *));
     if (!s_priv->update_cmd_buffers || !s_priv->draw_cmd_buffers)
         return NGL_ERROR_MEMORY;
 
-    for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++) {
+    for (uint32_t i = 0; i < s->nb_in_flight_frames; i++) {
         s_priv->update_cmd_buffers[i] = ngpu_cmd_buffer_gl_create(s);
         if (!s_priv->update_cmd_buffers[i])
             return NGL_ERROR_MEMORY;
@@ -529,13 +530,13 @@ static void destroy_command_buffers(struct ngpu_ctx *s)
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
 
     if (s_priv->update_cmd_buffers) {
-        for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++)
+        for (uint32_t i = 0; i < s->nb_in_flight_frames; i++)
             ngpu_cmd_buffer_gl_freep(&s_priv->update_cmd_buffers[i]);
         ngli_freep(&s_priv->update_cmd_buffers);
     }
 
     if (s_priv->draw_cmd_buffers) {
-        for (uint32_t i = 0; i < s_priv->nb_in_flight_frames; i++)
+        for (uint32_t i = 0; i < s->nb_in_flight_frames; i++)
             ngpu_cmd_buffer_gl_freep(&s_priv->draw_cmd_buffers[i]);
         ngli_freep(&s_priv->draw_cmd_buffers);
     }
@@ -547,8 +548,6 @@ static int gl_init(struct ngpu_ctx *s)
     struct ngl_config *config = &s->config;
     const struct ngl_config_gl *config_gl = config->backend_config;
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
-
-    s_priv->nb_in_flight_frames = 1;
 
     const int external = config_gl ? config_gl->external : 0;
     if (external) {
@@ -866,7 +865,7 @@ static int gl_begin_update(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
 
-    s_priv->cur_cmd_buffer = s_priv->update_cmd_buffers[s_priv->current_frame_index];
+    s_priv->cur_cmd_buffer = s_priv->update_cmd_buffers[s->current_frame_index];
     int ret = ngpu_cmd_buffer_gl_wait(s_priv->cur_cmd_buffer);
     if (ret < 0)
         return ret;
@@ -901,7 +900,7 @@ static int gl_begin_draw(struct ngpu_ctx *s)
         s_priv->glQueryCounter(s_priv->queries[0], GL_TIMESTAMP);
 #endif
 
-    s_priv->cur_cmd_buffer = s_priv->draw_cmd_buffers[s_priv->current_frame_index];
+    s_priv->cur_cmd_buffer = s_priv->draw_cmd_buffers[s->current_frame_index];
     int ret = ngpu_cmd_buffer_gl_wait(s_priv->cur_cmd_buffer);
     if (ret < 0)
         return ret;
@@ -1010,7 +1009,7 @@ static void gl_wait_idle(struct ngpu_ctx *s)
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
 
-    for (size_t i = 0; i < s_priv->nb_in_flight_frames; i++) {
+    for (size_t i = 0; i < s->nb_in_flight_frames; i++) {
         ngpu_cmd_buffer_gl_wait(s_priv->update_cmd_buffers[i]);
         ngpu_cmd_buffer_gl_wait(s_priv->draw_cmd_buffers[i]);
     }
