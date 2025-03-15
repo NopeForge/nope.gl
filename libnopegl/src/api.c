@@ -456,6 +456,9 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
 {
     const int64_t start_time = s->hud ? ngli_gettime_relative() : 0;
 
+    uint32_t frame_index = ngpu_ctx_advance_frame(s->gpu_ctx);
+    LOG(DEBUG, "start frame @ index=%u t=%f", frame_index, t);
+
     int ret = ngpu_ctx_begin_update(s->gpu_ctx);
     if (ret < 0)
         return ret;
