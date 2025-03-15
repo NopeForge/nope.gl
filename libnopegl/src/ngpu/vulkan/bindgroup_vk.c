@@ -98,7 +98,8 @@ static void unref_immutable_sampler(void *user_arg, void *data)
 
 static VkResult create_desc_set_layout_bindings(struct ngpu_bindgroup_layout *s)
 {
-    const struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
+    const struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    const struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)gpu_ctx;
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct ngpu_bindgroup_layout_vk *s_priv = (struct ngpu_bindgroup_layout_vk *)s;
 
@@ -136,7 +137,7 @@ static VkResult create_desc_set_layout_bindings(struct ngpu_bindgroup_layout *s)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
         ngli_assert(desc_pool_size_map[entry->type].type);
-        desc_pool_size_map[entry->type].descriptorCount += gpu_ctx_vk->nb_in_flight_frames * MAX_SETS;
+        desc_pool_size_map[entry->type].descriptorCount += gpu_ctx->nb_in_flight_frames * MAX_SETS;
     }
 
     for (size_t i = 0; i < s->nb_textures; i++) {
@@ -161,7 +162,7 @@ static VkResult create_desc_set_layout_bindings(struct ngpu_bindgroup_layout *s)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
         ngli_assert(desc_pool_size_map[entry->type].type);
-        desc_pool_size_map[entry->type].descriptorCount += gpu_ctx_vk->nb_in_flight_frames * MAX_SETS;
+        desc_pool_size_map[entry->type].descriptorCount += gpu_ctx->nb_in_flight_frames * MAX_SETS;
     }
 
     const VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info = {
