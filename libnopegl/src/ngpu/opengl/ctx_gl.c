@@ -860,7 +860,7 @@ int ngpu_ctx_gl_wrap_framebuffer(struct ngpu_ctx *s, GLuint fbo)
     return 0;
 }
 
-static int gl_begin_update(struct ngpu_ctx *s, double t)
+static int gl_begin_update(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
 
@@ -876,7 +876,7 @@ static int gl_begin_update(struct ngpu_ctx *s, double t)
     return 0;
 }
 
-static int gl_end_update(struct ngpu_ctx *s, double t)
+static int gl_end_update(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
 
@@ -887,7 +887,7 @@ static int gl_end_update(struct ngpu_ctx *s, double t)
     return 0;
 }
 
-static int gl_begin_draw(struct ngpu_ctx *s, double t)
+static int gl_begin_draw(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     const struct ngl_config *config = &s->config;

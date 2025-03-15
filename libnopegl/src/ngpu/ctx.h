@@ -61,9 +61,9 @@ struct ngpu_ctx_class {
     int (*init)(struct ngpu_ctx *s);
     int (*resize)(struct ngpu_ctx *s, int32_t width, int32_t height);
     int (*set_capture_buffer)(struct ngpu_ctx *s, void *capture_buffer);
-    int (*begin_update)(struct ngpu_ctx *s, double t);
-    int (*end_update)(struct ngpu_ctx *s, double t);
-    int (*begin_draw)(struct ngpu_ctx *s, double t);
+    int (*begin_update)(struct ngpu_ctx *s);
+    int (*end_update)(struct ngpu_ctx *s);
+    int (*begin_draw)(struct ngpu_ctx *s);
     int (*end_draw)(struct ngpu_ctx *s, double t);
     int (*query_draw_time)(struct ngpu_ctx *s, int64_t *time);
     void (*wait_idle)(struct ngpu_ctx *s);
@@ -164,11 +164,11 @@ struct ngpu_ctx *ngpu_ctx_create(const struct ngl_config *config);
 int ngpu_ctx_init(struct ngpu_ctx *s);
 int ngpu_ctx_resize(struct ngpu_ctx *s, int32_t width, int32_t height);
 int ngpu_ctx_set_capture_buffer(struct ngpu_ctx *s, void *capture_buffer);
-int ngpu_ctx_begin_update(struct ngpu_ctx *s, double t);
-int ngpu_ctx_end_update(struct ngpu_ctx *s, double t);
-int ngpu_ctx_begin_draw(struct ngpu_ctx *s, double t);
-int ngpu_ctx_query_draw_time(struct ngpu_ctx *s, int64_t *time);
+int ngpu_ctx_begin_update(struct ngpu_ctx *s);
+int ngpu_ctx_end_update(struct ngpu_ctx *s);
+int ngpu_ctx_begin_draw(struct ngpu_ctx *s);
 int ngpu_ctx_end_draw(struct ngpu_ctx *s, double t);
+int ngpu_ctx_query_draw_time(struct ngpu_ctx *s, int64_t *time);
 void ngpu_ctx_wait_idle(struct ngpu_ctx *s);
 void ngpu_ctx_freep(struct ngpu_ctx **sp);
 
