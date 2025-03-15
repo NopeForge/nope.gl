@@ -55,6 +55,7 @@ static const struct gldefinition {
     {"glDeleteQueriesEXT", offsetof(struct glfunctions, DeleteQueriesEXT), 0},
     {"glDeleteRenderbuffers", offsetof(struct glfunctions, DeleteRenderbuffers), M},
     {"glDeleteShader", offsetof(struct glfunctions, DeleteShader), M},
+    {"glDeleteSync", offsetof(struct glfunctions, DeleteSync), M},
     {"glDeleteTextures", offsetof(struct glfunctions, DeleteTextures), M},
     {"glDeleteVertexArrays", offsetof(struct glfunctions, DeleteVertexArrays), M},
     {"glDepthFunc", offsetof(struct glfunctions, DepthFunc), M},
