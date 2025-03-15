@@ -253,7 +253,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
     s->rnode_pos->graphics_state = NGPU_GRAPHICS_STATE_DEFAULTS;
     s->rnode_pos->rendertarget_layout = *ngpu_ctx_get_default_rendertarget_layout(s->gpu_ctx);
 
-    int ret = ngpu_ctx_begin_update(s->gpu_ctx, 0.0);
+    int ret = ngpu_ctx_begin_update(s->gpu_ctx);
     if (ret < 0)
         return ret;
 
@@ -298,11 +298,11 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
             goto fail;
     }
 
-    ngpu_ctx_end_update(s->gpu_ctx, 0.0);
+    ngpu_ctx_end_update(s->gpu_ctx);
     return 0;
 
 fail:
-    ngpu_ctx_end_update(s->gpu_ctx, 0.0);
+    ngpu_ctx_end_update(s->gpu_ctx);
     reset_scene(s, NGLI_ACTION_UNREF_SCENE);
     return ret;
 }
@@ -456,13 +456,13 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
 {
     const int64_t start_time = s->hud ? ngli_gettime_relative() : 0;
 
-    int ret = ngpu_ctx_begin_update(s->gpu_ctx, t);
+    int ret = ngpu_ctx_begin_update(s->gpu_ctx);
     if (ret < 0)
         return ret;
 
     struct ngl_scene *scene = s->scene;
     if (!scene) {
-        return ngpu_ctx_end_update(s->gpu_ctx, t);
+        return ngpu_ctx_end_update(s->gpu_ctx);
     }
 
     struct ngl_node *root = scene->params.root;
@@ -476,7 +476,7 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
     if (ret < 0)
         return ret;
 
-    ret = ngpu_ctx_end_update(s->gpu_ctx, t);
+    ret = ngpu_ctx_end_update(s->gpu_ctx);
     if (ret < 0)
         return ret;
 
@@ -491,7 +491,7 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
     if (ret < 0)
         return ret;
 
-    ret = ngpu_ctx_begin_draw(s->gpu_ctx, t);
+    ret = ngpu_ctx_begin_draw(s->gpu_ctx);
     if (ret < 0)
         return ret;
 
