@@ -46,7 +46,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio
 - `GraphicConfig.scissor_test` parameter
-- Support for Android < 9.0
+- `ngl-viewer` and `ngl-diff` support and release on Apple platforms
 
 ## [2024.0] [libnopegl 0.11.0] - 2024-02-02
 ### Added
