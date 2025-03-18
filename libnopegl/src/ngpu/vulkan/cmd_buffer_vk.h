@@ -29,6 +29,8 @@
 #include "utils/refcount.h"
 #include "utils/utils.h"
 
+struct ngpu_buffer;
+
 struct cmd_buffer_vk {
     struct ngli_rc rc;
     struct ngpu_ctx *gpu_ctx;
@@ -40,6 +42,7 @@ struct cmd_buffer_vk {
     struct darray wait_stages;
     struct darray signal_sems;
     struct darray refs; // array of ngli_rc pointers
+    struct darray buffer_refs; // array of ngpu_buffer pointers
 };
 
 struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct ngpu_ctx *gpu_ctx);
@@ -50,6 +53,7 @@ VkResult ngli_cmd_buffer_vk_add_signal_sem(struct cmd_buffer_vk *s, VkSemaphore 
 
 #define NGLI_CMD_BUFFER_VK_REF(cmd, rc) ngli_cmd_buffer_vk_ref((cmd), (struct ngli_rc *)(rc))
 VkResult ngli_cmd_buffer_vk_ref(struct cmd_buffer_vk *s, struct ngli_rc *rc);
+VkResult ngli_cmd_buffer_vk_ref_buffer(struct cmd_buffer_vk *s, struct ngpu_buffer *buffer);
 
 VkResult ngli_cmd_buffer_vk_begin(struct cmd_buffer_vk *s);
 VkResult ngli_cmd_buffer_vk_submit(struct cmd_buffer_vk *s);
