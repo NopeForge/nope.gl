@@ -21,6 +21,8 @@
  */
 
 #include "cmd_buffer_vk.h"
+
+#include "buffer_vk.h"
 #include "ctx_vk.h"
 #include "utils/darray.h"
 #include "utils/memory.h"
@@ -35,6 +37,7 @@ static void cmd_buffer_vk_freep(void **sp)
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
     ngli_darray_reset(&s->refs);
+    ngli_darray_reset(&s->buffer_refs);
 
     ngli_darray_reset(&s->wait_sems);
     ngli_darray_reset(&s->wait_stages);
@@ -60,6 +63,18 @@ static void unref_rc(void *user_arg, void *data)
 {
     struct ngli_rc **rcp = data;
     NGLI_RC_UNREFP(rcp);
+}
+
+static void unref_buffer(void *user_arg, void *data)
+{
+    struct cmd_buffer_vk *cmd_buffer = user_arg;
+    struct ngpu_buffer **bufferp = data;
+
+    if (!*bufferp)
+        return;
+
+    ngpu_buffer_vk_unref_cmd_buffer(*bufferp, cmd_buffer);
+    ngpu_buffer_freep(bufferp);
 }
 
 void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp)
@@ -98,8 +113,9 @@ VkResult ngli_cmd_buffer_vk_init(struct cmd_buffer_vk *s, int type)
     ngli_darray_init(&s->wait_stages, sizeof(VkPipelineStageFlags), 0);
     ngli_darray_init(&s->signal_sems, sizeof(VkSemaphore), 0);
     ngli_darray_init(&s->refs, sizeof(struct ngli_rc *), 0);
-
     ngli_darray_set_free_func(&s->refs, unref_rc, NULL);
+    ngli_darray_init(&s->buffer_refs, sizeof(struct ngpu_buffer *), 0);
+    ngli_darray_set_free_func(&s->buffer_refs, unref_buffer, s);
 
     return VK_SUCCESS;
 }
@@ -129,6 +145,20 @@ VkResult ngli_cmd_buffer_vk_ref(struct cmd_buffer_vk *s, struct ngli_rc *rc)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
     NGLI_RC_REF(rc);
+
+    return VK_SUCCESS;
+}
+
+VkResult ngli_cmd_buffer_vk_ref_buffer(struct cmd_buffer_vk *s, struct ngpu_buffer *buffer)
+{
+    VkResult res = ngli_cmd_buffer_vk_ref(s, (struct ngli_rc *)buffer);
+    if (res != VK_SUCCESS)
+        return res;
+
+    if (!ngli_darray_push(&s->buffer_refs, &buffer))
+        return VK_ERROR_OUT_OF_HOST_MEMORY;
+
+    NGLI_RC_REF(buffer);
 
     return VK_SUCCESS;
 }
@@ -190,6 +220,7 @@ VkResult ngli_cmd_buffer_vk_wait(struct cmd_buffer_vk *s)
         return res;
 
     ngli_darray_clear(&s->refs);
+    ngli_darray_clear(&s->buffer_refs);
 
     size_t i = 0;
     while (i < ngli_darray_count(&gpu_ctx_vk->pending_cmd_buffers)) {
