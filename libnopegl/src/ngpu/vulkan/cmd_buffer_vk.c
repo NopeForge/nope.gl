@@ -25,22 +25,7 @@
 #include "utils/darray.h"
 #include "utils/memory.h"
 
-struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct ngpu_ctx *gpu_ctx)
-{
-    struct cmd_buffer_vk *s = ngli_calloc(1, sizeof(*s));
-    if (!s)
-        return NULL;
-    s->gpu_ctx = gpu_ctx;
-    return s;
-}
-
-static void unref_rc(void *user_arg, void *data)
-{
-    struct ngli_rc **rcp = data;
-    NGLI_RC_UNREFP(rcp);
-}
-
-void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp)
+static void cmd_buffer_vk_freep(void **sp)
 {
     struct cmd_buffer_vk *s = *sp;
     if (!s)
@@ -59,6 +44,27 @@ void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp)
     vkDestroyFence(vk->device, s->fence, NULL);
 
     ngli_freep(sp);
+}
+
+struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct ngpu_ctx *gpu_ctx)
+{
+    struct cmd_buffer_vk *s = ngli_calloc(1, sizeof(*s));
+    if (!s)
+        return NULL;
+    s->rc = NGLI_RC_CREATE(cmd_buffer_vk_freep);
+    s->gpu_ctx = gpu_ctx;
+    return s;
+}
+
+static void unref_rc(void *user_arg, void *data)
+{
+    struct ngli_rc **rcp = data;
+    NGLI_RC_UNREFP(rcp);
+}
+
+void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp)
+{
+    NGLI_RC_UNREFP(sp);
 }
 
 VkResult ngli_cmd_buffer_vk_init(struct cmd_buffer_vk *s, int type)
