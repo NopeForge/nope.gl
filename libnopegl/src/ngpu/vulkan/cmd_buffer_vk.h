@@ -30,6 +30,7 @@
 #include "utils/utils.h"
 
 struct cmd_buffer_vk {
+    struct ngli_rc rc;
     struct ngpu_ctx *gpu_ctx;
     int type;
     VkCommandPool pool;
