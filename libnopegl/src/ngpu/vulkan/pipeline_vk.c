@@ -437,10 +437,16 @@ static int prepare_and_bind_descriptor_set(struct ngpu_pipeline *s, VkCommandBuf
 
     NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, gpu_ctx->bindgroup);
     struct ngpu_bindgroup_vk *bindgroup_vk = (struct ngpu_bindgroup_vk *)gpu_ctx->bindgroup;
-    if (bindgroup_vk->desc_set)
+    if (bindgroup_vk->desc_set) {
+        struct buffer_binding_vk *bindings = ngli_darray_data(&bindgroup_vk->buffer_bindings);
+        for (size_t i = 0; i < ngli_darray_count(&bindgroup_vk->buffer_bindings); i++) {
+            struct buffer_binding_vk *binding = &bindings[i];
+            ngli_cmd_buffer_vk_ref_buffer(cmd_buffer_vk, (struct ngpu_buffer *)binding->buffer);
+        }
         vkCmdBindDescriptorSets(cmd_buf, s_priv->pipeline_bind_point, s_priv->pipeline_layout, 0,
                                 1, &bindgroup_vk->desc_set,
                                 (uint32_t)gpu_ctx->nb_dynamic_offsets, gpu_ctx->dynamic_offsets);
+    }
 
     return 0;
 }
