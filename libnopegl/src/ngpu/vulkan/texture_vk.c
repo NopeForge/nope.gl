@@ -639,7 +639,7 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
     }
     VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
     NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
-    NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s_priv->staging_buffer);
+    ngli_cmd_buffer_vk_ref_buffer(cmd_buffer_vk, s_priv->staging_buffer);
 
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
