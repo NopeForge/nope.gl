@@ -34,6 +34,7 @@
 #include "utils/refcount.h"
 
 struct ngpu_cmd_buffer_gl {
+    struct ngli_rc rc;
     struct ngpu_ctx *gpu_ctx;
     int type;
     struct ngpu_fence_gl *fence;
@@ -41,11 +42,26 @@ struct ngpu_cmd_buffer_gl {
     struct darray refs; // array of ngli_rc pointers
 };
 
+static void cmd_buffer_gl_freep(void **sp)
+{
+    struct ngpu_cmd_buffer_gl *s = *sp;
+    if (!s)
+        return;
+
+    ngpu_cmd_buffer_gl_wait(s);
+
+    ngli_darray_reset(&s->refs);
+    ngli_darray_reset(&s->cmds);
+
+    ngli_freep(sp);
+}
+
 struct ngpu_cmd_buffer_gl *ngpu_cmd_buffer_gl_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ngpu_cmd_buffer_gl *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
+    s->rc = NGLI_RC_CREATE(cmd_buffer_gl_freep);
     s->gpu_ctx = gpu_ctx;
     return s;
 }
@@ -58,16 +74,7 @@ static void unref_rc(void *user_arg, void *data)
 
 void ngpu_cmd_buffer_gl_freep(struct ngpu_cmd_buffer_gl **sp)
 {
-    struct ngpu_cmd_buffer_gl *s = *sp;
-    if (!s)
-        return;
-
-    ngpu_cmd_buffer_gl_wait(s);
-
-    ngli_darray_reset(&s->refs);
-    ngli_darray_reset(&s->cmds);
-
-    ngli_freep(sp);
+    NGLI_RC_UNREFP(sp);
 }
 
 int ngpu_cmd_buffer_gl_init(struct ngpu_cmd_buffer_gl *s, int type)
