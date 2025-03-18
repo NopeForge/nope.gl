@@ -29,6 +29,22 @@
 
 struct ngpu_ctx;
 
+struct texture_binding_vk {
+    struct ngpu_bindgroup_layout_entry layout_entry;
+    const struct ngpu_texture *texture;
+    int use_ycbcr_sampler;
+    struct ycbcr_sampler_vk *ycbcr_sampler;
+    uint32_t update_desc;
+};
+
+struct buffer_binding_vk {
+    struct ngpu_bindgroup_layout_entry layout_entry;
+    const struct ngpu_buffer *buffer;
+    size_t offset;
+    size_t size;
+    uint32_t update_desc;
+};
+
 struct ngpu_bindgroup_layout_vk {
     struct ngpu_bindgroup_layout parent;
     struct darray desc_set_layout_bindings; // array of VkDescriptorSetLayoutBinding

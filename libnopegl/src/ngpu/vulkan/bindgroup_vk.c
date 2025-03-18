@@ -31,22 +31,6 @@
 
 #define MAX_SETS 256
 
-struct texture_binding_vk {
-    struct ngpu_bindgroup_layout_entry layout_entry;
-    const struct ngpu_texture *texture;
-    int use_ycbcr_sampler;
-    struct ycbcr_sampler_vk *ycbcr_sampler;
-    uint32_t update_desc;
-};
-
-struct buffer_binding_vk {
-    struct ngpu_bindgroup_layout_entry layout_entry;
-    const struct ngpu_buffer *buffer;
-    size_t offset;
-    size_t size;
-    uint32_t update_desc;
-};
-
 struct ngpu_bindgroup_layout *ngpu_bindgroup_layout_vk_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ngpu_bindgroup_layout_vk *s = ngli_calloc(1, sizeof(*s));
