@@ -34,6 +34,8 @@ static void texture_freep(void **texturep)
 struct ngpu_texture *ngpu_texture_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ngpu_texture *s = gpu_ctx->cls->texture_create(gpu_ctx);
+    if (!s)
+        return NULL;
     s->rc = NGLI_RC_CREATE(texture_freep);
     return s;
 }
