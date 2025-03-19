@@ -1160,6 +1160,12 @@ static void gl_set_bindgroup(struct ngpu_ctx *s, struct ngpu_bindgroup *bindgrou
 
     NGLI_CMD_BUFFER_GL_CMD_REF(cmd_buffer, bindgroup);
 
+    struct ngpu_bindgroup_gl *bindgroup_gl = (struct ngpu_bindgroup_gl *)bindgroup;
+    for (size_t i = 0; i < ngli_darray_count(&bindgroup_gl->buffer_bindings); i++) {
+        struct buffer_binding_gl *binding = ngli_darray_get(&bindgroup_gl->buffer_bindings, i);
+        ngpu_cmd_buffer_gl_ref_buffer(cmd_buffer, (struct ngpu_buffer *)binding->buffer);
+    }
+
     struct ngpu_cmd_gl cmd_gl = {
         .type = NGPU_CMD_TYPE_GL_SET_BINDGROUP,
         .set_bindgroup.bindgroup = bindgroup,
