@@ -61,6 +61,8 @@ static void pipeline_freep(void **pipelinep)
 struct ngpu_pipeline *ngpu_pipeline_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ngpu_pipeline *s = gpu_ctx->cls->pipeline_create(gpu_ctx);
+    if (!s)
+        return NULL;
     s->rc = NGLI_RC_CREATE(pipeline_freep);
     return s;
 }

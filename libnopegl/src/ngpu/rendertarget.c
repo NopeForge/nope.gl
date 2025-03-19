@@ -34,6 +34,8 @@ static void rendertarget_freep(void **rendertargetp)
 struct ngpu_rendertarget *ngpu_rendertarget_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ngpu_rendertarget *s = gpu_ctx->cls->rendertarget_create(gpu_ctx);
+    if (!s)
+        return NULL;
     s->rc = NGLI_RC_CREATE(rendertarget_freep);
     return s;
 }
