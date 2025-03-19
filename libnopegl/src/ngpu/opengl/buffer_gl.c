@@ -110,6 +110,20 @@ int ngpu_buffer_gl_init(struct ngpu_buffer *s)
     return 0;
 }
 
+int ngpu_buffer_gl_wait(struct ngpu_buffer *s)
+{
+    struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
+
+    struct ngpu_cmd_buffer_gl **cmd_buffers = ngli_darray_data(&s_priv->cmd_buffers);
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->cmd_buffers); i++) {
+        struct ngpu_cmd_buffer_gl *cmd_buffer = cmd_buffers[i];
+        ngpu_cmd_buffer_gl_wait(cmd_buffer);
+    }
+    ngli_darray_clear(&s_priv->cmd_buffers);
+
+    return 0;
+}
+
 int ngpu_buffer_gl_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size)
 {
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;

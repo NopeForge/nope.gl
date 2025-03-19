@@ -40,6 +40,7 @@ struct ngpu_buffer_vk {
 
 struct ngpu_buffer *ngpu_buffer_vk_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_buffer_vk_init(struct ngpu_buffer *s);
+int ngpu_buffer_vk_wait(struct ngpu_buffer *s);
 int ngpu_buffer_vk_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size);
 int ngpu_buffer_vk_map(struct ngpu_buffer *s, size_t offset, size_t size, void **data);
 void ngpu_buffer_vk_unmap(struct ngpu_buffer *s);
