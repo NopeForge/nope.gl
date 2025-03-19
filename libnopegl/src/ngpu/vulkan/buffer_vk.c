@@ -147,6 +147,20 @@ int ngpu_buffer_vk_init(struct ngpu_buffer *s)
     return ngli_vk_res2ret(res);
 }
 
+int ngpu_buffer_vk_wait(struct ngpu_buffer *s)
+{
+    struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
+
+    struct cmd_buffer_vk **cmd_buffers = ngli_darray_data(&s_priv->cmd_buffers);
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->cmd_buffers); i++) {
+        struct cmd_buffer_vk *cmd_buffer = cmd_buffers[i];
+        ngli_cmd_buffer_vk_wait(cmd_buffer);
+    }
+    ngli_darray_clear(&s_priv->cmd_buffers);
+
+    return 0;
+}
+
 static VkResult buffer_vk_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size)
 {
     struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;

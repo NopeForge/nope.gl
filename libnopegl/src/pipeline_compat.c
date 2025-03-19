@@ -60,6 +60,15 @@ struct pipeline_compat {
     uint8_t *mapped_datas[NGPU_PROGRAM_SHADER_NB];
 };
 
+static int wait_buffer(struct pipeline_compat *s, int stage)
+{
+    if (s->mapped_datas[stage])
+        return 0;
+
+    struct ngpu_buffer *buffer = s->ubuffers[stage];
+    return ngpu_buffer_wait(buffer);
+}
+
 static int map_buffer(struct pipeline_compat *s, int stage)
 {
     if (s->mapped_datas[stage])
@@ -277,6 +286,10 @@ int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t
     if (value) {
         if (!(gpu_ctx->features & NGPU_FEATURE_BUFFER_MAP_PERSISTENT)) {
             int ret = map_buffer(s, stage);
+            if (ret < 0)
+                return ret;
+        } else {
+            int ret = wait_buffer(s, stage);
             if (ret < 0)
                 return ret;
         }

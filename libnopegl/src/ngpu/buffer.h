@@ -54,6 +54,7 @@ NGLI_RC_CHECK_STRUCT(ngpu_buffer);
 
 struct ngpu_buffer *ngpu_buffer_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_buffer_init(struct ngpu_buffer *s, size_t size, uint32_t usage);
+int ngpu_buffer_wait(struct ngpu_buffer *s);
 int ngpu_buffer_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size);
 int ngpu_buffer_map(struct ngpu_buffer *s, size_t offset, size_t size, void **datap);
 void ngpu_buffer_unmap(struct ngpu_buffer *s);
