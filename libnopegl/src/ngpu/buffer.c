@@ -37,6 +37,8 @@ static void buffer_freep(void **bufferp)
 struct ngpu_buffer *ngpu_buffer_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ngpu_buffer *s = gpu_ctx->cls->buffer_create(gpu_ctx);
+    if (!s)
+        return NULL;
     s->rc = NGLI_RC_CREATE(buffer_freep);
     return s;
 }
