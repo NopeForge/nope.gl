@@ -50,6 +50,8 @@ static void bindgroup_layout_freep(void **layoutp)
 struct ngpu_bindgroup_layout *ngpu_bindgroup_layout_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ngpu_bindgroup_layout *s = gpu_ctx->cls->bindgroup_layout_create(gpu_ctx);
+    if (!s)
+        return NULL;
     s->rc = NGLI_RC_CREATE(bindgroup_layout_freep);
     return s;
 }
@@ -112,6 +114,8 @@ static void bindgroup_freep(void **bindgroupp)
 struct ngpu_bindgroup *ngpu_bindgroup_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ngpu_bindgroup *s = gpu_ctx->cls->bindgroup_create(gpu_ctx);
+    if (!s)
+        return NULL;
     s->rc = NGLI_RC_CREATE(bindgroup_freep);
     return s;
 }
