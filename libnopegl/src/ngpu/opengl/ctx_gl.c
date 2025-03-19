@@ -1302,6 +1302,7 @@ const struct ngpu_ctx_class ngpu_ctx_##cls_suffix = {                           
                                                                                  \
     .buffer_create                      = ngpu_buffer_gl_create,                 \
     .buffer_init                        = ngpu_buffer_gl_init,                   \
+    .buffer_wait                        = ngpu_buffer_gl_wait,                   \
     .buffer_upload                      = ngpu_buffer_gl_upload,                 \
     .buffer_map                         = ngpu_buffer_gl_map,                    \
     .buffer_unmap                       = ngpu_buffer_gl_unmap,                  \
