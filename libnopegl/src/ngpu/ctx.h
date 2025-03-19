@@ -100,6 +100,7 @@ struct ngpu_ctx_class {
 
     struct ngpu_buffer *(*buffer_create)(struct ngpu_ctx *ctx);
     int (*buffer_init)(struct ngpu_buffer *s);
+    int (*buffer_wait)(struct ngpu_buffer *s);
     int (*buffer_upload)(struct ngpu_buffer *s, const void *data, size_t offset, size_t size);
     int (*buffer_map)(struct ngpu_buffer *s, size_t offset, size_t size, void **datap);
     void (*buffer_unmap)(struct ngpu_buffer *s);
