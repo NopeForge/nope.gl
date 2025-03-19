@@ -26,18 +26,6 @@
 #include "utils/memory.h"
 #include "texture_gl.h"
 
-struct texture_binding_gl {
-    struct ngpu_bindgroup_layout_entry layout_entry;
-    const struct ngpu_texture *texture;
-};
-
-struct buffer_binding_gl {
-    struct ngpu_bindgroup_layout_entry layout_entry;
-    const struct ngpu_buffer *buffer;
-    size_t offset;
-    size_t size;
-};
-
 struct ngpu_bindgroup_layout *ngpu_bindgroup_layout_gl_create(struct ngpu_ctx *gpu_ctx)
 {
     struct ngpu_bindgroup_layout_gl *s = ngli_calloc(1, sizeof(*s));
