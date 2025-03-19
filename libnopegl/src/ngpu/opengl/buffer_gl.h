@@ -23,14 +23,17 @@
 #ifndef NGPU_BUFFER_GL_H
 #define NGPU_BUFFER_GL_H
 
+#include "cmd_buffer_gl.h"
 #include "glincludes.h"
 #include "ngpu/buffer.h"
+#include "utils/darray.h"
 
 struct ngpu_buffer_gl {
     struct ngpu_buffer parent;
     GLuint id;
     GLbitfield map_flags;
     GLbitfield barriers;
+    struct darray cmd_buffers;
 };
 
 struct ngpu_ctx;
@@ -40,6 +43,8 @@ int ngpu_buffer_gl_init(struct ngpu_buffer *s);
 int ngpu_buffer_gl_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size);
 int ngpu_buffer_gl_map(struct ngpu_buffer *s, size_t offset, size_t size, void **datap);
 void ngpu_buffer_gl_unmap(struct ngpu_buffer *s);
+int ngpu_buffer_gl_ref_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_gl *cmd_buffer);
+int ngpu_buffer_gl_unref_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_gl *cmd_buffer);
 void ngpu_buffer_gl_freep(struct ngpu_buffer **sp);
 
 #endif

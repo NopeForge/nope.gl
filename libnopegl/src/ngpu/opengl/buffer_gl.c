@@ -77,11 +77,20 @@ struct ngpu_buffer *ngpu_buffer_gl_create(struct ngpu_ctx *gpu_ctx)
     return (struct ngpu_buffer *)s;
 }
 
+static void unref_cmd_buffer(void *user_arg, void *data)
+{
+    struct ngpu_cmd_buffer_gl **cmd_bufferp = data;
+    ngpu_cmd_buffer_gl_freep(cmd_bufferp);
+}
+
 int ngpu_buffer_gl_init(struct ngpu_buffer *s)
 {
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
+
+    ngli_darray_init(&s_priv->cmd_buffers, sizeof(struct cmd_buffer_vk *), 0);
+    ngli_darray_set_free_func(&s_priv->cmd_buffers, unref_cmd_buffer, NULL);
 
     s_priv->map_flags = get_gl_map_flags(s->usage);
     s_priv->barriers = get_gl_barriers(s->usage);
@@ -133,14 +142,61 @@ void ngpu_buffer_gl_unmap(struct ngpu_buffer *s)
     gl->funcs.UnmapBuffer(GL_ARRAY_BUFFER);
 }
 
+static size_t buffer_gl_find_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_gl *cmd_buffer)
+{
+    struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
+
+    struct ngpu_cmd_buffer_gl **cmd_buffers = ngli_darray_data(&s_priv->cmd_buffers);
+    for (size_t i = 0; i < ngli_darray_count(&s_priv->cmd_buffers); i++) {
+        if (cmd_buffers[i] == cmd_buffer)
+            return i;
+    }
+
+    return SIZE_MAX;
+}
+
+int ngpu_buffer_gl_ref_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_gl *cmd_buffer)
+{
+    struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
+
+    size_t index = buffer_gl_find_cmd_buffer(s, cmd_buffer);
+    if (index != SIZE_MAX)
+        return 0;
+
+    if (!ngli_darray_push(&s_priv->cmd_buffers, cmd_buffer))
+        return NGL_ERROR_MEMORY;
+
+    NGLI_RC_REF(cmd_buffer);
+
+    return 0;
+}
+
+int ngpu_buffer_gl_unref_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_gl *cmd_buffer)
+{
+    struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
+
+    size_t index = buffer_gl_find_cmd_buffer(s, cmd_buffer);
+    if (index == SIZE_MAX)
+        return 0;
+
+    ngli_darray_remove(&s_priv->cmd_buffers, index);
+    NGLI_RC_UNREFP(&cmd_buffer);
+
+    return 0;
+}
+
 void ngpu_buffer_gl_freep(struct ngpu_buffer **sp)
 {
     if (!*sp)
         return;
+
     struct ngpu_buffer *s = *sp;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
+
+    ngli_darray_reset(&s_priv->cmd_buffers);
+
     gl->funcs.DeleteBuffers(1, &s_priv->id);
     ngli_freep(sp);
 }
