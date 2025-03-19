@@ -40,6 +40,7 @@ struct ngpu_cmd_buffer_gl {
     struct ngpu_fence_gl *fence;
     struct darray cmds; // array of cmd_gl
     struct darray refs; // array of ngli_rc pointers
+    struct darray buffer_refs; // array of ngpu_buffer pointers
 };
 
 static void cmd_buffer_gl_freep(void **sp)
@@ -72,6 +73,19 @@ static void unref_rc(void *user_arg, void *data)
     NGLI_RC_UNREFP(rcp);
 }
 
+static void unref_buffer(void *user_arg, void *data)
+{
+    struct ngpu_cmd_buffer_gl *cmd_buffer = user_arg;
+    struct ngpu_buffer **bufferp = data;
+
+    if (!*bufferp)
+        return;
+
+    ngpu_buffer_gl_unref_cmd_buffer(*bufferp, cmd_buffer);
+    ngpu_buffer_freep(bufferp);
+}
+
+
 void ngpu_cmd_buffer_gl_freep(struct ngpu_cmd_buffer_gl **sp)
 {
     NGLI_RC_UNREFP(sp);
@@ -84,6 +98,8 @@ int ngpu_cmd_buffer_gl_init(struct ngpu_cmd_buffer_gl *s, int type)
     ngli_darray_init(&s->cmds, sizeof(struct ngpu_cmd_gl), 0);
     ngli_darray_init(&s->refs, sizeof(struct ngli_rc *), 0);
     ngli_darray_set_free_func(&s->refs, unref_rc, NULL);
+    ngli_darray_init(&s->buffer_refs, sizeof(struct ngpu_buffer *), 0);
+    ngli_darray_set_free_func(&s->buffer_refs, unref_buffer, s);
 
     return 0;
 }
@@ -94,6 +110,20 @@ int ngpu_cmd_buffer_gl_ref(struct ngpu_cmd_buffer_gl *s, struct ngli_rc *rc)
         return NGL_ERROR_MEMORY;
 
     NGLI_RC_REF(rc);
+
+    return 0;
+}
+
+int ngpu_cmd_buffer_gl_ref_buffer(struct ngpu_cmd_buffer_gl *s, struct ngpu_buffer *buffer)
+{
+    int ret = ngpu_cmd_buffer_gl_ref(s, (struct ngli_rc *)buffer);
+    if (ret < 0)
+        return ret;
+
+    if (!ngli_darray_push(&s->buffer_refs, &buffer))
+        return NGL_ERROR_MEMORY;
+
+    NGLI_RC_REF(buffer);
 
     return 0;
 }
@@ -218,6 +248,7 @@ int ngpu_cmd_buffer_gl_wait(struct ngpu_cmd_buffer_gl *s)
 
     ngpu_fence_gl_freep(&s->fence);
     ngli_darray_clear(&s->refs);
+    ngli_darray_clear(&s->buffer_refs);
 
     return ret;
 }
