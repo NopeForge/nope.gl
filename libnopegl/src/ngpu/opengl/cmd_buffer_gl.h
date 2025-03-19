@@ -111,6 +111,7 @@ int ngpu_cmd_buffer_gl_init(struct ngpu_cmd_buffer_gl *s, int type);
 
 #define NGLI_CMD_BUFFER_GL_CMD_REF(cmd, rc) ngpu_cmd_buffer_gl_ref((cmd), (struct ngli_rc *)(rc))
 int ngpu_cmd_buffer_gl_ref(struct ngpu_cmd_buffer_gl *s, struct ngli_rc *rc);
+int ngpu_cmd_buffer_gl_ref_buffer(struct ngpu_cmd_buffer_gl *s, struct ngpu_buffer *buffer);
 
 int ngpu_cmd_buffer_gl_begin(struct ngpu_cmd_buffer_gl *s);
 int ngpu_cmd_buffer_gl_push(struct ngpu_cmd_buffer_gl *s, const struct ngpu_cmd_gl *cmd);
