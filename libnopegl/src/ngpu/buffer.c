@@ -31,6 +31,8 @@ static void buffer_freep(void **bufferp)
     if (!*sp)
         return;
 
+    ngpu_buffer_wait(*sp);
+
     (*sp)->gpu_ctx->cls->buffer_freep(sp);
 }
 
@@ -51,13 +53,24 @@ int ngpu_buffer_init(struct ngpu_buffer *s, size_t size, uint32_t usage)
     return s->gpu_ctx->cls->buffer_init(s);
 }
 
+int ngpu_buffer_wait(struct ngpu_buffer *s)
+{
+    return s->gpu_ctx->cls->buffer_wait(s);
+}
+
 int ngpu_buffer_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size)
 {
+    int ret = ngpu_buffer_wait(s);
+    if (ret < 0)
+        return ret;
     return s->gpu_ctx->cls->buffer_upload(s, data, offset, size);
 }
 
 int ngpu_buffer_map(struct ngpu_buffer *s, size_t offset, size_t size, void **datap)
 {
+    int ret = ngpu_buffer_wait(s);
+    if (ret < 0)
+        return ret;
     return s->gpu_ctx->cls->buffer_map(s, offset, size, datap);
 }
 
