@@ -494,7 +494,7 @@ static void ngpu_ctx_info_init(struct ngpu_ctx *s)
             s->features |= feature;
     }
     s->limits = gl->limits;
-    s->nb_in_flight_frames = 1;
+    s->nb_in_flight_frames = 2;
 }
 
 static int create_command_buffers(struct ngpu_ctx *s)
