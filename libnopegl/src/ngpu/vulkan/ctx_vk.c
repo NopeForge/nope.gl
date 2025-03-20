@@ -903,7 +903,7 @@ static int vk_init(struct ngpu_ctx *s)
 
     s_priv->width = config->width;
     s_priv->height = config->height;
-    s->nb_in_flight_frames = 1;
+    s->nb_in_flight_frames = 2;
 
     int ret = ngli_glslang_init();
     if (ret < 0)
