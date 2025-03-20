@@ -439,6 +439,7 @@ static void colorstats_uninit(struct ngl_node *node)
     ngli_pipeline_compat_freep(&s->sumscale.pipeline_compat);
     ngli_gpu_buffer_freep(&s->blk.buffer);
     ngli_block_reset(&s->blk.block);
+    ngli_gpu_block_reset(&s->stats_params_block);
 }
 
 const struct node_class ngli_colorstats_class = {
