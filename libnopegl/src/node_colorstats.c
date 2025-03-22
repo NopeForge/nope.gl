@@ -214,9 +214,9 @@ static int init_computes(struct ngl_node *node)
     if (!s->init.pipeline_compat || !s->waveform.pipeline_compat || !s->sumscale.pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    s->init.crafter     = ngli_pgcraft_create(ctx);
-    s->waveform.crafter = ngli_pgcraft_create(ctx);
-    s->sumscale.crafter = ngli_pgcraft_create(ctx);
+    s->init.crafter     = ngli_pgcraft_create(gpu_ctx);
+    s->waveform.crafter = ngli_pgcraft_create(gpu_ctx);
+    s->sumscale.crafter = ngli_pgcraft_create(gpu_ctx);
     if (!s->init.crafter || !s->waveform.crafter || !s->sumscale.crafter)
         return NGL_ERROR_MEMORY;
 
