@@ -183,7 +183,6 @@ static const int type_flags_map[NGPU_TYPE_NB] = {
     [NGPU_TYPE_BOOL]                        = 0,
     [NGPU_TYPE_SAMPLER_2D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
     [NGPU_TYPE_SAMPLER_2D_ARRAY]            = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
-    [NGPU_TYPE_SAMPLER_2D_RECT]             = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
     [NGPU_TYPE_SAMPLER_3D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
     [NGPU_TYPE_SAMPLER_CUBE]                = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
     [NGPU_TYPE_SAMPLER_EXTERNAL_OES]        = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER,
@@ -201,7 +200,6 @@ static const int type_flags_map[NGPU_TYPE_NB] = {
 static const int type_binding_map[NGPU_TYPE_NB] = {
     [NGPU_TYPE_SAMPLER_2D]                  = NGLI_BINDING_TYPE_TEXTURE,
     [NGPU_TYPE_SAMPLER_2D_ARRAY]            = NGLI_BINDING_TYPE_TEXTURE,
-    [NGPU_TYPE_SAMPLER_2D_RECT]             = NGLI_BINDING_TYPE_TEXTURE,
     [NGPU_TYPE_SAMPLER_3D]                  = NGLI_BINDING_TYPE_TEXTURE,
     [NGPU_TYPE_SAMPLER_CUBE]                = NGLI_BINDING_TYPE_TEXTURE,
     [NGPU_TYPE_SAMPLER_EXTERNAL_OES]        = NGLI_BINDING_TYPE_TEXTURE,
@@ -318,8 +316,6 @@ static const char * const texture_info_suffixes[NGPU_INFO_FIELD_NB] = {
     [NGPU_INFO_FIELD_SAMPLER_1]         = "_1",
     [NGPU_INFO_FIELD_SAMPLER_2]         = "_2",
     [NGPU_INFO_FIELD_SAMPLER_OES]       = "_oes",
-    [NGPU_INFO_FIELD_SAMPLER_RECT_0]    = "_rect_0",
-    [NGPU_INFO_FIELD_SAMPLER_RECT_1]    = "_rect_1",
 };
 
 static const enum ngpu_type texture_types_map[NGPU_PGCRAFT_TEXTURE_TYPE_NB][NGPU_INFO_FIELD_NB] = {
@@ -334,9 +330,6 @@ static const enum ngpu_type texture_types_map[NGPU_PGCRAFT_TEXTURE_TYPE_NB][NGPU
         [NGPU_INFO_FIELD_SAMPLER_2]         = NGPU_TYPE_SAMPLER_2D,
 #if defined(TARGET_ANDROID)
         [NGPU_INFO_FIELD_SAMPLER_OES]       = NGPU_TYPE_SAMPLER_EXTERNAL_OES,
-#elif defined(TARGET_DARWIN)
-        [NGPU_INFO_FIELD_SAMPLER_RECT_0]    = NGPU_TYPE_SAMPLER_2D_RECT,
-        [NGPU_INFO_FIELD_SAMPLER_RECT_1]    = NGPU_TYPE_SAMPLER_2D_RECT,
 #endif
     },
     [NGPU_PGCRAFT_TEXTURE_TYPE_2D] = {
@@ -381,9 +374,6 @@ static int is_type_supported(struct ngpu_pgcraft *s, enum ngpu_type type)
     const struct ngl_config *config = &gpu_ctx->config;
 
     switch(type) {
-    case NGPU_TYPE_SAMPLER_2D_RECT:
-        return ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_RECTANGLE) ||
-               ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
     case NGPU_TYPE_SAMPLER_EXTERNAL_OES:
     case NGPU_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT:
         return ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_MEDIACODEC);
@@ -845,21 +835,6 @@ static int handle_token(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params
         if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_MEDIACODEC)) {
             ngli_bstr_printf(dst, "%.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_MEDIACODEC);
             ngli_bstr_printf(dst, "texture(%.*s_oes, %.*s) : ", ARG_FMT(arg0), ARG_FMT(coords));
-        }
-
-        if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE)) {
-            ngli_bstr_printf(dst, " %.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
-            ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(texture(%.*s_rect_0, (%.*s) * textureSize(%.*s_rect_0)).r, "
-                                                           "texture(%.*s_rect_1, (%.*s) * textureSize(%.*s_rect_1)).rg, 1.0) : ",
-                             ARG_FMT(arg0),
-                             ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0),
-                             ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
-        }
-
-        if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_RECTANGLE)) {
-            ngli_bstr_printf(dst, "%.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_RECTANGLE);
-            ngli_bstr_printf(dst, "texture(%.*s_rect_0, (%.*s) * textureSize(%.*s_rect_0)) : ",
-                             ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
         }
 
         if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_NV12)) {
