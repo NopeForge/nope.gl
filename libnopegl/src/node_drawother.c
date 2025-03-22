@@ -785,14 +785,14 @@ static int drawdisplace_init(struct ngl_node *node)
     const struct ngpu_pgcraft_texture textures[] = {
         {
             .name        = "source",
-            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->source_node),
+            .type        = ngli_node_texture_get_pgcraft_texture_type(o->source_node),
             .stage       = NGPU_PROGRAM_SHADER_FRAG,
             .image       = &source_info->image,
             .format      = source_info->params.format,
             .clamp_video = source_info->clamp_video,
         }, {
             .name        = "displacement",
-            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->displacement_node),
+            .type        = ngli_node_texture_get_pgcraft_texture_type(o->displacement_node),
             .stage       = NGPU_PROGRAM_SHADER_FRAG,
             .image       = &displacement_info->image,
             .format      = displacement_info->params.format,
@@ -1014,14 +1014,14 @@ static int drawmask_init(struct ngl_node *node)
     struct ngpu_pgcraft_texture textures[] = {
         {
             .name        = "content",
-            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->content),
+            .type        = ngli_node_texture_get_pgcraft_texture_type(o->content),
             .stage       = NGPU_PROGRAM_SHADER_FRAG,
             .image       = &content_info->image,
             .format      = content_info->params.format,
             .clamp_video = content_info->clamp_video,
         }, {
             .name        = "mask",
-            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->mask),
+            .type        = ngli_node_texture_get_pgcraft_texture_type(o->mask),
             .stage       = NGPU_PROGRAM_SHADER_FRAG,
             .image       = &mask_info->image,
             .format      = mask_info->params.format,
@@ -1132,7 +1132,7 @@ static int drawtexture_init(struct ngl_node *node)
     struct ngpu_pgcraft_texture textures[] = {
         {
             .name        = "tex",
-            .type        = ngli_node_texture_get_pgcraft_shader_tex_type(texture_node),
+            .type        = ngli_node_texture_get_pgcraft_texture_type(texture_node),
             .stage       = NGPU_PROGRAM_SHADER_FRAG,
             .image       = &texture_info->image,
             .format      = texture_info->params.format,
