@@ -102,7 +102,11 @@ struct ngpu_ctx *ngpu_ctx_create(const struct ngl_config *config)
 
 int ngpu_ctx_init(struct ngpu_ctx *s)
 {
-    return s->cls->init(s);
+    int ret = s->cls->init(s);
+    if (ret < 0)
+        return ret;
+
+    return ngpu_pgcache_init(&s->program_cache, s);
 }
 
 int ngpu_ctx_resize(struct ngpu_ctx *s, int32_t width, int32_t height)
@@ -170,6 +174,9 @@ void ngpu_ctx_freep(struct ngpu_ctx **sp)
 
     struct ngpu_ctx *s = *sp;
     const struct ngpu_ctx_class *cls = s->cls;
+
+    ngpu_pgcache_reset(&s->program_cache);
+
     if (cls)
         cls->destroy(s);
 
