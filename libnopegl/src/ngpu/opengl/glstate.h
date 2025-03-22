@@ -21,15 +21,15 @@
  * under the License.
  */
 
-#ifndef GLSTATE_H
-#define GLSTATE_H
+#ifndef NGPU_GLSTATE_H
+#define NGPU_GLSTATE_H
 
 #include "glcontext.h"
 #include "ngpu/ctx.h"
 
 struct ngpu_graphics_state;
 
-struct glstate_stencil_op {
+struct ngpu_glstate_stencil_op {
     GLuint write_mask;
     GLenum func;
     GLint  ref;
@@ -39,7 +39,7 @@ struct glstate_stencil_op {
     GLenum depth_pass;
 };
 
-struct glstate {
+struct ngpu_glstate {
     /* Graphics state */
     GLenum blend;
     GLenum blend_dst_factor;
@@ -56,8 +56,8 @@ struct glstate {
     GLenum    depth_func;
 
     GLenum stencil_test;
-    struct glstate_stencil_op stencil_front;
-    struct glstate_stencil_op stencil_back;
+    struct ngpu_glstate_stencil_op stencil_front;
+    struct ngpu_glstate_stencil_op stencil_back;
 
     GLboolean cull_face;
     GLenum cull_face_mode;
@@ -74,27 +74,27 @@ struct glstate {
     GLuint program_id;
 };
 
-void ngli_glstate_reset(const struct glcontext *gl,
-                        struct glstate *glstate);
+void ngpu_glstate_reset(const struct glcontext *gl,
+                        struct ngpu_glstate *glstate);
 
-void ngli_glstate_update(const struct glcontext *gl,
-                         struct glstate *glstate,
+void ngpu_glstate_update(const struct glcontext *gl,
+                         struct ngpu_glstate *glstate,
                          const struct ngpu_graphics_state *state);
 
-void ngli_glstate_use_program(const struct glcontext *gl,
-                              struct glstate *glstate,
+void ngpu_glstate_use_program(const struct glcontext *gl,
+                              struct ngpu_glstate *glstate,
                               GLuint program_id);
 
-void ngli_glstate_update_scissor(const struct glcontext *gl,
-                                 struct glstate *glstate,
+void ngpu_glstate_update_scissor(const struct glcontext *gl,
+                                 struct ngpu_glstate *glstate,
                                  const struct ngpu_scissor *scissor);
 
-void ngli_glstate_update_viewport(const struct glcontext *gl,
-                                  struct glstate *glstate,
+void ngpu_glstate_update_viewport(const struct glcontext *gl,
+                                  struct ngpu_glstate *glstate,
                                   const struct ngpu_viewport *viewport);
 
-void ngli_glstate_enable_scissor_test(const struct glcontext *gl,
-                                      struct glstate *glstate,
+void ngpu_glstate_enable_scissor_test(const struct glcontext *gl,
+                                      struct ngpu_glstate *glstate,
                                       int enable);
 
 #endif

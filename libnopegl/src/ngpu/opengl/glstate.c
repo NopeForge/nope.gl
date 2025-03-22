@@ -116,7 +116,7 @@ static GLenum get_gl_front_face(enum ngpu_front_face front_face)
     return gl_front_face_map[front_face];
 }
 
-void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
+void ngpu_glstate_reset(const struct glcontext *gl, struct ngpu_glstate *glstate)
 {
     memset(glstate, 0, sizeof(*glstate));
 
@@ -204,7 +204,7 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
     gl->funcs.BindVertexArray(0);
 }
 
-void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct ngpu_graphics_state *state)
+void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstate, const struct ngpu_graphics_state *state)
 {
     /* Blend */
     const int blend = state->blend;
@@ -377,7 +377,7 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
     }
 }
 
-void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstate, GLuint program_id)
+void ngpu_glstate_use_program(const struct glcontext *gl, struct ngpu_glstate *glstate, GLuint program_id)
 {
     if (glstate->program_id != program_id) {
         gl->funcs.UseProgram(program_id);
@@ -385,7 +385,7 @@ void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstat
     }
 }
 
-void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *glstate, const struct ngpu_scissor *scissor)
+void ngpu_glstate_update_scissor(const struct glcontext *gl, struct ngpu_glstate *glstate, const struct ngpu_scissor *scissor)
 {
     if (glstate->scissor.x == scissor->x &&
         glstate->scissor.y == scissor->y &&
@@ -396,7 +396,7 @@ void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *gls
     gl->funcs.Scissor(scissor->x, scissor->y, scissor->width, scissor->height);
 }
 
-void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *glstate, const struct ngpu_viewport *viewport)
+void ngpu_glstate_update_viewport(const struct glcontext *gl, struct ngpu_glstate *glstate, const struct ngpu_viewport *viewport)
 {
     if (glstate->viewport.x == viewport->x &&
         glstate->viewport.y == viewport->y &&
@@ -407,7 +407,7 @@ void ngli_glstate_update_viewport(const struct glcontext *gl, struct glstate *gl
     gl->funcs.Viewport(viewport->x, viewport->y, viewport->width, viewport->height);
 }
 
-void ngli_glstate_enable_scissor_test(const struct glcontext *gl, struct glstate *glstate, int enable)
+void ngpu_glstate_enable_scissor_test(const struct glcontext *gl, struct ngpu_glstate *glstate, int enable)
 {
     if (glstate->scissor_test == enable)
         return;
