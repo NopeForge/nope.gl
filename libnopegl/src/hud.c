@@ -47,12 +47,12 @@
 #include "ngpu/block.h"
 #include "ngpu/ctx.h"
 #include "ngpu/graphics_state.h"
+#include "ngpu/pgcraft.h"
 #include "ngpu/type.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_texture.h"
 #include "nopegl.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "utils/memory.h"
 #include "utils/time.h"
@@ -81,7 +81,7 @@ struct hud {
     double refresh_rate_interval;
     double last_refresh_time;
 
-    struct pgcraft *crafter;
+    struct ngpu_pgcraft *crafter;
     struct ngpu_texture *texture;
     struct ngpu_buffer *coords;
     struct ngpu_block transforms_block;
@@ -1142,7 +1142,7 @@ static const char * const fragment_data =
     "    ngl_out_color = texture(tex, tex_coord);"                          "\n"
     "}";
 
-static const struct pgcraft_iovar vert_out_vars[] = {
+static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
     {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
 };
 
@@ -1258,7 +1258,7 @@ int ngli_hud_init(struct hud *s)
         .projection_matrix = NGLI_MAT4_IDENTITY,
     });
 
-    const struct pgcraft_block blocks[] = {
+    const struct ngpu_pgcraft_block blocks[] = {
         {
             .name          = "transforms",
             .instance_name = "",
@@ -1272,16 +1272,16 @@ int ngli_hud_init(struct hud *s)
         },
     };
 
-    struct pgcraft_texture textures[] = {
+    struct ngpu_pgcraft_texture textures[] = {
         {
             .name     = "tex",
-            .type     = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type     = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
             .stage    = NGPU_PROGRAM_SHADER_FRAG,
             .texture  = s->texture,
         },
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         {
             .name     = "coords",
             .type     = NGPU_TYPE_VEC4,
@@ -1299,7 +1299,7 @@ int ngli_hud_init(struct hud *s)
     graphics_state.blend_src_factor_a = NGPU_BLEND_FACTOR_ZERO;
     graphics_state.blend_dst_factor_a = NGPU_BLEND_FACTOR_ONE;
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/hud",
         .vert_base        = vertex_data,
         .frag_base        = fragment_data,
@@ -1313,11 +1313,11 @@ int ngli_hud_init(struct hud *s)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    s->crafter = ngli_pgcraft_create(gpu_ctx);
+    s->crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_pgcraft_craft(s->crafter, &crafter_params);
+    ret = ngpu_pgcraft_craft(s->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -1331,13 +1331,13 @@ int ngli_hud_init(struct hud *s)
             .topology = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state    = graphics_state,
             .rt_layout    = rnode->rendertarget_layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->crafter),
+        .program          = ngpu_pgcraft_get_program(s->crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->pipeline_compat, &params);
@@ -1411,7 +1411,7 @@ void ngli_hud_freep(struct hud **sp)
         return;
 
     ngli_pipeline_compat_freep(&s->pipeline_compat);
-    ngli_pgcraft_freep(&s->crafter);
+    ngpu_pgcraft_freep(&s->crafter);
     ngpu_texture_freep(&s->texture);
     ngpu_buffer_freep(&s->coords);
     ngpu_block_reset(&s->transforms_block);

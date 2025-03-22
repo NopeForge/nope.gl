@@ -21,8 +21,8 @@
  * under the License.
  */
 
-#ifndef PGCRAFT_H
-#define PGCRAFT_H
+#ifndef NGPU_PGCRAFT_H
+#define NGPU_PGCRAFT_H
 
 #include "image.h"
 #include "ngpu/buffer.h"
@@ -34,7 +34,7 @@
 
 struct ngpu_ctx;
 
-struct pgcraft_uniform { // also buffers (for arrays)
+struct ngpu_pgcraft_uniform { // also buffers (for arrays)
     char name[MAX_ID_LEN];
     enum ngpu_type type;
     int stage;
@@ -43,23 +43,23 @@ struct pgcraft_uniform { // also buffers (for arrays)
     size_t count;
 };
 
-enum pgcraft_shader_tex_type {
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_NONE,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_2D_ARRAY,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D_ARRAY,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_3D,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_CUBE,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE,
-    NGLI_PGCRAFT_SHADER_TEX_TYPE_NB
+enum ngpu_pgcraft_shader_tex_type {
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_NONE,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_2D_ARRAY,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D_ARRAY,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_3D,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_CUBE,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE,
+    NGPU_PGCRAFT_SHADER_TEX_TYPE_NB
 };
 
-struct pgcraft_texture {
+struct ngpu_pgcraft_texture {
     char name[MAX_ID_LEN];
-    enum pgcraft_shader_tex_type type;
+    enum ngpu_pgcraft_shader_tex_type type;
     int stage;
     enum ngpu_precision precision;
     int writable;
@@ -97,7 +97,7 @@ struct pgcraft_texture {
     struct image *image;
 };
 
-struct pgcraft_block {
+struct ngpu_pgcraft_block {
     char name[MAX_ID_LEN];
     const char *instance_name;
     enum ngpu_type type;
@@ -107,7 +107,7 @@ struct pgcraft_block {
     struct ngpu_buffer_binding buffer;
 };
 
-struct pgcraft_attribute {
+struct ngpu_pgcraft_attribute {
     char name[MAX_ID_LEN];
     enum ngpu_type type;
     enum ngpu_precision precision;
@@ -118,7 +118,7 @@ struct pgcraft_attribute {
     struct ngpu_buffer *buffer;
 };
 
-struct pgcraft_iovar {
+struct ngpu_pgcraft_iovar {
     char name[MAX_ID_LEN];
     enum ngpu_precision precision_out;
     enum ngpu_precision precision_in;
@@ -126,29 +126,29 @@ struct pgcraft_iovar {
 };
 
 enum {
-    NGLI_INFO_FIELD_SAMPLING_MODE,
-    NGLI_INFO_FIELD_COORDINATE_MATRIX,
-    NGLI_INFO_FIELD_COLOR_MATRIX,
-    NGLI_INFO_FIELD_DIMENSIONS,
-    NGLI_INFO_FIELD_TIMESTAMP,
-    NGLI_INFO_FIELD_SAMPLER_0,
-    NGLI_INFO_FIELD_SAMPLER_1,
-    NGLI_INFO_FIELD_SAMPLER_2,
-    NGLI_INFO_FIELD_SAMPLER_OES,
-    NGLI_INFO_FIELD_SAMPLER_RECT_0,
-    NGLI_INFO_FIELD_SAMPLER_RECT_1,
-    NGLI_INFO_FIELD_NB
+    NGPU_INFO_FIELD_SAMPLING_MODE,
+    NGPU_INFO_FIELD_COORDINATE_MATRIX,
+    NGPU_INFO_FIELD_COLOR_MATRIX,
+    NGPU_INFO_FIELD_DIMENSIONS,
+    NGPU_INFO_FIELD_TIMESTAMP,
+    NGPU_INFO_FIELD_SAMPLER_0,
+    NGPU_INFO_FIELD_SAMPLER_1,
+    NGPU_INFO_FIELD_SAMPLER_2,
+    NGPU_INFO_FIELD_SAMPLER_OES,
+    NGPU_INFO_FIELD_SAMPLER_RECT_0,
+    NGPU_INFO_FIELD_SAMPLER_RECT_1,
+    NGPU_INFO_FIELD_NB
 };
 
-struct pgcraft_texture_info_field {
+struct ngpu_pgcraft_texture_info_field {
     enum ngpu_type type;
     int32_t index;
     int stage;
 };
 
-struct pgcraft_texture_info {
+struct ngpu_pgcraft_texture_info {
     size_t id;
-    struct pgcraft_texture_info_field fields[NGLI_INFO_FIELD_NB];
+    struct ngpu_pgcraft_texture_info_field fields[NGPU_INFO_FIELD_NB];
 };
 
 /*
@@ -162,32 +162,32 @@ struct pgcraft_texture_info {
  * layer, which we name "ublock" (for uniform-block). This compatibility layer
  * maps single uniforms to dedicated uniform blocks.
  */
-struct pgcraft_compat_info {
+struct ngpu_pgcraft_compat_info {
     struct ngpu_block_desc ublocks[NGPU_PROGRAM_SHADER_NB];
     int32_t ubindings[NGPU_PROGRAM_SHADER_NB];
     int32_t uindices[NGPU_PROGRAM_SHADER_NB];
 
-    const struct pgcraft_texture_info *texture_infos;
+    const struct ngpu_pgcraft_texture_info *texture_infos;
     const struct image **images;
     size_t nb_texture_infos;
 };
 
-struct pgcraft_params {
+struct ngpu_pgcraft_params {
     const char *program_label;
     const char *vert_base;
     const char *frag_base;
     const char *comp_base;
 
-    const struct pgcraft_uniform *uniforms;
+    const struct ngpu_pgcraft_uniform *uniforms;
     size_t nb_uniforms;
-    const struct pgcraft_texture *textures;
+    const struct ngpu_pgcraft_texture *textures;
     size_t nb_textures;
-    const struct pgcraft_block *blocks;
+    const struct ngpu_pgcraft_block *blocks;
     size_t nb_blocks;
-    const struct pgcraft_attribute *attributes;
+    const struct ngpu_pgcraft_attribute *attributes;
     size_t nb_attributes;
 
-    const struct pgcraft_iovar *vert_out_vars;
+    const struct ngpu_pgcraft_iovar *vert_out_vars;
     size_t nb_vert_out_vars;
 
     size_t nb_frag_output;
@@ -195,21 +195,21 @@ struct pgcraft_params {
     uint32_t workgroup_size[3];
 };
 
-struct pgcraft;
+struct ngpu_pgcraft;
 
-struct pgcraft *ngli_pgcraft_create(struct ngpu_ctx *gpu_ctx);
-int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params);
-int32_t ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);
-int32_t ngli_pgcraft_get_block_index(const struct pgcraft *s, const char *name, int stage);
-int32_t ngli_pgcraft_get_image_index(const struct pgcraft *s, const char *name);
-const struct pgcraft_compat_info *ngli_pgcraft_get_compat_info(const struct pgcraft *s);
-const char *ngli_pgcraft_get_symbol_name(const struct pgcraft *s, size_t id);
-struct ngpu_vertex_state ngli_pgcraft_get_vertex_state(const struct pgcraft *s);
-struct ngpu_vertex_resources ngli_pgcraft_get_vertex_resources(const struct pgcraft *s);
-int32_t ngli_pgcraft_get_vertex_buffer_index(const struct pgcraft *s, const char *name);
-struct ngpu_program *ngli_pgcraft_get_program(const struct pgcraft *s);
-struct ngpu_bindgroup_layout_desc ngli_pgcraft_get_bindgroup_layout_desc(const struct pgcraft *s);
-struct ngpu_bindgroup_resources ngli_pgcraft_get_bindgroup_resources(const struct pgcraft *s);
-void ngli_pgcraft_freep(struct pgcraft **sp);
+struct ngpu_pgcraft *ngpu_pgcraft_create(struct ngpu_ctx *gpu_ctx);
+int ngpu_pgcraft_craft(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params);
+int32_t ngpu_pgcraft_get_uniform_index(const struct ngpu_pgcraft *s, const char *name, int stage);
+int32_t ngpu_pgcraft_get_block_index(const struct ngpu_pgcraft *s, const char *name, int stage);
+int32_t ngpu_pgcraft_get_image_index(const struct ngpu_pgcraft *s, const char *name);
+const struct ngpu_pgcraft_compat_info *ngpu_pgcraft_get_compat_info(const struct ngpu_pgcraft *s);
+const char *ngpu_pgcraft_get_symbol_name(const struct ngpu_pgcraft *s, size_t id);
+struct ngpu_vertex_state ngpu_pgcraft_get_vertex_state(const struct ngpu_pgcraft *s);
+struct ngpu_vertex_resources ngpu_pgcraft_get_vertex_resources(const struct ngpu_pgcraft *s);
+int32_t ngpu_pgcraft_get_vertex_buffer_index(const struct ngpu_pgcraft *s, const char *name);
+struct ngpu_program *ngpu_pgcraft_get_program(const struct ngpu_pgcraft *s);
+struct ngpu_bindgroup_layout_desc ngpu_pgcraft_get_bindgroup_layout_desc(const struct ngpu_pgcraft *s);
+struct ngpu_bindgroup_resources ngpu_pgcraft_get_bindgroup_resources(const struct ngpu_pgcraft *s);
+void ngpu_pgcraft_freep(struct ngpu_pgcraft **sp);
 
 #endif

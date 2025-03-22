@@ -35,9 +35,9 @@
 #include "node_texture.h"
 #include "node_uniform.h"
 #include "nopegl.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "rtt.h"
+#include "ngpu/pgcraft.h"
 #include "utils/utils.h"
 
 /* GLSL shaders */
@@ -89,7 +89,7 @@ struct gblur_priv {
 
     struct ngpu_block direction_block;
     struct ngpu_block kernel_block;
-    struct pgcraft *crafter;
+    struct ngpu_pgcraft *crafter;
     struct pipeline_compat *pl_blur_h;
     struct pipeline_compat *pl_blur_v;
 };
@@ -191,7 +191,7 @@ static int update_kernel(struct ngl_node *node)
     return 0;
 }
 
-static int setup_pipeline(struct pgcraft *crafter, struct pipeline_compat *pipeline, const struct ngpu_rendertarget_layout *layout)
+static int setup_pipeline(struct ngpu_pgcraft *crafter, struct pipeline_compat *pipeline, const struct ngpu_rendertarget_layout *layout)
 {
     const struct pipeline_compat_params params = {
         .type         = NGPU_PIPELINE_TYPE_GRAPHICS,
@@ -199,13 +199,13 @@ static int setup_pipeline(struct pgcraft *crafter, struct pipeline_compat *pipel
             .topology = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
             .state    = NGPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = *layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(crafter),
         },
-        .program          = ngli_pgcraft_get_program(crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(crafter),
+        .program          = ngpu_pgcraft_get_program(crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(crafter),
     };
 
     int ret = ngli_pipeline_compat_init(pipeline, &params);
@@ -269,20 +269,20 @@ static int gblur_init(struct ngl_node *node)
     };
     ngpu_block_init(gpu_ctx, &s->kernel_block, &kernel_block_params);
 
-    const struct pgcraft_iovar vert_out_vars[] = {
+    const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_texture textures[] = {
+    const struct ngpu_pgcraft_texture textures[] = {
         {
             .name      = "tex",
-            .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
             .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         },
     };
 
-    const struct pgcraft_block crafter_blocks[] = {
+    const struct ngpu_pgcraft_block crafter_blocks[] = {
         {
             .name          = "direction",
             .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
@@ -304,7 +304,7 @@ static int gblur_init(struct ngl_node *node)
         },
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/gaussian-blur",
         .vert_base        = blur_gaussian_vert,
         .frag_base        = blur_gaussian_frag,
@@ -315,11 +315,11 @@ static int gblur_init(struct ngl_node *node)
         .vert_out_vars    = vert_out_vars,
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
-    s->crafter = ngli_pgcraft_create(gpu_ctx);
+    s->crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_pgcraft_craft(s->crafter, &crafter_params);
+    ret = ngpu_pgcraft_craft(s->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -508,7 +508,7 @@ static void gblur_uninit(struct ngl_node *node)
     ngpu_block_reset(&s->kernel_block);
     ngli_pipeline_compat_freep(&s->pl_blur_h);
     ngli_pipeline_compat_freep(&s->pl_blur_v);
-    ngli_pgcraft_freep(&s->crafter);
+    ngpu_pgcraft_freep(&s->crafter);
 }
 
 const struct node_class ngli_gblur_class = {

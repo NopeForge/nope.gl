@@ -26,7 +26,7 @@
 #include "node_io.h"
 #include "node_program.h"
 #include "nopegl.h"
-#include "pgcraft.h"
+#include "ngpu/pgcraft.h"
 #include "utils/darray.h"
 
 #define IO_NODES (const uint32_t[]){NGL_NODE_IOINT,        \
@@ -72,14 +72,14 @@ static int program_init(struct ngl_node *node)
     struct program_priv *s = node->priv_data;
     const struct program_opts *o = node->opts;
 
-    ngli_darray_init(&s->vert_out_vars_array, sizeof(struct pgcraft_iovar), 0);
+    ngli_darray_init(&s->vert_out_vars_array, sizeof(struct ngpu_pgcraft_iovar), 0);
     if (o->vert_out_vars) {
         const struct hmap_entry *e = NULL;
         while ((e = ngli_hmap_next(o->vert_out_vars, e))) {
             const struct ngl_node *iovar_node = e->data;
             const struct io_priv *iovar_priv = iovar_node->priv_data;
             const struct io_opts *iovar_opts = iovar_node->opts;
-            struct pgcraft_iovar iovar = {
+            struct ngpu_pgcraft_iovar iovar = {
                 .type = iovar_priv->type,
                 .precision_in = iovar_opts->precision_in,
                 .precision_out = iovar_opts->precision_out,

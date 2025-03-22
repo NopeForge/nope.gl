@@ -33,8 +33,8 @@
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "path.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
+#include "ngpu/pgcraft.h"
 #include "utils/utils.h"
 
 /* GLSL fragments as string */
@@ -82,7 +82,7 @@ struct drawpath_priv {
     struct path *path;
     struct darray uniforms_map; // struct uniform_map
     struct darray uniforms; // struct pgcraft_uniform
-    struct pgcraft *crafter;
+    struct ngpu_pgcraft *crafter;
     int modelview_matrix_index;
     int projection_matrix_index;
     int transform_index;
@@ -136,10 +136,10 @@ static int build_uniforms_map(struct drawpath_priv *s)
 {
     ngli_darray_init(&s->uniforms_map, sizeof(struct uniform_map), 0);
 
-    const struct pgcraft_uniform *uniforms = ngli_darray_data(&s->uniforms);
+    const struct ngpu_pgcraft_uniform *uniforms = ngli_darray_data(&s->uniforms);
     for (size_t i = 0; i < ngli_darray_count(&s->uniforms); i++) {
-        const struct pgcraft_uniform *uniform = &uniforms[i];
-        const int index = ngli_pgcraft_get_uniform_index(s->crafter, uniform->name, uniform->stage);
+        const struct ngpu_pgcraft_uniform *uniform = &uniforms[i];
+        const int index = ngpu_pgcraft_get_uniform_index(s->crafter, uniform->name, uniform->stage);
 
         /* The following can happen if the driver makes optimisation (MESA is
          * typically able to optimize several passes of the same filter) */
@@ -237,7 +237,7 @@ static int drawpath_init(struct ngl_node *node)
     const float ref[] = {box.x + offx, box.y + offy, nw, nh};
     memcpy(s->transform, ref, sizeof(s->transform));
 
-    const struct pgcraft_uniform uniforms[] = {
+    const struct ngpu_pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
         {.name="transform",         .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_VERT},
@@ -256,29 +256,29 @@ static int drawpath_init(struct ngl_node *node)
     };
 
     /* register source uniforms */
-    ngli_darray_init(&s->uniforms, sizeof(struct pgcraft_uniform), 0);
+    ngli_darray_init(&s->uniforms, sizeof(struct ngpu_pgcraft_uniform), 0);
     for (size_t i = 0; i < NGLI_ARRAY_NB(uniforms); i++)
         if (!ngli_darray_push(&s->uniforms, &uniforms[i]))
             return NGL_ERROR_MEMORY;
 
     struct ngpu_texture *texture = ngli_distmap_get_texture(s->distmap);
-    const struct pgcraft_texture textures[] = {
+    const struct ngpu_pgcraft_texture textures[] = {
         {
             .name = "tex",
-            .type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
             .stage = NGPU_PROGRAM_SHADER_FRAG,
             .texture = texture,
         },
     };
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {
             .name = "uv",
             .type = NGPU_TYPE_VEC2,
         },
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/path",
         .vert_base        = path_vert,
         .frag_base        = path_frag,
@@ -291,20 +291,20 @@ static int drawpath_init(struct ngl_node *node)
     };
 
     struct ngl_ctx *ctx = node->ctx;
-    s->crafter = ngli_pgcraft_create(ctx->gpu_ctx);
+    s->crafter = ngpu_pgcraft_create(ctx->gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_pgcraft_craft(s->crafter, &crafter_params);
+    ret = ngpu_pgcraft_craft(s->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
-    s->modelview_matrix_index  = ngli_pgcraft_get_uniform_index(s->crafter, "modelview_matrix", NGPU_PROGRAM_SHADER_VERT);
-    s->projection_matrix_index = ngli_pgcraft_get_uniform_index(s->crafter, "projection_matrix", NGPU_PROGRAM_SHADER_VERT);
-    s->transform_index         = ngli_pgcraft_get_uniform_index(s->crafter, "transform", NGPU_PROGRAM_SHADER_VERT);
+    s->modelview_matrix_index  = ngpu_pgcraft_get_uniform_index(s->crafter, "modelview_matrix", NGPU_PROGRAM_SHADER_VERT);
+    s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "projection_matrix", NGPU_PROGRAM_SHADER_VERT);
+    s->transform_index         = ngpu_pgcraft_get_uniform_index(s->crafter, "transform", NGPU_PROGRAM_SHADER_VERT);
 
-    s->coords_fill_index    = ngli_pgcraft_get_uniform_index(s->crafter, "coords_fill", NGPU_PROGRAM_SHADER_FRAG);
-    s->coords_outline_index = ngli_pgcraft_get_uniform_index(s->crafter, "coords_outline", NGPU_PROGRAM_SHADER_FRAG);
+    s->coords_fill_index    = ngpu_pgcraft_get_uniform_index(s->crafter, "coords_fill", NGPU_PROGRAM_SHADER_FRAG);
+    s->coords_outline_index = ngpu_pgcraft_get_uniform_index(s->crafter, "coords_outline", NGPU_PROGRAM_SHADER_FRAG);
 
     ret = build_uniforms_map(s);
     if (ret < 0)
@@ -342,13 +342,13 @@ static int drawpath_prepare(struct ngl_node *node)
             .topology     = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state        = state,
             .rt_layout    = rnode->rendertarget_layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->crafter),
+        .program          = ngpu_pgcraft_get_program(s->crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->crafter),
     };
 
     ret = ngli_pipeline_compat_init(desc->pipeline_compat, &params);
@@ -416,7 +416,7 @@ static void drawpath_uninit(struct ngl_node *node)
     }
     ngli_darray_reset(&s->uniforms);
     ngli_darray_reset(&s->uniforms_map);
-    ngli_pgcraft_freep(&s->crafter);
+    ngpu_pgcraft_freep(&s->crafter);
     ngli_distmap_freep(&s->distmap);
     ngli_path_freep(&s->path);
     ngli_darray_reset(&s->pipeline_descs);

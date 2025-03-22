@@ -55,7 +55,7 @@ struct pipeline_compat {
     size_t nb_dynamic_offsets;
     int updated;
     int need_pipeline_recreation;
-    const struct pgcraft_compat_info *compat_info;
+    const struct ngpu_pgcraft_compat_info *compat_info;
     struct ngpu_buffer *ubuffers[NGPU_PROGRAM_SHADER_NB];
     uint8_t *mapped_datas[NGPU_PROGRAM_SHADER_NB];
 };
@@ -347,10 +347,10 @@ void ngli_pipeline_compat_apply_reframing_matrix(struct pipeline_compat *s, int3
         return;
 
     ngli_assert(index >= 0 && index < s->compat_info->nb_texture_infos);
-    const struct pgcraft_texture_info *info = &s->compat_info->texture_infos[index];
-    const struct pgcraft_texture_info_field *fields = info->fields;
+    const struct ngpu_pgcraft_texture_info *info = &s->compat_info->texture_infos[index];
+    const struct ngpu_pgcraft_texture_info_field *fields = info->fields;
 
-    if (fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index == -1)
+    if (fields[NGPU_INFO_FIELD_COORDINATE_MATRIX].index == -1)
         return;
 
     /* Scale up from normalized [0,1] UV to centered [-1,1], swapping y-axis */
@@ -377,7 +377,7 @@ void ngli_pipeline_compat_apply_reframing_matrix(struct pipeline_compat *s, int3
     ngli_mat4_mul(matrix, inverse_reframing, matrix);
     ngli_mat4_mul(matrix, remap_centered_to_uv, matrix);
 
-    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, matrix);
+    ngli_pipeline_compat_update_uniform(s, fields[NGPU_INFO_FIELD_COORDINATE_MATRIX].index, matrix);
 }
 
 void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index, const struct image *image)
@@ -386,63 +386,63 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
         return;
 
     ngli_assert(index >= 0 && index < s->compat_info->nb_texture_infos);
-    const struct pgcraft_texture_info *info = &s->compat_info->texture_infos[index];
-    const struct pgcraft_texture_info_field *fields = info->fields;
+    const struct ngpu_pgcraft_texture_info *info = &s->compat_info->texture_infos[index];
+    const struct ngpu_pgcraft_texture_info_field *fields = info->fields;
 
-    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
-    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
-    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_TIMESTAMP].index, &image->ts);
+    ngli_pipeline_compat_update_uniform(s, fields[NGPU_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
+    ngli_pipeline_compat_update_uniform(s, fields[NGPU_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
+    ngli_pipeline_compat_update_uniform(s, fields[NGPU_INFO_FIELD_TIMESTAMP].index, &image->ts);
 
     if (image->params.layout) {
         const float dimensions[] = {(float)image->params.width, (float)image->params.height, (float)image->params.depth};
-        ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
+        ngli_pipeline_compat_update_uniform(s, fields[NGPU_INFO_FIELD_DIMENSIONS].index, dimensions);
     }
 
-    struct ngpu_texture_binding bindings[NGLI_INFO_FIELD_NB] = {0};
+    struct ngpu_texture_binding bindings[NGPU_INFO_FIELD_NB] = {0};
     switch (image->params.layout) {
     case NGLI_IMAGE_LAYOUT_DEFAULT:
-        bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
-        bindings[NGLI_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
         break;
     case NGLI_IMAGE_LAYOUT_NV12:
-        bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
-        bindings[NGLI_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
-        bindings[NGLI_INFO_FIELD_SAMPLER_1].texture = image->planes[1];
-        bindings[NGLI_INFO_FIELD_SAMPLER_1].immutable_sampler = image->samplers[1];
+        bindings[NGPU_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_1].texture = image->planes[1];
+        bindings[NGPU_INFO_FIELD_SAMPLER_1].immutable_sampler = image->samplers[1];
         break;
     case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
-        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
-        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].immutable_sampler = image->samplers[0];
-        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_1].texture = image->planes[1];
-        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_1].immutable_sampler = image->samplers[1];
+        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_0].immutable_sampler = image->samplers[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_1].texture = image->planes[1];
+        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_1].immutable_sampler = image->samplers[1];
         break;
     case NGLI_IMAGE_LAYOUT_MEDIACODEC:
-        bindings[NGLI_INFO_FIELD_SAMPLER_OES].texture = image->planes[0];
-        bindings[NGLI_INFO_FIELD_SAMPLER_OES].immutable_sampler = image->samplers[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_OES].texture = image->planes[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_OES].immutable_sampler = image->samplers[0];
         break;
     case NGLI_IMAGE_LAYOUT_YUV:
-        bindings[NGLI_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
-        bindings[NGLI_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
-        bindings[NGLI_INFO_FIELD_SAMPLER_1].texture = image->planes[1];
-        bindings[NGLI_INFO_FIELD_SAMPLER_1].immutable_sampler = image->samplers[1];
-        bindings[NGLI_INFO_FIELD_SAMPLER_2].texture = image->planes[2];
-        bindings[NGLI_INFO_FIELD_SAMPLER_2].immutable_sampler = image->samplers[2];
+        bindings[NGPU_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_1].texture = image->planes[1];
+        bindings[NGPU_INFO_FIELD_SAMPLER_1].immutable_sampler = image->samplers[1];
+        bindings[NGPU_INFO_FIELD_SAMPLER_2].texture = image->planes[2];
+        bindings[NGPU_INFO_FIELD_SAMPLER_2].immutable_sampler = image->samplers[2];
         break;
     case NGLI_IMAGE_LAYOUT_RECTANGLE:
-        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
-        bindings[NGLI_INFO_FIELD_SAMPLER_RECT_0].immutable_sampler = image->samplers[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_0].immutable_sampler = image->samplers[0];
         break;
     default:
         break;
     }
 
     static const int samplers[] = {
-        NGLI_INFO_FIELD_SAMPLER_0,
-        NGLI_INFO_FIELD_SAMPLER_1,
-        NGLI_INFO_FIELD_SAMPLER_2,
-        NGLI_INFO_FIELD_SAMPLER_OES,
-        NGLI_INFO_FIELD_SAMPLER_RECT_0,
-        NGLI_INFO_FIELD_SAMPLER_RECT_1,
+        NGPU_INFO_FIELD_SAMPLER_0,
+        NGPU_INFO_FIELD_SAMPLER_1,
+        NGPU_INFO_FIELD_SAMPLER_2,
+        NGPU_INFO_FIELD_SAMPLER_OES,
+        NGPU_INFO_FIELD_SAMPLER_RECT_0,
+        NGPU_INFO_FIELD_SAMPLER_RECT_1,
     };
 
     int ret = 1;
@@ -454,7 +454,7 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
     };
 
     const enum image_layout layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->params.layout;
-    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &layout);
+    ngli_pipeline_compat_update_uniform(s, fields[NGPU_INFO_FIELD_SAMPLING_MODE].index, &layout);
 }
 
 int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int32_t index, const struct ngpu_buffer *buffer, size_t offset, size_t size)
