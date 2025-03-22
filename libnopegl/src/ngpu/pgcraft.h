@@ -43,23 +43,23 @@ struct ngpu_pgcraft_uniform { // also buffers (for arrays)
     size_t count;
 };
 
-enum ngpu_pgcraft_shader_tex_type {
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_NONE,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_2D_ARRAY,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D_ARRAY,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_3D,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_CUBE,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE,
-    NGPU_PGCRAFT_SHADER_TEX_TYPE_NB
+enum ngpu_pgcraft_texture_type {
+    NGPU_PGCRAFT_TEXTURE_TYPE_NONE,
+    NGPU_PGCRAFT_TEXTURE_TYPE_VIDEO,
+    NGPU_PGCRAFT_TEXTURE_TYPE_2D,
+    NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_2D,
+    NGPU_PGCRAFT_TEXTURE_TYPE_2D_ARRAY,
+    NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_2D_ARRAY,
+    NGPU_PGCRAFT_TEXTURE_TYPE_3D,
+    NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_3D,
+    NGPU_PGCRAFT_TEXTURE_TYPE_CUBE,
+    NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_CUBE,
+    NGPU_PGCRAFT_TEXTURE_TYPE_NB
 };
 
 struct ngpu_pgcraft_texture {
     char name[MAX_ID_LEN];
-    enum ngpu_pgcraft_shader_tex_type type;
+    enum ngpu_pgcraft_texture_type type;
     int stage;
     enum ngpu_precision precision;
     int writable;

@@ -62,38 +62,38 @@ struct texture_priv {
 
 NGLI_STATIC_ASSERT(texture_info_is_first, offsetof(struct texture_priv, texture_info) == 0);
 
-enum ngpu_pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node)
+enum ngpu_pgcraft_texture_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node)
 {
     switch (node->cls->id) {
     case NGL_NODE_TEXTURE2D: {
         const struct texture_opts *o = node->opts;
         if (o->data_src && o->data_src->cls->id == NGL_NODE_MEDIA)
-            return NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
+            return NGPU_PGCRAFT_TEXTURE_TYPE_VIDEO;
         else
-            return NGPU_PGCRAFT_SHADER_TEX_TYPE_2D;
+            return NGPU_PGCRAFT_TEXTURE_TYPE_2D;
     }
     case NGL_NODE_TEXTURE2DARRAY:
-        return NGPU_PGCRAFT_SHADER_TEX_TYPE_2D_ARRAY;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_2D_ARRAY;
     case NGL_NODE_TEXTURE3D:
-        return NGPU_PGCRAFT_SHADER_TEX_TYPE_3D;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_3D;
     case NGL_NODE_TEXTURECUBE:
-        return NGPU_PGCRAFT_SHADER_TEX_TYPE_CUBE;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_CUBE;
     default:
         ngli_assert(0);
     }
 }
 
-enum ngpu_pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node)
+enum ngpu_pgcraft_texture_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node)
 {
     switch (node->cls->id) {
     case NGL_NODE_TEXTURE2D:
-        return NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_2D;
     case NGL_NODE_TEXTURE2DARRAY:
-        return NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D_ARRAY;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_2D_ARRAY;
     case NGL_NODE_TEXTURE3D:
-        return NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_3D;
     case NGL_NODE_TEXTURECUBE:
-        return NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_CUBE;
     default:
         ngli_assert(0);
     }
