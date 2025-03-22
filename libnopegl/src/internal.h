@@ -44,7 +44,6 @@
 #include "ngpu/rendertarget.h"
 #include "nopegl.h"
 #include "params.h"
-#include "pgcache.h"
 #include "rnode.h"
 #include "utils/darray.h"
 #include "utils/hmap.h"
@@ -111,7 +110,6 @@ struct ngl_ctx {
     FT_Library ft_library;
 #endif
 
-    struct pgcache pgcache;
 #if defined(HAVE_VAAPI)
     struct vaapi_ctx vaapi_ctx;
 #endif

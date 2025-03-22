@@ -1,4 +1,5 @@
 /*
+ * Copyright 2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -38,9 +39,9 @@ static void reset_cached_frag_map(void *user_arg, void *data)
     ngli_hmap_freep(&p);
 }
 
-int ngli_pgcache_init(struct pgcache *s, struct ngpu_ctx *gpu_ctx)
+int ngpu_pgcache_init(struct ngpu_pgcache *s, struct ngpu_ctx *ctx)
 {
-    s->gpu_ctx = gpu_ctx;
+    s->gpu_ctx = ctx;
     s->graphics_cache = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     s->compute_cache = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!s->graphics_cache || !s->compute_cache)
@@ -50,7 +51,7 @@ int ngli_pgcache_init(struct pgcache *s, struct ngpu_ctx *gpu_ctx)
     return 0;
 }
 
-static int query_cache(struct pgcache *s, struct ngpu_program **dstp,
+static int query_cache(struct ngpu_pgcache *s, struct ngpu_program **dstp,
                        struct hmap *cache, const char *cache_key,
                        const struct ngpu_program_params *params)
 {
@@ -86,7 +87,7 @@ static int query_cache(struct pgcache *s, struct ngpu_program **dstp,
     return 0;
 }
 
-int ngli_pgcache_get_graphics_program(struct pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params)
+int ngpu_pgcache_get_graphics_program(struct ngpu_pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params)
 {
     /*
      * The first dimension of the graphics_cache hmap is another hmap: what we
@@ -110,12 +111,12 @@ int ngli_pgcache_get_graphics_program(struct pgcache *s, struct ngpu_program **d
     return query_cache(s, dstp, frag_map, params->fragment, params);
 }
 
-int ngli_pgcache_get_compute_program(struct pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params)
+int ngpu_pgcache_get_compute_program(struct ngpu_pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params)
 {
     return query_cache(s, dstp, s->compute_cache, params->compute, params);
 }
 
-void ngli_pgcache_reset(struct pgcache *s)
+void ngpu_pgcache_reset(struct ngpu_pgcache *s)
 {
     if (!s->gpu_ctx)
         return;
