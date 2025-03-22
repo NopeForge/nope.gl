@@ -168,11 +168,11 @@ int ngpu_cmd_buffer_gl_submit(struct ngpu_cmd_buffer_gl *s)
             break;
         }
         case NGPU_CMD_TYPE_GL_SET_VIEWPORT: {
-            ngli_glstate_update_viewport(gl, &gpu_ctx_gl->glstate, &cmd->set_viewport.viewport);
+            ngpu_glstate_update_viewport(gl, &gpu_ctx_gl->glstate, &cmd->set_viewport.viewport);
             break;
         }
         case NGPU_CMD_TYPE_GL_SET_SCISSOR: {
-            ngli_glstate_update_scissor(gl, &gpu_ctx_gl->glstate, &cmd->set_scissor.scissor);
+            ngpu_glstate_update_scissor(gl, &gpu_ctx_gl->glstate, &cmd->set_scissor.scissor);
             break;
         }
         case NGPU_CMD_TYPE_GL_BEGIN_RENDER_PASS: {
