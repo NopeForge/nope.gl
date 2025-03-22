@@ -27,7 +27,6 @@
 
 #include "config.h"
 #include "hwmap.h"
-#include "internal.h"
 #include "log.h"
 #include "ngpu/ctx.h"
 #include "ngpu/format.h"
@@ -65,7 +64,7 @@ struct pgcraft_pipeline_info {
 };
 
 struct pgcraft {
-    struct ngl_ctx *ctx;
+    struct ngpu_ctx *gpu_ctx;
 
     struct darray texture_infos; // pgcraft_texture_info
     struct darray images; // image pointer
@@ -386,8 +385,8 @@ static const enum ngpu_type texture_types_map[NGLI_PGCRAFT_SHADER_TEX_TYPE_NB][N
 
 static int is_type_supported(struct pgcraft *s, enum ngpu_type type)
 {
-    const struct ngl_ctx *ctx = s->ctx;
-    const struct ngl_config *config = &ctx->config;
+    const struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    const struct ngl_config *config = &gpu_ctx->config;
 
     switch(type) {
     case NGPU_TYPE_SAMPLER_2D_RECT:
@@ -744,8 +743,7 @@ static int params_have_images(struct pgcraft *s, const struct pgcraft_params *pa
 
 static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcraft_params *params, int stage)
 {
-    struct ngl_ctx *ctx = s->ctx;
-    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
     const struct ngl_config *config = &gpu_ctx->config;
 
     ngli_bstr_printf(b, "#version %d%s\n", s->glsl_version, s->glsl_version_suffix);
@@ -861,8 +859,8 @@ struct token {
 static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
                         const struct token *token, const char *p, struct bstr *dst)
 {
-    struct ngl_ctx *ctx = s->ctx;
-    const struct ngl_config *config = &ctx->config;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    const struct ngl_config *config = &gpu_ctx->config;
 
     /* Skip "ngl_XXX(" and the whitespaces */
     p += strlen(token->id);
@@ -1248,9 +1246,8 @@ static int probe_pipeline_elems(struct pgcraft *s)
 
 static void setup_glsl_info_gl(struct pgcraft *s)
 {
-    struct ngl_ctx *ctx = s->ctx;
-    const struct ngl_config *config = &ctx->config;
-    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    const struct ngl_config *config = &gpu_ctx->config;
     const struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     const struct glcontext *gl = gpu_ctx_gl->glcontext;
 
@@ -1282,8 +1279,7 @@ static void setup_glsl_info_gl(struct pgcraft *s)
 #if defined(BACKEND_VK)
 static void setup_glsl_info_vk(struct pgcraft *s)
 {
-    struct ngl_ctx *ctx = s->ctx;
-    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
     s->glsl_version = gpu_ctx->language_version;
 
@@ -1302,8 +1298,8 @@ static void setup_glsl_info_vk(struct pgcraft *s)
 
 static void setup_glsl_info(struct pgcraft *s)
 {
-    struct ngl_ctx *ctx = s->ctx;
-    ngli_unused const struct ngl_config *config = &ctx->config;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    ngli_unused const struct ngl_config *config = &gpu_ctx->config;
 
     s->glsl_version_suffix = "";
 
@@ -1324,13 +1320,13 @@ static void setup_glsl_info(struct pgcraft *s)
     ngli_assert(0);
 }
 
-struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
+struct pgcraft *ngli_pgcraft_create(struct ngpu_ctx *gpu_ctx)
 {
     struct pgcraft *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
 
-    s->ctx = ctx;
+    s->gpu_ctx = gpu_ctx;
 
     setup_glsl_info(s);
 
@@ -1339,7 +1335,7 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
 
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     for (size_t i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
-        ngpu_block_desc_init(ctx->gpu_ctx, &compat_info->ublocks[i], NGPU_BLOCK_LAYOUT_STD140);
+        ngpu_block_desc_init(gpu_ctx, &compat_info->ublocks[i], NGPU_BLOCK_LAYOUT_STD140);
         compat_info->ubindings[i] = -1;
         compat_info->uindices[i] = -1;
     }
@@ -1380,7 +1376,7 @@ static int get_program_compute(struct pgcraft *s, const struct pgcraft_params *p
         .label   = params->program_label,
         .compute = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_SHADER_COMP]),
     };
-    ret = ngpu_pgcache_get_compute_program(&s->ctx->gpu_ctx->program_cache, &s->program, &program_params);
+    ret = ngpu_pgcache_get_compute_program(&s->gpu_ctx->program_cache, &s->program, &program_params);
     ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_SHADER_COMP]);
     return ret;
 }
@@ -1408,7 +1404,7 @@ static int get_program_graphics(struct pgcraft *s, const struct pgcraft_params *
         .vertex   = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_SHADER_VERT]),
         .fragment = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_SHADER_FRAG]),
     };
-    ret = ngpu_pgcache_get_graphics_program(&s->ctx->gpu_ctx->program_cache, &s->program, &program_params);
+    ret = ngpu_pgcache_get_graphics_program(&s->gpu_ctx->program_cache, &s->program, &program_params);
     ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_SHADER_VERT]);
     ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_SHADER_FRAG]);
     return ret;
@@ -1430,8 +1426,8 @@ int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params)
     s->compat_info.nb_texture_infos = ngli_darray_count(&s->texture_infos);
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
-    struct ngl_ctx *ctx = s->ctx;
-    struct ngl_config *config = &ctx->config;
+    struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct ngl_config *config = &gpu_ctx->config;
     if (config->backend == NGL_BACKEND_OPENGL ||
         config->backend == NGL_BACKEND_OPENGLES) {
         if (!s->has_explicit_bindings) {
