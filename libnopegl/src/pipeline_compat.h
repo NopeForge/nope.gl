@@ -25,7 +25,7 @@
 
 #include "ngpu/bindgroup.h"
 #include "ngpu/pipeline.h"
-#include "pgcraft.h"
+#include "ngpu/pgcraft.h"
 
 struct pipeline_compat_params {
     enum ngpu_pipeline_type type;
@@ -34,7 +34,7 @@ struct pipeline_compat_params {
     struct ngpu_bindgroup_layout_desc layout_desc;
     struct ngpu_bindgroup_resources resources;
     struct ngpu_vertex_resources vertex_resources;
-    const struct pgcraft_compat_info *compat_info;
+    const struct ngpu_pgcraft_compat_info *compat_info;
 };
 
 struct pipeline_compat;

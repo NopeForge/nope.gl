@@ -36,11 +36,11 @@
 #include "node_buffer.h"
 #include "node_texture.h"
 #include "node_uniform.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
+#include "ngpu/pgcraft.h"
+#include "transforms.h"
 #include "utils/darray.h"
 #include "utils/memory.h"
-#include "transforms.h"
 #include "utils/utils.h"
 
 /* GLSL fragments as string */
@@ -120,15 +120,15 @@ struct draw_common {
     void (*draw)(struct draw_common *s, struct pipeline_compat *pl_compat);
     struct filterschain *filterschain;
     char *combined_fragment;
-    struct pgcraft_attribute position_attr;
-    struct pgcraft_attribute uvcoord_attr;
+    struct ngpu_pgcraft_attribute position_attr;
+    struct ngpu_pgcraft_attribute uvcoord_attr;
     uint32_t nb_vertices;
     enum ngpu_primitive_topology topology;
     struct geometry *geometry;
     int own_geometry;
     struct darray pipeline_descs;
     struct darray uniforms; // struct pgcraft_uniform
-    struct pgcraft *crafter;
+    struct ngpu_pgcraft *crafter;
     int32_t modelview_matrix_index;
     int32_t projection_matrix_index;
     int32_t aspect_index;
@@ -630,13 +630,13 @@ static int init(struct ngl_node *node,
 }
 
 static int register_uniforms(struct draw_common *desc,
-                             const struct pgcraft_uniform *uniforms, size_t nb_uniforms,
+                             const struct ngpu_pgcraft_uniform *uniforms, size_t nb_uniforms,
                              struct filterschain *filterschain)
 {
-    ngli_darray_init(&desc->uniforms, sizeof(struct pgcraft_uniform), 0);
+    ngli_darray_init(&desc->uniforms, sizeof(struct ngpu_pgcraft_uniform), 0);
 
     /* register common uniforms */
-    const struct pgcraft_uniform common_uniforms[] = {
+    const struct ngpu_pgcraft_uniform common_uniforms[] = {
         {.name="modelview_matrix",  .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
         {.name="aspect",            .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG},
@@ -652,7 +652,7 @@ static int register_uniforms(struct draw_common *desc,
 
     /* register filters uniforms */
     const struct darray *comb_uniforms_array = ngli_filterschain_get_resources(filterschain);
-    const struct pgcraft_uniform *comb_uniforms = ngli_darray_data(comb_uniforms_array);
+    const struct ngpu_pgcraft_uniform *comb_uniforms = ngli_darray_data(comb_uniforms_array);
     for (size_t i = 0; i < ngli_darray_count(comb_uniforms_array); i++)
         if (!ngli_darray_push(&desc->uniforms, &comb_uniforms[i]))
             return NGL_ERROR_MEMORY;
@@ -664,10 +664,10 @@ static int build_uniforms_map(struct draw_common *draw_common)
 {
     ngli_darray_init(&draw_common->uniforms_map, sizeof(struct uniform_map), 0);
 
-    const struct pgcraft_uniform *uniforms = ngli_darray_data(&draw_common->uniforms);
+    const struct ngpu_pgcraft_uniform *uniforms = ngli_darray_data(&draw_common->uniforms);
     for (size_t i = 0; i < ngli_darray_count(&draw_common->uniforms); i++) {
-        const struct pgcraft_uniform *uniform = &uniforms[i];
-        const int32_t index = ngli_pgcraft_get_uniform_index(draw_common->crafter, uniform->name, uniform->stage);
+        const struct ngpu_pgcraft_uniform *uniform = &uniforms[i];
+        const int32_t index = ngpu_pgcraft_get_uniform_index(draw_common->crafter, uniform->name, uniform->stage);
 
         /* The following can happen if the driver makes optimisation (MESA is
          * typically able to optimize several passes of the same filter) */
@@ -687,22 +687,24 @@ static int build_uniforms_map(struct draw_common *draw_common)
     return 0;
 }
 
-static int finalize_init(struct ngl_node *node, struct draw_common *draw_common, const struct pgcraft_params *crafter_params)
+static int finalize_init(struct ngl_node *node, struct draw_common *draw_common, const struct ngpu_pgcraft_params *crafter_params)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
-    draw_common->crafter = ngli_pgcraft_create(gpu_ctx);
+    draw_common->crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!draw_common->crafter)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_pgcraft_craft(draw_common->crafter, crafter_params);
+    int ret = ngpu_pgcraft_craft(draw_common->crafter, crafter_params);
     if (ret < 0)
         return ret;
 
-    draw_common->modelview_matrix_index = ngli_pgcraft_get_uniform_index(draw_common->crafter, "modelview_matrix", NGPU_PROGRAM_SHADER_VERT);
-    draw_common->projection_matrix_index = ngli_pgcraft_get_uniform_index(draw_common->crafter, "projection_matrix", NGPU_PROGRAM_SHADER_VERT);
-    draw_common->aspect_index = ngli_pgcraft_get_uniform_index(draw_common->crafter, "aspect", NGPU_PROGRAM_SHADER_FRAG);
+    draw_common->modelview_matrix_index = ngpu_pgcraft_get_uniform_index(
+        draw_common->crafter, "modelview_matrix", NGPU_PROGRAM_SHADER_VERT);
+    draw_common->projection_matrix_index = ngpu_pgcraft_get_uniform_index(
+        draw_common->crafter, "projection_matrix", NGPU_PROGRAM_SHADER_VERT);
+    draw_common->aspect_index = ngpu_pgcraft_get_uniform_index(draw_common->crafter, "aspect", NGPU_PROGRAM_SHADER_FRAG);
 
     ret = build_uniforms_map(draw_common);
     if (ret < 0)
@@ -720,7 +722,7 @@ static int drawcolor_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_uniform uniforms[] = {
+    const struct ngpu_pgcraft_uniform uniforms[] = {
         {.name="color",             .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
         {.name="opacity",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
     };
@@ -729,16 +731,16 @@ static int drawcolor_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         s->common.position_attr,
         s->common.uvcoord_attr,
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/drawcolor",
         .vert_base        = source_color_vert,
         .frag_base        = s->common.combined_fragment,
@@ -780,7 +782,7 @@ static int drawdisplace_init(struct ngl_node *node)
 
     struct texture_info *source_info = o->source_node->priv_data;
     struct texture_info *displacement_info = o->displacement_node->priv_data;
-    const struct pgcraft_texture textures[] = {
+    const struct ngpu_pgcraft_texture textures[] = {
         {
             .name        = "source",
             .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->source_node),
@@ -798,18 +800,18 @@ static int drawdisplace_init(struct ngl_node *node)
         },
     };
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv",                 .type = NGPU_TYPE_VEC2},
         {.name = "source_coord",       .type = NGPU_TYPE_VEC2},
         {.name = "displacement_coord", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         s->common.position_attr,
         s->common.uvcoord_attr,
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/drawdisplace",
         .vert_base        = source_displace_vert,
         .frag_base        = s->common.combined_fragment,
@@ -835,7 +837,7 @@ static int drawgradient_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_uniform uniforms[] = {
+    const struct ngpu_pgcraft_uniform uniforms[] = {
         {.name="color0",            .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color0_node, o->color0)},
         {.name="color1",            .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color1_node, o->color1)},
         {.name="opacity0",          .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity0_node, &o->opacity0)},
@@ -850,16 +852,16 @@ static int drawgradient_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         s->common.position_attr,
         s->common.uvcoord_attr,
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/drawgradient",
         .vert_base        = source_gradient_vert,
         .frag_base        = s->common.combined_fragment,
@@ -885,7 +887,7 @@ static int drawgradient4_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_uniform uniforms[] = {
+    const struct ngpu_pgcraft_uniform uniforms[] = {
         {.name="color_tl",          .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tl_node, o->color_tl)},
         {.name="color_tr",          .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tr_node, o->color_tr)},
         {.name="color_br",          .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_br_node, o->color_br)},
@@ -901,16 +903,16 @@ static int drawgradient4_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         s->common.position_attr,
         s->common.uvcoord_attr,
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/drawgradient4",
         .vert_base        = source_gradient4_vert,
         .frag_base        = s->common.combined_fragment,
@@ -934,7 +936,7 @@ static int drawhistogram_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_uniform uniforms[] = {
+    const struct ngpu_pgcraft_uniform uniforms[] = {
         {.name="mode", .type=NGPU_TYPE_I32, .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->mode},
     };
 
@@ -942,24 +944,24 @@ static int drawhistogram_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     const struct block_info *block_info = o->stats->priv_data;
-    const struct pgcraft_block crafter_block = {
+    const struct ngpu_pgcraft_block crafter_block = {
         .name     = "stats",
         .type     = NGPU_TYPE_STORAGE_BUFFER,
         .stage    = NGPU_PROGRAM_SHADER_FRAG,
         .block    = &block_info->block,
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         s->common.position_attr,
         s->common.uvcoord_attr
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/drawhistogram",
         .vert_base        = source_histogram_vert,
         .frag_base        = s->common.combined_fragment,
@@ -999,7 +1001,7 @@ static int drawmask_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_uniform uniforms[] = {
+    const struct ngpu_pgcraft_uniform uniforms[] = {
         {.name="inverted", .type=NGPU_TYPE_BOOL, .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->inverted},
     };
 
@@ -1009,7 +1011,7 @@ static int drawmask_init(struct ngl_node *node)
 
     struct texture_info *content_info = o->content->priv_data;
     struct texture_info *mask_info = o->mask->priv_data;
-    struct pgcraft_texture textures[] = {
+    struct ngpu_pgcraft_texture textures[] = {
         {
             .name        = "content",
             .type        = ngli_node_texture_get_pgcraft_shader_tex_type(o->content),
@@ -1027,17 +1029,17 @@ static int drawmask_init(struct ngl_node *node)
         },
     };
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv",            .type = NGPU_TYPE_VEC2},
         {.name = "content_coord", .type = NGPU_TYPE_VEC2},
         {.name = "mask_coord",    .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         s->common.position_attr,
         s->common.uvcoord_attr
     };
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/drawmask",
         .vert_base        = source_mask_vert,
         .frag_base        = s->common.combined_fragment,
@@ -1068,7 +1070,7 @@ static int drawnoise_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_uniform uniforms[] = {
+    const struct ngpu_pgcraft_uniform uniforms[] = {
         {.name="type",              .type=NGPU_TYPE_I32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->type},
         {.name="amplitude",         .type=NGPU_TYPE_F32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->amplitude_node, &o->amplitude)},
         {.name="octaves",           .type=NGPU_TYPE_U32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->octaves},
@@ -1083,16 +1085,16 @@ static int drawnoise_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         s->common.position_attr,
         s->common.uvcoord_attr
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/drawnoise",
         .vert_base        = source_noise_vert,
         .frag_base        = s->common.combined_fragment,
@@ -1127,7 +1129,7 @@ static int drawtexture_init(struct ngl_node *node)
         return ret;
 
     struct texture_info *texture_info = texture_node->priv_data;
-    struct pgcraft_texture textures[] = {
+    struct ngpu_pgcraft_texture textures[] = {
         {
             .name        = "tex",
             .type        = ngli_node_texture_get_pgcraft_shader_tex_type(texture_node),
@@ -1138,16 +1140,16 @@ static int drawtexture_init(struct ngl_node *node)
         },
     };
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv",        .type = NGPU_TYPE_VEC2},
         {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         s->common.position_attr,
         s->common.uvcoord_attr
     };
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/drawtexture",
         .vert_base        = source_texture_vert,
         .frag_base        = s->common.combined_fragment,
@@ -1173,7 +1175,7 @@ static int drawwaveform_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_uniform uniforms[] = {
+    const struct ngpu_pgcraft_uniform uniforms[] = {
         {.name="mode", .type=NGPU_TYPE_I32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->mode},
     };
 
@@ -1181,24 +1183,24 @@ static int drawwaveform_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     const struct block_info *block_info = o->stats->priv_data;
-    const struct pgcraft_block crafter_block = {
+    const struct ngpu_pgcraft_block crafter_block = {
         .name     = "stats",
         .type     = NGPU_TYPE_STORAGE_BUFFER,
         .stage    = NGPU_PROGRAM_SHADER_FRAG,
         .block    = &block_info->block,
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         s->common.position_attr,
         s->common.uvcoord_attr
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/drawwaveform",
         .vert_base        = source_waveform_vert,
         .frag_base        = s->common.combined_fragment,
@@ -1241,7 +1243,7 @@ static struct pipeline_desc *create_pipeline_desc(struct ngl_node *node)
 
 static int build_texture_map(struct draw_common *draw_common, struct pipeline_desc *desc)
 {
-    const struct pgcraft_compat_info *info = ngli_pgcraft_get_compat_info(draw_common->crafter);
+    const struct ngpu_pgcraft_compat_info *info = ngpu_pgcraft_get_compat_info(draw_common->crafter);
     for (size_t i = 0; i < info->nb_texture_infos; i++) {
         const struct texture_map map = {.image = info->images[i], .image_rev = SIZE_MAX};
         if (!ngli_darray_push(&desc->textures_map, &map))
@@ -1273,13 +1275,13 @@ static int init_pipeline_desc(struct ngl_node *node, struct pipeline_desc *desc,
             .topology     = s->topology,
             .state        = state,
             .rt_layout    = rnode->rendertarget_layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->crafter),
+        .program          = ngpu_pgcraft_get_program(s->crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->crafter),
     };
 
     ret = ngli_node_prepare_children(node);
@@ -1363,7 +1365,7 @@ static int drawhistogram_prepare(struct ngl_node *node)
         return ret;
 
     const struct block_info *block_info = o->stats->priv_data;
-    const int32_t index = ngli_pgcraft_get_block_index(s->common.crafter, "stats", NGPU_PROGRAM_SHADER_FRAG);
+    const int32_t index = ngpu_pgcraft_get_block_index(s->common.crafter, "stats", NGPU_PROGRAM_SHADER_FRAG);
     const struct resource_map map = {.index = index, .info = block_info, .buffer_rev = SIZE_MAX};
     if (!ngli_darray_push(&desc->blocks_map, &map))
         return NGL_ERROR_MEMORY;
@@ -1434,7 +1436,7 @@ static int drawwaveform_prepare(struct ngl_node *node)
         return ret;
 
     const struct block_info *block_info = o->stats->priv_data;
-    const int32_t index = ngli_pgcraft_get_block_index(s->common.crafter, "stats", NGPU_PROGRAM_SHADER_FRAG);
+    const int32_t index = ngpu_pgcraft_get_block_index(s->common.crafter, "stats", NGPU_PROGRAM_SHADER_FRAG);
     const struct resource_map map = {.index = index, .info = block_info, .buffer_rev = SIZE_MAX};
     if (!ngli_darray_push(&desc->blocks_map, &map))
         return NGL_ERROR_MEMORY;
@@ -1504,7 +1506,7 @@ static void drawother_draw(struct ngl_node *node, struct draw_common *s, const s
 static void drawother_uninit(struct ngl_node *node, struct draw_common *s)
 {
     ngli_darray_reset(&s->pipeline_descs);
-    ngli_pgcraft_freep(&s->crafter);
+    ngpu_pgcraft_freep(&s->crafter);
     ngli_darray_reset(&s->uniforms);
     ngli_darray_reset(&s->uniforms_map);
     ngli_freep(&s->combined_fragment);

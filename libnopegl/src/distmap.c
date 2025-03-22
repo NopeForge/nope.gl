@@ -39,8 +39,8 @@
 #include "ngpu/type.h"
 #include "nopegl.h"
 #include "path.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
+#include "ngpu/pgcraft.h"
 #include "utils/darray.h"
 #include "utils/memory.h"
 #include "utils/utils.h"
@@ -77,7 +77,7 @@ struct distmap {
 
     struct ngpu_texture *texture;
     struct ngpu_rendertarget *rt;
-    struct pgcraft *crafter;
+    struct ngpu_pgcraft *crafter;
     struct ngpu_block_desc vert_block;
     struct ngpu_block_desc frag_block;
     struct ngpu_buffer *vert_buffer;
@@ -440,7 +440,7 @@ static void reset_tmp_data(struct distmap *s)
     ngpu_buffer_freep(&s->vert_buffer);
     ngpu_block_desc_reset(&s->frag_block);
     ngpu_buffer_freep(&s->frag_buffer);
-    ngli_pgcraft_freep(&s->crafter);
+    ngpu_pgcraft_freep(&s->crafter);
     ngpu_rendertarget_freep(&s->rt);
 }
 
@@ -621,7 +621,7 @@ int ngli_distmap_finalize(struct distmap *s)
         (ret = ngpu_buffer_init(s->frag_buffer, nb_shapes * s->frag_offset, usage)) < 0)
         return ret;
 
-    const struct pgcraft_block crafter_blocks[] = {
+    const struct ngpu_pgcraft_block crafter_blocks[] = {
         {
             .name          = "vert",
             .instance_name = "",
@@ -637,11 +637,11 @@ int ngli_distmap_finalize(struct distmap *s)
         },
     };
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .vert_base        = distmap_vert,
         .frag_base        = distmap_frag,
         .blocks           = crafter_blocks,
@@ -650,11 +650,11 @@ int ngli_distmap_finalize(struct distmap *s)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    s->crafter = ngli_pgcraft_create(gpu_ctx);
+    s->crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_pgcraft_craft(s->crafter, &crafter_params);
+    ret = ngpu_pgcraft_craft(s->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -668,13 +668,13 @@ int ngli_distmap_finalize(struct distmap *s)
             .topology     = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
             .state        = NGPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = s->rt->layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->crafter),
+        .program          = ngpu_pgcraft_get_program(s->crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->pipeline_compat, &params);
