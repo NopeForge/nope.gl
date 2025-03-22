@@ -423,8 +423,8 @@ static VkResult texture_vk_init(struct ngpu_texture *s, const struct ngpu_textur
     if (res != VK_SUCCESS)
         return res;
 
-    struct cmd_buffer_vk *cmd_buffer_vk;
-    res = ngli_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
+    struct ngpu_cmd_buffer_vk *cmd_buffer_vk;
+    res = ngpu_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
     if (res != VK_SUCCESS)
         return res;
 
@@ -442,7 +442,7 @@ static VkResult texture_vk_init(struct ngpu_texture *s, const struct ngpu_textur
                             s_priv->default_image_layout,
                             &subres_range);
 
-    res = ngli_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
+    res = ngpu_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
     if (res != VK_SUCCESS)
         return res;
 
@@ -507,8 +507,8 @@ void ngpu_texture_vk_transition_layout(struct ngpu_texture *s, VkImageLayout lay
     if (s_priv->image_layout == layout)
         return;
 
-    struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
-    NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
+    struct ngpu_cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
+    NGPU_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
 
     VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
     const VkImageSubresourceRange subres_range = {
@@ -633,16 +633,16 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
 
     memcpy(s_priv->staging_buffer_ptr, data, s_priv->staging_buffer->size);
 
-    struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
+    struct ngpu_cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
     const int cmd_is_transient = cmd_buffer_vk ? 0 : 1;
     if (cmd_is_transient) {
-        VkResult res = ngli_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
+        VkResult res = ngpu_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
         if (res != VK_SUCCESS)
             return res;
     }
     VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
-    NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
-    ngli_cmd_buffer_vk_ref_buffer(cmd_buffer_vk, s_priv->staging_buffer);
+    NGPU_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
+    ngpu_cmd_buffer_vk_ref_buffer(cmd_buffer_vk, s_priv->staging_buffer);
 
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
@@ -687,7 +687,7 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
         if (!ngli_darray_push(&copy_regions, &region)) {
             ngli_darray_reset(&copy_regions);
             if (cmd_is_transient) {
-                ngli_cmd_buffer_vk_freep(&cmd_buffer_vk);
+                ngpu_cmd_buffer_vk_freep(&cmd_buffer_vk);
             }
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
@@ -710,7 +710,7 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
                             &subres_range);
 
     if (cmd_is_transient) {
-        VkResult res = ngli_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
+        VkResult res = ngpu_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
         if (res != VK_SUCCESS)
             return res;
     }
@@ -753,15 +753,15 @@ static VkResult texture_vk_generate_mipmap(struct ngpu_texture *s)
     ngli_assert(params->usage & NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT);
     ngli_assert(params->usage & NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT);
 
-    struct cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
+    struct ngpu_cmd_buffer_vk *cmd_buffer_vk = gpu_ctx_vk->cur_cmd_buffer;
     const int cmd_is_transient = cmd_buffer_vk ? 0 : 1;
     if (cmd_is_transient) {
-        VkResult res = ngli_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
+        VkResult res = ngpu_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
         if (res != VK_SUCCESS)
             return res;
     }
     VkCommandBuffer cmd_buf = cmd_buffer_vk->cmd_buf;
-    NGLI_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
+    NGPU_CMD_BUFFER_VK_REF(cmd_buffer_vk, s);
 
     const VkImageSubresourceRange subres_range = {
         .aspectMask     = get_vk_image_aspect_flags(s_priv->format),
@@ -867,7 +867,7 @@ static VkResult texture_vk_generate_mipmap(struct ngpu_texture *s)
                          1, &barrier);
 
     if (cmd_is_transient) {
-        VkResult res = ngli_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
+        VkResult res = ngpu_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
         if (res != VK_SUCCESS)
             return res;
     }
