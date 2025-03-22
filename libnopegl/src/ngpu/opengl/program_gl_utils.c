@@ -25,13 +25,13 @@
 #include "ctx_gl.h"
 #include "log.h"
 #include "ngpu/type.h"
-#include "pgcraft.h"
+#include "ngpu/pgcraft.h"
 #include "pipeline_compat.h"
 #include "program_gl.h"
 #include "program_gl_utils.h"
 
 int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
-                                                   const struct pgcraft *crafter)
+                                               const struct ngpu_pgcraft *crafter)
 {
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
@@ -40,12 +40,12 @@ int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
 
     const char *name = NULL;
     int need_relink = 0;
-    const struct ngpu_vertex_state vertex_state = ngli_pgcraft_get_vertex_state(crafter);
+    const struct ngpu_vertex_state vertex_state = ngpu_pgcraft_get_vertex_state(crafter);
     for (size_t i = 0; i < vertex_state.nb_buffers; i++) {
         const struct ngpu_vertex_buffer_layout *layout = &vertex_state.buffers[i];
         for (size_t j = 0; j < layout->nb_attributes; j++) {
             const struct ngpu_vertex_attribute *attribute = &layout->attributes[j];
-            const char *attribute_name = ngli_pgcraft_get_symbol_name(crafter, attribute->id);
+            const char *attribute_name = ngpu_pgcraft_get_symbol_name(crafter, attribute->id);
             if (name && !strcmp(name, attribute_name))
                 continue;
             name = attribute_name;
@@ -60,13 +60,13 @@ int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
     if (need_relink)
         gl->funcs.LinkProgram(s_priv->id);
 
-    const struct ngpu_bindgroup_layout_desc layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter);
+    const struct ngpu_bindgroup_layout_desc layout_desc = ngpu_pgcraft_get_bindgroup_layout_desc(crafter);
     for (size_t i = 0; i < layout_desc.nb_buffers; i++) {
         const struct ngpu_bindgroup_layout_entry *entry = &layout_desc.buffers[i];
         if (entry->type != NGPU_TYPE_UNIFORM_BUFFER &&
             entry->type != NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC)
             continue;
-        const char *buffer_name = ngli_pgcraft_get_symbol_name(crafter, entry->id);
+        const char *buffer_name = ngpu_pgcraft_get_symbol_name(crafter, entry->id);
         char block_name[MAX_ID_LEN];
         int len = snprintf(block_name, sizeof(block_name), "%s_block", buffer_name);
         if (len >= sizeof(block_name)) {
@@ -84,7 +84,7 @@ int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
     ngli_glstate_use_program(gl, glstate, s_priv->id);
     for (size_t i = 0; i < layout_desc.nb_textures; i++) {
         const struct ngpu_bindgroup_layout_entry *entry = &layout_desc.textures[i];
-        const char *texture_name = ngli_pgcraft_get_symbol_name(crafter, entry->id);
+        const char *texture_name = ngpu_pgcraft_get_symbol_name(crafter, entry->id);
         const GLint location = gl->funcs.GetUniformLocation(s_priv->id, texture_name);
         gl->funcs.Uniform1i(location, entry->binding);
         struct ngpu_program_variable_info *info = ngli_hmap_get_str(s->uniforms, texture_name);

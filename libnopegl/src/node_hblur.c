@@ -36,9 +36,9 @@
 #include "node_texture.h"
 #include "node_uniform.h"
 #include "nopegl.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "rtt.h"
+#include "ngpu/pgcraft.h"
 #include "utils/utils.h"
 
 /* GLSL shaders */
@@ -81,7 +81,7 @@ struct hblur_priv {
     struct {
         struct ngpu_rendertarget_layout layout;
         struct rtt_ctx *rtt_ctx;
-        struct pgcraft *crafter;
+        struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pl;
     } pass1;
 
@@ -90,7 +90,7 @@ struct hblur_priv {
     struct {
         struct ngpu_rendertarget_layout layout;
         struct rtt_ctx *rtt_ctx;
-        struct pgcraft *crafter;
+        struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pl;
     } pass2;
 };
@@ -188,24 +188,24 @@ static int setup_pass1_pipeline(struct ngl_node *node)
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct hblur_priv *s = node->priv_data;
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
         {.name = "map_coord", .type = NGPU_TYPE_VEC2},
     };
 
-    static const struct pgcraft_texture textures[] = {
+    static const struct ngpu_pgcraft_texture textures[] = {
         {
             .name      = "tex",
-            .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }, {
             .name      = "map",
-            .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }
     };
 
-    const struct pgcraft_block blocks[] = {
+    const struct ngpu_pgcraft_block blocks[] = {
         {
             .name          = "blur",
             .type          = NGPU_TYPE_UNIFORM_BUFFER,
@@ -218,11 +218,11 @@ static int setup_pass1_pipeline(struct ngl_node *node)
         }
     };
 
-    s->pass1.crafter = ngli_pgcraft_create(gpu_ctx);
+    s->pass1.crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->pass1.crafter)
         return NGL_ERROR_MEMORY;
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/hexagonal-blur-pass1",
         .vert_base        = blur_hexagonal_vert,
         .frag_base        = blur_hexagonal_pass1_frag,
@@ -235,7 +235,7 @@ static int setup_pass1_pipeline(struct ngl_node *node)
         .nb_frag_output   = 2,
     };
 
-    int ret = ngli_pgcraft_craft(s->pass1.crafter, &crafter_params);
+    int ret = ngpu_pgcraft_craft(s->pass1.crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -251,13 +251,13 @@ static int setup_pass1_pipeline(struct ngl_node *node)
             .topology = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
             .state    = NGPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = s->pass1.layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->pass1.crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->pass1.crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->pass1.crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->pass1.crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->pass1.crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->pass1.crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->pass1.crafter),
+        .program          = ngpu_pgcraft_get_program(s->pass1.crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->pass1.crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->pass1.crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->pass1.crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->pass1.crafter),
     };
 
     s->pass1.pl = ngli_pipeline_compat_create(gpu_ctx);
@@ -279,28 +279,28 @@ static int setup_pass2_pipeline(struct ngl_node *node)
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct hblur_priv *s = node->priv_data;
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
         {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
         {.name = "map_coord", .type = NGPU_TYPE_VEC2},
     };
 
-    static const struct pgcraft_texture textures[] = {
+    static const struct ngpu_pgcraft_texture textures[] = {
         {
             .name      = "tex0",
-            .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }, {
             .name      = "tex1",
-            .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }, {
             .name      = "map",
-            .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }
     };
 
-    const struct pgcraft_block crafter_blocks[] = {
+    const struct ngpu_pgcraft_block crafter_blocks[] = {
         {
             .name          = "blur",
             .type          = NGPU_TYPE_UNIFORM_BUFFER,
@@ -313,7 +313,7 @@ static int setup_pass2_pipeline(struct ngl_node *node)
         },
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/hexagonal-blur-pass2",
         .vert_base        = blur_hexagonal_vert,
         .frag_base        = blur_hexagonal_pass2_frag,
@@ -325,11 +325,11 @@ static int setup_pass2_pipeline(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    s->pass2.crafter = ngli_pgcraft_create(gpu_ctx);
+    s->pass2.crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->pass2.crafter)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_pgcraft_craft(s->pass2.crafter, &crafter_params);
+    int ret = ngpu_pgcraft_craft(s->pass2.crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -343,13 +343,13 @@ static int setup_pass2_pipeline(struct ngl_node *node)
             .topology = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
             .state    = NGPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = s->pass2.layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->pass2.crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->pass2.crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->pass2.crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->pass2.crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->pass2.crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->pass2.crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->pass2.crafter),
+        .program          = ngpu_pgcraft_get_program(s->pass2.crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->pass2.crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->pass2.crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->pass2.crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->pass2.crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->pass2.pl, &params);
@@ -644,8 +644,8 @@ static void hblur_uninit(struct ngl_node *node)
     ngpu_texture_freep(&s->dummy_map);
     ngli_pipeline_compat_freep(&s->pass2.pl);
     ngli_pipeline_compat_freep(&s->pass1.pl);
-    ngli_pgcraft_freep(&s->pass1.crafter);
-    ngli_pgcraft_freep(&s->pass2.crafter);
+    ngpu_pgcraft_freep(&s->pass1.crafter);
+    ngpu_pgcraft_freep(&s->pass2.crafter);
 }
 
 const struct node_class ngli_hblur_class = {
