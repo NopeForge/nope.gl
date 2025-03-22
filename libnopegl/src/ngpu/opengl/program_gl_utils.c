@@ -80,8 +80,8 @@ int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
             info->binding = entry->binding;
     }
 
-    struct glstate *glstate = &gpu_ctx_gl->glstate;
-    ngli_glstate_use_program(gl, glstate, s_priv->id);
+    struct ngpu_glstate *glstate = &gpu_ctx_gl->glstate;
+    ngpu_glstate_use_program(gl, glstate, s_priv->id);
     for (size_t i = 0; i < layout_desc.nb_textures; i++) {
         const struct ngpu_bindgroup_layout_entry *entry = &layout_desc.textures[i];
         const char *texture_name = ngpu_pgcraft_get_symbol_name(crafter, entry->id);

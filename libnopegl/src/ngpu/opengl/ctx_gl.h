@@ -43,7 +43,7 @@ typedef void (*capture_func_type)(struct ngpu_ctx *s);
 struct ngpu_ctx_gl {
     struct ngpu_ctx parent;
     struct glcontext *glcontext;
-    struct glstate glstate;
+    struct ngpu_glstate glstate;
     struct ngpu_cmd_buffer_gl **update_cmd_buffers;
     struct ngpu_cmd_buffer_gl **draw_cmd_buffers;
     struct ngpu_cmd_buffer_gl *cur_cmd_buffer;

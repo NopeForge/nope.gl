@@ -296,7 +296,7 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
     const struct ngpu_rendertarget_gl *s_priv = (struct ngpu_rendertarget_gl *)s;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct glstate *glstate = &gpu_ctx_gl->glstate;
+    struct ngpu_glstate *glstate = &gpu_ctx_gl->glstate;
 
     static const GLboolean default_color_write_mask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
     if (memcmp(glstate->color_write_mask, default_color_write_mask, sizeof(default_color_write_mask))) {
@@ -316,7 +316,7 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
         glstate->stencil_back.write_mask = 0xff;
     }
 
-    ngli_glstate_enable_scissor_test(gl, glstate, 0);
+    ngpu_glstate_enable_scissor_test(gl, glstate, 0);
 
     gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, s_priv->id);
 
@@ -326,7 +326,7 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
         .width  = s->width,
         .height = s->height,
     };
-    ngli_glstate_update_viewport(gl, glstate, &viewport);
+    ngpu_glstate_update_viewport(gl, glstate, &viewport);
 
     const struct ngpu_scissor scissor = {
         .x      = 0,
@@ -334,11 +334,11 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
         .width  = s->width,
         .height = s->height,
     };
-    ngli_glstate_update_scissor(gl, glstate, &scissor);
+    ngpu_glstate_update_scissor(gl, glstate, &scissor);
 
     s_priv->clear(s);
 
-    ngli_glstate_enable_scissor_test(gl, glstate, 1);
+    ngpu_glstate_enable_scissor_test(gl, glstate, 1);
 }
 
 void ngpu_rendertarget_gl_end_pass(struct ngpu_rendertarget *s)
@@ -347,17 +347,17 @@ void ngpu_rendertarget_gl_end_pass(struct ngpu_rendertarget *s)
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct glstate *glstate = &gpu_ctx_gl->glstate;
+    struct ngpu_glstate *glstate = &gpu_ctx_gl->glstate;
 
     if (s_priv->resolve_id) {
         gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, s_priv->id);
         gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, s_priv->resolve_id);
 
-        ngli_glstate_enable_scissor_test(gl, glstate, 0);
+        ngpu_glstate_enable_scissor_test(gl, glstate, 0);
 
         s_priv->resolve(s);
 
-        ngli_glstate_enable_scissor_test(gl, glstate, 1);
+        ngpu_glstate_enable_scissor_test(gl, glstate, 1);
 
         gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, s_priv->id);
     }

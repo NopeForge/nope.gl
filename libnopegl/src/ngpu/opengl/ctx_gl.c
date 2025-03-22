@@ -650,8 +650,8 @@ static int gl_init(struct ngpu_ctx *s)
     s_priv->default_rt_layout.depth_stencil.format = NGPU_FORMAT_D24_UNORM_S8_UINT;
     s_priv->default_rt_layout.depth_stencil.resolve = gl->samples > 1;
 
-    ngli_glstate_reset(gl, &s_priv->glstate);
-    ngli_glstate_enable_scissor_test(gl, &s_priv->glstate, 1);
+    ngpu_glstate_reset(gl, &s_priv->glstate);
+    ngpu_glstate_enable_scissor_test(gl, &s_priv->glstate, 1);
 
     ret = create_command_buffers(s);
     if (ret < 0)
@@ -786,7 +786,7 @@ void ngpu_ctx_gl_reset_state(struct ngpu_ctx *s)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
-    ngli_glstate_reset(gl, &s_priv->glstate);
+    ngpu_glstate_reset(gl, &s_priv->glstate);
 }
 
 int ngpu_ctx_gl_wrap_framebuffer(struct ngpu_ctx *s, GLuint fbo)
@@ -918,7 +918,7 @@ static void blit_vflip(struct ngpu_ctx *s, struct ngpu_rendertarget *src, struct
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
-    struct glstate *glstate = &s_priv->glstate;
+    struct ngpu_glstate *glstate = &s_priv->glstate;
 
     struct ngpu_rendertarget_gl *src_gl = (struct ngpu_rendertarget_gl *)src;
     const GLuint src_fbo = src_gl->resolve_id ? src_gl->resolve_id : src_gl->id;
@@ -931,13 +931,13 @@ static void blit_vflip(struct ngpu_ctx *s, struct ngpu_rendertarget *src, struct
     gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
     gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, dst_fbo);
 
-    ngli_glstate_enable_scissor_test(gl, glstate, 0);
+    ngpu_glstate_enable_scissor_test(gl, glstate, 0);
 
     gl->funcs.BlitFramebuffer(0, 0, w, h,
                                0, h, w, 0,
                                GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-    ngli_glstate_enable_scissor_test(gl, glstate, 1);
+    ngpu_glstate_enable_scissor_test(gl, glstate, 1);
 }
 
 static int gl_end_draw(struct ngpu_ctx *s, double t)

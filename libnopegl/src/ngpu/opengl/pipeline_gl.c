@@ -178,10 +178,10 @@ static void set_graphics_state(struct ngpu_pipeline *s)
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct glstate *glstate = &gpu_ctx_gl->glstate;
+    struct ngpu_glstate *glstate = &gpu_ctx_gl->glstate;
     struct ngpu_pipeline_graphics *graphics = &s->graphics;
 
-    ngli_glstate_update(gl, glstate, &graphics->state);
+    ngpu_glstate_update(gl, glstate, &graphics->state);
 }
 
 void ngpu_pipeline_gl_draw(struct ngpu_pipeline *s, uint32_t nb_vertices, uint32_t nb_instances, uint32_t first_vertex)
@@ -189,12 +189,12 @@ void ngpu_pipeline_gl_draw(struct ngpu_pipeline *s, uint32_t nb_vertices, uint32
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct glstate *glstate = &gpu_ctx_gl->glstate;
+    struct ngpu_glstate *glstate = &gpu_ctx_gl->glstate;
     struct ngpu_pipeline_graphics *graphics = &s->graphics;
     struct ngpu_program_gl *program_gl = (struct ngpu_program_gl *)s->program;
 
     set_graphics_state(s);
-    ngli_glstate_use_program(gl, glstate, program_gl->id);
+    ngpu_glstate_use_program(gl, glstate, program_gl->id);
 
     bind_vertex_attribs(s);
 
@@ -214,12 +214,12 @@ void ngpu_pipeline_gl_draw_indexed(struct ngpu_pipeline *s, uint32_t nb_indices,
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct glstate *glstate = &gpu_ctx_gl->glstate;
+    struct ngpu_glstate *glstate = &gpu_ctx_gl->glstate;
     struct ngpu_pipeline_graphics *graphics = &s->graphics;
     struct ngpu_program_gl *program_gl = (struct ngpu_program_gl *)s->program;
 
     set_graphics_state(s);
-    ngli_glstate_use_program(gl, glstate, program_gl->id);
+    ngpu_glstate_use_program(gl, glstate, program_gl->id);
 
     bind_vertex_attribs(s);
 
@@ -243,10 +243,10 @@ void ngpu_pipeline_gl_dispatch(struct ngpu_pipeline *s, uint32_t nb_group_x, uin
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct glstate *glstate = &gpu_ctx_gl->glstate;
+    struct ngpu_glstate *glstate = &gpu_ctx_gl->glstate;
     struct ngpu_program_gl *program_gl = (struct ngpu_program_gl *)s->program;
 
-    ngli_glstate_use_program(gl, glstate, program_gl->id);
+    ngpu_glstate_use_program(gl, glstate, program_gl->id);
 
     const GLbitfield barriers = ngpu_bindgroup_gl_get_memory_barriers(gpu_ctx->bindgroup);
     if (barriers)
