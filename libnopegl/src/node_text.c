@@ -428,7 +428,7 @@ static int init_subdesc(struct ngl_node *node,
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rnode *rnode = ctx->rnode_pos;
 
-    desc->crafter = ngli_pgcraft_create(ctx);
+    desc->crafter = ngli_pgcraft_create(gpu_ctx);
     if (!desc->crafter)
         return NGL_ERROR_MEMORY;
 

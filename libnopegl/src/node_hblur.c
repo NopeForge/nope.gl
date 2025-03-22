@@ -218,7 +218,7 @@ static int setup_pass1_pipeline(struct ngl_node *node)
         }
     };
 
-    s->pass1.crafter = ngli_pgcraft_create(ctx);
+    s->pass1.crafter = ngli_pgcraft_create(gpu_ctx);
     if (!s->pass1.crafter)
         return NGL_ERROR_MEMORY;
 
@@ -325,7 +325,7 @@ static int setup_pass2_pipeline(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    s->pass2.crafter = ngli_pgcraft_create(ctx);
+    s->pass2.crafter = ngli_pgcraft_create(gpu_ctx);
     if (!s->pass2.crafter)
         return NGL_ERROR_MEMORY;
 

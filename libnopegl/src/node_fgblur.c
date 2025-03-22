@@ -324,9 +324,9 @@ static int fgblur_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    s->dws.crafter = ngli_pgcraft_create(ctx);
-    s->ups.crafter = ngli_pgcraft_create(ctx);
-    s->interpolate.crafter = ngli_pgcraft_create(ctx);
+    s->dws.crafter = ngli_pgcraft_create(gpu_ctx);
+    s->ups.crafter = ngli_pgcraft_create(gpu_ctx);
+    s->interpolate.crafter = ngli_pgcraft_create(gpu_ctx);
     if (!s->dws.crafter || !s->ups.crafter || !s->interpolate.crafter)
         return NGL_ERROR_MEMORY;
 

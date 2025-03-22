@@ -117,7 +117,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    hwconv->crafter = ngli_pgcraft_create(ctx);
+    hwconv->crafter = ngli_pgcraft_create(gpu_ctx);
     if (!hwconv->crafter)
         return NGL_ERROR_MEMORY;
 

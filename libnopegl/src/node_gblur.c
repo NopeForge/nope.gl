@@ -315,7 +315,7 @@ static int gblur_init(struct ngl_node *node)
         .vert_out_vars    = vert_out_vars,
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
-    s->crafter = ngli_pgcraft_create(ctx);
+    s->crafter = ngli_pgcraft_create(gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 

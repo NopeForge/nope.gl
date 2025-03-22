@@ -550,7 +550,7 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     if (ret < 0)
         return ret;
 
-    s->crafter = ngli_pgcraft_create(ctx);
+    s->crafter = ngli_pgcraft_create(ctx->gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 
