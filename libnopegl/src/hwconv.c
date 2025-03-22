@@ -30,8 +30,8 @@
 #include "ngpu/ctx.h"
 #include "ngpu/texture.h"
 #include "ngpu/type.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
+#include "ngpu/pgcraft.h"
 #include "utils/utils.h"
 
 /* GLSL fragments as string */
@@ -40,7 +40,7 @@
 #include "hwconv_frag.h"
 #include "hwconv_vert.h"
 
-static const struct pgcraft_iovar vert_out_vars[] = {
+static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
     {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
 };
 
@@ -91,8 +91,8 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    struct pgcraft_texture textures[] = {
-        {.name = "tex", .type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO, .stage = NGPU_PROGRAM_SHADER_FRAG},
+    struct ngpu_pgcraft_texture textures[] = {
+        {.name = "tex", .type = NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO, .stage = NGPU_PROGRAM_SHADER_FRAG},
     };
 
     const char *vert_base = hwconv_vert;
@@ -107,7 +107,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         }
     }
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/hwconv",
         .vert_base        = vert_base,
         .frag_base        = frag_base,
@@ -117,11 +117,11 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    hwconv->crafter = ngli_pgcraft_create(gpu_ctx);
+    hwconv->crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!hwconv->crafter)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_pgcraft_craft(hwconv->crafter, &crafter_params);
+    ret = ngpu_pgcraft_craft(hwconv->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -135,13 +135,13 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
             .topology = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
             .state    = NGPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = rt_layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(hwconv->crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(hwconv->crafter),
         },
-        .program          = ngli_pgcraft_get_program(hwconv->crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(hwconv->crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(hwconv->crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(hwconv->crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(hwconv->crafter),
+        .program          = ngpu_pgcraft_get_program(hwconv->crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(hwconv->crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(hwconv->crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(hwconv->crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(hwconv->crafter),
     };
 
     ret = ngli_pipeline_compat_init(hwconv->pipeline_compat, &params);
@@ -177,7 +177,7 @@ void ngli_hwconv_reset(struct hwconv *hwconv)
         return;
 
     ngli_pipeline_compat_freep(&hwconv->pipeline_compat);
-    ngli_pgcraft_freep(&hwconv->crafter);
+    ngpu_pgcraft_freep(&hwconv->crafter);
     ngpu_rendertarget_freep(&hwconv->rt);
 
     memset(hwconv, 0, sizeof(*hwconv));

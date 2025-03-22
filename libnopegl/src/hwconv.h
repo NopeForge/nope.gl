@@ -26,8 +26,8 @@
 #include "ngpu/buffer.h"
 #include "ngpu/rendertarget.h"
 #include "ngpu/texture.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
+#include "ngpu/pgcraft.h"
 
 struct ngl_ctx;
 
@@ -36,7 +36,7 @@ struct hwconv {
     struct image_params src_params;
 
     struct ngpu_rendertarget *rt;
-    struct pgcraft *crafter;
+    struct ngpu_pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
 };
 
