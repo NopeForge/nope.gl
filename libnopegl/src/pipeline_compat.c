@@ -404,6 +404,10 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
         bindings[NGPU_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
         bindings[NGPU_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
         break;
+    case NGLI_IMAGE_LAYOUT_MEDIACODEC:
+        bindings[NGPU_INFO_FIELD_SAMPLER_OES].texture = image->planes[0];
+        bindings[NGPU_INFO_FIELD_SAMPLER_OES].immutable_sampler = image->samplers[0];
+        break;
     case NGLI_IMAGE_LAYOUT_NV12:
         bindings[NGPU_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
         bindings[NGPU_INFO_FIELD_SAMPLER_0].immutable_sampler = image->samplers[0];
@@ -415,10 +419,6 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
         bindings[NGPU_INFO_FIELD_SAMPLER_RECT_0].immutable_sampler = image->samplers[0];
         bindings[NGPU_INFO_FIELD_SAMPLER_RECT_1].texture = image->planes[1];
         bindings[NGPU_INFO_FIELD_SAMPLER_RECT_1].immutable_sampler = image->samplers[1];
-        break;
-    case NGLI_IMAGE_LAYOUT_MEDIACODEC:
-        bindings[NGPU_INFO_FIELD_SAMPLER_OES].texture = image->planes[0];
-        bindings[NGPU_INFO_FIELD_SAMPLER_OES].immutable_sampler = image->samplers[0];
         break;
     case NGLI_IMAGE_LAYOUT_YUV:
         bindings[NGPU_INFO_FIELD_SAMPLER_0].texture = image->planes[0];
