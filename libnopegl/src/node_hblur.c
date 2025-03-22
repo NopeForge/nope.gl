@@ -196,11 +196,11 @@ static int setup_pass1_pipeline(struct ngl_node *node)
     static const struct ngpu_pgcraft_texture textures[] = {
         {
             .name      = "tex",
-            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }, {
             .name      = "map",
-            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }
     };
@@ -287,15 +287,15 @@ static int setup_pass2_pipeline(struct ngl_node *node)
     static const struct ngpu_pgcraft_texture textures[] = {
         {
             .name      = "tex0",
-            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }, {
             .name      = "tex1",
-            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }, {
             .name      = "map",
-            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         }
     };
