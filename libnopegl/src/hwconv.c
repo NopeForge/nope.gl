@@ -92,7 +92,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     }
 
     struct ngpu_pgcraft_texture textures[] = {
-        {.name = "tex", .type = NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO, .stage = NGPU_PROGRAM_SHADER_FRAG},
+        {.name = "tex", .type = NGPU_PGCRAFT_TEXTURE_TYPE_VIDEO, .stage = NGPU_PROGRAM_SHADER_FRAG},
     };
 
     const char *vert_base = hwconv_vert;

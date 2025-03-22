@@ -130,7 +130,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
 
     const struct pass_params *params = &s->params;
 
-    enum ngpu_pgcraft_shader_tex_type type = ngli_node_texture_get_pgcraft_shader_tex_type(texture);
+    enum ngpu_pgcraft_texture_type type = ngli_node_texture_get_pgcraft_shader_tex_type(texture);
     enum ngpu_precision precision = 0;
     int writable = 0;
     int as_image = 0;

@@ -141,7 +141,7 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct ngpu_p
     struct ngpu_pgcraft_texture textures[] = {
         {
             .name        = "source",
-            .type        = NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
+            .type        = NGPU_PGCRAFT_TEXTURE_TYPE_VIDEO,
             .stage       = NGPU_PROGRAM_SHADER_COMP,
             .image       = &texture_info->image,
             .format      = texture_info->params.format,

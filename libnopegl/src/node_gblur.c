@@ -276,7 +276,7 @@ static int gblur_init(struct ngl_node *node)
     const struct ngpu_pgcraft_texture textures[] = {
         {
             .name      = "tex",
-            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         },

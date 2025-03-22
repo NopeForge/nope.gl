@@ -265,7 +265,7 @@ static int drawpath_init(struct ngl_node *node)
     const struct ngpu_pgcraft_texture textures[] = {
         {
             .name = "tex",
-            .type = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .stage = NGPU_PROGRAM_SHADER_FRAG,
             .texture = texture,
         },
