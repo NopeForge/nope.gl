@@ -410,12 +410,6 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
         bindings[NGPU_INFO_FIELD_SAMPLER_1].texture = image->planes[1];
         bindings[NGPU_INFO_FIELD_SAMPLER_1].immutable_sampler = image->samplers[1];
         break;
-    case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
-        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
-        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_0].immutable_sampler = image->samplers[0];
-        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_1].texture = image->planes[1];
-        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_1].immutable_sampler = image->samplers[1];
-        break;
     case NGLI_IMAGE_LAYOUT_MEDIACODEC:
         bindings[NGPU_INFO_FIELD_SAMPLER_OES].texture = image->planes[0];
         bindings[NGPU_INFO_FIELD_SAMPLER_OES].immutable_sampler = image->samplers[0];
@@ -428,10 +422,6 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
         bindings[NGPU_INFO_FIELD_SAMPLER_2].texture = image->planes[2];
         bindings[NGPU_INFO_FIELD_SAMPLER_2].immutable_sampler = image->samplers[2];
         break;
-    case NGLI_IMAGE_LAYOUT_RECTANGLE:
-        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_0].texture = image->planes[0];
-        bindings[NGPU_INFO_FIELD_SAMPLER_RECT_0].immutable_sampler = image->samplers[0];
-        break;
     default:
         break;
     }
@@ -441,8 +431,6 @@ void ngli_pipeline_compat_update_image(struct pipeline_compat *s, int32_t index,
         NGPU_INFO_FIELD_SAMPLER_1,
         NGPU_INFO_FIELD_SAMPLER_2,
         NGPU_INFO_FIELD_SAMPLER_OES,
-        NGPU_INFO_FIELD_SAMPLER_RECT_0,
-        NGPU_INFO_FIELD_SAMPLER_RECT_1,
     };
 
     int ret = 1;

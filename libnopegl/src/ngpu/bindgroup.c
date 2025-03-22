@@ -138,7 +138,6 @@ int ngpu_bindgroup_update_texture(struct ngpu_bindgroup *s, int32_t index, const
         switch (entry->type) {
         case NGPU_TYPE_SAMPLER_2D:
         case NGPU_TYPE_SAMPLER_2D_ARRAY:
-        case NGPU_TYPE_SAMPLER_2D_RECT:
         case NGPU_TYPE_SAMPLER_3D:
         case NGPU_TYPE_SAMPLER_CUBE:
         case NGPU_TYPE_SAMPLER_EXTERNAL_OES:

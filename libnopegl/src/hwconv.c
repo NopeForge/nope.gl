@@ -85,7 +85,6 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     if (src_layout != NGLI_IMAGE_LAYOUT_DEFAULT &&
         src_layout != NGLI_IMAGE_LAYOUT_NV12 &&
         src_layout != NGLI_IMAGE_LAYOUT_YUV &&
-        src_layout != NGLI_IMAGE_LAYOUT_NV12_RECTANGLE &&
         src_layout != NGLI_IMAGE_LAYOUT_MEDIACODEC) {
         LOG(ERROR, "unsupported texture layout: 0x%x", src_layout);
         return NGL_ERROR_UNSUPPORTED;

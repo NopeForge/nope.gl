@@ -41,7 +41,6 @@ static const char * const type_map[NGPU_TYPE_NB] = {
     [NGPU_TYPE_BOOL]                        = "bool",
     [NGPU_TYPE_SAMPLER_2D]                  = "sampler2D",
     [NGPU_TYPE_SAMPLER_2D_ARRAY]            = "sampler2DArray",
-    [NGPU_TYPE_SAMPLER_2D_RECT]             = "sampler2DRect",
     [NGPU_TYPE_SAMPLER_3D]                  = "sampler3D",
     [NGPU_TYPE_SAMPLER_CUBE]                = "samplerCube",
     [NGPU_TYPE_SAMPLER_EXTERNAL_OES]        = "samplerExternalOES",
