@@ -138,7 +138,7 @@ static int setup_down_up_pipeline(struct ngpu_pgcraft *crafter,
     const struct ngpu_pgcraft_texture textures[] = {
         {
             .name      = "tex",
-            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG,
         },
@@ -209,12 +209,12 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
     struct ngpu_pgcraft_texture interpolate_textures[] = {
         {
             .name      = "tex0",
-            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG
         }, {
             .name      = "tex1",
-            .type      = NGPU_PGCRAFT_SHADER_TEX_TYPE_2D,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .precision = NGPU_PRECISION_HIGH,
             .stage     = NGPU_PROGRAM_SHADER_FRAG
         },

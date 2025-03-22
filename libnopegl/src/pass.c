@@ -130,7 +130,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
 
     const struct pass_params *params = &s->params;
 
-    enum ngpu_pgcraft_shader_tex_type type = ngli_node_texture_get_pgcraft_shader_tex_type(texture);
+    enum ngpu_pgcraft_texture_type type = ngli_node_texture_get_pgcraft_texture_type(texture);
     enum ngpu_precision precision = 0;
     int writable = 0;
     int as_image = 0;
@@ -143,7 +143,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
                 /* Disable direct rendering when using image load/store */
                 texture_info->supported_image_layouts = NGLI_IMAGE_LAYOUT_DEFAULT_BIT;
                 texture_info->params.usage |= NGPU_TEXTURE_USAGE_STORAGE_BIT;
-                type = ngli_node_texture_get_pgcraft_shader_image_type(texture);
+                type = ngli_node_texture_get_pgcraft_image_type(texture);
             }
             precision = resprops->precision;
             writable  = resprops->writable;

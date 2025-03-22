@@ -330,8 +330,8 @@ static const char * const texture_info_suffixes[NGPU_INFO_FIELD_NB] = {
     [NGPU_INFO_FIELD_SAMPLER_RECT_1]    = "_rect_1",
 };
 
-static const enum ngpu_type texture_types_map[NGPU_PGCRAFT_SHADER_TEX_TYPE_NB][NGPU_INFO_FIELD_NB] = {
-    [NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO] = {
+static const enum ngpu_type texture_types_map[NGPU_PGCRAFT_TEXTURE_TYPE_NB][NGPU_INFO_FIELD_NB] = {
+    [NGPU_PGCRAFT_TEXTURE_TYPE_VIDEO] = {
         [NGPU_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
         [NGPU_INFO_FIELD_DIMENSIONS]        = NGPU_TYPE_VEC2,
         [NGPU_INFO_FIELD_TIMESTAMP]         = NGPU_TYPE_F32,
@@ -347,38 +347,38 @@ static const enum ngpu_type texture_types_map[NGPU_PGCRAFT_SHADER_TEX_TYPE_NB][N
         [NGPU_INFO_FIELD_SAMPLER_RECT_1]    = NGPU_TYPE_SAMPLER_2D_RECT,
 #endif
     },
-    [NGPU_PGCRAFT_SHADER_TEX_TYPE_2D] = {
+    [NGPU_PGCRAFT_TEXTURE_TYPE_2D] = {
         [NGPU_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_SAMPLER_2D,
         [NGPU_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
         [NGPU_INFO_FIELD_DIMENSIONS]        = NGPU_TYPE_VEC2,
         [NGPU_INFO_FIELD_TIMESTAMP]         = NGPU_TYPE_F32,
     },
-    [NGPU_PGCRAFT_SHADER_TEX_TYPE_2D_ARRAY] = {
+    [NGPU_PGCRAFT_TEXTURE_TYPE_2D_ARRAY] = {
         [NGPU_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_SAMPLER_2D_ARRAY,
         [NGPU_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
     },
-    [NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D] = {
+    [NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_2D] = {
         [NGPU_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_IMAGE_2D,
         [NGPU_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
         [NGPU_INFO_FIELD_DIMENSIONS]        = NGPU_TYPE_VEC2,
         [NGPU_INFO_FIELD_TIMESTAMP]         = NGPU_TYPE_F32,
     },
-    [NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D_ARRAY] = {
+    [NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_2D_ARRAY] = {
         [NGPU_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_IMAGE_2D_ARRAY,
         [NGPU_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
     },
-    [NGPU_PGCRAFT_SHADER_TEX_TYPE_3D] = {
+    [NGPU_PGCRAFT_TEXTURE_TYPE_3D] = {
         [NGPU_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_SAMPLER_3D,
         [NGPU_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
     },
-    [NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D] = {
+    [NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_3D] = {
         [NGPU_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_IMAGE_3D,
         [NGPU_INFO_FIELD_COORDINATE_MATRIX] = NGPU_TYPE_MAT4,
     },
-    [NGPU_PGCRAFT_SHADER_TEX_TYPE_CUBE] = {
+    [NGPU_PGCRAFT_TEXTURE_TYPE_CUBE] = {
         [NGPU_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_SAMPLER_CUBE,
     },
-    [NGPU_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE] = {
+    [NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_CUBE] = {
         [NGPU_INFO_FIELD_SAMPLER_0]         = NGPU_TYPE_IMAGE_CUBE,
     },
 };
@@ -425,7 +425,7 @@ static int prepare_texture_infos(struct ngpu_pgcraft *s, const struct ngpu_pgcra
     ngli_darray_init(&s->textures, sizeof(struct ngpu_pgcraft_texture), 0);
     for (size_t i = 0; i < params->nb_textures; i++) {
         const struct ngpu_pgcraft_texture *texture = &params->textures[i];
-        ngli_assert(!(texture->type == NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO && texture->texture));
+        ngli_assert(!(texture->type == NGPU_PGCRAFT_TEXTURE_TYPE_VIDEO && texture->texture));
 
         if (!ngli_darray_push(&s->textures, &params->textures[i]))
             return NGL_ERROR_MEMORY;
@@ -794,7 +794,7 @@ static int texture_needs_clamping(const struct ngpu_pgcraft_params *params,
     return 0;
 }
 
-static enum ngpu_pgcraft_shader_tex_type get_texture_type(const struct ngpu_pgcraft_params *params,
+static enum ngpu_pgcraft_texture_type get_texture_type(const struct ngpu_pgcraft_params *params,
                                                      const char *name, size_t name_len)
 {
     for (size_t i = 0; i < params->nb_textures; i++) {
@@ -802,7 +802,7 @@ static enum ngpu_pgcraft_shader_tex_type get_texture_type(const struct ngpu_pgcr
         if (!strncmp(name, pgcraft_texture->name, name_len))
             return pgcraft_texture->type;
     }
-    return NGPU_PGCRAFT_SHADER_TEX_TYPE_NONE;
+    return NGPU_PGCRAFT_TEXTURE_TYPE_NONE;
 }
 
 #define WHITESPACES     "\r\n\t "
@@ -888,8 +888,8 @@ static int handle_token(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params
             return NGL_ERROR_INVALID_ARG;
         p++;
 
-        const enum ngpu_pgcraft_shader_tex_type texture_type = get_texture_type(params, arg0_start, arg0_len);
-        if (texture_type != NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO) {
+        const enum ngpu_pgcraft_texture_type texture_type = get_texture_type(params, arg0_start, arg0_len);
+        if (texture_type != NGPU_PGCRAFT_TEXTURE_TYPE_VIDEO) {
             ngli_bstr_printf(dst, "texture(%.*s, %.*s)", ARG_FMT(arg0), ARG_FMT(coords));
             ngli_bstr_print(dst, p);
             return 0;
