@@ -44,8 +44,8 @@ int ngpu_buffer_vk_wait(struct ngpu_buffer *s);
 int ngpu_buffer_vk_upload(struct ngpu_buffer *s, const void *data, size_t offset, size_t size);
 int ngpu_buffer_vk_map(struct ngpu_buffer *s, size_t offset, size_t size, void **data);
 void ngpu_buffer_vk_unmap(struct ngpu_buffer *s);
-int ngpu_buffer_vk_ref_cmd_buffer(struct ngpu_buffer *s, struct cmd_buffer_vk *cmd_buffer);
-int ngpu_buffer_vk_unref_cmd_buffer(struct ngpu_buffer *s, struct cmd_buffer_vk *cmd_buffer);
+int ngpu_buffer_vk_ref_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_vk *cmd_buffer);
+int ngpu_buffer_vk_unref_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_vk *cmd_buffer);
 void ngpu_buffer_vk_freep(struct ngpu_buffer **sp);
 
 #endif

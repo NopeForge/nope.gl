@@ -29,7 +29,7 @@
 
 static void cmd_buffer_vk_freep(void **sp)
 {
-    struct cmd_buffer_vk *s = *sp;
+    struct ngpu_cmd_buffer_vk *s = *sp;
     if (!s)
         return;
 
@@ -49,9 +49,9 @@ static void cmd_buffer_vk_freep(void **sp)
     ngli_freep(sp);
 }
 
-struct cmd_buffer_vk *ngli_cmd_buffer_vk_create(struct ngpu_ctx *gpu_ctx)
+struct ngpu_cmd_buffer_vk *ngpu_cmd_buffer_vk_create(struct ngpu_ctx *gpu_ctx)
 {
-    struct cmd_buffer_vk *s = ngli_calloc(1, sizeof(*s));
+    struct ngpu_cmd_buffer_vk *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
     s->rc = NGLI_RC_CREATE(cmd_buffer_vk_freep);
@@ -67,7 +67,7 @@ static void unref_rc(void *user_arg, void *data)
 
 static void unref_buffer(void *user_arg, void *data)
 {
-    struct cmd_buffer_vk *cmd_buffer = user_arg;
+    struct ngpu_cmd_buffer_vk *cmd_buffer = user_arg;
     struct ngpu_buffer **bufferp = data;
 
     if (!*bufferp)
@@ -77,12 +77,12 @@ static void unref_buffer(void *user_arg, void *data)
     ngpu_buffer_freep(bufferp);
 }
 
-void ngli_cmd_buffer_vk_freep(struct cmd_buffer_vk **sp)
+void ngpu_cmd_buffer_vk_freep(struct ngpu_cmd_buffer_vk **sp)
 {
     NGLI_RC_UNREFP(sp);
 }
 
-VkResult ngli_cmd_buffer_vk_init(struct cmd_buffer_vk *s, int type)
+VkResult ngpu_cmd_buffer_vk_init(struct ngpu_cmd_buffer_vk *s, int type)
 {
     struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -120,7 +120,7 @@ VkResult ngli_cmd_buffer_vk_init(struct cmd_buffer_vk *s, int type)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_buffer_vk_add_wait_sem(struct cmd_buffer_vk *s, VkSemaphore *sem, VkPipelineStageFlags stage)
+VkResult ngpu_cmd_buffer_vk_add_wait_sem(struct ngpu_cmd_buffer_vk *s, VkSemaphore *sem, VkPipelineStageFlags stage)
 {
     if (!ngli_darray_push(&s->wait_sems, sem))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -131,7 +131,7 @@ VkResult ngli_cmd_buffer_vk_add_wait_sem(struct cmd_buffer_vk *s, VkSemaphore *s
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_buffer_vk_add_signal_sem(struct cmd_buffer_vk *s, VkSemaphore *sem)
+VkResult ngpu_cmd_buffer_vk_add_signal_sem(struct ngpu_cmd_buffer_vk *s, VkSemaphore *sem)
 {
     if (!ngli_darray_push(&s->signal_sems, sem))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -139,7 +139,7 @@ VkResult ngli_cmd_buffer_vk_add_signal_sem(struct cmd_buffer_vk *s, VkSemaphore 
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_buffer_vk_ref(struct cmd_buffer_vk *s, struct ngli_rc *rc)
+VkResult ngpu_cmd_buffer_vk_ref(struct ngpu_cmd_buffer_vk *s, struct ngli_rc *rc)
 {
     if (!ngli_darray_push(&s->refs, &rc))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -149,9 +149,9 @@ VkResult ngli_cmd_buffer_vk_ref(struct cmd_buffer_vk *s, struct ngli_rc *rc)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_buffer_vk_ref_buffer(struct cmd_buffer_vk *s, struct ngpu_buffer *buffer)
+VkResult ngpu_cmd_buffer_vk_ref_buffer(struct ngpu_cmd_buffer_vk *s, struct ngpu_buffer *buffer)
 {
-    VkResult res = ngli_cmd_buffer_vk_ref(s, (struct ngli_rc *)buffer);
+    VkResult res = ngpu_cmd_buffer_vk_ref(s, (struct ngli_rc *)buffer);
     if (res != VK_SUCCESS)
         return res;
 
@@ -163,7 +163,7 @@ VkResult ngli_cmd_buffer_vk_ref_buffer(struct cmd_buffer_vk *s, struct ngpu_buff
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_buffer_vk_begin(struct cmd_buffer_vk *s)
+VkResult ngpu_cmd_buffer_vk_begin(struct ngpu_cmd_buffer_vk *s)
 {
     const VkCommandBufferBeginInfo cmd_buf_begin_info = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -172,7 +172,7 @@ VkResult ngli_cmd_buffer_vk_begin(struct cmd_buffer_vk *s)
     return vkBeginCommandBuffer(s->cmd_buf, &cmd_buf_begin_info);
 }
 
-VkResult ngli_cmd_buffer_vk_submit(struct cmd_buffer_vk *s)
+VkResult ngpu_cmd_buffer_vk_submit(struct ngpu_cmd_buffer_vk *s)
 {
     struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -210,7 +210,7 @@ VkResult ngli_cmd_buffer_vk_submit(struct cmd_buffer_vk *s)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_buffer_vk_wait(struct cmd_buffer_vk *s)
+VkResult ngpu_cmd_buffer_vk_wait(struct ngpu_cmd_buffer_vk *s)
 {
     struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -224,7 +224,7 @@ VkResult ngli_cmd_buffer_vk_wait(struct cmd_buffer_vk *s)
 
     size_t i = 0;
     while (i < ngli_darray_count(&gpu_ctx_vk->pending_cmd_buffers)) {
-        struct cmd_buffer_vk **cmds = ngli_darray_data(&gpu_ctx_vk->pending_cmd_buffers);
+        struct ngpu_cmd_buffer_vk **cmds = ngli_darray_data(&gpu_ctx_vk->pending_cmd_buffers);
         if (cmds[i] == s) {
             ngli_darray_remove(&gpu_ctx_vk->pending_cmd_buffers, i);
             continue;
@@ -235,17 +235,17 @@ VkResult ngli_cmd_buffer_vk_wait(struct cmd_buffer_vk *s)
     return VK_SUCCESS;
 }
 
-VkResult ngli_cmd_buffer_vk_begin_transient(struct ngpu_ctx *gpu_ctx, int type, struct cmd_buffer_vk **sp)
+VkResult ngpu_cmd_buffer_vk_begin_transient(struct ngpu_ctx *gpu_ctx, int type, struct ngpu_cmd_buffer_vk **sp)
 {
-    struct cmd_buffer_vk *s = ngli_cmd_buffer_vk_create(gpu_ctx);
+    struct ngpu_cmd_buffer_vk *s = ngpu_cmd_buffer_vk_create(gpu_ctx);
     if (!s)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    VkResult res = ngli_cmd_buffer_vk_init(s, type);
+    VkResult res = ngpu_cmd_buffer_vk_init(s, type);
     if (res != VK_SUCCESS)
         goto fail;
 
-    res = ngli_cmd_buffer_vk_begin(s);
+    res = ngpu_cmd_buffer_vk_begin(s);
     if (res != VK_SUCCESS)
         goto fail;
 
@@ -253,23 +253,23 @@ VkResult ngli_cmd_buffer_vk_begin_transient(struct ngpu_ctx *gpu_ctx, int type, 
     return VK_SUCCESS;
 
 fail:
-    ngli_cmd_buffer_vk_freep(&s);
+    ngpu_cmd_buffer_vk_freep(&s);
     return res;
 }
 
-VkResult ngli_cmd_buffer_vk_execute_transient(struct cmd_buffer_vk **sp)
+VkResult ngpu_cmd_buffer_vk_execute_transient(struct ngpu_cmd_buffer_vk **sp)
 {
-    struct cmd_buffer_vk *s = *sp;
+    struct ngpu_cmd_buffer_vk *s = *sp;
     if (!s)
         return VK_SUCCESS;
 
-    VkResult res = ngli_cmd_buffer_vk_submit(s);
+    VkResult res = ngpu_cmd_buffer_vk_submit(s);
     if (res != VK_SUCCESS)
         goto done;
 
-    res = ngli_cmd_buffer_vk_wait(s);
+    res = ngpu_cmd_buffer_vk_wait(s);
 
 done:
-    ngli_cmd_buffer_vk_freep(sp);
+    ngpu_cmd_buffer_vk_freep(sp);
     return res;
 }
