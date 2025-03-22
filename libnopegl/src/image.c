@@ -42,9 +42,7 @@ static const size_t nb_planes_map[] = {
     [NGLI_IMAGE_LAYOUT_DEFAULT]        = 1,
     [NGLI_IMAGE_LAYOUT_MEDIACODEC]     = 1,
     [NGLI_IMAGE_LAYOUT_NV12]           = 2,
-    [NGLI_IMAGE_LAYOUT_NV12_RECTANGLE] = 2,
     [NGLI_IMAGE_LAYOUT_YUV]            = 3,
-    [NGLI_IMAGE_LAYOUT_RECTANGLE]      = 1,
 };
 
 NGLI_STATIC_ASSERT(nb_planes_map, NGLI_ARRAY_NB(nb_planes_map) == NGLI_NB_IMAGE_LAYOUTS);
@@ -58,7 +56,6 @@ void ngli_image_init(struct image *s, const struct image_params *params, struct 
     for (size_t i = 0; i < s->nb_planes; i++)
         s->planes[i] = planes[i];
     if (params->layout == NGLI_IMAGE_LAYOUT_NV12 ||
-        params->layout == NGLI_IMAGE_LAYOUT_NV12_RECTANGLE ||
         params->layout == NGLI_IMAGE_LAYOUT_YUV) {
         ngli_colorconv_get_ycbcr_to_rgb_color_matrix(s->color_matrix, &params->color_info, params->color_scale);
     }
