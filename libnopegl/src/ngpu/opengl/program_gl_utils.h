@@ -23,10 +23,10 @@
 #ifndef NGPU_PROGRAM_GL_UTILS_H
 #define NGPU_PROGRAM_GL_UTILS_H
 
+#include "ngpu/pgcraft.h"
 #include "ngpu/program.h"
-#include "pgcraft.h"
 
 /* Set locations and bindings according to the given resources layout */
-int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s, const struct pgcraft *crafter);
+int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s, const struct ngpu_pgcraft *crafter);
 
 #endif

@@ -73,14 +73,14 @@ struct colorstats_priv {
 
     /* Init compute */
     struct {
-        struct pgcraft *crafter;
+        struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pipeline_compat;
         int32_t wg_count;
     } init;
 
     /* Waveform compute */
     struct {
-        struct pgcraft *crafter;
+        struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pipeline_compat;
         uint32_t wg_count;
         const struct image *image;
@@ -89,7 +89,7 @@ struct colorstats_priv {
 
     /* Summary-scale compute */
     struct {
-        struct pgcraft *crafter;
+        struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pipeline_compat;
         uint32_t wg_count;
     } sumscale;
@@ -97,29 +97,29 @@ struct colorstats_priv {
 
 NGLI_STATIC_ASSERT(block_priv_first, offsetof(struct colorstats_priv, blk) == 0);
 
-static int setup_compute(struct colorstats_priv *s, struct pgcraft *crafter,
+static int setup_compute(struct colorstats_priv *s, struct ngpu_pgcraft *crafter,
                          struct pipeline_compat *pipeline_compat,
-                         const struct pgcraft_params *crafter_params)
+                         const struct ngpu_pgcraft_params *crafter_params)
 {
-    int ret = ngli_pgcraft_craft(crafter, crafter_params);
+    int ret = ngpu_pgcraft_craft(crafter, crafter_params);
     if (ret < 0)
         return ret;
 
     const struct pipeline_compat_params params = {
         .type        = NGPU_PIPELINE_TYPE_COMPUTE,
-        .program     = ngli_pgcraft_get_program(crafter),
-        .layout_desc = ngli_pgcraft_get_bindgroup_layout_desc(crafter),
-        .resources   = ngli_pgcraft_get_bindgroup_resources(crafter),
-        .compat_info = ngli_pgcraft_get_compat_info(crafter),
+        .program     = ngpu_pgcraft_get_program(crafter),
+        .layout_desc = ngpu_pgcraft_get_bindgroup_layout_desc(crafter),
+        .resources   = ngpu_pgcraft_get_bindgroup_resources(crafter),
+        .compat_info = ngpu_pgcraft_get_compat_info(crafter),
     };
 
     return ngli_pipeline_compat_init(pipeline_compat, &params);
 }
 
 /* Phase 1: initialization (set globally shared values) */
-static int setup_init_compute(struct colorstats_priv *s, const struct pgcraft_block *blocks, size_t nb_blocks)
+static int setup_init_compute(struct colorstats_priv *s, const struct ngpu_pgcraft_block *blocks, size_t nb_blocks)
 {
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .comp_base      = colorstats_init_comp,
         .blocks         = blocks,
         .nb_blocks      = nb_blocks,
@@ -134,14 +134,14 @@ static int setup_init_compute(struct colorstats_priv *s, const struct pgcraft_bl
 }
 
 /* Phase 2: compute waveform in the data field (histograms per column) */
-static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraft_block *blocks,
+static int setup_waveform_compute(struct colorstats_priv *s, const struct ngpu_pgcraft_block *blocks,
                                   size_t nb_blocks, const struct ngl_node *texture_node)
 {
     struct texture_info *texture_info = texture_node->priv_data;
-    struct pgcraft_texture textures[] = {
+    struct ngpu_pgcraft_texture textures[] = {
         {
             .name        = "source",
-            .type        = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
+            .type        = NGPU_PGCRAFT_SHADER_TEX_TYPE_VIDEO,
             .stage       = NGPU_PROGRAM_SHADER_COMP,
             .image       = &texture_info->image,
             .format      = texture_info->params.format,
@@ -149,7 +149,7 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
         },
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .comp_base      = colorstats_waveform_comp,
         .textures       = textures,
         .nb_textures    = NGLI_ARRAY_NB(textures),
@@ -169,9 +169,9 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct pgcraf
 }
 
 /* Phase 3: summary and scale for global histograms */
-static int setup_sumscale_compute(struct colorstats_priv *s, const struct pgcraft_block *blocks, size_t nb_blocks)
+static int setup_sumscale_compute(struct colorstats_priv *s, const struct ngpu_pgcraft_block *blocks, size_t nb_blocks)
 {
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .comp_base      = colorstats_sumscale_comp,
         .blocks         = blocks,
         .nb_blocks      = nb_blocks,
@@ -214,9 +214,9 @@ static int init_computes(struct ngl_node *node)
     if (!s->init.pipeline_compat || !s->waveform.pipeline_compat || !s->sumscale.pipeline_compat)
         return NGL_ERROR_MEMORY;
 
-    s->init.crafter     = ngli_pgcraft_create(gpu_ctx);
-    s->waveform.crafter = ngli_pgcraft_create(gpu_ctx);
-    s->sumscale.crafter = ngli_pgcraft_create(gpu_ctx);
+    s->init.crafter     = ngpu_pgcraft_create(gpu_ctx);
+    s->waveform.crafter = ngpu_pgcraft_create(gpu_ctx);
+    s->sumscale.crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->init.crafter || !s->waveform.crafter || !s->sumscale.crafter)
         return NGL_ERROR_MEMORY;
 
@@ -233,7 +233,7 @@ static int init_computes(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_block blocks[] = {
+    const struct ngpu_pgcraft_block blocks[] = {
         {
             .name     = "params",
             .instance_name = "",
@@ -431,9 +431,9 @@ static void colorstats_uninit(struct ngl_node *node)
 {
     struct colorstats_priv *s = node->priv_data;
 
-    ngli_pgcraft_freep(&s->init.crafter);
-    ngli_pgcraft_freep(&s->waveform.crafter);
-    ngli_pgcraft_freep(&s->sumscale.crafter);
+    ngpu_pgcraft_freep(&s->init.crafter);
+    ngpu_pgcraft_freep(&s->waveform.crafter);
+    ngpu_pgcraft_freep(&s->sumscale.crafter);
     ngli_pipeline_compat_freep(&s->init.pipeline_compat);
     ngli_pipeline_compat_freep(&s->waveform.pipeline_compat);
     ngli_pipeline_compat_freep(&s->sumscale.pipeline_compat);

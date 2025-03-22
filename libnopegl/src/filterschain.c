@@ -22,7 +22,7 @@
  */
 
 #include "filterschain.h"
-#include "pgcraft.h"
+#include "ngpu/pgcraft.h"
 #include "utils/bstr.h"
 #include "utils/darray.h"
 #include "utils/memory.h"
@@ -52,7 +52,7 @@ struct filterschain *ngli_filterschain_create(void)
 int ngli_filterschain_init(struct filterschain *s, const char *source_name, const char *source_code, uint32_t helpers)
 {
     ngli_darray_init(&s->filters, sizeof(struct filter *), 0);
-    ngli_darray_init(&s->resources, sizeof(struct pgcraft_uniform), 0);
+    ngli_darray_init(&s->resources, sizeof(struct ngpu_pgcraft_uniform), 0);
 
     s->helpers = helpers;
     s->str = ngli_bstr_create();
@@ -66,10 +66,10 @@ int ngli_filterschain_init(struct filterschain *s, const char *source_name, cons
 
 int ngli_filterschain_add_filter(struct filterschain *s, const struct filter *filter)
 {
-    const struct pgcraft_uniform *resources = ngli_darray_data(&filter->resources);
+    const struct ngpu_pgcraft_uniform *resources = ngli_darray_data(&filter->resources);
     for (size_t i = 0; i < ngli_darray_count(&filter->resources); i++) {
-        const struct pgcraft_uniform *res = &resources[i];
-        struct pgcraft_uniform combined_res = *res;
+        const struct ngpu_pgcraft_uniform *res = &resources[i];
+        struct ngpu_pgcraft_uniform combined_res = *res;
         snprintf(combined_res.name, sizeof(combined_res.name), "%s%zu_%s",
                  filter->name, ngli_darray_count(&s->filters), res->name);
         if (!ngli_darray_push(&s->resources, &combined_res))
@@ -122,7 +122,7 @@ char *ngli_filterschain_get_combination(struct filterschain *s)
         const struct filter *filter = filters[i];
         ngli_bstr_printf(b, "    color = filter_%s(color, uv", filter->name);
 
-        const struct pgcraft_uniform *resources = ngli_darray_data(&filter->resources);
+        const struct ngpu_pgcraft_uniform *resources = ngli_darray_data(&filter->resources);
         for (size_t j = 0; j < ngli_darray_count(&filter->resources); j++)
             ngli_bstr_printf(b, ", %s%zu_%s", filter->name, i, resources[j].name);
 
