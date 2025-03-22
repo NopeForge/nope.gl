@@ -29,11 +29,6 @@ struct ngpu_ctx;
 
 #define MAX_ID_LEN 128
 
-struct ngpu_program_variable_info {
-    int binding;
-    int location;
-};
-
 enum ngpu_program_shader {
     NGPU_PROGRAM_SHADER_VERT,
     NGPU_PROGRAM_SHADER_FRAG,
@@ -56,9 +51,6 @@ struct ngpu_program_params {
 
 struct ngpu_program {
     struct ngpu_ctx *gpu_ctx;
-    struct hmap *uniforms;
-    struct hmap *attributes;
-    struct hmap *buffer_blocks;
 };
 
 struct ngpu_program *ngpu_program_create(struct ngpu_ctx *gpu_ctx);
