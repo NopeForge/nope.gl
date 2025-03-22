@@ -44,12 +44,11 @@
 #include "ngpu/ctx.h"
 #include "ngpu/graphics_state.h"
 #include "nopegl.h"
-#include "pgcache.h"
 #include "rnode.h"
-#include "utils/pthread_compat.h"
 #include "utils/darray.h"
 #include "utils/hmap.h"
 #include "utils/memory.h"
+#include "utils/pthread_compat.h"
 
 #if defined(HAVE_VAAPI)
 #include "vaapi_ctx.h"
@@ -322,7 +321,6 @@ void ngli_ctx_reset(struct ngl_ctx *s, int action)
 #if HAVE_TEXT_LIBRARIES
     FT_Done_FreeType(s->ft_library);
 #endif
-    ngli_pgcache_reset(&s->pgcache);
     ngpu_ctx_freep(&s->gpu_ctx);
     ngli_config_reset(&s->config);
     backend_reset(&s->backend);
@@ -358,10 +356,6 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
         ngli_config_reset(&s->config);
         return ret;
     }
-
-    ret = ngli_pgcache_init(&s->pgcache, s->gpu_ctx);
-    if (ret < 0)
-        goto fail;
 
     s->text_builtin_atlasses = ngli_hmap_create(NGLI_HMAP_TYPE_STR);
     if (!s->text_builtin_atlasses) {

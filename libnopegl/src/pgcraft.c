@@ -1380,7 +1380,7 @@ static int get_program_compute(struct pgcraft *s, const struct pgcraft_params *p
         .label   = params->program_label,
         .compute = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_SHADER_COMP]),
     };
-    ret = ngli_pgcache_get_compute_program(&s->ctx->pgcache, &s->program, &program_params);
+    ret = ngpu_pgcache_get_compute_program(&s->ctx->gpu_ctx->program_cache, &s->program, &program_params);
     ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_SHADER_COMP]);
     return ret;
 }
@@ -1408,7 +1408,7 @@ static int get_program_graphics(struct pgcraft *s, const struct pgcraft_params *
         .vertex   = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_SHADER_VERT]),
         .fragment = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_SHADER_FRAG]),
     };
-    ret = ngli_pgcache_get_graphics_program(&s->ctx->pgcache, &s->program, &program_params);
+    ret = ngpu_pgcache_get_graphics_program(&s->ctx->gpu_ctx->program_cache, &s->program, &program_params);
     ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_SHADER_VERT]);
     ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_SHADER_FRAG]);
     return ret;

@@ -1,4 +1,5 @@
 /*
+ * Copyright 2025 Matthieu Bouron <matthieu.bouron@gmail.com>
  * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,21 +20,21 @@
  * under the License.
  */
 
-#ifndef PGCACHE_H
-#define PGCACHE_H
+#ifndef NGPU_PGCACHE_H
+#define NGPU_PGCACHE_H
 
-#include "ngpu/program.h"
+#include "program.h"
 #include "utils/hmap.h"
 
-struct pgcache {
+struct ngpu_pgcache {
     struct ngpu_ctx *gpu_ctx;
     struct hmap *graphics_cache;
     struct hmap *compute_cache;
 };
 
-int ngli_pgcache_init(struct pgcache *s, struct ngpu_ctx *ctx);
-int ngli_pgcache_get_graphics_program(struct pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params);
-int ngli_pgcache_get_compute_program(struct pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params);
-void ngli_pgcache_reset(struct pgcache *s);
+int ngpu_pgcache_init(struct ngpu_pgcache *s, struct ngpu_ctx *ctx);
+int ngpu_pgcache_get_graphics_program(struct ngpu_pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params);
+int ngpu_pgcache_get_compute_program(struct ngpu_pgcache *s, struct ngpu_program **dstp, const struct ngpu_program_params *params);
+void ngpu_pgcache_reset(struct ngpu_pgcache *s);
 
 #endif
