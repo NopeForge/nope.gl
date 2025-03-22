@@ -690,8 +690,9 @@ static int build_uniforms_map(struct draw_common *draw_common)
 static int finalize_init(struct ngl_node *node, struct draw_common *draw_common, const struct pgcraft_params *crafter_params)
 {
     struct ngl_ctx *ctx = node->ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
-    draw_common->crafter = ngli_pgcraft_create(ctx);
+    draw_common->crafter = ngli_pgcraft_create(gpu_ctx);
     if (!draw_common->crafter)
         return NGL_ERROR_MEMORY;
 

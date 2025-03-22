@@ -650,7 +650,7 @@ int ngli_distmap_finalize(struct distmap *s)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    s->crafter = ngli_pgcraft_create(s->ctx);
+    s->crafter = ngli_pgcraft_create(gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 

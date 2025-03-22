@@ -290,7 +290,8 @@ static int drawpath_init(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    s->crafter = ngli_pgcraft_create(node->ctx);
+    struct ngl_ctx *ctx = node->ctx;
+    s->crafter = ngli_pgcraft_create(ctx->gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 

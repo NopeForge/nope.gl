@@ -32,7 +32,7 @@
 #include "ngpu/block_desc.h"
 #include "utils/bstr.h"
 
-struct ngl_ctx;
+struct ngpu_ctx;
 
 struct pgcraft_uniform { // also buffers (for arrays)
     char name[MAX_ID_LEN];
@@ -197,7 +197,7 @@ struct pgcraft_params {
 
 struct pgcraft;
 
-struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx);
+struct pgcraft *ngli_pgcraft_create(struct ngpu_ctx *gpu_ctx);
 int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params);
 int32_t ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);
 int32_t ngli_pgcraft_get_block_index(const struct pgcraft *s, const char *name, int stage);
