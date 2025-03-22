@@ -25,11 +25,11 @@
 #define NGPU_PGCRAFT_H
 
 #include "image.h"
+#include "ngpu/block_desc.h"
 #include "ngpu/buffer.h"
 #include "ngpu/pipeline.h"
 #include "ngpu/texture.h"
 #include "precision.h"
-#include "ngpu/block_desc.h"
 #include "utils/bstr.h"
 
 struct ngpu_ctx;
