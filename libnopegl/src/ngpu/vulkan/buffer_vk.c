@@ -109,8 +109,8 @@ struct ngpu_buffer *ngpu_buffer_vk_create(struct ngpu_ctx *gpu_ctx)
 
 static void unref_cmd_buffer(void *user_arg, void *data)
 {
-    struct cmd_buffer_vk **cmd_bufferp = data;
-    ngli_cmd_buffer_vk_freep(cmd_bufferp);
+    struct ngpu_cmd_buffer_vk **cmd_bufferp = data;
+    ngpu_cmd_buffer_vk_freep(cmd_bufferp);
 }
 
 static VkResult buffer_vk_init(struct ngpu_buffer *s)
@@ -119,7 +119,7 @@ static VkResult buffer_vk_init(struct ngpu_buffer *s)
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 
-    ngli_darray_init(&s_priv->cmd_buffers, sizeof(struct cmd_buffer_vk *), 0);
+    ngli_darray_init(&s_priv->cmd_buffers, sizeof(struct ngpu_cmd_buffer_vk *), 0);
     ngli_darray_set_free_func(&s_priv->cmd_buffers, unref_cmd_buffer, NULL);
 
     VkMemoryPropertyFlags mem_props;
@@ -151,10 +151,10 @@ int ngpu_buffer_vk_wait(struct ngpu_buffer *s)
 {
     struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 
-    struct cmd_buffer_vk **cmd_buffers = ngli_darray_data(&s_priv->cmd_buffers);
+    struct ngpu_cmd_buffer_vk **cmd_buffers = ngli_darray_data(&s_priv->cmd_buffers);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->cmd_buffers); i++) {
-        struct cmd_buffer_vk *cmd_buffer = cmd_buffers[i];
-        ngli_cmd_buffer_vk_wait(cmd_buffer);
+        struct ngpu_cmd_buffer_vk *cmd_buffer = cmd_buffers[i];
+        ngpu_cmd_buffer_vk_wait(cmd_buffer);
     }
     ngli_darray_clear(&s_priv->cmd_buffers);
 
@@ -194,8 +194,8 @@ static VkResult buffer_vk_upload(struct ngpu_buffer *s, const void *data, size_t
     memcpy(mapped_data + offset, data, size);
     vkUnmapMemory(vk->device, s_priv->staging_memory);
 
-    struct cmd_buffer_vk *cmd_buffer_vk;
-    res = ngli_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
+    struct ngpu_cmd_buffer_vk *cmd_buffer_vk;
+    res = ngpu_cmd_buffer_vk_begin_transient(s->gpu_ctx, 0, &cmd_buffer_vk);
     if (res != VK_SUCCESS)
         return res;
 
@@ -206,7 +206,7 @@ static VkResult buffer_vk_upload(struct ngpu_buffer *s, const void *data, size_t
     };
     vkCmdCopyBuffer(cmd_buffer_vk->cmd_buf, s_priv->staging_buffer, s_priv->buffer, 1, &region);
 
-    res = ngli_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
+    res = ngpu_cmd_buffer_vk_execute_transient(&cmd_buffer_vk);
     if (res != VK_SUCCESS)
         return res;
 
@@ -252,11 +252,11 @@ void ngpu_buffer_vk_unmap(struct ngpu_buffer *s)
     vkUnmapMemory(vk->device, s_priv->memory);
 }
 
-static size_t buffer_vk_find_cmd_buffer(struct ngpu_buffer *s, struct cmd_buffer_vk *cmd_buffer)
+static size_t buffer_vk_find_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_vk *cmd_buffer)
 {
     struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 
-    struct cmd_buffer_vk **cmd_buffers = ngli_darray_data(&s_priv->cmd_buffers);
+    struct ngpu_cmd_buffer_vk **cmd_buffers = ngli_darray_data(&s_priv->cmd_buffers);
     for (size_t i = 0; i < ngli_darray_count(&s_priv->cmd_buffers); i++) {
         if (cmd_buffers[i] == cmd_buffer)
             return i;
@@ -265,7 +265,7 @@ static size_t buffer_vk_find_cmd_buffer(struct ngpu_buffer *s, struct cmd_buffer
     return SIZE_MAX;
 }
 
-int ngpu_buffer_vk_ref_cmd_buffer(struct ngpu_buffer *s, struct cmd_buffer_vk *cmd_buffer)
+int ngpu_buffer_vk_ref_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_vk *cmd_buffer)
 {
     struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 
@@ -281,7 +281,7 @@ int ngpu_buffer_vk_ref_cmd_buffer(struct ngpu_buffer *s, struct cmd_buffer_vk *c
     return 0;
 }
 
-int ngpu_buffer_vk_unref_cmd_buffer(struct ngpu_buffer *s, struct cmd_buffer_vk *cmd_buffer)
+int ngpu_buffer_vk_unref_cmd_buffer(struct ngpu_buffer *s, struct ngpu_cmd_buffer_vk *cmd_buffer)
 {
     struct ngpu_buffer_vk *s_priv = (struct ngpu_buffer_vk *)s;
 

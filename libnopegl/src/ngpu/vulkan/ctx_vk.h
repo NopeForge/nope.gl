@@ -37,10 +37,10 @@ struct ngpu_ctx_vk {
 
     VkCommandPool cmd_pool;
 
-    struct cmd_buffer_vk **cmd_buffers;
-    struct cmd_buffer_vk **update_cmd_buffers;
+    struct ngpu_cmd_buffer_vk **cmd_buffers;
+    struct ngpu_cmd_buffer_vk **update_cmd_buffers;
     struct darray pending_cmd_buffers;
-    struct cmd_buffer_vk *cur_cmd_buffer;
+    struct ngpu_cmd_buffer_vk *cur_cmd_buffer;
     int cur_cmd_buffer_is_transient;
 
     VkQueryPool query_pool;
