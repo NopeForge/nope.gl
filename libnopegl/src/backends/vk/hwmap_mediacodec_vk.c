@@ -338,7 +338,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 
     int ngl_format = NGLI_GPU_FORMAT_UNDEFINED;
     if (ahb_format_props.format)
-        ngl_format = ngli_gpu_format_ngl_to_vk(ahb_format_props.format);
+        ngl_format = ngli_gpu_format_vk_to_ngl(ahb_format_props.format);
 
     const struct gpu_texture_params texture_params = {
         .type             = NGLI_GPU_TEXTURE_TYPE_2D,
