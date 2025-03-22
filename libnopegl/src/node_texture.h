@@ -42,8 +42,8 @@ struct texture_info {
     size_t image_rev;
 };
 
-enum ngpu_pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node);
-enum ngpu_pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node);
+enum ngpu_pgcraft_texture_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node);
+enum ngpu_pgcraft_texture_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node);
 int ngli_node_texture_has_media_data_src(const struct ngl_node *node);
 
 #endif
