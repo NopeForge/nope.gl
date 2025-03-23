@@ -268,7 +268,7 @@ static int common_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 const struct hwmap_class ngli_hwmap_common_class = {
     .name      = "default",
     .hwformat  = -1, /* TODO: replace with NMD_PIXFMT_NONE */
-    .layouts   = (const int[]){
+    .layouts   = (const enum image_layout[]){
         NGLI_IMAGE_LAYOUT_DEFAULT,
         NGLI_IMAGE_LAYOUT_NV12,
         NGLI_IMAGE_LAYOUT_YUV,

@@ -216,7 +216,7 @@ static void mc_uninit(struct hwmap *hwmap)
 const struct hwmap_class ngli_hwmap_mc_gl_class = {
     .name      = "mediacodec (oes zero-copy)",
     .hwformat  = NMD_PIXFMT_MEDIACODEC,
-    .layouts   = (const int[]){
+    .layouts   = (const enum image_layout[]){
         NGLI_IMAGE_LAYOUT_MEDIACODEC,
         NGLI_IMAGE_LAYOUT_NONE
     },
