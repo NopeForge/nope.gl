@@ -55,9 +55,9 @@ Now is the time to take a step back:
 ### Exposure
 
 In order to keep the API maintainable in the long term, we try to keep it as
-small as possible. This means the only public header of the project `nopegl.h`
-must be kept with as little symbols as possible. Additionally, we try to
-prevent painful integration for our users:
+small as possible. This means the only public header of the project
+`nopegl/nopegl.h` must be kept with as little symbols as possible.
+Additionally, we try to prevent painful integration for our users:
 
 - Do not reorder public enum such as `NGL_PLATFORM_*` as it breaks ABI
 - Do not insert a value in the middle of a public enum as it breaks ABI

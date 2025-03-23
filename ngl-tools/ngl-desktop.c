@@ -52,7 +52,7 @@
 #include <fcntl.h>
 #include <signal.h>
 
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 
 #include "common.h"
 #include "ipc.h"

@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 
 #include "wsi.h"
 

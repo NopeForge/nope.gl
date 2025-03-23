@@ -22,7 +22,7 @@ In order to compile a source code using the `nope.gl` C-API, the main and only
 header has to be included:
 
 ```c
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 ```
 
 This is a C header, so if you are writing code in another language, you must
@@ -31,7 +31,7 @@ like this:
 
 ```c++
 extern "C" {
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 }
 ```
 

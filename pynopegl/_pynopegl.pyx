@@ -26,7 +26,7 @@ from libc.stdlib cimport calloc, free
 from libc.string cimport memset
 
 
-cdef extern from "nopegl.h":
+cdef extern from "nopegl/nopegl.h":
     cdef enum ngl_log_level:
         NGL_LOG_VERBOSE,
         NGL_LOG_DEBUG,

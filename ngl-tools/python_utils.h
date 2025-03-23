@@ -22,7 +22,7 @@
 #ifndef PYTHON_UTILS_H
 #define PYTHON_UTILS_H
 
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 
 struct ngl_scene *python_get_scene(const char *modname, const char *func_name);
 

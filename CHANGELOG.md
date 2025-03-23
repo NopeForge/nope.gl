@@ -48,6 +48,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `GraphicConfig.depth_write_mask` is renamed to `GraphicConfig.depth_write`
 - `Circle.count`, `Buffer*.count`, `StreamedBuffer*.count` are now unsigned
 - `Program.nb_frag_output` is now unsigned
+- The `libnopegl` headers are now located in the nopegl sub directory. Users
+  must now use `#include <nopegl/nopegl.h>` instead of `#include <nopegl.h>`
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio

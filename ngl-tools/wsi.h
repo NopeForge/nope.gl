@@ -23,7 +23,7 @@
 #define WSI_H
 
 #include <SDL.h>
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 
 int init_window(void);
 SDL_Window *get_window(const char *title, int32_t width, int32_t height);
