@@ -418,7 +418,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 const struct hwmap_class ngli_hwmap_vaapi_vk_class = {
     .name      = "vaapi (dma buf → vk image)",
     .hwformat  = NMD_PIXFMT_VAAPI,
-    .layouts   = (const int[]){
+    .layouts   = (const enum image_layout[]){
         NGLI_IMAGE_LAYOUT_NV12,
         NGLI_IMAGE_LAYOUT_NONE
     },

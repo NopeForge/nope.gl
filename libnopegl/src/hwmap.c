@@ -146,12 +146,12 @@ static const struct hwmap_class **get_backend_hwmap_classes(int backend)
     return NULL;
 }
 
-static int is_image_layout_supported(const struct hwmap_class **classes, int image_layout)
+static int is_image_layout_supported(const struct hwmap_class **classes, enum image_layout image_layout)
 {
     if (!classes)
         return 0;
     for (size_t i = 0; classes[i]; i++) {
-        const int *layouts = classes[i]->layouts;
+        const enum image_layout *layouts = classes[i]->layouts;
         ngli_assert(layouts);
         for (size_t j = 0; layouts[j] != NGLI_IMAGE_LAYOUT_NONE; j++)
             if (layouts[j] == image_layout)
@@ -160,7 +160,7 @@ static int is_image_layout_supported(const struct hwmap_class **classes, int ima
     return 0;
 }
 
-int ngli_hwmap_is_image_layout_supported(int backend, int image_layout)
+int ngli_hwmap_is_image_layout_supported(int backend, enum image_layout image_layout)
 {
     static const struct hwmap_class *default_hwmap_classes[] = {&ngli_hwmap_common_class, NULL};
     const struct hwmap_class **extra_hwmap_classes = get_backend_hwmap_classes(backend);

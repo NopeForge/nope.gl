@@ -67,14 +67,14 @@ struct hwmap_class {
     const char *name;
     uint32_t flags;
     int hwformat;
-    const int *layouts;
+    const enum image_layout *layouts;
     size_t priv_size;
     int (*init)(struct hwmap *hwmap, struct nmd_frame *frame);
     int (*map_frame)(struct hwmap *hwmap, struct nmd_frame *frame);
     void (*uninit)(struct hwmap *hwmap);
 };
 
-int ngli_hwmap_is_image_layout_supported(int backend, int image_layout);
+int ngli_hwmap_is_image_layout_supported(int backend, enum image_layout image_layout);
 
 int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap_params *params);
 int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct image *image);
