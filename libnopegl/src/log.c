@@ -31,7 +31,7 @@
 #include "utils/memory.h"
 
 ngli_printf_format(6, 0)
-static void default_callback(void *arg, int level, const char *filename, int ln,
+static void default_callback(void *arg, enum ngl_log_level level, const char *filename, int ln,
                              const char *fn, const char *fmt, va_list vl)
 {
     char logline[128];
@@ -89,7 +89,7 @@ static void default_callback(void *arg, int level, const char *filename, int ln,
 static struct {
     void *user_arg;
     ngl_log_callback_type callback;
-    int min_level;
+    enum ngl_log_level min_level;
 } log_ctx = {
     .callback  = default_callback,
     .min_level = NGL_LOG_WARNING,
@@ -101,12 +101,12 @@ void ngli_log_set_callback(void *arg, ngl_log_callback_type callback)
     log_ctx.callback = callback;
 }
 
-void ngli_log_set_min_level(int level)
+void ngli_log_set_min_level(enum ngl_log_level level)
 {
     log_ctx.min_level = level;
 }
 
-void ngli_log_print(int log_level, const char *filename,
+void ngli_log_print(enum ngl_log_level log_level, const char *filename,
                     int ln, const char *fn, const char *fmt, ...)
 {
     va_list arg_list;

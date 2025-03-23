@@ -74,7 +74,7 @@ struct hwmap_class {
     void (*uninit)(struct hwmap *hwmap);
 };
 
-int ngli_hwmap_is_image_layout_supported(int backend, enum image_layout image_layout);
+int ngli_hwmap_is_image_layout_supported(enum ngl_backend_type backend, enum image_layout image_layout);
 
 int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap_params *params);
 int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct image *image);

@@ -27,14 +27,16 @@ from libc.string cimport memset
 
 
 cdef extern from "nopegl.h":
-    cdef int NGL_LOG_VERBOSE
-    cdef int NGL_LOG_DEBUG
-    cdef int NGL_LOG_INFO
-    cdef int NGL_LOG_WARNING
-    cdef int NGL_LOG_ERROR
-    cdef int NGL_LOG_QUIET
+    cdef enum ngl_log_level:
+        NGL_LOG_VERBOSE,
+        NGL_LOG_DEBUG,
+        NGL_LOG_INFO,
+        NGL_LOG_WARNING,
+        NGL_LOG_ERROR,
+        NGL_LOG_QUIET
+        NGL_LOG_MAX_ENUM
 
-    void ngl_log_set_min_level(int level)
+    void ngl_log_set_min_level(ngl_log_level level)
 
     cdef struct ngl_node
 
@@ -67,18 +69,22 @@ cdef extern from "nopegl.h":
     int ngl_node_param_set_vec4(ngl_node *node, const char *key, const float *value)
     int ngl_anim_evaluate(ngl_node *anim, void *dst, double t)
 
-    cdef int NGL_PLATFORM_AUTO
-    cdef int NGL_PLATFORM_XLIB
-    cdef int NGL_PLATFORM_ANDROID
-    cdef int NGL_PLATFORM_MACOS
-    cdef int NGL_PLATFORM_IOS
-    cdef int NGL_PLATFORM_WINDOWS
-    cdef int NGL_PLATFORM_WAYLAND
+    cdef enum ngl_platform_type:
+        NGL_PLATFORM_AUTO,
+        NGL_PLATFORM_XLIB,
+        NGL_PLATFORM_ANDROID,
+        NGL_PLATFORM_MACOS,
+        NGL_PLATFORM_IOS,
+        NGL_PLATFORM_WINDOWS,
+        NGL_PLATFORM_WAYLAND
+        NGL_PLATFORM_MAX_ENUM
 
-    cdef int NGL_BACKEND_AUTO
-    cdef int NGL_BACKEND_OPENGL
-    cdef int NGL_BACKEND_OPENGLES
-    cdef int NGL_BACKEND_VULKAN
+    cdef enum ngl_backend_type:
+        NGL_BACKEND_AUTO,
+        NGL_BACKEND_OPENGL,
+        NGL_BACKEND_OPENGLES,
+        NGL_BACKEND_VULKAN
+        NGL_BACKEND_MAX_ENUM
 
     cdef int NGL_CAP_COMPUTE
     cdef int NGL_CAP_DEPTH_STENCIL_RESOLVE
@@ -105,7 +111,7 @@ cdef extern from "nopegl.h":
         uint32_t value
 
     cdef struct ngl_backend:
-        int id
+        ngl_backend_type id
         const char *string_id
         const char *name
         int is_default
@@ -138,8 +144,8 @@ cdef extern from "nopegl.h":
         uint32_t external_framebuffer
 
     cdef struct ngl_config:
-        int  platform
-        int  backend
+        ngl_platform_type  platform
+        ngl_backend_type backend
         void *backend_config
         uintptr_t display
         uintptr_t window
