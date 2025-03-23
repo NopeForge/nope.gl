@@ -187,7 +187,7 @@ struct ngl_scene {
     struct darray files_par; // file based parameters pointers (array of uint8_t *)
 };
 
-enum {
+enum node_category {
     NGLI_NODE_CATEGORY_NONE,
     NGLI_NODE_CATEGORY_VARIABLE,
     NGLI_NODE_CATEGORY_TEXTURE,
@@ -236,7 +236,7 @@ enum {
  */
 struct node_class {
     uint32_t id;
-    int category;
+    enum node_category category;
     const char *name;
 
 
