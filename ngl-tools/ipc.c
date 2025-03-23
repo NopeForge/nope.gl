@@ -29,7 +29,7 @@
 #include <sys/socket.h>
 #endif
 
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 
 #include "ipc.h"
 

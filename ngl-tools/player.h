@@ -25,7 +25,7 @@
 #include <stdint.h>
 
 #include <SDL.h>
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 
 /*
  * Warning: clear color and samples will NOT trigger a reconfigure, an explicit

@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 
 #include "python_utils.h"
 

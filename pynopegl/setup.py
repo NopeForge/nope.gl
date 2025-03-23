@@ -386,7 +386,7 @@ class CommandUtils:
     @staticmethod
     def _gen_definitions_pyx(specs):
         # Map C nodes identifiers (NGL_NODE_*)
-        content = 'cdef extern from "nopegl.h":\n'
+        content = 'cdef extern from "nopegl/nopegl.h":\n'
         nodes_decls = []
         constants = []
         for node in specs["nodes"].keys():

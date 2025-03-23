@@ -32,7 +32,7 @@
 #include <unistd.h>
 #endif
 
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 
 #include "common.h"
 #include "opts.h"

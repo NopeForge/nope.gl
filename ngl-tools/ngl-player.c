@@ -26,7 +26,7 @@
 #define STDERR_FILENO _fileno(stderr)
 #endif
 
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 #include <nopemd.h>
 
 #include "common.h"

@@ -21,7 +21,7 @@
 
 #include <Python.h>
 
-#include <nopegl.h>
+#include <nopegl/nopegl.h>
 
 #include "python_utils.h"
 
