@@ -54,6 +54,12 @@
 #include "vaapi_ctx.h"
 #endif
 
+// Ensure public enums are stored on 32-bit
+NGLI_STATIC_ASSERT(enum_on_32bit, sizeof(enum ngl_log_level) == sizeof(int32_t));
+NGLI_STATIC_ASSERT(enum_on_32bit, sizeof(enum ngl_platform_type) == sizeof(int32_t));
+NGLI_STATIC_ASSERT(enum_on_32bit, sizeof(enum ngl_backend_type) == sizeof(int32_t));
+NGLI_STATIC_ASSERT(enum_on_32bit, sizeof(enum ngl_capture_buffer_type) == sizeof(int32_t));
+
 #if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
 # define DEFAULT_BACKEND NGL_BACKEND_OPENGLES
 #else
@@ -80,12 +86,12 @@ void ngl_log_set_callback(void *arg, ngl_log_callback_type callback)
     ngli_log_set_callback(arg, callback);
 }
 
-void ngl_log_set_min_level(int level)
+void ngl_log_set_min_level(enum ngl_log_level level)
 {
     ngli_log_set_min_level(level);
 }
 
-static int get_default_platform(void)
+static enum ngl_platform_type get_default_platform(void)
 {
 #if defined(TARGET_LINUX)
     return NGL_PLATFORM_XLIB;
@@ -100,6 +106,13 @@ static int get_default_platform(void)
 #else
     NGLI_STATIC_ASSERT(default_platform, 0);
 #endif
+}
+
+static enum ngl_platform_type get_platform(enum ngl_platform_type platform_type)
+{
+    if (platform_type == NGL_PLATFORM_AUTO)
+        return get_default_platform();
+    return platform_type;
 }
 
 static const char *get_cap_string_id(unsigned cap_id)
@@ -606,7 +619,7 @@ static int backends_probe(const struct ngl_config *user_config, size_t *nb_backe
     if (!user_config)
         user_config = &default_config;
 
-    const int platform = user_config->platform == NGL_PLATFORM_AUTO ? get_default_platform() : user_config->platform;
+    const enum ngl_platform_type platform = get_platform(user_config->platform);
 
     struct ngl_backend *backends = ngli_calloc(NGLI_ARRAY_NB(api_map), sizeof(*backends));
     if (!backends)
@@ -720,10 +733,6 @@ int ngl_configure(struct ngl_ctx *s, const struct ngl_config *user_config)
         config.backend = DEFAULT_BACKEND;
     if (config.platform == NGL_PLATFORM_AUTO)
         config.platform = get_default_platform();
-    if (config.platform < 0) {
-        LOG(ERROR, "can not determine which platform to use");
-        return config.platform;
-    }
 
     if (config.backend < 0 ||
         config.backend >= NGLI_ARRAY_NB(api_map)) {
