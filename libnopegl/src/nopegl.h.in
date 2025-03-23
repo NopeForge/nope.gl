@@ -52,27 +52,28 @@
 /**
  * Logging levels
  */
-enum {
+enum ngl_log_level {
     NGL_LOG_VERBOSE,
     NGL_LOG_DEBUG,
     NGL_LOG_INFO,
     NGL_LOG_WARNING,
     NGL_LOG_ERROR,
-    NGL_LOG_QUIET = 1 << 8
+    NGL_LOG_QUIET = 1 << 8,
+    NGL_LOG_MAX_ENUM = 0x7FFFFFFF
 };
 
 /**
  * Logging callback prototype.
  *
  * @param arg       forwarded opaque user argument
- * @param level     log level (any of NGL_LOG_*)
+ * @param level     log level
  * @param filename  source filename from where the message originates
  * @param ln        line in the source filename
  * @param fn        calling function name
  * @param fmt       printf format string
  * @param vl        variable argument list object associated with the fmt format string
  */
-typedef void (*ngl_log_callback_type)(void *arg, int level, const char *filename,
+typedef void (*ngl_log_callback_type)(void *arg, enum ngl_log_level level, const char *filename,
                                       int ln, const char *fn, const char *fmt, va_list vl);
 
 /**
@@ -90,9 +91,9 @@ NGL_API void ngl_log_set_callback(void *arg, ngl_log_callback_type callback);
  * No message with its level inferior to the specified level will be logged
  * (with or without the callback set).
  *
- * @param level log level (any of NGL_LOG_*)
+ * @param level log level
  */
-NGL_API void ngl_log_set_min_level(int level);
+NGL_API void ngl_log_set_min_level(enum ngl_log_level level);
 
 /**
  * Opaque structure identifying a node
@@ -619,7 +620,7 @@ NGL_API void ngl_livectls_freep(struct ngl_livectl **livectlsp);
 /**
  * Platform-specific identifiers
  */
-enum {
+enum ngl_platform_type {
     NGL_PLATFORM_AUTO,
     NGL_PLATFORM_XLIB,
     NGL_PLATFORM_ANDROID,
@@ -627,25 +628,28 @@ enum {
     NGL_PLATFORM_IOS,
     NGL_PLATFORM_WINDOWS,
     NGL_PLATFORM_WAYLAND,
+    NGL_PLATFORM_MAX_ENUM = 0x7FFFFFFF
 };
 
 /**
  * Rendering backends
  */
-enum {
+enum ngl_backend_type {
     NGL_BACKEND_AUTO,
     NGL_BACKEND_OPENGL,
     NGL_BACKEND_OPENGLES,
     NGL_BACKEND_VULKAN,
-    NGL_BACKEND_NB // *NOT* part of the API/ABI
+    NGL_BACKEND_NB, // *NOT* part of the API/ABI
+    NGL_BACKEND_MAX_ENUM = 0x7FFFFFFF
 };
 
 /**
  * Capture buffer types
  */
-enum {
+enum ngl_capture_buffer_type {
     NGL_CAPTURE_BUFFER_TYPE_CPU,
     NGL_CAPTURE_BUFFER_TYPE_COREVIDEO,
+    NGL_CAPTURE_BUFFER_TYPE_MAX_ENUM = 0x7FFFFFFF
 };
 
 /**
@@ -670,9 +674,9 @@ struct ngl_config_gl {
  * nope.gl configuration
  */
 struct ngl_config {
-    int platform;  /* Platform-specific identifier (any of NGL_PLATFORM_*) */
+    enum ngl_platform_type platform;  /* Platform-specific identifier */
 
-    int backend;   /* Rendering backend (any of NGL_BACKEND_*) */
+    enum ngl_backend_type backend;   /* Rendering backend */
 
     void *backend_config; /* Optional backend specific configuration (any of ngl_config_*
                              depending on the selected backend) */
@@ -709,7 +713,7 @@ struct ngl_config {
                              - If the capture buffer type is COREVIDEO, the
                                specified pointer must reference a CVPixelBuffer */
 
-    int capture_buffer_type; /* Any of NGL_CAPTURE_BUFFER_TYPE_* */
+    enum ngl_capture_buffer_type capture_buffer_type;
 
     int hud;                 /* Enable the debug HUD */
 
@@ -751,7 +755,7 @@ struct ngl_cap {
 };
 
 struct ngl_backend {
-    int id;                 /* any of NGL_BACKEND_* */
+    enum ngl_backend_type id;
     const char *string_id;  /* unique backend identifier string */
     const char *name;
     int is_default;

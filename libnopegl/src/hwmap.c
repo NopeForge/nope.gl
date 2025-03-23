@@ -133,7 +133,7 @@ static int exec_hwconv(struct hwmap *hwmap)
     return 0;
 }
 
-static const struct hwmap_class **get_backend_hwmap_classes(int backend)
+static const struct hwmap_class **get_backend_hwmap_classes(enum ngl_backend_type backend)
 {
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
     if (backend == NGL_BACKEND_OPENGL || backend == NGL_BACKEND_OPENGLES)
@@ -160,7 +160,7 @@ static int is_image_layout_supported(const struct hwmap_class **classes, enum im
     return 0;
 }
 
-int ngli_hwmap_is_image_layout_supported(int backend, enum image_layout image_layout)
+int ngli_hwmap_is_image_layout_supported(enum ngl_backend_type backend, enum image_layout image_layout)
 {
     static const struct hwmap_class *default_hwmap_classes[] = {&ngli_hwmap_common_class, NULL};
     const struct hwmap_class **extra_hwmap_classes = get_backend_hwmap_classes(backend);
