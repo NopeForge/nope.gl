@@ -268,7 +268,7 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
 const struct hwmap_class ngli_hwmap_vt_darwin_gl_class = {
     .name      = "videotoolbox (iosurface)",
     .hwformat  = NMD_PIXFMT_VT,
-    .layouts   = (const int[]){
+    .layouts   = (const enum image_layout[]){
         NGLI_IMAGE_LAYOUT_RECTANGLE,
         NGLI_IMAGE_LAYOUT_NV12_RECTANGLE,
         NGLI_IMAGE_LAYOUT_NONE
