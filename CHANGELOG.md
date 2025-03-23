@@ -42,6 +42,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   characters instead of a distant bottom-left position
 - `TextEffect.transform` are now combined on overlapping text effects instead of
   replacing the previous one
+- Public anonymous enums (ngl_log_level, ngl_backend_type, ngl_platform_type,
+  ngl_capture_buffer_type, ngl_path_instruction_verb) are now named
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio
