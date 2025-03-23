@@ -255,7 +255,7 @@ static int vt_ios_init(struct hwmap *hwmap, struct nmd_frame *frame)
 const struct hwmap_class ngli_hwmap_vt_ios_gl_class = {
     .name      = "videotoolbox (zero-copy)",
     .hwformat  = NMD_PIXFMT_VT,
-    .layouts   = (const int[]){
+    .layouts   = (const enum image_layout[]){
         NGLI_IMAGE_LAYOUT_DEFAULT,
         NGLI_IMAGE_LAYOUT_NV12,
         NGLI_IMAGE_LAYOUT_NONE

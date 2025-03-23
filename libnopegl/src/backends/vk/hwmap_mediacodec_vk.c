@@ -384,7 +384,7 @@ static void mc_uninit(struct hwmap *hwmap)
 const struct hwmap_class ngli_hwmap_mc_vk_class = {
     .name      = "mediacodec (hw buffer → vk image)",
     .hwformat  = NMD_PIXFMT_MEDIACODEC,
-    .layouts   = (const int[]){
+    .layouts   = (const enum image_layout[]){
         NGLI_IMAGE_LAYOUT_DEFAULT,
         NGLI_IMAGE_LAYOUT_NONE
     },
