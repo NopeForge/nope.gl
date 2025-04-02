@@ -173,12 +173,9 @@ void ngpu_ctx_freep(struct ngpu_ctx **sp)
         return;
 
     struct ngpu_ctx *s = *sp;
-    const struct ngpu_ctx_class *cls = s->cls;
 
     ngpu_pgcache_reset(&s->program_cache);
-
-    if (cls)
-        cls->destroy(s);
+    s->cls->destroy(s);
 
     ngli_config_reset(&s->config);
     ngli_freep(sp);
