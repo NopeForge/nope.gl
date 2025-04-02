@@ -22,9 +22,8 @@
 
 #include <string.h>
 
-#include "internal.h"
 #include "pgcache.h"
-#include "utils/memory.h"
+#include "utils/hmap.h"
 #include "utils/utils.h"
 
 static void reset_cached_program(void *user_arg, void *data)
