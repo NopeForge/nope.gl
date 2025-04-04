@@ -50,7 +50,11 @@ struct ngpu_bindgroup_layout_vk {
     struct darray desc_set_layout_bindings; // array of VkDescriptorSetLayoutBinding
     struct darray immutable_samplers;       // array of ycbcr_sampler_vk pointers
     VkDescriptorSetLayout desc_set_layout;
-    VkDescriptorPool desc_pool;
+    uint32_t desc_pool_size_count;
+    VkDescriptorPoolSize desc_pool_sizes[NGPU_TYPE_NB];
+    uint32_t max_desc_sets;
+    struct darray desc_pools;
+    size_t desc_pool_index;
 };
 
 struct ngpu_bindgroup_vk {
