@@ -57,7 +57,7 @@ struct ngpu_bindgroup_layout *ngpu_bindgroup_layout_create(struct ngpu_ctx *gpu_
 }
 
 int ngpu_bindgroup_layout_init(struct ngpu_bindgroup_layout *s,
-                               const struct ngpu_bindgroup_layout_desc *desc)
+                               struct ngpu_bindgroup_layout_desc *desc)
 {
     NGLI_ARRAY_MEMDUP(s, desc, textures);
     NGLI_ARRAY_MEMDUP(s, desc, buffers);
