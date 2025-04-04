@@ -90,20 +90,20 @@ struct ngpu_bindgroup_resources {
 };
 
 struct ngpu_bindgroup_params {
-    const struct ngpu_bindgroup_layout *layout;
+    struct ngpu_bindgroup_layout *layout;
     struct ngpu_bindgroup_resources resources;
 };
 
 struct ngpu_bindgroup {
     struct ngli_rc rc;
     struct ngpu_ctx *gpu_ctx;
-    const struct ngpu_bindgroup_layout *layout;
+    struct ngpu_bindgroup_layout *layout;
 };
 
 NGLI_RC_CHECK_STRUCT(ngpu_bindgroup);
 
 struct ngpu_bindgroup_layout *ngpu_bindgroup_layout_create(struct ngpu_ctx *gpu_ctx);
-int ngpu_bindgroup_layout_init(struct ngpu_bindgroup_layout *s, const struct ngpu_bindgroup_layout_desc *desc);
+int ngpu_bindgroup_layout_init(struct ngpu_bindgroup_layout *s, struct ngpu_bindgroup_layout_desc *desc);
 int ngpu_bindgroup_layout_is_compatible(const struct ngpu_bindgroup_layout *a, const struct ngpu_bindgroup_layout *b);
 void ngpu_bindgroup_layout_freep(struct ngpu_bindgroup_layout **sp);
 
