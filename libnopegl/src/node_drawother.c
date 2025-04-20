@@ -1492,9 +1492,8 @@ static void drawother_draw(struct ngl_node *node, struct draw_common *s, const s
 
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
-    if (!ctx->render_pass_started) {
+    if (!ngpu_ctx_is_render_pass_active(gpu_ctx)) {
         ngpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-        ctx->render_pass_started = 1;
     }
 
     ngpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);

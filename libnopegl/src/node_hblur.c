@@ -594,7 +594,6 @@ static void hblur_draw(struct ngl_node *node)
 
     ngli_rtt_begin(s->pass1.rtt_ctx);
     ngpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-    ctx->render_pass_started = 1;
     if (s->image_rev != s->image->rev) {
         ngli_pipeline_compat_update_image(s->pass1.pl, 0, s->image);
         s->image_rev = s->image->rev;
@@ -608,7 +607,6 @@ static void hblur_draw(struct ngl_node *node)
 
     ngli_rtt_begin(s->pass2.rtt_ctx);
     ngpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-    ctx->render_pass_started = 1;
     if (s->map_rev != s->map_image->rev) {
         ngli_pipeline_compat_update_image(s->pass2.pl, 2, s->map_image);
         s->image_rev = s->map_image->rev;

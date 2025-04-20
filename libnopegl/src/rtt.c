@@ -292,9 +292,8 @@ void ngli_rtt_begin(struct rtt_ctx *s)
     s->prev_rendertargets[1] = ctx->available_rendertargets[1];
     s->prev_rendertarget = ctx->current_rendertarget;
 
-    if (ctx->render_pass_started) {
+    if (ngpu_ctx_is_render_pass_active(gpu_ctx)) {
         ngpu_ctx_end_render_pass(gpu_ctx);
-        ctx->render_pass_started = 0;
         s->prev_rendertarget = ctx->available_rendertargets[1];
     }
 
@@ -316,13 +315,11 @@ void ngli_rtt_end(struct rtt_ctx *s)
     ngli_assert(s->started);
     s->started = 0;
 
-    if (!ctx->render_pass_started) {
+    if (!ngpu_ctx_is_render_pass_active(gpu_ctx)) {
         ngpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-        ctx->render_pass_started = 1;
     }
     ngpu_ctx_end_render_pass(gpu_ctx);
 
-    ctx->render_pass_started = 0;
     ctx->current_rendertarget = s->prev_rendertarget;
     ctx->available_rendertargets[0] = s->prev_rendertargets[0];
     ctx->available_rendertargets[1] = s->prev_rendertargets[1];
