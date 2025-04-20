@@ -206,6 +206,11 @@ void ngpu_ctx_end_render_pass(struct ngpu_ctx *s)
     s->rendertarget = NULL;
 }
 
+bool ngpu_ctx_is_render_pass_active(struct ngpu_ctx *s)
+{
+    return s->rendertarget != NULL;
+}
+
 void ngpu_ctx_get_rendertarget_uvcoord_matrix(struct ngpu_ctx *s, float *dst)
 {
     s->cls->get_rendertarget_uvcoord_matrix(s, dst);
