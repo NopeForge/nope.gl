@@ -499,7 +499,6 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
     s->available_rendertargets[0] = rt;
     s->available_rendertargets[1] = rt_resume;
     s->current_rendertarget = rt;
-    s->render_pass_started = 0;
 
     struct ngl_scene *scene = s->scene;
     if (scene) {
@@ -507,27 +506,24 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
         ngli_node_draw(scene->params.root);
     }
 
-    if (!s->render_pass_started) {
+    if (!ngpu_ctx_is_render_pass_active(s->gpu_ctx)) {
         ngpu_ctx_begin_render_pass(s->gpu_ctx, s->current_rendertarget);
-        s->render_pass_started = 1;
     }
 
     if (s->hud) {
         s->cpu_draw_time = ngli_gettime_relative() - cpu_start_time;
 
-        if (s->render_pass_started) {
+        if (ngpu_ctx_is_render_pass_active(s->gpu_ctx)) {
             ngpu_ctx_end_render_pass(s->gpu_ctx);
             s->current_rendertarget = s->available_rendertargets[1];
-            s->render_pass_started = 0;
         }
         ngpu_ctx_query_draw_time(s->gpu_ctx, &s->gpu_draw_time);
 
         ngli_hud_draw(s->hud);
     }
 
-    if (s->render_pass_started) {
+    if (ngpu_ctx_is_render_pass_active(s->gpu_ctx)) {
         ngpu_ctx_end_render_pass(s->gpu_ctx);
-        s->render_pass_started = 0;
     }
 
     return ngpu_ctx_end_draw(s->gpu_ctx, t);

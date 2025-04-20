@@ -406,10 +406,8 @@ static void colorstats_draw(struct ngl_node *node)
     ngli_node_draw(o->texture_node);
 
     struct ngl_ctx *ctx = node->ctx;
-    if (ctx->render_pass_started) {
-        struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
-        ngpu_ctx_end_render_pass(gpu_ctx);
-        ctx->render_pass_started = 0;
+    if (ngpu_ctx_is_render_pass_active(ctx->gpu_ctx)) {
+        ngpu_ctx_end_render_pass(ctx->gpu_ctx);
         ctx->current_rendertarget = ctx->available_rendertargets[1];
     }
 
