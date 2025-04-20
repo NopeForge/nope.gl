@@ -92,7 +92,6 @@ struct ngl_ctx {
     struct ngpu_scissor scissor;
     struct ngpu_rendertarget *available_rendertargets[2];
     struct ngpu_rendertarget *current_rendertarget;
-    int render_pass_started;
     float default_modelview_matrix[16];
     float default_projection_matrix[16];
     struct darray modelview_matrix_stack;
