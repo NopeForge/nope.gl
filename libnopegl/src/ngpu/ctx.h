@@ -24,6 +24,7 @@
 #define NGPU_CTX_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "bindgroup.h"
 #include "buffer.h"
@@ -192,6 +193,7 @@ void ngpu_ctx_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, 
 
 void ngpu_ctx_begin_render_pass(struct ngpu_ctx *s, struct ngpu_rendertarget *rt);
 void ngpu_ctx_end_render_pass(struct ngpu_ctx *s);
+bool ngpu_ctx_is_render_pass_active(const struct ngpu_ctx *s);
 
 void ngpu_ctx_set_viewport(struct ngpu_ctx *s, const struct ngpu_viewport *viewport);
 void ngpu_ctx_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scissor);
