@@ -664,9 +664,8 @@ int ngli_pass_exec(struct pass *s)
     if (s->pipeline_type == NGPU_PIPELINE_TYPE_GRAPHICS) {
         struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
-        if (!ctx->render_pass_started) {
+        if (!ngpu_ctx_is_render_pass_active(gpu_ctx)) {
             ngpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-            ctx->render_pass_started = 1;
         }
 
         ngpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
@@ -678,10 +677,10 @@ int ngli_pass_exec(struct pass *s)
         else
             ngli_pipeline_compat_draw(pipeline_compat, s->nb_vertices, s->nb_instances, 0);
     } else {
-        if (ctx->render_pass_started) {
-            struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+        struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+
+        if (ngpu_ctx_is_render_pass_active(gpu_ctx)) {
             ngpu_ctx_end_render_pass(gpu_ctx);
-            ctx->render_pass_started = 0;
             ctx->current_rendertarget = ctx->available_rendertargets[1];
         }
 

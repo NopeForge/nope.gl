@@ -472,7 +472,6 @@ static void gblur_draw(struct ngl_node *node)
 
     ngli_rtt_begin(s->tmp);
     ngpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-    ctx->render_pass_started = 1;
     uint32_t offset = 0;
     ngli_pipeline_compat_update_dynamic_offsets(s->pl_blur_h, &offset, 1);
     if (s->image_rev != s->image->rev) {
@@ -484,7 +483,6 @@ static void gblur_draw(struct ngl_node *node)
 
     ngli_rtt_begin(s->dst_rtt_ctx);
     ngpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-    ctx->render_pass_started = 1;
     offset = (uint32_t)s->direction_block.block_size;
     ngli_pipeline_compat_update_dynamic_offsets(s->pl_blur_v, &offset, 1);
     ngli_pipeline_compat_update_image(s->pl_blur_v, 0, ngli_rtt_get_image(s->tmp, 0));
