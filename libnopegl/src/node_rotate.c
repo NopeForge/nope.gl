@@ -101,9 +101,9 @@ static const struct node_param rotate_params[] = {
                .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                .update_func=update_angle,
                .desc=NGLI_DOCSTRING("rotation angle in degrees")},
-    {"axis",   NGLI_PARAM_TYPE_VEC3, OFFSET(axis),   {.vec={0.0, 0.0, 1.0}},
+    {"axis",   NGLI_PARAM_TYPE_VEC3, OFFSET(axis),   {.vec={0.0f, 0.0f, 1.0f}},
                .desc=NGLI_DOCSTRING("rotation axis")},
-    {"anchor", NGLI_PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}},
+    {"anchor", NGLI_PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0f, 0.0f, 0.0f}},
                .desc=NGLI_DOCSTRING("vector to the center point of the rotation")},
     {NULL}
 };
