@@ -76,7 +76,6 @@ struct vkcontext {
     uint32_t nb_surface_formats;
     VkPresentModeKHR *present_modes;
     uint32_t nb_present_modes;
-    int support_present_mode_immediate;
 
     /* Device functions */
     VK_DECLARE_FUNC(CreateSamplerYcbcrConversionKHR);
@@ -98,6 +97,7 @@ int ngli_vkcontext_has_extension(const struct vkcontext *s, const char *name, in
 VkFormat ngli_vkcontext_find_supported_format(struct vkcontext *s, const VkFormat *formats,
                                               VkImageTiling tiling, VkFormatFeatureFlags features);
 int ngli_vkcontext_find_memory_type(struct vkcontext *s, uint32_t type, VkMemoryPropertyFlags props);
+VkBool32 ngli_vkcontext_support_present_mode(const struct vkcontext *s, VkPresentModeKHR mode);
 void ngli_vkcontext_freep(struct vkcontext **sp);
 
 #endif /* VKCONTEXT_H */
