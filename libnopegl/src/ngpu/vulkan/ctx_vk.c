@@ -598,6 +598,8 @@ static void destroy_swapchain(struct ngpu_ctx *s)
     struct vkcontext *vk = s_priv->vkcontext;
 
     vkDestroySwapchainKHR(vk->device, s_priv->swapchain, NULL);
+    s_priv->swapchain = VK_NULL_HANDLE;
+
     ngli_freep(&s_priv->images);
     s_priv->nb_images = 0;
 }
@@ -631,6 +633,8 @@ static VkResult recreate_swapchain(struct ngpu_ctx *gpu_ctx, struct vkcontext *v
     ngli_darray_clear(&s_priv->rts_load);
 
     vkDestroySwapchainKHR(vk->device, s_priv->swapchain, NULL);
+    s_priv->swapchain = VK_NULL_HANDLE;
+
     s_priv->nb_images = 0;
 
     if ((res = create_swapchain(gpu_ctx)) != VK_SUCCESS ||
