@@ -731,14 +731,17 @@ static VkResult query_swapchain_support(struct vkcontext *s)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     vkGetPhysicalDeviceSurfacePresentModesKHR(s->phy_device, s->surface, &s->nb_present_modes, s->present_modes);
 
+    return VK_SUCCESS;
+}
+
+VkBool32 ngli_vkcontext_support_present_mode(const struct vkcontext *s, VkPresentModeKHR mode)
+{
     for (uint32_t i = 0; i < s->nb_present_modes; i++) {
-        if (s->present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-            s->support_present_mode_immediate = 1;
-            break;
+        if (s->present_modes[i] == mode) {
+            return VK_TRUE;
         }
     }
-
-    return VK_SUCCESS;
+    return VK_FALSE;
 }
 
 static enum ngpu_format ngli_format_from_vk_format(VkFormat format)
