@@ -165,6 +165,15 @@ VkResult ngpu_cmd_buffer_vk_ref_buffer(struct ngpu_cmd_buffer_vk *s, struct ngpu
 
 VkResult ngpu_cmd_buffer_vk_begin(struct ngpu_cmd_buffer_vk *s)
 {
+    ngli_darray_clear(&s->refs);
+    ngli_darray_clear(&s->buffer_refs);
+
+    ngli_darray_clear(&s->wait_sems);
+    ngli_darray_clear(&s->wait_stages);
+    ngli_darray_clear(&s->signal_sems);
+
+    vkResetCommandBuffer(s->cmd_buf, 0);
+
     const VkCommandBufferBeginInfo cmd_buf_begin_info = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
         .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
@@ -200,6 +209,8 @@ VkResult ngpu_cmd_buffer_vk_submit(struct ngpu_cmd_buffer_vk *s)
     if (res != VK_SUCCESS)
         return res;
 
+    s->submitted = VK_TRUE;
+
     if (!ngli_darray_push(&gpu_ctx_vk->pending_cmd_buffers, &s))
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
@@ -215,9 +226,12 @@ VkResult ngpu_cmd_buffer_vk_wait(struct ngpu_cmd_buffer_vk *s)
     struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
-    VkResult res = vkWaitForFences(vk->device, 1, &s->fence, VK_TRUE, UINT64_MAX);
-    if (res != VK_SUCCESS)
-        return res;
+    if (s->submitted) {
+        VkResult res = vkWaitForFences(vk->device, 1, &s->fence, VK_TRUE, UINT64_MAX);
+        if (res != VK_SUCCESS)
+            return res;
+    }
+    s->submitted = VK_FALSE;
 
     ngli_darray_clear(&s->refs);
     ngli_darray_clear(&s->buffer_refs);
