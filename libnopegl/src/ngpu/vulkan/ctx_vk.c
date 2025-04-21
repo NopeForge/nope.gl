@@ -496,12 +496,15 @@ static VkPresentModeKHR select_swapchain_present_mode(struct vkcontext *vk, int 
 
     if (!swap_interval) {
         /*
-         * When vsync is disabled use VK_PRESENT_MODE_IMMEDIATE_KHR if
-         * available, otherwise fall back to VK_PRESENT_MODE_FIFO_KHR which is
-         * guaranteed to be supported.
+         * When vsync is disabled use VK_PRESENT_MODE_IMMEDIATE_KHR or
+         * VK_PRESENT_MODE_MAILBOX_KHR if available, otherwise fall back to
+         * VK_PRESENT_MODE_FIFO_KHR which is guaranteed to be supported.
          */
-        if (vk->support_present_mode_immediate)
+        if (ngli_vkcontext_support_present_mode(vk, VK_PRESENT_MODE_IMMEDIATE_KHR))
             return VK_PRESENT_MODE_IMMEDIATE_KHR;
+
+        if (ngli_vkcontext_support_present_mode(vk, VK_PRESENT_MODE_MAILBOX_KHR))
+            return VK_PRESENT_MODE_MAILBOX_KHR;
     }
 
     return VK_PRESENT_MODE_FIFO_KHR;
