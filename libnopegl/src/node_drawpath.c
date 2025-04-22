@@ -211,8 +211,8 @@ static int drawpath_init(struct ngl_node *node)
     const NGLI_ALIGNED_MAT(ref) = {
         nw, 0, 0, 0,
         0, nh, 0, 0,
-        box.x+offx, box.y+offy, 0, 0,
-        0, 0, 0, 1,
+        0, 0, 1, 0,
+        box.x+offx, box.y+offy, 0, 1,
     };
     memcpy(s->transform, ref, sizeof(s->transform));
 
