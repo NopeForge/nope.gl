@@ -90,7 +90,7 @@ struct drawpath_priv {
     struct darray pipeline_descs;
     int32_t atlas_coords_fill[4];
     int32_t atlas_coords_outline[4];
-    NGLI_ALIGNED_MAT(transform);
+    float transform[4];
 };
 
 #define OFFSET(x) offsetof(struct drawpath_opts, x)
@@ -208,12 +208,7 @@ static int drawpath_init(struct ngl_node *node)
     const float nh = box.h * scale_fill[1];
     const float offx = (box.w - nw) / 2.f;
     const float offy = (box.h - nh) / 2.f;
-    const NGLI_ALIGNED_MAT(ref) = {
-        nw, 0, 0, 0,
-        0, nh, 0, 0,
-        0, 0, 1, 0,
-        box.x+offx, box.y+offy, 0, 1,
-    };
+    const float ref[] = {box.x + offx, box.y + offy, nw, nh};
     memcpy(s->transform, ref, sizeof(s->transform));
 
     return 0;
@@ -336,7 +331,7 @@ static int drawpath_prepare(struct ngl_node *node)
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
-        {.name="transform",         .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="transform",         .type=NGLI_TYPE_VEC4,  .stage=NGLI_PROGRAM_SHADER_VERT},
 
         {.name="debug",             .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG},
         {.name="coords_fill",       .type=NGLI_TYPE_VEC4,  .stage=NGLI_PROGRAM_SHADER_FRAG},

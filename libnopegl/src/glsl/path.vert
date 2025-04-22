@@ -27,6 +27,6 @@ void main()
 
     uv = ref_uv;
 
-    vec4 position = transform * vec4(ref_uv, 0.0, 1.0);
+    vec4 position = vec4(transform.xy + ref_uv * transform.zw, 0.0, 1.0);
     ngl_out_pos = projection_matrix * modelview_matrix * position;
 }
