@@ -325,6 +325,8 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
         case NGLI_PARAM_TYPE_RATIONAL:
             ngli_bstr_printf(b, "%d/%d", NGLI_ARG_VEC2((const int32_t *)srcp));
             break;
+        default:
+            break;
     }
 }
 
@@ -345,7 +347,7 @@ static void node_hmap_free(void *user_arg, void *data)
     ngl_node_unrefp(&node);
 }
 
-static int check_param_type(const struct node_param *par, int expected_type)
+static int check_param_type(const struct node_param *par, enum param_type expected_type)
 {
     if (par->type != expected_type) {
         LOG(ERROR, "invalid type: %s is of type %s, not %s", par->key,
@@ -927,6 +929,8 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
             case NGLI_PARAM_TYPE_RATIONAL:
                 ret = ngli_params_set_rational(dstp, par, par->def_value.r[0], par->def_value.r[1]);
                 break;
+            default:
+                break;
         }
         if (ret < 0)
             return ret;
@@ -1052,6 +1056,8 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 ngli_hmap_freep(hmapp);
                 break;
             }
+            default:
+                break;
         }
     }
 }
