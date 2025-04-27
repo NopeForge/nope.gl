@@ -135,6 +135,8 @@ static void print_node_params(const char *name, const struct node_param *p, cons
             case NGLI_PARAM_TYPE_RATIONAL:
                 printf(D "[%d,%d],\n", NGLI_ARG_VEC2(p->def_value.r));
                 break;
+            default:
+                break;
             }
             if (p->node_types) {
                 printf(I "\"node_types\": [");
@@ -280,8 +282,9 @@ static const struct node_class *node_type_to_class(int type)
 {
     switch (type) {
         NODE_MAP_TYPE2CLASS(MAP_NODE_CLS)
+        default:
+            return NULL;
     }
-    return NULL;
 }
 
 static int check_node_params(const struct node_class *cls)
