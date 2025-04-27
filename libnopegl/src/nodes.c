@@ -129,8 +129,9 @@ static const struct node_class *get_node_class(uint32_t type)
 {
     switch (type) {
         NODE_MAP_TYPE2CLASS(REGISTER_NODE)
+        default:
+            return NULL;
     }
-    return NULL;
 }
 
 struct ngl_node *ngl_node_create(uint32_t type)

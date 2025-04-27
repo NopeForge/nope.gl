@@ -53,21 +53,21 @@ static unsigned get_hue(const char *name)
 
 static int vec_is_set(const uint8_t *srcp, const struct node_param *par)
 {
-    const int n = par->type - NGLI_PARAM_TYPE_VEC2 + 2;
+    const uint32_t n = par->type - NGLI_PARAM_TYPE_VEC2 + 2;
     const float *v = (const float *)srcp;
     return memcmp(v, par->def_value.vec, n * sizeof(*v));
 }
 
 static int ivec_is_set(const uint8_t *srcp, const struct node_param *par)
 {
-    const int n = par->type - NGLI_PARAM_TYPE_IVEC2 + 2;
+    const uint32_t n = par->type - NGLI_PARAM_TYPE_IVEC2 + 2;
     const int32_t *v = (const int32_t *)srcp;
     return memcmp(v, par->def_value.ivec, n * sizeof(*v));
 }
 
 static int uvec_is_set(const uint8_t *srcp, const struct node_param *par)
 {
-    const int n = par->type - NGLI_PARAM_TYPE_UVEC2 + 2;
+    const uint32_t n = par->type - NGLI_PARAM_TYPE_UVEC2 + 2;
     const uint32_t *v = (const uint32_t *)srcp;
     return memcmp(v, par->def_value.uvec, n * sizeof(*v));
 }
@@ -122,6 +122,8 @@ static int should_print_par(const uint8_t *srcp, const struct node_param *par)
             return uvec_is_set(srcp, par);
         case NGLI_PARAM_TYPE_MAT4:
             return mat_is_set(srcp, par);
+        default:
+            break;
     }
     return 0;
 }
@@ -282,6 +284,8 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                     print_all_decls(b, entry->data, decls);
                 break;
             }
+            default:
+                break;
         }
         p++;
     }

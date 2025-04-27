@@ -24,7 +24,7 @@
 
 #include "utils/bstr.h"
 
-enum {
+enum param_type {
     NGLI_PARAM_TYPE_I32,
     NGLI_PARAM_TYPE_IVEC2,
     NGLI_PARAM_TYPE_IVEC3,
@@ -145,7 +145,7 @@ struct ngl_node;
 
 struct node_param {
     const char *key;
-    int type; // NGLI_PARAM_TYPE_*
+    enum param_type type; // NGLI_PARAM_TYPE_*
     size_t offset;
     union {
         int32_t i32;
