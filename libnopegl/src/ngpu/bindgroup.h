@@ -40,7 +40,8 @@ enum ngpu_access {
     NGPU_ACCESS_READ_BIT   = 1 << 0,
     NGPU_ACCESS_WRITE_BIT  = 1 << 1,
     NGPU_ACCESS_READ_WRITE = NGPU_ACCESS_READ_BIT | NGPU_ACCESS_WRITE_BIT,
-    NGPU_ACCESS_NB
+    NGPU_ACCESS_NB,
+    NGPU_ACCESS_MAX_ENUM = 0x7FFFFFFF
 };
 
 struct ngpu_bindgroup_layout_entry {

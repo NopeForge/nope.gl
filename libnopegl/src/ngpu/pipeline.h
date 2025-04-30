@@ -67,7 +67,8 @@ enum ngpu_primitive_topology {
     NGPU_PRIMITIVE_TOPOLOGY_LINE_STRIP,
     NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
     NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-    NGPU_PRIMITIVE_TOPOLOGY_NB
+    NGPU_PRIMITIVE_TOPOLOGY_NB,
+    NGPU_PRIMITIVE_TOPOLOGY_MAX_ENUM = 0x7FFFFFFF
 };
 
 struct ngpu_pipeline_graphics {
@@ -80,6 +81,7 @@ struct ngpu_pipeline_graphics {
 enum ngpu_pipeline_type {
     NGPU_PIPELINE_TYPE_GRAPHICS,
     NGPU_PIPELINE_TYPE_COMPUTE,
+    NGPU_PIPELINE_TYPE_MAX_ENUM = 0x7FFFFFFF
 };
 
 struct ngpu_pipeline_layout {
