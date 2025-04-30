@@ -28,7 +28,8 @@ enum ngpu_precision {
     NGPU_PRECISION_HIGH,
     NGPU_PRECISION_MEDIUM,
     NGPU_PRECISION_LOW,
-    NGPU_PRECISION_NB
+    NGPU_PRECISION_NB,
+    NGPU_PRECISION_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_type {
@@ -63,7 +64,8 @@ enum ngpu_type {
     NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
     NGPU_TYPE_STORAGE_BUFFER,
     NGPU_TYPE_STORAGE_BUFFER_DYNAMIC,
-    NGPU_TYPE_NB
+    NGPU_TYPE_NB,
+    NGPU_TYPE_MAX_ENUM = 0x7FFFFFFF
 };
 
 const char *ngpu_type_get_name(enum ngpu_type type);
