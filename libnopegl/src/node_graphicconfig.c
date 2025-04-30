@@ -35,29 +35,29 @@ struct graphicconfig_opts {
     struct ngl_node *child;
 
     int blend;
-    int blend_src_factor;
-    int blend_dst_factor;
-    int blend_src_factor_a;
-    int blend_dst_factor_a;
-    int blend_op;
-    int blend_op_a;
+    enum ngpu_blend_factor blend_src_factor;
+    enum ngpu_blend_factor blend_dst_factor;
+    enum ngpu_blend_factor blend_src_factor_a;
+    enum ngpu_blend_factor blend_dst_factor_a;
+    enum ngpu_blend_op blend_op;
+    enum ngpu_blend_op blend_op_a;
 
     int color_write_mask;
 
     int depth_test;
     int depth_write_mask;
-    int depth_func;
+    enum ngpu_compare_op depth_func;
 
     int stencil_test;
     int32_t stencil_write_mask;
-    int stencil_func;
+    enum ngpu_compare_op stencil_func;
     int32_t stencil_ref;
     int32_t stencil_read_mask;
-    int stencil_fail;
-    int stencil_depth_fail;
-    int stencil_depth_pass;
+    enum ngpu_stencil_op stencil_fail;
+    enum ngpu_stencil_op stencil_depth_fail;
+    enum ngpu_stencil_op stencil_depth_pass;
 
-    int cull_mode;
+    enum ngpu_cull_mode cull_mode;
 
     int32_t scissor[4];
 };
