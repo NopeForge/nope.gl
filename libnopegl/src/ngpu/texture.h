@@ -33,20 +33,23 @@ enum ngpu_mipmap_filter {
     NGPU_MIPMAP_FILTER_NONE = 0,
     NGPU_MIPMAP_FILTER_NEAREST,
     NGPU_MIPMAP_FILTER_LINEAR,
-    NGPU_NB_MIPMAP
+    NGPU_NB_MIPMAP,
+    NGPU_MIPMAP_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_filter {
     NGPU_FILTER_NEAREST = 0,
     NGPU_FILTER_LINEAR,
-    NGPU_NB_FILTER
+    NGPU_NB_FILTER,
+    NGPU_FILTER_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_wrap {
     NGPU_WRAP_CLAMP_TO_EDGE = 0,
     NGPU_WRAP_MIRRORED_REPEAT,
     NGPU_WRAP_REPEAT,
-    NGPU_NB_WRAP
+    NGPU_NB_WRAP,
+    NGPU_WRAP_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_texture_usage {
@@ -57,6 +60,7 @@ enum ngpu_texture_usage {
     NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT         = 1 << 4,
     NGPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT = 1 << 5,
     NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT     = 1 << 6,
+    NGPU_TEXTURE_USAGE_MAX_ENUM                     = 0x7FFFFFFF
 };
 
 enum ngpu_texture_type {
@@ -64,7 +68,8 @@ enum ngpu_texture_type {
     NGPU_TEXTURE_TYPE_2D_ARRAY,
     NGPU_TEXTURE_TYPE_3D,
     NGPU_TEXTURE_TYPE_CUBE,
-    NGPU_TEXTURE_TYPE_NB
+    NGPU_TEXTURE_TYPE_NB,
+    NGPU_TEXTURE_TYPE_MAX_ENUM = 0x7FFFFFFF
 };
 
 struct ngpu_texture_params {

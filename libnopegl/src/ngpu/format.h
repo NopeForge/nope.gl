@@ -86,7 +86,8 @@ enum ngpu_format {
     NGPU_FORMAT_D24_UNORM_S8_UINT,
     NGPU_FORMAT_D32_SFLOAT_S8_UINT,
     NGPU_FORMAT_S8_UINT,
-    NGPU_FORMAT_NB
+    NGPU_FORMAT_NB,
+    NGPU_FORMAT_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_format_feature {
@@ -95,6 +96,7 @@ enum ngpu_format_feature {
     NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT            = 1 << 2,
     NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT      = 1 << 3,
     NGPU_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT    = 1 << 4,
+    NGPU_FORMAT_FEATURE_MAX_ENUM = 0x7FFFFFFF
 };
 
 int ngpu_format_get_bytes_per_pixel(enum ngpu_format format);
