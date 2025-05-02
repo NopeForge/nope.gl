@@ -86,7 +86,8 @@
 #define NGLI_ARRAY_NB(x) (sizeof(x)/sizeof(*(x)))
 #define NGLI_SWAP(type, a, b) do { type tmp_swap = b; b = a; a = tmp_swap; } while (0)
 
-#define NGLI_ALIGN(v, a) (((v) + (a) - 1) & ~((a) - 1))
+#define NGLI_ALIGN_MASK(v, mask) (((v) + (mask)) & ~(mask))
+#define NGLI_ALIGN(v, a) NGLI_ALIGN_MASK(v, (__typeof__(v))(a) - 1)
 #define NGLI_ALIGN_VAL 16
 
 #define NGLI_ATTR_ALIGNED _Alignas(NGLI_ALIGN_VAL)
