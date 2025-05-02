@@ -80,9 +80,9 @@ static struct ngl_node *node_create(const struct node_class *cls)
     node->priv_data = ((uint8_t *)node->opts) + opts_size;
 
     /* Make sure the node, opts, and its private data are properly aligned */
-    ngli_assert((((uintptr_t)node)            & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node);
-    ngli_assert((((uintptr_t)node->opts)      & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node->opts);
-    ngli_assert((((uintptr_t)node->priv_data) & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node->priv_data);
+    ngli_assert(NGLI_IS_ALIGNED((uintptr_t)node, NGLI_ALIGN_VAL));
+    ngli_assert(NGLI_IS_ALIGNED((uintptr_t)node->opts, NGLI_ALIGN_VAL));
+    ngli_assert(NGLI_IS_ALIGNED((uintptr_t)node->priv_data, NGLI_ALIGN_VAL));
 
     node->cls = cls;
     node->last_update_time = -1.;
