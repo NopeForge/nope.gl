@@ -296,7 +296,7 @@ void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstat
         }
 
         const GLenum stencil_func = get_gl_compare_op(state->stencil_front.func);
-        const GLint stencil_ref = state->stencil_front.ref;
+        const GLint stencil_ref = (GLint)state->stencil_front.ref;
         const GLuint stencil_read_mask = state->stencil_front.read_mask;
         if (stencil_func != glstate->stencil_front.func ||
             stencil_ref != glstate->stencil_front.ref ||
@@ -329,7 +329,7 @@ void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstat
         }
 
         const GLenum stencil_func = get_gl_compare_op(state->stencil_back.func);
-        const GLint stencil_ref = state->stencil_back.ref;
+        const GLint stencil_ref = (GLint)state->stencil_back.ref;
         const GLuint stencil_read_mask = state->stencil_back.read_mask;
         if (stencil_func != glstate->stencil_back.func ||
             stencil_ref != glstate->stencil_back.ref ||

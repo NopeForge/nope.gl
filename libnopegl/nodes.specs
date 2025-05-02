@@ -2839,8 +2839,8 @@
         },
         {
           "name": "stencil_write_mask",
-          "type": "i32",
-          "default": -1,
+          "type": "u32",
+          "default": 4294967295,
           "flags": [],
           "desc": "stencil write mask, must be in the range [0, 0xff]"
         },
@@ -2854,15 +2854,15 @@
         },
         {
           "name": "stencil_ref",
-          "type": "i32",
-          "default": -1,
+          "type": "u32",
+          "default": 4294967295,
           "flags": [],
           "desc": "stencil reference value to compare against"
         },
         {
           "name": "stencil_read_mask",
-          "type": "i32",
-          "default": -1,
+          "type": "u32",
+          "default": 4294967295,
           "flags": [],
           "desc": "stencil read mask, must be in the range [0, 0xff]"
         },

@@ -42,17 +42,17 @@ struct graphicconfig_opts {
     enum ngpu_blend_op blend_op;
     enum ngpu_blend_op blend_op_a;
 
-    int color_write_mask;
+    uint32_t color_write_mask;
 
     int depth_test;
     int depth_write;
     enum ngpu_compare_op depth_func;
 
     int stencil_test;
-    int32_t stencil_write_mask;
+    uint32_t stencil_write_mask;
     enum ngpu_compare_op stencil_func;
-    int32_t stencil_ref;
-    int32_t stencil_read_mask;
+    uint32_t stencil_ref;
+    uint32_t stencil_read_mask;
     enum ngpu_stencil_op stencil_fail;
     enum ngpu_stencil_op stencil_depth_fail;
     enum ngpu_stencil_op stencil_depth_pass;
@@ -189,14 +189,14 @@ static const struct node_param graphicconfig_params[] = {
                            .choices=&func_choices},
     {"stencil_test",       NGLI_PARAM_TYPE_BOOL,   OFFSET(stencil_test),       {.i32=-1},
                            .desc=NGLI_DOCSTRING("enable stencil testing")},
-    {"stencil_write_mask", NGLI_PARAM_TYPE_I32,    OFFSET(stencil_write_mask), {.i32=-1},
+    {"stencil_write_mask", NGLI_PARAM_TYPE_U32,    OFFSET(stencil_write_mask), {.i32=-1},
                            .desc=NGLI_DOCSTRING("stencil write mask, must be in the range [0, 0xff]")},
     {"stencil_func",       NGLI_PARAM_TYPE_SELECT, OFFSET(stencil_func),       {.i32=-1},
                            .desc=NGLI_DOCSTRING("passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)`"),
                            .choices=&func_choices},
-    {"stencil_ref",        NGLI_PARAM_TYPE_I32,    OFFSET(stencil_ref),        {.i32=-1},
+    {"stencil_ref",        NGLI_PARAM_TYPE_U32,    OFFSET(stencil_ref),        {.i32=-1},
                            .desc=NGLI_DOCSTRING("stencil reference value to compare against")},
-    {"stencil_read_mask",  NGLI_PARAM_TYPE_I32,    OFFSET(stencil_read_mask),  {.i32=-1},
+    {"stencil_read_mask",  NGLI_PARAM_TYPE_U32,    OFFSET(stencil_read_mask),  {.i32=-1},
                            .desc=NGLI_DOCSTRING("stencil read mask, must be in the range [0, 0xff]")},
     {"stencil_fail",       NGLI_PARAM_TYPE_SELECT, OFFSET(stencil_fail),       {.i32=-1},
                            .choices=&stencil_op_choices,
@@ -266,14 +266,12 @@ static int graphicconfig_init(struct ngl_node *node)
     struct graphicconfig_priv *s = node->priv_data;
     const struct graphicconfig_opts *o = node->opts;
 
-    if (o->stencil_write_mask != -1 &&
-        (o->stencil_write_mask < 0 || o->stencil_write_mask > 0xff)) {
+    if (o->stencil_write_mask != -1 && o->stencil_write_mask > 0xff) {
         LOG(ERROR, "stencil write mask (0x%x) must be in the range [0, 0xff]", o->stencil_write_mask);
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    if (o->stencil_read_mask != -1 &&
-        (o->stencil_read_mask < 0 || o->stencil_read_mask > 0xff)) {
+    if (o->stencil_read_mask != -1 && o->stencil_read_mask > 0xff) {
         LOG(ERROR, "stencil read mask (0x%x) must be in the range [0, 0xff]", o->stencil_read_mask);
         return NGL_ERROR_INVALID_USAGE;
     }
