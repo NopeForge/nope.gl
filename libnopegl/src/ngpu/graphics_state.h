@@ -104,10 +104,10 @@ enum ngpu_front_face {
 };
 
 struct ngpu_stencil_op_state {
-    int write_mask;
+    uint32_t write_mask;
     enum ngpu_compare_op func;
-    int ref;
-    int read_mask;
+    uint32_t ref;
+    uint32_t read_mask;
     enum ngpu_stencil_op fail;
     enum ngpu_stencil_op depth_fail;
     enum ngpu_stencil_op depth_pass;
@@ -122,7 +122,7 @@ struct ngpu_graphics_state {
     enum ngpu_blend_op blend_op;
     enum ngpu_blend_op blend_op_a;
 
-    int color_write_mask;
+    uint32_t color_write_mask;
 
     int depth_test;
     int depth_write;
