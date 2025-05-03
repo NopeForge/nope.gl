@@ -258,7 +258,11 @@ NGL_API char *ngl_scene_dot(const struct ngl_scene *s);
  */
 NGL_API void ngl_scene_unrefp(struct ngl_scene **sp);
 
-#define NGLI_FOURCC(a,b,c,d) (((uint32_t)(a))<<24 | (b)<<16 | (c)<<8 | (d))
+#define NGLI_FOURCC(a, b, c, d) \
+   (((uint32_t)(((uint8_t)(a))) << 24) | \
+    ((uint32_t)(((uint8_t)(b))) << 16) | \
+    ((uint32_t)(((uint8_t)(c))) << 8)  | \
+    ((uint32_t)(((uint8_t)(d))) << 0))   \
 
 /**
  * Node FOURCC identifiers
