@@ -24,6 +24,7 @@
 
 #include <stdint.h>
 
+#include "blending.h"
 #include "ngpu/pipeline.h"
 #include "ngpu/pgcraft.h"
 #include "utils/darray.h"
@@ -47,7 +48,7 @@ struct pass_params {
     struct ngpu_pgcraft_iovar *vert_out_vars;
     size_t nb_vert_out_vars;
     size_t nb_frag_output;
-    int blending;
+    enum ngli_blending blending;
 
     /* compute */
     const char *comp_base;
