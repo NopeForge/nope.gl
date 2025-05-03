@@ -68,7 +68,7 @@ vec3 stitch_2_roots(int topology, vec2 roots, float a, float b, float c)
     float d1 = poly2(da, db, dc, roots.y);
     if (topology == 0x1) { /* 001 */
         bool up_down = d0 > d1;
-        return flip != up_down ? vec3(roots.xx, LARGE_FLOAT) : vec3(roots.yy, LARGE_FLOAT);
+        return vec3(flip != up_down ? roots.xx : roots.yy, LARGE_FLOAT);
     }
 
     /*
@@ -120,7 +120,7 @@ vec3 stitch_3_roots(int topology, vec3 roots, float a, float b, float c)
      * otherwise up+down. Depending on whether we are in up+down+up and
      * down+up+down we can deduce whether it's the 1st or the 2nd pair.
      */
-    return flip != up_down_up ? vec3(roots.xy, LARGE_FLOAT) : vec3(roots.yz, LARGE_FLOAT);
+    return vec3(flip != up_down_up ? roots.xy : roots.yz, LARGE_FLOAT);
 }
 
 /* Complex multiply, divide, inverse */
