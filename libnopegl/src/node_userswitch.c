@@ -42,7 +42,7 @@ static const struct node_param userswitch_params[] = {
     {NULL}
 };
 
-static int userswitch_visit(struct ngl_node *node, int is_active, double t)
+static int userswitch_visit(struct ngl_node *node, bool is_active, double t)
 {
     const struct userswitch_opts *o = node->opts;
     const int enabled = o->live.val.i[0];
