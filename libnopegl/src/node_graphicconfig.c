@@ -59,14 +59,14 @@ struct graphicconfig_opts {
 
     enum ngpu_cull_mode cull_mode;
 
-    int32_t scissor[4];
+    uint32_t scissor[4];
 };
 
 struct graphicconfig_priv {
     int use_scissor;
 };
 
-#define DEFAULT_SCISSOR {-1, -1, -1, -1}
+#define DEFAULT_SCISSOR {0, 0, 0, 0}
 
 static const struct param_choices blend_factor_choices = {
     .name = "blend_factor",
@@ -210,7 +210,7 @@ static const struct node_param graphicconfig_params[] = {
     {"cull_mode",          NGLI_PARAM_TYPE_SELECT, OFFSET(cull_mode),          {.i32=-1},
                            .choices=&cull_mode_choices,
                            .desc=NGLI_DOCSTRING("face culling mode")},
-    {"scissor",            NGLI_PARAM_TYPE_IVEC4, OFFSET(scissor), {.ivec=DEFAULT_SCISSOR},
+    {"scissor",            NGLI_PARAM_TYPE_UVEC4, OFFSET(scissor), {.uvec=DEFAULT_SCISSOR},
                            .desc=NGLI_DOCSTRING("define an area where all pixels outside are discarded")},
     {NULL}
 };
@@ -276,7 +276,7 @@ static int graphicconfig_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    static const int default_scissor[4] = DEFAULT_SCISSOR;
+    static const uint32_t default_scissor[4] = DEFAULT_SCISSOR;
     s->use_scissor = memcmp(o->scissor, default_scissor, sizeof(o->scissor));
 
     return 0;

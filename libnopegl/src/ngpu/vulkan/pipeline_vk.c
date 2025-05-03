@@ -235,11 +235,11 @@ static VkResult pipeline_graphics_init(struct ngpu_pipeline *s)
 
     const VkPipelineDepthStencilStateCreateInfo depthstencil_state_create_info = {
         .sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-        .depthTestEnable       = state->depth_test,
-        .depthWriteEnable      = state->depth_write_mask,
+        .depthTestEnable       = (VkBool32)state->depth_test,
+        .depthWriteEnable      = (VkBool32)state->depth_write_mask,
         .depthCompareOp        = get_vk_compare_op(state->depth_func),
         .depthBoundsTestEnable = 0,
-        .stencilTestEnable     = state->stencil_test,
+        .stencilTestEnable     = (VkBool32)state->stencil_test,
         .front = {
             .failOp      = get_vk_stencil_op(state->stencil_front.fail),
             .passOp      = get_vk_stencil_op(state->stencil_front.depth_pass),
@@ -265,7 +265,7 @@ static VkResult pipeline_graphics_init(struct ngpu_pipeline *s)
     VkPipelineColorBlendAttachmentState colorblend_attachment_states[NGPU_MAX_COLOR_ATTACHMENTS] = {0};
     for (size_t i = 0; i < graphics->rt_layout.nb_colors; i++) {
         colorblend_attachment_states[i] = (VkPipelineColorBlendAttachmentState) {
-            .blendEnable         = state->blend,
+            .blendEnable         = (VkBool32)state->blend,
             .srcColorBlendFactor = get_vk_blend_factor(state->blend_src_factor),
             .dstColorBlendFactor = get_vk_blend_factor(state->blend_dst_factor),
             .colorBlendOp        = get_vk_blend_op(state->blend_op),

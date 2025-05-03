@@ -111,14 +111,14 @@ static float f_smoothstep(float a, float b, float x)
 }
 
 /* See https://bitbashing.io/comparing-floats.html */
-static float f_close_p(float a, float b, float p) { return fabsf(a - b) <= p * f_max(fabsf(a), fabsf(b)); }
+static float f_close_p(float a, float b, float p) { return (float)(fabsf(a - b) <= p * f_max(fabsf(a), fabsf(b))); }
 static float f_close(float a, float b) { return f_close_p(a, b, 1e-6f); }
 
-static float f_eq(float a, float b) { return a == b; }
-static float f_gt(float a, float b) { return a > b; }
-static float f_gte(float a, float b) { return a >= b; }
-static float f_lt(float a, float b) { return a < b; }
-static float f_lte(float a, float b) { return a <= b; }
+static float f_eq(float a, float b) { return (float)(a == b); }
+static float f_gt(float a, float b) { return (float)(a > b); }
+static float f_gte(float a, float b) { return (float)(a >= b); }
+static float f_lt(float a, float b) { return (float)(a < b); }
+static float f_lte(float a, float b) { return (float)(a <= b); }
 
 static float f_isfinite(float x) { return (float)isfinite(x); }
 static float f_isinf(float x) { return (float)isinf(x); }
@@ -282,7 +282,7 @@ static int parse_opening_paren(struct eval *s, const char *expr, const char *p)
     if (!*p)
         return 0;
 
-    const size_t pos = p - expr;
+    const size_t pos = (size_t)(p - expr);
 
     if (*p == '(') {
         const struct token token = {.type=TOKEN_SPECIAL, .pos=pos, .chr='('};
@@ -300,7 +300,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
     if (!*p)
         return 0;
 
-    const size_t pos = p - expr;
+    const size_t pos = (size_t)(p - expr);
 
     /* Parse unary operators */
     if (*p == '+' || *p == '-') {
@@ -387,7 +387,7 @@ static int parse_post_subexpr(struct eval *s, const char *expr, const char *p)
     if (!*p)
         return 0;
 
-    const size_t pos = p - expr;
+    const size_t pos = (size_t)(p - expr);
 
     /* Parse binary operators */
     if (strchr("*/+-", *p)) {

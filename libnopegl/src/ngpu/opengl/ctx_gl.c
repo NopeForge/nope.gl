@@ -53,10 +53,11 @@ static void capture_cpu(struct ngpu_ctx *s)
     struct ngpu_rendertarget_gl *rt_gl = (struct ngpu_rendertarget_gl *)rt;
 
     gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, rt_gl->id);
-    gl->funcs.ReadPixels(0, 0, rt->width, rt->height, GL_RGBA, GL_UNSIGNED_BYTE, config->capture_buffer);
+    const GLint w = (GLint)rt->width, h = (GLint)rt->height;
+    gl->funcs.ReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, config->capture_buffer);
 }
 
-static int create_texture(struct ngpu_ctx *s, enum ngpu_format format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
+static int create_texture(struct ngpu_ctx *s, enum ngpu_format format, uint32_t samples, uint32_t usage, struct ngpu_texture **texturep)
 {
     const struct ngl_config *config = &s->config;
 
@@ -541,7 +542,7 @@ static int gl_init(struct ngpu_ctx *s)
     return 0;
 }
 
-static int gl_resize(struct ngpu_ctx *s, int32_t width, int32_t height)
+static int gl_resize(struct ngpu_ctx *s, uint32_t width, uint32_t height)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
@@ -760,7 +761,7 @@ static void blit_vflip(struct ngpu_ctx *s, struct ngpu_rendertarget *src, struct
     struct ngpu_rendertarget_gl *dst_gl = (struct ngpu_rendertarget_gl *)dst;
     const GLuint dst_fbo = dst_gl->id;
 
-    const int32_t w = src->width, h = dst->height;
+    const int32_t w = (int32_t)src->width, h = (int32_t)dst->height;
 
     gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
     gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, dst_fbo);
@@ -825,7 +826,7 @@ static int gl_query_draw_time(struct ngpu_ctx *s, int64_t *time)
     GLuint64 end_time = 0;
     s_priv->glGetQueryObjectui64v(s_priv->queries[1], GL_QUERY_RESULT, &end_time);
 
-    *time = end_time - start_time;
+    *time = (int64_t)(end_time - start_time);
 
     ret = ngpu_cmd_buffer_gl_begin(cmd_buffer);
     if (ret < 0)
@@ -900,7 +901,7 @@ static const struct ngpu_rendertarget_layout *gl_get_default_rendertarget_layout
     return &s_priv->default_rt_layout;
 }
 
-static void gl_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, int32_t *height)
+static void gl_get_default_rendertarget_size(struct ngpu_ctx *s, uint32_t *width, uint32_t *height)
 {
     *width = s->config.width;
     *height = s->config.height;

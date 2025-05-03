@@ -1575,7 +1575,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements"
@@ -1723,7 +1723,7 @@
         },
         {
           "name": "npoints",
-          "type": "i32",
+          "type": "u32",
           "default": 16,
           "flags": [],
           "desc": "number of points"
@@ -2900,8 +2900,8 @@
         },
         {
           "name": "scissor",
-          "type": "ivec4",
-          "default": [-1,-1,-1,-1],
+          "type": "uvec4",
+          "default": [0,0,0,0],
           "flags": [],
           "desc": "define an area where all pixels outside are discarded"
         }
@@ -3394,7 +3394,7 @@
         },
         {
           "name": "nb_frag_output",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of color outputs in the fragment shader"
@@ -3948,14 +3948,14 @@
         },
         {
           "name": "width",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "width of the texture"
         },
         {
           "name": "height",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "height of the texture"
@@ -4049,21 +4049,21 @@
         },
         {
           "name": "width",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "width of the texture"
         },
         {
           "name": "height",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "height of the texture"
         },
         {
           "name": "depth",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "depth of the texture"
@@ -4138,21 +4138,21 @@
         },
         {
           "name": "width",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "width of the texture"
         },
         {
           "name": "height",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "height of the texture"
         },
         {
           "name": "depth",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "depth of the texture"
@@ -4227,7 +4227,7 @@
         },
         {
           "name": "size",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "width and height of the texture"
@@ -4301,7 +4301,7 @@
         },
         {
           "name": "layer",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "texture layer used for the view"
@@ -4869,7 +4869,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -4909,7 +4909,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -4949,7 +4949,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -4989,7 +4989,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5029,7 +5029,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5069,7 +5069,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5109,7 +5109,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5149,7 +5149,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5189,7 +5189,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5229,7 +5229,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5269,7 +5269,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5309,7 +5309,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5349,7 +5349,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"

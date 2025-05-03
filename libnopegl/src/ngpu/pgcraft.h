@@ -116,7 +116,7 @@ struct ngpu_pgcraft_attribute {
     enum ngpu_format format;
     size_t stride;
     size_t offset;
-    int rate;
+    uint32_t rate;
     struct ngpu_buffer *buffer;
 };
 

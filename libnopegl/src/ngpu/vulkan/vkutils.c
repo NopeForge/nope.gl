@@ -85,7 +85,7 @@ int ngli_vk_res2ret(VkResult res)
     }
 }
 
-VkSampleCountFlagBits ngli_ngl_samples_to_vk(int32_t samples)
+VkSampleCountFlagBits ngli_ngl_samples_to_vk(uint32_t samples)
 {
     switch (samples) {
     case 0:
@@ -101,7 +101,7 @@ VkSampleCountFlagBits ngli_ngl_samples_to_vk(int32_t samples)
     }
 }
 
-int ngli_vk_samples_to_ngl(VkSampleCountFlags samples)
+uint32_t ngli_vk_samples_to_ngl(VkSampleCountFlags samples)
 {
     if (samples & VK_SAMPLE_COUNT_64_BIT) return 64;
     if (samples & VK_SAMPLE_COUNT_32_BIT) return 32;

@@ -19,10 +19,11 @@
  * under the License.
  */
 
+#include "config.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "config.h"
 #if !defined(TARGET_IPHONE) && !defined(TARGET_ANDROID) && !defined(TARGET_WINDOWS)
 #include <unistd.h>
 #endif
@@ -53,12 +54,13 @@ static void default_callback(void *arg, enum ngl_log_level level, const char *fi
 
     /* handle the case where the line doesn't fit the stack buffer */
     if (len >= sizeof(logline)) {
-        logbuf = ngli_malloc(len + 1);
+        const size_t logbuf_len = (size_t)len + 1;
+        logbuf = ngli_malloc(logbuf_len);
         if (!logbuf) {
             va_end(vl_copy);
             return;
         }
-        vsnprintf(logbuf, len + 1, fmt, vl_copy);
+        vsnprintf(logbuf, logbuf_len, fmt, vl_copy);
         logp = logbuf;
     }
 

@@ -84,7 +84,7 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
         struct ngpu_attachment *attachment = &s->params.colors[i];
         if (s->params.samples > 1) {
             struct ngpu_texture *texture = attachment->attachment;
-            const int texture_layer = attachment->attachment_layer;
+            const uint32_t texture_layer = attachment->attachment_layer;
 
             struct ngpu_texture *ms_texture = ngpu_texture_create(gpu_ctx);
             if (!ms_texture)
@@ -131,7 +131,7 @@ int ngli_rtt_init(struct rtt_ctx *s, const struct rtt_params *params)
         struct ngpu_attachment *attachment = &s->params.depth_stencil;
         if (s->params.samples > 1) {
             struct ngpu_texture *texture = attachment->attachment;
-            const int texture_layer = attachment->attachment_layer;
+            const uint32_t texture_layer = attachment->attachment_layer;
 
             struct ngpu_texture *ms_texture = ngpu_texture_create(gpu_ctx);
             if (!ms_texture)
@@ -261,7 +261,7 @@ int ngli_rtt_from_texture_params(struct rtt_ctx *s, const struct ngpu_texture_pa
     return ngli_rtt_init(s, &rtt_params);
 }
 
-void ngli_rtt_get_dimensions(struct rtt_ctx *s, int32_t *width, int32_t *height)
+void ngli_rtt_get_dimensions(struct rtt_ctx *s, uint32_t *width, uint32_t *height)
 {
     *width = s->params.width;
     *height = s->params.height;
@@ -297,9 +297,9 @@ void ngli_rtt_begin(struct rtt_ctx *s)
         s->prev_rendertarget = ctx->available_rendertargets[1];
     }
 
-    const int32_t width = s->params.width;
-    const int32_t height = s->params.height;
-    ctx->viewport = (struct ngpu_viewport){0, 0, width, height};
+    const uint32_t width = s->params.width;
+    const uint32_t height = s->params.height;
+    ctx->viewport = (struct ngpu_viewport){0, 0, (int32_t)width, (int32_t)height};
     ctx->scissor = (struct ngpu_scissor){0, 0, width, height};
 
     ctx->available_rendertargets[0] = s->available_rendertargets[0];

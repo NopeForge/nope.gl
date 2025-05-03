@@ -79,11 +79,11 @@ static GLbitfield get_gl_barriers(uint32_t usage)
     return barriers;
 }
 
-static int get_mipmap_levels(const struct ngpu_texture *s)
+static uint32_t get_mipmap_levels(const struct ngpu_texture *s)
 {
     const struct ngpu_texture_params *params = &s->params;
 
-    int mipmap_levels = 1;
+    uint32_t mipmap_levels = 1;
     if (params->mipmap_filter != NGPU_MIPMAP_FILTER_NONE)
         mipmap_levels = ngli_log2(params->width | params->height | 1);
     return mipmap_levels;
@@ -96,20 +96,25 @@ static void texture_allocate_storage(struct ngpu_texture *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct ngpu_texture_params *params = &s->params;
 
-    const int mipmap_levels = get_mipmap_levels(s);
+    const GLint width = (GLint)params->width;
+    const GLint height = (GLint)params->height;
+    const GLint depth = (GLint)params->depth;
+    const GLint array_layers = (GLint)s_priv->array_layers;
+    const GLint mipmap_levels = (GLint)get_mipmap_levels(s);
+
     switch (s_priv->target) {
     case GL_TEXTURE_2D:
-        gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
+        gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, width, height);
         break;
     case GL_TEXTURE_2D_ARRAY:
-        gl->funcs.TexStorage3D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height, s_priv->array_layers);
+        gl->funcs.TexStorage3D(s_priv->target, mipmap_levels, s_priv->internal_format, width, height, array_layers);
         break;
     case GL_TEXTURE_3D:
-        gl->funcs.TexStorage3D(s_priv->target, 1, s_priv->internal_format, params->width, params->height, params->depth);
+        gl->funcs.TexStorage3D(s_priv->target, 1, s_priv->internal_format, width, height, depth);
         break;
     case GL_TEXTURE_CUBE_MAP:
         /* glTexStorage2D automatically accomodates for 6 faces when using the cubemap target */
-        gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
+        gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, width, height);
         break;
     }
 }
@@ -120,33 +125,40 @@ static void texture_upload(struct ngpu_texture *s, const uint8_t *data, const st
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    const int bytes_per_row = transfer_params->pixels_per_row * s_priv->bytes_per_pixel;
-    const int alignment = NGLI_MIN(bytes_per_row & ~(bytes_per_row - 1), 8);
+    const size_t bytes_per_row = transfer_params->pixels_per_row * s_priv->bytes_per_pixel;
+    const GLint alignment = (GLint)NGLI_MIN(bytes_per_row & ~(bytes_per_row - 1), 8);
     gl->funcs.PixelStorei(GL_UNPACK_ALIGNMENT, alignment);
-    gl->funcs.PixelStorei(GL_UNPACK_ROW_LENGTH, transfer_params->pixels_per_row);
+    gl->funcs.PixelStorei(GL_UNPACK_ROW_LENGTH, (GLint)transfer_params->pixels_per_row);
+
+    const GLint x = (GLint)transfer_params->x;
+    const GLint y = (GLint)transfer_params->y;
+    const GLint z = (GLint)transfer_params->z;
+    const GLint width = (GLint)transfer_params->width;
+    const GLint height = (GLint)transfer_params->height;
+    const GLint depth = (GLint)transfer_params->depth;
+    const GLint base_layer = (GLint)transfer_params->base_layer;
+    const GLint layer_count = (GLint)transfer_params->layer_count;
 
     switch (s_priv->target) {
     case GL_TEXTURE_2D:
-        gl->funcs.TexSubImage2D(s_priv->target, 0, transfer_params->x, transfer_params->y,
-                                transfer_params->width, transfer_params->height,
+        gl->funcs.TexSubImage2D(s_priv->target, 0, x, y, width, height,
                                 s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_2D_ARRAY:
-        gl->funcs.TexSubImage3D(s_priv->target, 0, transfer_params->x, transfer_params->y, transfer_params->base_layer,
-                                transfer_params->width, transfer_params->height, transfer_params->layer_count,
+        gl->funcs.TexSubImage3D(s_priv->target, 0, x, y, base_layer,
+                                width, height, layer_count,
                                 s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_3D:
-        gl->funcs.TexSubImage3D(s_priv->target, 0, transfer_params->x, transfer_params->y, transfer_params->z,
-                                transfer_params->width, transfer_params->height, transfer_params->depth,
+        gl->funcs.TexSubImage3D(s_priv->target, 0, x, y, z,
+                                width, height, depth,
                                 s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_CUBE_MAP: {
-        const int layer_size = s_priv->bytes_per_pixel * transfer_params->pixels_per_row * transfer_params->height;
+        const size_t layer_size = bytes_per_row * transfer_params->height;
         const uint8_t *layer_data = data + (transfer_params->base_layer * layer_size);
-        for (int face = transfer_params->base_layer; face < transfer_params->layer_count; face++) {
-            gl->funcs.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0,
-                                    transfer_params->width, transfer_params->height,
+        for (uint32_t face = transfer_params->base_layer; face < transfer_params->layer_count; face++) {
+            gl->funcs.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0, width, height,
                                     s_priv->format, s_priv->format_type, layer_data);
             layer_data += layer_size;
         }
@@ -166,11 +178,11 @@ static int renderbuffer_check_samples(struct ngpu_texture *s)
     const struct ngpu_limits *limits = &gl->limits;
     const struct ngpu_texture_params *params = &s->params;
 
-    int max_samples = limits->max_samples;
+    GLint max_samples = (GLint)limits->max_samples;
     gl->funcs.GetInternalformativ(GL_RENDERBUFFER, s_priv->format, GL_SAMPLES, 1, &max_samples);
 
     if (params->samples > max_samples) {
-        LOG(WARNING, "renderbuffer format 0x%x does not support samples %d (maximum %d)",
+        LOG(WARNING, "renderbuffer format 0x%x does not support samples %u (maximum %d)",
             s_priv->format, params->samples, max_samples);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
@@ -185,10 +197,14 @@ static void renderbuffer_allocate_storage(struct ngpu_texture *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct ngpu_texture_params *params = &s->params;
 
+    const GLint width = (GLint)params->width;
+    const GLint height = (GLint)params->height;
+    const GLint samples = (GLint)params->samples;
+
     if (params->samples > 0)
-        gl->funcs.RenderbufferStorageMultisample(GL_RENDERBUFFER, params->samples, s_priv->format, params->width, params->height);
+        gl->funcs.RenderbufferStorageMultisample(GL_RENDERBUFFER, samples, s_priv->format, width, height);
     else
-        gl->funcs.RenderbufferStorage(GL_RENDERBUFFER, s_priv->format, params->width, params->height);
+        gl->funcs.RenderbufferStorage(GL_RENDERBUFFER, s_priv->format, width, height);
 }
 
 #define COLOR_USAGE NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT
@@ -207,7 +223,7 @@ static int texture_init_fields(struct ngpu_texture *s, const struct ngpu_texture
     if (!s_priv->wrapped)
         ngli_assert(params->width && params->height);
 
-    int32_t depth = 1;
+    uint32_t depth = 1;
     if (params->type == NGPU_TEXTURE_TYPE_3D) {
         if (!s_priv->wrapped)
             ngli_assert(params->depth);
@@ -335,7 +351,7 @@ void ngpu_texture_gl_set_id(struct ngpu_texture *s, GLuint id)
     s_priv->id = id;
 }
 
-void ngpu_texture_gl_set_dimensions(struct ngpu_texture *s, int32_t width, int32_t height, int depth)
+void ngpu_texture_gl_set_dimensions(struct ngpu_texture *s, uint32_t width, uint32_t height, uint32_t depth)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
 
@@ -358,7 +374,7 @@ int ngpu_texture_gl_upload(struct ngpu_texture *s, const uint8_t *data, int line
         .depth = params->depth,
         .base_layer = 0,
         .layer_count = s_priv->array_layers,
-        .pixels_per_row = linesize ? linesize : params->width,
+        .pixels_per_row = (uint32_t)linesize ? (uint32_t)linesize : params->width,
     };
 
     return ngpu_texture_gl_upload_with_params(s, data, &transfer_params);

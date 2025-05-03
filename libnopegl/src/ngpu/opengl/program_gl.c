@@ -62,7 +62,7 @@ static int program_check_status(const struct glcontext *gl, GLuint id, GLenum st
     if (!info_log_length)
         return NGL_ERROR_BUG;
 
-    info_log = ngli_malloc(info_log_length);
+    info_log = ngli_malloc((size_t)info_log_length);
     if (!info_log)
         return NGL_ERROR_MEMORY;
 

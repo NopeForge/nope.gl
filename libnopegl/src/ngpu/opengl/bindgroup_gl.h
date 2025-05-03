@@ -58,8 +58,8 @@ void ngpu_bindgroup_layout_gl_freep(struct ngpu_bindgroup_layout **sp);
 
 struct ngpu_bindgroup *ngpu_bindgroup_gl_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_bindgroup_gl_init(struct ngpu_bindgroup *s, const struct ngpu_bindgroup_params *params);
-int ngpu_bindgroup_gl_update_texture(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_texture_binding *binding);
-int ngpu_bindgroup_gl_update_buffer(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_buffer_binding *binding);
+int ngpu_bindgroup_gl_update_texture(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_texture_binding *binding);
+int ngpu_bindgroup_gl_update_buffer(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_buffer_binding *binding);
 GLbitfield ngpu_bindgroup_gl_get_memory_barriers(struct ngpu_bindgroup *s);
 void ngpu_bindgroup_gl_bind(struct ngpu_bindgroup *s, const uint32_t *dynamic_offsets, size_t nb_dynamic_offsets);
 void ngpu_bindgroup_gl_freep(struct ngpu_bindgroup **sp);

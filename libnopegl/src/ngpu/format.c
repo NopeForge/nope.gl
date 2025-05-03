@@ -23,8 +23,8 @@
 #include "format.h"
 
 static const struct {
-    int nb_comp;
-    int size;
+    size_t nb_comp;
+    size_t size;
 } format_comp_sizes[NGPU_FORMAT_NB] = {
     [NGPU_FORMAT_R8_UNORM]            = {1, 1},
     [NGPU_FORMAT_R8_SNORM]            = {1, 1},
@@ -89,12 +89,12 @@ static const struct {
     [NGPU_FORMAT_S8_UINT]             = {1, 1},
 };
 
-int ngpu_format_get_bytes_per_pixel(enum ngpu_format format)
+size_t ngpu_format_get_bytes_per_pixel(enum ngpu_format format)
 {
     return format_comp_sizes[format].size;
 }
 
-int ngpu_format_get_nb_comp(enum ngpu_format format)
+size_t ngpu_format_get_nb_comp(enum ngpu_format format)
 {
     return format_comp_sizes[format].nb_comp;
 }

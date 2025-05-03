@@ -267,7 +267,7 @@ static VkResult create_image_view(const struct ngpu_rendertarget *s, const struc
     return vkCreateImageView(vk->device, &view_info, NULL, view);
 }
 
-static VkResult add_attachment(struct ngpu_rendertarget *s, const struct ngpu_texture *texture, int32_t layer, const VkClearValue *clear_value)
+static VkResult add_attachment(struct ngpu_rendertarget *s, const struct ngpu_texture *texture, uint32_t layer, const VkClearValue *clear_value)
 {
     struct ngpu_rendertarget_vk *s_priv = (struct ngpu_rendertarget_vk *)s;
 

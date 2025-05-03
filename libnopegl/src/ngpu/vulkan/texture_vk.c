@@ -226,7 +226,7 @@ static VkFormatFeatureFlags get_vk_texture_format_features(const struct ngpu_tex
     return features;
 }
 
-static int get_mipmap_levels(int32_t width, int32_t height)
+static uint32_t get_mipmap_levels(uint32_t width, uint32_t height)
 {
     return ngli_log2(width | height | 1);
 }
@@ -396,17 +396,17 @@ static VkResult texture_vk_init(struct ngpu_texture *s, const struct ngpu_textur
     VkMemoryRequirements mem_reqs;
     vkGetImageMemoryRequirements(vk->device, s_priv->image, &mem_reqs);
 
-    int mem_type_index = NGL_ERROR_NOT_FOUND;
+    uint32_t mem_type_index = UINT32_MAX;
     if (s->params.usage & NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT) {
         const VkMemoryPropertyFlags mem_props = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
                                                 VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
         mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_props);
     }
 
-    if (mem_type_index < 0) {
+    if (mem_type_index == UINT32_MAX) {
         const VkMemoryPropertyFlags mem_pros = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_pros);
-        if (mem_type_index < 0)
+        if (mem_type_index == UINT32_MAX)
             return VK_ERROR_FORMAT_NOT_SUPPORTED;
     }
 
@@ -616,7 +616,8 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
     if (!data)
         return VK_SUCCESS;
 
-    const size_t transfer_layer_size = transfer_params->pixels_per_row * transfer_params->height * transfer_params->depth * s_priv->bytes_per_pixel;
+    const size_t transfer_layer_size = transfer_params->pixels_per_row * transfer_params->height
+                                     * transfer_params->depth * s_priv->bytes_per_pixel;
     const size_t transfer_size = transfer_layer_size * transfer_params->layer_count;
 
     if (s_priv->staging_buffer)
@@ -662,7 +663,7 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
     struct darray copy_regions;
     ngli_darray_init(&copy_regions, sizeof(VkBufferImageCopy), 0);
 
-    for (int32_t i = transfer_params->base_layer; i < transfer_params->layer_count; i++) {
+    for (uint32_t i = transfer_params->base_layer; i < transfer_params->layer_count; i++) {
         const VkDeviceSize offset = i * transfer_layer_size;
         const VkBufferImageCopy region = {
             .bufferOffset      = offset,
@@ -675,9 +676,9 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
                 .layerCount     = 1,
             },
             .imageOffset = {
-                transfer_params->x,
-                transfer_params->y,
-                transfer_params->z,
+                (int32_t)transfer_params->x,
+                (int32_t)transfer_params->y,
+                (int32_t)transfer_params->z,
             },
             .imageExtent = {
                 transfer_params->width,
@@ -733,7 +734,7 @@ int ngpu_texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, int line
         .depth = params->depth,
         .base_layer = 0,
         .layer_count = s_priv->array_layers,
-        .pixels_per_row = linesize ? linesize : params->width,
+        .pixels_per_row = (uint32_t)linesize ? (uint32_t)linesize : params->width,
     };
     return ngpu_texture_vk_upload_with_params(s, data, &transfer_params);
 }
@@ -793,8 +794,8 @@ static VkResult texture_vk_generate_mipmap(struct ngpu_texture *s)
         }
     };
 
-    int32_t mipmap_width  = s->params.width;
-    int32_t mipmap_height = s->params.height;
+    int32_t mipmap_width  = (int32_t)s->params.width;
+    int32_t mipmap_height = (int32_t)s->params.height;
     for (uint32_t i = 1; i < s_priv->mipmap_levels; i++) {
         barrier.subresourceRange.baseMipLevel = i - 1;
         barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;

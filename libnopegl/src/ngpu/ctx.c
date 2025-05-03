@@ -109,7 +109,7 @@ int ngpu_ctx_init(struct ngpu_ctx *s)
     return ngpu_pgcache_init(&s->program_cache, s);
 }
 
-int ngpu_ctx_resize(struct ngpu_ctx *s, int32_t width, int32_t height)
+int ngpu_ctx_resize(struct ngpu_ctx *s, uint32_t width, uint32_t height)
 {
     const struct ngpu_ctx_class *cls = s->cls;
     return cls->resize(s, width, height);
@@ -226,7 +226,7 @@ const struct ngpu_rendertarget_layout *ngpu_ctx_get_default_rendertarget_layout(
     return s->cls->get_default_rendertarget_layout(s);
 }
 
-void ngpu_ctx_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, int32_t *height)
+void ngpu_ctx_get_default_rendertarget_size(struct ngpu_ctx *s, uint32_t *width, uint32_t *height)
 {
     s->cls->get_default_rendertarget_size(s, width, height);
 }

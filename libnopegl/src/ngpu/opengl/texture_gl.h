@@ -40,12 +40,12 @@ struct ngpu_texture_gl {
     struct ngpu_texture parent;
     GLenum target;
     GLuint id;
-    GLint format;
-    GLint internal_format;
+    GLenum format;
+    GLenum internal_format;
     GLenum format_type;
     int wrapped;
-    int bytes_per_pixel;
-    int array_layers;
+    size_t bytes_per_pixel;
+    uint32_t array_layers;
     GLbitfield barriers;
 };
 
@@ -53,7 +53,7 @@ struct ngpu_texture *ngpu_texture_gl_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_texture_gl_init(struct ngpu_texture *s, const struct ngpu_texture_params *params);
 int ngpu_texture_gl_wrap(struct ngpu_texture *s, const struct ngpu_texture_gl_wrap_params *wrap_params);
 void ngpu_texture_gl_set_id(struct ngpu_texture *s, GLuint id);
-void ngpu_texture_gl_set_dimensions(struct ngpu_texture *s, int32_t width, int32_t height, int depth);
+void ngpu_texture_gl_set_dimensions(struct ngpu_texture *s, uint32_t width, uint32_t height, uint32_t depth);
 int ngpu_texture_gl_upload(struct ngpu_texture *s, const uint8_t *data, int linesize);
 int ngpu_texture_gl_upload_with_params(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params);
 int ngpu_texture_gl_generate_mipmap(struct ngpu_texture *s);

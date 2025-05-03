@@ -57,8 +57,10 @@ static void resolve_no_draw_buffers(struct ngpu_rendertarget *s)
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
+    const GLint w = (GLint)s->width;
+    const GLint h = (GLint)s->height;
     const GLbitfield flags = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-    gl->funcs.BlitFramebuffer(0, 0, s->width, s->height, 0, 0, s->width, s->height, flags, GL_NEAREST);
+    gl->funcs.BlitFramebuffer(0, 0, w, h, 0, 0, w, h, flags, GL_NEAREST);
 }
 
 static void resolve_draw_buffers(struct ngpu_rendertarget *s)
@@ -68,18 +70,21 @@ static void resolve_draw_buffers(struct ngpu_rendertarget *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct ngpu_rendertarget_params *params = &s->params;
 
+    const GLint w = (GLint)s->width;
+    const GLint h = (GLint)s->height;
     for (size_t i = 0; i < params->nb_colors; i++) {
         const struct ngpu_attachment *attachment = &params->colors[i];
         if (!attachment->resolve_target)
             continue;
-        GLbitfield flags = GL_COLOR_BUFFER_BIT;
-        if (i == 0)
-            flags |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+
         gl->funcs.ReadBuffer(GL_COLOR_ATTACHMENT0 + (GLenum)i);
         GLenum draw_buffers[NGPU_MAX_COLOR_ATTACHMENTS] = {0};
         draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
         gl->funcs.DrawBuffers((GLsizei)i + 1, draw_buffers);
-        gl->funcs.BlitFramebuffer(0, 0, s->width, s->height, 0, 0, s->width, s->height, flags, GL_NEAREST);
+
+        GLbitfield flags = GL_COLOR_BUFFER_BIT;
+        if (i == 0) flags |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+        gl->funcs.BlitFramebuffer(0, 0, w, h, 0, 0, w, h, flags, GL_NEAREST);
     }
     gl->funcs.ReadBuffer(GL_COLOR_ATTACHMENT0);
     gl->funcs.DrawBuffers((GLsizei)params->nb_colors, s_priv->draw_buffers);
@@ -94,7 +99,7 @@ static int create_fbo(struct ngpu_rendertarget *s, int resolve, GLuint *idp)
     const struct ngpu_rendertarget_params *params = &s->params;
 
     GLuint id = 0;
-    int nb_color_attachments = 0;
+    uint32_t nb_color_attachments = 0;
 
     gl->funcs.GenFramebuffers(1, &id);
     gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, id);
@@ -102,7 +107,7 @@ static int create_fbo(struct ngpu_rendertarget *s, int resolve, GLuint *idp)
     for (size_t i = 0; i < params->nb_colors; i++) {
         const struct ngpu_attachment *attachment = &params->colors[i];
         const struct ngpu_texture *texture = resolve ? attachment->resolve_target : attachment->attachment;
-        const int layer = resolve ? attachment->resolve_target_layer : attachment->attachment_layer;
+        const uint32_t layer = resolve ? attachment->resolve_target_layer : attachment->attachment_layer;
 
         if (!texture)
             continue;
@@ -121,10 +126,10 @@ static int create_fbo(struct ngpu_rendertarget *s, int resolve, GLuint *idp)
             gl->funcs.FramebufferTexture2D(GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, texture_gl->id, 0);
             break;
         case GL_TEXTURE_2D_ARRAY:
-            gl->funcs.FramebufferTextureLayer(GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, layer);
+            gl->funcs.FramebufferTextureLayer(GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, (GLint)layer);
             break;
         case GL_TEXTURE_3D:
-            gl->funcs.FramebufferTextureLayer(GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, layer);
+            gl->funcs.FramebufferTextureLayer(GL_FRAMEBUFFER, attachment_index, texture_gl->id, 0, (GLint)layer);
             break;
         case GL_TEXTURE_CUBE_MAP:
             gl->funcs.FramebufferTexture2D(GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, texture_gl->id, 0);
@@ -314,8 +319,8 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
     const struct ngpu_viewport viewport = {
         .x      = 0,
         .y      = 0,
-        .width  = s->width,
-        .height = s->height,
+        .width  = (int32_t)s->width,
+        .height = (int32_t)s->height,
     };
     ngpu_glstate_update_viewport(gl, glstate, &viewport);
 

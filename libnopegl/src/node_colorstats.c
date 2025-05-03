@@ -379,7 +379,7 @@ static int colorstats_update(struct ngl_node *node, double t)
      * dimensions
      */
     const struct texture_info *texture_info = o->texture_node->priv_data;
-    const int32_t source_w = texture_info->image.params.width;
+    const uint32_t source_w = texture_info->image.params.width;
     if (!s->blk.buffer)
         return alloc_block_buffer(node, source_w);
 

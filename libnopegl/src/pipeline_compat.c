@@ -513,13 +513,13 @@ static int prepare_bindgroup(struct pipeline_compat *s)
         return ret;
 
     for (size_t i = 0; i < s->nb_textures; i++) {
-        ret = ngpu_bindgroup_update_texture(s->cur_bindgroup, (int32_t) i, &s->textures[i]);
+        ret = ngpu_bindgroup_update_texture(s->cur_bindgroup, (uint32_t)i, &s->textures[i]);
         if (ret < 0)
             return ret;
     }
 
     for (size_t i = 0; i < s->nb_buffers; i++) {
-        ret = ngpu_bindgroup_update_buffer(s->cur_bindgroup, (int32_t) i, &s->buffers[i]);
+        ret = ngpu_bindgroup_update_buffer(s->cur_bindgroup, (uint32_t)i, &s->buffers[i]);
         if (ret < 0)
             return ret;
     }

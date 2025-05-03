@@ -39,7 +39,7 @@
 #include "utils/utils.h"
 
 struct buffer_opts {
-    int32_t count;
+    uint32_t count;
     uint8_t *data;
     size_t data_size;
     char *filename;
@@ -56,7 +56,7 @@ NGLI_STATIC_ASSERT(buffer_info_is_first, offsetof(struct buffer_priv, buf) == 0)
 
 #define OFFSET(x) offsetof(struct buffer_opts, x)
 static const struct node_param buffer_params[] = {
-    {"count",  NGLI_PARAM_TYPE_I32,    OFFSET(count),
+    {"count",  NGLI_PARAM_TYPE_U32,    OFFSET(count),
                .desc=NGLI_DOCSTRING("number of elements")},
     {"data",   NGLI_PARAM_TYPE_DATA,   OFFSET(data),
                .desc=NGLI_DOCSTRING("buffer of `count` elements")},

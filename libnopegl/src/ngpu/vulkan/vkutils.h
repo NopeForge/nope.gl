@@ -28,7 +28,7 @@
 const char *ngli_vk_res2str(VkResult res);
 int ngli_vk_res2ret(VkResult res);
 
-VkSampleCountFlagBits ngli_ngl_samples_to_vk(int32_t samples);
-int ngli_vk_samples_to_ngl(VkSampleCountFlags samples);
+VkSampleCountFlagBits ngli_ngl_samples_to_vk(uint32_t samples);
+uint32_t ngli_vk_samples_to_ngl(VkSampleCountFlags samples);
 
 #endif

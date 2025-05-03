@@ -32,7 +32,7 @@
 #include "ngpu/type.h"
 
 struct streamedbuffer_opts {
-    int32_t count;
+    uint32_t count;
     struct ngl_node *timestamps;
     struct ngl_node *buffer_node;
     int32_t timebase[2];
@@ -50,7 +50,7 @@ NGLI_STATIC_ASSERT(buffer_info_is_first, offsetof(struct streamedbuffer_priv, bu
 
 #define DECLARE_STREAMED_PARAMS(name, allowed_node)                                                       \
 static const struct node_param streamedbuffer##name##_params[] = {                                        \
-    {"count",      NGLI_PARAM_TYPE_I32, OFFSET(count),                                                    \
+    {"count",      NGLI_PARAM_TYPE_U32, OFFSET(count),                                                    \
                    .desc=NGLI_DOCSTRING("number of elements for each chunk of data to stream")},          \
     {"timestamps", NGLI_PARAM_TYPE_NODE, OFFSET(timestamps), .flags=NGLI_PARAM_FLAG_NON_NULL,             \
                    .node_types=(const uint32_t[]){NGL_NODE_BUFFERINT64, NGLI_NODE_NONE},                  \

@@ -699,11 +699,11 @@ struct ngl_config {
     int offscreen; /* Whether the rendering should happen offscreen or not.
                       This field is ignored if the context is external. */
 
-    int32_t width; /* Graphics context width, mandatory for offscreen rendering */
+    uint32_t width; /* Graphics context width, mandatory for offscreen rendering */
 
-    int32_t height; /* Graphics context height, mandatory for offscreen rendering */
+    uint32_t height; /* Graphics context height, mandatory for offscreen rendering */
 
-    int32_t samples;     /* Number of samples used for multisample anti-aliasing */
+    uint32_t samples;     /* Number of samples used for multisample anti-aliasing */
 
     int set_surface_pts; /* Whether pts should be set to the surface or not (Android only).
                             Unsupported with offscreen rendering. */
@@ -721,14 +721,14 @@ struct ngl_config {
 
     int hud;                 /* Enable the debug HUD */
 
-    int hud_measure_window;  /* Window size for the latency measures displayed by the HUD.
-                                Defaults to 60 */
+    uint32_t hud_measure_window;  /* Window size for the latency measures displayed by the HUD.
+                                     Defaults to 60 */
 
-    int hud_refresh_rate[2]; /* HUD refresh rate */
+    uint32_t hud_refresh_rate[2]; /* HUD refresh rate */
 
     const char *hud_export_filename; /* Path to the HUD export file (CSV). Disables display if enabled. */
 
-    int hud_scale;           /* Scaling applied to the HUD, useful for high DPI displays */
+    uint32_t hud_scale; /* Scaling applied to the HUD, useful for high DPI displays */
 
     int debug; /* Enable graphics context debugging */
 };
@@ -872,7 +872,7 @@ NGL_API int ngl_get_viewport(struct ngl_ctx *s, int32_t *viewport);
  * @param height new height of the swap chain buffers
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
-NGL_API int ngl_resize(struct ngl_ctx *s, int32_t width, int32_t height);
+NGL_API int ngl_resize(struct ngl_ctx *s, uint32_t width, uint32_t height);
 
 /**
  * Set a new buffer for offscreen capture.
