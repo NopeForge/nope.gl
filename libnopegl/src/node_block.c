@@ -176,13 +176,13 @@ static size_t get_node_data_count(const struct ngl_node *node)
     }
 }
 
-static int is_dynamic_variable(const struct ngl_node *vnode)
+static bool is_dynamic_variable(const struct ngl_node *vnode)
 {
     const struct variable_info *variable = vnode->priv_data;
     return variable->dynamic;
 }
 
-static int is_dynamic_buffer(const struct ngl_node *bnode)
+static bool is_dynamic_buffer(const struct ngl_node *bnode)
 {
     const struct buffer_info *buffer = bnode->priv_data;
     return buffer->flags & NGLI_BUFFER_INFO_FLAG_DYNAMIC;
