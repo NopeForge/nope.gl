@@ -85,7 +85,7 @@ void ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
     }
 
     if (len + 1 > avail) {
-        const size_t new_size = b->len + len + 1 + BUFFER_PADDING;
+        const size_t new_size = b->len + (size_t)len + 1 + BUFFER_PADDING;
         void *ptr = ngli_realloc(b->str, new_size, 1);
         if (!ptr) {
             b->state = NGL_ERROR_MEMORY;
@@ -94,7 +94,7 @@ void ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
         b->str = ptr;
         b->bufsize = new_size;
         va_start(va, fmt);
-        len = vsnprintf(b->str + b->len, len + 1, fmt, va);
+        len = vsnprintf(b->str + b->len, (size_t)len + 1, fmt, va);
         va_end(va);
         if (len < 0) {
             b->str[b->len] = 0;
@@ -103,7 +103,7 @@ void ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
         }
     }
 
-    b->len = b->len + len;
+    b->len = b->len + (size_t)len;
 }
 
 void ngli_bstr_clear(struct bstr *b)

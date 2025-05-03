@@ -44,6 +44,14 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   replacing the previous one
 - Public anonymous enums (ngl_log_level, ngl_backend_type, ngl_platform_type,
   ngl_capture_buffer_type, ngl_path_instruction_verb) are now named
+- `Buffer*.count`, `Circle.npoints`, `GraphicConfig.scissor`,
+  `Program.nb_frag_output`, `Texture*.width`, `Texture*.height`,
+  `Texture*.depth`, `TextureView,layer`, `StreamedBuffer*.count` changed
+  from I32 to U32
+- `ngl_config.width`, `ngl_config.height`, `ngl_config.samples`,
+  `ngl_config.hud_measure_window`, `ngl_config.hud_refresh_rate`,
+  `ngl_config.hud_scale` `ngl_custom_texture_info.width`,
+  `ngl_custom_texture_info.height` changed from I32 to U32
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio

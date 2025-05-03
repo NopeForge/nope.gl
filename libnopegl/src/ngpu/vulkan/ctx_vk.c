@@ -87,7 +87,7 @@ static void destroy_dummy_texture(struct ngpu_ctx *s)
     ngpu_texture_freep(&s_priv->dummy_texture);
 }
 
-static VkResult create_texture(struct ngpu_ctx *s, enum ngpu_format format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
+static VkResult create_texture(struct ngpu_ctx *s, enum ngpu_format format, uint32_t samples, uint32_t usage, struct ngpu_texture **texturep)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
@@ -733,7 +733,7 @@ static VkResult swapchain_present_buffer(struct ngpu_ctx *s, double t)
          */
         if (s_priv->present_time_offset == 0)
             s_priv->present_time_offset = ngli_gettime_relative() * 1000;
-        present_time.desiredPresentTime = s_priv->present_time_offset + (int64_t)(t * 1000000000LL);
+        present_time.desiredPresentTime = (uint64_t)(s_priv->present_time_offset + (int64_t)(t * 1000000000LL));
         present_info.pNext = &present_time_info;
     }
 
@@ -764,11 +764,11 @@ static struct ngpu_ctx *vk_create(const struct ngl_config *config)
     return (struct ngpu_ctx *)s;
 }
 
-static int get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
+static uint32_t get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
 {
-    const int max_color_samples = ngli_vk_samples_to_ngl(limits->framebufferColorSampleCounts);
-    const int max_depth_samples = ngli_vk_samples_to_ngl(limits->framebufferDepthSampleCounts);
-    const int max_stencil_samples = ngli_vk_samples_to_ngl(limits->framebufferStencilSampleCounts);
+    const uint32_t max_color_samples = ngli_vk_samples_to_ngl(limits->framebufferColorSampleCounts);
+    const uint32_t max_depth_samples = ngli_vk_samples_to_ngl(limits->framebufferDepthSampleCounts);
+    const uint32_t max_stencil_samples = ngli_vk_samples_to_ngl(limits->framebufferStencilSampleCounts);
     return NGLI_MIN(max_color_samples, NGLI_MIN(max_depth_samples, max_stencil_samples));
 }
 
@@ -965,7 +965,7 @@ static int vk_init(struct ngpu_ctx *s)
     return 0;
 }
 
-static int vk_resize(struct ngpu_ctx *s, int32_t width, int32_t height)
+static int vk_resize(struct ngpu_ctx *s, uint32_t width, uint32_t height)
 {
     const struct ngl_config *config = &s->config;
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
@@ -1135,7 +1135,7 @@ static int vk_query_draw_time(struct ngpu_ctx *s, int64_t *time)
                           sizeof(results), results, sizeof(results[0]),
                           VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
 
-    *time = results[1] - results[0];
+    *time = (int64_t)(results[1] - results[0]);
 
     res = ngpu_cmd_buffer_vk_begin(s_priv->cur_cmd_buffer);
     if (res != VK_SUCCESS)
@@ -1268,7 +1268,7 @@ static const struct ngpu_rendertarget_layout *vk_get_default_rendertarget_layout
     return &s_priv->default_rt_layout;
 }
 
-static void vk_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, int32_t *height)
+static void vk_get_default_rendertarget_size(struct ngpu_ctx *s, uint32_t *width, uint32_t *height)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     *width = s_priv->width;
@@ -1399,8 +1399,8 @@ static void vk_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scisso
     struct ngpu_rendertarget *rt = s->rendertarget;
 
     const VkRect2D sc = {
-        .offset.x      = scissor->x,
-        .offset.y      = NGLI_MAX(rt->height - scissor->y - scissor->height, 0),
+        .offset.x      = (int32_t)scissor->x,
+        .offset.y      = (int32_t)NGLI_MAX(rt->height - scissor->y - scissor->height, 0),
         .extent.width  = scissor->width,
         .extent.height = scissor->height,
     };

@@ -65,10 +65,10 @@ struct transforms_block {
 struct hud {
     struct ngl_ctx *ctx;
 
-    int measure_window;
-    int refresh_rate[2];
+    uint32_t measure_window;
+    uint32_t refresh_rate[2];
     const char *export_filename;
-    int scale;
+    uint32_t scale;
 
 #if HAVE_USELOCALE
     locale_t c_locale;
@@ -276,9 +276,9 @@ enum widget_type {
 
 struct data_graph {
     int64_t *values;
-    int nb_values;
-    int count;
-    int pos;
+    size_t nb_values;
+    size_t count;
+    size_t pos;
     int64_t min;
     int64_t max;
     int64_t amin; // all-time min
@@ -287,8 +287,8 @@ struct data_graph {
 
 struct latency_measure {
     int64_t *times;
-    int count;
-    int pos;
+    size_t count;
+    size_t pos;
     int64_t total_times;
 };
 
@@ -303,7 +303,7 @@ struct widget_memory {
 
 struct widget_activity {
     struct darray nodes;
-    int nb_actives;
+    size_t nb_actives;
 };
 
 struct widget_drawcall {
@@ -531,13 +531,13 @@ static void draw_block_graph(struct hud *s,
 {
     const int64_t graph_h = graph_max - graph_min;
     const float vscale = (float)rect->h / (float)graph_h;
-    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
+    const size_t start = (d->pos - d->count + d->nb_values) % d->nb_values;
 
-    for (int k = 0; k < d->count; k++) {
+    for (size_t k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - h, 0, rect->h);
-        set_color_at_column(s, rect->x + k, rect->y + y, h, c);
+        set_color_at_column(s, rect->x + (int)k, rect->y + y, h, c);
     }
 }
 
@@ -549,17 +549,17 @@ static void draw_line_graph(struct hud *s,
 {
     const int64_t graph_h = graph_max - graph_min;
     const float vscale = (float)rect->h / (float)graph_h;
-    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
+    const size_t start = (d->pos - d->count + d->nb_values) % d->nb_values;
     int prev_y;
 
-    for (int k = 0; k < d->count; k++) {
+    for (size_t k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - 1 - h, 0, rect->h - 1);
 
-        set_color_at(s, rect->x + k, rect->y + y, c);
+        set_color_at(s, rect->x + (int)k, rect->y + y, c);
         if (k)
-            set_color_at_column(s, rect->x + k, rect->y + prev_y, y - prev_y, c);
+            set_color_at_column(s, rect->x + (int)k, rect->y + prev_y, y - prev_y, c);
         prev_y = y;
     }
 }
@@ -611,7 +611,7 @@ static void register_graph_value(struct data_graph *d, int64_t v)
 static int64_t get_latency_avg(const struct widget_latency *priv, size_t id)
 {
     const struct latency_measure *m = &priv->measures[id];
-    return m->total_times / m->count / (latency_specs[id].unit == 'u' ? 1 : 1000);
+    return m->total_times / (int64_t)m->count / (latency_specs[id].unit == 'u' ? 1 : 1000);
 }
 
 static void widget_latency_draw(struct hud *s, struct widget *widget)
@@ -661,7 +661,7 @@ static void widget_memory_draw(struct hud *s, struct widget *widget)
         else
             snprintf(buf, sizeof(buf), "%-12s %zuG", label, size / (1024 * 1024 * 1024));
         print_text(s, widget->text_x, widget->text_y + (int)i * NGLI_FONT_H, buf, color);
-        register_graph_value(&widget->data_graph[i], size);
+        register_graph_value(&widget->data_graph[i], (int64_t)size);
     }
 
     int64_t graph_min = widget->data_graph[0].min;
@@ -686,12 +686,12 @@ static void widget_activity_draw(struct hud *s, struct widget *widget)
     const uint32_t color = 0x3df4f4ff;
 
     char buf[ACTIVITY_WIDGET_TEXT_LEN + 1];
-    snprintf(buf, sizeof(buf), "%d/%zu", priv->nb_actives, priv->nodes.count);
+    snprintf(buf, sizeof(buf), "%zu/%zu", priv->nb_actives, priv->nodes.count);
     print_text(s, widget->text_x, widget->text_y, spec->label, color);
     print_text(s, widget->text_x, widget->text_y + NGLI_FONT_H, buf, color);
 
     struct data_graph *d = &widget->data_graph[0];
-    register_graph_value(d, priv->nb_actives);
+    register_graph_value(d, (int64_t)priv->nb_actives);
     draw_block_graph(s, d, &widget->graph_rect, d->amin, d->amax, color);
 }
 
@@ -760,7 +760,7 @@ static void widget_memory_csv_report(struct hud *s, struct widget *widget, struc
 static void widget_activity_csv_report(struct hud *s, struct widget *widget, struct bstr *dst)
 {
     const struct widget_activity *priv = widget->priv_data;
-    ngli_bstr_printf(dst, "%d,%zu", priv->nb_actives, priv->nodes.count);
+    ngli_bstr_printf(dst, "%zu,%zu", priv->nb_actives, priv->nodes.count);
 }
 
 static void widget_drawcall_csv_report(struct hud *s, struct widget *widget, struct bstr *dst)
@@ -864,7 +864,7 @@ static inline int get_widget_width(enum widget_type type)
 static inline int get_widget_height(enum widget_type type)
 {
     const struct widget_spec *spec = &widget_specs[type];
-    const int vertical_layout = !!spec->graph_h;
+    const int vertical_layout = spec->graph_h != 0;
     return spec->graph_h
          + spec->text_rows * NGLI_FONT_H
          + WIDGET_PADDING * (2 + vertical_layout);
@@ -920,7 +920,7 @@ static int create_widget(struct hud *s, enum widget_type type, const void *user_
         return NGL_ERROR_MEMORY;
     for (size_t i = 0; i < spec->nb_data_graph; i++) {
         struct data_graph *d = &widgetp->data_graph[i];
-        d->nb_values = widgetp->graph_rect.w;
+        d->nb_values = (size_t)widgetp->graph_rect.w;
         d->values = ngli_calloc(d->nb_values, sizeof(*d->values));
         if (!d->values)
             return NGL_ERROR_MEMORY;
@@ -1195,7 +1195,7 @@ int ngli_hud_init(struct hud *s)
         return widgets_csv_header(s);
     }
 
-    s->canvas.buf = ngli_calloc(s->canvas.w * s->canvas.h, 4);
+    s->canvas.buf = ngli_calloc((size_t)(s->canvas.w * s->canvas.h), 4);
     if (!s->canvas.buf)
         return NGL_ERROR_MEMORY;
 
@@ -1228,8 +1228,8 @@ int ngli_hud_init(struct hud *s)
     struct ngpu_texture_params tex_params = {
         .type          = NGPU_TEXTURE_TYPE_2D,
         .format        = NGPU_FORMAT_R8G8B8A8_UNORM,
-        .width         = s->canvas.w,
-        .height        = s->canvas.h,
+        .width         = (uint32_t)s->canvas.w,
+        .height        = (uint32_t)s->canvas.h,
         .min_filter    = NGPU_FILTER_NEAREST,
         .mag_filter    = NGPU_FILTER_NEAREST,
         .usage         = NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT | NGPU_TEXTURE_USAGE_SAMPLED_BIT,
@@ -1366,9 +1366,9 @@ void ngli_hud_draw(struct hud *s)
         widgets_draw(s);
     }
 
-    const int scale = s->scale > 0 ? s->scale : 1;
-    const float ratio_w = (float)(scale * s->canvas.w) / (float)ctx->viewport.width;
-    const float ratio_h = (float)(scale * s->canvas.h) / (float)ctx->viewport.height;
+    const uint32_t scale = s->scale > 0 ? s->scale : 1;
+    const float ratio_w = (float)(scale * (uint32_t)s->canvas.w) / (float)ctx->viewport.width;
+    const float ratio_h = (float)(scale * (uint32_t)s->canvas.h) / (float)ctx->viewport.height;
     const float x =-1.0f + 2 * ratio_w;
     const float y = 1.0f - 2 * ratio_h;
     const float coords[] = {

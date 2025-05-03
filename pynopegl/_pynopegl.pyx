@@ -156,18 +156,18 @@ cdef extern from "nopegl.h":
         uintptr_t window
         int  swap_interval
         int  offscreen
-        int32_t width
-        int32_t height
-        int32_t samples
+        uint32_t width
+        uint32_t height
+        uint32_t samples
         int  set_surface_pts
         float clear_color[4]
         void *capture_buffer
         ngl_capture_buffer_type capture_buffer_type
         int hud
-        int hud_measure_window
-        int hud_refresh_rate[2]
+        uint32_t hud_measure_window
+        uint32_t hud_refresh_rate[2]
         const char *hud_export_filename
-        int hud_scale
+        uint32_t hud_scale
         int debug
 
     cdef union ngl_livectl_data:

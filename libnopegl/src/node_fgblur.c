@@ -70,9 +70,9 @@ struct fgblur_opts {
 };
 
 struct fgblur_priv {
-    int32_t width;
-    int32_t height;
-    int32_t max_lod;
+    uint32_t width;
+    uint32_t height;
+    uint32_t max_lod;
     float bluriness;
 
     /* Intermediates Mips used by the blur passses */
@@ -357,8 +357,8 @@ static int resize(struct ngl_node *node)
     ngli_node_draw(o->source);
 
     struct texture_info *src_info = o->source->priv_data;
-    const int32_t width = src_info->image.params.width;
-    const int32_t height = src_info->image.params.height;
+    const uint32_t width = src_info->image.params.width;
+    const uint32_t height = src_info->image.params.height;
     if (s->width == width && s->height == height)
         return 0;
 
@@ -396,8 +396,8 @@ static int resize(struct ngl_node *node)
     if (ret < 0)
         goto fail;
 
-    int32_t mip_width = width;
-    int32_t mip_height = height;
+    uint32_t mip_width = width;
+    uint32_t mip_height = height;
     for (size_t i = 0; i < MAX_MIP_LEVELS; i++) {
         mips[i] = ngli_rtt_create(ctx);
         if (!mips[i]) {
@@ -475,8 +475,8 @@ static int resize(struct ngl_node *node)
     s->width = width;
     s->height = height;
 
-    int32_t nb_mips = ngli_log2(NGLI_MAX(s->width, s->height)) + 1;
-    int32_t max_lod = nb_mips - 1;
+    uint32_t nb_mips = ngli_log2(NGLI_MAX(s->width, s->height)) + 1;
+    uint32_t max_lod = nb_mips - 1;
 
     /*
      * For a given lod, we need to generate mips[lod] and mips[lod+1], hence,

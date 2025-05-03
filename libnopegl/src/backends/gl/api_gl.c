@@ -69,8 +69,8 @@ static int glw_configure(struct ngl_ctx *s, const struct ngl_config *config)
 }
 
 struct resize_params {
-    int32_t width;
-    int32_t height;
+    uint32_t width;
+    uint32_t height;
 };
 
 static int cmd_resize(struct ngl_ctx *s, void *arg)
@@ -85,7 +85,7 @@ static int cmd_get_viewport(struct ngl_ctx *s, void *arg)
     return ngli_ctx_get_viewport(s, viewport);
 }
 
-static int gl_resize(struct ngl_ctx *s, int32_t width, int32_t height)
+static int gl_resize(struct ngl_ctx *s, uint32_t width, uint32_t height)
 {
     const struct ngl_config *config = &s->config;
     if (config->platform == NGL_PLATFORM_MACOS ||
@@ -115,7 +115,7 @@ static int gl_get_viewport(struct ngl_ctx *s, int32_t *viewport)
     return ngli_ctx_dispatch_cmd(s, cmd_get_viewport, viewport);
 }
 
-static int glw_resize(struct ngl_ctx *s, int32_t width, int32_t height)
+static int glw_resize(struct ngl_ctx *s, uint32_t width, uint32_t height)
 {
     return ngli_ctx_resize(s, width, height);
 }
@@ -247,7 +247,7 @@ static int glv_configure(struct ngl_ctx *s, const struct ngl_config *config)
     return is_glw(config) ? glw_configure(s, config) : gl_configure(s, config);
 }
 
-static int glv_resize(struct ngl_ctx *s, int32_t width, int32_t height)
+static int glv_resize(struct ngl_ctx *s, uint32_t width, uint32_t height)
 {
     return is_glw(&s->config) ? glw_resize(s, width, height) : gl_resize(s, width, height);
 }

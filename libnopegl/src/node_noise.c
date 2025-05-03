@@ -106,7 +106,7 @@ static int noisevec4_update(struct ngl_node *node, double t)
     return noisevec_update(node, t, 4);
 }
 
-static int init_noise_generators(struct noise_priv *s, const struct noise_opts *o, int n)
+static int init_noise_generators(struct noise_priv *s, const struct noise_opts *o, uint32_t n)
 {
     /*
      * Every generator is instanciated the same, except for the seed: the seed

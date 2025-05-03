@@ -42,9 +42,9 @@ struct glcontext_params {
     uintptr_t shared_ctx;
     int swap_interval;
     int offscreen;
-    int32_t width;
-    int32_t height;
-    int32_t samples;
+    uint32_t width;
+    uint32_t height;
+    uint32_t samples;
     int debug;
 };
 
@@ -58,16 +58,16 @@ struct glcontext {
     enum ngl_backend_type backend;
     int external;
     int offscreen;
-    int32_t width;
-    int32_t height;
-    int32_t samples;
+    uint32_t width;
+    uint32_t height;
+    uint32_t samples;
     int debug;
 
     /* GL api */
-    int version;
+    uint32_t version;
 
     /* GLSL version */
-    int glsl_version;
+    uint32_t glsl_version;
 
     /* GL features */
     uint64_t features;
@@ -92,7 +92,7 @@ struct glcontext {
 
 struct glcontext_class {
     int (*init)(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle);
-    int (*resize)(struct glcontext *glcontext, int32_t width, int32_t height);
+    int (*resize)(struct glcontext *glcontext, uint32_t width, uint32_t height);
     int (*make_current)(struct glcontext *glcontext, int current);
     void (*swap_buffers)(struct glcontext *glcontext);
     int (*set_swap_interval)(struct glcontext *glcontext, int interval);
@@ -111,7 +111,7 @@ int ngli_glcontext_make_current(struct glcontext *glcontext, int current);
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext);
 int ngli_glcontext_set_swap_interval(struct glcontext *glcontext, int interval);
 void ngli_glcontext_set_surface_pts(struct glcontext *glcontext, double t);
-int ngli_glcontext_resize(struct glcontext *glcontext, int32_t width, int32_t height);
+int ngli_glcontext_resize(struct glcontext *glcontext, uint32_t width, uint32_t height);
 void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *name);
 void *ngli_glcontext_get_texture_cache(struct glcontext *glcontext);
 uintptr_t ngli_glcontext_get_display(struct glcontext *glcontext);

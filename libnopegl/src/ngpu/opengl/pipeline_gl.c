@@ -32,7 +32,7 @@
 
 struct attribute_binding_gl {
     size_t binding;
-    int location;
+    uint32_t location;
     enum ngpu_format format;
     size_t stride;
     size_t offset;
@@ -63,6 +63,7 @@ static int build_attribute_bindings(struct ngpu_pipeline *s)
             };
             if (!ngli_darray_push(&s_priv->attribute_bindings, &binding))
                 return NGL_ERROR_MEMORY;
+
 
             const GLuint location = attribute->location;
             const GLuint rate = buffer->rate;
@@ -113,7 +114,7 @@ static void bind_vertex_attribs(const struct ngpu_pipeline *s)
         const struct attribute_binding_gl *attribute_binding = &bindings[i];
         const size_t binding = attribute_binding->binding;
         const GLuint location = attribute_binding->location;
-        const GLuint size = ngpu_format_get_nb_comp(attribute_binding->format);
+        const GLint size = (GLint)ngpu_format_get_nb_comp(attribute_binding->format);
         const GLsizei stride = (GLsizei)attribute_binding->stride;
         const void *offset = (void *)(uintptr_t)attribute_binding->offset;
         const struct ngpu_buffer_gl *buffer_gl = (const struct ngpu_buffer_gl *)vertex_buffers[binding];

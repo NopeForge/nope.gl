@@ -47,7 +47,7 @@ struct ngpu_rendertarget_layout_entry {
 };
 
 struct ngpu_rendertarget_layout {
-    int32_t samples;
+    uint32_t samples;
     size_t nb_colors;
     struct ngpu_rendertarget_layout_entry colors[NGPU_MAX_COLOR_ATTACHMENTS];
     struct ngpu_rendertarget_layout_entry depth_stencil;
@@ -55,17 +55,17 @@ struct ngpu_rendertarget_layout {
 
 struct ngpu_attachment {
     struct ngpu_texture *attachment;
-    int32_t attachment_layer;
+    uint32_t attachment_layer;
     struct ngpu_texture *resolve_target;
-    int32_t resolve_target_layer;
+    uint32_t resolve_target_layer;
     enum ngpu_load_op load_op;
     float clear_value[4];
     enum ngpu_store_op store_op;
 };
 
 struct ngpu_rendertarget_params {
-    int32_t width;
-    int32_t height;
+    uint32_t width;
+    uint32_t height;
     size_t nb_colors;
     struct ngpu_attachment colors[NGPU_MAX_COLOR_ATTACHMENTS];
     struct ngpu_attachment depth_stencil;
@@ -75,8 +75,8 @@ struct ngpu_rendertarget {
     struct ngli_rc rc;
     struct ngpu_ctx *gpu_ctx;
     struct ngpu_rendertarget_params params;
-    int32_t width;
-    int32_t height;
+    uint32_t width;
+    uint32_t height;
     struct ngpu_rendertarget_layout layout;
 };
 

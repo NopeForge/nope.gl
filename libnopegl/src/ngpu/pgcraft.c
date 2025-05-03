@@ -76,13 +76,13 @@ struct ngpu_pgcraft {
     struct ngpu_program *program;
     struct ngpu_bindgroup_layout *bindgroup_layout;
 
-    int bindings[NGLI_BINDING_TYPE_NB];
-    int *next_bindings[NGLI_BINDING_TYPE_NB];
-    int next_in_locations[NGPU_PROGRAM_SHADER_NB];
-    int next_out_locations[NGPU_PROGRAM_SHADER_NB];
+    uint32_t bindings[NGLI_BINDING_TYPE_NB];
+    uint32_t *next_bindings[NGLI_BINDING_TYPE_NB];
+    uint32_t next_in_locations[NGPU_PROGRAM_SHADER_NB];
+    uint32_t next_out_locations[NGPU_PROGRAM_SHADER_NB];
 
     /* GLSL info */
-    int glsl_version;
+    uint32_t glsl_version;
     const char *glsl_version_suffix;
     const char *sym_vertex_index;
     const char *sym_instance_index;
@@ -241,12 +241,12 @@ static const char *get_glsl_type(enum ngpu_type type)
     return ret;
 }
 
-static int request_next_binding(struct ngpu_pgcraft *s, enum ngpu_type type)
+static uint32_t request_next_binding(struct ngpu_pgcraft *s, enum ngpu_type type)
 {
     ngli_assert(type >= 0 && type < NGPU_TYPE_NB);
     const int binding_type = type_binding_map[type];
 
-    int *next_bind = s->next_bindings[binding_type];
+    uint32_t *next_bind = s->next_bindings[binding_type];
     ngli_assert(next_bind);
 
     return (*next_bind)++;
@@ -575,7 +575,8 @@ static int inject_block(struct ngpu_pgcraft *s, struct bstr *b,
 
     if (!ngli_darray_push(&s->pipeline_info.data.buffers, &named_block->buffer))
         return NGL_ERROR_MEMORY;
-    return layout_entry.binding;
+
+    return (int)layout_entry.binding;
 }
 
 static int inject_blocks(struct ngpu_pgcraft *s, struct bstr *b,
@@ -592,7 +593,7 @@ static int inject_blocks(struct ngpu_pgcraft *s, struct bstr *b,
     return 0;
 }
 
-static int get_location_count(enum ngpu_type type)
+static uint32_t get_location_count(enum ngpu_type type)
 {
     switch (type) {
     case NGPU_TYPE_MAT3: return 3;
@@ -605,9 +606,9 @@ static int inject_attribute(struct ngpu_pgcraft *s, struct bstr *b,
                             const struct ngpu_pgcraft_attribute *attribute)
 {
     const char *type = get_glsl_type(attribute->type);
-    const int attribute_count = get_location_count(attribute->type);
+    const uint32_t attribute_count = get_location_count(attribute->type);
 
-    const int base_location = s->next_in_locations[NGPU_PROGRAM_SHADER_VERT];
+    const uint32_t base_location = s->next_in_locations[NGPU_PROGRAM_SHADER_VERT];
     s->next_in_locations[NGPU_PROGRAM_SHADER_VERT] += attribute_count;
 
     ngli_bstr_printf(b, "layout(location=%d) ", base_location);
@@ -620,8 +621,8 @@ static int inject_attribute(struct ngpu_pgcraft *s, struct bstr *b,
         .rate = attribute->rate,
     };
 
-    const int attribute_offset = ngpu_format_get_bytes_per_pixel(attribute->format);
-    for (int i = 0; i < attribute_count; i++) {
+    const size_t attribute_offset = ngpu_format_get_bytes_per_pixel(attribute->format);
+    for (uint32_t i = 0; i < attribute_count; i++) {
         if (!ngli_darray_push(&s->symbols, attribute->name))
             return NGL_ERROR_MEMORY;
 
@@ -782,7 +783,7 @@ static const char *skip_arg(const char *p)
 
 struct token {
     char id[16];
-    ptrdiff_t pos;
+    size_t pos;
 };
 
 #define ARG_FMT(x) (int)x##_len, x##_start
@@ -804,7 +805,7 @@ static int handle_token(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params
      * derive all the uniform names */
     const char *arg0_start = p;
     p = skip_arg(p);
-    size_t arg0_len = p - arg0_start;
+    size_t arg0_len = (size_t)(p - arg0_start);
 
     if (!strcmp(token->id, "ngl_texvideo")) {
         if (*p != ',')
@@ -904,7 +905,7 @@ static int samplers_preproc(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_pa
     const char *base_str = ngli_bstr_strptr(b);
     const char *p = base_str;
     while ((p = strstr(p, "ngl"))) {
-        struct token token = {.pos = p - base_str};
+        struct token token = {.pos = (size_t)(p - base_str)};
         p = read_token_id(p, token.id, sizeof(token.id));
         if (strcmp(token.id, "ngl_texvideo"))
             continue;
@@ -954,7 +955,7 @@ static int inject_iovars(struct ngpu_pgcraft *s, struct bstr *b, int stage)
     };
     const char *qualifier = qualifiers[stage];
     const struct ngpu_pgcraft_iovar *iovars = ngli_darray_data(&s->vert_out_vars);
-    int location = 0;
+    uint32_t location = 0;
     for (size_t i = 0; i < ngli_darray_count(&s->vert_out_vars); i++) {
         ngli_bstr_printf(b, "layout(location=%d) ", location);
         const struct ngpu_pgcraft_iovar *iovar = &iovars[i];
@@ -1023,8 +1024,8 @@ static int craft_frag(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
 
     ngli_bstr_print(b, "\n");
 
-    const int out_location = s->next_out_locations[NGPU_PROGRAM_SHADER_FRAG]++;
-    ngli_bstr_printf(b, "layout(location=%d) ", out_location);
+    const uint32_t out_location = s->next_out_locations[NGPU_PROGRAM_SHADER_FRAG]++;
+    ngli_bstr_printf(b, "layout(location=%u) ", out_location);
     if (params->nb_frag_output)
         ngli_bstr_printf(b, "out vec4 ngl_out_color[%zu];\n", params->nb_frag_output);
     else

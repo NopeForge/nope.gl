@@ -70,8 +70,8 @@ struct gblur_opts {
 };
 
 struct gblur_priv {
-    int32_t width;
-    int32_t height;
+    uint32_t width;
+    uint32_t height;
     float bluriness;
 
     /* Source image */
@@ -154,7 +154,7 @@ static int update_kernel(struct ngl_node *node)
     float weights[2 * MAX_KERNEL_SIZE];
     size_t nb_weights = 0;
 
-    float sum = 0.0;
+    float sum = 0.0f;
     const float sig = sigma * sqrtf(2.f);
     for (int i = -radius; i <= radius; i++) {
         const float p1 = erff(((float)i - 0.5f) / sig);
@@ -345,8 +345,8 @@ static int resize(struct ngl_node *node)
     ngli_node_draw(o->source);
 
     struct texture_info *src_info = o->source->priv_data;
-    const int32_t width = src_info->image.params.width;
-    const int32_t height = src_info->image.params.height;
+    const uint32_t width = src_info->image.params.width;
+    const uint32_t height = src_info->image.params.height;
     if (s->width == width && s->height == height)
         return 0;
 

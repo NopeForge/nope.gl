@@ -47,7 +47,7 @@ enum ngpu_access {
 struct ngpu_bindgroup_layout_entry {
     size_t id;
     enum ngpu_type type;
-    int binding;
+    uint32_t binding;
     enum ngpu_access access;
     uint32_t stage_flags;
     void *immutable_sampler;
@@ -110,8 +110,8 @@ void ngpu_bindgroup_layout_freep(struct ngpu_bindgroup_layout **sp);
 
 struct ngpu_bindgroup *ngpu_bindgroup_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_bindgroup_init(struct ngpu_bindgroup *s, const struct ngpu_bindgroup_params *params);
-int ngpu_bindgroup_update_texture(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_texture_binding *binding);
-int ngpu_bindgroup_update_buffer(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_buffer_binding *binding);
+int ngpu_bindgroup_update_texture(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_texture_binding *binding);
+int ngpu_bindgroup_update_buffer(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_buffer_binding *binding);
 void ngpu_bindgroup_freep(struct ngpu_bindgroup **sp);
 
 #endif

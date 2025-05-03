@@ -33,7 +33,7 @@ struct program_opts {
     uint32_t workgroup_size[3];
     struct hmap *properties;
     struct hmap *vert_out_vars;
-    int32_t nb_frag_output;
+    uint32_t nb_frag_output;
 };
 
 struct program_priv {

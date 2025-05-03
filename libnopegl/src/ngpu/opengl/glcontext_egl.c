@@ -460,7 +460,7 @@ try_again:;
                 LOG(ERROR, "no Wayland display specified");
                 return NGL_ERROR_INVALID_ARG;
             }
-            egl->wl_egl_window = wl_egl_window_create(wl_surface, ctx->width, ctx->height);
+            egl->wl_egl_window = wl_egl_window_create(wl_surface, (EGLint)ctx->width, (EGLint)ctx->height);
             if (!egl->wl_egl_window) {
                 LOG(ERROR, "could not create Wayland EGL window");
                 return NGL_ERROR_EXTERNAL;
@@ -541,13 +541,13 @@ static void egl_uninit(struct glcontext *ctx)
 #endif
 }
 
-static int egl_resize(struct glcontext *ctx, int32_t width, int32_t height)
+static int egl_resize(struct glcontext *ctx, uint32_t width, uint32_t height)
 {
     struct egl_priv *egl = ctx->priv_data;
 
 #if defined(TARGET_ANDROID)
-    const int w_width = ANativeWindow_getWidth(egl->native_window);
-    const int w_height = ANativeWindow_getHeight(egl->native_window);
+    const int32_t w_width = ANativeWindow_getWidth(egl->native_window);
+    const int32_t w_height = ANativeWindow_getHeight(egl->native_window);
     GLint format;
     eglGetConfigAttrib(egl->display, egl->config, EGL_NATIVE_VISUAL_ID, &format);
     /* Resize the native window buffers to the native window size. This

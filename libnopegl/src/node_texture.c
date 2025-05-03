@@ -244,9 +244,9 @@ static const struct node_param texture2d_params[] = {
     {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGPU_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"width", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i32=0},
+    {"width", NGLI_PARAM_TYPE_U32, OFFSET(params.width), {.u32=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
-    {"height", NGLI_PARAM_TYPE_I32, OFFSET(params.height), {.i32=0},
+    {"height", NGLI_PARAM_TYPE_U32, OFFSET(params.height), {.u32=0},
                .desc=NGLI_DOCSTRING("height of the texture")},
     {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
@@ -276,11 +276,11 @@ static const struct node_param texture2d_array_params[] = {
     {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGPU_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"width", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i32=0},
+    {"width", NGLI_PARAM_TYPE_U32, OFFSET(params.width), {.u32=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
-    {"height", NGLI_PARAM_TYPE_I32, OFFSET(params.height), {.i32=0},
+    {"height", NGLI_PARAM_TYPE_U32, OFFSET(params.height), {.u32=0},
                .desc=NGLI_DOCSTRING("height of the texture")},
-    {"depth", NGLI_PARAM_TYPE_I32, OFFSET(params.depth), {.i32=0},
+    {"depth", NGLI_PARAM_TYPE_U32, OFFSET(params.depth), {.u32=0},
                .desc=NGLI_DOCSTRING("depth of the texture")},
     {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
@@ -304,11 +304,11 @@ static const struct node_param texture3d_params[] = {
     {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGPU_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"width", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i32=0},
+    {"width", NGLI_PARAM_TYPE_U32, OFFSET(params.width), {.u32=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
-    {"height", NGLI_PARAM_TYPE_I32, OFFSET(params.height), {.i32=0},
+    {"height", NGLI_PARAM_TYPE_U32, OFFSET(params.height), {.u32=0},
                .desc=NGLI_DOCSTRING("height of the texture")},
-    {"depth", NGLI_PARAM_TYPE_I32, OFFSET(params.depth), {.i32=0},
+    {"depth", NGLI_PARAM_TYPE_U32, OFFSET(params.depth), {.u32=0},
                .desc=NGLI_DOCSTRING("depth of the texture")},
     {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
@@ -332,7 +332,7 @@ static const struct node_param texturecube_params[] = {
     {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGPU_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"size", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i32=0},
+    {"size", NGLI_PARAM_TYPE_U32, OFFSET(params.width), {.u32=0},
              .desc=NGLI_DOCSTRING("width and height of the texture")},
     {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
@@ -405,7 +405,7 @@ static int texture_prefetch(struct ngl_node *node)
                         buffer->layout.count, buffer->layout.count);
                     if (buffer->layout.count > INT_MAX)
                         return NGL_ERROR_LIMIT_EXCEEDED;
-                    params->width = (int)buffer->layout.count;
+                    params->width = (uint32_t)buffer->layout.count;
                     params->height = 1;
                 }
             } else if (params->type == NGPU_TEXTURE_TYPE_3D) {
@@ -415,7 +415,7 @@ static int texture_prefetch(struct ngl_node *node)
                         buffer->layout.count, buffer->layout.count);
                     if (buffer->layout.count > INT_MAX)
                         return NGL_ERROR_LIMIT_EXCEEDED;
-                    params->width = (int)buffer->layout.count;
+                    params->width = (uint32_t)buffer->layout.count;
                     params->height = params->depth = 1;
                 }
             }
@@ -572,10 +572,10 @@ static int rtt_resize(struct ngl_node *node)
     struct texture_priv *s = node->priv_data;
     struct texture_info *i = node->priv_data;
 
-    const int32_t width = ctx->current_rendertarget->width;
-    const int32_t height = ctx->current_rendertarget->height;
+    const uint32_t width = ctx->current_rendertarget->width;
+    const uint32_t height = ctx->current_rendertarget->height;
     if (s->rtt_ctx) {
-        int32_t current_width, current_height;
+        uint32_t current_width, current_height;
         ngli_rtt_get_dimensions(s->rtt_ctx, &current_width, &current_height);
         if (current_width == width && current_height == height)
             return 0;
@@ -686,7 +686,7 @@ static enum ngpu_format get_preferred_format(struct ngpu_ctx *gpu_ctx, int forma
     case NGLI_FORMAT_AUTO_DEPTH_STENCIL:
         return ngpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
     default:
-        return format;
+        return (enum ngpu_format)format;
     }
 }
 
@@ -701,8 +701,7 @@ static int texture2d_init(struct ngl_node *node)
     i->params = o->params;
 
     const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
-    if (i->params.width  < 0 || i->params.width  > max_dimension ||
-        i->params.height < 0 || i->params.height > max_dimension) {
+    if (i->params.width  > max_dimension || i->params.height > max_dimension) {
         LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
             i->params.width, i->params.height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
@@ -823,9 +822,8 @@ static int texturecube_init(struct ngl_node *node)
     i->params.height = i->params.width;
 
     const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
-    if (i->params.width  <= 0 || i->params.width  > max_dimension ||
-        i->params.height <= 0 || i->params.height > max_dimension) {
-        LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
+    if (i->params.width > max_dimension || i->params.height > max_dimension) {
+        LOG(ERROR, "texture dimensions (%d,%d,6) are invalid or exceeds device limits (%d,%d,6)",
             i->params.width, i->params.height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }

@@ -23,6 +23,8 @@
 #ifndef NGPU_FORMAT_H
 #define NGPU_FORMAT_H
 
+#include <stddef.h>
+
 enum ngpu_format {
     NGPU_FORMAT_UNDEFINED,
     NGPU_FORMAT_R8_UNORM,
@@ -99,9 +101,9 @@ enum ngpu_format_feature {
     NGPU_FORMAT_FEATURE_MAX_ENUM = 0x7FFFFFFF
 };
 
-int ngpu_format_get_bytes_per_pixel(enum ngpu_format format);
+size_t ngpu_format_get_bytes_per_pixel(enum ngpu_format format);
 
-int ngpu_format_get_nb_comp(enum ngpu_format format);
+size_t ngpu_format_get_nb_comp(enum ngpu_format format);
 
 int ngpu_format_has_depth(enum ngpu_format format);
 

@@ -166,7 +166,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
         LOG(INFO, "software renderer detected");
     }
 
-    glcontext->version = major_version * 100 + minor_version * 10;
+    glcontext->version = (uint32_t)major_version * 100 + (uint32_t)minor_version * 10;
 
     if (glcontext->backend == NGL_BACKEND_OPENGL && glcontext->version < 450) {
         LOG(ERROR, "nope.gl only supports OpenGL >= 4.5");
@@ -188,9 +188,9 @@ static int glcontext_probe_glsl_version(struct glcontext *glcontext)
             return NGL_ERROR_BUG;
         }
 
-        int major_version;
-        int minor_version;
-        int ret = sscanf(glsl_version, "%d.%d", &major_version, &minor_version);
+        uint32_t major_version;
+        uint32_t minor_version;
+        int ret = sscanf(glsl_version, "%u.%u", &major_version, &minor_version);
         if (ret != 2) {
             LOG(ERROR, "could not parse GLSL version: \"%s\"", glsl_version);
             return NGL_ERROR_BUG;
@@ -212,7 +212,7 @@ static int glcontext_check_extension(const char *extension,
     glcontext->funcs.GetIntegerv(GL_NUM_EXTENSIONS, &nb_extensions);
 
     for (GLint i = 0; i < nb_extensions; i++) {
-        const char *tmp = (const char *)glcontext->funcs.GetStringi(GL_EXTENSIONS, i);
+        const char *tmp = (const char *)glcontext->funcs.GetStringi(GL_EXTENSIONS, (GLuint)i);
         if (!tmp)
             break;
         if (!strcmp(extension, tmp))
@@ -307,13 +307,13 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
 #define GET(name, value) do {                         \
     GLint gl_value;                                   \
     glcontext->funcs.GetIntegerv((name), &gl_value);  \
-    *(value) = gl_value;                              \
+    *(value) = (__typeof__(*(value)))gl_value;        \
 } while (0)                                           \
 
 #define GET_I(name, index, value) do {                           \
     GLint gl_value;                                              \
     glcontext->funcs.GetIntegeri_v((name), (index), &gl_value);  \
-    *(value) = gl_value;                                         \
+    *(value) = (__typeof__((*value)))gl_value;                   \
 } while (0)                                                      \
 
 static int glcontext_probe_limits(struct glcontext *glcontext)
@@ -523,7 +523,7 @@ void ngli_glcontext_set_surface_pts(struct glcontext *glcontext, double t)
         glcontext->cls->set_surface_pts(glcontext, t);
 }
 
-int ngli_glcontext_resize(struct glcontext *glcontext, int32_t width, int32_t height)
+int ngli_glcontext_resize(struct glcontext *glcontext, uint32_t width, uint32_t height)
 {
     if (glcontext->offscreen) {
         LOG(ERROR, "offscreen context does not support resize operation");

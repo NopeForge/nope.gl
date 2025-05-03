@@ -265,7 +265,7 @@ static ngli_animation_cpy_func_type get_color_cpy_func(int space)
     return NULL;
 }
 
-static ngli_animation_mix_func_type get_mix_func(const struct variable_opts *o, int node_class)
+static ngli_animation_mix_func_type get_mix_func(const struct variable_opts *o, uint32_t node_class)
 {
     switch (node_class) {
         case NGL_NODE_ANIMATEDTIME:  return mix_time;
@@ -280,7 +280,7 @@ static ngli_animation_mix_func_type get_mix_func(const struct variable_opts *o, 
     return NULL;
 }
 
-static ngli_animation_cpy_func_type get_cpy_func(const struct variable_opts *o, int node_class)
+static ngli_animation_cpy_func_type get_cpy_func(const struct variable_opts *o, uint32_t node_class)
 {
     switch (node_class) {
         case NGL_NODE_ANIMATEDTIME:  return cpy_time;
