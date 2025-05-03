@@ -149,7 +149,12 @@ vec2 sum_of_inv(vec2 z0, vec2 z1, vec2 z2)                   { return c_inv(z0 -
 
 int aberth_ehrlich_3(out vec3 roots, float a, float b, float c, float d)
 {
-    float r = 1.0; // pow(abs(d / a), 0.2);
+    // Initial candidates set mid-way of the tight Cauchy bound estimate
+    float r = (1.0 + ngli_max3(
+        pow(abs(b/a), 1.0/3.0),
+        pow(abs(c/a), 1.0/2.0),
+            abs(d/a))) / sqrt(2.0);
+
     vec2 prv0 = r * K3_0;
     vec2 prv1 = r * K3_1;
     vec2 prv2 = r * K3_2;
@@ -190,7 +195,13 @@ int aberth_ehrlich_3(out vec3 roots, float a, float b, float c, float d)
 
 int aberth_ehrlich_4(out vec4 roots, float a, float b, float c, float d, float e)
 {
-    float r = 1.0; // pow(abs(e / a), 0.2);
+    // Initial candidates set mid-way of the tight Cauchy bound estimate
+    float r = (1.0 + ngli_max4(
+        pow(abs(b/a), 1.0/4.0),
+        pow(abs(c/a), 1.0/3.0),
+        pow(abs(d/a), 1.0/2.0),
+            abs(e/a))) / sqrt(2.0);
+
     vec2 prv0 = r * K4_0;
     vec2 prv1 = r * K4_1;
     vec2 prv2 = r * K4_2;
@@ -243,7 +254,14 @@ int aberth_ehrlich_4(out vec4 roots, float a, float b, float c, float d, float e
  */
 int aberth_ehrlich_5(out float roots[5], float a, float b, float c, float d, float e, float f)
 {
-    float r = 1.0; // pow(abs(f / a), 0.2);
+    // Initial candidates set mid-way of the tight Cauchy bound estimate
+    float r = (1.0 + ngli_max5(
+        pow(abs(b/a), 1.0/5.0),
+        pow(abs(c/a), 1.0/4.0),
+        pow(abs(d/a), 1.0/3.0),
+        pow(abs(e/a), 1.0/2.0),
+            abs(f/a))) / sqrt(2.0);
+
     vec2 prv0 = r * K5_0;
     vec2 prv1 = r * K5_1;
     vec2 prv2 = r * K5_2;
