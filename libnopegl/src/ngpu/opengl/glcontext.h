@@ -34,8 +34,8 @@
 struct glcontext_class;
 
 struct glcontext_params {
-    int platform;
-    int backend;
+    enum ngl_platform_type platform;
+    enum ngl_backend_type backend;
     int external;
     uintptr_t display;
     uintptr_t window;
@@ -54,8 +54,8 @@ struct glcontext {
     void *priv_data;
 
     /* User options */
-    int platform;
-    int backend;
+    enum ngl_platform_type platform;
+    enum ngl_backend_type backend;
     int external;
     int offscreen;
     int32_t width;

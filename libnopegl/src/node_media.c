@@ -118,7 +118,7 @@ static const struct node_param media_params[] = {
     {NULL}
 };
 
-static const int log_levels[] = {
+static const enum ngl_log_level log_levels[] = {
     [NMD_LOG_VERBOSE] = NGL_LOG_VERBOSE,
     [NMD_LOG_DEBUG]   = NGL_LOG_DEBUG,
     [NMD_LOG_INFO]    = NGL_LOG_INFO,
@@ -167,7 +167,7 @@ static void callback_nopemd_log(void *arg, int level, const char *filename, int 
 }
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-static const char *get_default_vt_pix_fmts(int backend)
+static const char *get_default_vt_pix_fmts(enum ngl_backend_type backend)
 {
     /* OpenGLES 3.0 (iOS) does not support 16-bit texture formats */
     if (backend == NGL_BACKEND_OPENGLES)

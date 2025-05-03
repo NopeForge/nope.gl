@@ -629,7 +629,7 @@ static int backends_probe(const struct ngl_config *user_config, size_t *nb_backe
     for (size_t i = 0; i < NGLI_ARRAY_NB(api_map); i++) {
         if (!api_map[i])
             continue;
-        const int backend_id = (int)i;
+        const enum ngl_backend_type backend_id = (enum ngl_backend_type)i;
         if (user_config->backend != NGL_BACKEND_AUTO && user_config->backend != backend_id)
             continue;
         struct ngl_config config = *user_config;

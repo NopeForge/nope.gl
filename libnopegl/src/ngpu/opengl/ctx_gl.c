@@ -421,7 +421,7 @@ static const char *gl_debug_type_to_str(GLenum type)
     }
 }
 
-static int gl_debug_type_to_log_level(GLenum type)
+static enum ngl_log_level gl_debug_type_to_log_level(GLenum type)
 {
     switch (type) {
     case GL_DEBUG_TYPE_ERROR:
@@ -454,7 +454,7 @@ static void NGLI_GL_APIENTRY gl_debug_message_callback(GLenum source,
                                                        const GLchar *message,
                                                        const void *user_param)
 {
-    const int log_level = gl_debug_type_to_log_level(type);
+    const enum ngl_log_level log_level = gl_debug_type_to_log_level(type);
     const char *msg_source = gl_debug_source_to_str(source);
     const char *msg_type = gl_debug_type_to_str(type);
     const char *msg_severity = gl_debug_severity_to_str(severity);

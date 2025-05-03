@@ -28,7 +28,7 @@
 #include "rendertarget.h"
 #include "utils/memory.h"
 
-const char *ngli_backend_get_string_id(int backend)
+const char *ngli_backend_get_string_id(enum ngl_backend_type backend)
 {
     switch (backend) {
     case NGL_BACKEND_AUTO:     return "auto";
@@ -39,7 +39,7 @@ const char *ngli_backend_get_string_id(int backend)
     }
 }
 
-const char *ngli_backend_get_full_name(int backend)
+const char *ngli_backend_get_full_name(enum ngl_backend_type backend)
 {
     switch (backend) {
     case NGL_BACKEND_AUTO:     return "Auto";
