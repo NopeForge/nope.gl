@@ -41,7 +41,7 @@ struct ngpu_glstate_stencil_op {
 
 struct ngpu_glstate {
     /* Graphics state */
-    GLenum blend;
+    GLboolean blend;
     GLenum blend_dst_factor;
     GLenum blend_src_factor;
     GLenum blend_dst_factor_a;
@@ -51,11 +51,11 @@ struct ngpu_glstate {
 
     GLboolean color_write_mask[4];
 
-    GLenum    depth_test;
+    GLboolean depth_test;
     GLboolean depth_write_mask;
     GLenum    depth_func;
 
-    GLenum stencil_test;
+    GLboolean stencil_test;
     struct ngpu_glstate_stencil_op stencil_front;
     struct ngpu_glstate_stencil_op stencil_back;
 
@@ -95,6 +95,6 @@ void ngpu_glstate_update_viewport(const struct glcontext *gl,
 
 void ngpu_glstate_enable_scissor_test(const struct glcontext *gl,
                                       struct ngpu_glstate *glstate,
-                                      int enable);
+                                      GLboolean enable);
 
 #endif
