@@ -35,13 +35,13 @@ struct distmap;
 struct distmap *ngli_distmap_create(struct ngl_ctx *ctx);
 
 int ngli_distmap_init(struct distmap *s);
-int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
-                           const struct path *path, uint32_t flags, int32_t *shape_id);
+int ngli_distmap_add_shape(struct distmap *s, uint32_t shape_w, uint32_t shape_h,
+                           const struct path *path, uint32_t flags, uint32_t *shape_id);
 int ngli_distmap_finalize(struct distmap *s);
 
 struct ngpu_texture *ngli_distmap_get_texture(const struct distmap *s);
-void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, int32_t *dst);
-void ngli_distmap_get_shape_scale(const struct distmap *s, int32_t shape_id, float *dst);
+void ngli_distmap_get_shape_coords(const struct distmap *s, uint32_t shape_id, int32_t *dst);
+void ngli_distmap_get_shape_scale(const struct distmap *s, uint32_t shape_id, float *dst);
 
 void ngli_distmap_freep(struct distmap **sp);
 

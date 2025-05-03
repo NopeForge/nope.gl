@@ -56,17 +56,17 @@ struct bezier3 {
 };
 
 struct shape {
-    int32_t width, height;
+    uint32_t width, height;
 };
 
 struct distmap {
     struct ngl_ctx *ctx;
 
-    int32_t pad;
-    int32_t max_shape_w, max_shape_h;
-    int32_t max_shape_padded_w, max_shape_padded_h;
-    int32_t texture_w, texture_h;
-    int32_t nb_rows, nb_cols;
+    uint32_t pad;
+    uint32_t max_shape_w, max_shape_h;
+    uint32_t max_shape_padded_w, max_shape_padded_h;
+    uint32_t texture_w, texture_h;
+    uint32_t nb_rows, nb_cols;
     float scale;
 
     struct darray shapes;              // struct shape
@@ -124,15 +124,15 @@ static struct bezier3 b3_from_bezier3(float p0, float p1, float p2, float p3)
     return ret;
 }
 
-int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
-                           const struct path *path, uint32_t flags, int32_t *shape_id)
+int ngli_distmap_add_shape(struct distmap *s, uint32_t shape_w, uint32_t shape_h,
+                           const struct path *path, uint32_t flags, uint32_t *shape_id)
 {
     if (shape_w <= 0 || shape_h <= 0) {
         LOG(ERROR, "invalid shape dimensions %dx%d", shape_w, shape_h);
         return NGL_ERROR_INVALID_ARG;
     }
 
-    int32_t nb_beziers = 0, nb_beziergroups = 0;
+    uint32_t nb_beziers = 0, nb_beziergroups = 0;
     const struct darray *segments_array = ngli_path_get_segments(path);
     const struct path_segment *segments = ngli_darray_data(segments_array);
     for (size_t i = 0; i < ngli_darray_count(segments_array); i++) {
@@ -180,9 +180,9 @@ int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
 
         /* A group of bézier curves ends when a sub-shape is closed or we reach an open end */
         if (segment->flags & (NGLI_PATH_SEGMENT_FLAG_CLOSING | NGLI_PATH_SEGMENT_FLAG_OPEN_END)) {
-            const int closed = (segment->flags & NGLI_PATH_SEGMENT_FLAG_CLOSING) || (flags & NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE);
+            const uint32_t closed = (segment->flags & NGLI_PATH_SEGMENT_FLAG_CLOSING) || (flags & NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE);
             /* Pass down the closing flag to the shader using negative integers */
-            const int32_t bezier_count = (closed ? -1 : 1) * nb_beziers;
+            const int32_t bezier_count = (closed ? -1 : 1) * (int32_t)nb_beziers;
             if (!ngli_darray_push(&s->bezier_counts, &bezier_count))
                 return NGL_ERROR_MEMORY;
             nb_beziergroups++;
@@ -200,43 +200,43 @@ int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
     s->max_shape_w = NGLI_MAX(shape_w, s->max_shape_w);
     s->max_shape_h = NGLI_MAX(shape_h, s->max_shape_h);
 
-    *shape_id = (int32_t)ngli_darray_count(&s->shapes) - 1;
+    *shape_id = (uint32_t)ngli_darray_count(&s->shapes) - 1;
     return 0;
 }
 
-static int32_t get_beziergroup_start(const struct distmap *s, int32_t shape_id)
+static uint32_t get_beziergroup_start(const struct distmap *s, uint32_t shape_id)
 {
-    const int32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
-    int32_t group_count = 0;
+    const uint32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
+    uint32_t group_count = 0;
     for (int32_t i = 0; i < shape_id; i++)
         group_count += group_counts[i];
     return group_count;
 }
 
-static int32_t get_beziergroup_end(const struct distmap *s, int32_t shape_id)
+static uint32_t get_beziergroup_end(const struct distmap *s, uint32_t shape_id)
 {
-    const int32_t group_start = get_beziergroup_start(s, shape_id);
-    const int32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
+    const uint32_t group_start = get_beziergroup_start(s, shape_id);
+    const uint32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
     return group_start + group_counts[shape_id];
 }
 
-static int32_t get_bezier_start(const struct distmap *s, int32_t shape_id)
+static uint32_t get_bezier_start(const struct distmap *s, uint32_t shape_id)
 {
-    const int32_t group_start = get_beziergroup_start(s, shape_id);
+    const uint32_t group_start = get_beziergroup_start(s, shape_id);
     const int32_t *counts = ngli_darray_data(&s->bezier_counts);
-    int32_t start = 0;
-    for (int32_t i = 0; i < group_start; i++)
-        start += abs(counts[i]);
+    uint32_t start = 0;
+    for (uint32_t i = 0; i < group_start; i++)
+        start += (uint32_t)abs(counts[i]);
     return start;
 }
 
-static int32_t get_bezier_end(const struct distmap *s, int32_t shape_id)
+static uint32_t get_bezier_end(const struct distmap *s, uint32_t shape_id)
 {
-    const int32_t group_end = get_beziergroup_end(s, shape_id);
+    const uint32_t group_end = get_beziergroup_end(s, shape_id);
     const int32_t *counts = ngli_darray_data(&s->bezier_counts);
-    int32_t end = 0;
-    for (int32_t i = 0; i < group_end; i++)
-        end += abs(counts[i]);
+    uint32_t end = 0;
+    for (uint32_t i = 0; i < group_end; i++)
+        end += (uint32_t)abs(counts[i]);
     return end;
 }
 
@@ -245,17 +245,17 @@ static int32_t get_bezier_end(const struct distmap *s, int32_t shape_id)
  * get how large the bezier uniform buffer must be (it will be re-used for
  * each shape).
  */
-static int32_t get_max_beziers_per_shape(const struct distmap *s)
+static uint32_t get_max_beziers_per_shape(const struct distmap *s)
 {
-    int32_t max_beziers = 0;
+    uint32_t max_beziers = 0;
     const int32_t *counts = ngli_darray_data(&s->bezier_counts);
-    const int32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
+    const uint32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
     for (size_t i = 0; i < ngli_darray_count(&s->beziergroup_counts); i++) {
-        const int32_t group_count = group_counts[i];
+        const uint32_t group_count = group_counts[i];
 
-        int32_t sum = 0;
+        uint32_t sum = 0;
         for (int32_t j = 0; j < group_count; j++)
-            sum += abs(counts[j]);
+            sum += (uint32_t)abs(counts[j]);
         counts += group_count;
 
         max_beziers = NGLI_MAX(max_beziers, sum);
@@ -263,10 +263,10 @@ static int32_t get_max_beziers_per_shape(const struct distmap *s)
     return max_beziers;
 }
 
-static int32_t get_max_beziergroups_per_shape(const struct distmap *s)
+static uint32_t get_max_beziergroups_per_shape(const struct distmap *s)
 {
-    int32_t max_groups = 0;
-    const int32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
+    uint32_t max_groups = 0;
+    const uint32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
     for (size_t i = 0; i < ngli_darray_count(&s->beziergroup_counts); i++)
         max_groups = NGLI_MAX(max_groups, group_counts[i]);
     return max_groups;
@@ -295,20 +295,20 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
     const float qh = 1.f / (float)s->nb_rows;
 
     const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
-    int32_t shape_id = 0;
+    uint32_t shape_id = 0;
 
-    for (int32_t y = 0; y < s->nb_rows; y++) {
-        for (int32_t x = 0; x < s->nb_cols; x++) {
+    for (uint32_t y = 0; y < s->nb_rows; y++) {
+        for (uint32_t x = 0; x < s->nb_cols; x++) {
             if (shape_id == nb_shapes)
                 return;
 
-            const int32_t beziergroup_start_idx = get_beziergroup_start(s, shape_id);
-            const int32_t beziergroup_end_idx   = get_beziergroup_end(s, shape_id);
-            const int32_t beziergroup_count     = beziergroup_end_idx - beziergroup_start_idx;
+            const uint32_t beziergroup_start_idx = get_beziergroup_start(s, shape_id);
+            const uint32_t beziergroup_end_idx   = get_beziergroup_end(s, shape_id);
+            const uint32_t beziergroup_count     = beziergroup_end_idx - beziergroup_start_idx;
 
-            const int32_t bezier_start_idx      = get_bezier_start(s, shape_id);
-            const int32_t bezier_end_idx        = get_bezier_end(s, shape_id);
-            const int32_t bezier_count          = bezier_end_idx - bezier_start_idx;
+            const uint32_t bezier_start_idx      = get_bezier_start(s, shape_id);
+            const uint32_t bezier_end_idx        = get_bezier_end(s, shape_id);
+            const uint32_t bezier_count          = bezier_end_idx - bezier_start_idx;
 
             const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
 
@@ -317,8 +317,8 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
              * distance must be drawn. The geometry respects the proportions of
              * the shape and is located on a grid of cells of the maximum size.
              */
-            const int32_t padded_w = 2*s->pad + shape->width + 1;
-            const int32_t padded_h = 2*s->pad + shape->height + 1;
+            const uint32_t padded_w = 2*s->pad + shape->width + 1;
+            const uint32_t padded_h = 2*s->pad + shape->height + 1;
             const float xr = (float)padded_w / (float)s->max_shape_padded_w;
             const float yr = (float)padded_h / (float)s->max_shape_padded_h;
             const float x0 = (float)x * qw;
@@ -405,14 +405,14 @@ static int draw_glyphs(struct distmap *s)
     if (ret < 0)
         return ret;
 
-    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 0, s->vert_buffer, 0, (int)s->vert_offset);
-    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 1, s->frag_buffer, 0, (int)s->frag_offset);
+    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 0, s->vert_buffer, 0, s->vert_offset);
+    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 1, s->frag_buffer, 0, s->frag_offset);
 
     const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
-    int32_t shape_id = 0;
+    uint32_t shape_id = 0;
 
-    for (int32_t y = 0; y < s->nb_rows; y++) {
-        for (int32_t x = 0; x < s->nb_cols; x++) {
+    for (uint32_t y = 0; y < s->nb_rows; y++) {
+        for (uint32_t x = 0; x < s->nb_cols; x++) {
             if (shape_id == nb_shapes)
                 return 0;
 
@@ -493,7 +493,7 @@ int ngli_distmap_finalize(struct distmap *s)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
+    const uint32_t nb_shapes = (uint32_t)ngli_darray_count(&s->shapes);
     if (!nb_shapes)
         return 0;
 
@@ -513,8 +513,8 @@ int ngli_distmap_finalize(struct distmap *s)
      * TODO shapes are assumed to be square when balancing the number of rows
      * and cols, we're not taking into account max_shape_padded_[wh] as we should
      */
-    s->nb_rows = (int32_t)lrintf(sqrtf((float)nb_shapes));
-    s->nb_cols = (int32_t)ceilf((float)nb_shapes / (float)s->nb_rows);
+    s->nb_rows = (uint32_t)lrintf(sqrtf((float)nb_shapes));
+    s->nb_cols = (uint32_t)ceilf((float)nb_shapes / (float)s->nb_rows);
     ngli_assert(s->nb_rows * s->nb_cols >= nb_shapes);
 
     /*
@@ -585,8 +585,8 @@ int ngli_distmap_finalize(struct distmap *s)
     if (ret < 0)
         return ret;
 
-    const int32_t bezier_max_count = get_max_beziers_per_shape(s);
-    const int32_t beziergroup_max_count = get_max_beziergroups_per_shape(s);
+    const uint32_t bezier_max_count = get_max_beziers_per_shape(s);
+    const uint32_t beziergroup_max_count = get_max_beziergroups_per_shape(s);
 
     const struct ngpu_block_field vert_fields[] = {
         [VERTICES_INDEX] = {.name="vertices", .type=NGPU_TYPE_VEC4},
@@ -703,24 +703,24 @@ struct ngpu_texture *ngli_distmap_get_texture(const struct distmap *s)
     return s->texture;
 }
 
-void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, int32_t *dst)
+void ngli_distmap_get_shape_coords(const struct distmap *s, uint32_t shape_id, int32_t *dst)
 {
     const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
-    const int32_t col = shape_id % s->nb_cols;
-    const int32_t row = shape_id / s->nb_cols;
-    const int32_t x0 = col * s->max_shape_padded_w;
-    const int32_t y0 = row * s->max_shape_padded_h;
-    const int32_t x1 = x0 + 2*s->pad + shape->width + 1;
-    const int32_t y1 = y0 + 2*s->pad + shape->height + 1;
-    const int32_t coords[] = {x0, y0, x1, y1};
+    const uint32_t col = shape_id % s->nb_cols;
+    const uint32_t row = shape_id / s->nb_cols;
+    const uint32_t x0 = col * s->max_shape_padded_w;
+    const uint32_t y0 = row * s->max_shape_padded_h;
+    const uint32_t x1 = x0 + 2*s->pad + shape->width + 1;
+    const uint32_t y1 = y0 + 2*s->pad + shape->height + 1;
+    const uint32_t coords[] = {x0, y0, x1, y1};
     memcpy(dst, coords, sizeof(coords));
 }
 
-void ngli_distmap_get_shape_scale(const struct distmap *s, int32_t shape_id, float *dst)
+void ngli_distmap_get_shape_scale(const struct distmap *s, uint32_t shape_id, float *dst)
 {
     const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
-    const int32_t dst_w = 2*s->pad + shape->width + 1;
-    const int32_t dst_h = 2*s->pad + shape->height + 1;
+    const uint32_t dst_w = 2*s->pad + shape->width + 1;
+    const uint32_t dst_h = 2*s->pad + shape->height + 1;
     const float scale_x = (float)dst_w / (float)shape->width;
     const float scale_y = (float)dst_h / (float)shape->height;
     const float scale[] = {scale_x, scale_y};

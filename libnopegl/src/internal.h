@@ -72,7 +72,7 @@ void ngli_free_text_builtin_atlas(void *user_arg, void *data);
 
 struct text_builtin_atlas {
     struct distmap *distmap;
-    int32_t char_map[256];
+    uint32_t char_map[256];
 };
 
 struct ngl_ctx {
