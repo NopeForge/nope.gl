@@ -22,6 +22,7 @@
 #ifndef INTERNAL_H
 #define INTERNAL_H
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "config.h"
@@ -166,7 +167,7 @@ struct ngl_node {
     void *opts;
 
     enum node_state state;
-    int is_active;
+    bool is_active;
 
     double visit_time;
     double last_update_time;
@@ -294,7 +295,7 @@ struct node_class {
      * dispatch: delegated
      * when: first step during an api draw call
      */
-    int (*visit)(struct ngl_node *node, int is_active, double t);
+    int (*visit)(struct ngl_node *node, bool is_active, double t);
 
     /*
      * Pre-allocate resources or start background processing so that they are
@@ -393,7 +394,7 @@ void ngli_scene_update_filepath_ref(struct ngl_node *node, const struct node_par
 
 int ngli_node_prepare(struct ngl_node *node);
 int ngli_node_prepare_children(struct ngl_node *node);
-int ngli_node_visit(struct ngl_node *node, int is_active, double t);
+int ngli_node_visit(struct ngl_node *node, bool is_active, double t);
 int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t);
 int ngli_node_update(struct ngl_node *node, double t);
 int ngli_node_update_children(struct ngl_node *node, double t);
