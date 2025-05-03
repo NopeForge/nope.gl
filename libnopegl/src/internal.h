@@ -151,6 +151,13 @@ struct livectl {
 
 #define NGLI_NODE_NONE 0xffffffff
 
+enum node_state {
+    NODE_STATE_INIT_FAILED = -1,
+    NODE_STATE_UNINITIALIZED = 0, /* post uninit(), default */
+    NODE_STATE_INITIALIZED = 1, /* post init() or release() */
+    NODE_STATE_READY = 2, /* post prefetch() */
+};
+
 struct ngl_node {
     const struct node_class *cls;
     struct ngl_ctx *ctx;
@@ -158,7 +165,7 @@ struct ngl_node {
 
     void *opts;
 
-    int state;
+    enum node_state state;
     int is_active;
 
     double visit_time;
