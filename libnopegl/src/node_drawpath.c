@@ -206,13 +206,16 @@ static int drawpath_init(struct ngl_node *node)
     const int32_t shape_w = (int32_t)lrintf(ar > 1.f ? res * ar : res);
     const int32_t shape_h = (int32_t)lrintf(ar > 1.f ? res : res / ar);
 
-    int32_t shape_id_fill;
-    ret = ngli_distmap_add_shape(s->distmap, shape_w, shape_h, s->path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id_fill);
+    if (shape_w < 0 || shape_h < 0) {
+    }
+
+    uint32_t shape_id_fill;
+    ret = ngli_distmap_add_shape(s->distmap, (uint32_t)shape_w, (uint32_t)shape_h, s->path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id_fill);
     if (ret< 0)
         return ret;
 
-    int32_t shape_id_outline;
-    ret = ngli_distmap_add_shape(s->distmap, shape_w, shape_h, s->path, 0, &shape_id_outline);
+    uint32_t shape_id_outline;
+    ret = ngli_distmap_add_shape(s->distmap, (uint32_t)shape_w, (uint32_t)shape_h, s->path, 0, &shape_id_outline);
     if (ret< 0)
         return ret;
 

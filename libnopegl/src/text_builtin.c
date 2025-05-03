@@ -29,7 +29,7 @@
 #include "utils/utils.h"
 
 struct text_builtin {
-    int32_t chr_w, chr_h;
+    uint32_t chr_w, chr_h;
     const struct text_builtin_atlas *atlas;
 };
 
@@ -41,8 +41,8 @@ struct text_builtin {
  * need to have some padding around each glyph, so we can consider an
  * exploitable 12x14 grid.
  */
-static const int32_t view_w = 7;
-static const int32_t view_h = 8;
+static const uint32_t view_w = 7;
+static const uint32_t view_h = 8;
 static const char *outlines[] = {
     /* ! */ "M3 1 v4 h1 v-4 z m0 5.5 q0 .5 .5 .5 .5 0 .5 -.5 0 -.5 -.5 -.5 -.5 0 -.5 .5",
     /* " */ "M3 1 v2 h1 v-2 z m2 0 v2 h1 v-2 z",
@@ -187,7 +187,7 @@ static int atlas_create(struct text *text, struct text_builtin_atlas *atlas)
             goto end;
 
         /* Register the glyph in the distmap atlas */
-        int32_t shape_id;
+        uint32_t shape_id;
         ret = ngli_distmap_add_shape(atlas->distmap, s->chr_w, s->chr_h, path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id);
         if (ret < 0)
             goto end;
@@ -209,9 +209,9 @@ static int text_builtin_init(struct text *text)
 {
     struct text_builtin *s = text->priv_data;
 
-    const int32_t pt_size = text->config.pt_size;
-    const int32_t res = text->config.dpi;
-    const int32_t size = pt_size * res / 72;
+    const uint32_t pt_size = (uint32_t)text->config.pt_size;
+    const uint32_t res = (uint32_t)text->config.dpi;
+    const uint32_t size = pt_size * res / 72;
     s->chr_w = size * view_w / view_h;
     s->chr_h = size;
 
@@ -243,10 +243,10 @@ static int text_builtin_init(struct text *text)
     return 0;
 }
 
-static void get_char_box_dim(const char *s, int32_t *wp, int32_t *hp, size_t *np)
+static void get_char_box_dim(const char *s, uint32_t *wp, uint32_t *hp, size_t *np)
 {
-    int32_t w = 0, h = 1;
-    int32_t cur_w = 0;
+    uint32_t w = 0, h = 1;
+    uint32_t cur_w = 0;
     size_t n = 0;
     for (size_t i = 0; s[i]; i++) {
         if (s[i] == '\n') {
@@ -277,10 +277,10 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
     struct text_builtin *s = text->priv_data;
 
     size_t text_nbchr;
-    int32_t text_cols, text_rows;
+    uint32_t text_cols, text_rows;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
 
-    int32_t col = 0, row = 0;
+    uint32_t col = 0, row = 0;
 
     for (size_t i = 0; str[i]; i++) {
         const enum char_tag tags = get_char_tags(str[i]);
@@ -308,7 +308,7 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
             continue;
         }
 
-        const int32_t atlas_id = s->atlas->char_map[(uint8_t)str[i]];
+        const uint32_t atlas_id = s->atlas->char_map[(uint8_t)str[i]];
         int32_t atlas_coords[4];
         ngli_distmap_get_shape_coords(s->atlas->distmap, atlas_id, atlas_coords);
 
@@ -316,10 +316,10 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
         ngli_distmap_get_shape_scale(s->atlas->distmap, atlas_id, scale);
 
         const struct char_info_internal chr = {
-            .x = NGLI_I32_TO_I26D6(s->chr_w * col),
-            .y = NGLI_I32_TO_I26D6(s->chr_h * (text_rows - row - 1)),
-            .w = NGLI_I32_TO_I26D6(s->chr_w),
-            .h = NGLI_I32_TO_I26D6(s->chr_h),
+            .x = (int32_t)NGLI_I32_TO_I26D6(s->chr_w * col),
+            .y = (int32_t)NGLI_I32_TO_I26D6(s->chr_h * (text_rows - row - 1)),
+            .w = (int32_t)NGLI_I32_TO_I26D6(s->chr_w),
+            .h = (int32_t)NGLI_I32_TO_I26D6(s->chr_h),
             .atlas_coords = {NGLI_ARG_VEC4(atlas_coords)},
             .scale = {NGLI_ARG_VEC2(scale)},
             .tags = NGLI_TEXT_CHAR_TAG_GLYPH,
