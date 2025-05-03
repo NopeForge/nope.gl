@@ -38,7 +38,7 @@ struct ngpu_pgcraft_uniform { // also buffers (for arrays)
     char name[MAX_ID_LEN];
     enum ngpu_type type;
     int stage;
-    int precision;
+    enum ngpu_precision precision;
     const void *data;
     size_t count;
 };

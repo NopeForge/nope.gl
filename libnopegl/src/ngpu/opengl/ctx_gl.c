@@ -1032,7 +1032,7 @@ static void gl_destroy(struct ngpu_ctx *s)
     ngli_glcontext_freep(&s_priv->glcontext);
 }
 
-static int gl_transform_cull_mode(struct ngpu_ctx *s, int cull_mode)
+static enum ngpu_cull_mode gl_transform_cull_mode(struct ngpu_ctx *s, enum ngpu_cull_mode cull_mode)
 {
     return cull_mode;
 }

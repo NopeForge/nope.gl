@@ -1224,9 +1224,9 @@ static void vk_wait_idle(struct ngpu_ctx *s)
     vkDeviceWaitIdle(vk->device);
 }
 
-static int vk_transform_cull_mode(struct ngpu_ctx *s, int cull_mode)
+static enum ngpu_cull_mode vk_transform_cull_mode(struct ngpu_ctx *s, enum ngpu_cull_mode cull_mode)
 {
-    static const int cull_mode_map[NGPU_CULL_MODE_NB] = {
+    static const enum ngpu_cull_mode cull_mode_map[NGPU_CULL_MODE_NB] = {
         [NGPU_CULL_MODE_NONE]      = NGPU_CULL_MODE_NONE,
         [NGPU_CULL_MODE_FRONT_BIT] = NGPU_CULL_MODE_BACK_BIT,
         [NGPU_CULL_MODE_BACK_BIT]  = NGPU_CULL_MODE_FRONT_BIT,

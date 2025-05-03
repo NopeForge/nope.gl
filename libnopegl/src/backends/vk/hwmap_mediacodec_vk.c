@@ -336,7 +336,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     if (!mc->texture)
         return NGL_ERROR_MEMORY;
 
-    int ngl_format = NGPU_FORMAT_UNDEFINED;
+    enum ngpu_format ngl_format = NGPU_FORMAT_UNDEFINED;
     if (ahb_format_props.format)
         ngl_format = ngpu_format_vk_to_ngl(ahb_format_props.format);
 

@@ -117,7 +117,7 @@ struct block_priv {
 struct block_opts {
     struct ngl_node **fields;
     size_t nb_fields;
-    int layout;
+    enum ngpu_block_layout layout;
 };
 
 #define OFFSET(x) offsetof(struct block_opts, x)
