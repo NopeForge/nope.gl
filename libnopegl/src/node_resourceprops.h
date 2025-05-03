@@ -23,7 +23,7 @@
 #define NODE_RESOURCEPROPS_H
 
 struct resourceprops_opts {
-    int precision;
+    enum ngpu_precision precision;
     int as_image;
     int writable;
 };
