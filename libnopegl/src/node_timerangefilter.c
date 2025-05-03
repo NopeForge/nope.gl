@@ -78,7 +78,7 @@ static int timerangefilter_init(struct ngl_node *node)
     return 0;
 }
 
-static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
+static int timerangefilter_visit(struct ngl_node *node, bool is_active, double t)
 {
     struct timerangefilter_priv *s = node->priv_data;
     const struct timerangefilter_opts *o = node->opts;
@@ -91,7 +91,7 @@ static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
      */
     if (is_active) {
         if (t < o->start_time - o->prefetch_time || (o->end_time >= 0.0 && t >= o->end_time))
-            is_active = 0;
+            is_active = false;
 
         // If the child of the current once range is inactive, meaning
         // it has been previously released, we need to force an update
