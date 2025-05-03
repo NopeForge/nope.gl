@@ -136,8 +136,8 @@ static const char *get_cap_string_id(unsigned cap_id)
     case NGL_CAP_MAX_TEXTURE_DIMENSION_3D:      return "max_texture_dimension_3d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE:    return "max_texture_dimension_cube";
     case NGL_CAP_TEXT_LIBRARIES:                return "text_libraries";
+    default:                                    ngli_assert(0);
     }
-    ngli_assert(0);
 }
 
 #define CAP(cap_id, value) {cap_id, get_cap_string_id(cap_id), value}
