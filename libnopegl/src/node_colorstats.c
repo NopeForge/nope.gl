@@ -46,8 +46,8 @@
 #define MAX_BIT_DEPTH 8
 
 struct stats_params_block {
-    int depth;
-    int length_minus1;
+    uint32_t depth;
+    uint32_t length_minus1;
 };
 
 struct colorstats_opts {
@@ -65,8 +65,8 @@ static const struct node_param colorstats_params[] = {
 
 struct colorstats_priv {
     struct block_info blk;
-    int depth;
-    int length_minus1;
+    uint32_t depth;
+    uint32_t length_minus1;
     uint32_t group_size;
 
     struct ngpu_block stats_params_block;
@@ -75,7 +75,7 @@ struct colorstats_priv {
     struct {
         struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pipeline_compat;
-        int32_t wg_count;
+        uint32_t wg_count;
     } init;
 
     /* Waveform compute */
@@ -204,7 +204,7 @@ static int init_computes(struct ngl_node *node)
      * a fallback.
      */
     const struct ngpu_limits *limits = &gpu_ctx->limits;
-    const int max_group_size_x = limits->max_compute_work_group_size[0];
+    const uint32_t max_group_size_x = limits->max_compute_work_group_size[0];
     s->group_size = max_group_size_x >= 256 ? 256 : 128;
     LOG(DEBUG, "using a workgroup size of %u", s->group_size);
 
@@ -221,8 +221,8 @@ static int init_computes(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
 
     const struct ngpu_block_entry block_fields[] = {
-        NGPU_BLOCK_FIELD(struct stats_params_block, depth, NGPU_TYPE_I32, 0),
-        NGPU_BLOCK_FIELD(struct stats_params_block, length_minus1, NGPU_TYPE_I32, 0),
+        NGPU_BLOCK_FIELD(struct stats_params_block, depth, NGPU_TYPE_U32, 0),
+        NGPU_BLOCK_FIELD(struct stats_params_block, length_minus1, NGPU_TYPE_U32, 0),
     };
     const struct ngpu_block_params block_params = {
         .count     = 1,
@@ -270,8 +270,8 @@ static int init_block(struct colorstats_priv *s, struct ngpu_ctx *gpu_ctx)
     static const struct ngpu_block_field block_fields[] = {
         {"max_rgb",       NGPU_TYPE_UVEC2, 0},
         {"max_luma",      NGPU_TYPE_UVEC2, 0},
-        {"depth",         NGPU_TYPE_I32,   0},
-        {"length_minus1", NGPU_TYPE_I32,   0},
+        {"depth",         NGPU_TYPE_U32,   0},
+        {"length_minus1", NGPU_TYPE_U32,   0},
         {"summary",       NGPU_TYPE_UVEC4, 1 << MAX_BIT_DEPTH},
         {"data",          NGPU_TYPE_UVEC4, NGPU_BLOCK_DESC_VARIADIC_COUNT},
     };
@@ -302,7 +302,7 @@ static int colorstats_init(struct ngl_node *node)
     return 0;
 }
 
-static int alloc_block_buffer(struct ngl_node *node, int32_t length)
+static int alloc_block_buffer(struct ngl_node *node, uint32_t length)
 {
     struct colorstats_priv *s = node->priv_data;
 

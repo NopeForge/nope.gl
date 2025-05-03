@@ -32,12 +32,12 @@ vec3 wavecolor()
     float y = uv.y;
 
     /* data buffer has depth horizontally and the image spatiality vertically */
-    vec2 pos = vec2(y, x) * vec2(stats.depth - 1, stats.length_minus1);
-    int spatial_pos = clamp(int(pos.y), 0, stats.length_minus1);
-    int data_offset = spatial_pos * stats.depth;
+    vec2 pos = vec2(y, x) * vec2(stats.depth - 1U, stats.length_minus1);
+    uint spatial_pos = clamp(uint(pos.y), 0U, stats.length_minus1);
+    uint data_offset = spatial_pos * stats.depth;
 
     /* vertical smoothing on the y-axis (depth) */
-    ivec2 depth_pos = clamp(ivec2(pos.x, pos.x + 1.0), 0, stats.depth - 1);
+    uvec2 depth_pos = clamp(uvec2(pos.x, pos.x + 1.0), 0U, stats.depth - 1U);
     vec4 c0 = vec4(stats.data[data_offset + depth_pos.x]);
     vec4 c1 = vec4(stats.data[data_offset + depth_pos.y]);
     vec4 scale = 1.0 / vec4(vec3(stats.max_rgb.x), stats.max_luma.x);
