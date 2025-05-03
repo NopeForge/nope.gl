@@ -93,11 +93,12 @@ struct text_opts {
     int32_t pt_size;
     int32_t dpi;
     float font_scale;
-    int scale_mode;
+    enum text_scale_mode scale_mode;
     struct ngl_node **effect_nodes;
     size_t nb_effect_nodes;
-    int valign, halign;
-    int writing_mode;
+    enum text_valign valign;
+    enum text_halign halign;
+    enum writing_mode writing_mode;
 };
 
 struct text_priv {
