@@ -86,6 +86,11 @@ cdef extern from "nopegl.h":
         NGL_BACKEND_VULKAN
         NGL_BACKEND_MAX_ENUM
 
+    cdef enum ngl_capture_buffer_type:
+        NGL_CAPTURE_BUFFER_TYPE_CPU,
+        NGL_CAPTURE_BUFFER_TYPE_COREVIDEO,
+        NGL_CAPTURE_BUFFER_TYPE_MAX_ENUM
+
     cdef int NGL_CAP_COMPUTE
     cdef int NGL_CAP_DEPTH_STENCIL_RESOLVE
     cdef int NGL_CAP_MAX_COLOR_ATTACHMENTS
@@ -157,7 +162,7 @@ cdef extern from "nopegl.h":
         int  set_surface_pts
         float clear_color[4]
         void *capture_buffer
-        int capture_buffer_type
+        ngl_capture_buffer_type capture_buffer_type
         int hud
         int hud_measure_window
         int hud_refresh_rate[2]
