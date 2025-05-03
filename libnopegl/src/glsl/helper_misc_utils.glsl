@@ -27,6 +27,10 @@
 /* Anti-aliasing approximation */
 float ngli_aa(float x) { return ngli_sat(x / fwidth(x) + 0.5); }
 
+float ngli_max3(float a, float b, float c)                   { return max(a, max(b, c)); }
+float ngli_max4(float a, float b, float c, float d)          { return max(a, ngli_max3(b, c, d)); }
+float ngli_max5(float a, float b, float c, float d, float e) { return max(a, ngli_max4(b, c, d, e)); }
+
 const vec3 ngli_luma_weights = vec3(.2126, .7152, .0722); // BT.709
 const float ngli_pi = 3.14159265358979323846;
 const float ngli_tau = 6.28318530717958647692;
