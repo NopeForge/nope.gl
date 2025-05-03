@@ -62,7 +62,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverity
     if (cb_data->messageIdNumber == 0x7cd0911d)
         return VK_FALSE;
 
-    int level = NGL_LOG_INFO;
+    enum ngl_log_level level = NGL_LOG_INFO;
     if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)        level = NGL_LOG_ERROR;
     else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) level = NGL_LOG_WARNING;
     else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)    level = NGL_LOG_INFO;
@@ -104,7 +104,7 @@ static const char *platform_ext_names[] = {
     [NGL_PLATFORM_WAYLAND] = "VK_KHR_wayland_surface",
 };
 
-static VkResult create_instance(struct vkcontext *s, int platform, int debug)
+static VkResult create_instance(struct vkcontext *s, enum ngl_platform_type platform, int debug)
 {
     s->api_version = VK_API_VERSION_1_0;
 
@@ -275,7 +275,7 @@ static VkResult create_window_surface(struct vkcontext *s, const struct ngl_conf
     if (!config->window)
         return VK_ERROR_UNKNOWN;
 
-    const int platform = config->platform;
+    const enum ngl_platform_type platform = config->platform;
     if (platform == NGL_PLATFORM_XLIB) {
 #if defined(TARGET_LINUX)
         s->x11_display = (Display *)config->display;
