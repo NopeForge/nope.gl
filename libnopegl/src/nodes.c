@@ -297,7 +297,7 @@ int ngli_node_prepare(struct ngl_node *node)
     return ngli_node_prepare_children(node);
 }
 
-int ngli_node_visit(struct ngl_node *node, int is_active, double t)
+int ngli_node_visit(struct ngl_node *node, bool is_active, double t)
 {
     /*
      * If a node is inactive and meant to be, there is no need
@@ -390,7 +390,7 @@ int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t)
     /* Build a new list of activity checks nodes */
     struct darray *nodes_array = &scene->ctx->activitycheck_nodes;
     ngli_darray_clear(nodes_array);
-    int ret = ngli_node_visit(scene, 1, t);
+    int ret = ngli_node_visit(scene, true, t);
     if (ret < 0)
         return ret;
 

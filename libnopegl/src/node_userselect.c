@@ -92,7 +92,7 @@ static int userselect_prepare(struct ngl_node *node)
     return ret;
 }
 
-static int userselect_visit(struct ngl_node *node, int is_active, double t)
+static int userselect_visit(struct ngl_node *node, bool is_active, double t)
 {
     const struct userselect_opts *o = node->opts;
 
