@@ -109,7 +109,7 @@ struct pipeline_desc {
 };
 
 struct draw_common_opts {
-    int blending;
+    enum ngli_blending blending;
     struct ngl_node *geometry;
     struct ngl_node **filters;
     size_t nb_filters;
@@ -1253,7 +1253,7 @@ static int build_texture_map(struct draw_common *draw_common, struct pipeline_de
     return 0;
 }
 
-static int init_pipeline_desc(struct ngl_node *node, struct pipeline_desc *desc, int blending)
+static int init_pipeline_desc(struct ngl_node *node, struct pipeline_desc *desc, enum ngli_blending blending)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
