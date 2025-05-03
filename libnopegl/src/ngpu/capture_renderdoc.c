@@ -83,7 +83,7 @@ int ngpu_capture_begin(struct ngpu_capture_ctx *s)
 
 int ngpu_capture_end(struct ngpu_capture_ctx *s)
 {
-    int ret = s->rdoc_api->EndFrameCapture(NULL, NULL);
+    uint32_t ret = s->rdoc_api->EndFrameCapture(NULL, NULL);
     if (ret == 0) {
         LOG(ERROR, "end frame capture failed");
         return NGL_ERROR_GENERIC;
