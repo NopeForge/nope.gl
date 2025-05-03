@@ -651,7 +651,7 @@ static int gl_init(struct ngpu_ctx *s)
     s_priv->default_rt_layout.depth_stencil.resolve = gl->samples > 1;
 
     ngpu_glstate_reset(gl, &s_priv->glstate);
-    ngpu_glstate_enable_scissor_test(gl, &s_priv->glstate, 1);
+    ngpu_glstate_enable_scissor_test(gl, &s_priv->glstate, GL_TRUE);
 
     ret = create_command_buffers(s);
     if (ret < 0)
@@ -931,13 +931,13 @@ static void blit_vflip(struct ngpu_ctx *s, struct ngpu_rendertarget *src, struct
     gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
     gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, dst_fbo);
 
-    ngpu_glstate_enable_scissor_test(gl, glstate, 0);
+    ngpu_glstate_enable_scissor_test(gl, glstate, GL_FALSE);
 
     gl->funcs.BlitFramebuffer(0, 0, w, h,
                                0, h, w, 0,
                                GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-    ngpu_glstate_enable_scissor_test(gl, glstate, 1);
+    ngpu_glstate_enable_scissor_test(gl, glstate, GL_TRUE);
 }
 
 static int gl_end_draw(struct ngpu_ctx *s, double t)
