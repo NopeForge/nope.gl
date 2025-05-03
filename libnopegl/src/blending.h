@@ -35,6 +35,7 @@ enum ngli_blending {
     NGLI_BLENDING_SRC_ATOP,
     NGLI_BLENDING_DST_ATOP,
     NGLI_BLENDING_XOR,
+    NGLI_BLENDING_MAX_ENUM = 0x7FFFFFFF
 };
 
 extern const struct param_choices ngli_blending_choices;
