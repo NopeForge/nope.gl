@@ -23,8 +23,8 @@
 #define NODE_IO_H
 
 struct io_opts {
-    int precision_out;
-    int precision_in;
+    enum ngpu_precision precision_out;
+    enum ngpu_precision precision_in;
 };
 
 struct io_priv {

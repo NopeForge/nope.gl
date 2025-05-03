@@ -177,7 +177,7 @@ int ngl_node_set_funcs(struct ngl_node *node, void *user_data, struct ngl_node_f
 }
 
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
-static int target_to_layout(GLuint target)
+static enum image_layout target_to_layout(GLuint target)
 {
     switch (target) {
         case GL_TEXTURE_2D:

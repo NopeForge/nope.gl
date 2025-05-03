@@ -42,14 +42,14 @@ struct graphicconfig_opts {
     enum ngpu_blend_op blend_op;
     enum ngpu_blend_op blend_op_a;
 
-    int color_write_mask;
+    enum ngpu_color_component color_write_mask;
 
     int depth_test;
-    int depth_write_mask;
+    uint32_t depth_write_mask;
     enum ngpu_compare_op depth_func;
 
     int stencil_test;
-    int32_t stencil_write_mask;
+    uint32_t stencil_write_mask;
     enum ngpu_compare_op stencil_func;
     uint32_t stencil_ref;
     uint32_t stencil_read_mask;
