@@ -242,6 +242,11 @@ _EXTERNAL_DEPS = dict(
         url="https://github.com/fribidi/fribidi/archive/refs/tags/v@VERSION@.tar.gz",
         sha256="5a1d187a33daa58fcee2ad77f0eb9d136dd6fa4096239199ba31e850d397e8a8",
     ),
+    moltenvk_Darwin=dict(
+        version="1.3.0",
+        url="https://github.com/KhronosGroup/MoltenVK/releases/download/v@VERSION@/MoltenVK-macos.tar",
+        sha256="57b4184ded521b08a63e3642552ebef8b9e98c2f0bcffa49bd93bbe1301c173d",
+    ),
     moltenvk_iOS=dict(
         version="1.3.0",
         url="https://github.com/KhronosGroup/MoltenVK/releases/download/v@VERSION@/MoltenVK-ios.tar",
@@ -267,6 +272,8 @@ def _get_external_deps(args):
         deps.append("freetype")
         deps.append("harfbuzz")
         deps.append("fribidi")
+    elif host == "Darwin":
+        deps.append("moltenvk_Darwin")
     elif host == "iOS":
         deps.append("boringssl")
         deps.append("ffmpeg")
@@ -753,13 +760,18 @@ def _sdl2_install(cfg):
 
 @_block("moltenvk-install", [])
 def _moltenvk_install(cfg):
+    dep_id = f"moltenvk_{cfg.host}"
+    if cfg.host == "Darwin":
+        arch = "macos-arm64_x86_64"
+    elif cfg.host == "iOS":
+        arch = "ios-arm64"
     resources = (
-        (op.join("static", "MoltenVK.xcframework", "ios-arm64", "libMoltenVK.a"), "lib"),
+        (op.join("static", "MoltenVK.xcframework", arch, "libMoltenVK.a"), "lib"),
         (op.join("include", "."), "include"),
     )
     cmds = []
     for src_path, dst_path in resources:
-        src = op.join(cfg.externals["moltenvk_iOS"], "MoltenVK", src_path)
+        src = op.join(cfg.externals[dep_id], "MoltenVK", src_path)
         dst = op.join(cfg.prefix, dst_path)
         os.makedirs(dst, exist_ok=True)
         cmds.append(_cmd_join("cp", "-R", src, dst))
@@ -876,6 +888,11 @@ def _fribidi_install(cfg):
             _freetype_install,
             _harfbuzz_install,
             _fribidi_install,
+        ],
+        "Darwin": [
+            _nopemd_install,
+            _glslang_install,
+            _moltenvk_install,
         ],
         "iOS": [
             _nopemd_install,
