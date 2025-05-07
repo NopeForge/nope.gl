@@ -319,7 +319,7 @@ static int parse_param_str(struct darray *nodes_array, uint8_t *dstp,
     if (!s)
         return NGL_ERROR_MEMORY;
     char *sstart = s;
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         if (str[i] == '%' && i + 2 < len) {
             *s++ = (char)CHR_FROM_HEX(str + i + 1);
             i += 2;
