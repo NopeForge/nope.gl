@@ -590,7 +590,7 @@ static void register_graph_value(struct data_graph *d, int64_t v)
     /* update min */
     if (old_v == d->min) {
         d->min = d->values[0];
-        for (int i = 1; i < d->nb_values; i++)
+        for (size_t i = 1; i < d->nb_values; i++)
             d->min = NGLI_MIN(d->min, d->values[i]);
     } else if (v < d->min) {
         d->min = v;
@@ -600,7 +600,7 @@ static void register_graph_value(struct data_graph *d, int64_t v)
     /* update max */
     if (old_v == d->max) {
         d->max = d->values[0];
-        for (int i = 1; i < d->nb_values; i++)
+        for (size_t i = 1; i < d->nb_values; i++)
             d->max = NGLI_MAX(d->max, d->values[i]);
     } else if (v > d->max) {
         d->max = v;

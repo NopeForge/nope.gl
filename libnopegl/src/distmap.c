@@ -208,7 +208,7 @@ static uint32_t get_beziergroup_start(const struct distmap *s, uint32_t shape_id
 {
     const uint32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
     uint32_t group_count = 0;
-    for (int32_t i = 0; i < shape_id; i++)
+    for (uint32_t i = 0; i < shape_id; i++)
         group_count += group_counts[i];
     return group_count;
 }
@@ -254,7 +254,7 @@ static uint32_t get_max_beziers_per_shape(const struct distmap *s)
         const uint32_t group_count = group_counts[i];
 
         uint32_t sum = 0;
-        for (int32_t j = 0; j < group_count; j++)
+        for (uint32_t j = 0; j < group_count; j++)
             sum += (uint32_t)abs(counts[j]);
         counts += group_count;
 
@@ -294,7 +294,7 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
     const float qw = 1.f / (float)s->nb_cols;
     const float qh = 1.f / (float)s->nb_rows;
 
-    const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
+    const uint32_t nb_shapes = (uint32_t)ngli_darray_count(&s->shapes);
     uint32_t shape_id = 0;
 
     for (uint32_t y = 0; y < s->nb_rows; y++) {
@@ -408,7 +408,7 @@ static int draw_glyphs(struct distmap *s)
     ngli_pipeline_compat_update_buffer(s->pipeline_compat, 0, s->vert_buffer, 0, s->vert_offset);
     ngli_pipeline_compat_update_buffer(s->pipeline_compat, 1, s->frag_buffer, 0, s->frag_offset);
 
-    const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
+    const uint32_t nb_shapes = (uint32_t)ngli_darray_count(&s->shapes);
     uint32_t shape_id = 0;
 
     for (uint32_t y = 0; y < s->nb_rows; y++) {
