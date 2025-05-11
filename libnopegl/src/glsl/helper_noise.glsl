@@ -54,15 +54,15 @@ highp uint hash(highp uvec3 x)
     return hash(x.x ^ hash(x.y ^ hash(x.z)));
 }
 
-highp float random(highp uvec3 x)
+highp float random(highp ivec3 x)
 {
-    return u32tof32(hash(x));
+    return u32tof32(hash(uvec3(x)));
 }
 
-highp vec2 random2(highp uvec3 x)
+highp vec2 random2(highp ivec3 x)
 {
     /* Generate 2 random floats in [0,1] using 16-bit of information for each */
-    uint h = hash(x);
+    uint h = hash(uvec3(x));
     float r0 = u32tof32(0x00010001U * (h      & 0xffffU));
     float r1 = u32tof32(0x00010001U * (h>>16  & 0xffffU));
     return vec2(r0, r1);
@@ -75,7 +75,7 @@ highp vec2 random2(highp uvec3 x)
  * - https://web.archive.org/web/20200618040237/https://mrl.nyu.edu/~perlin/paper445.pdf
  * - https://web.archive.org/web/20180616011332/http://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds%20/perlin-noise-part-2
  */
-highp vec3 random_grad(highp uvec3 x)
+highp vec3 random_grad(highp ivec3 x)
 {
     vec2 r = random2(x);
     float theta = acos(2.0 * r.x - 1.0); // use the first random for the polar angle (latitude)
@@ -92,16 +92,16 @@ float noise_perlin(vec3 t, uint seed)
 {
     vec3 i = floor(t);
     vec3 f = fract(t);
-    uvec3 x = uvec3(i) + seed;
+    ivec3 x = ivec3(i) + int(seed);
 
-    float y0 = dot(random_grad(x + uvec3(0, 0, 0)), f - vec3(0, 0, 0));
-    float y1 = dot(random_grad(x + uvec3(1, 0, 0)), f - vec3(1, 0, 0));
-    float y2 = dot(random_grad(x + uvec3(0, 1, 0)), f - vec3(0, 1, 0));
-    float y3 = dot(random_grad(x + uvec3(1, 1, 0)), f - vec3(1, 1, 0));
-    float y4 = dot(random_grad(x + uvec3(0, 0, 1)), f - vec3(0, 0, 1));
-    float y5 = dot(random_grad(x + uvec3(1, 0, 1)), f - vec3(1, 0, 1));
-    float y6 = dot(random_grad(x + uvec3(0, 1, 1)), f - vec3(0, 1, 1));
-    float y7 = dot(random_grad(x + uvec3(1, 1, 1)), f - vec3(1, 1, 1));
+    float y0 = dot(random_grad(x + ivec3(0, 0, 0)), f - vec3(0, 0, 0));
+    float y1 = dot(random_grad(x + ivec3(1, 0, 0)), f - vec3(1, 0, 0));
+    float y2 = dot(random_grad(x + ivec3(0, 1, 0)), f - vec3(0, 1, 0));
+    float y3 = dot(random_grad(x + ivec3(1, 1, 0)), f - vec3(1, 1, 0));
+    float y4 = dot(random_grad(x + ivec3(0, 0, 1)), f - vec3(0, 0, 1));
+    float y5 = dot(random_grad(x + ivec3(1, 0, 1)), f - vec3(1, 0, 1));
+    float y6 = dot(random_grad(x + ivec3(0, 1, 1)), f - vec3(0, 1, 1));
+    float y7 = dot(random_grad(x + ivec3(1, 1, 1)), f - vec3(1, 1, 1));
 
     vec3 a = curve_quintic(f);
     return mix(mix(mix(y0, y1, a.x), mix(y2, y3, a.x), a.y),
@@ -123,7 +123,7 @@ float bicubic(float a, float b, float c, float d, float t)
 
 float noise_blocky(vec3 t, uint seed)
 {
-    uvec2 xy = uvec2(t.xy) + seed;
+    ivec2 xy = ivec2(t.xy) + int(seed);
 
     /*
      * For each lattice coordinates (x, y) we determine a random frequency and
@@ -134,19 +134,19 @@ float noise_blocky(vec3 t, uint seed)
      * avoid the case where the evolution is derived from random2(uvec3(0, 0,
      * 0)) which equals to 0.
      */
-    vec2 r = random2(uvec3(xy + 1U << 16, seed));
+    vec2 r = random2(ivec3(xy + 1 << 16, int(seed)));
     float evolution_freq = r.x;
     float evolution_offset = r.y;
 
     /* Apply frequency and offset to the third (temporal) dimension */
     float evolution = t.z * evolution_freq + evolution_offset;
-    uint evolution_i = uint(evolution);
+    int evolution_i = int(evolution);
     float evolution_f = fract(evolution);
 
-    float y0 = random(uvec3(xy, evolution_i - 1U));
-    float y1 = random(uvec3(xy, evolution_i + 0U));
-    float y2 = random(uvec3(xy, evolution_i + 1U));
-    float y3 = random(uvec3(xy, evolution_i + 2U));
+    float y0 = random(ivec3(xy, evolution_i - 1));
+    float y1 = random(ivec3(xy, evolution_i + 0));
+    float y2 = random(ivec3(xy, evolution_i + 1));
+    float y3 = random(ivec3(xy, evolution_i + 2));
 
     float res = bicubic(y0, y1, y2, y3, evolution_f);
 
