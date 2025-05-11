@@ -249,9 +249,9 @@ _EXTERNAL_DEPS = dict(
         sha256="16c0204704f3ebeed057aba100fe7db18d71035505cb10e595ea33d346457fc8",
     ),
     fribidi=dict(
-        version="1.0.13",
+        version="1.0.16",
         url="https://github.com/fribidi/fribidi/archive/refs/tags/v@VERSION@.tar.gz",
-        sha256="f24e8e381bcf76533ae56bd776196f3a0369ec28e9c0fdb6edd163277e008314",
+        sha256="5a1d187a33daa58fcee2ad77f0eb9d136dd6fa4096239199ba31e850d397e8a8",
     ),
     moltenvk_iOS=dict(
         version="1.2.8",
