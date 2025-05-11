@@ -43,6 +43,8 @@ add_project_arguments(
     '-Wundef',
     '-Wconversion',
     '-Wno-sign-conversion',
+    '-Wcast-function-type',
+    '-Wcast-function-type-strict',
   ]),
   language: 'c',
 )
