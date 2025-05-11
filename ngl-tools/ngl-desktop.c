@@ -323,7 +323,6 @@ static int handle_commands(struct ctx *s, int fd)
 
             need_reconfigure |= tag == IPC_CLEARCOLOR || tag == IPC_SAMPLES || tag == IPC_RECONFIGURE;
 
-            int ret;
             switch (tag) {
             case IPC_SCENE:        ret = handle_tag_scene(data, size);        break;
             case IPC_FILE:         ret = handle_tag_file(s, data, size);      break;
