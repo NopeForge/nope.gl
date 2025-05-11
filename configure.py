@@ -244,9 +244,9 @@ _EXTERNAL_DEPS = dict(
         sha256="427201f5d5151670d05c1f5b45bef5dda1f2e7dd971ef54f0feaaa7ffd2ab90c",
     ),
     harfbuzz=dict(
-        version="8.4.0",
+        version="11.2.0",
         url="https://github.com/harfbuzz/harfbuzz/archive/refs/tags/@VERSION@.tar.gz",
-        sha256="9f1ca089813b05944ad1ce8c7e018213026d35dc9bab480a21eb876838396556",
+        sha256="16c0204704f3ebeed057aba100fe7db18d71035505cb10e595ea33d346457fc8",
     ),
     fribidi=dict(
         version="1.0.13",
