@@ -503,6 +503,7 @@ static int gl_init(struct gpu_ctx *s)
 
 #if DEBUG_GL
     if ((gl->features & NGLI_FEATURE_GL_KHR_DEBUG)) {
+        ngli_glEnable(gl, GL_DEBUG_OUTPUT);
         ngli_glEnable(gl, GL_DEBUG_OUTPUT_SYNCHRONOUS);
         ngli_glDebugMessageCallback(gl, gl_debug_message_callback, NULL);
     }
