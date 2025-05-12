@@ -75,6 +75,7 @@ struct egl_priv {
     int has_platform_wayland_ext;
     int has_surfaceless_context_ext;
     int has_device_base_ext;
+    int has_create_context_ext;
 #if defined(HAVE_WAYLAND)
     struct wl_egl_window *wl_egl_window;
 #endif
@@ -154,6 +155,10 @@ static int egl_probe_extensions(struct glcontext *ctx)
             return NGL_ERROR_EXTERNAL;
         }
         ctx->features |= NGLI_FEATURE_GL_EGL_MESA_QUERY_DRIVER;
+    }
+
+    if (ngli_glcontext_check_extension("EGL_KHR_create_context", egl->extensions)) {
+        egl->has_create_context_ext = 1;
     }
 
     return 0;
@@ -380,28 +385,39 @@ try_again:;
 
     EGLContext shared_context = other ? (EGLContext)other : NULL;
 
-    if (ctx->backend == NGL_BACKEND_OPENGL) {
-        static const struct {
-            int major;
-            int minor;
-        } gl_versions[] ={
-            {4, 1}, // OpenGL 4.1
-            {3, 3}, // OpenGL 3.3 (Mesa software renderers: llvmpipe, softpipe, swrast)
-        };
-        for (size_t i = 0; i < NGLI_ARRAY_NB(gl_versions); i++) {
+    if (egl->has_create_context_ext) {
+        const EGLint context_flags = DEBUG_GL ? EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR : 0;
+
+        if (ctx->backend == NGL_BACKEND_OPENGL) {
+            static const struct {
+                int major;
+                int minor;
+            } gl_versions[] ={
+                {4, 1}, // OpenGL 4.1
+                {3, 3}, // OpenGL 3.3 (Mesa software renderers: llvmpipe, softpipe, swrast)
+            };
+            for (size_t i = 0; i < NGLI_ARRAY_NB(gl_versions); i++) {
+                const EGLint ctx_attribs[] = {
+                    EGL_CONTEXT_MAJOR_VERSION_KHR, gl_versions[i].major,
+                    EGL_CONTEXT_MINOR_VERSION_KHR, gl_versions[i].minor,
+                    EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR,
+                    EGL_CONTEXT_FLAGS_KHR, context_flags,
+                    EGL_NONE
+                };
+
+                egl->handle = eglCreateContext(egl->display, egl->config, shared_context, ctx_attribs);
+                if (egl->handle)
+                    break;
+            }
+        } else if (ctx->backend == NGL_BACKEND_OPENGLES) {
             const EGLint ctx_attribs[] = {
-                EGL_CONTEXT_MAJOR_VERSION_KHR, gl_versions[i].major,
-                EGL_CONTEXT_MINOR_VERSION_KHR, gl_versions[i].minor,
-                EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR,
-#if DEBUG_GL
-                EGL_CONTEXT_FLAGS_KHR, EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR,
-#endif
-                EGL_NONE
+                EGL_CONTEXT_MAJOR_VERSION_KHR, 2,
+                EGL_CONTEXT_MINOR_VERSION_KHR, 0,
+                EGL_CONTEXT_FLAGS_KHR, context_flags,
+                EGL_NONE,
             };
 
             egl->handle = eglCreateContext(egl->display, egl->config, shared_context, ctx_attribs);
-            if (egl->handle)
-                break;
         }
     } else {
         static const EGLint ctx_attribs[] = {
