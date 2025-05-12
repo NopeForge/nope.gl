@@ -94,6 +94,12 @@ DECLARE_BASE_VEC_FUNCS(2)
 DECLARE_BASE_VEC_FUNCS(3)
 DECLARE_BASE_VEC_FUNCS(4)
 
+void ngli_vec2_init(float *dst, float x, float y)
+{
+    const float r[] = {x, y};
+    memcpy(dst, r, sizeof(r));
+}
+
 void ngli_vec3_cross(float *dst, const float *v1, const float *v2)
 {
     float v[3];
@@ -114,6 +120,12 @@ void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float
     ngli_vec3_norm(dst, dst);
 }
 
+void ngli_vec3_init(float *dst, float x, float y, float z)
+{
+    const float r[] = {x, y, z};
+    memcpy(dst, r, sizeof(r));
+}
+
 void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c)
 {
     const float a[4] = {NGLI_ARG_VEC4(v1)};
@@ -127,6 +139,12 @@ void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c)
 void ngli_vec4_perspective_div(float *dst, const float *v)
 {
     const NGLI_ALIGNED_VEC(r) = NGLI_VEC4_SCALE(v, 1.f / v[3]);
+    memcpy(dst, r, sizeof(r));
+}
+
+void ngli_vec4_init(float *dst, float x, float y, float z, float w)
+{
+    const NGLI_ALIGNED_VEC(r) = {x, y, z, w};
     memcpy(dst, r, sizeof(r));
 }
 
