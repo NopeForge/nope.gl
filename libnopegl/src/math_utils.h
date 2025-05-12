@@ -72,6 +72,10 @@
 #define NGLI_VEC3_LENGTH(v) (sqrtf(NGLI_VEC3_DOT(v, v)))
 #define NGLI_VEC4_LENGTH(v) (sqrtf(NGLI_VEC4_DOT(v, v)))
 
+#define NGLI_VEC2_MUL(a, b) {(a)[0] * (b)[0], (a)[1] * (b)[1]}
+#define NGLI_VEC3_MUL(a, b) {(a)[0] * (b)[0], (a)[1] * (b)[1], (a)[2] * (b)[2]}
+#define NGLI_VEC4_MUL(a, b) {(a)[0] * (b)[0], (a)[1] * (b)[1], (a)[2] * (b)[2], (a)[3] * (b)[3]}
+
 void ngli_vec2_add(float *dst, const float *v1, const float *v2);
 void ngli_vec2_sub(float *dst, const float *v1, const float *v2);
 void ngli_vec2_neg(float *dst, const float *v);
@@ -81,6 +85,7 @@ int ngli_vec2_is_zero(const float *v);
 void ngli_vec2_abs(float *dst, const float *v);
 float ngli_vec2_dot(const float *v1, const float *v2);
 float ngli_vec2_length(const float *v);
+void ngli_vec2_mul(float *dst, const float *v1, const float *v2);
 
 void ngli_vec3_add(float *dst, const float *v1, const float *v2);
 void ngli_vec3_sub(float *dst, const float *v1, const float *v2);
@@ -91,6 +96,7 @@ int ngli_vec3_is_zero(const float *v);
 void ngli_vec3_abs(float *dst, const float *v);
 float ngli_vec3_dot(const float *v1, const float *v2);
 float ngli_vec3_length(const float *v);
+void ngli_vec3_mul(float *dst, const float *v1, const float *v2);
 void ngli_vec3_cross(float *dst, const float *v1, const float *v2);
 void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float *c);
 
@@ -103,6 +109,7 @@ int ngli_vec4_is_zero(const float *v);
 void ngli_vec4_abs(float *dst, const float *v);
 float ngli_vec4_dot(const float *v1, const float *v2);
 float ngli_vec4_length(const float *v);
+void ngli_vec4_mul(float *dst, const float *v1, const float *v2);
 void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c);
 void ngli_vec4_perspective_div(float *dst, const float *v);
 

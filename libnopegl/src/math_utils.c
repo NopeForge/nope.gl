@@ -83,6 +83,12 @@ float ngli_vec##n##_length(const float *v)                              \
 {                                                                       \
     return NGLI_VEC##n##_LENGTH(v);                                     \
 }                                                                       \
+                                                                        \
+void ngli_vec##n##_mul(float *dst, const float *v1, const float *v2)    \
+{                                                                       \
+    const float r[] = NGLI_VEC##n##_MUL(v1, v2);                        \
+    memcpy(dst, r, sizeof(r));                                          \
+}                                                                       \
 
 DECLARE_BASE_VEC_FUNCS(2)
 DECLARE_BASE_VEC_FUNCS(3)
