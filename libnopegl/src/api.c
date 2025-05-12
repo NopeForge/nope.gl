@@ -61,24 +61,16 @@
 extern const struct api_impl api_gl;
 extern const struct api_impl api_vk;
 
-static const struct {
-    const struct api_impl *api_impl;
-} api_map[] = {
-    [NGL_BACKEND_OPENGL] = {
+static const struct api_impl *api_map[] = {
 #ifdef BACKEND_GL
-        .api_impl = &api_gl,
+    [NGL_BACKEND_OPENGL] = &api_gl,
 #endif
-    },
-    [NGL_BACKEND_OPENGLES] = {
 #ifdef BACKEND_GLES
-        .api_impl = &api_gl,
+    [NGL_BACKEND_OPENGLES] = &api_gl,
 #endif
-    },
-    [NGL_BACKEND_VULKAN] = {
 #ifdef BACKEND_VK
-        .api_impl = &api_vk,
+    [NGL_BACKEND_VULKAN] = &api_vk,
 #endif
-    },
 };
 
 void ngl_log_set_callback(void *arg, ngl_log_callback_type callback)
@@ -744,7 +736,7 @@ int ngl_configure(struct ngl_ctx *s, const struct ngl_config *user_config)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    s->api_impl = api_map[config.backend].api_impl;
+    s->api_impl = api_map[config.backend];
     if (!s->api_impl) {
         LOG(ERROR, "backend \"%s\" not available with this build",
             ngli_backend_get_string_id(config.backend));
