@@ -140,6 +140,7 @@ static const struct glfeature {
         .flag           = NGLI_FEATURE_GL_KHR_DEBUG,
         .version        = 430,
         .es_version     = 320,
+        .es_extensions  = (const char*[]){"GL_KHR_debug", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(DebugMessageCallback),
                                         -1}
     }, {
