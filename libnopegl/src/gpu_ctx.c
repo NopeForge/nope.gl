@@ -25,8 +25,29 @@
 #include "gpu_ctx.h"
 #include "log.h"
 #include "memory.h"
-#include "internal.h"
 #include "rendertarget.h"
+
+const char *ngli_backend_get_string_id(int backend)
+{
+    switch (backend) {
+    case NGL_BACKEND_AUTO:     return "auto";
+    case NGL_BACKEND_OPENGL:   return "opengl";
+    case NGL_BACKEND_OPENGLES: return "opengles";
+    case NGL_BACKEND_VULKAN:   return "vulkan";
+    default:                   return "unknown";
+    }
+}
+
+const char *ngli_backend_get_full_name(int backend)
+{
+    switch (backend) {
+    case NGL_BACKEND_AUTO:     return "Auto";
+    case NGL_BACKEND_OPENGL:   return "OpenGL";
+    case NGL_BACKEND_OPENGLES: return "OpenGL ES";
+    case NGL_BACKEND_VULKAN:   return "Vulkan";
+    default:                   return "Unknown";
+    }
+}
 
 int ngli_viewport_is_valid(const struct viewport *viewport)
 {
@@ -38,23 +59,19 @@ extern const struct gpu_ctx_class ngli_gpu_ctx_gles;
 extern const struct gpu_ctx_class ngli_gpu_ctx_vk;
 
 static const struct {
-    const char *string_id;
     const struct gpu_ctx_class *cls;
 } backend_map[] = {
     [NGL_BACKEND_OPENGL] = {
-        .string_id = "opengl",
 #ifdef BACKEND_GL
         .cls = &ngli_gpu_ctx_gl,
 #endif
     },
     [NGL_BACKEND_OPENGLES] = {
-        .string_id = "opengles",
 #ifdef BACKEND_GLES
         .cls = &ngli_gpu_ctx_gles,
 #endif
     },
     [NGL_BACKEND_VULKAN] = {
-        .string_id = "vulkan",
 #ifdef BACKEND_VK
         .cls = &ngli_gpu_ctx_vk,
 #endif
@@ -70,7 +87,7 @@ struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config)
     }
     if (!backend_map[config->backend].cls) {
         LOG(ERROR, "backend \"%s\" not available with this build",
-            backend_map[config->backend].string_id);
+            ngli_backend_get_string_id(config->backend));
         return NULL;
     }
 
@@ -86,7 +103,6 @@ struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config)
         return NULL;
     }
     s->config = ctx_config;
-    s->backend_str = backend_map[config->backend].string_id;
     s->cls = cls;
     return s;
 }

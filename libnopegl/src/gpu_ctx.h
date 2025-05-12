@@ -33,6 +33,9 @@
 #include "rendertarget.h"
 #include "texture.h"
 
+const char *ngli_backend_get_string_id(int backend);
+const char *ngli_backend_get_full_name(int backend);
+
 struct viewport {
     int32_t x, y, width, height;
 };
@@ -51,7 +54,7 @@ int ngli_viewport_is_valid(const struct viewport *viewport);
 #define NGLI_FEATURE_DEPTH_STENCIL_RESOLVE             (1U << 5)
 
 struct gpu_ctx_class {
-    const char *name;
+    uint32_t id;
 
     struct gpu_ctx *(*create)(const struct ngl_config *config);
     int (*init)(struct gpu_ctx *s);
@@ -129,7 +132,6 @@ struct gpu_ctx_class {
 
 struct gpu_ctx {
     struct ngl_config config;
-    const char *backend_str;
     const struct gpu_ctx_class *cls;
 
     int version;
