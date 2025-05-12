@@ -390,8 +390,6 @@ static struct gpu_ctx *gl_create(const struct ngl_config *config)
 }
 
 #if DEBUG_GL
-#define GL_DEBUG_LOG(log_level, ...) ngli_log_print(log_level, __FILE__, __LINE__, __func__, __VA_ARGS__)
-
 static void NGLI_GL_APIENTRY gl_debug_message_callback(GLenum source,
                                                        GLenum type,
                                                        GLuint id,
@@ -402,7 +400,7 @@ static void NGLI_GL_APIENTRY gl_debug_message_callback(GLenum source,
 {
     const int log_level = type == GL_DEBUG_TYPE_ERROR ? NGL_LOG_ERROR : NGL_LOG_DEBUG;
     const char *msg_type = type == GL_DEBUG_TYPE_ERROR ? "ERROR" : "GENERAL";
-    GL_DEBUG_LOG(log_level, "%s: %s", msg_type, message);
+    ngli_log_print(log_level, __FILE__, __LINE__, __func__, "%s: %s", msg_type, message);
 }
 #endif
 
