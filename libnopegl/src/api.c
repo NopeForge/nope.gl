@@ -62,23 +62,19 @@ extern const struct api_impl api_gl;
 extern const struct api_impl api_vk;
 
 static const struct {
-    const char *string_id;
     const struct api_impl *api_impl;
 } api_map[] = {
     [NGL_BACKEND_OPENGL] = {
-        .string_id = "opengl",
 #ifdef BACKEND_GL
         .api_impl = &api_gl,
 #endif
     },
     [NGL_BACKEND_OPENGLES] = {
-        .string_id = "opengles",
 #ifdef BACKEND_GLES
         .api_impl = &api_gl,
 #endif
     },
     [NGL_BACKEND_VULKAN] = {
-        .string_id = "vulkan",
 #ifdef BACKEND_VK
         .api_impl = &api_vk,
 #endif
@@ -178,12 +174,11 @@ static int backend_init(struct ngl_backend *backend, struct gpu_ctx *gpu_ctx)
 {
     struct ngl_config *config = &gpu_ctx->config;
 
-    ngli_assert(gpu_ctx->backend_str);
     ngli_assert(gpu_ctx->cls);
 
     backend->id         = config->backend;
-    backend->string_id  = gpu_ctx->backend_str;
-    backend->name       = gpu_ctx->cls->name;
+    backend->string_id  = ngli_backend_get_string_id(config->backend);
+    backend->name       = ngli_backend_get_full_name(config->backend);
     backend->is_default = config->backend == DEFAULT_BACKEND;
 
     /* If GPU context is not initialized, return early */
@@ -752,7 +747,7 @@ int ngl_configure(struct ngl_ctx *s, const struct ngl_config *user_config)
     s->api_impl = api_map[config.backend].api_impl;
     if (!s->api_impl) {
         LOG(ERROR, "backend \"%s\" not available with this build",
-            api_map[config.backend].string_id);
+            ngli_backend_get_string_id(config.backend));
         return NGL_ERROR_UNSUPPORTED;
     }
 

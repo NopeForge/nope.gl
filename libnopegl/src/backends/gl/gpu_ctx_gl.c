@@ -990,9 +990,9 @@ static void gl_set_index_buffer(struct gpu_ctx *s, const struct buffer *buffer, 
 {
 }
 
-#define DECLARE_GPU_CTX_CLASS(cls_suffix, cls_name)                              \
+#define DECLARE_GPU_CTX_CLASS(cls_suffix, cls_id)                                \
 const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                         \
-    .name                               = cls_name,                              \
+    .id                                 = cls_id,                                \
     .create                             = gl_create,                             \
     .init                               = gl_init,                               \
     .resize                             = gl_resize,                             \
@@ -1067,8 +1067,8 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
 }                                                                                \
 
 #ifdef BACKEND_GL
-DECLARE_GPU_CTX_CLASS(gl,   "OpenGL");
+DECLARE_GPU_CTX_CLASS(gl,   NGL_BACKEND_OPENGL);
 #endif
 #ifdef BACKEND_GLES
-DECLARE_GPU_CTX_CLASS(gles, "OpenGL ES");
+DECLARE_GPU_CTX_CLASS(gles, NGL_BACKEND_OPENGLES);
 #endif

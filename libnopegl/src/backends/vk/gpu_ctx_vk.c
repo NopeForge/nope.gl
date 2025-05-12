@@ -1452,7 +1452,7 @@ static void vk_set_index_buffer(struct gpu_ctx *s, const struct buffer *buffer, 
 }
 
 const struct gpu_ctx_class ngli_gpu_ctx_vk = {
-    .name                               = "Vulkan",
+    .id                                 = NGL_BACKEND_VULKAN,
     .create                             = vk_create,
     .init                               = vk_init,
     .resize                             = vk_resize,
