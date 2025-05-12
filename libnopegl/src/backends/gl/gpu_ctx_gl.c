@@ -390,6 +390,64 @@ static struct gpu_ctx *gl_create(const struct ngl_config *config)
 }
 
 #if DEBUG_GL
+#define GL_ENUM_STR_CASE(prefix, error) case prefix##_##error: return #error
+
+static const char *gl_debug_source_to_str(GLenum source)
+{
+    switch (source) {
+    GL_ENUM_STR_CASE(GL_DEBUG_SOURCE, API);
+    GL_ENUM_STR_CASE(GL_DEBUG_SOURCE, WINDOW_SYSTEM);
+    GL_ENUM_STR_CASE(GL_DEBUG_SOURCE, SHADER_COMPILER);
+    GL_ENUM_STR_CASE(GL_DEBUG_SOURCE, THIRD_PARTY);
+    GL_ENUM_STR_CASE(GL_DEBUG_SOURCE, APPLICATION);
+    GL_ENUM_STR_CASE(GL_DEBUG_SOURCE, OTHER);
+    default:
+        return "UNKNOWN";
+    }
+}
+
+static const char *gl_debug_type_to_str(GLenum type)
+{
+    switch (type) {
+    GL_ENUM_STR_CASE(GL_DEBUG_TYPE, ERROR);
+    GL_ENUM_STR_CASE(GL_DEBUG_TYPE, DEPRECATED_BEHAVIOR);
+    GL_ENUM_STR_CASE(GL_DEBUG_TYPE, UNDEFINED_BEHAVIOR);
+    GL_ENUM_STR_CASE(GL_DEBUG_TYPE, PORTABILITY);
+    GL_ENUM_STR_CASE(GL_DEBUG_TYPE, PERFORMANCE);
+    GL_ENUM_STR_CASE(GL_DEBUG_TYPE, OTHER);
+    GL_ENUM_STR_CASE(GL_DEBUG_TYPE, MARKER);
+    GL_ENUM_STR_CASE(GL_DEBUG_TYPE, PUSH_GROUP);
+    GL_ENUM_STR_CASE(GL_DEBUG_TYPE, POP_GROUP);
+    default:
+        return "UNKNOWN";
+    }
+}
+
+static int gl_debug_type_to_log_level(GLenum type)
+{
+    switch (type) {
+    case GL_DEBUG_TYPE_ERROR:
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+    case GL_DEBUG_TYPE_PORTABILITY:
+        return NGL_LOG_ERROR;
+    default:
+        return NGL_LOG_DEBUG;
+    }
+}
+
+static const char *gl_debug_severity_to_str(GLenum severity)
+{
+    switch (severity) {
+    GL_ENUM_STR_CASE(GL_DEBUG_SEVERITY, HIGH);
+    GL_ENUM_STR_CASE(GL_DEBUG_SEVERITY, MEDIUM);
+    GL_ENUM_STR_CASE(GL_DEBUG_SEVERITY, LOW);
+    GL_ENUM_STR_CASE(GL_DEBUG_SEVERITY, NOTIFICATION);
+    default:
+        return "UNKNOWN";
+    }
+}
+
 static void NGLI_GL_APIENTRY gl_debug_message_callback(GLenum source,
                                                        GLenum type,
                                                        GLuint id,
@@ -398,9 +456,17 @@ static void NGLI_GL_APIENTRY gl_debug_message_callback(GLenum source,
                                                        const GLchar *message,
                                                        const void *user_param)
 {
-    const int log_level = type == GL_DEBUG_TYPE_ERROR ? NGL_LOG_ERROR : NGL_LOG_DEBUG;
-    const char *msg_type = type == GL_DEBUG_TYPE_ERROR ? "ERROR" : "GENERAL";
-    ngli_log_print(log_level, __FILE__, __LINE__, __func__, "%s: %s", msg_type, message);
+    const int log_level = gl_debug_type_to_log_level(type);
+    const char *msg_source = gl_debug_source_to_str(source);
+    const char *msg_type = gl_debug_type_to_str(type);
+    const char *msg_severity = gl_debug_severity_to_str(severity);
+
+    ngli_log_print(log_level, __FILE__, __LINE__, __func__, "%s:%s:%s: %s", msg_source, msg_type, msg_severity, message);
+
+    // Do not abort if the source is the shader compiler as we want the error to
+    // be properly reported and propagated to the user (with proper error messages)
+    if (log_level == NGL_LOG_ERROR && source != GL_DEBUG_SOURCE_SHADER_COMPILER && DEBUG_GL)
+        ngli_assert(0);
 }
 #endif
 
