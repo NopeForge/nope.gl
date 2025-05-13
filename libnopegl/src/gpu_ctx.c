@@ -58,7 +58,7 @@ extern const struct gpu_ctx_class ngli_gpu_ctx_gl;
 extern const struct gpu_ctx_class ngli_gpu_ctx_gles;
 extern const struct gpu_ctx_class ngli_gpu_ctx_vk;
 
-static const struct gpu_ctx_class *backend_map[] = {
+static const struct gpu_ctx_class *backend_map[NGL_BACKEND_NB] = {
 #ifdef BACKEND_GL
     [NGL_BACKEND_OPENGL] = &ngli_gpu_ctx_gl,
 #endif
