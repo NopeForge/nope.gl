@@ -58,24 +58,16 @@ extern const struct gpu_ctx_class ngli_gpu_ctx_gl;
 extern const struct gpu_ctx_class ngli_gpu_ctx_gles;
 extern const struct gpu_ctx_class ngli_gpu_ctx_vk;
 
-static const struct {
-    const struct gpu_ctx_class *cls;
-} backend_map[] = {
-    [NGL_BACKEND_OPENGL] = {
+static const struct gpu_ctx_class *backend_map[] = {
 #ifdef BACKEND_GL
-        .cls = &ngli_gpu_ctx_gl,
+    [NGL_BACKEND_OPENGL] = &ngli_gpu_ctx_gl,
 #endif
-    },
-    [NGL_BACKEND_OPENGLES] = {
 #ifdef BACKEND_GLES
-        .cls = &ngli_gpu_ctx_gles,
+    [NGL_BACKEND_OPENGLES] = &ngli_gpu_ctx_gles,
 #endif
-    },
-    [NGL_BACKEND_VULKAN] = {
 #ifdef BACKEND_VK
-        .cls = &ngli_gpu_ctx_vk,
+    [NGL_BACKEND_VULKAN] = &ngli_gpu_ctx_vk,
 #endif
-    },
 };
 
 struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config)
@@ -85,7 +77,7 @@ struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config)
         LOG(ERROR, "unknown backend %d", config->backend);
         return NULL;
     }
-    if (!backend_map[config->backend].cls) {
+    if (!backend_map[config->backend]) {
         LOG(ERROR, "backend \"%s\" not available with this build",
             ngli_backend_get_string_id(config->backend));
         return NULL;
@@ -96,7 +88,7 @@ struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config)
     if (ret < 0)
         return NULL;
 
-    const struct gpu_ctx_class *cls = backend_map[config->backend].cls;
+    const struct gpu_ctx_class *cls = backend_map[config->backend];
     struct gpu_ctx *s = cls->create(config);
     if (!s) {
         ngli_config_reset(&ctx_config);
