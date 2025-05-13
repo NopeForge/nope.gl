@@ -591,18 +591,6 @@ end:
     return ret;
 }
 
-static const int backend_ids[] = {
-#if defined(BACKEND_GL)
-    NGL_BACKEND_OPENGL,
-#endif
-#if defined(BACKEND_GLES)
-    NGL_BACKEND_OPENGLES,
-#endif
-#ifdef BACKEND_VK
-    NGL_BACKEND_VULKAN,
-#endif
-};
-
 static int backends_probe(const struct ngl_config *user_config, size_t *nb_backendsp, struct ngl_backend **backendsp, int mode)
 {
     static const struct ngl_config default_config = {
@@ -616,16 +604,19 @@ static int backends_probe(const struct ngl_config *user_config, size_t *nb_backe
 
     const int platform = user_config->platform == NGL_PLATFORM_AUTO ? get_default_platform() : user_config->platform;
 
-    struct ngl_backend *backends = ngli_calloc(NGLI_ARRAY_NB(backend_ids), sizeof(*backends));
+    struct ngl_backend *backends = ngli_calloc(NGLI_ARRAY_NB(api_map), sizeof(*backends));
     if (!backends)
         return NGL_ERROR_MEMORY;
     size_t nb_backends = 0;
 
-    for (size_t i = 0; i < NGLI_ARRAY_NB(backend_ids); i++) {
-        if (user_config->backend != NGL_BACKEND_AUTO && user_config->backend != backend_ids[i])
+    for (size_t i = 0; i < NGLI_ARRAY_NB(api_map); i++) {
+        if (!api_map[i])
+            continue;
+        const int backend_id = (int)i;
+        if (user_config->backend != NGL_BACKEND_AUTO && user_config->backend != backend_id)
             continue;
         struct ngl_config config = *user_config;
-        config.backend = backend_ids[i];
+        config.backend = backend_id;
         config.platform = platform;
 
         int ret = backend_probe(&backends[nb_backends], &config, mode);
@@ -658,7 +649,7 @@ void ngl_backends_freep(struct ngl_backend **backendsp)
     struct ngl_backend *backends = *backendsp;
     if (!backends)
         return;
-    for (size_t i = 0; i < NGLI_ARRAY_NB(backend_ids); i++)
+    for (size_t i = 0; i < NGLI_ARRAY_NB(api_map); i++)
         backend_reset(&backends[i]);
     ngli_freep(backendsp);
 }
