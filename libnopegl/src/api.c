@@ -61,7 +61,7 @@
 extern const struct api_impl api_gl;
 extern const struct api_impl api_vk;
 
-static const struct api_impl *api_map[] = {
+static const struct api_impl *api_map[NGL_BACKEND_NB] = {
 #ifdef BACKEND_GL
     [NGL_BACKEND_OPENGL] = &api_gl,
 #endif
