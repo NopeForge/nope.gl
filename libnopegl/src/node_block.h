@@ -25,19 +25,19 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "block.h"
-#include "gpu_buffer.h"
+#include "ngpu/buffer.h"
+#include "ngpu/block_desc.h"
 
 struct ngl_node;
 
 struct block_info {
-    struct block block;
+    struct ngpu_block_desc block;
 
     uint8_t *data;
     size_t data_size;
     uint32_t usage;
 
-    struct gpu_buffer *buffer;
+    struct ngpu_buffer *buffer;
     size_t buffer_rev;
 };
 

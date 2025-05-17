@@ -22,6 +22,7 @@
 #ifndef INTERNAL_H
 #define INTERNAL_H
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "config.h"
@@ -39,17 +40,16 @@
 #include FT_OUTLINE_H
 #endif
 
-#include "gpu_ctx.h"
-#include "hmap.h"
 #include "hud.h"
+#include "ngpu/ctx.h"
+#include "ngpu/rendertarget.h"
 #include "nopegl.h"
 #include "params.h"
-#include "pgcache.h"
-#include "pthread_compat.h"
-#include "darray.h"
-#include "gpu_rendertarget.h"
 #include "rnode.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/hmap.h"
+#include "utils/pthread_compat.h"
+#include "utils/utils.h"
 
 struct node_class;
 
@@ -57,7 +57,7 @@ typedef int (*cmd_func_type)(struct ngl_ctx *s, void *arg);
 
 struct api_impl {
     int (*configure)(struct ngl_ctx *s, const struct ngl_config *config);
-    int (*resize)(struct ngl_ctx *s, int32_t width, int32_t height);
+    int (*resize)(struct ngl_ctx *s, uint32_t width, uint32_t height);
     int (*get_viewport)(struct ngl_ctx *s, int32_t *viewport);
     int (*set_capture_buffer)(struct ngl_ctx *s, void *capture_buffer);
     int (*set_scene)(struct ngl_ctx *s, struct ngl_scene *scene);
@@ -73,7 +73,7 @@ void ngli_free_text_builtin_atlas(void *user_arg, void *data);
 
 struct text_builtin_atlas {
     struct distmap *distmap;
-    int32_t char_map[256];
+    uint32_t char_map[256];
 };
 
 struct ngl_ctx {
@@ -83,17 +83,16 @@ struct ngl_ctx {
     const struct api_impl *api_impl;
 
     /* Worker-only fields */
-    struct gpu_ctx *gpu_ctx;
+    struct ngpu_ctx *gpu_ctx;
     struct rnode rnode;
     struct rnode *rnode_pos;
     struct ngl_scene *scene;
-    struct gpu_viewport viewport;
-    struct gpu_scissor scissor;
     struct ngl_config config;
     struct ngl_backend backend;
-    struct gpu_rendertarget *available_rendertargets[2];
-    struct gpu_rendertarget *current_rendertarget;
-    int render_pass_started;
+    struct ngpu_viewport viewport;
+    struct ngpu_scissor scissor;
+    struct ngpu_rendertarget *available_rendertargets[2];
+    struct ngpu_rendertarget *current_rendertarget;
     float default_modelview_matrix[16];
     float default_projection_matrix[16];
     struct darray modelview_matrix_stack;
@@ -111,7 +110,6 @@ struct ngl_ctx {
     FT_Library ft_library;
 #endif
 
-    struct pgcache pgcache;
 #if defined(HAVE_VAAPI)
     struct vaapi_ctx vaapi_ctx;
 #endif
@@ -137,7 +135,7 @@ struct ngl_ctx {
 
 int ngli_ctx_dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg);
 int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config);
-int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height);
+int ngli_ctx_resize(struct ngl_ctx *s, uint32_t width, uint32_t height);
 int ngli_ctx_get_viewport(struct ngl_ctx *s, int32_t *viewport);
 int ngli_ctx_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer);
 int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene);
@@ -154,6 +152,13 @@ struct livectl {
 
 #define NGLI_NODE_NONE 0xffffffff
 
+enum node_state {
+    NODE_STATE_INIT_FAILED = -1,
+    NODE_STATE_UNINITIALIZED = 0, /* post uninit(), default */
+    NODE_STATE_INITIALIZED = 1, /* post init() or release() */
+    NODE_STATE_READY = 2, /* post prefetch() */
+};
+
 struct ngl_node {
     const struct node_class *cls;
     struct ngl_ctx *ctx;
@@ -161,8 +166,8 @@ struct ngl_node {
 
     void *opts;
 
-    int state;
-    int is_active;
+    enum node_state state;
+    bool is_active;
 
     double visit_time;
     double last_update_time;
@@ -189,14 +194,14 @@ struct ngl_scene {
     struct darray files_par; // file based parameters pointers (array of uint8_t *)
 };
 
-enum {
+enum node_category {
     NGLI_NODE_CATEGORY_NONE,
     NGLI_NODE_CATEGORY_VARIABLE,
     NGLI_NODE_CATEGORY_TEXTURE,
     NGLI_NODE_CATEGORY_BUFFER,
     NGLI_NODE_CATEGORY_BLOCK,
     NGLI_NODE_CATEGORY_IO,
-    NGLI_NODE_CATEGORY_DRAW, /* node executes a graphics gpu_pipeline */
+    NGLI_NODE_CATEGORY_DRAW, /* node executes a graphics ngpu_pipeline */
     NGLI_NODE_CATEGORY_TRANSFORM,
 };
 
@@ -238,7 +243,7 @@ enum {
  */
 struct node_class {
     uint32_t id;
-    int category;
+    enum node_category category;
     const char *name;
 
 
@@ -290,7 +295,7 @@ struct node_class {
      * dispatch: delegated
      * when: first step during an api draw call
      */
-    int (*visit)(struct ngl_node *node, int is_active, double t);
+    int (*visit)(struct ngl_node *node, bool is_active, double t);
 
     /*
      * Pre-allocate resources or start background processing so that they are
@@ -389,7 +394,7 @@ void ngli_scene_update_filepath_ref(struct ngl_node *node, const struct node_par
 
 int ngli_node_prepare(struct ngl_node *node);
 int ngli_node_prepare_children(struct ngl_node *node);
-int ngli_node_visit(struct ngl_node *node, int is_active, double t);
+int ngli_node_visit(struct ngl_node *node, bool is_active, double t);
 int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t);
 int ngli_node_update(struct ngl_node *node, double t);
 int ngli_node_update_children(struct ngl_node *node, double t);

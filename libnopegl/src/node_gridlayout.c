@@ -25,14 +25,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "darray.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
 #include "node_transform.h"
 #include "nopegl.h"
+#include "utils/darray.h"
 #include "transforms.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 struct gridlayout_opts {
     struct ngl_node **children;

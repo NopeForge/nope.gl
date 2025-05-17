@@ -23,7 +23,7 @@
 #include <math.h>
 
 #include "math_utils.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 static const float zero_vec[4];
 

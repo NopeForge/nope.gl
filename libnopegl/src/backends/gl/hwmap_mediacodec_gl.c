@@ -28,23 +28,23 @@
 #include <android/hardware_buffer_jni.h>
 
 #include "android_imagereader.h"
-#include "egl.h"
-#include "gpu_format.h"
-#include "gpu_ctx_gl.h"
-#include "glincludes.h"
 #include "hwmap.h"
 #include "image.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ngpu/format.h"
+#include "ngpu/opengl/ctx_gl.h"
+#include "ngpu/opengl/egl.h"
+#include "ngpu/opengl/glincludes.h"
+#include "ngpu/opengl/texture_gl.h"
 #include "nopegl.h"
-#include "internal.h"
-#include "gpu_texture_gl.h"
 
 struct hwmap_mc {
     struct android_image *android_image;
     EGLImageKHR egl_image;
     GLuint gl_texture;
-    struct gpu_texture *texture;
+    struct ngpu_texture *texture;
 };
 
 static int support_direct_rendering(struct hwmap *hwmap)
@@ -58,8 +58,8 @@ static int support_direct_rendering(struct hwmap *hwmap)
             LOG(WARNING, "external textures do not support mipmapping: "
                 "disabling direct rendering");
             direct_rendering = 0;
-        } else if (params->texture_wrap_s != NGLI_GPU_WRAP_CLAMP_TO_EDGE ||
-                   params->texture_wrap_t != NGLI_GPU_WRAP_CLAMP_TO_EDGE) {
+        } else if (params->texture_wrap_s != NGPU_WRAP_CLAMP_TO_EDGE ||
+                   params->texture_wrap_t != NGPU_WRAP_CLAMP_TO_EDGE) {
             LOG(WARNING, "external textures only support clamp to edge wrapping: "
                 "disabling direct rendering");
             direct_rendering = 0;
@@ -72,16 +72,16 @@ static int support_direct_rendering(struct hwmap *hwmap)
 static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
     gl->funcs.GenTextures(1, &mc->gl_texture);
 
-    const GLint min_filter = ngli_gpu_texture_get_gl_min_filter(params->texture_min_filter, NGLI_GPU_MIPMAP_FILTER_NONE);
-    const GLint mag_filter = ngli_gpu_texture_get_gl_mag_filter(params->texture_mag_filter);
+    const GLint min_filter = ngpu_texture_get_gl_min_filter(params->texture_min_filter, NGPU_MIPMAP_FILTER_NONE);
+    const GLint mag_filter = ngpu_texture_get_gl_mag_filter(params->texture_mag_filter);
 
     gl->funcs.BindTexture(GL_TEXTURE_EXTERNAL_OES, mc->gl_texture);
     gl->funcs.TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, min_filter);
@@ -90,34 +90,34 @@ static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
     gl->funcs.TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     gl->funcs.BindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
 
-    struct gpu_texture_params texture_params = {
-        .type         = NGLI_GPU_TEXTURE_TYPE_2D,
-        .format       = NGLI_GPU_FORMAT_UNDEFINED,
+    struct ngpu_texture_params texture_params = {
+        .type         = NGPU_TEXTURE_TYPE_2D,
+        .format       = NGPU_FORMAT_UNDEFINED,
         .min_filter   = params->texture_min_filter,
         .mag_filter   = params->texture_mag_filter,
-        .wrap_s       = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
-        .wrap_t       = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
-        .wrap_r       = NGLI_GPU_WRAP_CLAMP_TO_EDGE,
-        .usage        = NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+        .wrap_s       = NGPU_WRAP_CLAMP_TO_EDGE,
+        .wrap_t       = NGPU_WRAP_CLAMP_TO_EDGE,
+        .wrap_r       = NGPU_WRAP_CLAMP_TO_EDGE,
+        .usage        = NGPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
 
-    struct gpu_texture_gl_wrap_params wrap_params = {
+    struct ngpu_texture_gl_wrap_params wrap_params = {
         .params  = &texture_params,
         .texture = mc->gl_texture,
         .target  = GL_TEXTURE_EXTERNAL_OES,
     };
 
-    mc->texture = ngli_gpu_texture_create(gpu_ctx);
+    mc->texture = ngpu_texture_create(gpu_ctx);
     if (!mc->texture)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_gpu_texture_gl_wrap(mc->texture, &wrap_params);
+    int ret = ngpu_texture_gl_wrap(mc->texture, &wrap_params);
     if (ret < 0)
         return ret;
 
     const struct image_params image_params = {
-        .width = frame->width,
-        .height = frame->height,
+        .width = (uint32_t)frame->width,
+        .height = (uint32_t)frame->height,
         .layout = NGLI_IMAGE_LAYOUT_MEDIACODEC,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_nopemd_frame(frame),
@@ -135,12 +135,12 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
-    ngli_gpu_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
+    ngpu_texture_gl_set_dimensions(mc->texture, (uint32_t)frame->width, (uint32_t)frame->height, 0);
 
     int ret = nmd_mc_frame_render_and_releasep(&frame);
     if (ret < 0)
@@ -183,7 +183,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         EGL_NONE,
     };
 
-    const struct gpu_texture_gl *texture_gl = (struct gpu_texture_gl *)mc->texture;
+    const struct ngpu_texture_gl *texture_gl = (struct ngpu_texture_gl *)mc->texture;
     const GLuint id = texture_gl->id;
 
     mc->egl_image = ngli_eglCreateImageKHR(gl, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, egl_buffer, attrs);
@@ -201,12 +201,12 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 static void mc_uninit(struct hwmap *hwmap)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
-    ngli_gpu_texture_freep(&mc->texture);
+    ngpu_texture_freep(&mc->texture);
     gl->funcs.DeleteTextures(1, &mc->gl_texture);
 
     ngli_eglDestroyImageKHR(gl, mc->egl_image);
@@ -216,7 +216,7 @@ static void mc_uninit(struct hwmap *hwmap)
 const struct hwmap_class ngli_hwmap_mc_gl_class = {
     .name      = "mediacodec (oes zero-copy)",
     .hwformat  = NMD_PIXFMT_MEDIACODEC,
-    .layouts   = (const int[]){
+    .layouts   = (const enum image_layout[]){
         NGLI_IMAGE_LAYOUT_MEDIACODEC,
         NGLI_IMAGE_LAYOUT_NONE
     },

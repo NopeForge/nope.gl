@@ -24,16 +24,16 @@
 #include <string.h>
 
 #include "geometry.h"
+#include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
 #include "nopegl.h"
-#include "internal.h"
-#include "utils.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 struct circle_opts {
     float radius;
-    int32_t npoints;
+    uint32_t npoints;
 };
 
 struct circle_priv {
@@ -44,7 +44,7 @@ struct circle_priv {
 static const struct node_param circle_params[] = {
     {"radius",  NGLI_PARAM_TYPE_F32, OFFSET(radius),  {.f32=1.f},
                 .desc=NGLI_DOCSTRING("circle radius")},
-    {"npoints", NGLI_PARAM_TYPE_I32, OFFSET(npoints), {.i32=16},
+    {"npoints", NGLI_PARAM_TYPE_U32, OFFSET(npoints), {.u32=16},
                 .desc=NGLI_DOCSTRING("number of points")},
     {NULL}
 };
@@ -100,7 +100,7 @@ static int circle_init(struct ngl_node *node)
     for (size_t i = 1; i < nb_vertices; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
-    struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
     s->geom = ngli_geometry_create(gpu_ctx);
     if (!s->geom) {
@@ -123,7 +123,7 @@ end:
     if (ret < 0)
         return ret;
 
-    return ngli_geometry_init(s->geom, NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    return ngli_geometry_init(s->geom, NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 }
 
 static void circle_uninit(struct ngl_node *node)

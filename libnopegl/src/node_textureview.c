@@ -34,7 +34,7 @@ static const struct node_param textureview_params[] = {
                 .flags = NGLI_PARAM_FLAG_NON_NULL,
                 .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE2DARRAY, NGL_NODE_TEXTURE3D, NGL_NODE_TEXTURECUBE, NGLI_NODE_NONE},
                 .desc=NGLI_DOCSTRING("texture used for the view")},
-    {"layer",   NGLI_PARAM_TYPE_I32, OFFSET(layer),
+    {"layer",   NGLI_PARAM_TYPE_U32, OFFSET(layer),
                 .desc=NGLI_DOCSTRING("texture layer used for the view")},
     {NULL}
 };
@@ -43,18 +43,13 @@ static int textureview_init(struct ngl_node *node)
 {
     const struct textureview_opts *o = node->opts;
 
-    if (o->layer < 0) {
-        LOG(ERROR, "layer cannot be negative");
-        return NGL_ERROR_INVALID_ARG;
-    }
-
-    if (o->texture->cls->id == NGL_NODE_TEXTURE2D && o->layer) {
+    if (o->texture->cls->id == NGL_NODE_TEXTURE2D && o->layer >= 1) {
         LOG(ERROR, "2d textures only have one layer");
         return NGL_ERROR_INVALID_ARG;
     }
 
     const struct texture_info *texture_info = o->texture->priv_data;
-    const struct gpu_texture_params *texture_params = &texture_info->params;
+    const struct ngpu_texture_params *texture_params = &texture_info->params;
     if (o->texture->cls->id == NGL_NODE_TEXTURE2DARRAY && o->layer >= texture_params->depth) {
         LOG(ERROR, "requested layer (%d) exceeds texture 2D array layer count (%d)", o->layer, texture_params->depth);
         return NGL_ERROR_INVALID_ARG;

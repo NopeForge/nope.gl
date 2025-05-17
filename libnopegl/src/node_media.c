@@ -32,15 +32,15 @@
 
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "node_animkeyframe.h"
 #include "node_media.h"
 #include "node_uniform.h"
 #include "nopegl.h"
+#include "utils/memory.h"
 
 #if defined(TARGET_ANDROID)
-#include "gpu_ctx.h"
-#include "backends/gl/gpu_texture_gl.h"
+#include "ngpu/ctx.h"
+#include "ngpu/opengl/texture_gl.h"
 #endif
 
 struct media_opts {
@@ -118,7 +118,7 @@ static const struct node_param media_params[] = {
     {NULL}
 };
 
-static const int log_levels[] = {
+static const enum ngl_log_level log_levels[] = {
     [NMD_LOG_VERBOSE] = NGL_LOG_VERBOSE,
     [NMD_LOG_DEBUG]   = NGL_LOG_DEBUG,
     [NMD_LOG_INFO]    = NGL_LOG_INFO,
@@ -149,12 +149,13 @@ static void callback_nopemd_log(void *arg, int level, const char *filename, int 
 
     /* handle the case where the line doesn't fit the stack buffer */
     if (len >= sizeof(logline)) {
-        logbuf = ngli_malloc(len + 1);
+        const size_t logbuf_len = (size_t)len + 1;
+        logbuf = ngli_malloc(logbuf_len);
         if (!logbuf) {
             va_end(vl_copy);
             return;
         }
-        vsnprintf(logbuf, len + 1, fmt, vl_copy);
+        vsnprintf(logbuf, logbuf_len, fmt, vl_copy);
         logp = logbuf;
     }
 
@@ -167,7 +168,7 @@ static void callback_nopemd_log(void *arg, int level, const char *filename, int 
 }
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-static const char *get_default_vt_pix_fmts(int backend)
+static const char *get_default_vt_pix_fmts(enum ngl_backend_type backend)
 {
     /* OpenGLES 3.0 (iOS) does not support 16-bit texture formats */
     if (backend == NGL_BACKEND_OPENGLES)

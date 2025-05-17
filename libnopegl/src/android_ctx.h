@@ -26,7 +26,7 @@
 #include <android/native_window_jni.h>
 #include <media/NdkImageReader.h>
 
-struct gpu_ctx;
+struct ngpu_ctx;
 
 struct android_ctx {
     void *libandroid_handle;
@@ -51,7 +51,7 @@ struct android_ctx {
     void (*AHardwareBuffer_describe)(const AHardwareBuffer *buffer, AHardwareBuffer_Desc *outDesc);
 };
 
-int ngli_android_ctx_init(struct gpu_ctx *gpu_ctx, struct android_ctx *s);
+int ngli_android_ctx_init(struct ngpu_ctx *gpu_ctx, struct android_ctx *s);
 void ngli_android_ctx_reset(struct android_ctx *s);
 
 #endif

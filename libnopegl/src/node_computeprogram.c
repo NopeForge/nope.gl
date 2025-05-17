@@ -21,12 +21,12 @@
 
 #include <stddef.h>
 
-#include "gpu_ctx.h"
-#include "gpu_limits.h"
+#include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
+#include "ngpu/limits.h"
 #include "node_program.h"
 #include "nopegl.h"
-#include "internal.h"
 
 #define OFFSET(x) offsetof(struct program_opts, x)
 static const struct node_param computeprogram_params[] = {
@@ -51,8 +51,8 @@ static int computeprogram_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct gpu_limits *limits = &gpu_ctx->limits;
+    const struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct ngpu_limits *limits = &gpu_ctx->limits;
 
     if (o->workgroup_size[0] > limits->max_compute_work_group_size[0] ||
         o->workgroup_size[1] > limits->max_compute_work_group_size[1] ||

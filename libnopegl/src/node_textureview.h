@@ -28,7 +28,7 @@ struct ngl_node;
 
 struct textureview_opts {
     struct ngl_node *texture;
-    int32_t layer;
+    uint32_t layer;
 };
 
 struct textureview_priv {

@@ -26,23 +26,23 @@
 #include <string.h>
 #include <nopemd.h>
 
-#include "gpu_format.h"
-#include "gpu_ctx.h"
 #include "hwmap.h"
 #include "image.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
+#include "ngpu/texture.h"
 #include "node_buffer.h"
 #include "node_media.h"
 #include "node_rtt.h"
 #include "node_texture.h"
 #include "nopegl.h"
 #include "rtt.h"
-#include "gpu_texture.h"
 
 struct texture_opts {
     int requested_format;
-    struct gpu_texture_params params;
+    struct ngpu_texture_params params;
     struct ngl_node *data_src;
     int direct_rendering;
     int clamp_video;
@@ -55,45 +55,45 @@ struct texture_priv {
     struct hwmap hwmap;
     int rtt_resizable;
     struct renderpass_info renderpass_info;
-    struct gpu_rendertarget_layout rendertarget_layout;
+    struct ngpu_rendertarget_layout rendertarget_layout;
     struct rtt_params rtt_params;
     struct rtt_ctx *rtt_ctx;
 };
 
 NGLI_STATIC_ASSERT(texture_info_is_first, offsetof(struct texture_priv, texture_info) == 0);
 
-enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node)
+enum ngpu_pgcraft_texture_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node)
 {
     switch (node->cls->id) {
     case NGL_NODE_TEXTURE2D: {
         const struct texture_opts *o = node->opts;
         if (o->data_src && o->data_src->cls->id == NGL_NODE_MEDIA)
-            return NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
+            return NGPU_PGCRAFT_TEXTURE_TYPE_VIDEO;
         else
-            return NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
+            return NGPU_PGCRAFT_TEXTURE_TYPE_2D;
     }
     case NGL_NODE_TEXTURE2DARRAY:
-        return NGLI_PGCRAFT_SHADER_TEX_TYPE_2D_ARRAY;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_2D_ARRAY;
     case NGL_NODE_TEXTURE3D:
-        return NGLI_PGCRAFT_SHADER_TEX_TYPE_3D;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_3D;
     case NGL_NODE_TEXTURECUBE:
-        return NGLI_PGCRAFT_SHADER_TEX_TYPE_CUBE;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_CUBE;
     default:
         ngli_assert(0);
     }
 }
 
-enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node)
+enum ngpu_pgcraft_texture_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node)
 {
     switch (node->cls->id) {
     case NGL_NODE_TEXTURE2D:
-        return NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_2D;
     case NGL_NODE_TEXTURE2DARRAY:
-        return NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_2D_ARRAY;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_2D_ARRAY;
     case NGL_NODE_TEXTURE3D:
-        return NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_3D;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_3D;
     case NGL_NODE_TEXTURECUBE:
-        return NGLI_PGCRAFT_SHADER_TEX_TYPE_IMAGE_CUBE;
+        return NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_CUBE;
     default:
         ngli_assert(0);
     }
@@ -112,9 +112,9 @@ int ngli_node_texture_has_media_data_src(const struct ngl_node *node)
 const struct param_choices ngli_mipmap_filter_choices = {
     .name = "mipmap_filter",
     .consts = {
-        {"none",    NGLI_GPU_MIPMAP_FILTER_NONE,    .desc=NGLI_DOCSTRING("no mipmap generation")},
-        {"nearest", NGLI_GPU_MIPMAP_FILTER_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering")},
-        {"linear",  NGLI_GPU_MIPMAP_FILTER_LINEAR,  .desc=NGLI_DOCSTRING("linear filtering")},
+        {"none",    NGPU_MIPMAP_FILTER_NONE,    .desc=NGLI_DOCSTRING("no mipmap generation")},
+        {"nearest", NGPU_MIPMAP_FILTER_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering")},
+        {"linear",  NGPU_MIPMAP_FILTER_LINEAR,  .desc=NGLI_DOCSTRING("linear filtering")},
         {NULL}
     }
 };
@@ -122,8 +122,8 @@ const struct param_choices ngli_mipmap_filter_choices = {
 const struct param_choices ngli_filter_choices = {
     .name = "filter",
     .consts = {
-        {"nearest", NGLI_GPU_FILTER_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering")},
-        {"linear",  NGLI_GPU_FILTER_LINEAR,  .desc=NGLI_DOCSTRING("linear filtering")},
+        {"nearest", NGPU_FILTER_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering")},
+        {"linear",  NGPU_FILTER_LINEAR,  .desc=NGLI_DOCSTRING("linear filtering")},
         {NULL}
     }
 };
@@ -131,73 +131,73 @@ const struct param_choices ngli_filter_choices = {
 static const struct param_choices wrap_choices = {
     .name = "wrap",
     .consts = {
-        {"clamp_to_edge",   NGLI_GPU_WRAP_CLAMP_TO_EDGE,   .desc=NGLI_DOCSTRING("clamp to edge wrapping")},
-        {"mirrored_repeat", NGLI_GPU_WRAP_MIRRORED_REPEAT, .desc=NGLI_DOCSTRING("mirrored repeat wrapping")},
-        {"repeat",          NGLI_GPU_WRAP_REPEAT,          .desc=NGLI_DOCSTRING("repeat pattern wrapping")},
+        {"clamp_to_edge",   NGPU_WRAP_CLAMP_TO_EDGE,   .desc=NGLI_DOCSTRING("clamp to edge wrapping")},
+        {"mirrored_repeat", NGPU_WRAP_MIRRORED_REPEAT, .desc=NGLI_DOCSTRING("mirrored repeat wrapping")},
+        {"repeat",          NGPU_WRAP_REPEAT,          .desc=NGLI_DOCSTRING("repeat pattern wrapping")},
         {NULL}
     }
 };
 
 /* These formats are not in format.h because they do not represent a native GPU format */
-#define NGLI_FORMAT_AUTO_DEPTH         (NGLI_GPU_FORMAT_NB + 1)
-#define NGLI_FORMAT_AUTO_DEPTH_STENCIL (NGLI_GPU_FORMAT_NB + 2)
+#define NGLI_FORMAT_AUTO_DEPTH         (NGPU_FORMAT_NB + 1)
+#define NGLI_FORMAT_AUTO_DEPTH_STENCIL (NGPU_FORMAT_NB + 2)
 
 static const struct param_choices format_choices = {
     .name = "format",
     .consts = {
-        {"undefined",      NGLI_GPU_FORMAT_UNDEFINED,           .desc=NGLI_DOCSTRING("undefined")},
-        {"r8_unorm",       NGLI_GPU_FORMAT_R8_UNORM,            .desc=NGLI_DOCSTRING("8-bit unsigned normalized R component")},
-        {"r8_snorm",       NGLI_GPU_FORMAT_R8_SNORM,            .desc=NGLI_DOCSTRING("8-bit signed normalized R component")},
-        {"r8_uint",        NGLI_GPU_FORMAT_R8_UINT,             .desc=NGLI_DOCSTRING("8-bit unsigned integer R component")},
-        {"r8_sint",        NGLI_GPU_FORMAT_R8_SINT,             .desc=NGLI_DOCSTRING("8-bit signed integer R component")},
-        {"r8g8_unorm",     NGLI_GPU_FORMAT_R8G8_UNORM,          .desc=NGLI_DOCSTRING("8-bit unsigned normalized RG components")},
-        {"r8g8_snorm",     NGLI_GPU_FORMAT_R8G8_SNORM,          .desc=NGLI_DOCSTRING("8-bit signed normalized RG components")},
-        {"r8g8_uint",      NGLI_GPU_FORMAT_R8G8_UINT,           .desc=NGLI_DOCSTRING("8-bit unsigned integer RG components")},
-        {"r8g8_sint",          NGLI_GPU_FORMAT_R8G8_SINT,           .desc=NGLI_DOCSTRING("8-bit signed normalized RG components")},
-        {"r8g8b8a8_unorm",     NGLI_GPU_FORMAT_R8G8B8A8_UNORM,      .desc=NGLI_DOCSTRING("8-bit unsigned normalized RGBA components")},
-        {"r8g8b8a8_snorm",     NGLI_GPU_FORMAT_R8G8B8A8_SNORM,      .desc=NGLI_DOCSTRING("8-bit signed normalized RGBA components")},
-        {"r8g8b8a8_uint",      NGLI_GPU_FORMAT_R8G8B8A8_UINT,       .desc=NGLI_DOCSTRING("8-bit unsigned integer RGBA components")},
-        {"r8g8b8a8_sint",       NGLI_GPU_FORMAT_R8G8B8A8_SINT,       .desc=NGLI_DOCSTRING("8-bit signed integer RGBA components")},
-        {"r8g8b8a8_srgb",       NGLI_GPU_FORMAT_R8G8B8A8_SRGB,       .desc=NGLI_DOCSTRING("8-bit unsigned normalized RGBA components")},
-        {"b8g8r8a8_unorm",      NGLI_GPU_FORMAT_B8G8R8A8_UNORM,      .desc=NGLI_DOCSTRING("8-bit unsigned normalized BGRA components")},
-        {"b8g8r8a8_snorm",      NGLI_GPU_FORMAT_B8G8R8A8_SNORM,      .desc=NGLI_DOCSTRING("8-bit signed normalized BGRA components")},
-        {"b8g8r8a8_uint",       NGLI_GPU_FORMAT_B8G8R8A8_UINT,       .desc=NGLI_DOCSTRING("8-bit unsigned integer BGRA components")},
-        {"b8g8r8a8_sint",       NGLI_GPU_FORMAT_B8G8R8A8_SINT,       .desc=NGLI_DOCSTRING("8-bit signed integer BGRA components")},
-        {"r16_unorm",           NGLI_GPU_FORMAT_R16_UNORM,           .desc=NGLI_DOCSTRING("16-bit unsigned normalized R component")},
-        {"r16_snorm",           NGLI_GPU_FORMAT_R16_SNORM,           .desc=NGLI_DOCSTRING("16-bit signed normalized R component")},
-        {"r16_uint",            NGLI_GPU_FORMAT_R16_UINT,            .desc=NGLI_DOCSTRING("16-bit unsigned integer R component")},
-        {"r16_sint",            NGLI_GPU_FORMAT_R16_SINT,            .desc=NGLI_DOCSTRING("16-bit signed integer R component")},
-        {"r16_sfloat",          NGLI_GPU_FORMAT_R16_SFLOAT,          .desc=NGLI_DOCSTRING("16-bit signed float R component")},
-        {"r16g16_unorm",        NGLI_GPU_FORMAT_R16G16_UNORM,        .desc=NGLI_DOCSTRING("16-bit unsigned normalized RG components")},
-        {"r16g16_snorm",        NGLI_GPU_FORMAT_R16G16_SNORM,        .desc=NGLI_DOCSTRING("16-bit signed normalized RG components")},
-        {"r16g16_uint",         NGLI_GPU_FORMAT_R16G16_UINT,         .desc=NGLI_DOCSTRING("16-bit unsigned integer RG components")},
-        {"r16g16_sint",         NGLI_GPU_FORMAT_R16G16_SINT,         .desc=NGLI_DOCSTRING("16-bit signed integer RG components")},
-        {"r16g16_sfloat",       NGLI_GPU_FORMAT_R16G16_SFLOAT,       .desc=NGLI_DOCSTRING("16-bit signed float RG components")},
-        {"r16g16b16a16_unorm",  NGLI_GPU_FORMAT_R16G16B16A16_UNORM,  .desc=NGLI_DOCSTRING("16-bit unsigned normalized RGBA components")},
-        {"r16g16b16a16_snorm",  NGLI_GPU_FORMAT_R16G16B16A16_SNORM,  .desc=NGLI_DOCSTRING("16-bit signed normalized RGBA components")},
-        {"r16g16b16a16_uint",   NGLI_GPU_FORMAT_R16G16B16A16_UINT,   .desc=NGLI_DOCSTRING("16-bit unsigned integer RGBA components")},
-        {"r16g16b16a16_sint",   NGLI_GPU_FORMAT_R16G16B16A16_SINT,   .desc=NGLI_DOCSTRING("16-bit signed integer RGBA components")},
-        {"r16g16b16a16_sfloat", NGLI_GPU_FORMAT_R16G16B16A16_SFLOAT, .desc=NGLI_DOCSTRING("16-bit signed float RGBA components")},
-        {"r32_uint",            NGLI_GPU_FORMAT_R32_UINT,            .desc=NGLI_DOCSTRING("32-bit unsigned integer R component")},
-        {"r32_sint",            NGLI_GPU_FORMAT_R32_SINT,            .desc=NGLI_DOCSTRING("32-bit signed integer R component")},
-        {"r32_sfloat",          NGLI_GPU_FORMAT_R32_SFLOAT,          .desc=NGLI_DOCSTRING("32-bit signed float R component")},
-        {"r32g32_uint",         NGLI_GPU_FORMAT_R32G32_UINT,         .desc=NGLI_DOCSTRING("32-bit unsigned integer RG components")},
-        {"r32g32_sint",         NGLI_GPU_FORMAT_R32G32_SINT,         .desc=NGLI_DOCSTRING("32-bit signed integer RG components")},
-        {"r32g32_sfloat",       NGLI_GPU_FORMAT_R32G32_SFLOAT,       .desc=NGLI_DOCSTRING("32-bit signed float RG components")},
-        {"r32g32b32a32_uint",   NGLI_GPU_FORMAT_R32G32B32A32_UINT,   .desc=NGLI_DOCSTRING("32-bit unsigned integer RGBA components")},
-        {"r32g32b32a32_sint",   NGLI_GPU_FORMAT_R32G32B32A32_SINT,   .desc=NGLI_DOCSTRING("32-bit signed integer RGBA components")},
-        {"r32g32b32a32_sfloat", NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT, .desc=NGLI_DOCSTRING("32-bit signed float RGBA components")},
-        {"d16_unorm",          NGLI_GPU_FORMAT_D16_UNORM,           .desc=NGLI_DOCSTRING("16-bit unsigned normalized depth component")},
-        {"d24_unorm",          NGLI_GPU_FORMAT_X8_D24_UNORM_PACK32, .desc=NGLI_DOCSTRING("32-bit packed format that has 24-bit unsigned "
+        {"undefined",      NGPU_FORMAT_UNDEFINED,           .desc=NGLI_DOCSTRING("undefined")},
+        {"r8_unorm",       NGPU_FORMAT_R8_UNORM,            .desc=NGLI_DOCSTRING("8-bit unsigned normalized R component")},
+        {"r8_snorm",       NGPU_FORMAT_R8_SNORM,            .desc=NGLI_DOCSTRING("8-bit signed normalized R component")},
+        {"r8_uint",        NGPU_FORMAT_R8_UINT,             .desc=NGLI_DOCSTRING("8-bit unsigned integer R component")},
+        {"r8_sint",        NGPU_FORMAT_R8_SINT,             .desc=NGLI_DOCSTRING("8-bit signed integer R component")},
+        {"r8g8_unorm",     NGPU_FORMAT_R8G8_UNORM,          .desc=NGLI_DOCSTRING("8-bit unsigned normalized RG components")},
+        {"r8g8_snorm",     NGPU_FORMAT_R8G8_SNORM,          .desc=NGLI_DOCSTRING("8-bit signed normalized RG components")},
+        {"r8g8_uint",      NGPU_FORMAT_R8G8_UINT,           .desc=NGLI_DOCSTRING("8-bit unsigned integer RG components")},
+        {"r8g8_sint",          NGPU_FORMAT_R8G8_SINT,           .desc=NGLI_DOCSTRING("8-bit signed normalized RG components")},
+        {"r8g8b8a8_unorm",     NGPU_FORMAT_R8G8B8A8_UNORM,      .desc=NGLI_DOCSTRING("8-bit unsigned normalized RGBA components")},
+        {"r8g8b8a8_snorm",     NGPU_FORMAT_R8G8B8A8_SNORM,      .desc=NGLI_DOCSTRING("8-bit signed normalized RGBA components")},
+        {"r8g8b8a8_uint",      NGPU_FORMAT_R8G8B8A8_UINT,       .desc=NGLI_DOCSTRING("8-bit unsigned integer RGBA components")},
+        {"r8g8b8a8_sint",       NGPU_FORMAT_R8G8B8A8_SINT,       .desc=NGLI_DOCSTRING("8-bit signed integer RGBA components")},
+        {"r8g8b8a8_srgb",       NGPU_FORMAT_R8G8B8A8_SRGB,       .desc=NGLI_DOCSTRING("8-bit unsigned normalized RGBA components")},
+        {"b8g8r8a8_unorm",      NGPU_FORMAT_B8G8R8A8_UNORM,      .desc=NGLI_DOCSTRING("8-bit unsigned normalized BGRA components")},
+        {"b8g8r8a8_snorm",      NGPU_FORMAT_B8G8R8A8_SNORM,      .desc=NGLI_DOCSTRING("8-bit signed normalized BGRA components")},
+        {"b8g8r8a8_uint",       NGPU_FORMAT_B8G8R8A8_UINT,       .desc=NGLI_DOCSTRING("8-bit unsigned integer BGRA components")},
+        {"b8g8r8a8_sint",       NGPU_FORMAT_B8G8R8A8_SINT,       .desc=NGLI_DOCSTRING("8-bit signed integer BGRA components")},
+        {"r16_unorm",           NGPU_FORMAT_R16_UNORM,           .desc=NGLI_DOCSTRING("16-bit unsigned normalized R component")},
+        {"r16_snorm",           NGPU_FORMAT_R16_SNORM,           .desc=NGLI_DOCSTRING("16-bit signed normalized R component")},
+        {"r16_uint",            NGPU_FORMAT_R16_UINT,            .desc=NGLI_DOCSTRING("16-bit unsigned integer R component")},
+        {"r16_sint",            NGPU_FORMAT_R16_SINT,            .desc=NGLI_DOCSTRING("16-bit signed integer R component")},
+        {"r16_sfloat",          NGPU_FORMAT_R16_SFLOAT,          .desc=NGLI_DOCSTRING("16-bit signed float R component")},
+        {"r16g16_unorm",        NGPU_FORMAT_R16G16_UNORM,        .desc=NGLI_DOCSTRING("16-bit unsigned normalized RG components")},
+        {"r16g16_snorm",        NGPU_FORMAT_R16G16_SNORM,        .desc=NGLI_DOCSTRING("16-bit signed normalized RG components")},
+        {"r16g16_uint",         NGPU_FORMAT_R16G16_UINT,         .desc=NGLI_DOCSTRING("16-bit unsigned integer RG components")},
+        {"r16g16_sint",         NGPU_FORMAT_R16G16_SINT,         .desc=NGLI_DOCSTRING("16-bit signed integer RG components")},
+        {"r16g16_sfloat",       NGPU_FORMAT_R16G16_SFLOAT,       .desc=NGLI_DOCSTRING("16-bit signed float RG components")},
+        {"r16g16b16a16_unorm",  NGPU_FORMAT_R16G16B16A16_UNORM,  .desc=NGLI_DOCSTRING("16-bit unsigned normalized RGBA components")},
+        {"r16g16b16a16_snorm",  NGPU_FORMAT_R16G16B16A16_SNORM,  .desc=NGLI_DOCSTRING("16-bit signed normalized RGBA components")},
+        {"r16g16b16a16_uint",   NGPU_FORMAT_R16G16B16A16_UINT,   .desc=NGLI_DOCSTRING("16-bit unsigned integer RGBA components")},
+        {"r16g16b16a16_sint",   NGPU_FORMAT_R16G16B16A16_SINT,   .desc=NGLI_DOCSTRING("16-bit signed integer RGBA components")},
+        {"r16g16b16a16_sfloat", NGPU_FORMAT_R16G16B16A16_SFLOAT, .desc=NGLI_DOCSTRING("16-bit signed float RGBA components")},
+        {"r32_uint",            NGPU_FORMAT_R32_UINT,            .desc=NGLI_DOCSTRING("32-bit unsigned integer R component")},
+        {"r32_sint",            NGPU_FORMAT_R32_SINT,            .desc=NGLI_DOCSTRING("32-bit signed integer R component")},
+        {"r32_sfloat",          NGPU_FORMAT_R32_SFLOAT,          .desc=NGLI_DOCSTRING("32-bit signed float R component")},
+        {"r32g32_uint",         NGPU_FORMAT_R32G32_UINT,         .desc=NGLI_DOCSTRING("32-bit unsigned integer RG components")},
+        {"r32g32_sint",         NGPU_FORMAT_R32G32_SINT,         .desc=NGLI_DOCSTRING("32-bit signed integer RG components")},
+        {"r32g32_sfloat",       NGPU_FORMAT_R32G32_SFLOAT,       .desc=NGLI_DOCSTRING("32-bit signed float RG components")},
+        {"r32g32b32a32_uint",   NGPU_FORMAT_R32G32B32A32_UINT,   .desc=NGLI_DOCSTRING("32-bit unsigned integer RGBA components")},
+        {"r32g32b32a32_sint",   NGPU_FORMAT_R32G32B32A32_SINT,   .desc=NGLI_DOCSTRING("32-bit signed integer RGBA components")},
+        {"r32g32b32a32_sfloat", NGPU_FORMAT_R32G32B32A32_SFLOAT, .desc=NGLI_DOCSTRING("32-bit signed float RGBA components")},
+        {"d16_unorm",          NGPU_FORMAT_D16_UNORM,           .desc=NGLI_DOCSTRING("16-bit unsigned normalized depth component")},
+        {"d24_unorm",          NGPU_FORMAT_X8_D24_UNORM_PACK32, .desc=NGLI_DOCSTRING("32-bit packed format that has 24-bit unsigned "
                                                                                        "normalized depth component + 8-bit of unused data")},
-        {"d32_sfloat",         NGLI_GPU_FORMAT_D32_SFLOAT,          .desc=NGLI_DOCSTRING("32-bit signed float depth component")},
-        {"d24_unorm_s8_uint",  NGLI_GPU_FORMAT_D24_UNORM_S8_UINT,   .desc=NGLI_DOCSTRING("32-bit packed format that has 24-bit unsigned "
+        {"d32_sfloat",         NGPU_FORMAT_D32_SFLOAT,          .desc=NGLI_DOCSTRING("32-bit signed float depth component")},
+        {"d24_unorm_s8_uint",  NGPU_FORMAT_D24_UNORM_S8_UINT,   .desc=NGLI_DOCSTRING("32-bit packed format that has 24-bit unsigned "
                                                                                        "normalized depth component + 8-bit unsigned "
                                                                                        "integer stencil component")},
-        {"d32_sfloat_s8_uint", NGLI_GPU_FORMAT_D32_SFLOAT_S8_UINT,  .desc=NGLI_DOCSTRING("64-bit packed format that has 32-bit signed "
+        {"d32_sfloat_s8_uint", NGPU_FORMAT_D32_SFLOAT_S8_UINT,  .desc=NGLI_DOCSTRING("64-bit packed format that has 32-bit signed "
                                                                                        "float depth component + 8-bit unsigned integer "
                                                                                        "stencil component + 24-bit of unused data")},
-        {"s8_uint",            NGLI_GPU_FORMAT_S8_UINT,             .desc=NGLI_DOCSTRING("8-bit unsigned integer stencil component")},
+        {"s8_uint",            NGPU_FORMAT_S8_UINT,             .desc=NGLI_DOCSTRING("8-bit unsigned integer stencil component")},
         {"auto_depth",           NGLI_FORMAT_AUTO_DEPTH,          .desc=NGLI_DOCSTRING("select automatically the preferred depth format")},
         {"auto_depth_stencil",   NGLI_FORMAT_AUTO_DEPTH_STENCIL,  .desc=NGLI_DOCSTRING("select automatically the preferred depth + stencil format")},
         {NULL}
@@ -241,23 +241,23 @@ static const struct param_choices format_choices = {
 
 #define OFFSET(x) offsetof(struct texture_opts, x)
 static const struct node_param texture2d_params[] = {
-    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGLI_GPU_FORMAT_R8G8B8A8_UNORM},
+    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGPU_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"width", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i32=0},
+    {"width", NGLI_PARAM_TYPE_U32, OFFSET(params.width), {.u32=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
-    {"height", NGLI_PARAM_TYPE_I32, OFFSET(params.height), {.i32=0},
+    {"height", NGLI_PARAM_TYPE_U32, OFFSET(params.height), {.u32=0},
                .desc=NGLI_DOCSTRING("height of the texture")},
-    {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGLI_GPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
+    {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
-    {"mag_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i32=NGLI_GPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
+    {"mag_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture magnification function")},
-    {"mipmap_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i32=NGLI_GPU_MIPMAP_FILTER_NONE},
+    {"mipmap_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i32=NGPU_MIPMAP_FILTER_NONE},
                       .choices=&ngli_mipmap_filter_choices,
                       .desc=NGLI_DOCSTRING("texture minifying mipmap function")},
-    {"wrap_s", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_s", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
-    {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the t dimension (vertical)")},
     {"data_src", NGLI_PARAM_TYPE_NODE, OFFSET(data_src),
                  .desc=NGLI_DOCSTRING("data source")},
@@ -273,27 +273,27 @@ static const struct node_param texture2d_params[] = {
 };
 
 static const struct node_param texture2d_array_params[] = {
-    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGLI_GPU_FORMAT_R8G8B8A8_UNORM},
+    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGPU_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"width", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i32=0},
+    {"width", NGLI_PARAM_TYPE_U32, OFFSET(params.width), {.u32=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
-    {"height", NGLI_PARAM_TYPE_I32, OFFSET(params.height), {.i32=0},
+    {"height", NGLI_PARAM_TYPE_U32, OFFSET(params.height), {.u32=0},
                .desc=NGLI_DOCSTRING("height of the texture")},
-    {"depth", NGLI_PARAM_TYPE_I32, OFFSET(params.depth), {.i32=0},
+    {"depth", NGLI_PARAM_TYPE_U32, OFFSET(params.depth), {.u32=0},
                .desc=NGLI_DOCSTRING("depth of the texture")},
-    {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGLI_GPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
+    {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
-    {"mag_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i32=NGLI_GPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
+    {"mag_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture magnification function")},
-    {"mipmap_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i32=NGLI_GPU_MIPMAP_FILTER_NONE},
+    {"mipmap_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i32=NGPU_MIPMAP_FILTER_NONE},
                       .choices=&ngli_mipmap_filter_choices,
                       .desc=NGLI_DOCSTRING("texture minifying mipmap function")},
-    {"wrap_s", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_s", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
-    {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the t dimension (vertical)")},
-    {"wrap_r", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_r), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_r", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_r), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the r dimension (depth)")},
     {"data_src", NGLI_PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D,
                  .desc=NGLI_DOCSTRING("data source")},
@@ -301,27 +301,27 @@ static const struct node_param texture2d_array_params[] = {
 };
 
 static const struct node_param texture3d_params[] = {
-    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGLI_GPU_FORMAT_R8G8B8A8_UNORM},
+    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGPU_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"width", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i32=0},
+    {"width", NGLI_PARAM_TYPE_U32, OFFSET(params.width), {.u32=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
-    {"height", NGLI_PARAM_TYPE_I32, OFFSET(params.height), {.i32=0},
+    {"height", NGLI_PARAM_TYPE_U32, OFFSET(params.height), {.u32=0},
                .desc=NGLI_DOCSTRING("height of the texture")},
-    {"depth", NGLI_PARAM_TYPE_I32, OFFSET(params.depth), {.i32=0},
+    {"depth", NGLI_PARAM_TYPE_U32, OFFSET(params.depth), {.u32=0},
                .desc=NGLI_DOCSTRING("depth of the texture")},
-    {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGLI_GPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
+    {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
-    {"mag_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i32=NGLI_GPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
+    {"mag_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture magnification function")},
-    {"mipmap_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i32=NGLI_GPU_MIPMAP_FILTER_NONE},
+    {"mipmap_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i32=NGPU_MIPMAP_FILTER_NONE},
                       .choices=&ngli_mipmap_filter_choices,
                       .desc=NGLI_DOCSTRING("texture minifying mipmap function")},
-    {"wrap_s", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_s", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
-    {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the t dimension (vertical)")},
-    {"wrap_r", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_r), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_r", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_r), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the r dimension (depth)")},
     {"data_src", NGLI_PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D,
                  .desc=NGLI_DOCSTRING("data source")},
@@ -329,23 +329,23 @@ static const struct node_param texture3d_params[] = {
 };
 
 static const struct node_param texturecube_params[] = {
-    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGLI_GPU_FORMAT_R8G8B8A8_UNORM},
+    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGPU_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"size", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i32=0},
+    {"size", NGLI_PARAM_TYPE_U32, OFFSET(params.width), {.u32=0},
              .desc=NGLI_DOCSTRING("width and height of the texture")},
-    {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGLI_GPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
+    {"min_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
-    {"mag_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i32=NGLI_GPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
+    {"mag_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i32=NGPU_FILTER_LINEAR}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture magnification function")},
-    {"mipmap_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i32=NGLI_GPU_MIPMAP_FILTER_NONE},
+    {"mipmap_filter", NGLI_PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i32=NGPU_MIPMAP_FILTER_NONE},
                       .choices=&ngli_mipmap_filter_choices,
                       .desc=NGLI_DOCSTRING("texture minifying mipmap function")},
-    {"wrap_s", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_s", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
-    {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_t", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the t dimension (vertical)")},
-    {"wrap_r", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_r), {.i32=NGLI_GPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+    {"wrap_r", NGLI_PARAM_TYPE_SELECT, OFFSET(params.wrap_r), {.i32=NGPU_WRAP_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the r dimension (depth)")},
     {"data_src", NGLI_PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D,
                  .desc=NGLI_DOCSTRING("data source")},
@@ -355,16 +355,16 @@ static const struct node_param texturecube_params[] = {
 static int texture_prefetch(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
     struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
-    struct gpu_texture_params *params = &i->params;
+    struct ngpu_texture_params *params = &i->params;
 
-    params->usage |= NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT | NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT;
+    params->usage |= NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT | NGPU_TEXTURE_USAGE_SAMPLED_BIT;
 
-    if (params->mipmap_filter != NGLI_GPU_MIPMAP_FILTER_NONE)
-        params->usage |= NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT;
+    if (params->mipmap_filter != NGPU_MIPMAP_FILTER_NONE)
+        params->usage |= NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT;
 
     const uint8_t *data = NULL;
 
@@ -393,29 +393,29 @@ static int texture_prefetch(struct ngl_node *node)
                 return NGL_ERROR_UNSUPPORTED;
             }
 
-            if (buffer->layout.type == NGLI_TYPE_VEC3) {
+            if (buffer->layout.type == NGPU_TYPE_VEC3) {
                 LOG(ERROR, "3-components texture formats are not supported");
                 return NGL_ERROR_UNSUPPORTED;
             }
 
-            if (params->type == NGLI_GPU_TEXTURE_TYPE_2D) {
+            if (params->type == NGPU_TEXTURE_TYPE_2D) {
                 if (buffer->layout.count != params->width * params->height) {
                     LOG(ERROR, "dimensions (%dx%d) do not match buffer count (%zu),"
                         " assuming %zux1", params->width, params->height,
                         buffer->layout.count, buffer->layout.count);
                     if (buffer->layout.count > INT_MAX)
                         return NGL_ERROR_LIMIT_EXCEEDED;
-                    params->width = (int)buffer->layout.count;
+                    params->width = (uint32_t)buffer->layout.count;
                     params->height = 1;
                 }
-            } else if (params->type == NGLI_GPU_TEXTURE_TYPE_3D) {
+            } else if (params->type == NGPU_TEXTURE_TYPE_3D) {
                 if (buffer->layout.count != params->width * params->height * params->depth) {
                     LOG(ERROR, "dimensions (%dx%dx%d) do not match buffer count (%zu),"
                         " assuming %zux1x1", params->width, params->height, params->depth,
                         buffer->layout.count, buffer->layout.count);
                     if (buffer->layout.count > INT_MAX)
                         return NGL_ERROR_LIMIT_EXCEEDED;
-                    params->width = (int)buffer->layout.count;
+                    params->width = (uint32_t)buffer->layout.count;
                     params->height = params->depth = 1;
                 }
             }
@@ -425,15 +425,15 @@ static int texture_prefetch(struct ngl_node *node)
     }
 
     if (i->params.width > 0 && i->params.height > 0) {
-        i->texture = ngli_gpu_texture_create(gpu_ctx);
+        i->texture = ngpu_texture_create(gpu_ctx);
         if (!i->texture)
             return NGL_ERROR_MEMORY;
 
-        int ret = ngli_gpu_texture_init(i->texture, params);
+        int ret = ngpu_texture_init(i->texture, params);
         if (ret < 0)
             return ret;
 
-        ret = ngli_gpu_texture_upload(i->texture, data, 0);
+        ret = ngpu_texture_upload(i->texture, data, 0);
         if (ret < 0)
             return ret;
     }
@@ -451,13 +451,13 @@ static int texture_prefetch(struct ngl_node *node)
     if (s->texture_info.rtt) {
         /* Transform the color textures coordinates so it matches how the
          * graphics context uv coordinate system works regarding render targets */
-        ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, i->image.coordinates_matrix);
+        ngpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, i->image.coordinates_matrix);
 
-        int depth_format = NGLI_GPU_FORMAT_UNDEFINED;
+        enum ngpu_format depth_format = NGPU_FORMAT_UNDEFINED;
         if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
-            depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
+            depth_format = ngpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
         else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
-            depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
+            depth_format = ngpu_ctx_get_preferred_depth_format(gpu_ctx);
 
         s->rtt_params = (struct rtt_params) {
             .width = params->width,
@@ -466,8 +466,8 @@ static int texture_prefetch(struct ngl_node *node)
             .nb_colors = 1,
             .colors[0] = {
                 .attachment = i->texture,
-                .load_op = NGLI_GPU_LOAD_OP_CLEAR,
-                .store_op = NGLI_GPU_STORE_OP_STORE,
+                .load_op = NGPU_LOAD_OP_CLEAR,
+                .store_op = NGPU_STORE_OP_STORE,
                 .clear_value = {NGLI_ARG_VEC4(o->clear_color)},
             },
             .depth_stencil_format = depth_format,
@@ -524,7 +524,7 @@ static int handle_buffer_frame(struct ngl_node *node)
     struct buffer_info *buffer = o->data_src->priv_data;
     const uint8_t *data = buffer->data;
 
-    int ret = ngli_gpu_texture_upload(i->texture, data, 0);
+    int ret = ngpu_texture_upload(i->texture, data, 0);
     if (ret < 0) {
         LOG(ERROR, "could not upload texture buffer");
         return ret;
@@ -572,29 +572,29 @@ static int rtt_resize(struct ngl_node *node)
     struct texture_priv *s = node->priv_data;
     struct texture_info *i = node->priv_data;
 
-    const int32_t width = ctx->current_rendertarget->width;
-    const int32_t height = ctx->current_rendertarget->height;
+    const uint32_t width = ctx->current_rendertarget->width;
+    const uint32_t height = ctx->current_rendertarget->height;
     if (s->rtt_ctx) {
-        int32_t current_width, current_height;
+        uint32_t current_width, current_height;
         ngli_rtt_get_dimensions(s->rtt_ctx, &current_width, &current_height);
         if (current_width == width && current_height == height)
             return 0;
     }
 
-    struct gpu_texture *texture = NULL;
+    struct ngpu_texture *texture = NULL;
     struct rtt_ctx *rtt_ctx = NULL;
 
-    texture = ngli_gpu_texture_create(ctx->gpu_ctx);
+    texture = ngpu_texture_create(ctx->gpu_ctx);
     if (!texture) {
         ret = NGL_ERROR_MEMORY;
         goto fail;
     }
 
-    struct gpu_texture_params texture_params = i->params;
+    struct ngpu_texture_params texture_params = i->params;
     texture_params.width = width;
     texture_params.height = height;
 
-    ret = ngli_gpu_texture_init(texture, &texture_params);
+    ret = ngpu_texture_init(texture, &texture_params);
     if (ret < 0)
         goto fail;
 
@@ -614,7 +614,7 @@ static int rtt_resize(struct ngl_node *node)
         goto fail;
 
     ngli_rtt_freep(&s->rtt_ctx);
-    ngli_gpu_texture_freep(&i->texture);
+    ngpu_texture_freep(&i->texture);
 
     i->params = texture_params;
     i->texture = texture;
@@ -628,7 +628,7 @@ static int rtt_resize(struct ngl_node *node)
     return 0;
 
 fail:
-    ngli_gpu_texture_freep(&texture);
+    ngpu_texture_freep(&texture);
     ngli_rtt_freep(&rtt_ctx);
 
     LOG(ERROR, "failed to resize texture: %dx%d", width, height);
@@ -673,41 +673,40 @@ static void texture_release(struct ngl_node *node)
 
     ngli_rtt_freep(&s->rtt_ctx);
     ngli_hwmap_uninit(&s->hwmap);
-    ngli_gpu_texture_freep(&i->texture);
+    ngpu_texture_freep(&i->texture);
     ngli_image_reset(&i->image);
     i->image.rev = i->image_rev++;
 }
 
-static int get_preferred_format(struct gpu_ctx *gpu_ctx, int format)
+static enum ngpu_format get_preferred_format(struct ngpu_ctx *gpu_ctx, int format)
 {
     switch (format) {
     case NGLI_FORMAT_AUTO_DEPTH:
-        return ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
+        return ngpu_ctx_get_preferred_depth_format(gpu_ctx);
     case NGLI_FORMAT_AUTO_DEPTH_STENCIL:
-        return ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
+        return ngpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
     default:
-        return format;
+        return (enum ngpu_format)format;
     }
 }
 
 static int texture2d_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
     struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
 
     i->params = o->params;
 
-    const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
-    if (i->params.width  < 0 || i->params.width  > max_dimension ||
-        i->params.height < 0 || i->params.height > max_dimension) {
+    const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
+    if (i->params.width  > max_dimension || i->params.height > max_dimension) {
         LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
             i->params.width, i->params.height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
-    i->params.type = NGLI_GPU_TEXTURE_TYPE_2D;
+    i->params.type = NGPU_TEXTURE_TYPE_2D;
     i->params.format = get_preferred_format(gpu_ctx, o->requested_format);
     i->supported_image_layouts = o->direct_rendering ? NGLI_IMAGE_LAYOUT_ALL_BIT : NGLI_IMAGE_LAYOUT_DEFAULT_BIT;
     i->clamp_video = o->clamp_video;
@@ -731,15 +730,15 @@ static int texture2d_init(struct ngl_node *node)
 
         ngli_node_get_renderpass_info(data_src, &s->renderpass_info);
 
-        i->params.usage |= NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+        i->params.usage |= NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
         s->rendertarget_layout.colors[s->rendertarget_layout.nb_colors].format = i->params.format;
         s->rendertarget_layout.nb_colors++;
 
-        int depth_format = NGLI_GPU_FORMAT_UNDEFINED;
+        enum ngpu_format depth_format = NGPU_FORMAT_UNDEFINED;
         if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_STENCIL)
-            depth_format = ngli_gpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
+            depth_format = ngpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
         else if (s->renderpass_info.features & NGLI_RENDERPASS_FEATURE_DEPTH)
-            depth_format = ngli_gpu_ctx_get_preferred_depth_format(gpu_ctx);
+            depth_format = ngpu_ctx_get_preferred_depth_format(gpu_ctx);
         s->rendertarget_layout.depth_stencil.format = depth_format;
     }
 
@@ -764,14 +763,14 @@ static int texture2d_prepare(struct ngl_node *node)
 static int texture2d_array_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
 
     i->params = o->params;
 
-    const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
-    const int max_layers = gpu_ctx->limits.max_texture_array_layers;
+    const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
+    const uint32_t max_layers = gpu_ctx->limits.max_texture_array_layers;
     if (i->params.width  <= 0 || i->params.width  > max_dimension ||
         i->params.height <= 0 || i->params.height > max_dimension ||
         i->params.depth  <= 0 || i->params.depth  > max_layers) {
@@ -780,7 +779,7 @@ static int texture2d_array_init(struct ngl_node *node)
             max_dimension, max_dimension, max_layers);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
-    i->params.type = NGLI_GPU_TEXTURE_TYPE_2D_ARRAY;
+    i->params.type = NGPU_TEXTURE_TYPE_2D_ARRAY;
     i->params.format = get_preferred_format(gpu_ctx, o->requested_format);
     i->clamp_video = o->clamp_video;
 
@@ -790,13 +789,13 @@ static int texture2d_array_init(struct ngl_node *node)
 static int texture3d_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
 
     i->params = o->params;
 
-    const int max_dimension = gpu_ctx->limits.max_texture_dimension_3d;
+    const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_3d;
     if (i->params.width  <= 0 || i->params.width  > max_dimension ||
         i->params.height <= 0 || i->params.height > max_dimension ||
         i->params.depth  <= 0 || i->params.depth  > max_dimension) {
@@ -805,7 +804,7 @@ static int texture3d_init(struct ngl_node *node)
             max_dimension, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
-    i->params.type = NGLI_GPU_TEXTURE_TYPE_3D;
+    i->params.type = NGPU_TEXTURE_TYPE_3D;
     i->params.format = get_preferred_format(gpu_ctx, o->requested_format);
     i->clamp_video = o->clamp_video;
 
@@ -815,21 +814,20 @@ static int texture3d_init(struct ngl_node *node)
 static int texturecube_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_info *i = node->priv_data;
     const struct texture_opts *o = node->opts;
 
     i->params = o->params;
     i->params.height = i->params.width;
 
-    const int max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
-    if (i->params.width  <= 0 || i->params.width  > max_dimension ||
-        i->params.height <= 0 || i->params.height > max_dimension) {
-        LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
+    const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
+    if (i->params.width > max_dimension || i->params.height > max_dimension) {
+        LOG(ERROR, "texture dimensions (%d,%d,6) are invalid or exceeds device limits (%d,%d,6)",
             i->params.width, i->params.height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
-    i->params.type = NGLI_GPU_TEXTURE_TYPE_CUBE;
+    i->params.type = NGPU_TEXTURE_TYPE_CUBE;
     i->params.format = get_preferred_format(gpu_ctx, o->requested_format);
     i->clamp_video = o->clamp_video;
 

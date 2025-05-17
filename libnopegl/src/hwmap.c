@@ -25,13 +25,13 @@
 #include <nopemd.h>
 
 #include "config.h"
-#include "gpu_format.h"
-#include "gpu_ctx.h"
 #include "hwmap.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
 #include "nopegl.h"
+#include "utils/memory.h"
 
 extern const struct hwmap_class ngli_hwmap_common_class;
 extern const struct hwmap_class *ngli_hwmap_gl_classes[];
@@ -55,7 +55,7 @@ static const struct hwmap_class *get_hwmap_class(const struct hwmap *hwmap, cons
 static int init_hwconv(struct hwmap *hwmap)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     const struct hwmap_params *params = &hwmap->params;
     struct image *mapped_image = &hwmap->mapped_image;
     struct image *hwconv_image = &hwmap->hwconv_image;
@@ -63,13 +63,13 @@ static int init_hwconv(struct hwmap *hwmap)
 
     ngli_hwconv_reset(hwconv);
     ngli_image_reset(hwconv_image);
-    ngli_gpu_texture_freep(&hwmap->hwconv_texture);
+    ngpu_texture_freep(&hwmap->hwconv_texture);
 
     LOG(DEBUG, "converting texture '%s' from %s to rgba", hwmap->params.label, hwmap->hwmap_class->name);
 
-    const struct gpu_texture_params texture_params = {
-        .type          = NGLI_GPU_TEXTURE_TYPE_2D,
-        .format        = NGLI_GPU_FORMAT_R8G8B8A8_UNORM,
+    const struct ngpu_texture_params texture_params = {
+        .type          = NGPU_TEXTURE_TYPE_2D,
+        .format        = NGPU_FORMAT_R8G8B8A8_UNORM,
         .width         = mapped_image->params.width,
         .height        = mapped_image->params.height,
         .min_filter    = params->texture_min_filter,
@@ -77,13 +77,13 @@ static int init_hwconv(struct hwmap *hwmap)
         .mipmap_filter = params->texture_mipmap_filter,
         .wrap_s        = params->texture_wrap_s,
         .wrap_t        = params->texture_wrap_t,
-        .usage         = params->texture_usage | NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
+        .usage         = params->texture_usage | NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
     };
 
-    hwmap->hwconv_texture = ngli_gpu_texture_create(gpu_ctx);
+    hwmap->hwconv_texture = ngpu_texture_create(gpu_ctx);
     if (!hwmap->hwconv_texture)
         return NGL_ERROR_MEMORY;
-    int ret = ngli_gpu_texture_init(hwmap->hwconv_texture, &texture_params);
+    int ret = ngpu_texture_init(hwmap->hwconv_texture, &texture_params);
     if (ret < 0)
         goto end;
 
@@ -110,16 +110,16 @@ static int init_hwconv(struct hwmap *hwmap)
 end:
     ngli_hwconv_reset(hwconv);
     ngli_image_reset(hwconv_image);
-    ngli_gpu_texture_freep(&hwmap->hwconv_texture);
+    ngpu_texture_freep(&hwmap->hwconv_texture);
     return ret;
 }
 
 static int exec_hwconv(struct hwmap *hwmap)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct gpu_texture *texture = hwmap->hwconv_texture;
-    const struct gpu_texture_params *texture_params = &texture->params;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_texture *texture = hwmap->hwconv_texture;
+    const struct ngpu_texture_params *texture_params = &texture->params;
     struct image *mapped_image = &hwmap->mapped_image;
     struct hwconv *hwconv = &hwmap->hwconv;
 
@@ -127,13 +127,13 @@ static int exec_hwconv(struct hwmap *hwmap)
     if (ret < 0)
         return ret;
 
-    if (texture_params->mipmap_filter != NGLI_GPU_MIPMAP_FILTER_NONE)
-        ngli_gpu_ctx_generate_texture_mipmap(gpu_ctx, texture);
+    if (texture_params->mipmap_filter != NGPU_MIPMAP_FILTER_NONE)
+        ngpu_ctx_generate_texture_mipmap(gpu_ctx, texture);
 
     return 0;
 }
 
-static const struct hwmap_class **get_backend_hwmap_classes(int backend)
+static const struct hwmap_class **get_backend_hwmap_classes(enum ngl_backend_type backend)
 {
 #if defined(BACKEND_GL) || defined(BACKEND_GLES)
     if (backend == NGL_BACKEND_OPENGL || backend == NGL_BACKEND_OPENGLES)
@@ -146,12 +146,12 @@ static const struct hwmap_class **get_backend_hwmap_classes(int backend)
     return NULL;
 }
 
-static int is_image_layout_supported(const struct hwmap_class **classes, int image_layout)
+static int is_image_layout_supported(const struct hwmap_class **classes, enum image_layout image_layout)
 {
     if (!classes)
         return 0;
     for (size_t i = 0; classes[i]; i++) {
-        const int *layouts = classes[i]->layouts;
+        const enum image_layout *layouts = classes[i]->layouts;
         ngli_assert(layouts);
         for (size_t j = 0; layouts[j] != NGLI_IMAGE_LAYOUT_NONE; j++)
             if (layouts[j] == image_layout)
@@ -160,7 +160,7 @@ static int is_image_layout_supported(const struct hwmap_class **classes, int ima
     return 0;
 }
 
-int ngli_hwmap_is_image_layout_supported(int backend, int image_layout)
+int ngli_hwmap_is_image_layout_supported(enum ngl_backend_type backend, enum image_layout image_layout)
 {
     static const struct hwmap_class *default_hwmap_classes[] = {&ngli_hwmap_common_class, NULL};
     const struct hwmap_class **extra_hwmap_classes = get_backend_hwmap_classes(backend);
@@ -186,7 +186,7 @@ static void hwmap_reset(struct hwmap *hwmap)
     hwmap->require_hwconv = 0;
     ngli_hwconv_reset(&hwmap->hwconv);
     ngli_image_reset(&hwmap->hwconv_image);
-    ngli_gpu_texture_freep(&hwmap->hwconv_texture);
+    ngpu_texture_freep(&hwmap->hwconv_texture);
     hwmap->hwconv_initialized = 0;
     ngli_image_reset(&hwmap->mapped_image);
     if (hwmap->hwmap_priv_data && hwmap->hwmap_class) {

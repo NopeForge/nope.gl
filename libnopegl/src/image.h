@@ -24,8 +24,8 @@
 
 #include <nopemd.h>
 
-#include "gpu_texture.h"
-#include "utils.h"
+#include "ngpu/texture.h"
+#include "utils/utils.h"
 
 #define NGLI_COLOR_INFO_DEFAULTS {             \
     .space     = NMD_COL_SPC_UNSPECIFIED,      \
@@ -48,9 +48,7 @@ enum image_layout {
     NGLI_IMAGE_LAYOUT_DEFAULT        = 1,
     NGLI_IMAGE_LAYOUT_MEDIACODEC     = 2,
     NGLI_IMAGE_LAYOUT_NV12           = 3,
-    NGLI_IMAGE_LAYOUT_NV12_RECTANGLE = 4,
-    NGLI_IMAGE_LAYOUT_YUV            = 5,
-    NGLI_IMAGE_LAYOUT_RECTANGLE      = 6,
+    NGLI_IMAGE_LAYOUT_YUV            = 4,
     NGLI_NB_IMAGE_LAYOUTS
 };
 
@@ -58,16 +56,14 @@ enum {
     NGLI_IMAGE_LAYOUT_DEFAULT_BIT        = 1U << NGLI_IMAGE_LAYOUT_DEFAULT,
     NGLI_IMAGE_LAYOUT_MEDIACODEC_BIT     = 1U << NGLI_IMAGE_LAYOUT_MEDIACODEC,
     NGLI_IMAGE_LAYOUT_NV12_BIT           = 1U << NGLI_IMAGE_LAYOUT_NV12,
-    NGLI_IMAGE_LAYOUT_NV12_RECTANGLE_BIT = 1U << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE,
     NGLI_IMAGE_LAYOUT_YUV_BIT            = 1U << NGLI_IMAGE_LAYOUT_YUV,
-    NGLI_IMAGE_LAYOUT_RECTANGLE_BIT      = 1U << NGLI_IMAGE_LAYOUT_RECTANGLE,
     NGLI_IMAGE_LAYOUT_ALL_BIT            = 0xFF,
 };
 
 struct image_params {
-    int32_t width;
-    int32_t height;
-    int depth;
+    uint32_t width;
+    uint32_t height;
+    uint32_t depth;
     float color_scale;
     enum image_layout layout;
     struct color_info color_info;
@@ -75,7 +71,7 @@ struct image_params {
 
 struct image {
     struct image_params params;
-    struct gpu_texture *planes[4];
+    struct ngpu_texture *planes[4];
     void *samplers[4];
     size_t nb_planes;
     NGLI_ALIGNED_MAT(color_matrix);
@@ -85,7 +81,7 @@ struct image {
     size_t rev;
 };
 
-void ngli_image_init(struct image *s, const struct image_params *params, struct gpu_texture **planes);
+void ngli_image_init(struct image *s, const struct image_params *params, struct ngpu_texture **planes);
 void ngli_image_reset(struct image *s);
 uint64_t ngli_image_get_memory_size(const struct image *s);
 
