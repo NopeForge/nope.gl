@@ -38,11 +38,11 @@
 #include "ngpu/format.h"
 #include "ngpu/rendertarget.h"
 #include "ngpu/texture.h"
+#include "ngpu/type.h"
 #include "nopegl.h"
 #include "path.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "type.h"
 #include "utils.h"
 
 /*
@@ -589,16 +589,16 @@ int ngli_distmap_finalize(struct distmap *s)
     const int32_t beziergroup_max_count = get_max_beziergroups_per_shape(s);
 
     const struct ngpu_block_field vert_fields[] = {
-        [VERTICES_INDEX] = {.name="vertices", .type=NGLI_TYPE_VEC4},
+        [VERTICES_INDEX] = {.name="vertices", .type=NGPU_TYPE_VEC4},
     };
 
     const struct ngpu_block_field frag_fields[] = {
-        [COORDS_INDEX]            = {.name="coords",            .type=NGLI_TYPE_VEC4},
-        [SCALE_INDEX]             = {.name="scale",             .type=NGLI_TYPE_VEC2},
-        [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGLI_TYPE_VEC4, .count=bezier_max_count},
-        [BEZIER_Y_BUF_INDEX]      = {.name="bezier_y_buf",      .type=NGLI_TYPE_VEC4, .count=bezier_max_count},
-        [BEZIER_COUNTS_INDEX]     = {.name="bezier_counts",     .type=NGLI_TYPE_I32,  .count=beziergroup_max_count},
-        [BEZIERGROUP_COUNT_INDEX] = {.name="beziergroup_count", .type=NGLI_TYPE_I32},
+        [COORDS_INDEX]            = {.name="coords",            .type=NGPU_TYPE_VEC4},
+        [SCALE_INDEX]             = {.name="scale",             .type=NGPU_TYPE_VEC2},
+        [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGPU_TYPE_VEC4, .count=bezier_max_count},
+        [BEZIER_Y_BUF_INDEX]      = {.name="bezier_y_buf",      .type=NGPU_TYPE_VEC4, .count=bezier_max_count},
+        [BEZIER_COUNTS_INDEX]     = {.name="bezier_counts",     .type=NGPU_TYPE_I32,  .count=beziergroup_max_count},
+        [BEZIERGROUP_COUNT_INDEX] = {.name="beziergroup_count", .type=NGPU_TYPE_I32},
     };
 
     ngpu_block_desc_init(gpu_ctx, &s->vert_block, NGPU_BLOCK_LAYOUT_STD140);
@@ -625,20 +625,20 @@ int ngli_distmap_finalize(struct distmap *s)
         {
             .name          = "vert",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
             .stage         = NGPU_PROGRAM_SHADER_VERT,
             .block         = &s->vert_block,
         }, {
             .name          = "frag",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
             .block         = &s->frag_block,
         },
     };
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     const struct pgcraft_params crafter_params = {

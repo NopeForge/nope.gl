@@ -32,7 +32,7 @@
 #include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "text.h"
-#include "type.h"
+#include "ngpu/type.h"
 #include "utils.h"
 
 /* GLSL fragments as string */
@@ -472,16 +472,16 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
     const struct text_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
-        {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGPU_PROGRAM_SHADER_FRAG, .data = o->bg_color},
-        {.name = "opacity",           .type = NGLI_TYPE_F32,  .stage = NGPU_PROGRAM_SHADER_FRAG, .data = &o->bg_opacity},
+        {.name = "modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "projection_matrix", .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "color",             .type = NGPU_TYPE_VEC3, .stage = NGPU_PROGRAM_SHADER_FRAG, .data = o->bg_color},
+        {.name = "opacity",           .type = NGPU_TYPE_F32,  .stage = NGPU_PROGRAM_SHADER_FRAG, .data = &o->bg_opacity},
     };
 
     const struct pgcraft_attribute attributes[] = {
         {
             .name     = "position",
-            .type     = NGLI_TYPE_VEC2,
+            .type     = NGPU_TYPE_VEC2,
             .format   = NGPU_FORMAT_R32G32_SFLOAT,
             .stride   = 2 * sizeof(float),
             .buffer   = s->bg_vertices,
@@ -523,8 +523,8 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     struct text_priv *s = node->priv_data;
 
     const struct pgcraft_uniform uniforms[] = {
-        {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "projection_matrix", .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
     };
 
     const struct pgcraft_texture textures[] = {
@@ -539,49 +539,49 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     const struct pgcraft_attribute attributes[] = {
         {
             .name     = "transform",
-            .type     = NGLI_TYPE_VEC4,
+            .type     = NGPU_TYPE_VEC4,
             .format   = NGPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->transforms,
             .rate     = 1,
         }, {
             .name     = "atlas_coords",
-            .type     = NGLI_TYPE_VEC4,
+            .type     = NGPU_TYPE_VEC4,
             .format   = NGPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->atlas_coords,
             .rate     = 1,
         }, {
             .name     = "user_transform",
-            .type     = NGLI_TYPE_MAT4,
+            .type     = NGPU_TYPE_MAT4,
             .format   = NGPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * 4 * sizeof(float),
             .buffer   = s->user_transforms,
             .rate     = 1,
         }, {
             .name     = "frag_color",
-            .type     = NGLI_TYPE_VEC4,
+            .type     = NGPU_TYPE_VEC4,
             .format   = NGPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->colors,
             .rate     = 1,
         }, {
             .name     = "frag_outline",
-            .type     = NGLI_TYPE_VEC4,
+            .type     = NGPU_TYPE_VEC4,
             .format   = NGPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->outlines,
             .rate     = 1,
         }, {
             .name     = "frag_glow",
-            .type     = NGLI_TYPE_VEC4,
+            .type     = NGPU_TYPE_VEC4,
             .format   = NGPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->glows,
             .rate     = 1,
         }, {
             .name     = "frag_blur",
-            .type     = NGLI_TYPE_F32,
+            .type     = NGPU_TYPE_F32,
             .format   = NGPU_FORMAT_R32_SFLOAT,
             .stride   = sizeof(float),
             .buffer   = s->blurs,
@@ -598,12 +598,12 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     state.blend_dst_factor_a = NGPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv",     .type = NGLI_TYPE_VEC2},
-        {.name = "coords", .type = NGLI_TYPE_VEC4},
-        {.name = "color",  .type = NGLI_TYPE_VEC4},
-        {.name = "outline",.type = NGLI_TYPE_VEC4},
-        {.name = "glow",   .type = NGLI_TYPE_VEC4},
-        {.name = "blur",   .type = NGLI_TYPE_F32},
+        {.name = "uv",     .type = NGPU_TYPE_VEC2},
+        {.name = "coords", .type = NGPU_TYPE_VEC4},
+        {.name = "color",  .type = NGPU_TYPE_VEC4},
+        {.name = "outline",.type = NGPU_TYPE_VEC4},
+        {.name = "glow",   .type = NGPU_TYPE_VEC4},
+        {.name = "blur",   .type = NGPU_TYPE_F32},
     };
 
     const struct pgcraft_params crafter_params = {

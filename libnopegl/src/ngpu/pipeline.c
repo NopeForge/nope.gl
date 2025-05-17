@@ -27,7 +27,7 @@
 #include "log.h"
 #include "memory.h"
 #include "pipeline.h"
-#include "type.h"
+#include "ngpu/type.h"
 #include "utils.h"
 
 int ngpu_pipeline_graphics_copy(struct ngpu_pipeline_graphics *dst, const struct ngpu_pipeline_graphics *src)

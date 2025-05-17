@@ -393,7 +393,7 @@ static int texture_prefetch(struct ngl_node *node)
                 return NGL_ERROR_UNSUPPORTED;
             }
 
-            if (buffer->layout.type == NGLI_TYPE_VEC3) {
+            if (buffer->layout.type == NGPU_TYPE_VEC3) {
                 LOG(ERROR, "3-components texture formats are not supported");
                 return NGL_ERROR_UNSUPPORTED;
             }
