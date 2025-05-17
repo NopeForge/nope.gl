@@ -24,8 +24,8 @@
 #include "memory.h"
 #include "ngpu/buffer.h"
 #include "ngpu/format.h"
+#include "ngpu/type.h"
 #include "nopegl.h"
-#include "type.h"
 #include "utils.h"
 
 #define OWN_VERTICES (1 << 0)
@@ -70,7 +70,7 @@ static int gen_vec3(struct geometry *s,
 {
     const int format = NGPU_FORMAT_R32G32B32_SFLOAT;
     *layout = (struct buffer_layout){
-        .type   = NGLI_TYPE_VEC3,
+        .type   = NGPU_TYPE_VEC3,
         .format = format,
         .stride = ngpu_format_get_bytes_per_pixel(format),
         .comp   = ngpu_format_get_nb_comp(format),
@@ -100,7 +100,7 @@ static int gen_vec2(struct geometry *s,
 {
     const int format = NGPU_FORMAT_R32G32_SFLOAT;
     *layout = (struct buffer_layout){
-        .type   = NGLI_TYPE_VEC2,
+        .type   = NGPU_TYPE_VEC2,
         .format = format,
         .stride = ngpu_format_get_bytes_per_pixel(format),
         .comp   = ngpu_format_get_nb_comp(format),
@@ -123,7 +123,7 @@ int ngli_geometry_set_indices(struct geometry *s, size_t count, const uint16_t *
     s->buffer_ownership |= OWN_INDICES;
     const int format = NGPU_FORMAT_R16_UNORM;
     s->indices_layout = (struct buffer_layout){
-        .type   = NGLI_TYPE_NONE,
+        .type   = NGPU_TYPE_NONE,
         .format = format,
         .stride = ngpu_format_get_bytes_per_pixel(format),
         .comp   = ngpu_format_get_nb_comp(format),

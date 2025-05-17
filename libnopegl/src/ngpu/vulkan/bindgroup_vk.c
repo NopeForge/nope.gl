@@ -68,19 +68,19 @@ static VkShaderStageFlags get_vk_stage_flags(uint32_t stage_flags)
     return flags;
 }
 
-static const VkDescriptorType descriptor_type_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_UNIFORM_BUFFER]         = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-    [NGLI_TYPE_STORAGE_BUFFER]         = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
-    [NGLI_TYPE_SAMPLER_2D]             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-    [NGLI_TYPE_SAMPLER_2D_ARRAY]       = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-    [NGLI_TYPE_SAMPLER_3D]             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-    [NGLI_TYPE_SAMPLER_CUBE]           = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-    [NGLI_TYPE_IMAGE_2D]               = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-    [NGLI_TYPE_IMAGE_2D_ARRAY]         = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-    [NGLI_TYPE_IMAGE_3D]               = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-    [NGLI_TYPE_IMAGE_CUBE]             = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+static const VkDescriptorType descriptor_type_map[NGPU_TYPE_NB] = {
+    [NGPU_TYPE_UNIFORM_BUFFER]         = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+    [NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+    [NGPU_TYPE_STORAGE_BUFFER]         = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+    [NGPU_TYPE_STORAGE_BUFFER_DYNAMIC] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
+    [NGPU_TYPE_SAMPLER_2D]             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+    [NGPU_TYPE_SAMPLER_2D_ARRAY]       = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+    [NGPU_TYPE_SAMPLER_3D]             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+    [NGPU_TYPE_SAMPLER_CUBE]           = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+    [NGPU_TYPE_IMAGE_2D]               = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+    [NGPU_TYPE_IMAGE_2D_ARRAY]         = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+    [NGPU_TYPE_IMAGE_3D]               = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+    [NGPU_TYPE_IMAGE_CUBE]             = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
 };
 
 static VkDescriptorType get_vk_descriptor_type(int type)
@@ -107,19 +107,19 @@ static VkResult create_desc_set_layout_bindings(struct ngpu_bindgroup_layout *s)
 
     ngli_darray_set_free_func(&s_priv->immutable_samplers, unref_immutable_sampler, NULL);
 
-    VkDescriptorPoolSize desc_pool_size_map[NGLI_TYPE_NB] = {
-        [NGLI_TYPE_UNIFORM_BUFFER]         = {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER},
-        [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC] = {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC},
-        [NGLI_TYPE_STORAGE_BUFFER]         = {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER},
-        [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC] = {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC},
-        [NGLI_TYPE_SAMPLER_2D]             = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
-        [NGLI_TYPE_SAMPLER_2D_ARRAY]       = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
-        [NGLI_TYPE_SAMPLER_3D]             = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
-        [NGLI_TYPE_SAMPLER_CUBE]           = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
-        [NGLI_TYPE_IMAGE_2D]               = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
-        [NGLI_TYPE_IMAGE_2D_ARRAY]         = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
-        [NGLI_TYPE_IMAGE_3D]               = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
-        [NGLI_TYPE_IMAGE_CUBE]             = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
+    VkDescriptorPoolSize desc_pool_size_map[NGPU_TYPE_NB] = {
+        [NGPU_TYPE_UNIFORM_BUFFER]         = {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER},
+        [NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC] = {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC},
+        [NGPU_TYPE_STORAGE_BUFFER]         = {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER},
+        [NGPU_TYPE_STORAGE_BUFFER_DYNAMIC] = {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC},
+        [NGPU_TYPE_SAMPLER_2D]             = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
+        [NGPU_TYPE_SAMPLER_2D_ARRAY]       = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
+        [NGPU_TYPE_SAMPLER_3D]             = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
+        [NGPU_TYPE_SAMPLER_CUBE]           = {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
+        [NGPU_TYPE_IMAGE_2D]               = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
+        [NGPU_TYPE_IMAGE_2D_ARRAY]         = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
+        [NGPU_TYPE_IMAGE_3D]               = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
+        [NGPU_TYPE_IMAGE_CUBE]             = {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE},
     };
 
     for (size_t i = 0; i < s->nb_buffers; i++) {
@@ -175,7 +175,7 @@ static VkResult create_desc_set_layout_bindings(struct ngpu_bindgroup_layout *s)
         return res;
 
     uint32_t nb_desc_pool_sizes = 0;
-    VkDescriptorPoolSize desc_pool_sizes[NGLI_TYPE_NB];
+    VkDescriptorPoolSize desc_pool_sizes[NGPU_TYPE_NB];
     for (size_t i = 0; i < NGLI_ARRAY_NB(desc_pool_size_map); i++) {
         if (desc_pool_size_map[i].descriptorCount)
             desc_pool_sizes[nb_desc_pool_sizes++] = desc_pool_size_map[i];

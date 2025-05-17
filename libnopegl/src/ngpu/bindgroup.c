@@ -64,9 +64,9 @@ int ngpu_bindgroup_layout_init(struct ngpu_bindgroup_layout *s,
     size_t nb_storage_buffers_dynamic = 0;
     for (size_t i = 0; i < s->nb_buffers; i++) {
         const struct ngpu_bindgroup_layout_entry *entry = &s->buffers[i];
-        if (entry->type == NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC)
+        if (entry->type == NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC)
             nb_uniform_buffers_dynamic++;
-        else if (entry->type == NGLI_TYPE_STORAGE_BUFFER_DYNAMIC)
+        else if (entry->type == NGPU_TYPE_STORAGE_BUFFER_DYNAMIC)
             nb_storage_buffers_dynamic++;
     }
     ngli_assert(nb_uniform_buffers_dynamic <= NGPU_MAX_UNIFORM_BUFFERS_DYNAMIC);
@@ -132,19 +132,19 @@ int ngpu_bindgroup_update_texture(struct ngpu_bindgroup *s, int32_t index, const
         const struct ngpu_texture *texture = binding->texture;
         const struct ngpu_bindgroup_layout_entry *entry = &s->layout->textures[index];
         switch (entry->type) {
-        case NGLI_TYPE_SAMPLER_2D:
-        case NGLI_TYPE_SAMPLER_2D_ARRAY:
-        case NGLI_TYPE_SAMPLER_2D_RECT:
-        case NGLI_TYPE_SAMPLER_3D:
-        case NGLI_TYPE_SAMPLER_CUBE:
-        case NGLI_TYPE_SAMPLER_EXTERNAL_OES:
-        case NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT:
+        case NGPU_TYPE_SAMPLER_2D:
+        case NGPU_TYPE_SAMPLER_2D_ARRAY:
+        case NGPU_TYPE_SAMPLER_2D_RECT:
+        case NGPU_TYPE_SAMPLER_3D:
+        case NGPU_TYPE_SAMPLER_CUBE:
+        case NGPU_TYPE_SAMPLER_EXTERNAL_OES:
+        case NGPU_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT:
             ngli_assert(texture->params.usage & NGPU_TEXTURE_USAGE_SAMPLED_BIT);
             break;
-        case NGLI_TYPE_IMAGE_2D:
-        case NGLI_TYPE_IMAGE_2D_ARRAY:
-        case NGLI_TYPE_IMAGE_3D:
-        case NGLI_TYPE_IMAGE_CUBE:
+        case NGPU_TYPE_IMAGE_2D:
+        case NGPU_TYPE_IMAGE_2D_ARRAY:
+        case NGPU_TYPE_IMAGE_3D:
+        case NGPU_TYPE_IMAGE_CUBE:
             ngli_assert(texture->params.usage & NGPU_TEXTURE_USAGE_STORAGE_BIT);
             break;
         default:
@@ -167,16 +167,16 @@ int ngpu_bindgroup_update_buffer(struct ngpu_bindgroup *s, int32_t index, const 
         const size_t size = binding->size;
         const struct ngpu_limits *limits = &s->gpu_ctx->limits;
         const struct ngpu_bindgroup_layout_entry *entry = &s->layout->buffers[index];
-        if (entry->type == NGLI_TYPE_UNIFORM_BUFFER ||
-            entry->type == NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC) {
+        if (entry->type == NGPU_TYPE_UNIFORM_BUFFER ||
+            entry->type == NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC) {
             ngli_assert(buffer->usage & NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
             if (size > limits->max_uniform_block_size) {
                 LOG(ERROR, "buffer (binding=%d) size (%zu) exceeds max uniform block size (%d)",
                     entry->binding, buffer->size, limits->max_uniform_block_size);
                 return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
             }
-        } else if (entry->type == NGLI_TYPE_STORAGE_BUFFER ||
-                   entry->type == NGLI_TYPE_STORAGE_BUFFER_DYNAMIC) {
+        } else if (entry->type == NGPU_TYPE_STORAGE_BUFFER ||
+                   entry->type == NGPU_TYPE_STORAGE_BUFFER_DYNAMIC) {
             ngli_assert(buffer->usage & NGPU_BUFFER_USAGE_STORAGE_BUFFER_BIT);
             if (size > limits->max_storage_block_size) {
                 LOG(ERROR, "buffer (binding=%d) size (%zu) exceeds max storage block size (%d)",

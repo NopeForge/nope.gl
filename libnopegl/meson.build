@@ -193,6 +193,7 @@ lib_src = files(
   'src/ngpu/program.c',
   'src/ngpu/rendertarget.c',
   'src/ngpu/texture.c',
+  'src/ngpu/type.c',
   'src/node_animatedbuffer.c',
   'src/node_animated.c',
   'src/node_animkeyframe.c',
@@ -264,7 +265,6 @@ lib_src = files(
   'src/text_builtin.c',
   'src/text_external.c',
   'src/transforms.c',
-  'src/type.c',
   'src/utils.c',
 )
 

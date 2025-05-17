@@ -39,7 +39,7 @@
 #include "pgcraft.h"
 #include "pipeline_compat.h"
 #include "transforms.h"
-#include "type.h"
+#include "ngpu/type.h"
 #include "utils.h"
 
 /* GLSL fragments as string */
@@ -573,11 +573,11 @@ static int init(struct ngl_node *node,
     ngli_darray_set_free_func(&s->pipeline_descs, reset_pipeline_desc, NULL);
 
     snprintf(s->position_attr.name, sizeof(s->position_attr.name), "position");
-    s->position_attr.type   = NGLI_TYPE_VEC3;
+    s->position_attr.type   = NGPU_TYPE_VEC3;
     s->position_attr.format = NGPU_FORMAT_R32G32B32_SFLOAT;
 
     snprintf(s->uvcoord_attr.name, sizeof(s->uvcoord_attr.name), "uvcoord");
-    s->uvcoord_attr.type   = NGLI_TYPE_VEC2;
+    s->uvcoord_attr.type   = NGPU_TYPE_VEC2;
     s->uvcoord_attr.format = NGPU_FORMAT_R32G32_SFLOAT;
 
     if (!o->geometry) {
@@ -606,12 +606,12 @@ static int init(struct ngl_node *node,
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    if (vertices_layout.type != NGLI_TYPE_VEC3) {
+    if (vertices_layout.type != NGPU_TYPE_VEC3) {
         LOG(ERROR, "only geometry with vec3 vertices are supported");
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    if (uvcoords && uvcoords_layout.type != NGLI_TYPE_VEC2) {
+    if (uvcoords && uvcoords_layout.type != NGPU_TYPE_VEC2) {
         LOG(ERROR, "only geometry with vec2 uvcoords are supported");
         return NGL_ERROR_UNSUPPORTED;
     }
@@ -754,9 +754,9 @@ static int init_desc(struct ngl_node *node, struct draw_common *s,
 
     /* register common uniforms */
     const struct pgcraft_uniform common_uniforms[] = {
-        {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
-        {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
-        {.name="aspect",            .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG},
+        {.name="modelview_matrix",  .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="projection_matrix", .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="aspect",            .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG},
     };
     for (size_t i = 0; i < NGLI_ARRAY_NB(common_uniforms); i++)
         if (!ngli_darray_push(&desc->uniforms, &common_uniforms[i]))
@@ -883,8 +883,8 @@ static int drawcolor_prepare(struct ngl_node *node)
     struct drawcolor_priv *s = node->priv_data;
     struct drawcolor_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
-        {.name="color",             .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
-        {.name="opacity",           .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
+        {.name="color",             .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
+        {.name="opacity",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
     };
 
     struct draw_common *c = &s->common;
@@ -893,7 +893,7 @@ static int drawcolor_prepare(struct ngl_node *node)
         return ret;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
@@ -947,9 +947,9 @@ static int drawdisplace_prepare(struct ngl_node *node)
     };
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv",                 .type = NGLI_TYPE_VEC2},
-        {.name = "source_coord",       .type = NGLI_TYPE_VEC2},
-        {.name = "displacement_coord", .type = NGLI_TYPE_VEC2},
+        {.name = "uv",                 .type = NGPU_TYPE_VEC2},
+        {.name = "source_coord",       .type = NGPU_TYPE_VEC2},
+        {.name = "displacement_coord", .type = NGPU_TYPE_VEC2},
     };
 
     struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
@@ -983,14 +983,14 @@ static int drawgradient_prepare(struct ngl_node *node)
     struct drawgradient_priv *s = node->priv_data;
     struct drawgradient_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
-        {.name="color0",            .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color0_node, o->color0)},
-        {.name="color1",            .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color1_node, o->color1)},
-        {.name="opacity0",          .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity0_node, &o->opacity0)},
-        {.name="opacity1",          .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity1_node, &o->opacity1)},
-        {.name="pos0",              .type=NGLI_TYPE_VEC2,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->pos0_node, o->pos0)},
-        {.name="pos1",              .type=NGLI_TYPE_VEC2,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->pos1_node, o->pos1)},
-        {.name="mode",              .type=NGLI_TYPE_I32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->mode},
-        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->linear_node, &o->linear)},
+        {.name="color0",            .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color0_node, o->color0)},
+        {.name="color1",            .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color1_node, o->color1)},
+        {.name="opacity0",          .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity0_node, &o->opacity0)},
+        {.name="opacity1",          .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity1_node, &o->opacity1)},
+        {.name="pos0",              .type=NGPU_TYPE_VEC2,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->pos0_node, o->pos0)},
+        {.name="pos1",              .type=NGPU_TYPE_VEC2,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->pos1_node, o->pos1)},
+        {.name="mode",              .type=NGPU_TYPE_I32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->mode},
+        {.name="linear",            .type=NGPU_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->linear_node, &o->linear)},
     };
 
     struct draw_common *c = &s->common;
@@ -999,7 +999,7 @@ static int drawgradient_prepare(struct ngl_node *node)
         return ret;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
@@ -1026,15 +1026,15 @@ static int drawgradient4_prepare(struct ngl_node *node)
     struct drawgradient4_priv *s = node->priv_data;
     struct drawgradient4_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
-        {.name="color_tl",          .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tl_node, o->color_tl)},
-        {.name="color_tr",          .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tr_node, o->color_tr)},
-        {.name="color_br",          .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_br_node, o->color_br)},
-        {.name="color_bl",          .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_bl_node, o->color_bl)},
-        {.name="opacity_tl",        .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_tl_node, &o->opacity_tl)},
-        {.name="opacity_tr",        .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_tr_node, &o->opacity_tr)},
-        {.name="opacity_br",        .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_br_node, &o->opacity_br)},
-        {.name="opacity_bl",        .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_bl_node, &o->opacity_bl)},
-        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->linear_node, &o->linear)},
+        {.name="color_tl",          .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tl_node, o->color_tl)},
+        {.name="color_tr",          .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tr_node, o->color_tr)},
+        {.name="color_br",          .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_br_node, o->color_br)},
+        {.name="color_bl",          .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_bl_node, o->color_bl)},
+        {.name="opacity_tl",        .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_tl_node, &o->opacity_tl)},
+        {.name="opacity_tr",        .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_tr_node, &o->opacity_tr)},
+        {.name="opacity_br",        .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_br_node, &o->opacity_br)},
+        {.name="opacity_bl",        .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_bl_node, &o->opacity_bl)},
+        {.name="linear",            .type=NGPU_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->linear_node, &o->linear)},
     };
 
     struct draw_common *c = &s->common;
@@ -1043,7 +1043,7 @@ static int drawgradient4_prepare(struct ngl_node *node)
         return ret;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
@@ -1070,7 +1070,7 @@ static int drawhistogram_prepare(struct ngl_node *node)
     struct drawhistogram_priv *s = node->priv_data;
     struct drawhistogram_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
-        {.name="mode",              .type=NGLI_TYPE_I32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->mode},
+        {.name="mode",              .type=NGPU_TYPE_I32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->mode},
     };
 
     struct draw_common *c = &s->common;
@@ -1079,13 +1079,13 @@ static int drawhistogram_prepare(struct ngl_node *node)
         return ret;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     const struct block_info *block_info = o->stats->priv_data;
     const struct pgcraft_block crafter_block = {
         .name     = "stats",
-        .type     = NGLI_TYPE_STORAGE_BUFFER,
+        .type     = NGPU_TYPE_STORAGE_BUFFER,
         .stage    = NGPU_PROGRAM_SHADER_FRAG,
         .block    = &block_info->block,
     };
@@ -1129,7 +1129,7 @@ static int drawmask_prepare(struct ngl_node *node)
     struct drawmask_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
-        {.name="inverted", .type=NGLI_TYPE_BOOL, .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->inverted},
+        {.name="inverted", .type=NGPU_TYPE_BOOL, .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->inverted},
     };
 
     struct draw_common *c = &s->common;
@@ -1158,9 +1158,9 @@ static int drawmask_prepare(struct ngl_node *node)
     };
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv",            .type = NGLI_TYPE_VEC2},
-        {.name = "content_coord", .type = NGLI_TYPE_VEC2},
-        {.name = "mask_coord",    .type = NGLI_TYPE_VEC2},
+        {.name = "uv",            .type = NGPU_TYPE_VEC2},
+        {.name = "content_coord", .type = NGPU_TYPE_VEC2},
+        {.name = "mask_coord",    .type = NGPU_TYPE_VEC2},
     };
 
     struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
@@ -1196,14 +1196,14 @@ static int drawnoise_prepare(struct ngl_node *node)
     struct drawnoise_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
-        {.name="type",              .type=NGLI_TYPE_I32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->type},
-        {.name="amplitude",         .type=NGLI_TYPE_F32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->amplitude_node, &o->amplitude)},
-        {.name="octaves",           .type=NGLI_TYPE_U32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->octaves},
-        {.name="lacunarity",        .type=NGLI_TYPE_F32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->lacunarity_node, &o->lacunarity)},
-        {.name="gain",              .type=NGLI_TYPE_F32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->gain_node, &o->gain)},
-        {.name="seed",              .type=NGLI_TYPE_U32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->seed_node, &o->seed)},
-        {.name="scale",             .type=NGLI_TYPE_VEC2, .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->scale_node, o->scale)},
-        {.name="evolution",         .type=NGLI_TYPE_F32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->evolution_node, &o->evolution)},
+        {.name="type",              .type=NGPU_TYPE_I32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->type},
+        {.name="amplitude",         .type=NGPU_TYPE_F32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->amplitude_node, &o->amplitude)},
+        {.name="octaves",           .type=NGPU_TYPE_U32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->octaves},
+        {.name="lacunarity",        .type=NGPU_TYPE_F32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->lacunarity_node, &o->lacunarity)},
+        {.name="gain",              .type=NGPU_TYPE_F32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->gain_node, &o->gain)},
+        {.name="seed",              .type=NGPU_TYPE_U32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->seed_node, &o->seed)},
+        {.name="scale",             .type=NGPU_TYPE_VEC2, .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->scale_node, o->scale)},
+        {.name="evolution",         .type=NGPU_TYPE_F32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->evolution_node, &o->evolution)},
     };
 
     struct draw_common *c = &s->common;
@@ -1212,7 +1212,7 @@ static int drawnoise_prepare(struct ngl_node *node)
         return ret;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
@@ -1260,8 +1260,8 @@ static int drawtexture_prepare(struct ngl_node *node)
     };
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv",        .type = NGLI_TYPE_VEC2},
-        {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
+        {.name = "uv",        .type = NGPU_TYPE_VEC2},
+        {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
     };
 
     struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
@@ -1294,7 +1294,7 @@ static int drawwaveform_prepare(struct ngl_node *node)
     struct drawwaveform_priv *s = node->priv_data;
     struct drawwaveform_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
-        {.name="mode",              .type=NGLI_TYPE_I32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->mode},
+        {.name="mode",              .type=NGPU_TYPE_I32,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=&o->mode},
     };
 
     struct draw_common *c = &s->common;
@@ -1303,13 +1303,13 @@ static int drawwaveform_prepare(struct ngl_node *node)
         return ret;
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     const struct block_info *block_info = o->stats->priv_data;
     const struct pgcraft_block crafter_block = {
         .name     = "stats",
-        .type     = NGLI_TYPE_STORAGE_BUFFER,
+        .type     = NGPU_TYPE_STORAGE_BUFFER,
         .stage    = NGPU_PROGRAM_SHADER_FRAG,
         .block    = &block_info->block,
     };

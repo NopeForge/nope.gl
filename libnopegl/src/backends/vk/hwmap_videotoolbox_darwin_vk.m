@@ -45,8 +45,8 @@
 #include "ngpu/vulkan/texture_vk.h"
 #include "ngpu/vulkan/vkutils.h"
 #include "ngpu/format.h"
+#include "ngpu/type.h"
 #include "nopegl.h"
-#include "type.h"
 
 struct format_desc {
     int layout;
