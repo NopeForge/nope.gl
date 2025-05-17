@@ -92,6 +92,8 @@ static void texture_allocate(struct ngpu_texture *s)
         gl->funcs.TexImage2D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
         break;
     case GL_TEXTURE_2D_ARRAY:
+        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, NULL);
+        break;
     case GL_TEXTURE_3D:
         gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, NULL);
         break;
@@ -161,6 +163,10 @@ static void texture_upload(struct ngpu_texture *s, const uint8_t *data, int line
                                 s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_2D_ARRAY:
+        gl->funcs.TexSubImage3D(s_priv->target, 0, 0, 0, 0,
+                                params->width, params->height, params->depth,
+                                s_priv->format, s_priv->format_type, data);
+        break;
     case GL_TEXTURE_3D:
         gl->funcs.TexSubImage3D(s_priv->target, 0, 0, 0, 0,
                                 params->width, params->height, params->depth,
