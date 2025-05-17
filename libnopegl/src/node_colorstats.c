@@ -30,7 +30,7 @@
 #include "nopegl.h"
 #include "pipeline_compat.h"
 #include "src/ngpu/block_desc.h"
-#include "type.h"
+#include "ngpu/type.h"
 
 /* Compute shaders */
 #include "colorstats_init_comp.h"
@@ -221,8 +221,8 @@ static int init_computes(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
 
     const struct ngpu_block_entry block_fields[] = {
-        NGPU_BLOCK_FIELD(struct stats_params_block, depth, NGLI_TYPE_I32, 0),
-        NGPU_BLOCK_FIELD(struct stats_params_block, length_minus1, NGLI_TYPE_I32, 0),
+        NGPU_BLOCK_FIELD(struct stats_params_block, depth, NGPU_TYPE_I32, 0),
+        NGPU_BLOCK_FIELD(struct stats_params_block, length_minus1, NGPU_TYPE_I32, 0),
     };
     const struct ngpu_block_params block_params = {
         .count      = 1,
@@ -237,7 +237,7 @@ static int init_computes(struct ngl_node *node)
         {
             .name     = "params",
             .instance_name = "",
-            .type     = NGLI_TYPE_UNIFORM_BUFFER,
+            .type     = NGPU_TYPE_UNIFORM_BUFFER,
             .stage    = NGPU_PROGRAM_SHADER_COMP,
             .block    = &s->stats_params_block.block_desc,
             .buffer   = {
@@ -246,7 +246,7 @@ static int init_computes(struct ngl_node *node)
             },
         }, {
             .name     = "stats",
-            .type     = NGLI_TYPE_STORAGE_BUFFER,
+            .type     = NGPU_TYPE_STORAGE_BUFFER,
             .stage    = NGPU_PROGRAM_SHADER_COMP,
             .writable = 1,
             .block    = &s->blk.block,
@@ -268,12 +268,12 @@ static int init_block(struct colorstats_priv *s, struct ngpu_ctx *gpu_ctx)
     ngpu_block_desc_init(gpu_ctx, block, NGPU_BLOCK_LAYOUT_STD430);
 
     static const struct ngpu_block_field block_fields[] = {
-        {"max_rgb",       NGLI_TYPE_UVEC2, 0},
-        {"max_luma",      NGLI_TYPE_UVEC2, 0},
-        {"depth",         NGLI_TYPE_I32,   0},
-        {"length_minus1", NGLI_TYPE_I32,   0},
-        {"summary",       NGLI_TYPE_UVEC4, 1 << MAX_BIT_DEPTH},
-        {"data",          NGLI_TYPE_UVEC4, NGPU_BLOCK_DESC_VARIADIC_COUNT},
+        {"max_rgb",       NGPU_TYPE_UVEC2, 0},
+        {"max_luma",      NGPU_TYPE_UVEC2, 0},
+        {"depth",         NGPU_TYPE_I32,   0},
+        {"length_minus1", NGPU_TYPE_I32,   0},
+        {"summary",       NGPU_TYPE_UVEC4, 1 << MAX_BIT_DEPTH},
+        {"data",          NGPU_TYPE_UVEC4, NGPU_BLOCK_DESC_VARIADIC_COUNT},
     };
     int ret = ngpu_block_desc_add_fields(block, block_fields, NGLI_ARRAY_NB(block_fields));
     if (ret < 0)

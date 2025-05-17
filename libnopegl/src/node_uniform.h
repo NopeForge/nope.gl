@@ -45,7 +45,7 @@ struct variable_opts {
 struct variable_info {
     void *data;
     size_t data_size;
-    int data_type;          // any of NGLI_TYPE_*
+    int data_type;          // any of NGPU_TYPE_*
     int dynamic;
 };
 

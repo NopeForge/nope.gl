@@ -31,7 +31,7 @@
 #include "ngpu/texture.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "type.h"
+#include "ngpu/type.h"
 #include "utils.h"
 
 /* GLSL fragments as string */
@@ -41,7 +41,7 @@
 #include "hwconv_vert.h"
 
 static const struct pgcraft_iovar vert_out_vars[] = {
-    {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
+    {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
 };
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,

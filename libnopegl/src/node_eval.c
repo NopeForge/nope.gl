@@ -30,7 +30,7 @@
 #include "memory.h"
 #include "node_uniform.h"
 #include "nopegl.h"
-#include "type.h"
+#include "ngpu/type.h"
 
 struct eval_opts {
     char *expr[4];
@@ -169,13 +169,13 @@ static int eval_init(struct ngl_node *node)
             struct ngl_node *res = entry->data;
             struct variable_info *var = res->priv_data;
             int ret;
-            if (var->data_type == NGLI_TYPE_F32) {
+            if (var->data_type == NGPU_TYPE_F32) {
                 ret = ngli_hmap_set_str(s->vars, entry->key.str, var->data);
-            } else if (var->data_type == NGLI_TYPE_VEC2) {
+            } else if (var->data_type == NGPU_TYPE_VEC2) {
                 ret = register_component_names(s->vars, entry->key.str, 2, var->data);
-            } else if (var->data_type == NGLI_TYPE_VEC3) {
+            } else if (var->data_type == NGPU_TYPE_VEC3) {
                 ret = register_component_names(s->vars, entry->key.str, 3, var->data);
-            } else if (var->data_type == NGLI_TYPE_VEC4) {
+            } else if (var->data_type == NGPU_TYPE_VEC4) {
                 ret = register_component_names(s->vars, entry->key.str, 4, var->data);
             } else {
                 ngli_assert(0);
@@ -264,7 +264,7 @@ const struct node_class ngli_eval##type##_class = {                 \
     .file      = __FILE__,                                          \
 };
 
-DEFINE_EVAL_CLASS(NGL_NODE_EVALFLOAT, "EvalFloat", float, NGLI_TYPE_F32,   1)
-DEFINE_EVAL_CLASS(NGL_NODE_EVALVEC2,  "EvalVec2",  vec2,  NGLI_TYPE_VEC2,  2)
-DEFINE_EVAL_CLASS(NGL_NODE_EVALVEC3,  "EvalVec3",  vec3,  NGLI_TYPE_VEC3,  3)
-DEFINE_EVAL_CLASS(NGL_NODE_EVALVEC4,  "EvalVec4",  vec4,  NGLI_TYPE_VEC4,  4)
+DEFINE_EVAL_CLASS(NGL_NODE_EVALFLOAT, "EvalFloat", float, NGPU_TYPE_F32,   1)
+DEFINE_EVAL_CLASS(NGL_NODE_EVALVEC2,  "EvalVec2",  vec2,  NGPU_TYPE_VEC2,  2)
+DEFINE_EVAL_CLASS(NGL_NODE_EVALVEC3,  "EvalVec3",  vec3,  NGPU_TYPE_VEC3,  3)
+DEFINE_EVAL_CLASS(NGL_NODE_EVALVEC4,  "EvalVec4",  vec4,  NGPU_TYPE_VEC4,  4)
