@@ -23,7 +23,7 @@
 #define NODE_DRAW_H
 
 #include "aabb.h"
-#include "gpu_ctx.h"
+#include "ngpu/ctx.h"
 
 struct ngl_node;
 
@@ -31,7 +31,7 @@ struct draw_info {
     int compute_bounds;
     NGLI_ATTR_ALIGNED struct aabb aabb;
 
-    struct gpu_viewport viewport;
+    struct ngpu_viewport viewport;
     NGLI_ALIGNED_MAT(transform_matrix);
 
     NGLI_ATTR_ALIGNED struct aabb screen_aabb;

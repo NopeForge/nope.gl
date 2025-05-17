@@ -23,23 +23,23 @@
 #include <string.h>
 
 #include "atlas.h"
-#include "darray.h"
-#include "gpu_format.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
+#include "ngpu/format.h"
+#include "ngpu/texture.h"
 #include "nopegl.h"
-#include "gpu_texture.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 struct atlas {
     struct ngl_ctx *ctx;
 
-    int32_t max_bitmap_w, max_bitmap_h;
-    int32_t texture_w, texture_h;
-    int32_t nb_rows, nb_cols;
+    uint32_t max_bitmap_w, max_bitmap_h;
+    uint32_t texture_w, texture_h;
+    uint32_t nb_rows, nb_cols;
 
-    struct gpu_texture *texture;
+    struct ngpu_texture *texture;
     struct darray bitmaps; // struct bitmap
 };
 
@@ -65,12 +65,13 @@ int ngli_atlas_init(struct atlas *s)
     return 0;
 }
 
-int ngli_atlas_add_bitmap(struct atlas *s, const struct bitmap *bitmap, int32_t *bitmap_id)
+int ngli_atlas_add_bitmap(struct atlas *s, const struct bitmap *bitmap, uint32_t *bitmap_id)
 {
     if (ngli_darray_count(&s->bitmaps) == INT32_MAX)
         return NGL_ERROR_LIMIT_EXCEEDED;
 
-    uint8_t *buffer = ngli_memdup(bitmap->buffer, bitmap->height * bitmap->stride);
+    size_t buffer_size = bitmap->height * bitmap->stride;
+    uint8_t *buffer = ngli_memdup(bitmap->buffer, buffer_size);
     if (!buffer)
         return NGL_ERROR_MEMORY;
 
@@ -89,7 +90,7 @@ int ngli_atlas_add_bitmap(struct atlas *s, const struct bitmap *bitmap, int32_t 
     s->max_bitmap_w = NGLI_MAX(s->max_bitmap_w, bitmap->width);
     s->max_bitmap_h = NGLI_MAX(s->max_bitmap_h, bitmap->height);
 
-    *bitmap_id = (int32_t)ngli_darray_count(&s->bitmaps) - 1;
+    *bitmap_id = (uint32_t)ngli_darray_count(&s->bitmaps) - 1;
     return 0;
 }
 
@@ -132,31 +133,31 @@ int ngli_atlas_finalize(struct atlas *s)
      * TODO bitmaps are assumed to be square when balancing the number of rows
      * and cols, we're not taking into account max_bitmap_[wh] as we should
      */
-    s->nb_rows = (int32_t)lrintf(sqrtf((float)nb_bitmaps));
-    s->nb_cols = (int32_t)ceilf((float)nb_bitmaps / (float)s->nb_rows);
+    s->nb_rows = (uint32_t)lrintf(sqrtf((float)nb_bitmaps));
+    s->nb_cols = (uint32_t)ceilf((float)nb_bitmaps / (float)s->nb_rows);
     ngli_assert(s->nb_rows * s->nb_cols >= nb_bitmaps);
 
     s->texture_w = s->max_bitmap_w * s->nb_cols;
     s->texture_h = s->max_bitmap_h * s->nb_rows;
 
-    const struct gpu_texture_params tex_params = {
-        .type       = NGLI_GPU_TEXTURE_TYPE_2D,
+    const struct ngpu_texture_params tex_params = {
+        .type       = NGPU_TEXTURE_TYPE_2D,
         .width      = s->texture_w,
         .height     = s->texture_h,
-        .format     = NGLI_GPU_FORMAT_R8_UNORM,
-        .min_filter = NGLI_GPU_FILTER_LINEAR,
-        .mag_filter = NGLI_GPU_FILTER_NEAREST,
-        .usage      = NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+        .format     = NGPU_FORMAT_R8_UNORM,
+        .min_filter = NGPU_FILTER_LINEAR,
+        .mag_filter = NGPU_FILTER_NEAREST,
+        .usage      = NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT
+                      | NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT
+                      | NGPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
 
-    struct gpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
-    s->texture = ngli_gpu_texture_create(gpu_ctx);
+    struct ngpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
+    s->texture = ngpu_texture_create(gpu_ctx);
     if (!s->texture)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_gpu_texture_init(s->texture, &tex_params);
+    int ret = ngpu_texture_init(s->texture, &tex_params);
     if (ret < 0)
         return ret;
 
@@ -168,27 +169,27 @@ int ngli_atlas_finalize(struct atlas *s)
         return NGL_ERROR_MEMORY;
 
     blend_bitmaps(s, data, linesize);
-    ret = ngli_gpu_texture_upload(s->texture, data, (int) linesize);
+    ret = ngpu_texture_upload(s->texture, data, (int) linesize);
     ngli_freep(&data);
 
     return ret;
 }
 
-struct gpu_texture *ngli_atlas_get_texture(const struct atlas *s)
+struct ngpu_texture *ngli_atlas_get_texture(const struct atlas *s)
 {
     return s->texture;
 }
 
-void ngli_atlas_get_bitmap_coords(const struct atlas *s, int32_t bitmap_id, int32_t *dst)
+void ngli_atlas_get_bitmap_coords(const struct atlas *s, uint32_t bitmap_id, uint32_t *dst)
 {
     const struct bitmap *bitmap = ngli_darray_get(&s->bitmaps, bitmap_id);
-    const int32_t col = bitmap_id % s->nb_cols;
-    const int32_t row = bitmap_id / s->nb_cols;
-    const int32_t x0 = col * s->max_bitmap_w;
-    const int32_t y0 = row * s->max_bitmap_h;
-    const int32_t x1 = x0 + bitmap->width;
-    const int32_t y1 = y0 + bitmap->height;
-    const int32_t coords[] = {x0, y0, x1, y1};
+    const uint32_t col = bitmap_id % s->nb_cols;
+    const uint32_t row = bitmap_id / s->nb_cols;
+    const uint32_t x0 = col * s->max_bitmap_w;
+    const uint32_t y0 = row * s->max_bitmap_h;
+    const uint32_t x1 = x0 + bitmap->width;
+    const uint32_t y1 = y0 + bitmap->height;
+    const uint32_t coords[] = {x0, y0, x1, y1};
     memcpy(dst, coords, sizeof(coords));
 }
 
@@ -198,6 +199,6 @@ void ngli_atlas_freep(struct atlas **sp)
     if (!s)
         return;
     ngli_darray_reset(&s->bitmaps);
-    ngli_gpu_texture_freep(&s->texture);
+    ngpu_texture_freep(&s->texture);
     ngli_freep(sp);
 }

@@ -23,15 +23,17 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "bstr.h"
-#include "hmap.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "params.h"
-#include "utils.h"
+#include "utils/bstr.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
+#include "utils/crc32.h"
+#include "utils/string.h"
+#include "utils/utils.h"
 
 /* We depend on the monotonically incrementing by 1 property of these fields */
 NGLI_STATIC_ASSERT(param_vec,  NGLI_PARAM_TYPE_VEC4  - NGLI_PARAM_TYPE_VEC2 == 2);
@@ -162,9 +164,9 @@ const struct param_specs ngli_params_specs[] = {
     },
 };
 
-static const char *get_param_type_name(int param_type)
+static const char *get_param_type_name(enum param_type param_type)
 {
-    if (param_type < 0 || param_type >= NGLI_ARRAY_NB(ngli_params_specs))
+    if (param_type >= NGLI_ARRAY_NB(ngli_params_specs))
         return "???";
     return ngli_params_specs[param_type].name;
 }
@@ -330,6 +332,8 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
         case NGLI_PARAM_TYPE_RATIONAL:
             ngli_bstr_printf(b, "%d/%d", NGLI_ARG_VEC2((const int32_t *)srcp));
             break;
+        default:
+            break;
     }
 }
 
@@ -350,7 +354,7 @@ static void node_hmap_free(void *user_arg, void *data)
     ngl_node_unrefp(&node);
 }
 
-static int check_param_type(const struct node_param *par, int expected_type)
+static int check_param_type(const struct node_param *par, enum param_type expected_type)
 {
     if (par->type != expected_type) {
         LOG(ERROR, "invalid type: %s is of type %s, not %s", par->key,
@@ -932,6 +936,8 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
             case NGLI_PARAM_TYPE_RATIONAL:
                 ret = ngli_params_set_rational(dstp, par, par->def_value.r[0], par->def_value.r[1]);
                 break;
+            default:
+                break;
         }
         if (ret < 0)
             return ret;
@@ -1057,6 +1063,8 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 ngli_hmap_freep(hmapp);
                 break;
             }
+            default:
+                break;
         }
     }
 }

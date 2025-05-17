@@ -22,10 +22,11 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "darray.h"
+#include "box.h"
+#include "ngpu/texture.h"
 #include "nopegl.h"
-#include "gpu_texture.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/utils.h"
 
 #define NGLI_I32_TO_I26D6(x) ((x) * (1 << 6))     // convert i32 to 26.6 fixed point
 #define NGLI_I26D6_TO_F32(x) ((float)(x) / 64.f)  // convert 26.6 fixed point to f32
@@ -35,29 +36,34 @@ enum writing_mode {
     NGLI_TEXT_WRITING_MODE_HORIZONTAL_TB,
     NGLI_TEXT_WRITING_MODE_VERTICAL_RL,
     NGLI_TEXT_WRITING_MODE_VERTICAL_LR,
+    NGLI_TEXT_WRITING_MODE_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum text_valign {
     NGLI_TEXT_VALIGN_CENTER,
     NGLI_TEXT_VALIGN_TOP,
     NGLI_TEXT_VALIGN_BOTTOM,
+    NGLI_TEXT_VALIGN_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum text_halign {
     NGLI_TEXT_HALIGN_CENTER,
     NGLI_TEXT_HALIGN_RIGHT,
     NGLI_TEXT_HALIGN_LEFT,
+    NGLI_TEXT_HALIGN_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum text_scale_mode {
     NGLI_TEXT_SCALE_MODE_AUTO,
     NGLI_TEXT_SCALE_MODE_FIXED,
+    NGLI_TEXT_SCALE_MODE_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum char_tag {
     NGLI_TEXT_CHAR_TAG_GLYPH          = 1U << 0,
     NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR = 1U << 1,
     NGLI_TEXT_CHAR_TAG_LINE_BREAK     = 1U << 2,
+    NGLI_TEXT_CHAR_TAG_MAX_ENUM       = 0x7FFFFFFF
 };
 
 /* Exposed by text drivers  */
@@ -138,7 +144,7 @@ struct text {
     int32_t width;
     int32_t height;
     struct darray chars; // struct char_info
-    struct gpu_texture *atlas_texture;
+    struct ngpu_texture *atlas_texture;
     struct text_data_pointers data_ptrs; // set of effect data pointers (in chars_data)
 
     /* effects specific */

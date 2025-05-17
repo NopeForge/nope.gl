@@ -32,7 +32,7 @@
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "transforms.h"
-#include "type.h"
+#include "ngpu/type.h"
 
 struct uniform_priv {
     struct variable_info var;
@@ -410,19 +410,19 @@ static int uniform##type##_init(struct ngl_node *node)      \
     return 0;                                               \
 }
 
-DECLARE_INIT_FUNC(bool,   NGLI_TYPE_BOOL,   1, s->ivector, o->live.val.i)
-DECLARE_INIT_FUNC(int,    NGLI_TYPE_I32,    1, s->ivector, o->live.val.i)
-DECLARE_INIT_FUNC(ivec2,  NGLI_TYPE_IVEC2,  2, s->ivector, o->live.val.i)
-DECLARE_INIT_FUNC(ivec3,  NGLI_TYPE_IVEC3,  3, s->ivector, o->live.val.i)
-DECLARE_INIT_FUNC(ivec4,  NGLI_TYPE_IVEC4,  4, s->ivector, o->live.val.i)
-DECLARE_INIT_FUNC(uint,   NGLI_TYPE_U32,    1, s->uvector, o->live.val.u)
-DECLARE_INIT_FUNC(uivec2, NGLI_TYPE_UVEC2,  2, s->uvector, o->live.val.u)
-DECLARE_INIT_FUNC(uivec3, NGLI_TYPE_UVEC3,  3, s->uvector, o->live.val.u)
-DECLARE_INIT_FUNC(uivec4, NGLI_TYPE_UVEC4,  4, s->uvector, o->live.val.u)
-DECLARE_INIT_FUNC(float,  NGLI_TYPE_F32,    1, s->vector,  o->live.val.f)
-DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  o->live.val.f)
-DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  o->live.val.f)
-DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  o->live.val.f)
+DECLARE_INIT_FUNC(bool,   NGPU_TYPE_BOOL,   1, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(int,    NGPU_TYPE_I32,    1, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(ivec2,  NGPU_TYPE_IVEC2,  2, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(ivec3,  NGPU_TYPE_IVEC3,  3, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(ivec4,  NGPU_TYPE_IVEC4,  4, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(uint,   NGPU_TYPE_U32,    1, s->uvector, o->live.val.u)
+DECLARE_INIT_FUNC(uivec2, NGPU_TYPE_UVEC2,  2, s->uvector, o->live.val.u)
+DECLARE_INIT_FUNC(uivec3, NGPU_TYPE_UVEC3,  3, s->uvector, o->live.val.u)
+DECLARE_INIT_FUNC(uivec4, NGPU_TYPE_UVEC4,  4, s->uvector, o->live.val.u)
+DECLARE_INIT_FUNC(float,  NGPU_TYPE_F32,    1, s->vector,  o->live.val.f)
+DECLARE_INIT_FUNC(vec2,   NGPU_TYPE_VEC2,   2, s->vector,  o->live.val.f)
+DECLARE_INIT_FUNC(vec3,   NGPU_TYPE_VEC3,   3, s->vector,  o->live.val.f)
+DECLARE_INIT_FUNC(vec4,   NGPU_TYPE_VEC4,   4, s->vector,  o->live.val.f)
 
 static int uniformquat_init(struct ngl_node *node)
 {
@@ -431,12 +431,12 @@ static int uniformquat_init(struct ngl_node *node)
 
     s->var.data = s->vector;
     s->var.data_size = 4 * sizeof(*s->vector);
-    s->var.data_type = NGLI_TYPE_VEC4;
+    s->var.data_type = NGPU_TYPE_VEC4;
     memcpy(s->var.data, o->live.val.f, s->var.data_size);
     if (o->as_mat4) {
         s->var.data = s->matrix;
         s->var.data_size = sizeof(s->matrix);
-        s->var.data_type = NGLI_TYPE_MAT4;
+        s->var.data_type = NGPU_TYPE_MAT4;
         ngli_mat4_from_quat(s->matrix, s->vector, NULL);
     }
     return 0;
@@ -453,7 +453,7 @@ static int uniformmat4_init(struct ngl_node *node)
 
     s->var.data = s->matrix;
     s->var.data_size = sizeof(s->matrix);
-    s->var.data_type = NGLI_TYPE_MAT4;
+    s->var.data_type = NGPU_TYPE_MAT4;
     /* Note: we assume here that a transformation chain includes at least one
      * dynamic transform. We could crawl the chain to figure it out in the
      * details, but that would be limited since we would have to also detect
@@ -470,7 +470,7 @@ static int uniformcolor_init(struct ngl_node *node)
     struct uniform_priv *s = node->priv_data;
     s->var.data = s->vector;
     s->var.data_size = 3 * sizeof(*s->vector);
-    s->var.data_type = NGLI_TYPE_VEC3;
+    s->var.data_type = NGPU_TYPE_VEC3;
     return uniformcolor_update_func(node);
 }
 

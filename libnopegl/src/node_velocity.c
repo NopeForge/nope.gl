@@ -29,7 +29,7 @@
 #include "node_animkeyframe.h"
 #include "node_uniform.h"
 #include "node_velocity.h"
-#include "type.h"
+#include "ngpu/type.h"
 
 struct velocity_opts {
     struct ngl_node *anim_node;
@@ -111,7 +111,7 @@ DECLARE_VELOCITY_FUNCS(2)
 DECLARE_VELOCITY_FUNCS(3)
 DECLARE_VELOCITY_FUNCS(4)
 
-static ngli_animation_mix_func_type get_mix_func(int node_class)
+static ngli_animation_mix_func_type get_mix_func(uint32_t node_class)
 {
     switch (node_class) {
     case NGL_NODE_VELOCITYFLOAT: return mix_velocity_float;
@@ -122,7 +122,7 @@ static ngli_animation_mix_func_type get_mix_func(int node_class)
     return NULL;
 }
 
-static ngli_animation_cpy_func_type get_cpy_func(int node_class)
+static ngli_animation_cpy_func_type get_cpy_func(uint32_t node_class)
 {
     switch (node_class) {
     case NGL_NODE_VELOCITYFLOAT: return cpy_velocity_float;
@@ -214,7 +214,7 @@ const struct node_class ngli_velocity##type##_class = {                         
     .file      = __FILE__,                                                      \
 };
 
-DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYFLOAT, "VelocityFloat", float, NGLI_TYPE_F32,   1)
-DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC2,  "VelocityVec2",  vec2,  NGLI_TYPE_VEC2,  2)
-DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC3,  "VelocityVec3",  vec3,  NGLI_TYPE_VEC3,  3)
-DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC4,  "VelocityVec4",  vec4,  NGLI_TYPE_VEC4,  4)
+DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYFLOAT, "VelocityFloat", float, NGPU_TYPE_F32,   1)
+DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC2,  "VelocityVec2",  vec2,  NGPU_TYPE_VEC2,  2)
+DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC3,  "VelocityVec3",  vec3,  NGPU_TYPE_VEC3,  3)
+DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC4,  "VelocityVec4",  vec4,  NGPU_TYPE_VEC4,  4)

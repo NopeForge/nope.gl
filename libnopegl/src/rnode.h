@@ -22,14 +22,14 @@
 #ifndef RNODE_H
 #define RNODE_H
 
-#include "darray.h"
-#include "gpu_graphics_state.h"
-#include "gpu_rendertarget.h"
+#include "ngpu/graphics_state.h"
+#include "ngpu/rendertarget.h"
+#include "utils/darray.h"
 
 struct rnode {
     size_t id;
-    struct gpu_graphics_state graphics_state;
-    struct gpu_rendertarget_layout rendertarget_layout;
+    struct ngpu_graphics_state graphics_state;
+    struct ngpu_rendertarget_layout rendertarget_layout;
     struct darray children;
 };
 

@@ -41,7 +41,7 @@ float distance_to_closest_segment(vec3 x3, vec3 y3)
 
 float vertical_line(float x, float y, vec3 amp3)
 {
-    int max_depth = stats.depth - 1;
+    int max_depth = int(stats.depth) - 1;
     float bin_pos = x * float(max_depth);
     int bin_mid = int(round(bin_pos));
     ivec2 bin = clamp(ivec2(floor(bin_pos), floor(bin_pos) + 1.0), 0, max_depth); // find surrounding bins
@@ -88,7 +88,7 @@ vec4 source_histogram()
      */
 
     /* Build 3 histogram bin indexes (corresponding to 2 segments) */
-    int max_depth = stats.depth - 1;
+    int max_depth = int(stats.depth) - 1;
     int bin_mid = int(round(uv.x * float(max_depth)));
     ivec3 bin3 = clamp(bin_mid + ivec3(-1, 0, 1), 0, max_depth);
     vec3 x3 = vec3(bin3) / float(max_depth);

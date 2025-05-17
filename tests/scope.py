@@ -52,19 +52,19 @@ def scope_colorstats(cfg):
     )
     frag = textwrap.dedent(
         """
-        #define NB_SLICES 8
+        #define NB_SLICES 8U
         void main()
         {
             float n = float(NB_SLICES);
-            int s0 = int(floor(uv.x * n) / n * float(stats.depth));
-            int s1 = s0 + stats.depth / NB_SLICES;
+            uint s0 = uint(floor(uv.x * n) / n * float(stats.depth));
+            uint s1 = s0 + stats.depth / NB_SLICES;
 
             uvec3 sum = uvec3(0);
-            for (int i = s0; i < s1; i++) {
-                int bin = clamp(i, 0, stats.depth - 1);
+            for (uint i = s0; i < s1; i++) {
+                uint bin = clamp(i, 0U, stats.depth - 1U);
                 sum += stats.summary[bin].rgb;
             }
-            sum /= uint(NB_SLICES);
+            sum /= NB_SLICES;
 
             vec3 amp = vec3(sum) / (float(stats.max_rgb.y) / zoom);
             ngl_out_color = vec4(step(uv.y, amp), 1.0);

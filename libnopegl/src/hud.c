@@ -40,22 +40,22 @@
 #include <sys/types.h>
 
 #include "drawutils.h"
-#include "gpu_ctx.h"
-#include "gpu_block.h"
-#include "gpu_graphics_state.h"
 #include "hud.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
+#include "ngpu/block.h"
+#include "ngpu/ctx.h"
+#include "ngpu/graphics_state.h"
+#include "ngpu/type.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_texture.h"
 #include "nopegl.h"
-#include "pgcache.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "type.h"
+#include "ngpu/pgcraft.h"
+#include "utils/memory.h"
+#include "utils/time.h"
 
 struct transforms_block {
     NGLI_ALIGNED_MAT(modelview_matrix);
@@ -65,10 +65,10 @@ struct transforms_block {
 struct hud {
     struct ngl_ctx *ctx;
 
-    int measure_window;
-    int refresh_rate[2];
+    uint32_t measure_window;
+    uint32_t refresh_rate[2];
     const char *export_filename;
-    int scale;
+    uint32_t scale;
 
 #if HAVE_USELOCALE
     locale_t c_locale;
@@ -81,12 +81,12 @@ struct hud {
     double refresh_rate_interval;
     double last_refresh_time;
 
-    struct pgcraft *crafter;
-    struct gpu_texture *texture;
-    struct gpu_buffer *coords;
-    struct gpu_block transforms_block;
+    struct ngpu_pgcraft *crafter;
+    struct ngpu_texture *texture;
+    struct ngpu_buffer *coords;
+    struct ngpu_block transforms_block;
     struct pipeline_compat *pipeline_compat;
-    struct gpu_graphics_state graphics_state;
+    struct ngpu_graphics_state graphics_state;
 };
 
 #define WIDGET_PADDING 4
@@ -276,9 +276,9 @@ enum widget_type {
 
 struct data_graph {
     int64_t *values;
-    int nb_values;
-    int count;
-    int pos;
+    size_t nb_values;
+    size_t count;
+    size_t pos;
     int64_t min;
     int64_t max;
     int64_t amin; // all-time min
@@ -287,8 +287,8 @@ struct data_graph {
 
 struct latency_measure {
     int64_t *times;
-    int count;
-    int pos;
+    size_t count;
+    size_t pos;
     int64_t total_times;
 };
 
@@ -303,7 +303,7 @@ struct widget_memory {
 
 struct widget_activity {
     struct darray nodes;
-    int nb_actives;
+    size_t nb_actives;
 };
 
 struct widget_drawcall {
@@ -531,13 +531,13 @@ static void draw_block_graph(struct hud *s,
 {
     const int64_t graph_h = graph_max - graph_min;
     const float vscale = (float)rect->h / (float)graph_h;
-    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
+    const size_t start = (d->pos - d->count + d->nb_values) % d->nb_values;
 
-    for (int k = 0; k < d->count; k++) {
+    for (size_t k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - h, 0, rect->h);
-        set_color_at_column(s, rect->x + k, rect->y + y, h, c);
+        set_color_at_column(s, rect->x + (int)k, rect->y + y, h, c);
     }
 }
 
@@ -549,17 +549,17 @@ static void draw_line_graph(struct hud *s,
 {
     const int64_t graph_h = graph_max - graph_min;
     const float vscale = (float)rect->h / (float)graph_h;
-    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
+    const size_t start = (d->pos - d->count + d->nb_values) % d->nb_values;
     int prev_y;
 
-    for (int k = 0; k < d->count; k++) {
+    for (size_t k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - 1 - h, 0, rect->h - 1);
 
-        set_color_at(s, rect->x + k, rect->y + y, c);
+        set_color_at(s, rect->x + (int)k, rect->y + y, c);
         if (k)
-            set_color_at_column(s, rect->x + k, rect->y + prev_y, y - prev_y, c);
+            set_color_at_column(s, rect->x + (int)k, rect->y + prev_y, y - prev_y, c);
         prev_y = y;
     }
 }
@@ -590,7 +590,7 @@ static void register_graph_value(struct data_graph *d, int64_t v)
     /* update min */
     if (old_v == d->min) {
         d->min = d->values[0];
-        for (int i = 1; i < d->nb_values; i++)
+        for (size_t i = 1; i < d->nb_values; i++)
             d->min = NGLI_MIN(d->min, d->values[i]);
     } else if (v < d->min) {
         d->min = v;
@@ -600,7 +600,7 @@ static void register_graph_value(struct data_graph *d, int64_t v)
     /* update max */
     if (old_v == d->max) {
         d->max = d->values[0];
-        for (int i = 1; i < d->nb_values; i++)
+        for (size_t i = 1; i < d->nb_values; i++)
             d->max = NGLI_MAX(d->max, d->values[i]);
     } else if (v > d->max) {
         d->max = v;
@@ -611,7 +611,7 @@ static void register_graph_value(struct data_graph *d, int64_t v)
 static int64_t get_latency_avg(const struct widget_latency *priv, size_t id)
 {
     const struct latency_measure *m = &priv->measures[id];
-    return m->total_times / m->count / (latency_specs[id].unit == 'u' ? 1 : 1000);
+    return m->total_times / (int64_t)m->count / (latency_specs[id].unit == 'u' ? 1 : 1000);
 }
 
 static void widget_latency_draw(struct hud *s, struct widget *widget)
@@ -661,7 +661,7 @@ static void widget_memory_draw(struct hud *s, struct widget *widget)
         else
             snprintf(buf, sizeof(buf), "%-12s %zuG", label, size / (1024 * 1024 * 1024));
         print_text(s, widget->text_x, widget->text_y + (int)i * NGLI_FONT_H, buf, color);
-        register_graph_value(&widget->data_graph[i], size);
+        register_graph_value(&widget->data_graph[i], (int64_t)size);
     }
 
     int64_t graph_min = widget->data_graph[0].min;
@@ -686,12 +686,12 @@ static void widget_activity_draw(struct hud *s, struct widget *widget)
     const uint32_t color = 0x3df4f4ff;
 
     char buf[ACTIVITY_WIDGET_TEXT_LEN + 1];
-    snprintf(buf, sizeof(buf), "%d/%zu", priv->nb_actives, priv->nodes.count);
+    snprintf(buf, sizeof(buf), "%zu/%zu", priv->nb_actives, priv->nodes.count);
     print_text(s, widget->text_x, widget->text_y, spec->label, color);
     print_text(s, widget->text_x, widget->text_y + NGLI_FONT_H, buf, color);
 
     struct data_graph *d = &widget->data_graph[0];
-    register_graph_value(d, priv->nb_actives);
+    register_graph_value(d, (int64_t)priv->nb_actives);
     draw_block_graph(s, d, &widget->graph_rect, d->amin, d->amax, color);
 }
 
@@ -760,7 +760,7 @@ static void widget_memory_csv_report(struct hud *s, struct widget *widget, struc
 static void widget_activity_csv_report(struct hud *s, struct widget *widget, struct bstr *dst)
 {
     const struct widget_activity *priv = widget->priv_data;
-    ngli_bstr_printf(dst, "%d,%zu", priv->nb_actives, priv->nodes.count);
+    ngli_bstr_printf(dst, "%zu,%zu", priv->nb_actives, priv->nodes.count);
 }
 
 static void widget_drawcall_csv_report(struct hud *s, struct widget *widget, struct bstr *dst)
@@ -864,7 +864,7 @@ static inline int get_widget_width(enum widget_type type)
 static inline int get_widget_height(enum widget_type type)
 {
     const struct widget_spec *spec = &widget_specs[type];
-    const int vertical_layout = !!spec->graph_h;
+    const int vertical_layout = spec->graph_h != 0;
     return spec->graph_h
          + spec->text_rows * NGLI_FONT_H
          + WIDGET_PADDING * (2 + vertical_layout);
@@ -920,7 +920,7 @@ static int create_widget(struct hud *s, enum widget_type type, const void *user_
         return NGL_ERROR_MEMORY;
     for (size_t i = 0; i < spec->nb_data_graph; i++) {
         struct data_graph *d = &widgetp->data_graph[i];
-        d->nb_values = widgetp->graph_rect.w;
+        d->nb_values = (size_t)widgetp->graph_rect.w;
         d->values = ngli_calloc(d->nb_values, sizeof(*d->values));
         if (!d->values)
             return NGL_ERROR_MEMORY;
@@ -1142,8 +1142,8 @@ static const char * const fragment_data =
     "    ngl_out_color = texture(tex, tex_coord);"                          "\n"
     "}";
 
-static const struct pgcraft_iovar vert_out_vars[] = {
-    {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
+static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
+    {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
 };
 
 struct hud *ngli_hud_create(struct ngl_ctx *ctx)
@@ -1159,7 +1159,7 @@ int ngli_hud_init(struct hud *s)
 {
     struct ngl_ctx *ctx = s->ctx;
     const struct ngl_config *config = &ctx->config;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
     s->scale = config->hud_scale;
     s->measure_window = config->hud_measure_window;
@@ -1195,7 +1195,7 @@ int ngli_hud_init(struct hud *s)
         return widgets_csv_header(s);
     }
 
-    s->canvas.buf = ngli_calloc(s->canvas.w * s->canvas.h, 4);
+    s->canvas.buf = ngli_calloc((size_t)(s->canvas.w * s->canvas.h), 4);
     if (!s->canvas.buf)
         return NGL_ERROR_MEMORY;
 
@@ -1210,61 +1210,61 @@ int ngli_hud_init(struct hud *s)
          1.0f,  1.0f, 1.0f, 0.0f,
     };
 
-    s->coords = ngli_gpu_buffer_create(gpu_ctx);
+    s->coords = ngpu_buffer_create(gpu_ctx);
     if (!s->coords)
         return NGL_ERROR_MEMORY;
 
 
-    ret = ngli_gpu_buffer_init(s->coords, sizeof(coords), NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT |
-                                                          NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT |
-                                                          NGLI_GPU_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    ret = ngpu_buffer_init(s->coords, sizeof(coords), NGPU_BUFFER_USAGE_DYNAMIC_BIT |
+                                                          NGPU_BUFFER_USAGE_TRANSFER_DST_BIT |
+                                                          NGPU_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     if (ret < 0)
         return ret;
 
-    ret = ngli_gpu_buffer_upload(s->coords, coords, 0, sizeof(coords));
+    ret = ngpu_buffer_upload(s->coords, coords, 0, sizeof(coords));
     if (ret < 0)
         return ret;
 
-    struct gpu_texture_params tex_params = {
-        .type          = NGLI_GPU_TEXTURE_TYPE_2D,
-        .format        = NGLI_GPU_FORMAT_R8G8B8A8_UNORM,
-        .width         = s->canvas.w,
-        .height        = s->canvas.h,
-        .min_filter    = NGLI_GPU_FILTER_NEAREST,
-        .mag_filter    = NGLI_GPU_FILTER_NEAREST,
-        .usage         = NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT | NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+    struct ngpu_texture_params tex_params = {
+        .type          = NGPU_TEXTURE_TYPE_2D,
+        .format        = NGPU_FORMAT_R8G8B8A8_UNORM,
+        .width         = (uint32_t)s->canvas.w,
+        .height        = (uint32_t)s->canvas.h,
+        .min_filter    = NGPU_FILTER_NEAREST,
+        .mag_filter    = NGPU_FILTER_NEAREST,
+        .usage         = NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT | NGPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
-    s->texture = ngli_gpu_texture_create(gpu_ctx);
+    s->texture = ngpu_texture_create(gpu_ctx);
     if (!s->texture)
         return NGL_ERROR_MEMORY;
-    ret = ngli_gpu_texture_init(s->texture, &tex_params);
+    ret = ngpu_texture_init(s->texture, &tex_params);
     if (ret < 0)
         return ret;
 
-    const struct gpu_block_field block_fields[] = {
-        NGLI_GPU_BLOCK_FIELD(struct transforms_block, modelview_matrix, NGLI_TYPE_MAT4, 0),
-        NGLI_GPU_BLOCK_FIELD(struct transforms_block, projection_matrix, NGLI_TYPE_MAT4, 0),
+    const struct ngpu_block_entry block_fields[] = {
+        NGPU_BLOCK_FIELD(struct transforms_block, modelview_matrix, NGPU_TYPE_MAT4, 0),
+        NGPU_BLOCK_FIELD(struct transforms_block, projection_matrix, NGPU_TYPE_MAT4, 0),
     };
-    const struct gpu_block_params block_params = {
+    const struct ngpu_block_params block_params = {
         .count     = 1,
-        .fields    = block_fields,
-        .nb_fields = NGLI_ARRAY_NB(block_fields),
+        .entries = block_fields,
+        .nb_entries = NGLI_ARRAY_NB(block_fields),
     };
-    ret = ngli_gpu_block_init(gpu_ctx, &s->transforms_block, &block_params);
+    ret = ngpu_block_init(gpu_ctx, &s->transforms_block, &block_params);
     if (ret < 0)
         return ret;
-    ngli_gpu_block_update(&s->transforms_block, 0, &(struct transforms_block){
+    ngpu_block_update(&s->transforms_block, 0, &(struct transforms_block){
         .modelview_matrix = NGLI_MAT4_IDENTITY,
         .projection_matrix = NGLI_MAT4_IDENTITY,
     });
 
-    const struct pgcraft_block blocks[] = {
+    const struct ngpu_pgcraft_block blocks[] = {
         {
             .name          = "transforms",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER,
-            .stage         = NGLI_GPU_PROGRAM_SHADER_VERT,
-            .block         = &s->transforms_block.block,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER,
+            .stage         = NGPU_PROGRAM_SHADER_VERT,
+            .block         = &s->transforms_block.block_desc,
             .buffer = {
                 .buffer = s->transforms_block.buffer,
                 .size   = s->transforms_block.buffer->size,
@@ -1272,34 +1272,34 @@ int ngli_hud_init(struct hud *s)
         },
     };
 
-    struct pgcraft_texture textures[] = {
+    struct ngpu_pgcraft_texture textures[] = {
         {
             .name     = "tex",
-            .type     = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .stage    = NGLI_GPU_PROGRAM_SHADER_FRAG,
+            .type     = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
+            .stage    = NGPU_PROGRAM_SHADER_FRAG,
             .texture  = s->texture,
         },
     };
 
-    const struct pgcraft_attribute attributes[] = {
+    const struct ngpu_pgcraft_attribute attributes[] = {
         {
             .name     = "coords",
-            .type     = NGLI_TYPE_VEC4,
-            .format   = NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT,
+            .type     = NGPU_TYPE_VEC4,
+            .format   = NGPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
             .buffer   = s->coords,
         },
     };
 
     struct rnode *rnode = ctx->rnode_pos;
-    struct gpu_graphics_state graphics_state = rnode->graphics_state;
+    struct ngpu_graphics_state graphics_state = rnode->graphics_state;
     graphics_state.blend = 1;
-    graphics_state.blend_src_factor = NGLI_GPU_BLEND_FACTOR_SRC_ALPHA;
-    graphics_state.blend_dst_factor = NGLI_GPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    graphics_state.blend_src_factor_a = NGLI_GPU_BLEND_FACTOR_ZERO;
-    graphics_state.blend_dst_factor_a = NGLI_GPU_BLEND_FACTOR_ONE;
+    graphics_state.blend_src_factor = NGPU_BLEND_FACTOR_SRC_ALPHA;
+    graphics_state.blend_dst_factor = NGPU_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    graphics_state.blend_src_factor_a = NGPU_BLEND_FACTOR_ZERO;
+    graphics_state.blend_dst_factor_a = NGPU_BLEND_FACTOR_ONE;
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/hud",
         .vert_base        = vertex_data,
         .frag_base        = fragment_data,
@@ -1313,11 +1313,11 @@ int ngli_hud_init(struct hud *s)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    s->crafter = ngli_pgcraft_create(ctx);
+    s->crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_pgcraft_craft(s->crafter, &crafter_params);
+    ret = ngpu_pgcraft_craft(s->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -1326,18 +1326,18 @@ int ngli_hud_init(struct hud *s)
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_compat_params params = {
-        .type         = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
+        .type         = NGPU_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
-            .topology = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+            .topology = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state    = graphics_state,
             .rt_layout    = rnode->rendertarget_layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->crafter),
+        .program          = ngpu_pgcraft_get_program(s->crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->pipeline_compat, &params);
@@ -1350,7 +1350,7 @@ int ngli_hud_init(struct hud *s)
 void ngli_hud_draw(struct hud *s)
 {
     struct ngl_ctx *ctx = s->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
 
     widgets_make_stats(s);
     if (s->export_filename) {
@@ -1366,9 +1366,9 @@ void ngli_hud_draw(struct hud *s)
         widgets_draw(s);
     }
 
-    const int scale = s->scale > 0 ? s->scale : 1;
-    const float ratio_w = (float)(scale * s->canvas.w) / (float)ctx->viewport.width;
-    const float ratio_h = (float)(scale * s->canvas.h) / (float)ctx->viewport.height;
+    const uint32_t scale = s->scale > 0 ? s->scale : 1;
+    const float ratio_w = (float)(scale * (uint32_t)s->canvas.w) / (float)ctx->viewport.width;
+    const float ratio_h = (float)(scale * (uint32_t)s->canvas.h) / (float)ctx->viewport.height;
     const float x =-1.0f + 2 * ratio_w;
     const float y = 1.0f - 2 * ratio_h;
     const float coords[] = {
@@ -1378,28 +1378,27 @@ void ngli_hud_draw(struct hud *s)
          x,     1.0f, 1.0f, 0.0f,
     };
 
-    int ret = ngli_gpu_buffer_upload(s->coords, coords, 0, sizeof(coords));
+    int ret = ngpu_buffer_upload(s->coords, coords, 0, sizeof(coords));
     if (ret < 0)
         return;
 
-    ret = ngli_gpu_texture_upload(s->texture, s->canvas.buf, 0);
+    ret = ngpu_texture_upload(s->texture, s->canvas.buf, 0);
     if (ret < 0)
         return;
 
-    if (!ctx->render_pass_started) {
-        ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-        ctx->render_pass_started = 1;
+    if (!ngpu_ctx_is_render_pass_active(gpu_ctx)) {
+        ngpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
     }
 
-    ngli_gpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
-    ngli_gpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
+    ngpu_ctx_set_viewport(gpu_ctx, &ctx->viewport);
+    ngpu_ctx_set_scissor(gpu_ctx, &ctx->scissor);
 
     struct transforms_block transforms_block = {0};
     const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
     memcpy(transforms_block.modelview_matrix, modelview_matrix, sizeof(transforms_block.modelview_matrix));
     memcpy(transforms_block.projection_matrix, projection_matrix, sizeof(transforms_block.projection_matrix));
-    ngli_gpu_block_update(&s->transforms_block, 0, &transforms_block);
+    ngpu_block_update(&s->transforms_block, 0, &transforms_block);
 
     ngli_pipeline_compat_draw(s->pipeline_compat, 4, 1, 0);
 }
@@ -1411,10 +1410,10 @@ void ngli_hud_freep(struct hud **sp)
         return;
 
     ngli_pipeline_compat_freep(&s->pipeline_compat);
-    ngli_pgcraft_freep(&s->crafter);
-    ngli_gpu_texture_freep(&s->texture);
-    ngli_gpu_buffer_freep(&s->coords);
-    ngli_gpu_block_reset(&s->transforms_block);
+    ngpu_pgcraft_freep(&s->crafter);
+    ngpu_texture_freep(&s->texture);
+    ngpu_buffer_freep(&s->coords);
+    ngpu_block_reset(&s->transforms_block);
 
     widgets_uninit(s);
     ngli_free(s->canvas.buf);

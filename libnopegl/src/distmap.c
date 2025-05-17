@@ -25,25 +25,25 @@
 #include <string.h>
 #include <math.h>
 
-#include "gpu_buffer.h"
-#include "darray.h"
 #include "distmap.h"
 #include "distmap_frag.h"
 #include "distmap_vert.h"
-#include "gpu_format.h"
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
+#include "ngpu/buffer.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
+#include "ngpu/rendertarget.h"
+#include "ngpu/texture.h"
+#include "ngpu/type.h"
 #include "nopegl.h"
 #include "path.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_rendertarget.h"
-#include "gpu_texture.h"
-#include "type.h"
-#include "utils.h"
+#include "ngpu/pgcraft.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 /*
  * Padding percent is arbitrary: it represents how far an effect such as glowing
@@ -56,17 +56,17 @@ struct bezier3 {
 };
 
 struct shape {
-    int32_t width, height;
+    uint32_t width, height;
 };
 
 struct distmap {
     struct ngl_ctx *ctx;
 
-    int32_t pad;
-    int32_t max_shape_w, max_shape_h;
-    int32_t max_shape_padded_w, max_shape_padded_h;
-    int32_t texture_w, texture_h;
-    int32_t nb_rows, nb_cols;
+    uint32_t pad;
+    uint32_t max_shape_w, max_shape_h;
+    uint32_t max_shape_padded_w, max_shape_padded_h;
+    uint32_t texture_w, texture_h;
+    uint32_t nb_rows, nb_cols;
     float scale;
 
     struct darray shapes;              // struct shape
@@ -75,14 +75,14 @@ struct distmap {
     struct darray bezier_counts;       // int32_t
     struct darray beziergroup_counts;  // int32_t
 
-    struct gpu_texture *texture;
-    struct gpu_rendertarget *rt;
-    struct pgcraft *crafter;
-    struct block vert_block;
-    struct block frag_block;
-    struct gpu_buffer *vert_buffer;
+    struct ngpu_texture *texture;
+    struct ngpu_rendertarget *rt;
+    struct ngpu_pgcraft *crafter;
+    struct ngpu_block_desc vert_block;
+    struct ngpu_block_desc frag_block;
+    struct ngpu_buffer *vert_buffer;
     size_t vert_offset;
-    struct gpu_buffer *frag_buffer;
+    struct ngpu_buffer *frag_buffer;
     size_t frag_offset;
     struct pipeline_compat *pipeline_compat;
 };
@@ -124,15 +124,15 @@ static struct bezier3 b3_from_bezier3(float p0, float p1, float p2, float p3)
     return ret;
 }
 
-int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
-                           const struct path *path, uint32_t flags, int32_t *shape_id)
+int ngli_distmap_add_shape(struct distmap *s, uint32_t shape_w, uint32_t shape_h,
+                           const struct path *path, uint32_t flags, uint32_t *shape_id)
 {
     if (shape_w <= 0 || shape_h <= 0) {
         LOG(ERROR, "invalid shape dimensions %dx%d", shape_w, shape_h);
         return NGL_ERROR_INVALID_ARG;
     }
 
-    int32_t nb_beziers = 0, nb_beziergroups = 0;
+    uint32_t nb_beziers = 0, nb_beziergroups = 0;
     const struct darray *segments_array = ngli_path_get_segments(path);
     const struct path_segment *segments = ngli_darray_data(segments_array);
     for (size_t i = 0; i < ngli_darray_count(segments_array); i++) {
@@ -180,9 +180,9 @@ int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
 
         /* A group of bézier curves ends when a sub-shape is closed or we reach an open end */
         if (segment->flags & (NGLI_PATH_SEGMENT_FLAG_CLOSING | NGLI_PATH_SEGMENT_FLAG_OPEN_END)) {
-            const int closed = (segment->flags & NGLI_PATH_SEGMENT_FLAG_CLOSING) || (flags & NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE);
+            const uint32_t closed = (segment->flags & NGLI_PATH_SEGMENT_FLAG_CLOSING) || (flags & NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE);
             /* Pass down the closing flag to the shader using negative integers */
-            const int32_t bezier_count = (closed ? -1 : 1) * nb_beziers;
+            const int32_t bezier_count = (closed ? -1 : 1) * (int32_t)nb_beziers;
             if (!ngli_darray_push(&s->bezier_counts, &bezier_count))
                 return NGL_ERROR_MEMORY;
             nb_beziergroups++;
@@ -200,43 +200,43 @@ int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
     s->max_shape_w = NGLI_MAX(shape_w, s->max_shape_w);
     s->max_shape_h = NGLI_MAX(shape_h, s->max_shape_h);
 
-    *shape_id = (int32_t)ngli_darray_count(&s->shapes) - 1;
+    *shape_id = (uint32_t)ngli_darray_count(&s->shapes) - 1;
     return 0;
 }
 
-static int32_t get_beziergroup_start(const struct distmap *s, int32_t shape_id)
+static uint32_t get_beziergroup_start(const struct distmap *s, uint32_t shape_id)
 {
-    const int32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
-    int32_t group_count = 0;
-    for (int32_t i = 0; i < shape_id; i++)
+    const uint32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
+    uint32_t group_count = 0;
+    for (uint32_t i = 0; i < shape_id; i++)
         group_count += group_counts[i];
     return group_count;
 }
 
-static int32_t get_beziergroup_end(const struct distmap *s, int32_t shape_id)
+static uint32_t get_beziergroup_end(const struct distmap *s, uint32_t shape_id)
 {
-    const int32_t group_start = get_beziergroup_start(s, shape_id);
-    const int32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
+    const uint32_t group_start = get_beziergroup_start(s, shape_id);
+    const uint32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
     return group_start + group_counts[shape_id];
 }
 
-static int32_t get_bezier_start(const struct distmap *s, int32_t shape_id)
+static uint32_t get_bezier_start(const struct distmap *s, uint32_t shape_id)
 {
-    const int32_t group_start = get_beziergroup_start(s, shape_id);
+    const uint32_t group_start = get_beziergroup_start(s, shape_id);
     const int32_t *counts = ngli_darray_data(&s->bezier_counts);
-    int32_t start = 0;
-    for (int32_t i = 0; i < group_start; i++)
-        start += abs(counts[i]);
+    uint32_t start = 0;
+    for (uint32_t i = 0; i < group_start; i++)
+        start += (uint32_t)abs(counts[i]);
     return start;
 }
 
-static int32_t get_bezier_end(const struct distmap *s, int32_t shape_id)
+static uint32_t get_bezier_end(const struct distmap *s, uint32_t shape_id)
 {
-    const int32_t group_end = get_beziergroup_end(s, shape_id);
+    const uint32_t group_end = get_beziergroup_end(s, shape_id);
     const int32_t *counts = ngli_darray_data(&s->bezier_counts);
-    int32_t end = 0;
-    for (int32_t i = 0; i < group_end; i++)
-        end += abs(counts[i]);
+    uint32_t end = 0;
+    for (uint32_t i = 0; i < group_end; i++)
+        end += (uint32_t)abs(counts[i]);
     return end;
 }
 
@@ -245,17 +245,17 @@ static int32_t get_bezier_end(const struct distmap *s, int32_t shape_id)
  * get how large the bezier uniform buffer must be (it will be re-used for
  * each shape).
  */
-static int32_t get_max_beziers_per_shape(const struct distmap *s)
+static uint32_t get_max_beziers_per_shape(const struct distmap *s)
 {
-    int32_t max_beziers = 0;
+    uint32_t max_beziers = 0;
     const int32_t *counts = ngli_darray_data(&s->bezier_counts);
-    const int32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
+    const uint32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
     for (size_t i = 0; i < ngli_darray_count(&s->beziergroup_counts); i++) {
-        const int32_t group_count = group_counts[i];
+        const uint32_t group_count = group_counts[i];
 
-        int32_t sum = 0;
-        for (int32_t j = 0; j < group_count; j++)
-            sum += abs(counts[j]);
+        uint32_t sum = 0;
+        for (uint32_t j = 0; j < group_count; j++)
+            sum += (uint32_t)abs(counts[j]);
         counts += group_count;
 
         max_beziers = NGLI_MAX(max_beziers, sum);
@@ -263,10 +263,10 @@ static int32_t get_max_beziers_per_shape(const struct distmap *s)
     return max_beziers;
 }
 
-static int32_t get_max_beziergroups_per_shape(const struct distmap *s)
+static uint32_t get_max_beziergroups_per_shape(const struct distmap *s)
 {
-    int32_t max_groups = 0;
-    const int32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
+    uint32_t max_groups = 0;
+    const uint32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
     for (size_t i = 0; i < ngli_darray_count(&s->beziergroup_counts); i++)
         max_groups = NGLI_MAX(max_groups, group_counts[i]);
     return max_groups;
@@ -294,21 +294,21 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
     const float qw = 1.f / (float)s->nb_cols;
     const float qh = 1.f / (float)s->nb_rows;
 
-    const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
-    int32_t shape_id = 0;
+    const uint32_t nb_shapes = (uint32_t)ngli_darray_count(&s->shapes);
+    uint32_t shape_id = 0;
 
-    for (int32_t y = 0; y < s->nb_rows; y++) {
-        for (int32_t x = 0; x < s->nb_cols; x++) {
+    for (uint32_t y = 0; y < s->nb_rows; y++) {
+        for (uint32_t x = 0; x < s->nb_cols; x++) {
             if (shape_id == nb_shapes)
                 return;
 
-            const int32_t beziergroup_start_idx = get_beziergroup_start(s, shape_id);
-            const int32_t beziergroup_end_idx   = get_beziergroup_end(s, shape_id);
-            const int32_t beziergroup_count     = beziergroup_end_idx - beziergroup_start_idx;
+            const uint32_t beziergroup_start_idx = get_beziergroup_start(s, shape_id);
+            const uint32_t beziergroup_end_idx   = get_beziergroup_end(s, shape_id);
+            const uint32_t beziergroup_count     = beziergroup_end_idx - beziergroup_start_idx;
 
-            const int32_t bezier_start_idx      = get_bezier_start(s, shape_id);
-            const int32_t bezier_end_idx        = get_bezier_end(s, shape_id);
-            const int32_t bezier_count          = bezier_end_idx - bezier_start_idx;
+            const uint32_t bezier_start_idx      = get_bezier_start(s, shape_id);
+            const uint32_t bezier_end_idx        = get_bezier_end(s, shape_id);
+            const uint32_t bezier_count          = bezier_end_idx - bezier_start_idx;
 
             const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
 
@@ -317,8 +317,8 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
              * distance must be drawn. The geometry respects the proportions of
              * the shape and is located on a grid of cells of the maximum size.
              */
-            const int32_t padded_w = 2*s->pad + shape->width + 1;
-            const int32_t padded_h = 2*s->pad + shape->height + 1;
+            const uint32_t padded_w = 2*s->pad + shape->width + 1;
+            const uint32_t padded_h = 2*s->pad + shape->height + 1;
             const float xr = (float)padded_w / (float)s->max_shape_padded_w;
             const float yr = (float)padded_h / (float)s->max_shape_padded_h;
             const float x0 = (float)x * qw;
@@ -361,9 +361,9 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
                 [BEZIERGROUP_COUNT_INDEX] = {.data = &beziergroup_count},
             };
 
-            ngli_block_fields_copy(&s->vert_block, vert_data_src, vert_data);
+            ngpu_block_desc_fields_copy(&s->vert_block, vert_data_src, vert_data);
             vert_data += s->vert_offset;
-            ngli_block_fields_copy(&s->frag_block, frag_data_src, frag_data);
+            ngpu_block_desc_fields_copy(&s->frag_block, frag_data_src, frag_data);
             frag_data += s->frag_offset;
 
             shape_id++;
@@ -376,11 +376,11 @@ static int map_and_load_buffers_data(struct distmap *s)
     uint8_t *vert_data = NULL;
     uint8_t *frag_data = NULL;
 
-    int ret = ngli_gpu_buffer_map(s->frag_buffer, 0, s->frag_buffer->size, (void **) &frag_data);
+    int ret = ngpu_buffer_map(s->frag_buffer, 0, s->frag_buffer->size, (void **) &frag_data);
     if (ret < 0)
         goto end;
 
-    ret = ngli_gpu_buffer_map(s->vert_buffer, 0, s->vert_buffer->size, (void **) &vert_data);
+    ret = ngpu_buffer_map(s->vert_buffer, 0, s->vert_buffer->size, (void **) &vert_data);
     if (ret < 0)
         goto end;
 
@@ -388,9 +388,9 @@ static int map_and_load_buffers_data(struct distmap *s)
 
 end:
     if (vert_data)
-        ngli_gpu_buffer_unmap(s->vert_buffer);
+        ngpu_buffer_unmap(s->vert_buffer);
     if (frag_data)
-        ngli_gpu_buffer_unmap(s->frag_buffer);
+        ngpu_buffer_unmap(s->frag_buffer);
     return ret;
 }
 
@@ -405,14 +405,14 @@ static int draw_glyphs(struct distmap *s)
     if (ret < 0)
         return ret;
 
-    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 0, s->vert_buffer, 0, (int)s->vert_offset);
-    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 1, s->frag_buffer, 0, (int)s->frag_offset);
+    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 0, s->vert_buffer, 0, s->vert_offset);
+    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 1, s->frag_buffer, 0, s->frag_offset);
 
-    const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
-    int32_t shape_id = 0;
+    const uint32_t nb_shapes = (uint32_t)ngli_darray_count(&s->shapes);
+    uint32_t shape_id = 0;
 
-    for (int32_t y = 0; y < s->nb_rows; y++) {
-        for (int32_t x = 0; x < s->nb_cols; x++) {
+    for (uint32_t y = 0; y < s->nb_rows; y++) {
+        for (uint32_t x = 0; x < s->nb_cols; x++) {
             if (shape_id == nb_shapes)
                 return 0;
 
@@ -436,12 +436,12 @@ static void reset_tmp_data(struct distmap *s)
     ngli_darray_reset(&s->beziergroup_counts);
 
     ngli_pipeline_compat_freep(&s->pipeline_compat);
-    ngli_block_reset(&s->vert_block);
-    ngli_gpu_buffer_freep(&s->vert_buffer);
-    ngli_block_reset(&s->frag_block);
-    ngli_gpu_buffer_freep(&s->frag_buffer);
-    ngli_pgcraft_freep(&s->crafter);
-    ngli_gpu_rendertarget_freep(&s->rt);
+    ngpu_block_desc_reset(&s->vert_block);
+    ngpu_buffer_freep(&s->vert_buffer);
+    ngpu_block_desc_reset(&s->frag_block);
+    ngpu_buffer_freep(&s->frag_buffer);
+    ngpu_pgcraft_freep(&s->crafter);
+    ngpu_rendertarget_freep(&s->rt);
 }
 
 static struct bezier3 scaled_bezier(struct bezier3 bezier, float scale)
@@ -465,21 +465,21 @@ static void normalize_coordinates(struct distmap *s)
     }
 }
 
-#define DISTMAP_FEATURES (NGLI_GPU_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |               \
-                          NGLI_GPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
-                          NGLI_GPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+#define DISTMAP_FEATURES (NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |               \
+                          NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
+                          NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
 
-static int get_preferred_distmap_format(const struct distmap *s)
+static enum ngpu_format get_preferred_distmap_format(const struct distmap *s)
 {
-    struct gpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
 
-    static const int formats[] = {
-            NGLI_GPU_FORMAT_R32_SFLOAT,
-            NGLI_GPU_FORMAT_R16_SFLOAT,
-            NGLI_GPU_FORMAT_R8_UNORM,
+    static const enum ngpu_format formats[] = {
+            NGPU_FORMAT_R32_SFLOAT,
+            NGPU_FORMAT_R16_SFLOAT,
+            NGPU_FORMAT_R8_UNORM,
     };
     for (size_t i = 0; i < NGLI_ARRAY_NB(formats); i++) {
-        const uint32_t features = ngli_gpu_ctx_get_format_features(gpu_ctx, formats[i]);
+        const uint32_t features = ngpu_ctx_get_format_features(gpu_ctx, formats[i]);
         if (NGLI_HAS_ALL_FLAGS(features, DISTMAP_FEATURES))
             return formats[i];
     }
@@ -493,7 +493,7 @@ int ngli_distmap_finalize(struct distmap *s)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
+    const uint32_t nb_shapes = (uint32_t)ngli_darray_count(&s->shapes);
     if (!nb_shapes)
         return 0;
 
@@ -513,8 +513,8 @@ int ngli_distmap_finalize(struct distmap *s)
      * TODO shapes are assumed to be square when balancing the number of rows
      * and cols, we're not taking into account max_shape_padded_[wh] as we should
      */
-    s->nb_rows = (int32_t)lrintf(sqrtf((float)nb_shapes));
-    s->nb_cols = (int32_t)ceilf((float)nb_shapes / (float)s->nb_rows);
+    s->nb_rows = (uint32_t)lrintf(sqrtf((float)nb_shapes));
+    s->nb_cols = (uint32_t)ceilf((float)nb_shapes / (float)s->nb_rows);
     ngli_assert(s->nb_rows * s->nb_cols >= nb_shapes);
 
     /*
@@ -545,103 +545,103 @@ int ngli_distmap_finalize(struct distmap *s)
      * Build pipeline and execute the computation of the complete signed
      * distance map.
      */
-    struct gpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
 
-    const struct gpu_texture_params tex_params = {
-        .type       = NGLI_GPU_TEXTURE_TYPE_2D,
+    const struct ngpu_texture_params tex_params = {
+        .type       = NGPU_TEXTURE_TYPE_2D,
         .width      = s->texture_w,
         .height     = s->texture_h,
         .format     = get_preferred_distmap_format(s),
-        .min_filter = NGLI_GPU_FILTER_LINEAR,
-        .mag_filter = NGLI_GPU_FILTER_LINEAR,
-        .usage      = NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+        .min_filter = NGPU_FILTER_LINEAR,
+        .mag_filter = NGPU_FILTER_LINEAR,
+        .usage      = NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT
+                      | NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT
+                      | NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT
+                      | NGPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
 
-    s->texture = ngli_gpu_texture_create(gpu_ctx);
+    s->texture = ngpu_texture_create(gpu_ctx);
     if (!s->texture)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_gpu_texture_init(s->texture, &tex_params);
+    int ret = ngpu_texture_init(s->texture, &tex_params);
     if (ret < 0)
         return ret;
 
-    const struct gpu_rendertarget_params rt_params = {
+    const struct ngpu_rendertarget_params rt_params = {
         .width = s->texture_w,
         .height = s->texture_h,
         .nb_colors = 1,
         .colors[0] = {
             .attachment = s->texture,
-            .load_op    = NGLI_GPU_LOAD_OP_CLEAR,
-            .store_op   = NGLI_GPU_STORE_OP_STORE,
+            .load_op    = NGPU_LOAD_OP_CLEAR,
+            .store_op   = NGPU_STORE_OP_STORE,
         },
     };
-    s->rt = ngli_gpu_rendertarget_create(gpu_ctx);
+    s->rt = ngpu_rendertarget_create(gpu_ctx);
     if (!s->rt)
         return NGL_ERROR_MEMORY;
-    ret = ngli_gpu_rendertarget_init(s->rt, &rt_params);
+    ret = ngpu_rendertarget_init(s->rt, &rt_params);
     if (ret < 0)
         return ret;
 
-    const int32_t bezier_max_count = get_max_beziers_per_shape(s);
-    const int32_t beziergroup_max_count = get_max_beziergroups_per_shape(s);
+    const uint32_t bezier_max_count = get_max_beziers_per_shape(s);
+    const uint32_t beziergroup_max_count = get_max_beziergroups_per_shape(s);
 
-    const struct block_field vert_fields[] = {
-        [VERTICES_INDEX] = {.name="vertices", .type=NGLI_TYPE_VEC4},
+    const struct ngpu_block_field vert_fields[] = {
+        [VERTICES_INDEX] = {.name="vertices", .type=NGPU_TYPE_VEC4},
     };
 
-    const struct block_field frag_fields[] = {
-        [COORDS_INDEX]            = {.name="coords",            .type=NGLI_TYPE_VEC4},
-        [SCALE_INDEX]             = {.name="scale",             .type=NGLI_TYPE_VEC2},
-        [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGLI_TYPE_VEC4, .count=bezier_max_count},
-        [BEZIER_Y_BUF_INDEX]      = {.name="bezier_y_buf",      .type=NGLI_TYPE_VEC4, .count=bezier_max_count},
-        [BEZIER_COUNTS_INDEX]     = {.name="bezier_counts",     .type=NGLI_TYPE_I32,  .count=beziergroup_max_count},
-        [BEZIERGROUP_COUNT_INDEX] = {.name="beziergroup_count", .type=NGLI_TYPE_I32},
+    const struct ngpu_block_field frag_fields[] = {
+        [COORDS_INDEX]            = {.name="coords",            .type=NGPU_TYPE_VEC4},
+        [SCALE_INDEX]             = {.name="scale",             .type=NGPU_TYPE_VEC2},
+        [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGPU_TYPE_VEC4, .count=bezier_max_count},
+        [BEZIER_Y_BUF_INDEX]      = {.name="bezier_y_buf",      .type=NGPU_TYPE_VEC4, .count=bezier_max_count},
+        [BEZIER_COUNTS_INDEX]     = {.name="bezier_counts",     .type=NGPU_TYPE_I32,  .count=beziergroup_max_count},
+        [BEZIERGROUP_COUNT_INDEX] = {.name="beziergroup_count", .type=NGPU_TYPE_I32},
     };
 
-    ngli_block_init(gpu_ctx, &s->vert_block, NGLI_BLOCK_LAYOUT_STD140);
-    ngli_block_init(gpu_ctx, &s->frag_block, NGLI_BLOCK_LAYOUT_STD140);
+    ngpu_block_desc_init(gpu_ctx, &s->vert_block, NGPU_BLOCK_LAYOUT_STD140);
+    ngpu_block_desc_init(gpu_ctx, &s->frag_block, NGPU_BLOCK_LAYOUT_STD140);
 
-    if ((ret = ngli_block_add_fields(&s->vert_block, vert_fields, NGLI_ARRAY_NB(vert_fields))) < 0 ||
-        (ret = ngli_block_add_fields(&s->frag_block, frag_fields, NGLI_ARRAY_NB(frag_fields))))
+    if ((ret = ngpu_block_desc_add_fields(&s->vert_block, vert_fields, NGLI_ARRAY_NB(vert_fields))) < 0 ||
+        (ret = ngpu_block_desc_add_fields(&s->frag_block, frag_fields, NGLI_ARRAY_NB(frag_fields))))
         return ret;
 
-    s->vert_buffer = ngli_gpu_buffer_create(gpu_ctx);
-    s->frag_buffer = ngli_gpu_buffer_create(gpu_ctx);
+    s->vert_buffer = ngpu_buffer_create(gpu_ctx);
+    s->frag_buffer = ngpu_buffer_create(gpu_ctx);
     if (!s->vert_buffer || !s->frag_buffer)
         return NGL_ERROR_MEMORY;
 
-    s->vert_offset = ngli_block_get_aligned_size(&s->vert_block, 0);
-    s->frag_offset = ngli_block_get_aligned_size(&s->frag_block, 0);
+    s->vert_offset = ngpu_block_desc_get_aligned_size(&s->vert_block, 0);
+    s->frag_offset = ngpu_block_desc_get_aligned_size(&s->frag_block, 0);
 
-    static const uint32_t usage = NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
-    if ((ret = ngli_gpu_buffer_init(s->vert_buffer, nb_shapes * s->vert_offset, usage)) < 0 ||
-        (ret = ngli_gpu_buffer_init(s->frag_buffer, nb_shapes * s->frag_offset, usage)) < 0)
+    static const uint32_t usage = NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGPU_BUFFER_USAGE_MAP_WRITE;
+    if ((ret = ngpu_buffer_init(s->vert_buffer, nb_shapes * s->vert_offset, usage)) < 0 ||
+        (ret = ngpu_buffer_init(s->frag_buffer, nb_shapes * s->frag_offset, usage)) < 0)
         return ret;
 
-    const struct pgcraft_block crafter_blocks[] = {
+    const struct ngpu_pgcraft_block crafter_blocks[] = {
         {
             .name          = "vert",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
-            .stage         = NGLI_GPU_PROGRAM_SHADER_VERT,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .stage         = NGPU_PROGRAM_SHADER_VERT,
             .block         = &s->vert_block,
         }, {
             .name          = "frag",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
-            .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .stage         = NGPU_PROGRAM_SHADER_FRAG,
             .block         = &s->frag_block,
         },
     };
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .vert_base        = distmap_vert,
         .frag_base        = distmap_frag,
         .blocks           = crafter_blocks,
@@ -650,11 +650,11 @@ int ngli_distmap_finalize(struct distmap *s)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    s->crafter = ngli_pgcraft_create(s->ctx);
+    s->crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_pgcraft_craft(s->crafter, &crafter_params);
+    ret = ngpu_pgcraft_craft(s->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -663,31 +663,31 @@ int ngli_distmap_finalize(struct distmap *s)
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_compat_params params = {
-        .type = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
+        .type = NGPU_PIPELINE_TYPE_GRAPHICS,
         .graphics = {
-            .topology     = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .state        = NGLI_GPU_GRAPHICS_STATE_DEFAULTS,
+            .topology     = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .state        = NGPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = s->rt->layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->crafter),
+        .program          = ngpu_pgcraft_get_program(s->crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->pipeline_compat, &params);
     if (ret < 0)
         return ret;
 
-    ngli_gpu_ctx_begin_render_pass(gpu_ctx, s->rt);
+    ngpu_ctx_begin_render_pass(gpu_ctx, s->rt);
 
     ret = draw_glyphs(s);
     if (ret < 0)
         return ret;
 
-    ngli_gpu_ctx_end_render_pass(gpu_ctx);
+    ngpu_ctx_end_render_pass(gpu_ctx);
 
     /*
      * Now that the distmap is rendered, the pipeline and other related
@@ -698,29 +698,29 @@ int ngli_distmap_finalize(struct distmap *s)
     return 0;
 }
 
-struct gpu_texture *ngli_distmap_get_texture(const struct distmap *s)
+struct ngpu_texture *ngli_distmap_get_texture(const struct distmap *s)
 {
     return s->texture;
 }
 
-void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, int32_t *dst)
+void ngli_distmap_get_shape_coords(const struct distmap *s, uint32_t shape_id, int32_t *dst)
 {
     const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
-    const int32_t col = shape_id % s->nb_cols;
-    const int32_t row = shape_id / s->nb_cols;
-    const int32_t x0 = col * s->max_shape_padded_w;
-    const int32_t y0 = row * s->max_shape_padded_h;
-    const int32_t x1 = x0 + 2*s->pad + shape->width + 1;
-    const int32_t y1 = y0 + 2*s->pad + shape->height + 1;
-    const int32_t coords[] = {x0, y0, x1, y1};
+    const uint32_t col = shape_id % s->nb_cols;
+    const uint32_t row = shape_id / s->nb_cols;
+    const uint32_t x0 = col * s->max_shape_padded_w;
+    const uint32_t y0 = row * s->max_shape_padded_h;
+    const uint32_t x1 = x0 + 2*s->pad + shape->width + 1;
+    const uint32_t y1 = y0 + 2*s->pad + shape->height + 1;
+    const uint32_t coords[] = {x0, y0, x1, y1};
     memcpy(dst, coords, sizeof(coords));
 }
 
-void ngli_distmap_get_shape_scale(const struct distmap *s, int32_t shape_id, float *dst)
+void ngli_distmap_get_shape_scale(const struct distmap *s, uint32_t shape_id, float *dst)
 {
     const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
-    const int32_t dst_w = 2*s->pad + shape->width + 1;
-    const int32_t dst_h = 2*s->pad + shape->height + 1;
+    const uint32_t dst_w = 2*s->pad + shape->width + 1;
+    const uint32_t dst_h = 2*s->pad + shape->height + 1;
     const float scale_x = (float)dst_w / (float)shape->width;
     const float scale_y = (float)dst_h / (float)shape->height;
     const float scale[] = {scale_x, scale_y};
@@ -735,6 +735,6 @@ void ngli_distmap_freep(struct distmap **dp)
     reset_tmp_data(s);
 
     ngli_darray_reset(&s->shapes);
-    ngli_gpu_texture_freep(&s->texture);
+    ngpu_texture_freep(&s->texture);
     ngli_freep(dp);
 }
