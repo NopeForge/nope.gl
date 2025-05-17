@@ -92,11 +92,20 @@ struct ngpu_texture {
     struct ngpu_texture_params params;
 };
 
+struct ngpu_texture_transfer_params {
+    int32_t pixels_per_row;
+    int32_t x, y, z;
+    int32_t width, height, depth;
+    int32_t base_layer;
+    int32_t layer_count;
+};
+
 NGLI_RC_CHECK_STRUCT(ngpu_texture);
 
 struct ngpu_texture *ngpu_texture_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_texture_init(struct ngpu_texture *s, const struct ngpu_texture_params *params);
 int ngpu_texture_upload(struct ngpu_texture *s, const uint8_t *data, int linesize);
+int ngpu_texture_upload_with_params(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params);
 int ngpu_texture_generate_mipmap(struct ngpu_texture *s);
 void ngpu_texture_freep(struct ngpu_texture **sp);
 
