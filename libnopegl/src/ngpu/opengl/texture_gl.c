@@ -92,7 +92,7 @@ static void texture_allocate(struct ngpu_texture *s)
         gl->funcs.TexImage2D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
         break;
     case GL_TEXTURE_2D_ARRAY:
-        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, NULL);
+        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, s_priv->array_layers, 0, s_priv->format, s_priv->format_type, NULL);
         break;
     case GL_TEXTURE_3D:
         gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, NULL);
@@ -129,7 +129,7 @@ static void texture_allocate_storage(struct ngpu_texture *s)
         gl->funcs.TexStorage2D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height);
         break;
     case GL_TEXTURE_2D_ARRAY:
-        gl->funcs.TexStorage3D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height, params->depth);
+        gl->funcs.TexStorage3D(s_priv->target, mipmap_levels, s_priv->internal_format, params->width, params->height, s_priv->array_layers);
         break;
     case GL_TEXTURE_3D:
         gl->funcs.TexStorage3D(s_priv->target, 1, s_priv->internal_format, params->width, params->height, params->depth);
@@ -164,7 +164,7 @@ static void texture_upload(struct ngpu_texture *s, const uint8_t *data, int line
         break;
     case GL_TEXTURE_2D_ARRAY:
         gl->funcs.TexSubImage3D(s_priv->target, 0, 0, 0, 0,
-                                params->width, params->height, params->depth,
+                                params->width, params->height, s_priv->array_layers,
                                 s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_3D:
@@ -227,12 +227,31 @@ static void renderbuffer_allocate_storage(struct ngpu_texture *s)
 #define TRANSIENT_COLOR_USAGE (COLOR_USAGE | NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT)
 #define TRANSIENT_DEPTH_USAGE (DEPTH_USAGE | NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT)
 
-static int texture_init_fields(struct ngpu_texture *s)
+static int texture_init_fields(struct ngpu_texture *s, const struct ngpu_texture_params *params)
 {
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const struct ngpu_texture_params *params = &s->params;
+
+    s->params = *params;
+
+    if (!s_priv->wrapped)
+        ngli_assert(params->width && params->height);
+
+    int32_t depth = 1;
+    if (params->type == NGPU_TEXTURE_TYPE_3D) {
+        if (!s_priv->wrapped)
+            ngli_assert(params->depth);
+        depth = params->depth;
+    }
+    s->params.depth = depth;
+
+    s_priv->array_layers = 1;
+    if (params->type == NGPU_TEXTURE_TYPE_CUBE) {
+        s_priv->array_layers = 6;
+    } else if (params->type == NGPU_TEXTURE_TYPE_2D_ARRAY) {
+        s_priv->array_layers = params->depth;
+    }
 
     if (!s_priv->wrapped &&
         (params->usage == COLOR_USAGE ||
@@ -290,14 +309,7 @@ int ngpu_texture_gl_init(struct ngpu_texture *s, const struct ngpu_texture_param
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    ngli_assert(params->width && params->height);
-    if (params->type == NGPU_TEXTURE_TYPE_2D_ARRAY ||
-        params->type == NGPU_TEXTURE_TYPE_3D)
-        ngli_assert(params->depth);
-
-    s->params = *params;
-
-    int ret = texture_init_fields(s);
+    int ret = texture_init_fields(s, params);
     if (ret < 0)
         return ret;
 
@@ -334,12 +346,10 @@ int ngpu_texture_gl_init(struct ngpu_texture *s, const struct ngpu_texture_param
 
 int ngpu_texture_gl_wrap(struct ngpu_texture *s, const struct ngpu_texture_gl_wrap_params *wrap_params)
 {
-    s->params = *wrap_params->params;
-
     struct ngpu_texture_gl *s_priv = (struct ngpu_texture_gl *)s;
     s_priv->wrapped = 1;
 
-    int ret = texture_init_fields(s);
+    int ret = texture_init_fields(s, wrap_params->params);
     if (ret < 0)
         return ret;
 
