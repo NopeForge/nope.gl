@@ -27,16 +27,16 @@
 
 #include "blending.h"
 #include "geometry.h"
-#include "gpu_ctx.h"
-#include "gpu_limits.h"
-#include "hmap.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
+#include "ngpu/limits.h"
 #include "node_buffer.h"
 #include "node_program.h"
 #include "nopegl.h"
 #include "pass.h"
-#include "utils.h"
+#include "utils/hmap.h"
+#include "utils/utils.h"
 
 struct draw_opts {
     struct ngl_node *geometry;
@@ -175,8 +175,8 @@ static int check_params(const struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     const struct draw_opts *o = node->opts;
 
-    const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct gpu_limits *limits = &gpu_ctx->limits;
+    const struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct ngpu_limits *limits = &gpu_ctx->limits;
 
     if (o->nb_instances < 1) {
         LOG(ERROR, "nb_instances must be > 0");
@@ -258,7 +258,7 @@ static int render_init(struct ngl_node *node)
         .properties = program_opts->properties,
         .attributes = o->attributes,
         .instance_attributes = o->instance_attributes,
-        .nb_instances = o->nb_instances,
+        .nb_instances = (uint32_t)o->nb_instances,
         .vert_out_vars = ngli_darray_data(&program_priv->vert_out_vars_array),
         .nb_vert_out_vars = ngli_darray_count(&program_priv->vert_out_vars_array),
         .nb_frag_output = program_opts->nb_frag_output,

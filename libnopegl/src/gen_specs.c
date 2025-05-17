@@ -21,12 +21,13 @@
 
 #include <string.h>
 
-#include "hmap.h"
-#include "memory.h"
-#include "nopegl.h"
 #include "internal.h"
 #include "nodes_register.h"
+#include "nopegl.h"
 #include "params.h"
+#include "utils/hmap.h"
+#include "utils/string.h"
+#include "utils/memory.h"
 
 #define CLASS_LIST(type_name, cls) extern const struct node_class cls;
 NODE_MAP_TYPE2CLASS(CLASS_LIST)

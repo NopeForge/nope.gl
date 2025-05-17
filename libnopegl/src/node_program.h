@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 
-#include "darray.h"
+#include "utils/darray.h"
 
 struct program_opts {
     const char *vertex;

@@ -23,10 +23,10 @@
 #include <nopemd.h>
 
 #include "colorconv.h"
-#include "gpu_format.h"
 #include "image.h"
 #include "math_utils.h"
-#include "utils.h"
+#include "ngpu/format.h"
+#include "utils/utils.h"
 
 struct color_info ngli_color_info_from_nopemd_frame(const struct nmd_frame *frame)
 {
@@ -42,14 +42,12 @@ static const size_t nb_planes_map[] = {
     [NGLI_IMAGE_LAYOUT_DEFAULT]        = 1,
     [NGLI_IMAGE_LAYOUT_MEDIACODEC]     = 1,
     [NGLI_IMAGE_LAYOUT_NV12]           = 2,
-    [NGLI_IMAGE_LAYOUT_NV12_RECTANGLE] = 2,
     [NGLI_IMAGE_LAYOUT_YUV]            = 3,
-    [NGLI_IMAGE_LAYOUT_RECTANGLE]      = 1,
 };
 
 NGLI_STATIC_ASSERT(nb_planes_map, NGLI_ARRAY_NB(nb_planes_map) == NGLI_NB_IMAGE_LAYOUTS);
 
-void ngli_image_init(struct image *s, const struct image_params *params, struct gpu_texture **planes)
+void ngli_image_init(struct image *s, const struct image_params *params, struct ngpu_texture **planes)
 {
     ngli_image_reset(s);
     ngli_assert(params->layout > NGLI_IMAGE_LAYOUT_NONE && params->layout < NGLI_NB_IMAGE_LAYOUTS);
@@ -58,7 +56,6 @@ void ngli_image_init(struct image *s, const struct image_params *params, struct 
     for (size_t i = 0; i < s->nb_planes; i++)
         s->planes[i] = planes[i];
     if (params->layout == NGLI_IMAGE_LAYOUT_NV12 ||
-        params->layout == NGLI_IMAGE_LAYOUT_NV12_RECTANGLE ||
         params->layout == NGLI_IMAGE_LAYOUT_YUV) {
         ngli_colorconv_get_ycbcr_to_rgb_color_matrix(s->color_matrix, &params->color_info, params->color_scale);
     }
@@ -75,12 +72,12 @@ uint64_t ngli_image_get_memory_size(const struct image *s)
 {
     uint64_t size = 0;
     for (size_t i = 0; i < s->nb_planes; i++) {
-        const struct gpu_texture *plane = s->planes[i];
-        const struct gpu_texture_params *params = &plane->params;
+        const struct ngpu_texture *plane = s->planes[i];
+        const struct ngpu_texture_params *params = &plane->params;
         size += params->width
                 * params->height
                 * NGLI_MAX(params->depth, 1)
-                * ngli_gpu_format_get_bytes_per_pixel(params->format);
+                * ngpu_format_get_bytes_per_pixel(params->format);
     }
     return size;
 }

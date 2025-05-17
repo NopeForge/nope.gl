@@ -24,15 +24,15 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gpu_ctx.h"
-#include "gpu_limits.h"
-#include "hmap.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/ctx.h"
+#include "ngpu/limits.h"
 #include "node_program.h"
 #include "nopegl.h"
 #include "pass.h"
-#include "utils.h"
+#include "utils/hmap.h"
+#include "utils/utils.h"
 
 struct compute_opts {
     uint32_t workgroup_count[3];
@@ -124,8 +124,8 @@ static int check_params(const struct ngl_node *node)
         LOG(ERROR, "number of group must be > 0 for x, y and z");
         return NGL_ERROR_INVALID_ARG;
     }
-    const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct gpu_limits *limits = &gpu_ctx->limits;
+    const struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct ngpu_limits *limits = &gpu_ctx->limits;
 
     if (o->workgroup_count[0] > limits->max_compute_work_group_count[0] ||
         o->workgroup_count[1] > limits->max_compute_work_group_count[1] ||

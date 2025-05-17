@@ -28,7 +28,7 @@
 #endif
 
 #include "log.h"
-#include "memory.h"
+#include "utils/memory.h"
 
 ngli_printf_format(6, 0)
 static void default_callback(void *arg, int level, const char *filename, int ln,

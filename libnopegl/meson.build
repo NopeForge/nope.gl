@@ -165,10 +165,7 @@ lib_src = files(
   'src/api.c',
   'src/atlas.c',
   'src/blending.c',
-  'src/block.c',
-  'src/bstr.c',
   'src/colorconv.c',
-  'src/darray.c',
   'src/deserialize.c',
   'src/distmap.c',
   'src/dot.c',
@@ -176,23 +173,26 @@ lib_src = files(
   'src/eval.c',
   'src/filterschain.c',
   'src/geometry.c',
-  'src/gpu_bindgroup.c',
-  'src/gpu_block.c',
-  'src/gpu_buffer.c',
-  'src/gpu_ctx.c',
-  'src/gpu_format.c',
-  'src/gpu_pipeline.c',
-  'src/gpu_program.c',
-  'src/gpu_rendertarget.c',
-  'src/gpu_texture.c',
-  'src/hmap.c',
   'src/hud.c',
   'src/hwconv.c',
   'src/hwmap.c',
   'src/hwmap_common.c',
   'src/image.c',
   'src/log.c',
-  'src/memory.c',
+  'src/ngpu/bindgroup.c',
+  'src/ngpu/block.c',
+  'src/ngpu/block_desc.c',
+  'src/ngpu/buffer.c',
+  'src/ngpu/ctx.c',
+  'src/ngpu/format.c',
+  'src/ngpu/pipeline.c',
+  'src/ngpu/program.c',
+  'src/ngpu/pgcache.c',
+  'src/ngpu/pgcraft.c',
+  'src/ngpu/rendertarget.c',
+  'src/ngpu/texture.c',
+  'src/ngpu/type.c',
+  'src/ngl_config.c',
   'src/node_animatedbuffer.c',
   'src/node_animated.c',
   'src/node_animkeyframe.c',
@@ -252,8 +252,6 @@ lib_src = files(
   'src/params.c',
   'src/pass.c',
   'src/path.c',
-  'src/pgcache.c',
-  'src/pgcraft.c',
   'src/pipeline_compat.c',
   'src/precision.c',
   'src/rtt.c',
@@ -264,8 +262,16 @@ lib_src = files(
   'src/text_builtin.c',
   'src/text_external.c',
   'src/transforms.c',
-  'src/type.c',
-  'src/utils.c',
+  'src/utils/bstr.c',
+  'src/utils/crc32.c',
+  'src/utils/darray.c',
+  'src/utils/file.c',
+  'src/utils/hmap.c',
+  'src/utils/memory.c',
+  'src/utils/refcount.c',
+  'src/utils/string.c',
+  'src/utils/thread.c',
+  'src/utils/time.c',
 )
 
 math_utils_src = files('src/math_utils.c')
@@ -387,7 +393,7 @@ if 'gpu_capture' in debug_opts
     renderdoc_include_dir = renderdoc_dir / 'include'
   endif
   if cc.has_header(renderdoc_include_dir / 'renderdoc_app.h', required: true)
-    lib_src += files('src/gpu_capture_renderdoc.c')
+    lib_src += files('src/ngpu/capture_renderdoc.c')
     lib_deps += declare_dependency(include_directories: renderdoc_include_dir)
     lib_deps += cc.find_library('dl', required: host_system == 'linux')
   endif
@@ -402,33 +408,29 @@ gbackends_cfg = {
   'gl': {
     'src': files(
       'src/backends/gl/api_gl.c',
-      'src/backends/gl/glcontext.c',
-      'src/backends/gl/glstate.c',
-      'src/backends/gl/gpu_bindgroup_gl.c',
-      'src/backends/gl/gpu_buffer_gl.c',
-      'src/backends/gl/gpu_ctx_gl.c',
-      'src/backends/gl/gpu_format_gl.c',
-      'src/backends/gl/gpu_pipeline_gl.c',
-      'src/backends/gl/gpu_program_gl.c',
-      'src/backends/gl/gpu_program_gl_utils.c',
-      'src/backends/gl/gpu_rendertarget_gl.c',
-      'src/backends/gl/gpu_texture_gl.c',
       'src/backends/gl/hwmap_gl.c',
+      'src/ngpu/opengl/cmd_buffer_gl.c',
+      'src/ngpu/opengl/fence_gl.c',
+      'src/ngpu/opengl/glcontext.c',
+      'src/ngpu/opengl/glstate.c',
+      'src/ngpu/opengl/bindgroup_gl.c',
+      'src/ngpu/opengl/buffer_gl.c',
+      'src/ngpu/opengl/ctx_gl.c',
+      'src/ngpu/opengl/format_gl.c',
+      'src/ngpu/opengl/pipeline_gl.c',
+      'src/ngpu/opengl/program_gl.c',
+      'src/ngpu/opengl/rendertarget_gl.c',
+      'src/ngpu/opengl/texture_gl.c',
     ),
     'cfg': 'BACKEND_GL',
     'hosts_cfg': {
       'linux': {
-        'src': files('src/backends/gl/glcontext_egl.c'),
+        'src': files('src/ngpu/opengl/glcontext_egl.c'),
         'cfg': 'HAVE_GLPLATFORM_EGL',
         'deps': ['gl', 'egl'],
       },
-      'darwin': {
-        'src': files('src/backends/gl/glcontext_nsgl.m', 'src/backends/gl/hwmap_videotoolbox_darwin_gl.c'),
-        'cfg': 'HAVE_GLPLATFORM_NSGL',
-        'frameworks': ['OpenGL'],
-      },
       'windows': {
-        'src': files('src/backends/gl/glcontext_wgl.c'),
+        'src': files('src/ngpu/opengl/glcontext_wgl.c'),
         'cfg': 'HAVE_GLPLATFORM_WGL',
         'libs': ['OpenGL32', 'gdi32'],
       },
@@ -437,39 +439,34 @@ gbackends_cfg = {
   'gles': {
     'src': files(
       'src/backends/gl/api_gl.c',
-
-      'src/backends/gl/gpu_format_gl.c',
-      'src/backends/gl/glcontext.c',
-      'src/backends/gl/glstate.c',
-      'src/backends/gl/gpu_bindgroup_gl.c',
-      'src/backends/gl/gpu_buffer_gl.c',
-      'src/backends/gl/gpu_ctx_gl.c',
-      'src/backends/gl/gpu_pipeline_gl.c',
-      'src/backends/gl/gpu_program_gl.c',
-      'src/backends/gl/gpu_program_gl_utils.c',
-      'src/backends/gl/gpu_rendertarget_gl.c',
-      'src/backends/gl/gpu_texture_gl.c',
       'src/backends/gl/hwmap_gl.c',
+      'src/ngpu/opengl/cmd_buffer_gl.c',
+      'src/ngpu/opengl/fence_gl.c',
+      'src/ngpu/opengl/format_gl.c',
+      'src/ngpu/opengl/glcontext.c',
+      'src/ngpu/opengl/glstate.c',
+      'src/ngpu/opengl/bindgroup_gl.c',
+      'src/ngpu/opengl/buffer_gl.c',
+      'src/ngpu/opengl/ctx_gl.c',
+      'src/ngpu/opengl/pipeline_gl.c',
+      'src/ngpu/opengl/program_gl.c',
+      'src/ngpu/opengl/rendertarget_gl.c',
+      'src/ngpu/opengl/texture_gl.c',
     ),
     'cfg': 'BACKEND_GLES',
     'hosts_cfg': {
       'linux': {
-        'src': files('src/backends/gl/glcontext_egl.c'),
+        'src': files('src/ngpu/opengl/glcontext_egl.c'),
         'cfg': 'HAVE_GLPLATFORM_EGL',
         'deps': ['gl', 'egl'],
       },
       'android': {
-        'src': files('src/backends/gl/glcontext_egl.c', 'src/backends/gl/hwmap_mediacodec_gl.c'),
+        'src': files('src/ngpu/opengl/glcontext_egl.c', 'src/backends/gl/hwmap_mediacodec_gl.c'),
         'cfg': 'HAVE_GLPLATFORM_EGL',
         'libs': ['EGL'],
       },
-      'iphone': {
-        'src': files('src/backends/gl/glcontext_eagl.m', 'src/backends/gl/hwmap_videotoolbox_ios_gl.c'),
-        'cfg': 'HAVE_GLPLATFORM_EAGL',
-        'frameworks': ['OpenGLES'],
-      },
       'windows': {
-        'src': files('src/backends/gl/glcontext_wgl.c'),
+        'src': files('src/ngpu/opengl/glcontext_wgl.c'),
         'cfg': 'HAVE_GLPLATFORM_WGL',
         'libs': ['OpenGL32', 'gdi32'],
       },
@@ -478,21 +475,20 @@ gbackends_cfg = {
   'vk': {
     'src': files(
       'src/backends/vk/api_vk.c',
-
-      'src/backends/vk/cmd_buffer_vk.c',
-      'src/backends/vk/glslang_utils.c',
-      'src/backends/vk/gpu_bindgroup_vk.c',
-      'src/backends/vk/gpu_buffer_vk.c',
-      'src/backends/vk/gpu_ctx_vk.c',
-      'src/backends/vk/gpu_format_vk.c',
-      'src/backends/vk/gpu_pipeline_vk.c',
-      'src/backends/vk/gpu_program_vk.c',
-      'src/backends/vk/gpu_rendertarget_vk.c',
-      'src/backends/vk/gpu_texture_vk.c',
       'src/backends/vk/hwmap_vk.c',
-      'src/backends/vk/vkcontext.c',
-      'src/backends/vk/vkutils.c',
-      'src/backends/vk/ycbcr_sampler_vk.c',
+      'src/ngpu/vulkan/cmd_buffer_vk.c',
+      'src/ngpu/vulkan/glslang_utils.c',
+      'src/ngpu/vulkan/bindgroup_vk.c',
+      'src/ngpu/vulkan/buffer_vk.c',
+      'src/ngpu/vulkan/ctx_vk.c',
+      'src/ngpu/vulkan/format_vk.c',
+      'src/ngpu/vulkan/pipeline_vk.c',
+      'src/ngpu/vulkan/program_vk.c',
+      'src/ngpu/vulkan/rendertarget_vk.c',
+      'src/ngpu/vulkan/texture_vk.c',
+      'src/ngpu/vulkan/vkcontext.c',
+      'src/ngpu/vulkan/vkutils.c',
+      'src/ngpu/vulkan/ycbcr_sampler_vk.c',
     ),
     'cfg': 'BACKEND_VK',
     'hosts_cfg': {
@@ -500,7 +496,10 @@ gbackends_cfg = {
         'deps': ['vulkan', 'glslang'],
       },
       'darwin': {
-        'src': files('src/backends/vk/hwmap_videotoolbox_darwin_vk.m'),
+        'src': files(
+          'src/backends/vk/hwmap_videotoolbox_darwin_vk.m',
+          'src/ngpu/vulkan/wsi_apple.m',
+        ),
         'deps': ['glslang'],
         'libs': ['MoltenVK'],
         'frameworks': ['Metal', 'QuartzCore', 'CoreGraphics', 'IOKit'],
@@ -510,7 +509,10 @@ gbackends_cfg = {
         'deps': ['vulkan', 'glslang'],
       },
       'iphone': {
-        'src': files('src/backends/vk/hwmap_videotoolbox_darwin_vk.m'),
+        'src': files(
+          'src/backends/vk/hwmap_videotoolbox_darwin_vk.m',
+          'src/ngpu/vulkan/wsi_apple.m',
+        ),
         'deps': ['glslang'],
         'libs': ['MoltenVK'],
         'frameworks': ['Metal', 'QuartzCore', 'CoreGraphics'],
@@ -757,13 +759,6 @@ else
 endif
 
 lib_objc_args = []
-if host_system == 'darwin'
-  lib_c_args += '-DGL_SILENCE_DEPRECATION'
-  lib_objc_args += '-DGL_SILENCE_DEPRECATION'
-elif host_system == 'iphone'
-  lib_c_args += '-DGLES_SILENCE_DEPRECATION'
-  lib_objc_args += '-DGLES_SILENCE_DEPRECATION'
-endif
 
 
 # Create nopegl version data for rc
@@ -880,7 +875,7 @@ run_target(
     # See https://github.com/mesonbuild/meson/issues/7891 for more information
     gl_generated_files[0].full_path(),
     gl_generated_files[1].full_path(),
-    meson.current_source_dir() / 'src/backends/gl'
+    meson.current_source_dir() / 'src/ngpu/opengl'
   ],
   depends: gl_generated_files,
 )
@@ -890,6 +885,15 @@ run_target(
 # Tests
 #
 
+utils_src = files(
+  'src/utils/bstr.c',
+  'src/utils/crc32.c',
+  'src/utils/darray.c',
+  'src/utils/hmap.c',
+  'src/utils/memory.c',
+  'src/utils/string.c',
+)
+
 test_progs = {
   'Assembly': {
     'exe': 'test_asm',
@@ -897,36 +901,36 @@ test_progs = {
   },
   'Color convertion': {
     'exe': 'test_colorconv',
-    'src': files('src/test_colorconv.c', 'src/colorconv.c', 'src/log.c', 'src/memory.c'),
+    'src': files('src/test_colorconv.c', 'src/colorconv.c', 'src/log.c') + utils_src,
   },
   'Dynamic array': {
     'exe': 'test_darray',
-    'src': files('src/test_darray.c', 'src/darray.c', 'src/memory.c'),
+    'src': files('src/test_darray.c') + utils_src,
   },
   'Draw utils': {
     'exe': 'test_draw',
-    'src': files('src/test_draw.c', 'src/drawutils.c', 'src/bstr.c', 'src/log.c', 'src/utils.c', 'src/memory.c'),
+    'src': files('src/test_draw.c', 'src/drawutils.c', 'src/log.c', ) + utils_src,
     'args': ['ngl-test.ppm']
   },
   'Eval': {
     'exe': 'test_eval',
-    'src': files('src/test_eval.c', 'src/eval.c', 'src/darray.c', 'src/memory.c', 'src/hmap.c', 'src/bstr.c', 'src/log.c', 'src/utils.c'),
+    'src': files('src/test_eval.c', 'src/eval.c', 'src/log.c') + utils_src,
   },
   'Hash map': {
     'exe': 'test_hmap',
-    'src': files('src/test_hmap.c', 'src/bstr.c', 'src/log.c', 'src/utils.c', 'src/memory.c'),
+    'src': files('src/test_hmap.c', 'src/log.c') + utils_src,
   },
   'Noise': {
     'exe': 'test_noise',
-    'src': files('src/test_noise.c', 'src/noise.c', 'src/log.c', 'src/memory.c'),
+    'src': files('src/test_noise.c', 'src/noise.c', 'src/log.c') + utils_src,
   },
   'Path': {
     'exe': 'test_path',
-    'src': files('src/test_path.c', 'src/darray.c', 'src/path.c', 'src/log.c', 'src/memory.c') + math_utils_src,
+    'src': files('src/test_path.c', 'src/path.c', 'src/log.c', ) + math_utils_src + utils_src,
   },
   'Utils': {
     'exe': 'test_utils',
-    'src': files('src/test_utils.c', 'src/bstr.c', 'src/log.c', 'src/utils.c', 'src/memory.c'),
+    'src': files('src/test_utils.c', 'src/log.c') + utils_src,
   },
 }
 

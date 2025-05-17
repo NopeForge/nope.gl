@@ -24,12 +24,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "darray.h"
-#include "log.h"
-#include "memory.h"
-#include "nopegl.h"
 #include "internal.h"
+#include "log.h"
+#include "nopegl.h"
 #include "params.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
+#include "utils/string.h"
 
 static int parse_i32(const char *s, int32_t *valp)
 {

@@ -23,9 +23,10 @@
 #define PASS_H
 
 #include <stdint.h>
-#include "darray.h"
-#include "pgcraft.h"
-#include "gpu_pipeline.h"
+
+#include "ngpu/pipeline.h"
+#include "ngpu/pgcraft.h"
+#include "utils/darray.h"
 
 struct ngl_ctx;
 
@@ -40,10 +41,10 @@ struct pass_params {
     struct hmap *frag_resources;
     const struct hmap *properties;
     const struct geometry *geometry;
-    int32_t nb_instances;
+    uint32_t nb_instances;
     struct hmap *attributes;
     struct hmap *instance_attributes;
-    struct pgcraft_iovar *vert_out_vars;
+    struct ngpu_pgcraft_iovar *vert_out_vars;
     size_t nb_vert_out_vars;
     size_t nb_frag_output;
     int blending;
@@ -59,16 +60,22 @@ struct pass {
     struct ngl_ctx *ctx;
     struct pass_params params;
 
-    struct gpu_buffer *indices;
+    struct ngpu_buffer *indices;
     const struct buffer_layout *indices_layout;
-    int nb_vertices;
-    int nb_instances;
-    int topology;
-    int pipeline_type;
+    uint32_t nb_vertices;
+    uint32_t nb_instances;
+    enum ngpu_primitive_topology topology;
+    enum ngpu_pipeline_type pipeline_type;
     struct darray crafter_attributes;
     struct darray crafter_uniforms;
     struct darray crafter_textures;
     struct darray crafter_blocks;
+    struct ngpu_pgcraft *crafter;
+    int32_t modelview_matrix_index;
+    int32_t projection_matrix_index;
+    int32_t normal_matrix_index;
+    int32_t resolution_index;
+    struct darray uniforms_map;
     struct darray pipeline_descs;
 };
 

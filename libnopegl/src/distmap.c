@@ -25,25 +25,25 @@
 #include <string.h>
 #include <math.h>
 
-#include "gpu_buffer.h"
-#include "darray.h"
 #include "distmap.h"
 #include "distmap_frag.h"
 #include "distmap_vert.h"
-#include "gpu_format.h"
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
 #include "math_utils.h"
-#include "memory.h"
+#include "ngpu/buffer.h"
+#include "ngpu/ctx.h"
+#include "ngpu/format.h"
+#include "ngpu/rendertarget.h"
+#include "ngpu/texture.h"
+#include "ngpu/type.h"
 #include "nopegl.h"
 #include "path.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_rendertarget.h"
-#include "gpu_texture.h"
-#include "type.h"
-#include "utils.h"
+#include "ngpu/pgcraft.h"
+#include "utils/darray.h"
+#include "utils/memory.h"
+#include "utils/utils.h"
 
 /*
  * Padding percent is arbitrary: it represents how far an effect such as glowing
@@ -75,14 +75,14 @@ struct distmap {
     struct darray bezier_counts;       // int32_t
     struct darray beziergroup_counts;  // int32_t
 
-    struct gpu_texture *texture;
-    struct gpu_rendertarget *rt;
-    struct pgcraft *crafter;
-    struct block vert_block;
-    struct block frag_block;
-    struct gpu_buffer *vert_buffer;
+    struct ngpu_texture *texture;
+    struct ngpu_rendertarget *rt;
+    struct ngpu_pgcraft *crafter;
+    struct ngpu_block_desc vert_block;
+    struct ngpu_block_desc frag_block;
+    struct ngpu_buffer *vert_buffer;
     size_t vert_offset;
-    struct gpu_buffer *frag_buffer;
+    struct ngpu_buffer *frag_buffer;
     size_t frag_offset;
     struct pipeline_compat *pipeline_compat;
 };
@@ -361,9 +361,9 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
                 [BEZIERGROUP_COUNT_INDEX] = {.data = &beziergroup_count},
             };
 
-            ngli_block_fields_copy(&s->vert_block, vert_data_src, vert_data);
+            ngpu_block_desc_fields_copy(&s->vert_block, vert_data_src, vert_data);
             vert_data += s->vert_offset;
-            ngli_block_fields_copy(&s->frag_block, frag_data_src, frag_data);
+            ngpu_block_desc_fields_copy(&s->frag_block, frag_data_src, frag_data);
             frag_data += s->frag_offset;
 
             shape_id++;
@@ -376,11 +376,11 @@ static int map_and_load_buffers_data(struct distmap *s)
     uint8_t *vert_data = NULL;
     uint8_t *frag_data = NULL;
 
-    int ret = ngli_gpu_buffer_map(s->frag_buffer, 0, s->frag_buffer->size, (void **) &frag_data);
+    int ret = ngpu_buffer_map(s->frag_buffer, 0, s->frag_buffer->size, (void **) &frag_data);
     if (ret < 0)
         goto end;
 
-    ret = ngli_gpu_buffer_map(s->vert_buffer, 0, s->vert_buffer->size, (void **) &vert_data);
+    ret = ngpu_buffer_map(s->vert_buffer, 0, s->vert_buffer->size, (void **) &vert_data);
     if (ret < 0)
         goto end;
 
@@ -388,9 +388,9 @@ static int map_and_load_buffers_data(struct distmap *s)
 
 end:
     if (vert_data)
-        ngli_gpu_buffer_unmap(s->vert_buffer);
+        ngpu_buffer_unmap(s->vert_buffer);
     if (frag_data)
-        ngli_gpu_buffer_unmap(s->frag_buffer);
+        ngpu_buffer_unmap(s->frag_buffer);
     return ret;
 }
 
@@ -436,12 +436,12 @@ static void reset_tmp_data(struct distmap *s)
     ngli_darray_reset(&s->beziergroup_counts);
 
     ngli_pipeline_compat_freep(&s->pipeline_compat);
-    ngli_block_reset(&s->vert_block);
-    ngli_gpu_buffer_freep(&s->vert_buffer);
-    ngli_block_reset(&s->frag_block);
-    ngli_gpu_buffer_freep(&s->frag_buffer);
-    ngli_pgcraft_freep(&s->crafter);
-    ngli_gpu_rendertarget_freep(&s->rt);
+    ngpu_block_desc_reset(&s->vert_block);
+    ngpu_buffer_freep(&s->vert_buffer);
+    ngpu_block_desc_reset(&s->frag_block);
+    ngpu_buffer_freep(&s->frag_buffer);
+    ngpu_pgcraft_freep(&s->crafter);
+    ngpu_rendertarget_freep(&s->rt);
 }
 
 static struct bezier3 scaled_bezier(struct bezier3 bezier, float scale)
@@ -465,21 +465,21 @@ static void normalize_coordinates(struct distmap *s)
     }
 }
 
-#define DISTMAP_FEATURES (NGLI_GPU_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |               \
-                          NGLI_GPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
-                          NGLI_GPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+#define DISTMAP_FEATURES (NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |               \
+                          NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
+                          NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
 
-static int get_preferred_distmap_format(const struct distmap *s)
+static enum ngpu_format get_preferred_distmap_format(const struct distmap *s)
 {
-    struct gpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
 
-    static const int formats[] = {
-            NGLI_GPU_FORMAT_R32_SFLOAT,
-            NGLI_GPU_FORMAT_R16_SFLOAT,
-            NGLI_GPU_FORMAT_R8_UNORM,
+    static const enum ngpu_format formats[] = {
+            NGPU_FORMAT_R32_SFLOAT,
+            NGPU_FORMAT_R16_SFLOAT,
+            NGPU_FORMAT_R8_UNORM,
     };
     for (size_t i = 0; i < NGLI_ARRAY_NB(formats); i++) {
-        const uint32_t features = ngli_gpu_ctx_get_format_features(gpu_ctx, formats[i]);
+        const uint32_t features = ngpu_ctx_get_format_features(gpu_ctx, formats[i]);
         if (NGLI_HAS_ALL_FLAGS(features, DISTMAP_FEATURES))
             return formats[i];
     }
@@ -545,103 +545,103 @@ int ngli_distmap_finalize(struct distmap *s)
      * Build pipeline and execute the computation of the complete signed
      * distance map.
      */
-    struct gpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
 
-    const struct gpu_texture_params tex_params = {
-        .type       = NGLI_GPU_TEXTURE_TYPE_2D,
+    const struct ngpu_texture_params tex_params = {
+        .type       = NGPU_TEXTURE_TYPE_2D,
         .width      = s->texture_w,
         .height     = s->texture_h,
         .format     = get_preferred_distmap_format(s),
-        .min_filter = NGLI_GPU_FILTER_LINEAR,
-        .mag_filter = NGLI_GPU_FILTER_LINEAR,
-        .usage      = NGLI_GPU_TEXTURE_USAGE_TRANSFER_SRC_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_TRANSFER_DST_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT
-                      | NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+        .min_filter = NGPU_FILTER_LINEAR,
+        .mag_filter = NGPU_FILTER_LINEAR,
+        .usage      = NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT
+                      | NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT
+                      | NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT
+                      | NGPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
 
-    s->texture = ngli_gpu_texture_create(gpu_ctx);
+    s->texture = ngpu_texture_create(gpu_ctx);
     if (!s->texture)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_gpu_texture_init(s->texture, &tex_params);
+    int ret = ngpu_texture_init(s->texture, &tex_params);
     if (ret < 0)
         return ret;
 
-    const struct gpu_rendertarget_params rt_params = {
+    const struct ngpu_rendertarget_params rt_params = {
         .width = s->texture_w,
         .height = s->texture_h,
         .nb_colors = 1,
         .colors[0] = {
             .attachment = s->texture,
-            .load_op    = NGLI_GPU_LOAD_OP_CLEAR,
-            .store_op   = NGLI_GPU_STORE_OP_STORE,
+            .load_op    = NGPU_LOAD_OP_CLEAR,
+            .store_op   = NGPU_STORE_OP_STORE,
         },
     };
-    s->rt = ngli_gpu_rendertarget_create(gpu_ctx);
+    s->rt = ngpu_rendertarget_create(gpu_ctx);
     if (!s->rt)
         return NGL_ERROR_MEMORY;
-    ret = ngli_gpu_rendertarget_init(s->rt, &rt_params);
+    ret = ngpu_rendertarget_init(s->rt, &rt_params);
     if (ret < 0)
         return ret;
 
     const int32_t bezier_max_count = get_max_beziers_per_shape(s);
     const int32_t beziergroup_max_count = get_max_beziergroups_per_shape(s);
 
-    const struct block_field vert_fields[] = {
-        [VERTICES_INDEX] = {.name="vertices", .type=NGLI_TYPE_VEC4},
+    const struct ngpu_block_field vert_fields[] = {
+        [VERTICES_INDEX] = {.name="vertices", .type=NGPU_TYPE_VEC4},
     };
 
-    const struct block_field frag_fields[] = {
-        [COORDS_INDEX]            = {.name="coords",            .type=NGLI_TYPE_VEC4},
-        [SCALE_INDEX]             = {.name="scale",             .type=NGLI_TYPE_VEC2},
-        [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGLI_TYPE_VEC4, .count=bezier_max_count},
-        [BEZIER_Y_BUF_INDEX]      = {.name="bezier_y_buf",      .type=NGLI_TYPE_VEC4, .count=bezier_max_count},
-        [BEZIER_COUNTS_INDEX]     = {.name="bezier_counts",     .type=NGLI_TYPE_I32,  .count=beziergroup_max_count},
-        [BEZIERGROUP_COUNT_INDEX] = {.name="beziergroup_count", .type=NGLI_TYPE_I32},
+    const struct ngpu_block_field frag_fields[] = {
+        [COORDS_INDEX]            = {.name="coords",            .type=NGPU_TYPE_VEC4},
+        [SCALE_INDEX]             = {.name="scale",             .type=NGPU_TYPE_VEC2},
+        [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGPU_TYPE_VEC4, .count=bezier_max_count},
+        [BEZIER_Y_BUF_INDEX]      = {.name="bezier_y_buf",      .type=NGPU_TYPE_VEC4, .count=bezier_max_count},
+        [BEZIER_COUNTS_INDEX]     = {.name="bezier_counts",     .type=NGPU_TYPE_I32,  .count=beziergroup_max_count},
+        [BEZIERGROUP_COUNT_INDEX] = {.name="beziergroup_count", .type=NGPU_TYPE_I32},
     };
 
-    ngli_block_init(gpu_ctx, &s->vert_block, NGLI_BLOCK_LAYOUT_STD140);
-    ngli_block_init(gpu_ctx, &s->frag_block, NGLI_BLOCK_LAYOUT_STD140);
+    ngpu_block_desc_init(gpu_ctx, &s->vert_block, NGPU_BLOCK_LAYOUT_STD140);
+    ngpu_block_desc_init(gpu_ctx, &s->frag_block, NGPU_BLOCK_LAYOUT_STD140);
 
-    if ((ret = ngli_block_add_fields(&s->vert_block, vert_fields, NGLI_ARRAY_NB(vert_fields))) < 0 ||
-        (ret = ngli_block_add_fields(&s->frag_block, frag_fields, NGLI_ARRAY_NB(frag_fields))))
+    if ((ret = ngpu_block_desc_add_fields(&s->vert_block, vert_fields, NGLI_ARRAY_NB(vert_fields))) < 0 ||
+        (ret = ngpu_block_desc_add_fields(&s->frag_block, frag_fields, NGLI_ARRAY_NB(frag_fields))))
         return ret;
 
-    s->vert_buffer = ngli_gpu_buffer_create(gpu_ctx);
-    s->frag_buffer = ngli_gpu_buffer_create(gpu_ctx);
+    s->vert_buffer = ngpu_buffer_create(gpu_ctx);
+    s->frag_buffer = ngpu_buffer_create(gpu_ctx);
     if (!s->vert_buffer || !s->frag_buffer)
         return NGL_ERROR_MEMORY;
 
-    s->vert_offset = ngli_block_get_aligned_size(&s->vert_block, 0);
-    s->frag_offset = ngli_block_get_aligned_size(&s->frag_block, 0);
+    s->vert_offset = ngpu_block_desc_get_aligned_size(&s->vert_block, 0);
+    s->frag_offset = ngpu_block_desc_get_aligned_size(&s->frag_block, 0);
 
-    static const uint32_t usage = NGLI_GPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGLI_GPU_BUFFER_USAGE_MAP_WRITE;
-    if ((ret = ngli_gpu_buffer_init(s->vert_buffer, nb_shapes * s->vert_offset, usage)) < 0 ||
-        (ret = ngli_gpu_buffer_init(s->frag_buffer, nb_shapes * s->frag_offset, usage)) < 0)
+    static const uint32_t usage = NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGPU_BUFFER_USAGE_MAP_WRITE;
+    if ((ret = ngpu_buffer_init(s->vert_buffer, nb_shapes * s->vert_offset, usage)) < 0 ||
+        (ret = ngpu_buffer_init(s->frag_buffer, nb_shapes * s->frag_offset, usage)) < 0)
         return ret;
 
-    const struct pgcraft_block crafter_blocks[] = {
+    const struct ngpu_pgcraft_block crafter_blocks[] = {
         {
             .name          = "vert",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
-            .stage         = NGLI_GPU_PROGRAM_SHADER_VERT,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .stage         = NGPU_PROGRAM_SHADER_VERT,
             .block         = &s->vert_block,
         }, {
             .name          = "frag",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
-            .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .stage         = NGPU_PROGRAM_SHADER_FRAG,
             .block         = &s->frag_block,
         },
     };
 
-    static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+    static const struct ngpu_pgcraft_iovar vert_out_vars[] = {
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .vert_base        = distmap_vert,
         .frag_base        = distmap_frag,
         .blocks           = crafter_blocks,
@@ -650,11 +650,11 @@ int ngli_distmap_finalize(struct distmap *s)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    s->crafter = ngli_pgcraft_create(s->ctx);
+    s->crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->crafter)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_pgcraft_craft(s->crafter, &crafter_params);
+    ret = ngpu_pgcraft_craft(s->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -663,31 +663,31 @@ int ngli_distmap_finalize(struct distmap *s)
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_compat_params params = {
-        .type = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
+        .type = NGPU_PIPELINE_TYPE_GRAPHICS,
         .graphics = {
-            .topology     = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .state        = NGLI_GPU_GRAPHICS_STATE_DEFAULTS,
+            .topology     = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .state        = NGPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = s->rt->layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->crafter),
+        .program          = ngpu_pgcraft_get_program(s->crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->pipeline_compat, &params);
     if (ret < 0)
         return ret;
 
-    ngli_gpu_ctx_begin_render_pass(gpu_ctx, s->rt);
+    ngpu_ctx_begin_render_pass(gpu_ctx, s->rt);
 
     ret = draw_glyphs(s);
     if (ret < 0)
         return ret;
 
-    ngli_gpu_ctx_end_render_pass(gpu_ctx);
+    ngpu_ctx_end_render_pass(gpu_ctx);
 
     /*
      * Now that the distmap is rendered, the pipeline and other related
@@ -698,7 +698,7 @@ int ngli_distmap_finalize(struct distmap *s)
     return 0;
 }
 
-struct gpu_texture *ngli_distmap_get_texture(const struct distmap *s)
+struct ngpu_texture *ngli_distmap_get_texture(const struct distmap *s)
 {
     return s->texture;
 }
@@ -735,6 +735,6 @@ void ngli_distmap_freep(struct distmap **dp)
     reset_tmp_data(s);
 
     ngli_darray_reset(&s->shapes);
-    ngli_gpu_texture_freep(&s->texture);
+    ngpu_texture_freep(&s->texture);
     ngli_freep(dp);
 }

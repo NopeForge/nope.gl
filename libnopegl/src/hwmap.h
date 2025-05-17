@@ -35,11 +35,11 @@
 struct hwmap_params {
     const char *label;
     uint32_t image_layouts;
-    int texture_min_filter;
-    int texture_mag_filter;
-    int texture_mipmap_filter;
-    int texture_wrap_s;
-    int texture_wrap_t;
+    enum ngpu_filter texture_min_filter;
+    enum ngpu_filter texture_mag_filter;
+    enum ngpu_mipmap_filter texture_mipmap_filter;
+    enum ngpu_wrap texture_wrap_s;
+    enum ngpu_wrap texture_wrap_t;
     uint32_t texture_usage;
 #if defined(TARGET_ANDROID)
     struct android_imagereader *android_imagereader;
@@ -58,7 +58,7 @@ struct hwmap {
     struct image mapped_image;
     int require_hwconv;
     struct hwconv hwconv;
-    struct gpu_texture *hwconv_texture;
+    struct ngpu_texture *hwconv_texture;
     struct image hwconv_image;
     int hwconv_initialized;
 };
@@ -67,14 +67,14 @@ struct hwmap_class {
     const char *name;
     uint32_t flags;
     int hwformat;
-    const int *layouts;
+    const enum image_layout *layouts;
     size_t priv_size;
     int (*init)(struct hwmap *hwmap, struct nmd_frame *frame);
     int (*map_frame)(struct hwmap *hwmap, struct nmd_frame *frame);
     void (*uninit)(struct hwmap *hwmap);
 };
 
-int ngli_hwmap_is_image_layout_supported(int backend, int image_layout);
+int ngli_hwmap_is_image_layout_supported(int backend, enum image_layout image_layout);
 
 int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap_params *params);
 int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct image *image);

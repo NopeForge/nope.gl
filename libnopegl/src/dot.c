@@ -22,11 +22,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "bstr.h"
-#include "hmap.h"
-#include "memory.h"
-#include "nopegl.h"
 #include "internal.h"
+#include "nopegl.h"
+#include "utils/bstr.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
+#include "utils/crc32.h"
+#include "utils/string.h"
 
 #define LB "<br align=\"left\"/>"
 #define HSLFMT "\"0.%u 0.6 0.9\""
