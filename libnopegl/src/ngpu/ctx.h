@@ -139,6 +139,7 @@ struct ngpu_ctx_class {
     struct ngpu_texture *(*texture_create)(struct ngpu_ctx *ctx);
     int (*texture_init)(struct ngpu_texture *s, const struct ngpu_texture_params *params);
     int (*texture_upload)(struct ngpu_texture *s, const uint8_t *data, int linesize);
+    int (*texture_upload_with_params)(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params);
     int (*texture_generate_mipmap)(struct ngpu_texture *s);
     void (*texture_freep)(struct ngpu_texture **sp);
 };

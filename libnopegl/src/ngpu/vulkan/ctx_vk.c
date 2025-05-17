@@ -1576,6 +1576,7 @@ const struct ngpu_ctx_class ngpu_ctx_vk = {
     .texture_create                     = ngpu_texture_vk_create,
     .texture_init                       = ngpu_texture_vk_init,
     .texture_upload                     = ngpu_texture_vk_upload,
+    .texture_upload_with_params         = ngpu_texture_vk_upload_with_params,
     .texture_generate_mipmap            = ngpu_texture_vk_generate_mipmap,
     .texture_freep                      = ngpu_texture_vk_freep,
 };

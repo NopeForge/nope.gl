@@ -56,14 +56,15 @@ struct ngpu_texture_vk {
     int use_ycbcr_sampler;
     struct ycbcr_sampler_vk *ycbcr_sampler;
     struct ngpu_buffer *staging_buffer;
-    VkDeviceSize staging_buffer_row_length;
     void *staging_buffer_ptr;
+    struct ngpu_texture_transfer_params last_transfer_params;
 };
 
 struct ngpu_texture *ngpu_texture_vk_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_texture_vk_init(struct ngpu_texture *s, const struct ngpu_texture_params *params);
 VkResult ngpu_texture_vk_wrap(struct ngpu_texture *s, const struct ngpu_texture_vk_wrap_params *wrap_params);
 int ngpu_texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, int linesize);
+int ngpu_texture_vk_upload_with_params(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params);
 int ngpu_texture_vk_generate_mipmap(struct ngpu_texture *s);
 void ngpu_texture_vk_transition_layout(struct ngpu_texture *s, VkImageLayout layout);
 void ngpu_texture_vk_transition_to_default_layout(struct ngpu_texture *s);
