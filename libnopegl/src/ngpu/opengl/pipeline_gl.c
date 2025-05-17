@@ -100,10 +100,12 @@ static GLenum get_gl_indices_type(enum ngpu_format indices_format)
     return gl_indices_type_map[indices_format];
 }
 
-static void bind_vertex_attribs(const struct ngpu_pipeline *s, struct glcontext *gl)
+static void bind_vertex_attribs(const struct ngpu_pipeline *s)
 {
     const struct ngpu_pipeline_gl *s_priv = (const struct ngpu_pipeline_gl *)s;
     struct ngpu_ctx *gpu_ctx = (struct ngpu_ctx *)s->gpu_ctx;
+    struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     gl->funcs.BindVertexArray(s_priv->vao_id);
 
@@ -194,7 +196,7 @@ void ngpu_pipeline_gl_draw(struct ngpu_pipeline *s, uint32_t nb_vertices, uint32
     set_graphics_state(s);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
-    bind_vertex_attribs(s, gl);
+    bind_vertex_attribs(s);
 
     const GLbitfield barriers = ngpu_bindgroup_gl_get_memory_barriers(gpu_ctx->bindgroup);
     if (barriers)
@@ -219,7 +221,7 @@ void ngpu_pipeline_gl_draw_indexed(struct ngpu_pipeline *s, uint32_t nb_indices,
     set_graphics_state(s);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
-    bind_vertex_attribs(s, gl);
+    bind_vertex_attribs(s);
 
     const struct ngpu_buffer_gl *indices_gl = (const struct ngpu_buffer_gl *)gpu_ctx->index_buffer;
     const GLenum gl_indices_type = get_gl_indices_type(gpu_ctx->index_format);
