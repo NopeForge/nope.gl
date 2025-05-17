@@ -71,10 +71,10 @@ static int build_texture_bindings(struct ngpu_bindgroup *s)
     const struct ngpu_bindgroup_layout *layout = s->layout;
     for (size_t i = 0; i < layout->nb_textures; i++) {
         const struct ngpu_bindgroup_layout_entry *layout_entry = &layout->textures[i];
-        if (layout_entry->type == NGLI_TYPE_IMAGE_2D ||
-            layout_entry->type == NGLI_TYPE_IMAGE_2D_ARRAY ||
-            layout_entry->type == NGLI_TYPE_IMAGE_3D ||
-            layout_entry->type == NGLI_TYPE_IMAGE_CUBE) {
+        if (layout_entry->type == NGPU_TYPE_IMAGE_2D ||
+            layout_entry->type == NGPU_TYPE_IMAGE_2D_ARRAY ||
+            layout_entry->type == NGPU_TYPE_IMAGE_3D ||
+            layout_entry->type == NGPU_TYPE_IMAGE_CUBE) {
             if (layout_entry->access & NGPU_ACCESS_WRITE_BIT)
                 s_priv->use_barriers = 1;
             nb_images++;
@@ -105,11 +105,11 @@ static int build_texture_bindings(struct ngpu_bindgroup *s)
     return 0;
 }
 
-static const GLenum gl_target_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_UNIFORM_BUFFER]         = GL_UNIFORM_BUFFER,
-    [NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC] = GL_UNIFORM_BUFFER,
-    [NGLI_TYPE_STORAGE_BUFFER]         = GL_SHADER_STORAGE_BUFFER,
-    [NGLI_TYPE_STORAGE_BUFFER_DYNAMIC] = GL_SHADER_STORAGE_BUFFER,
+static const GLenum gl_target_map[NGPU_TYPE_NB] = {
+    [NGPU_TYPE_UNIFORM_BUFFER]         = GL_UNIFORM_BUFFER,
+    [NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC] = GL_UNIFORM_BUFFER,
+    [NGPU_TYPE_STORAGE_BUFFER]         = GL_SHADER_STORAGE_BUFFER,
+    [NGPU_TYPE_STORAGE_BUFFER_DYNAMIC] = GL_SHADER_STORAGE_BUFFER,
 };
 
 static GLenum get_gl_target(int type)
@@ -128,8 +128,8 @@ static int build_buffer_bindings(struct ngpu_bindgroup *s)
         const struct ngpu_bindgroup_layout_entry *layout_entry = &layout->buffers[i];
         const int type = layout_entry->type;
 
-        if (type == NGLI_TYPE_STORAGE_BUFFER ||
-            type == NGLI_TYPE_STORAGE_BUFFER_DYNAMIC)
+        if (type == NGPU_TYPE_STORAGE_BUFFER ||
+            type == NGPU_TYPE_STORAGE_BUFFER_DYNAMIC)
             ngli_assert(gl->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT);
 
         if (layout_entry->access & NGPU_ACCESS_WRITE_BIT) {
@@ -261,10 +261,10 @@ void ngpu_bindgroup_gl_bind(struct ngpu_bindgroup *s, const uint32_t *dynamic_of
         const struct ngpu_texture *texture = texture_binding->texture;
         const struct ngpu_texture_gl *texture_gl = (const struct ngpu_texture_gl *)texture;
 
-        if (layout_entry->type == NGLI_TYPE_IMAGE_2D ||
-            layout_entry->type == NGLI_TYPE_IMAGE_2D_ARRAY ||
-            layout_entry->type == NGLI_TYPE_IMAGE_3D ||
-            layout_entry->type == NGLI_TYPE_IMAGE_CUBE) {
+        if (layout_entry->type == NGPU_TYPE_IMAGE_2D ||
+            layout_entry->type == NGPU_TYPE_IMAGE_2D_ARRAY ||
+            layout_entry->type == NGPU_TYPE_IMAGE_3D ||
+            layout_entry->type == NGPU_TYPE_IMAGE_CUBE) {
             GLuint texture_id = 0;
             const GLenum access = get_gl_access(texture_binding->layout_entry.access);
             GLenum internal_format = GL_RGBA8;
@@ -273,9 +273,9 @@ void ngpu_bindgroup_gl_bind(struct ngpu_bindgroup *s, const uint32_t *dynamic_of
                 internal_format = texture_gl->internal_format;
             }
             GLboolean layered = GL_FALSE;
-            if (texture_binding->layout_entry.type == NGLI_TYPE_IMAGE_2D_ARRAY ||
-                texture_binding->layout_entry.type == NGLI_TYPE_IMAGE_3D ||
-                texture_binding->layout_entry.type == NGLI_TYPE_IMAGE_CUBE)
+            if (texture_binding->layout_entry.type == NGPU_TYPE_IMAGE_2D_ARRAY ||
+                texture_binding->layout_entry.type == NGPU_TYPE_IMAGE_3D ||
+                texture_binding->layout_entry.type == NGPU_TYPE_IMAGE_CUBE)
                 layered = GL_TRUE;
             gl->funcs.BindImageTexture(texture_binding->layout_entry.binding, texture_id, 0, layered, 0, access, internal_format);
         } else {
@@ -301,8 +301,8 @@ void ngpu_bindgroup_gl_bind(struct ngpu_bindgroup *s, const uint32_t *dynamic_of
         const struct ngpu_bindgroup_layout_entry *layout_entry = &buffer_binding->layout_entry;
         const GLenum target = get_gl_target(layout_entry->type);
         size_t offset = buffer_binding->offset;
-        if (layout_entry->type == NGLI_TYPE_STORAGE_BUFFER_DYNAMIC ||
-            layout_entry->type == NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC) {
+        if (layout_entry->type == NGPU_TYPE_STORAGE_BUFFER_DYNAMIC ||
+            layout_entry->type == NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC) {
             offset += dynamic_offsets[current_dynamic_offset++];
         }
         const size_t size = buffer_binding->size;

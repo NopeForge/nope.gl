@@ -33,7 +33,7 @@
 #include "path.h"
 #include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "type.h"
+#include "ngpu/type.h"
 #include "utils.h"
 
 /* GLSL fragments as string */
@@ -325,21 +325,21 @@ static int drawpath_prepare(struct ngl_node *node)
     struct drawpath_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
-        {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
-        {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
-        {.name="transform",         .type=NGLI_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="modelview_matrix",  .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="projection_matrix", .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="transform",         .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_VERT},
 
-        {.name="debug",             .type=NGLI_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG},
-        {.name="coords_fill",       .type=NGLI_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
-        {.name="coords_outline",    .type=NGLI_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
+        {.name="debug",             .type=NGPU_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG},
+        {.name="coords_fill",       .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
+        {.name="coords_outline",    .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
 
-        {.name="color",             .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
-        {.name="opacity",           .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
-        {.name="outline",           .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_node, &o->outline)},
-        {.name="outline_color",     .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_color_node, &o->outline_color)},
-        {.name="glow",              .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_node, &o->glow)},
-        {.name="glow_color",        .type=NGLI_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_color_node, o->glow_color)},
-        {.name="blur",              .type=NGLI_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->blur_node, &o->blur)},
+        {.name="color",             .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
+        {.name="opacity",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
+        {.name="outline",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_node, &o->outline)},
+        {.name="outline_color",     .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_color_node, &o->outline_color)},
+        {.name="glow",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_node, &o->glow)},
+        {.name="glow_color",        .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_color_node, o->glow_color)},
+        {.name="blur",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->blur_node, &o->blur)},
     };
 
     int ret = init_desc(node, s, uniforms, NGLI_ARRAY_NB(uniforms));
@@ -352,7 +352,7 @@ static int drawpath_prepare(struct ngl_node *node)
     };
 
     static const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "uv", .type = NGLI_TYPE_VEC2},
+        {.name = "uv", .type = NGPU_TYPE_VEC2},
     };
 
     const struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
