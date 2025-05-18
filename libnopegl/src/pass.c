@@ -180,8 +180,8 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     const struct ngpu_limits *limits = &gpu_ctx->limits;
 
     struct block_info *block_info = block_node->priv_data;
-    struct block *block = &block_info->block;
-    const size_t block_size = ngli_block_get_size(block, 0);
+    struct ngpu_block_desc *block = &block_info->block;
+    const size_t block_size = ngpu_block_desc_get_size(block, 0);
 
     /*
      * Select buffer type. We prefer UBO over SSBO, but in the following

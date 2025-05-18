@@ -30,7 +30,7 @@
 #include "type.h"
 #include "utils.h"
 
-void ngli_block_init(struct ngpu_ctx *gpu_ctx, struct block *s, enum ngpu_block_layout layout)
+void ngpu_block_desc_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block_desc *s, enum ngpu_block_layout layout)
 {
     s->gpu_ctx = gpu_ctx;
     s->layout = layout;
@@ -134,10 +134,10 @@ static size_t get_field_align(const struct ngpu_block_field *field, int layout)
     return aligns_map[field->type];
 }
 
-static size_t fill_tail_field_info(const struct block *s, struct ngpu_block_field *field)
+static size_t fill_tail_field_info(const struct ngpu_block_desc *s, struct ngpu_block_field *field)
 {
     /* Ignore the last field until the count is known */
-    if (field->count == NGLI_BLOCK_VARIADIC_COUNT) {
+    if (field->count == NGPU_BLOCK_DESC_VARIADIC_COUNT) {
         field->size = 0;
         field->stride = 0;
         field->offset = 0;
@@ -160,9 +160,9 @@ static size_t fill_tail_field_info(const struct block *s, struct ngpu_block_fiel
     return offset + size;
 }
 
-size_t ngli_block_get_size(const struct block *s, size_t variadic_field_count)
+size_t ngpu_block_desc_get_size(const struct ngpu_block_desc *s, size_t variadic_count)
 {
-    if (variadic_field_count == 0)
+    if (variadic_count == 0)
         return NGLI_ALIGN(s->size, aligns_map[NGLI_TYPE_VEC4]);
 
     /*
@@ -171,30 +171,30 @@ size_t ngli_block_get_size(const struct block *s, size_t variadic_field_count)
      * recalculate the new size as if it was a normal field.
      */
     const struct ngpu_block_field *last = ngli_darray_tail(&s->fields);
-    ngli_assert(last->count == NGLI_BLOCK_VARIADIC_COUNT);
+    ngli_assert(last->count == NGPU_BLOCK_DESC_VARIADIC_COUNT);
 
     struct ngpu_block_field tmp = *last;
-    tmp.count = variadic_field_count;
+    tmp.count = variadic_count;
     size_t size = fill_tail_field_info(s, &tmp);
     return NGLI_ALIGN(size, aligns_map[NGLI_TYPE_VEC4]);
 }
 
-size_t ngli_block_get_aligned_size(const struct block *s, size_t variadic_field_count)
+size_t ngpu_block_desc_get_aligned_size(const struct ngpu_block_desc *s, size_t variadic_count)
 {
     const struct ngpu_limits *limits = &s->gpu_ctx->limits;
     const size_t alignment = NGLI_MAX(limits->min_uniform_block_offset_alignment,
                                       limits->min_storage_block_offset_alignment);
-    return NGLI_ALIGN(ngli_block_get_size(s, variadic_field_count), alignment);
+    return NGLI_ALIGN(ngpu_block_desc_get_size(s, variadic_count), alignment);
 }
 
-int ngli_block_add_field(struct block *s, const char *name, int type, size_t count)
+int ngpu_block_desc_add_field(struct ngpu_block_desc *s, const char *name, int type, size_t count)
 {
     ngli_assert(s->layout != NGPU_BLOCK_LAYOUT_UNKNOWN);
 
     /* check that we are not adding a field after a variadic one */
     const struct ngpu_block_field *last = ngli_darray_tail(&s->fields);
     if (last)
-        ngli_assert(last->count != NGLI_BLOCK_VARIADIC_COUNT);
+        ngli_assert(last->count != NGPU_BLOCK_DESC_VARIADIC_COUNT);
 
     struct ngpu_block_field field = {
         .type = type,
@@ -211,7 +211,7 @@ int ngli_block_add_field(struct block *s, const char *name, int type, size_t cou
     return (int)nb_fields - 1;
 }
 
-int ngli_block_add_fields(struct block *s, const struct ngpu_block_field *fields, size_t count)
+int ngpu_block_desc_add_fields(struct ngpu_block_desc *s, const struct ngpu_block_field *fields, size_t count)
 {
     for (size_t i = 0; i < count; i++) {
         const struct ngpu_block_field *field = &fields[i];
@@ -221,7 +221,7 @@ int ngli_block_add_fields(struct block *s, const struct ngpu_block_field *fields
         ngli_assert(field->size == 0);
         ngli_assert(field->stride == 0);
 
-        int ret = ngli_block_add_field(s, field->name, field->type, field->count);
+        int ret = ngpu_block_desc_add_field(s, field->name, field->type, field->count);
         if (ret < 0)
             return ret;
     }
@@ -260,7 +260,7 @@ void ngpu_block_field_copy(const struct ngpu_block_field *fi, uint8_t *dst, cons
     ngpu_block_field_copy_count(fi, dst, src, 0);
 }
 
-void ngli_block_fields_copy(const struct block *s, const struct ngpu_block_field_data *src_array, uint8_t *dst)
+void ngpu_block_desc_fields_copy(const struct ngpu_block_desc *s, const struct ngpu_block_field_data *src_array, uint8_t *dst)
 {
     const struct ngpu_block_field *fields = ngli_darray_data(&s->fields);
     for (size_t i = 0; i < ngli_darray_count(&s->fields); i++) {
@@ -270,7 +270,7 @@ void ngli_block_fields_copy(const struct block *s, const struct ngpu_block_field
     }
 }
 
-void ngli_block_reset(struct block *s)
+void ngpu_block_desc_reset(struct ngpu_block_desc *s)
 {
     ngli_darray_reset(&s->fields);
     memset(s, 0, sizeof(*s));

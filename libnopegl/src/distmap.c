@@ -78,8 +78,8 @@ struct distmap {
     struct ngpu_texture *texture;
     struct ngpu_rendertarget *rt;
     struct pgcraft *crafter;
-    struct block vert_block;
-    struct block frag_block;
+    struct ngpu_block_desc vert_block;
+    struct ngpu_block_desc frag_block;
     struct ngpu_buffer *vert_buffer;
     size_t vert_offset;
     struct ngpu_buffer *frag_buffer;
@@ -361,9 +361,9 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
                 [BEZIERGROUP_COUNT_INDEX] = {.data = &beziergroup_count},
             };
 
-            ngli_block_fields_copy(&s->vert_block, vert_data_src, vert_data);
+            ngpu_block_desc_fields_copy(&s->vert_block, vert_data_src, vert_data);
             vert_data += s->vert_offset;
-            ngli_block_fields_copy(&s->frag_block, frag_data_src, frag_data);
+            ngpu_block_desc_fields_copy(&s->frag_block, frag_data_src, frag_data);
             frag_data += s->frag_offset;
 
             shape_id++;
@@ -436,9 +436,9 @@ static void reset_tmp_data(struct distmap *s)
     ngli_darray_reset(&s->beziergroup_counts);
 
     ngli_pipeline_compat_freep(&s->pipeline_compat);
-    ngli_block_reset(&s->vert_block);
+    ngpu_block_desc_reset(&s->vert_block);
     ngpu_buffer_freep(&s->vert_buffer);
-    ngli_block_reset(&s->frag_block);
+    ngpu_block_desc_reset(&s->frag_block);
     ngpu_buffer_freep(&s->frag_buffer);
     ngli_pgcraft_freep(&s->crafter);
     ngpu_rendertarget_freep(&s->rt);
@@ -601,11 +601,11 @@ int ngli_distmap_finalize(struct distmap *s)
         [BEZIERGROUP_COUNT_INDEX] = {.name="beziergroup_count", .type=NGLI_TYPE_I32},
     };
 
-    ngli_block_init(gpu_ctx, &s->vert_block, NGPU_BLOCK_LAYOUT_STD140);
-    ngli_block_init(gpu_ctx, &s->frag_block, NGPU_BLOCK_LAYOUT_STD140);
+    ngpu_block_desc_init(gpu_ctx, &s->vert_block, NGPU_BLOCK_LAYOUT_STD140);
+    ngpu_block_desc_init(gpu_ctx, &s->frag_block, NGPU_BLOCK_LAYOUT_STD140);
 
-    if ((ret = ngli_block_add_fields(&s->vert_block, vert_fields, NGLI_ARRAY_NB(vert_fields))) < 0 ||
-        (ret = ngli_block_add_fields(&s->frag_block, frag_fields, NGLI_ARRAY_NB(frag_fields))))
+    if ((ret = ngpu_block_desc_add_fields(&s->vert_block, vert_fields, NGLI_ARRAY_NB(vert_fields))) < 0 ||
+        (ret = ngpu_block_desc_add_fields(&s->frag_block, frag_fields, NGLI_ARRAY_NB(frag_fields))))
         return ret;
 
     s->vert_buffer = ngpu_buffer_create(gpu_ctx);
@@ -613,8 +613,8 @@ int ngli_distmap_finalize(struct distmap *s)
     if (!s->vert_buffer || !s->frag_buffer)
         return NGL_ERROR_MEMORY;
 
-    s->vert_offset = ngli_block_get_aligned_size(&s->vert_block, 0);
-    s->frag_offset = ngli_block_get_aligned_size(&s->frag_block, 0);
+    s->vert_offset = ngpu_block_desc_get_aligned_size(&s->vert_block, 0);
+    s->frag_offset = ngpu_block_desc_get_aligned_size(&s->frag_block, 0);
 
     static const uint32_t usage = NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT | NGPU_BUFFER_USAGE_MAP_WRITE;
     if ((ret = ngpu_buffer_init(s->vert_buffer, nb_shapes * s->vert_offset, usage)) < 0 ||

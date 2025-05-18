@@ -198,7 +198,7 @@ static int buffer_init_from_block(struct ngl_node *node)
     const struct buffer_opts *o = node->opts;
 
     const struct block_info *block_info = o->block->priv_data;
-    const struct block *block = &block_info->block;
+    const struct ngpu_block_desc *block = &block_info->block;
 
     if (!o->block_field) {
         LOG(ERROR, "`block_field` must be set when setting a block");

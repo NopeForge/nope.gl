@@ -285,7 +285,7 @@ static int block_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ngli_block_init(gpu_ctx, &info->block, o->layout);
+    ngpu_block_desc_init(gpu_ctx, &info->block, o->layout);
 
     info->usage = NGPU_BUFFER_USAGE_TRANSFER_DST_BIT;
 
@@ -303,7 +303,7 @@ static int block_init(struct ngl_node *node)
         const int type  = get_node_data_type(field_node);
         const size_t count = get_node_data_count(field_node);
 
-        ret = ngli_block_add_field(&info->block, field_node->label, type, count);
+        ret = ngpu_block_desc_add_field(&info->block, field_node->label, type, count);
         if (ret < 0)
             return ret;
 
@@ -385,7 +385,7 @@ static void block_uninit(struct ngl_node *node)
     struct block_info *info = &s->blk;
 
     ngpu_buffer_freep(&info->buffer);
-    ngli_block_reset(&info->block);
+    ngpu_block_desc_reset(&info->block);
     ngli_free(info->data);
 }
 

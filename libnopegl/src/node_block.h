@@ -31,7 +31,7 @@
 struct ngl_node;
 
 struct block_info {
-    struct block block;
+    struct ngpu_block_desc block;
 
     uint8_t *data;
     size_t data_size;

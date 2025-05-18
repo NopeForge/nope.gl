@@ -55,19 +55,19 @@ struct ngpu_block_field_data {
 void ngpu_block_field_copy(const struct ngpu_block_field *fi, uint8_t *dst, const uint8_t *src);
 void ngpu_block_field_copy_count(const struct ngpu_block_field *fi, uint8_t *dst, const uint8_t *src, size_t count);
 
-struct block {
+struct ngpu_block_desc {
     struct ngpu_ctx *gpu_ctx;
     enum ngpu_block_layout layout;
     struct darray fields; // block_field
     size_t size;
 };
 
-void ngli_block_fields_copy(const struct block *s, const struct ngpu_block_field_data *src_array, uint8_t *dst);
+void ngpu_block_desc_fields_copy(const struct ngpu_block_desc *s, const struct ngpu_block_field_data *src_array, uint8_t *dst);
 
-#define NGLI_BLOCK_VARIADIC_COUNT -1
+#define NGPU_BLOCK_DESC_VARIADIC_COUNT -1
 
-void ngli_block_init(struct ngpu_ctx *gpu_ctx, struct block *s, enum ngpu_block_layout layout);
-size_t ngli_block_get_size(const struct block *s, size_t variadic_count);
+void ngpu_block_desc_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block_desc *s, enum ngpu_block_layout layout);
+size_t ngpu_block_desc_get_size(const struct ngpu_block_desc *s, size_t variadic_count);
 
 /*
  * Get the block size aligned to the minimum offset alignment required by the
@@ -75,11 +75,11 @@ size_t ngli_block_get_size(const struct block *s, size_t variadic_count);
  * same buffer as it ensures that the next block offset into the buffer will
  * honor the GPU offset alignment constraints.
  */
-size_t ngli_block_get_aligned_size(const struct block *s, size_t variadic_count);
+size_t ngpu_block_desc_get_aligned_size(const struct ngpu_block_desc *s, size_t variadic_count);
 
-int ngli_block_add_field(struct block *s, const char *name, int type, size_t count);
-int ngli_block_add_fields(struct block *s, const struct ngpu_block_field *fields, size_t count);
+int ngpu_block_desc_add_field(struct ngpu_block_desc *s, const char *name, int type, size_t count);
+int ngpu_block_desc_add_fields(struct ngpu_block_desc *s, const struct ngpu_block_field *fields, size_t count);
 
-void ngli_block_reset(struct block *s);
+void ngpu_block_desc_reset(struct ngpu_block_desc *s);
 
 #endif

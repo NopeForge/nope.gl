@@ -103,7 +103,7 @@ struct pgcraft_block {
     int type;
     int stage;
     int writable;
-    const struct block *block;
+    const struct ngpu_block_desc *block;
     struct ngpu_buffer_binding buffer;
 };
 
@@ -163,7 +163,7 @@ struct pgcraft_texture_info {
  * maps single uniforms to dedicated uniform blocks.
  */
 struct pgcraft_compat_info {
-    struct block ublocks[NGPU_PROGRAM_SHADER_NB];
+    struct ngpu_block_desc ublocks[NGPU_PROGRAM_SHADER_NB];
     int32_t ubindings[NGPU_PROGRAM_SHADER_NB];
     int32_t uindices[NGPU_PROGRAM_SHADER_NB];
 
