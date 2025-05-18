@@ -210,7 +210,7 @@ static int setup_pass1_pipeline(struct ngl_node *node)
             .name          = "blur",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->blur_params_block.block,
+            .block         = &s->blur_params_block.block_desc,
             .buffer        = {
                 .buffer    = s->blur_params_block.buffer,
                 .size      = s->blur_params_block.block_size,
@@ -305,7 +305,7 @@ static int setup_pass2_pipeline(struct ngl_node *node)
             .name          = "blur",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->blur_params_block.block,
+            .block         = &s->blur_params_block.block_desc,
             .buffer        = {
                 .buffer = s->blur_params_block.buffer,
                 .size   = s->blur_params_block.block_size,

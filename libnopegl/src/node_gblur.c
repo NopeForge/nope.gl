@@ -287,7 +287,7 @@ static int gblur_init(struct ngl_node *node)
             .name          = "direction",
             .type          = NGLI_TYPE_UNIFORM_BUFFER_DYNAMIC,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->direction_block.block,
+            .block         = &s->direction_block.block_desc,
             .buffer        = {
                 .buffer = s->direction_block.buffer,
                 .size   = s->direction_block.block_size,
@@ -296,7 +296,7 @@ static int gblur_init(struct ngl_node *node)
             .name          = "kernel",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->kernel_block.block,
+            .block         = &s->kernel_block.block_desc,
             .buffer        = {
                 .buffer = s->kernel_block.buffer,
                 .size   = s->kernel_block.block_size,

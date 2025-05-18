@@ -1264,7 +1264,7 @@ int ngli_hud_init(struct hud *s)
             .instance_name = "",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_VERT,
-            .block         = &s->transforms_block.block,
+            .block         = &s->transforms_block.block_desc,
             .buffer = {
                 .buffer = s->transforms_block.buffer,
                 .size   = s->transforms_block.buffer->size,
