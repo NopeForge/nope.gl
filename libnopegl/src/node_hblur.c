@@ -403,14 +403,14 @@ static int hblur_init(struct ngl_node *node)
     s->pass2.layout.colors[0].format = dst_info->params.format;
     s->pass2.layout.nb_colors = 1;
 
-    const struct ngpu_block_field block_fields[] = {
+    const struct ngpu_block_entry block_fields[] = {
         NGPU_BLOCK_FIELD(struct blur_params_block, radius, NGLI_TYPE_I32, 0),
         NGPU_BLOCK_FIELD(struct blur_params_block, nb_samples, NGLI_TYPE_I32, 0),
     };
 
     const struct ngpu_block_params block_params = {
-        .fields    = block_fields,
-        .nb_fields = NGLI_ARRAY_NB(block_fields),
+        .entries    = block_fields,
+        .nb_entries = NGLI_ARRAY_NB(block_fields),
     };
 
     int ret = ngpu_block_init(gpu_ctx, &s->blur_params_block, &block_params);

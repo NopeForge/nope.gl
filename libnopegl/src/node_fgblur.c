@@ -219,12 +219,12 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
         },
     };
 
-    const struct ngpu_block_field interpolate_block_fields[] = {
+    const struct ngpu_block_entry interpolate_block_fields[] = {
         NGPU_BLOCK_FIELD(struct interpolate_block, lod, NGLI_TYPE_F32, 0),
     };
     const struct ngpu_block_params interpolate_block_params = {
-        .fields    = interpolate_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(interpolate_block_fields),
+        .entries    = interpolate_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(interpolate_block_fields),
     };
     int ret = ngpu_block_init(gpu_ctx, &s->interpolate.block, &interpolate_block_params);
     if (ret < 0)
@@ -308,12 +308,12 @@ static int fgblur_init(struct ngl_node *node)
     s->dst_layout.colors[0].format = dst_info->params.format;
     s->dst_layout.nb_colors = 1;
 
-    const struct ngpu_block_field down_up_data_block_fields[] = {
+    const struct ngpu_block_entry down_up_data_block_fields[] = {
         NGPU_BLOCK_FIELD(struct down_up_data_block, offset, NGLI_TYPE_F32, 0),
     };
     const struct ngpu_block_params down_up_data_block_params = {
-        .fields    = down_up_data_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(down_up_data_block_fields),
+        .entries    = down_up_data_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(down_up_data_block_fields),
     };
     int ret = ngpu_block_init(gpu_ctx, &s->down_up_data_block, &down_up_data_block_params);
     if (ret < 0)
