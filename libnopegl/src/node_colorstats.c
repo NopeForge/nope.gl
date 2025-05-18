@@ -264,8 +264,8 @@ static int init_computes(struct ngl_node *node)
 
 static int init_block(struct colorstats_priv *s, struct ngpu_ctx *gpu_ctx)
 {
-    struct block *block = &s->blk.block;
-    ngli_block_init(gpu_ctx, block, NGPU_BLOCK_LAYOUT_STD430);
+    struct ngpu_block_desc *block = &s->blk.block;
+    ngpu_block_desc_init(gpu_ctx, block, NGPU_BLOCK_LAYOUT_STD430);
 
     static const struct ngpu_block_field block_fields[] = {
         {"max_rgb",       NGLI_TYPE_UVEC2, 0},
@@ -273,9 +273,9 @@ static int init_block(struct colorstats_priv *s, struct ngpu_ctx *gpu_ctx)
         {"depth",         NGLI_TYPE_I32,   0},
         {"length_minus1", NGLI_TYPE_I32,   0},
         {"summary",       NGLI_TYPE_UVEC4, 1 << MAX_BIT_DEPTH},
-        {"data",          NGLI_TYPE_UVEC4, NGLI_BLOCK_VARIADIC_COUNT},
+        {"data",          NGLI_TYPE_UVEC4, NGPU_BLOCK_DESC_VARIADIC_COUNT},
     };
-    int ret = ngli_block_add_fields(block, block_fields, NGLI_ARRAY_NB(block_fields));
+    int ret = ngpu_block_desc_add_fields(block, block_fields, NGLI_ARRAY_NB(block_fields));
     if (ret < 0)
         return ret;
 
@@ -354,7 +354,7 @@ static int alloc_block_buffer(struct ngl_node *node, int32_t length)
      * and allocate the variadic buffer accordingly.
      */
     const size_t data_field_count = length * s->depth;
-    s->blk.data_size = ngli_block_get_size(&s->blk.block, data_field_count);
+    s->blk.data_size = ngpu_block_desc_get_size(&s->blk.block, data_field_count);
     int ret = ngpu_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
     if (ret < 0)
         return ret;
@@ -438,7 +438,7 @@ static void colorstats_uninit(struct ngl_node *node)
     ngli_pipeline_compat_freep(&s->waveform.pipeline_compat);
     ngli_pipeline_compat_freep(&s->sumscale.pipeline_compat);
     ngpu_buffer_freep(&s->blk.buffer);
-    ngli_block_reset(&s->blk.block);
+    ngpu_block_desc_reset(&s->blk.block);
     ngpu_block_reset(&s->stats_params_block);
 }
 

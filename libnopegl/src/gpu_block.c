@@ -30,13 +30,13 @@ int ngpu_block_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block *s, const struct
     s->gpu_ctx = gpu_ctx;
 
     const int layout = params->layout ? params->layout : NGPU_BLOCK_LAYOUT_STD140;
-    ngli_block_init(gpu_ctx, &s->block, layout);
+    ngpu_block_desc_init(gpu_ctx, &s->block, layout);
     ngli_darray_init(&s->offsets, sizeof(size_t), 0);
 
     size_t last_offset = SIZE_MAX;
     for (size_t i = 0; i < params->nb_entries; i++) {
         const struct ngpu_block_field *field = &params->entries[i].field;
-        int ret = ngli_block_add_field(&s->block, field->name, field->type, field->count);
+        int ret = ngpu_block_desc_add_field(&s->block, field->name, field->type, field->count);
         if (ret < 0)
             return ret;
 
@@ -48,7 +48,7 @@ int ngpu_block_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block *s, const struct
         last_offset = offset;
     }
 
-    s->block_size = ngli_block_get_aligned_size(&s->block, 0);
+    s->block_size = ngpu_block_desc_get_aligned_size(&s->block, 0);
     s->buffer = ngpu_buffer_create(gpu_ctx);
     if (!s->buffer)
         return NGL_ERROR_MEMORY;
@@ -82,7 +82,7 @@ int ngpu_block_update(struct ngpu_block *s, size_t index, const void *data)
 
 void ngpu_block_reset(struct ngpu_block *s)
 {
-    ngli_block_reset(&s->block);
+    ngpu_block_desc_reset(&s->block);
     ngli_darray_reset(&s->offsets);
     ngpu_buffer_freep(&s->buffer);
     memset(s, 0, sizeof(*s));

@@ -93,7 +93,7 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
     for (size_t i = 0; i < NGPU_PROGRAM_SHADER_NB; i++) {
-        const size_t block_size = ngli_block_get_size(&s->compat_info->ublocks[i], 0);
+        const size_t block_size = ngpu_block_desc_get_size(&s->compat_info->ublocks[i], 0);
         if (!block_size)
             continue;
 
@@ -271,7 +271,7 @@ int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t
 
     const int32_t stage = index >> 16;
     const int32_t field_index = index & 0xffff;
-    const struct block *block = &s->compat_info->ublocks[stage];
+    const struct ngpu_block_desc *block = &s->compat_info->ublocks[stage];
     const struct ngpu_block_field *fields = ngli_darray_data(&block->fields);
     const struct ngpu_block_field *field = &fields[field_index];
     if (value) {
