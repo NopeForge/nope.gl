@@ -188,7 +188,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
      * situations, UBO is not possible.
      */
     int type = NGLI_TYPE_UNIFORM_BUFFER;
-    if (block->layout == NGLI_BLOCK_LAYOUT_STD430) {
+    if (block->layout == NGPU_BLOCK_LAYOUT_STD430) {
         LOG(DEBUG, "block %s has a std430 layout, declaring it as SSBO", name);
         type = NGLI_TYPE_STORAGE_BUFFER;
     } else if (block_size > limits->max_uniform_block_size) {

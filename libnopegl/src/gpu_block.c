@@ -29,13 +29,13 @@ int ngpu_block_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block *s, const struct
 {
     s->gpu_ctx = gpu_ctx;
 
-    const int layout = params->layout ? params->layout : NGLI_BLOCK_LAYOUT_STD140;
+    const int layout = params->layout ? params->layout : NGPU_BLOCK_LAYOUT_STD140;
     ngli_block_init(gpu_ctx, &s->block, layout);
     ngli_darray_init(&s->offsets, sizeof(size_t), 0);
 
     size_t last_offset = SIZE_MAX;
     for (size_t i = 0; i < params->nb_entries; i++) {
-        const struct block_field *field = &params->entries[i].field;
+        const struct ngpu_block_field *field = &params->entries[i].field;
         int ret = ngli_block_add_field(&s->block, field->name, field->type, field->count);
         if (ret < 0)
             return ret;
@@ -69,11 +69,11 @@ int ngpu_block_update(struct ngpu_block *s, size_t index, const void *data)
     int ret = ngpu_buffer_map(s->buffer, s->block_size * index, s->block_size, (void **) &dst);
     if (ret < 0)
         return ret;
-    const struct block_field *fields = ngli_darray_data(&s->block.fields);
+    const struct ngpu_block_field *fields = ngli_darray_data(&s->block.fields);
     const size_t *offsets = ngli_darray_data(&s->offsets);
     for (size_t i = 0; i < ngli_darray_count(&s->block.fields); i++) {
-        const struct block_field *field = &fields[i];
-        ngli_block_field_copy_count(field, dst + field->offset, src + offsets[i], field->count);
+        const struct ngpu_block_field *field = &fields[i];
+        ngpu_block_field_copy_count(field, dst + field->offset, src + offsets[i], field->count);
     }
     ngpu_buffer_unmap(s->buffer);
 

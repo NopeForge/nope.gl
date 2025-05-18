@@ -36,8 +36,8 @@
 static const struct param_choices layout_choices = {
     .name = "memory_layout",
     .consts = {
-        {"std140", NGLI_BLOCK_LAYOUT_STD140, .desc=NGLI_DOCSTRING("standard uniform block memory layout 140")},
-        {"std430", NGLI_BLOCK_LAYOUT_STD430, .desc=NGLI_DOCSTRING("standard uniform block memory layout 430")},
+        {"std140", NGPU_BLOCK_LAYOUT_STD140, .desc=NGLI_DOCSTRING("standard uniform block memory layout 140")},
+        {"std430", NGPU_BLOCK_LAYOUT_STD430, .desc=NGLI_DOCSTRING("standard uniform block memory layout 430")},
         {NULL}
     }
 };
@@ -125,7 +125,7 @@ static const struct node_param block_params[] = {
     {"fields", NGLI_PARAM_TYPE_NODELIST, OFFSET(fields),
                .node_types=FIELD_TYPES_LIST,
                .desc=NGLI_DOCSTRING("block fields defined in the graphic program")},
-    {"layout", NGLI_PARAM_TYPE_SELECT, OFFSET(layout), {.i32=NGLI_BLOCK_LAYOUT_STD140},
+    {"layout", NGLI_PARAM_TYPE_SELECT, OFFSET(layout), {.i32=NGPU_BLOCK_LAYOUT_STD140},
                .choices=&layout_choices,
                .desc=NGLI_DOCSTRING("memory layout set in the graphic program")},
     {NULL}
@@ -200,12 +200,12 @@ static const uint8_t *get_buffer_data_ptr(const struct ngl_node *node)
     return buffer->data;
 }
 
-static int field_is_dynamic(const struct ngl_node *node, const struct block_field *fi)
+static int field_is_dynamic(const struct ngl_node *node, const struct ngpu_block_field *fi)
 {
     return fi->count ? is_dynamic_buffer(node) : is_dynamic_variable(node);
 }
 
-static const uint8_t *get_data_ptr(const struct ngl_node *node, const struct block_field *fi)
+static const uint8_t *get_data_ptr(const struct ngl_node *node, const struct ngpu_block_field *fi)
 {
     return fi->count ? get_buffer_data_ptr(node) : get_variable_data_ptr(node);
 }
@@ -216,14 +216,14 @@ static int update_block_data(struct ngl_node *node, int forced)
     struct block_priv *s = node->priv_data;
     struct block_info *info = &s->blk;
     const struct block_opts *o = node->opts;
-    const struct block_field *field_info = ngli_darray_data(&info->block.fields);
+    const struct ngpu_block_field *field_info = ngli_darray_data(&info->block.fields);
     for (size_t i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
-        const struct block_field *fi = &field_info[i];
+        const struct ngpu_block_field *fi = &field_info[i];
         if (!forced && !field_is_dynamic(field_node, fi))
             continue;
         const uint8_t *src = get_data_ptr(field_node, fi);
-        ngli_block_field_copy(fi, info->data + fi->offset, src);
+        ngpu_block_field_copy(fi, info->data + fi->offset, src);
         has_changed = 1; // TODO: only re-upload the changing data segments
     }
     return has_changed;
@@ -271,7 +271,7 @@ static int block_init(struct ngl_node *node)
     struct block_info *info = &s->blk;
     const struct block_opts *o = node->opts;
 
-    if (o->layout == NGLI_BLOCK_LAYOUT_STD430 && !(gpu_ctx->features & FEATURES_STD430)) {
+    if (o->layout == NGPU_BLOCK_LAYOUT_STD430 && !(gpu_ctx->features & FEATURES_STD430)) {
         LOG(ERROR, "std430 blocks are not supported by this context");
         return NGL_ERROR_UNSUPPORTED;
     }
@@ -307,8 +307,8 @@ static int block_init(struct ngl_node *node)
         if (ret < 0)
             return ret;
 
-        const struct block_field *fields = ngli_darray_data(&info->block.fields);
-        const struct block_field *fi = &fields[i];
+        const struct ngpu_block_field *fields = ngli_darray_data(&info->block.fields);
+        const struct ngpu_block_field *fi = &fields[i];
         LOG(DEBUG, "%s.field[%zu]: %s offset=%zu size=%zu stride=%zu",
             node->label, i, field_node->label, fi->offset, fi->size, fi->stride);
 

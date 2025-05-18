@@ -30,14 +30,14 @@
 
 struct ngpu_ctx;
 
-enum block_layout {
-    NGLI_BLOCK_LAYOUT_UNKNOWN,
-    NGLI_BLOCK_LAYOUT_STD140,
-    NGLI_BLOCK_LAYOUT_STD430,
-    NGLI_BLOCK_NB_LAYOUTS
+enum ngpu_block_layout {
+    NGPU_BLOCK_LAYOUT_UNKNOWN,
+    NGPU_BLOCK_LAYOUT_STD140,
+    NGPU_BLOCK_LAYOUT_STD430,
+    NGPU_BLOCK_NB_LAYOUTS
 };
 
-struct block_field {
+struct ngpu_block_field {
     char name[MAX_ID_LEN];
     int type;
     size_t count;
@@ -47,26 +47,26 @@ struct block_field {
     int precision;
 };
 
-void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uint8_t *src);
-void ngli_block_field_copy_count(const struct block_field *fi, uint8_t *dst, const uint8_t *src, size_t count);
+void ngpu_block_field_copy(const struct ngpu_block_field *fi, uint8_t *dst, const uint8_t *src);
+void ngpu_block_field_copy_count(const struct ngpu_block_field *fi, uint8_t *dst, const uint8_t *src, size_t count);
 
 struct block {
     struct ngpu_ctx *gpu_ctx;
-    enum block_layout layout;
+    enum ngpu_block_layout layout;
     struct darray fields; // block_field
     size_t size;
 };
 
-struct block_field_data {
+struct ngpu_block_field_data {
     const void *data;
     size_t count;
 };
 
-void ngli_block_fields_copy(const struct block *s, const struct block_field_data *src_array, uint8_t *dst);
+void ngli_block_fields_copy(const struct block *s, const struct ngpu_block_field_data *src_array, uint8_t *dst);
 
 #define NGLI_BLOCK_VARIADIC_COUNT -1
 
-void ngli_block_init(struct ngpu_ctx *gpu_ctx, struct block *s, enum block_layout layout);
+void ngli_block_init(struct ngpu_ctx *gpu_ctx, struct block *s, enum ngpu_block_layout layout);
 size_t ngli_block_get_size(const struct block *s, size_t variadic_count);
 
 /*
@@ -78,7 +78,7 @@ size_t ngli_block_get_size(const struct block *s, size_t variadic_count);
 size_t ngli_block_get_aligned_size(const struct block *s, size_t variadic_count);
 
 int ngli_block_add_field(struct block *s, const char *name, int type, size_t count);
-int ngli_block_add_fields(struct block *s, const struct block_field *fields, size_t count);
+int ngli_block_add_fields(struct block *s, const struct ngpu_block_field *fields, size_t count);
 
 void ngli_block_reset(struct block *s);
 

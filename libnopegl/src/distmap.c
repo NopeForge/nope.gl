@@ -348,11 +348,11 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
 
             const float scale[] = {(float)shape->width * s->scale, (float)shape->height * s->scale};
 
-            const struct block_field_data vert_data_src[] = {
+            const struct ngpu_block_field_data vert_data_src[] = {
                 [VERTICES_INDEX] = {.data=vertices},
             };
 
-            const struct block_field_data frag_data_src[] = {
+            const struct ngpu_block_field_data frag_data_src[] = {
                 [COORDS_INDEX]            = {.data = coords},
                 [SCALE_INDEX]             = {.data = scale},
                 [BEZIER_X_BUF_INDEX]      = {.data = bezier_x + bezier_start_idx, .count = bezier_count},
@@ -588,11 +588,11 @@ int ngli_distmap_finalize(struct distmap *s)
     const int32_t bezier_max_count = get_max_beziers_per_shape(s);
     const int32_t beziergroup_max_count = get_max_beziergroups_per_shape(s);
 
-    const struct block_field vert_fields[] = {
+    const struct ngpu_block_field vert_fields[] = {
         [VERTICES_INDEX] = {.name="vertices", .type=NGLI_TYPE_VEC4},
     };
 
-    const struct block_field frag_fields[] = {
+    const struct ngpu_block_field frag_fields[] = {
         [COORDS_INDEX]            = {.name="coords",            .type=NGLI_TYPE_VEC4},
         [SCALE_INDEX]             = {.name="scale",             .type=NGLI_TYPE_VEC2},
         [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGLI_TYPE_VEC4, .count=bezier_max_count},
@@ -601,8 +601,8 @@ int ngli_distmap_finalize(struct distmap *s)
         [BEZIERGROUP_COUNT_INDEX] = {.name="beziergroup_count", .type=NGLI_TYPE_I32},
     };
 
-    ngli_block_init(gpu_ctx, &s->vert_block, NGLI_BLOCK_LAYOUT_STD140);
-    ngli_block_init(gpu_ctx, &s->frag_block, NGLI_BLOCK_LAYOUT_STD140);
+    ngli_block_init(gpu_ctx, &s->vert_block, NGPU_BLOCK_LAYOUT_STD140);
+    ngli_block_init(gpu_ctx, &s->frag_block, NGPU_BLOCK_LAYOUT_STD140);
 
     if ((ret = ngli_block_add_fields(&s->vert_block, vert_fields, NGLI_ARRAY_NB(vert_fields))) < 0 ||
         (ret = ngli_block_add_fields(&s->frag_block, frag_fields, NGLI_ARRAY_NB(frag_fields))))

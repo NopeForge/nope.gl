@@ -554,9 +554,9 @@ static int inject_textures(struct pgcraft *s, const struct pgcraft_params *param
     return 0;
 }
 
-static const char *glsl_layout_str_map[NGLI_BLOCK_NB_LAYOUTS] = {
-    [NGLI_BLOCK_LAYOUT_STD140] = "std140",
-    [NGLI_BLOCK_LAYOUT_STD430] = "std430",
+static const char *glsl_layout_str_map[NGPU_BLOCK_NB_LAYOUTS] = {
+    [NGPU_BLOCK_LAYOUT_STD140] = "std140",
+    [NGPU_BLOCK_LAYOUT_STD430] = "std430",
 };
 
 static int inject_block(struct pgcraft *s, struct bstr *b,
@@ -586,9 +586,9 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
 
     const char *keyword = get_glsl_type(named_block->type);
     ngli_bstr_printf(b, " %s %s_block {\n", keyword, named_block->name);
-    const struct block_field *field_info = ngli_darray_data(&block->fields);
+    const struct ngpu_block_field *field_info = ngli_darray_data(&block->fields);
     for (size_t i = 0; i < ngli_darray_count(&block->fields); i++) {
-        const struct block_field *fi = &field_info[i];
+        const struct ngpu_block_field *fi = &field_info[i];
         const char *type = get_glsl_type(fi->type);
         const char *precision = get_precision_qualifier(s, fi->type, fi->precision, "");
         const char *array_suffix = GET_ARRAY_SUFFIX(fi->count);
@@ -1160,7 +1160,7 @@ static int32_t get_ublock_index(const struct pgcraft *s, const char *name, int s
 {
     const struct pgcraft_compat_info *compat_info = &s->compat_info;
     const struct darray *fields_array = &compat_info->ublocks[stage].fields;
-    const struct block_field *fields = ngli_darray_data(fields_array);
+    const struct ngpu_block_field *fields = ngli_darray_data(fields_array);
     for (int32_t i = 0; i < (int32_t)ngli_darray_count(fields_array); i++)
         if (!strcmp(fields[i].name, name))
             return stage << 16 | i;
@@ -1340,7 +1340,7 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
 
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     for (size_t i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
-        ngli_block_init(ctx->gpu_ctx, &compat_info->ublocks[i], NGLI_BLOCK_LAYOUT_STD140);
+        ngli_block_init(ctx->gpu_ctx, &compat_info->ublocks[i], NGPU_BLOCK_LAYOUT_STD140);
         compat_info->ubindings[i] = -1;
         compat_info->uindices[i] = -1;
     }
