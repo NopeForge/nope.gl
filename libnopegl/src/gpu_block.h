@@ -34,7 +34,7 @@ struct ngpu_ctx;
 #define NGPU_BLOCK_FIELD(_st, _name, _type, _count) \
     {.field={.name= #_name, .type=_type, .count=_count}, .offset=offsetof(_st, _name)}
 
-struct ngpu_block_field {
+struct ngpu_block_entry {
     struct block_field field;
     size_t offset;
 };
@@ -43,8 +43,8 @@ struct ngpu_block_params {
     int layout;
     uint32_t usage;
     size_t count;
-    const struct ngpu_block_field *fields;
-    size_t nb_fields;
+    const struct ngpu_block_entry *entries;
+    size_t nb_entries;
 };
 
 struct ngpu_block {

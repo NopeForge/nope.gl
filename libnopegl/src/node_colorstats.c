@@ -220,14 +220,14 @@ static int init_computes(struct ngl_node *node)
     if (!s->init.crafter || !s->waveform.crafter || !s->sumscale.crafter)
         return NGL_ERROR_MEMORY;
 
-    const struct ngpu_block_field block_fields[] = {
+    const struct ngpu_block_entry block_fields[] = {
         NGPU_BLOCK_FIELD(struct stats_params_block, depth, NGLI_TYPE_I32, 0),
         NGPU_BLOCK_FIELD(struct stats_params_block, length_minus1, NGLI_TYPE_I32, 0),
     };
     const struct ngpu_block_params block_params = {
-        .count     = 1,
-        .fields    = block_fields,
-        .nb_fields = NGLI_ARRAY_NB(block_fields),
+        .count      = 1,
+        .entries    = block_fields,
+        .nb_entries = NGLI_ARRAY_NB(block_fields),
     };
     int ret = ngpu_block_init(gpu_ctx, &s->stats_params_block, &block_params);
     if (ret < 0)

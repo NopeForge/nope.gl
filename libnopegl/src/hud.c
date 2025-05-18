@@ -1241,14 +1241,14 @@ int ngli_hud_init(struct hud *s)
     if (ret < 0)
         return ret;
 
-    const struct ngpu_block_field block_fields[] = {
+    const struct ngpu_block_entry block_fields[] = {
         NGPU_BLOCK_FIELD(struct transforms_block, modelview_matrix, NGLI_TYPE_MAT4, 0),
         NGPU_BLOCK_FIELD(struct transforms_block, projection_matrix, NGLI_TYPE_MAT4, 0),
     };
     const struct ngpu_block_params block_params = {
-        .count     = 1,
-        .fields    = block_fields,
-        .nb_fields = NGLI_ARRAY_NB(block_fields),
+        .count      = 1,
+        .entries    = block_fields,
+        .nb_entries = NGLI_ARRAY_NB(block_fields),
     };
     ret = ngpu_block_init(gpu_ctx, &s->transforms_block, &block_params);
     if (ret < 0)

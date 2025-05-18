@@ -34,13 +34,13 @@ int ngpu_block_init(struct ngpu_ctx *gpu_ctx, struct ngpu_block *s, const struct
     ngli_darray_init(&s->offsets, sizeof(size_t), 0);
 
     size_t last_offset = SIZE_MAX;
-    for (size_t i = 0; i < params->nb_fields; i++) {
-        const struct block_field *field = &params->fields[i].field;
+    for (size_t i = 0; i < params->nb_entries; i++) {
+        const struct block_field *field = &params->entries[i].field;
         int ret = ngli_block_add_field(&s->block, field->name, field->type, field->count);
         if (ret < 0)
             return ret;
 
-        size_t offset = params->fields[i].offset;
+        size_t offset = params->entries[i].offset;
         if (!ngli_darray_push(&s->offsets, &offset))
             return NGL_ERROR_MEMORY;
 

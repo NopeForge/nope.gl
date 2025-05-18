@@ -245,13 +245,13 @@ static int gblur_init(struct ngl_node *node)
     s->dst_layout.colors[0].format = dst_info->params.format;
     s->dst_layout.nb_colors = 1;
 
-    const struct ngpu_block_field direction_block_fields[] = {
+    const struct ngpu_block_entry direction_block_fields[] = {
         NGPU_BLOCK_FIELD(struct direction_block, direction, NGLI_TYPE_VEC2, 0),
     };
     const struct ngpu_block_params direction_block_params = {
-        .count     = 2,
-        .fields    = direction_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(direction_block_fields),
+        .count      = 2,
+        .entries    = direction_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(direction_block_fields),
     };
     int ret = ngpu_block_init(gpu_ctx, &s->direction_block, &direction_block_params);
     if (ret < 0)
@@ -259,13 +259,13 @@ static int gblur_init(struct ngl_node *node)
     ngpu_block_update(&s->direction_block, 0, &(struct direction_block){.direction = {1.f, 0.f}});
     ngpu_block_update(&s->direction_block, 1, &(struct direction_block){.direction = {0.f, 1.f}});
 
-    const struct ngpu_block_field kernel_block_fields[] = {
+    const struct ngpu_block_entry kernel_block_fields[] = {
         NGPU_BLOCK_FIELD(struct kernel_block, weights,    NGLI_TYPE_VEC2, MAX_KERNEL_SIZE),
         NGPU_BLOCK_FIELD(struct kernel_block, nb_weights, NGLI_TYPE_I32,  0),
     };
     const struct ngpu_block_params kernel_block_params = {
-        .fields    = kernel_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(kernel_block_fields),
+        .entries    = kernel_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(kernel_block_fields),
     };
     ngpu_block_init(gpu_ctx, &s->kernel_block, &kernel_block_params);
 
