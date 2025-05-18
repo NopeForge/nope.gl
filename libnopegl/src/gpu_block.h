@@ -35,7 +35,7 @@ struct ngpu_ctx;
     {.field={.name= #_name, .type=_type, .count=_count}, .offset=offsetof(_st, _name)}
 
 struct ngpu_block_entry {
-    struct block_field field;
+    struct ngpu_block_field field;
     size_t offset;
 };
 

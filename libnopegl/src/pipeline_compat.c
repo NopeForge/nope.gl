@@ -272,8 +272,8 @@ int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t
     const int32_t stage = index >> 16;
     const int32_t field_index = index & 0xffff;
     const struct block *block = &s->compat_info->ublocks[stage];
-    const struct block_field *fields = ngli_darray_data(&block->fields);
-    const struct block_field *field = &fields[field_index];
+    const struct ngpu_block_field *fields = ngli_darray_data(&block->fields);
+    const struct ngpu_block_field *field = &fields[field_index];
     if (value) {
         if (!(gpu_ctx->features & NGPU_FEATURE_BUFFER_MAP_PERSISTENT)) {
             int ret = map_buffer(s, stage);
@@ -281,7 +281,7 @@ int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t
                 return ret;
         }
         uint8_t *dst = s->mapped_datas[stage] + field->offset;
-        ngli_block_field_copy_count(field, dst, value, count);
+        ngpu_block_field_copy_count(field, dst, value, count);
     }
 
     return 0;

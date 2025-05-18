@@ -30,15 +30,15 @@
 #include "type.h"
 #include "utils.h"
 
-void ngli_block_init(struct ngpu_ctx *gpu_ctx, struct block *s, enum block_layout layout)
+void ngli_block_init(struct ngpu_ctx *gpu_ctx, struct block *s, enum ngpu_block_layout layout)
 {
     s->gpu_ctx = gpu_ctx;
     s->layout = layout;
-    ngli_darray_init(&s->fields, sizeof(struct block_field), 0);
+    ngli_darray_init(&s->fields, sizeof(struct ngpu_block_field), 0);
 }
 
-static const size_t strides_map[NGLI_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
-    [NGLI_BLOCK_LAYOUT_STD140] = {
+static const size_t strides_map[NGPU_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
+    [NGPU_BLOCK_LAYOUT_STD140] = {
         [NGLI_TYPE_BOOL]   = sizeof(int)   * 4,
         [NGLI_TYPE_I32]    = sizeof(int32_t)  * 4,
         [NGLI_TYPE_IVEC2]  = sizeof(int32_t)  * 4,
@@ -55,7 +55,7 @@ static const size_t strides_map[NGLI_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
         [NGLI_TYPE_MAT3]   = sizeof(float) * 4 * 3,
         [NGLI_TYPE_MAT4]   = sizeof(float) * 4 * 4,
     },
-    [NGLI_BLOCK_LAYOUT_STD430] = {
+    [NGPU_BLOCK_LAYOUT_STD430] = {
         [NGLI_TYPE_BOOL]   = sizeof(int)   * 1,
         [NGLI_TYPE_I32]    = sizeof(int32_t)  * 1,
         [NGLI_TYPE_IVEC2]  = sizeof(int32_t)  * 2,
@@ -110,31 +110,31 @@ static const size_t aligns_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_MAT4]   = sizeof(float) * 4,
 };
 
-static size_t get_buffer_stride(const struct block_field *field, int layout)
+static size_t get_buffer_stride(const struct ngpu_block_field *field, int layout)
 {
     return strides_map[layout][field->type];
 }
 
-static size_t get_buffer_size(const struct block_field *field, int layout)
+static size_t get_buffer_size(const struct ngpu_block_field *field, int layout)
 {
     return field->count * get_buffer_stride(field, layout);
 }
 
-static size_t get_field_size(const struct block_field *field, int layout)
+static size_t get_field_size(const struct ngpu_block_field *field, int layout)
 {
     if (field->count)
         return get_buffer_size(field, layout);
     return sizes_map[field->type];
 }
 
-static size_t get_field_align(const struct block_field *field, int layout)
+static size_t get_field_align(const struct ngpu_block_field *field, int layout)
 {
     if (field->count && field->type != NGLI_TYPE_MAT3 && field->type != NGLI_TYPE_MAT4)
         return get_buffer_stride(field, layout);
     return aligns_map[field->type];
 }
 
-static size_t fill_tail_field_info(const struct block *s, struct block_field *field)
+static size_t fill_tail_field_info(const struct block *s, struct ngpu_block_field *field)
 {
     /* Ignore the last field until the count is known */
     if (field->count == NGLI_BLOCK_VARIADIC_COUNT) {
@@ -170,10 +170,10 @@ size_t ngli_block_get_size(const struct block *s, size_t variadic_field_count)
      * where we set the count to the one specified in this function, and
      * recalculate the new size as if it was a normal field.
      */
-    const struct block_field *last = ngli_darray_tail(&s->fields);
+    const struct ngpu_block_field *last = ngli_darray_tail(&s->fields);
     ngli_assert(last->count == NGLI_BLOCK_VARIADIC_COUNT);
 
-    struct block_field tmp = *last;
+    struct ngpu_block_field tmp = *last;
     tmp.count = variadic_field_count;
     size_t size = fill_tail_field_info(s, &tmp);
     return NGLI_ALIGN(size, aligns_map[NGLI_TYPE_VEC4]);
@@ -189,14 +189,14 @@ size_t ngli_block_get_aligned_size(const struct block *s, size_t variadic_field_
 
 int ngli_block_add_field(struct block *s, const char *name, int type, size_t count)
 {
-    ngli_assert(s->layout != NGLI_BLOCK_LAYOUT_UNKNOWN);
+    ngli_assert(s->layout != NGPU_BLOCK_LAYOUT_UNKNOWN);
 
     /* check that we are not adding a field after a variadic one */
-    const struct block_field *last = ngli_darray_tail(&s->fields);
+    const struct ngpu_block_field *last = ngli_darray_tail(&s->fields);
     if (last)
         ngli_assert(last->count != NGLI_BLOCK_VARIADIC_COUNT);
 
-    struct block_field field = {
+    struct ngpu_block_field field = {
         .type = type,
         .count = count,
     };
@@ -211,10 +211,10 @@ int ngli_block_add_field(struct block *s, const char *name, int type, size_t cou
     return (int)nb_fields - 1;
 }
 
-int ngli_block_add_fields(struct block *s, const struct block_field *fields, size_t count)
+int ngli_block_add_fields(struct block *s, const struct ngpu_block_field *fields, size_t count)
 {
     for (size_t i = 0; i < count; i++) {
-        const struct block_field *field = &fields[i];
+        const struct ngpu_block_field *field = &fields[i];
 
         /* These fields are filled internally */
         ngli_assert(field->offset == 0);
@@ -228,7 +228,8 @@ int ngli_block_add_fields(struct block *s, const struct block_field *fields, siz
     return 0;
 }
 
-void ngli_block_field_copy_count(const struct block_field *fi, uint8_t * restrict dst, const uint8_t * restrict src, size_t count)
+void ngpu_block_field_copy_count(const struct ngpu_block_field *fi, uint8_t * restrict dst,
+                                 const uint8_t * restrict src, size_t count)
 {
     uint8_t *dstp = dst;
     const uint8_t *srcp = src;
@@ -254,18 +255,18 @@ void ngli_block_field_copy_count(const struct block_field *fi, uint8_t * restric
     }
 }
 
-void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uint8_t *src)
+void ngpu_block_field_copy(const struct ngpu_block_field *fi, uint8_t *dst, const uint8_t *src)
 {
-    ngli_block_field_copy_count(fi, dst, src, 0);
+    ngpu_block_field_copy_count(fi, dst, src, 0);
 }
 
-void ngli_block_fields_copy(const struct block *s, const struct block_field_data *src_array, uint8_t *dst)
+void ngli_block_fields_copy(const struct block *s, const struct ngpu_block_field_data *src_array, uint8_t *dst)
 {
-    const struct block_field *fields = ngli_darray_data(&s->fields);
+    const struct ngpu_block_field *fields = ngli_darray_data(&s->fields);
     for (size_t i = 0; i < ngli_darray_count(&s->fields); i++) {
-        const struct block_field_data *src = &src_array[i];
-        const struct block_field *fi = &fields[i];
-        ngli_block_field_copy_count(fi, dst + fi->offset, src->data, src->count);
+        const struct ngpu_block_field_data *src = &src_array[i];
+        const struct ngpu_block_field *fi = &fields[i];
+        ngpu_block_field_copy_count(fi, dst + fi->offset, src->data, src->count);
     }
 }
 

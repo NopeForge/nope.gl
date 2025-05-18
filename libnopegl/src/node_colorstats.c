@@ -265,9 +265,9 @@ static int init_computes(struct ngl_node *node)
 static int init_block(struct colorstats_priv *s, struct ngpu_ctx *gpu_ctx)
 {
     struct block *block = &s->blk.block;
-    ngli_block_init(gpu_ctx, block, NGLI_BLOCK_LAYOUT_STD430);
+    ngli_block_init(gpu_ctx, block, NGPU_BLOCK_LAYOUT_STD430);
 
-    static const struct block_field block_fields[] = {
+    static const struct ngpu_block_field block_fields[] = {
         {"max_rgb",       NGLI_TYPE_UVEC2, 0},
         {"max_luma",      NGLI_TYPE_UVEC2, 0},
         {"depth",         NGLI_TYPE_I32,   0},
