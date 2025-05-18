@@ -149,7 +149,7 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
             .instance_name = "",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &block->block,
+            .block         = &block->block_desc,
             .buffer        = {
                 .buffer    = block->buffer,
                 .size      = block->block_size,
@@ -235,7 +235,7 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
             .name          = "interpolate",
             .type          = NGLI_TYPE_UNIFORM_BUFFER,
             .stage         = NGPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->interpolate.block.block,
+            .block         = &s->interpolate.block.block_desc,
             .buffer        = {
                 .buffer    = s->interpolate.block.buffer,
                 .size      = s->interpolate.block.block_size,

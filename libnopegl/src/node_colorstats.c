@@ -239,7 +239,7 @@ static int init_computes(struct ngl_node *node)
             .instance_name = "",
             .type     = NGLI_TYPE_UNIFORM_BUFFER,
             .stage    = NGPU_PROGRAM_SHADER_COMP,
-            .block    = &s->stats_params_block.block,
+            .block    = &s->stats_params_block.block_desc,
             .buffer   = {
                 .buffer = s->stats_params_block.buffer,
                 .size   = s->stats_params_block.buffer->size,
