@@ -27,15 +27,16 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gpu_buffer.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
+#include "ngpu/buffer.h"
+#include "ngpu/type.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "nopegl.h"
-#include "type.h"
-#include "utils.h"
+#include "utils/memory.h"
+#include "utils/file.h"
+#include "utils/utils.h"
 
 struct buffer_opts {
     int32_t count;
@@ -180,11 +181,11 @@ static int buffer_init_from_count(struct ngl_node *node)
     return 0;
 }
 
-static const struct block_field *get_block_field(const struct darray *fields_array, const char *name)
+static const struct ngpu_block_field *get_block_field(const struct darray *fields_array, const char *name)
 {
-    const struct block_field *fields = ngli_darray_data(fields_array);
+    const struct ngpu_block_field *fields = ngli_darray_data(fields_array);
     for (size_t i = 0; i < ngli_darray_count(fields_array); i++) {
-        const struct block_field *field = &fields[i];
+        const struct ngpu_block_field *field = &fields[i];
         if (!strcmp(field->name, name))
             return field;
     }
@@ -198,14 +199,14 @@ static int buffer_init_from_block(struct ngl_node *node)
     const struct buffer_opts *o = node->opts;
 
     const struct block_info *block_info = o->block->priv_data;
-    const struct block *block = &block_info->block;
+    const struct ngpu_block_desc *block = &block_info->block;
 
     if (!o->block_field) {
         LOG(ERROR, "`block_field` must be set when setting a block");
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    const struct block_field *fi = get_block_field(&block->fields, o->block_field);
+    const struct ngpu_block_field *fi = get_block_field(&block->fields, o->block_field);
     if (!fi) {
         LOG(ERROR, "field %s not found in %s", o->block_field, o->block->label);
         return NGL_ERROR_NOT_FOUND;
@@ -213,7 +214,7 @@ static int buffer_init_from_block(struct ngl_node *node)
 
     if (layout->type != fi->type) {
         LOG(ERROR, "%s.%s of type %s mismatches %s local type",
-            o->block->label, o->block_field, ngli_type_get_name(fi->type), ngli_type_get_name(layout->type));
+            o->block->label, o->block_field, ngpu_type_get_name(fi->type), ngpu_type_get_name(layout->type));
         return NGL_ERROR_INVALID_ARG;
     }
 
@@ -268,11 +269,11 @@ static int buffer_init(struct ngl_node *node)
         layout->comp = 4 * 4;
         layout->stride = layout->comp * sizeof(float);
     } else {
-        layout->comp = ngli_gpu_format_get_nb_comp(layout->format);
-        layout->stride = ngli_gpu_format_get_bytes_per_pixel(layout->format);
+        layout->comp = ngpu_format_get_nb_comp(layout->format);
+        layout->stride = ngpu_format_get_bytes_per_pixel(layout->format);
     }
 
-    s->buf.usage = NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT;
+    s->buf.usage = NGPU_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     int ret = buffer_init_from_type(node);
     if (ret < 0)
@@ -282,7 +283,7 @@ static int buffer_init(struct ngl_node *node)
         const struct block_info *block_info = s->buf.block->priv_data;
         s->buf.buffer = block_info->buffer;
     } else {
-        s->buf.buffer = ngli_gpu_buffer_create(node->ctx->gpu_ctx);
+        s->buf.buffer = ngpu_buffer_create(node->ctx->gpu_ctx);
         if (!s->buf.buffer)
             return NGL_ERROR_MEMORY;
     }
@@ -306,11 +307,11 @@ static int buffer_prepare(struct ngl_node *node)
     if (info->buffer->size)
         return 0;
 
-    int ret = ngli_gpu_buffer_init(info->buffer, info->data_size, info->usage);
+    int ret = ngpu_buffer_init(info->buffer, info->data_size, info->usage);
     if (ret < 0)
         return ret;
 
-    ret = ngli_gpu_buffer_upload(info->buffer, info->data, 0, info->data_size);
+    ret = ngpu_buffer_upload(info->buffer, info->data, 0, info->data_size);
     if (ret < 0)
         return ret;
 
@@ -325,7 +326,7 @@ static void buffer_uninit(struct ngl_node *node)
     if (s->buf.block)
         s->buf.buffer = NULL;
     else
-        ngli_gpu_buffer_freep(&s->buf.buffer);
+        ngpu_buffer_freep(&s->buf.buffer);
 
     if (!o->data && !o->block)
         ngli_freep(&s->buf.data);
@@ -366,33 +367,33 @@ const struct node_class ngli_buffer##type_name##_class = {      \
     .file      = __FILE__,                                      \
 };
 
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBYTE, "BufferByte", byte, NGLI_GPU_FORMAT_R8_SNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC2, "BufferBVec2", bvec2, NGLI_GPU_FORMAT_R8G8_SNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC3, "BufferBVec3", bvec3, NGLI_GPU_FORMAT_R8G8B8_SNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC4, "BufferBVec4", bvec4, NGLI_GPU_FORMAT_R8G8B8A8_SNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERINT, "BufferInt", int, NGLI_GPU_FORMAT_R32_SINT, NGLI_TYPE_I32)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERINT64, "BufferInt64", int64, NGLI_GPU_FORMAT_R64_SINT, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC2, "BufferIVec2", ivec2, NGLI_GPU_FORMAT_R32G32_SINT, NGLI_TYPE_IVEC2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC3, "BufferIVec3", ivec3, NGLI_GPU_FORMAT_R32G32B32_SINT, NGLI_TYPE_IVEC3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC4, "BufferIVec4", ivec4, NGLI_GPU_FORMAT_R32G32B32A32_SINT, NGLI_TYPE_IVEC4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSHORT, "BufferShort", short, NGLI_GPU_FORMAT_R16_SNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC2, "BufferSVec2", svec2, NGLI_GPU_FORMAT_R16G16_SNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC3, "BufferSVec3", svec3, NGLI_GPU_FORMAT_R16G16B16_SNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC4, "BufferSVec4", svec4, NGLI_GPU_FORMAT_R16G16B16A16_SNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBYTE, "BufferUByte", ubyte, NGLI_GPU_FORMAT_R8_UNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC2, "BufferUBVec2", ubvec2, NGLI_GPU_FORMAT_R8G8_UNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC3, "BufferUBVec3", ubvec3, NGLI_GPU_FORMAT_R8G8B8_UNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC4, "BufferUBVec4", ubvec4, NGLI_GPU_FORMAT_R8G8B8A8_UNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUINT, "BufferUInt", uint, NGLI_GPU_FORMAT_R32_UINT, NGLI_TYPE_U32)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC2, "BufferUIVec2", uivec2, NGLI_GPU_FORMAT_R32G32_UINT, NGLI_TYPE_UVEC2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC3, "BufferUIVec3", uivec3, NGLI_GPU_FORMAT_R32G32B32_UINT, NGLI_TYPE_UVEC3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC4, "BufferUIVec4", uivec4, NGLI_GPU_FORMAT_R32G32B32A32_UINT, NGLI_TYPE_UVEC4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSHORT, "BufferUShort", ushort, NGLI_GPU_FORMAT_R16_UNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC2, "BufferUSVec2", usvec2, NGLI_GPU_FORMAT_R16G16_UNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC3, "BufferUSVec3", usvec3, NGLI_GPU_FORMAT_R16G16B16_UNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC4, "BufferUSVec4", usvec4, NGLI_GPU_FORMAT_R16G16B16A16_UNORM, NGLI_TYPE_NONE)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERFLOAT, "BufferFloat", float, NGLI_GPU_FORMAT_R32_SFLOAT, NGLI_TYPE_F32)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC2, "BufferVec2", vec2, NGLI_GPU_FORMAT_R32G32_SFLOAT, NGLI_TYPE_VEC2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC3, "BufferVec3", vec3, NGLI_GPU_FORMAT_R32G32B32_SFLOAT, NGLI_TYPE_VEC3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC4, "BufferVec4", vec4, NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT, NGLI_TYPE_VEC4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERMAT4, "BufferMat4", mat4, NGLI_GPU_FORMAT_R32G32B32A32_SFLOAT, NGLI_TYPE_MAT4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBYTE, "BufferByte", byte, NGPU_FORMAT_R8_SNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC2, "BufferBVec2", bvec2, NGPU_FORMAT_R8G8_SNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC3, "BufferBVec3", bvec3, NGPU_FORMAT_R8G8B8_SNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC4, "BufferBVec4", bvec4, NGPU_FORMAT_R8G8B8A8_SNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERINT, "BufferInt", int, NGPU_FORMAT_R32_SINT, NGPU_TYPE_I32)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERINT64, "BufferInt64", int64, NGPU_FORMAT_R64_SINT, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC2, "BufferIVec2", ivec2, NGPU_FORMAT_R32G32_SINT, NGPU_TYPE_IVEC2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC3, "BufferIVec3", ivec3, NGPU_FORMAT_R32G32B32_SINT, NGPU_TYPE_IVEC3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC4, "BufferIVec4", ivec4, NGPU_FORMAT_R32G32B32A32_SINT, NGPU_TYPE_IVEC4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSHORT, "BufferShort", short, NGPU_FORMAT_R16_SNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC2, "BufferSVec2", svec2, NGPU_FORMAT_R16G16_SNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC3, "BufferSVec3", svec3, NGPU_FORMAT_R16G16B16_SNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC4, "BufferSVec4", svec4, NGPU_FORMAT_R16G16B16A16_SNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBYTE, "BufferUByte", ubyte, NGPU_FORMAT_R8_UNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC2, "BufferUBVec2", ubvec2, NGPU_FORMAT_R8G8_UNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC3, "BufferUBVec3", ubvec3, NGPU_FORMAT_R8G8B8_UNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC4, "BufferUBVec4", ubvec4, NGPU_FORMAT_R8G8B8A8_UNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUINT, "BufferUInt", uint, NGPU_FORMAT_R32_UINT, NGPU_TYPE_U32)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC2, "BufferUIVec2", uivec2, NGPU_FORMAT_R32G32_UINT, NGPU_TYPE_UVEC2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC3, "BufferUIVec3", uivec3, NGPU_FORMAT_R32G32B32_UINT, NGPU_TYPE_UVEC3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC4, "BufferUIVec4", uivec4, NGPU_FORMAT_R32G32B32A32_UINT, NGPU_TYPE_UVEC4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSHORT, "BufferUShort", ushort, NGPU_FORMAT_R16_UNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC2, "BufferUSVec2", usvec2, NGPU_FORMAT_R16G16_UNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC3, "BufferUSVec3", usvec3, NGPU_FORMAT_R16G16B16_UNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC4, "BufferUSVec4", usvec4, NGPU_FORMAT_R16G16B16A16_UNORM, NGPU_TYPE_NONE)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERFLOAT, "BufferFloat", float, NGPU_FORMAT_R32_SFLOAT, NGPU_TYPE_F32)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC2, "BufferVec2", vec2, NGPU_FORMAT_R32G32_SFLOAT, NGPU_TYPE_VEC2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC3, "BufferVec3", vec3, NGPU_FORMAT_R32G32B32_SFLOAT, NGPU_TYPE_VEC3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC4, "BufferVec4", vec4, NGPU_FORMAT_R32G32B32A32_SFLOAT, NGPU_TYPE_VEC4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERMAT4, "BufferMat4", mat4, NGPU_FORMAT_R32G32B32A32_SFLOAT, NGPU_TYPE_MAT4)

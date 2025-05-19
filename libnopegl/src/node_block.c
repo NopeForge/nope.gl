@@ -22,22 +22,22 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "block.h"
-#include "gpu_buffer.h"
-#include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
+#include "ngpu/block_desc.h"
+#include "ngpu/buffer.h"
+#include "ngpu/ctx.h"
 #include "node_block.h"
 #include "node_buffer.h"
 #include "node_uniform.h"
 #include "nopegl.h"
+#include "utils/memory.h"
 
 static const struct param_choices layout_choices = {
     .name = "memory_layout",
     .consts = {
-        {"std140", NGLI_BLOCK_LAYOUT_STD140, .desc=NGLI_DOCSTRING("standard uniform block memory layout 140")},
-        {"std430", NGLI_BLOCK_LAYOUT_STD430, .desc=NGLI_DOCSTRING("standard uniform block memory layout 430")},
+        {"std140", NGPU_BLOCK_LAYOUT_STD140, .desc=NGLI_DOCSTRING("standard uniform block memory layout 140")},
+        {"std430", NGPU_BLOCK_LAYOUT_STD430, .desc=NGLI_DOCSTRING("standard uniform block memory layout 430")},
         {NULL}
     }
 };
@@ -125,7 +125,7 @@ static const struct node_param block_params[] = {
     {"fields", NGLI_PARAM_TYPE_NODELIST, OFFSET(fields),
                .node_types=FIELD_TYPES_LIST,
                .desc=NGLI_DOCSTRING("block fields defined in the graphic program")},
-    {"layout", NGLI_PARAM_TYPE_SELECT, OFFSET(layout), {.i32=NGLI_BLOCK_LAYOUT_STD140},
+    {"layout", NGLI_PARAM_TYPE_SELECT, OFFSET(layout), {.i32=NGPU_BLOCK_LAYOUT_STD140},
                .choices=&layout_choices,
                .desc=NGLI_DOCSTRING("memory layout set in the graphic program")},
     {NULL}
@@ -151,7 +151,7 @@ size_t ngli_node_block_get_gpu_size(struct ngl_node *node)
     return s->data_size;
 }
 
-static int get_node_data_type(const struct ngl_node *node)
+static enum ngpu_type get_node_data_type(const struct ngl_node *node)
 {
     if (node->cls->category == NGLI_NODE_CATEGORY_VARIABLE) {
         const struct variable_info *variable = node->priv_data;
@@ -200,12 +200,12 @@ static const uint8_t *get_buffer_data_ptr(const struct ngl_node *node)
     return buffer->data;
 }
 
-static int field_is_dynamic(const struct ngl_node *node, const struct block_field *fi)
+static int field_is_dynamic(const struct ngl_node *node, const struct ngpu_block_field *fi)
 {
     return fi->count ? is_dynamic_buffer(node) : is_dynamic_variable(node);
 }
 
-static const uint8_t *get_data_ptr(const struct ngl_node *node, const struct block_field *fi)
+static const uint8_t *get_data_ptr(const struct ngl_node *node, const struct ngpu_block_field *fi)
 {
     return fi->count ? get_buffer_data_ptr(node) : get_variable_data_ptr(node);
 }
@@ -216,14 +216,14 @@ static int update_block_data(struct ngl_node *node, int forced)
     struct block_priv *s = node->priv_data;
     struct block_info *info = &s->blk;
     const struct block_opts *o = node->opts;
-    const struct block_field *field_info = ngli_darray_data(&info->block.fields);
+    const struct ngpu_block_field *field_info = ngli_darray_data(&info->block.fields);
     for (size_t i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
-        const struct block_field *fi = &field_info[i];
+        const struct ngpu_block_field *fi = &field_info[i];
         if (!forced && !field_is_dynamic(field_node, fi))
             continue;
         const uint8_t *src = get_data_ptr(field_node, fi);
-        ngli_block_field_copy(fi, info->data + fi->offset, src);
+        ngpu_block_field_copy(fi, info->data + fi->offset, src);
         has_changed = 1; // TODO: only re-upload the changing data segments
     }
     return has_changed;
@@ -261,20 +261,13 @@ static int check_dup_labels(const char *block_name, struct ngl_node * const *nod
     return 0;
 }
 
-#define FEATURES_STD430 (NGLI_GPU_FEATURE_STORAGE_BUFFER)
-
 static int block_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct block_priv *s = node->priv_data;
     struct block_info *info = &s->blk;
     const struct block_opts *o = node->opts;
-
-    if (o->layout == NGLI_BLOCK_LAYOUT_STD430 && !(gpu_ctx->features & FEATURES_STD430)) {
-        LOG(ERROR, "std430 blocks are not supported by this context");
-        return NGL_ERROR_UNSUPPORTED;
-    }
 
     if (!o->nb_fields) {
         LOG(ERROR, "block fields must not be empty");
@@ -285,9 +278,9 @@ static int block_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ngli_block_init(gpu_ctx, &info->block, o->layout);
+    ngpu_block_desc_init(gpu_ctx, &info->block, o->layout);
 
-    info->usage = NGLI_GPU_BUFFER_USAGE_TRANSFER_DST_BIT;
+    info->usage = NGPU_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     for (size_t i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
@@ -300,20 +293,20 @@ static int block_init(struct ngl_node *node)
             }
         }
 
-        const int type  = get_node_data_type(field_node);
+        const enum ngpu_type type = get_node_data_type(field_node);
         const size_t count = get_node_data_count(field_node);
 
-        ret = ngli_block_add_field(&info->block, field_node->label, type, count);
+        ret = ngpu_block_desc_add_field(&info->block, field_node->label, type, count);
         if (ret < 0)
             return ret;
 
-        const struct block_field *fields = ngli_darray_data(&info->block.fields);
-        const struct block_field *fi = &fields[i];
+        const struct ngpu_block_field *fields = ngli_darray_data(&info->block.fields);
+        const struct ngpu_block_field *fi = &fields[i];
         LOG(DEBUG, "%s.field[%zu]: %s offset=%zu size=%zu stride=%zu",
             node->label, i, field_node->label, fi->offset, fi->size, fi->stride);
 
         if (field_is_dynamic(field_node, fi))
-            info->usage |= NGLI_GPU_BUFFER_USAGE_DYNAMIC_BIT;
+            info->usage |= NGPU_BUFFER_USAGE_DYNAMIC_BIT;
     }
 
     info->data_size = info->block.size;
@@ -325,7 +318,7 @@ static int block_init(struct ngl_node *node)
     update_block_data(node, 1);
     s->force_update = 1; /* First update will need an upload */
 
-    info->buffer = ngli_gpu_buffer_create(gpu_ctx);
+    info->buffer = ngpu_buffer_create(gpu_ctx);
     if (!info->buffer)
         return NGL_ERROR_MEMORY;
 
@@ -342,7 +335,7 @@ static int block_prepare(struct ngl_node *node)
     if (info->buffer->size)
         return 0;
 
-    int ret = ngli_gpu_buffer_init(info->buffer, info->data_size, info->usage);
+    int ret = ngpu_buffer_init(info->buffer, info->data_size, info->usage);
     if (ret < 0)
         return ret;
 
@@ -371,7 +364,7 @@ static int block_update(struct ngl_node *node, double t)
     s->force_update = 0;
 
     if (has_changed) {
-        ret = ngli_gpu_buffer_upload(info->buffer, info->data, 0, info->data_size);
+        ret = ngpu_buffer_upload(info->buffer, info->data, 0, info->data_size);
         if (ret < 0)
             return ret;
     }
@@ -384,8 +377,8 @@ static void block_uninit(struct ngl_node *node)
     struct block_priv *s = node->priv_data;
     struct block_info *info = &s->blk;
 
-    ngli_gpu_buffer_freep(&info->buffer);
-    ngli_block_reset(&info->block);
+    ngpu_buffer_freep(&info->buffer);
+    ngpu_block_desc_reset(&info->block);
     ngli_free(info->data);
 }
 

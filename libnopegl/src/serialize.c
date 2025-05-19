@@ -22,14 +22,15 @@
 #include <inttypes.h>
 #include <string.h>
 
-#include "bstr.h"
-#include "darray.h"
-#include "hmap.h"
-#include "log.h"
-#include "memory.h"
 #include "internal.h"
+#include "log.h"
 #include "nopegl.h"
-#include "utils.h"
+#include "utils/bstr.h"
+#include "utils/darray.h"
+#include "utils/hmap.h"
+#include "utils/memory.h"
+#include "utils/string.h"
+#include "utils/utils.h"
 
 extern const struct node_param ngli_base_node_params[];
 

@@ -32,15 +32,15 @@
 
 #include "internal.h"
 #include "log.h"
-#include "memory.h"
 #include "node_animkeyframe.h"
 #include "node_media.h"
 #include "node_uniform.h"
 #include "nopegl.h"
+#include "utils/memory.h"
 
 #if defined(TARGET_ANDROID)
-#include "gpu_ctx.h"
-#include "backends/gl/gpu_texture_gl.h"
+#include "ngpu/ctx.h"
+#include "ngpu/opengl/texture_gl.h"
 #endif
 
 struct media_opts {

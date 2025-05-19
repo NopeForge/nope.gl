@@ -25,19 +25,20 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gpu_block.h"
-#include "gpu_ctx.h"
-#include "gpu_graphics_state.h"
 #include "internal.h"
 #include "log.h"
+#include "ngpu/block.h"
+#include "ngpu/ctx.h"
+#include "ngpu/graphics_state.h"
+#include "ngpu/rendertarget.h"
 #include "node_texture.h"
 #include "node_uniform.h"
 #include "nopegl.h"
-#include "pgcraft.h"
 #include "pipeline_compat.h"
-#include "gpu_rendertarget.h"
 #include "rtt.h"
-#include "utils.h"
+#include "ngpu/pgcraft.h"
+#include "utils/bits.h"
+#include "utils/utils.h"
 
 /* GLSL shaders */
 #include "blur_common_vert.h"
@@ -75,34 +76,34 @@ struct fgblur_priv {
     float bluriness;
 
     /* Intermediates Mips used by the blur passses */
-    struct gpu_rendertarget_layout mip_layout;
+    struct ngpu_rendertarget_layout mip_layout;
 
     struct rtt_ctx *mip;
     struct rtt_ctx *mips[MAX_MIP_LEVELS];
 
-    struct gpu_block down_up_data_block;
+    struct ngpu_block down_up_data_block;
 
     /* Downsampling pass */
     struct {
-        struct pgcraft *crafter;
+        struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pl;
     } dws;
 
     /* Upsampling pass */
     struct {
-        struct pgcraft *crafter;
+        struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pl;
     } ups;
 
     /* Render target (destination) used by the interpolate pass */
     int dst_is_resizable;
-    struct gpu_rendertarget_layout dst_layout;
+    struct ngpu_rendertarget_layout dst_layout;
     struct rtt_ctx *dst_rtt_ctx;
 
     /* Interpolate pass */
     struct {
-        struct gpu_block block;
-        struct pgcraft *crafter;
+        struct ngpu_block block;
+        struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pl;
     } interpolate;
 };
@@ -123,33 +124,33 @@ static const struct node_param fgblur_params[] = {
     {NULL}
 };
 
-static int setup_down_up_pipeline(struct pgcraft *crafter,
+static int setup_down_up_pipeline(struct ngpu_pgcraft *crafter,
                                   const char *name,
                                   const char *frag_base,
                                   struct pipeline_compat *pipeline,
-                                  const struct gpu_rendertarget_layout *layout,
-                                  struct gpu_block *block)
+                                  const struct ngpu_rendertarget_layout *layout,
+                                  struct ngpu_block *block)
 {
-    const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
+    const struct ngpu_pgcraft_iovar vert_out_vars[] = {
+        {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
     };
 
-    const struct pgcraft_texture textures[] = {
+    const struct ngpu_pgcraft_texture textures[] = {
         {
             .name      = "tex",
-            .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
-            .stage     = NGLI_GPU_PROGRAM_SHADER_FRAG,
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
+            .precision = NGPU_PRECISION_HIGH,
+            .stage     = NGPU_PROGRAM_SHADER_FRAG,
         },
     };
 
-    const struct pgcraft_block blocks[] = {
+    const struct ngpu_pgcraft_block blocks[] = {
         {
             .name          = "data",
             .instance_name = "",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER,
-            .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
-            .block         = &block->block,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER,
+            .stage         = NGPU_PROGRAM_SHADER_FRAG,
+            .block         = &block->block_desc,
             .buffer        = {
                 .buffer    = block->buffer,
                 .size      = block->block_size,
@@ -157,7 +158,7 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
         }
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = name,
         .vert_base        = blur_common_vert,
         .frag_base        = frag_base,
@@ -169,23 +170,23 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    int ret = ngli_pgcraft_craft(crafter, &crafter_params);
+    int ret = ngpu_pgcraft_craft(crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
     const struct pipeline_compat_params params = {
-        .type         = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
+        .type         = NGPU_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
-            .topology = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .state    = NGLI_GPU_GRAPHICS_STATE_DEFAULTS,
+            .topology = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .state    = NGPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = *layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(crafter),
         },
-        .program          = ngli_pgcraft_get_program(crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(crafter),
+        .program          = ngpu_pgcraft_get_program(crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(crafter),
     };
 
     ret = ngli_pipeline_compat_init(pipeline, &params);
@@ -198,44 +199,44 @@ static int setup_down_up_pipeline(struct pgcraft *crafter,
 static int setup_interpolate_pipeline(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct fgblur_priv *s = node->priv_data;
 
-    const struct pgcraft_iovar vert_out_vars[] = {
-        {.name = "tex_coord", .type = NGLI_TYPE_VEC2},
+    const struct ngpu_pgcraft_iovar vert_out_vars[] = {
+        {.name = "tex_coord", .type = NGPU_TYPE_VEC2},
     };
 
-    struct pgcraft_texture interpolate_textures[] = {
+    struct ngpu_pgcraft_texture interpolate_textures[] = {
         {
             .name      = "tex0",
-            .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
-            .stage     = NGLI_GPU_PROGRAM_SHADER_FRAG
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
+            .precision = NGPU_PRECISION_HIGH,
+            .stage     = NGPU_PROGRAM_SHADER_FRAG
         }, {
             .name      = "tex1",
-            .type      = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D,
-            .precision = NGLI_PRECISION_HIGH,
-            .stage     = NGLI_GPU_PROGRAM_SHADER_FRAG
+            .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
+            .precision = NGPU_PRECISION_HIGH,
+            .stage     = NGPU_PROGRAM_SHADER_FRAG
         },
     };
 
-    const struct gpu_block_field interpolate_block_fields[] = {
-        NGLI_GPU_BLOCK_FIELD(struct interpolate_block, lod, NGLI_TYPE_F32, 0),
+    const struct ngpu_block_entry interpolate_block_fields[] = {
+        NGPU_BLOCK_FIELD(struct interpolate_block, lod, NGPU_TYPE_F32, 0),
     };
-    const struct gpu_block_params interpolate_block_params = {
-        .fields    = interpolate_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(interpolate_block_fields),
+    const struct ngpu_block_params interpolate_block_params = {
+        .entries    = interpolate_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(interpolate_block_fields),
     };
-    int ret = ngli_gpu_block_init(gpu_ctx, &s->interpolate.block, &interpolate_block_params);
+    int ret = ngpu_block_init(gpu_ctx, &s->interpolate.block, &interpolate_block_params);
     if (ret < 0)
         return ret;
 
-    const struct pgcraft_block crafter_blocks[] = {
+    const struct ngpu_pgcraft_block crafter_blocks[] = {
         {
             .name          = "interpolate",
-            .type          = NGLI_TYPE_UNIFORM_BUFFER,
-            .stage         = NGLI_GPU_PROGRAM_SHADER_FRAG,
-            .block         = &s->interpolate.block.block,
+            .type          = NGPU_TYPE_UNIFORM_BUFFER,
+            .stage         = NGPU_PROGRAM_SHADER_FRAG,
+            .block         = &s->interpolate.block.block_desc,
             .buffer        = {
                 .buffer    = s->interpolate.block.buffer,
                 .size      = s->interpolate.block.block_size,
@@ -243,7 +244,7 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
         }
     };
 
-    const struct pgcraft_params crafter_params = {
+    const struct ngpu_pgcraft_params crafter_params = {
         .program_label    = "nopegl/fast-gaussian-blur-interpolate",
         .vert_base        = blur_common_vert,
         .frag_base        = blur_interpolate_frag,
@@ -255,23 +256,23 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    ret = ngli_pgcraft_craft(s->interpolate.crafter, &crafter_params);
+    ret = ngpu_pgcraft_craft(s->interpolate.crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
     const struct pipeline_compat_params params = {
-        .type         = NGLI_GPU_PIPELINE_TYPE_GRAPHICS,
+        .type         = NGPU_PIPELINE_TYPE_GRAPHICS,
         .graphics     = {
-            .topology = NGLI_GPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .state    = NGLI_GPU_GRAPHICS_STATE_DEFAULTS,
+            .topology = NGPU_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .state    = NGPU_GRAPHICS_STATE_DEFAULTS,
             .rt_layout    = s->dst_layout,
-            .vertex_state = ngli_pgcraft_get_vertex_state(s->interpolate.crafter),
+            .vertex_state = ngpu_pgcraft_get_vertex_state(s->interpolate.crafter),
         },
-        .program          = ngli_pgcraft_get_program(s->interpolate.crafter),
-        .layout_desc      = ngli_pgcraft_get_bindgroup_layout_desc(s->interpolate.crafter),
-        .resources        = ngli_pgcraft_get_bindgroup_resources(s->interpolate.crafter),
-        .vertex_resources = ngli_pgcraft_get_vertex_resources(s->interpolate.crafter),
-        .compat_info      = ngli_pgcraft_get_compat_info(s->interpolate.crafter),
+        .program          = ngpu_pgcraft_get_program(s->interpolate.crafter),
+        .layout_desc      = ngpu_pgcraft_get_bindgroup_layout_desc(s->interpolate.crafter),
+        .resources        = ngpu_pgcraft_get_bindgroup_resources(s->interpolate.crafter),
+        .vertex_resources = ngpu_pgcraft_get_vertex_resources(s->interpolate.crafter),
+        .compat_info      = ngpu_pgcraft_get_compat_info(s->interpolate.crafter),
     };
 
     ret = ngli_pipeline_compat_init(s->interpolate.pl, &params);
@@ -284,7 +285,7 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
 static int fgblur_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct fgblur_priv *s = node->priv_data;
     struct fgblur_opts *o = node->opts;
 
@@ -293,39 +294,39 @@ static int fgblur_init(struct ngl_node *node)
     src_info->supported_image_layouts = NGLI_IMAGE_LAYOUT_DEFAULT_BIT;
 
     /* Override texture params */
-    src_info->params.min_filter = NGLI_GPU_FILTER_LINEAR;
-    src_info->params.mag_filter = NGLI_GPU_FILTER_LINEAR;
-    src_info->params.wrap_s     = NGLI_GPU_WRAP_MIRRORED_REPEAT,
-    src_info->params.wrap_t     = NGLI_GPU_WRAP_MIRRORED_REPEAT,
+    src_info->params.min_filter = NGPU_FILTER_LINEAR;
+    src_info->params.mag_filter = NGPU_FILTER_LINEAR;
+    src_info->params.wrap_s     = NGPU_WRAP_MIRRORED_REPEAT,
+    src_info->params.wrap_t     = NGPU_WRAP_MIRRORED_REPEAT,
 
     s->mip_layout.colors[s->mip_layout.nb_colors].format = src_info->params.format;
     s->mip_layout.nb_colors++;
 
     struct texture_info *dst_info = o->destination->priv_data;
-    dst_info->params.usage |= NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+    dst_info->params.usage |= NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
 
     s->dst_is_resizable = (dst_info->params.width == 0 && dst_info->params.height == 0);
     s->dst_layout.colors[0].format = dst_info->params.format;
     s->dst_layout.nb_colors = 1;
 
-    const struct gpu_block_field down_up_data_block_fields[] = {
-        NGLI_GPU_BLOCK_FIELD(struct down_up_data_block, offset, NGLI_TYPE_F32, 0),
+    const struct ngpu_block_entry down_up_data_block_fields[] = {
+        NGPU_BLOCK_FIELD(struct down_up_data_block, offset, NGPU_TYPE_F32, 0),
     };
-    const struct gpu_block_params down_up_data_block_params = {
-        .fields    = down_up_data_block_fields,
-        .nb_fields = NGLI_ARRAY_NB(down_up_data_block_fields),
+    const struct ngpu_block_params down_up_data_block_params = {
+        .entries    = down_up_data_block_fields,
+        .nb_entries = NGLI_ARRAY_NB(down_up_data_block_fields),
     };
-    int ret = ngli_gpu_block_init(gpu_ctx, &s->down_up_data_block, &down_up_data_block_params);
+    int ret = ngpu_block_init(gpu_ctx, &s->down_up_data_block, &down_up_data_block_params);
     if (ret < 0)
         return ret;
 
-    ret = ngli_gpu_block_update(&s->down_up_data_block, 0, &(struct down_up_data_block){.offset=1.f});
+    ret = ngpu_block_update(&s->down_up_data_block, 0, &(struct down_up_data_block){.offset=1.f});
     if (ret < 0)
         return ret;
 
-    s->dws.crafter = ngli_pgcraft_create(ctx);
-    s->ups.crafter = ngli_pgcraft_create(ctx);
-    s->interpolate.crafter = ngli_pgcraft_create(ctx);
+    s->dws.crafter = ngpu_pgcraft_create(gpu_ctx);
+    s->ups.crafter = ngpu_pgcraft_create(gpu_ctx);
+    s->interpolate.crafter = ngpu_pgcraft_create(gpu_ctx);
     if (!s->dws.crafter || !s->ups.crafter || !s->interpolate.crafter)
         return NGL_ERROR_MEMORY;
 
@@ -368,23 +369,23 @@ static int resize(struct ngl_node *node)
     struct texture_info *dst_info = o->destination->priv_data;
     ngli_assert(dst_info->params.format == s->dst_layout.colors[0].format);
 
-    struct gpu_texture_params texture_params = (struct gpu_texture_params) {
-        .type          = NGLI_GPU_TEXTURE_TYPE_2D,
+    struct ngpu_texture_params texture_params = (struct ngpu_texture_params) {
+        .type          = NGPU_TEXTURE_TYPE_2D,
         .format        = src_info->params.format,
         .width         = width,
         .height        = height,
-        .min_filter    = NGLI_GPU_FILTER_LINEAR,
-        .mag_filter    = NGLI_GPU_FILTER_LINEAR,
-        .wrap_s        = NGLI_GPU_WRAP_MIRRORED_REPEAT,
-        .wrap_t        = NGLI_GPU_WRAP_MIRRORED_REPEAT,
-        .usage         = NGLI_GPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT |
-                         NGLI_GPU_TEXTURE_USAGE_SAMPLED_BIT,
+        .min_filter    = NGPU_FILTER_LINEAR,
+        .mag_filter    = NGPU_FILTER_LINEAR,
+        .wrap_s        = NGPU_WRAP_MIRRORED_REPEAT,
+        .wrap_t        = NGPU_WRAP_MIRRORED_REPEAT,
+        .usage         = NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT |
+                         NGPU_TEXTURE_USAGE_SAMPLED_BIT,
     };
 
     struct rtt_ctx *mip = NULL;
     struct rtt_ctx *mips[MAX_MIP_LEVELS] = {0};
 
-    struct gpu_texture *dst = NULL;
+    struct ngpu_texture *dst = NULL;
     struct rtt_ctx *dst_rtt_ctx = NULL;
 
     mip = ngli_rtt_create(ctx);
@@ -416,16 +417,16 @@ static int resize(struct ngl_node *node)
 
     dst = dst_info->texture;
     if (s->dst_is_resizable) {
-        dst = ngli_gpu_texture_create(ctx->gpu_ctx);
+        dst = ngpu_texture_create(ctx->gpu_ctx);
         if (!dst) {
             ret = NGL_ERROR_MEMORY;
             goto fail;
         }
 
-        struct gpu_texture_params params = dst_info->params;
+        struct ngpu_texture_params params = dst_info->params;
         params.width = width;
         params.height = height;
-        ret = ngli_gpu_texture_init(dst, &params);
+        ret = ngpu_texture_init(dst, &params);
         if (ret < 0)
             goto fail;
     }
@@ -442,8 +443,8 @@ static int resize(struct ngl_node *node)
         .nb_colors = 1,
         .colors[0] = {
             .attachment = dst,
-            .load_op = NGLI_GPU_LOAD_OP_CLEAR,
-            .store_op = NGLI_GPU_STORE_OP_STORE,
+            .load_op = NGPU_LOAD_OP_CLEAR,
+            .store_op = NGPU_STORE_OP_STORE,
         },
     };
 
@@ -460,7 +461,7 @@ static int resize(struct ngl_node *node)
     }
 
     if (s->dst_is_resizable) {
-        ngli_gpu_texture_freep(&dst_info->texture);
+        ngpu_texture_freep(&dst_info->texture);
         dst_info->texture = dst;
         dst_info->image.params.width = dst->params.width;
         dst_info->image.params.height = dst->params.height;
@@ -492,7 +493,7 @@ fail:
 
     ngli_rtt_freep(&dst_rtt_ctx);
     if (s->dst_is_resizable)
-        ngli_gpu_texture_freep(&dst);
+        ngpu_texture_freep(&dst);
 
     LOG(ERROR, "failed to resize blur: %dx%d", width, height);
     return ret;
@@ -504,8 +505,7 @@ static void execute_down_up_pass(struct ngl_ctx *ctx,
                                  const struct image *image)
 {
     ngli_rtt_begin(rtt_ctx);
-    ngli_gpu_ctx_begin_render_pass(ctx->gpu_ctx, ctx->current_rendertarget);
-    ctx->render_pass_started = 1;
+    ngpu_ctx_begin_render_pass(ctx->gpu_ctx, ctx->current_rendertarget);
     ngli_pipeline_compat_update_image(pipeline, 0, image);
     ngli_pipeline_compat_draw(pipeline, 3, 1, 0);
     ngli_rtt_end(rtt_ctx);
@@ -585,15 +585,14 @@ static void fgblur_draw(struct ngl_node *node)
         execute_down_up_pass(ctx, s->mips[i], s->ups.pl, ngli_rtt_get_image(s->mips[i + 1], 0));
 
     const struct interpolate_block interpolate_block = {.lod = lod_f};
-    ngli_gpu_block_update(&s->interpolate.block, 0, &interpolate_block);
+    ngpu_block_update(&s->interpolate.block, 0, &interpolate_block);
 
     /*
      * Interpolate the two blurred layers, source and mips[0], which
      * corresponds respectively to lod_i and lod_i+1.
      */
     ngli_rtt_begin(s->dst_rtt_ctx);
-    ngli_gpu_ctx_begin_render_pass(ctx->gpu_ctx, ctx->current_rendertarget);
-    ctx->render_pass_started = 1;
+    ngpu_ctx_begin_render_pass(ctx->gpu_ctx, ctx->current_rendertarget);
     ngli_pipeline_compat_update_image(s->interpolate.pl, 0, mip);
     ngli_pipeline_compat_update_image(s->interpolate.pl, 1, ngli_rtt_get_image(s->mips[0], 0));
     ngli_pipeline_compat_draw(s->interpolate.pl, 3, 1, 0);
@@ -625,16 +624,16 @@ static void fgblur_uninit(struct ngl_node *node)
     struct fgblur_priv *s = node->priv_data;
 
     ngli_pipeline_compat_freep(&s->dws.pl);
-    ngli_pgcraft_freep(&s->dws.crafter);
+    ngpu_pgcraft_freep(&s->dws.crafter);
 
     ngli_pipeline_compat_freep(&s->ups.pl);
-    ngli_pgcraft_freep(&s->ups.crafter);
+    ngpu_pgcraft_freep(&s->ups.crafter);
 
-    ngli_gpu_block_reset(&s->down_up_data_block);
+    ngpu_block_reset(&s->down_up_data_block);
 
     ngli_pipeline_compat_freep(&s->interpolate.pl);
-    ngli_pgcraft_freep(&s->interpolate.crafter);
-    ngli_gpu_block_reset(&s->interpolate.block);
+    ngpu_pgcraft_freep(&s->interpolate.crafter);
+    ngpu_block_reset(&s->interpolate.block);
 }
 
 const struct node_class ngli_fgblur_class = {

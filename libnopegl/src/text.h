@@ -22,10 +22,11 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "darray.h"
+#include "box.h"
+#include "ngpu/texture.h"
 #include "nopegl.h"
-#include "gpu_texture.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/utils.h"
 
 #define NGLI_I32_TO_I26D6(x) ((x) * (1 << 6))     // convert i32 to 26.6 fixed point
 #define NGLI_I26D6_TO_F32(x) ((float)(x) / 64.f)  // convert 26.6 fixed point to f32
@@ -138,7 +139,7 @@ struct text {
     int32_t width;
     int32_t height;
     struct darray chars; // struct char_info
-    struct gpu_texture *atlas_texture;
+    struct ngpu_texture *atlas_texture;
     struct text_data_pointers data_ptrs; // set of effect data pointers (in chars_data)
 
     /* effects specific */

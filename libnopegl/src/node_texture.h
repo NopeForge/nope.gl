@@ -25,25 +25,25 @@
 #include <stdint.h>
 
 #include "image.h"
+#include "ngpu/texture.h"
 #include "nopegl.h"
 #include "params.h"
-#include "gpu_texture.h"
 
 struct ngl_node;
 
 struct texture_info {
     int requested_format;
-    struct gpu_texture_params params;
+    struct ngpu_texture_params params;
     uint32_t supported_image_layouts;
     int clamp_video;
     int rtt;
-    struct gpu_texture *texture;
+    struct ngpu_texture *texture;
     struct image image;
     size_t image_rev;
 };
 
-enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node);
-enum pgcraft_shader_tex_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node);
+enum ngpu_pgcraft_texture_type ngli_node_texture_get_pgcraft_shader_tex_type(const struct ngl_node *node);
+enum ngpu_pgcraft_texture_type ngli_node_texture_get_pgcraft_shader_image_type(const struct ngl_node *node);
 int ngli_node_texture_has_media_data_src(const struct ngl_node *node);
 
 #endif

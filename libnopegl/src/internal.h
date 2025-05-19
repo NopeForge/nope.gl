@@ -39,17 +39,16 @@
 #include FT_OUTLINE_H
 #endif
 
-#include "gpu_ctx.h"
-#include "hmap.h"
 #include "hud.h"
+#include "ngpu/ctx.h"
+#include "ngpu/rendertarget.h"
 #include "nopegl.h"
 #include "params.h"
-#include "pgcache.h"
-#include "pthread_compat.h"
-#include "darray.h"
-#include "gpu_rendertarget.h"
 #include "rnode.h"
-#include "utils.h"
+#include "utils/darray.h"
+#include "utils/hmap.h"
+#include "utils/pthread_compat.h"
+#include "utils/utils.h"
 
 struct node_class;
 
@@ -83,17 +82,16 @@ struct ngl_ctx {
     const struct api_impl *api_impl;
 
     /* Worker-only fields */
-    struct gpu_ctx *gpu_ctx;
+    struct ngpu_ctx *gpu_ctx;
     struct rnode rnode;
     struct rnode *rnode_pos;
     struct ngl_scene *scene;
-    struct gpu_viewport viewport;
-    struct gpu_scissor scissor;
     struct ngl_config config;
     struct ngl_backend backend;
-    struct gpu_rendertarget *available_rendertargets[2];
-    struct gpu_rendertarget *current_rendertarget;
-    int render_pass_started;
+    struct ngpu_viewport viewport;
+    struct ngpu_scissor scissor;
+    struct ngpu_rendertarget *available_rendertargets[2];
+    struct ngpu_rendertarget *current_rendertarget;
     float default_modelview_matrix[16];
     float default_projection_matrix[16];
     struct darray modelview_matrix_stack;
@@ -111,7 +109,6 @@ struct ngl_ctx {
     FT_Library ft_library;
 #endif
 
-    struct pgcache pgcache;
 #if defined(HAVE_VAAPI)
     struct vaapi_ctx vaapi_ctx;
 #endif
@@ -189,14 +186,14 @@ struct ngl_scene {
     struct darray files_par; // file based parameters pointers (array of uint8_t *)
 };
 
-enum {
+enum node_category {
     NGLI_NODE_CATEGORY_NONE,
     NGLI_NODE_CATEGORY_VARIABLE,
     NGLI_NODE_CATEGORY_TEXTURE,
     NGLI_NODE_CATEGORY_BUFFER,
     NGLI_NODE_CATEGORY_BLOCK,
     NGLI_NODE_CATEGORY_IO,
-    NGLI_NODE_CATEGORY_DRAW, /* node executes a graphics gpu_pipeline */
+    NGLI_NODE_CATEGORY_DRAW, /* node executes a graphics ngpu_pipeline */
     NGLI_NODE_CATEGORY_TRANSFORM,
 };
 
@@ -238,7 +235,7 @@ enum {
  */
 struct node_class {
     uint32_t id;
-    int category;
+    enum node_category category;
     const char *name;
 
 
