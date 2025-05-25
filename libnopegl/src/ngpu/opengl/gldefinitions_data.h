@@ -70,6 +70,7 @@ static const struct gldefinition {
     {"glDrawBuffers", offsetof(struct glfunctions, DrawBuffers), M},
     {"glDrawElements", offsetof(struct glfunctions, DrawElements), M},
     {"glDrawElementsInstanced", offsetof(struct glfunctions, DrawElementsInstanced), M},
+    {"glEGLImageTargetTexStorageEXT", offsetof(struct glfunctions, EGLImageTargetTexStorageEXT), 0},
     {"glEGLImageTargetTexture2DOES", offsetof(struct glfunctions, EGLImageTargetTexture2DOES), 0},
     {"glEnable", offsetof(struct glfunctions, Enable), M},
     {"glEnableVertexAttribArray", offsetof(struct glfunctions, EnableVertexAttribArray), M},

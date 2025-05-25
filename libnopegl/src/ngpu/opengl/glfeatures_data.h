@@ -133,6 +133,13 @@ static const struct glfeature {
         .funcs_offsets  = (const size_t[]){OFFSET(EGLImageTargetTexture2DOES),
                                            SIZE_MAX}
     }, {
+        .name           = "ext_egl_image_storage",
+        .flag           = NGLI_FEATURE_GL_EXT_EGL_IMAGE_STORAGE,
+        .extensions     = (const char*[]){"GL_EXT_EGL_image_storage", NULL},
+        .es_extensions  = (const char*[]){"GL_EXT_EGL_image_storage", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(EGLImageTargetTexStorageEXT),
+                                           SIZE_MAX}
+    }, {
         .name           = "yuv_target",
         .flag           = NGLI_FEATURE_GL_YUV_TARGET,
         .es_extensions  = (const char*[]){"GL_EXT_YUV_target", NULL}

@@ -62,6 +62,7 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *DrawBuffers)(GLsizei n, const GLenum * bufs);
     void (NGLI_GL_APIENTRY *DrawElements)(GLenum mode, GLsizei count, GLenum type, const void * indices);
     void (NGLI_GL_APIENTRY *DrawElementsInstanced)(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
+    void (NGLI_GL_APIENTRY *EGLImageTargetTexStorageEXT)(GLenum target, GLeglImageOES image, const GLint * attrib_list);
     void (NGLI_GL_APIENTRY *EGLImageTargetTexture2DOES)(GLenum target, GLeglImageOES image);
     void (NGLI_GL_APIENTRY *Enable)(GLenum cap);
     void (NGLI_GL_APIENTRY *EnableVertexAttribArray)(GLuint index);

@@ -32,6 +32,7 @@
 #define NGLI_FEATURE_GL_EXT_DISJOINT_TIMER_QUERY                   (1ULL << 11)
 #define NGLI_FEATURE_GL_INVALIDATE_SUBDATA                         (1ULL << 15)
 #define NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE                     (1ULL << 16)
+#define NGLI_FEATURE_GL_EXT_EGL_IMAGE_STORAGE                      (1ULL << 17)
 #define NGLI_FEATURE_GL_OES_EGL_IMAGE                              (1ULL << 19)
 #define NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR                         (1ULL << 20)
 #define NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT               (1ULL << 21)

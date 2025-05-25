@@ -69,6 +69,8 @@ cmds_optional = [
     "glEGLImageTargetTexture2DOES",
     # Invalidate subdat
     "glInvalidateFramebuffer",
+    # EGL EXT image storage
+    "glEGLImageTargetTexStorageEXT",
 ]
 
 cmds = [
