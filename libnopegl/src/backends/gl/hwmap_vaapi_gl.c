@@ -40,7 +40,12 @@
 #include "nopegl.h"
 #include "utils/utils.h"
 
+#ifndef DRM_FORMAT_MOD_INVALID
+#define DRM_FORMAT_MOD_INVALID ((1ULL << 56) - 1)
+#endif
+
 struct hwmap_vaapi {
+    int use_drm_format_modifiers;
     struct nmd_frame *frame;
     struct ngpu_texture *planes[2];
 
@@ -82,6 +87,9 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
         LOG(ERROR, "context does not support required extensions for vaapi");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
+
+    vaapi->use_drm_format_modifiers =
+        NGLI_HAS_ALL_FLAGS(gl->features, NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT_MODIFIERS);
 
     gl->funcs.GenTextures(2, vaapi->gl_planes);
 
@@ -232,14 +240,21 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     attribs[nb_attribs] = EGL_NONE;                           \
 } while(0)
 
-#define ADD_PLANE_ATTRIBS(plane) do {                                                \
-    uint32_t object_index = vaapi->surface_descriptor.layers[i].object_index[plane]; \
-    ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _FD_EXT,                                \
-               vaapi->surface_descriptor.objects[object_index].fd);                  \
-    ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _OFFSET_EXT,                            \
-               vaapi->surface_descriptor.layers[i].offset[plane]);                   \
-    ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _PITCH_EXT,                             \
-               vaapi->surface_descriptor.layers[i].pitch[plane]);                    \
+#define ADD_PLANE_ATTRIBS(plane) do {                                                                         \
+    uint32_t object_index = vaapi->surface_descriptor.layers[i].object_index[plane];                          \
+    uint64_t drm_format_modifier = vaapi->surface_descriptor.objects[object_index].drm_format_modifier;       \
+    ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _FD_EXT,                                                         \
+               vaapi->surface_descriptor.objects[object_index].fd);                                           \
+    ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _OFFSET_EXT,                                                     \
+               vaapi->surface_descriptor.layers[i].offset[plane]);                                            \
+    ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _PITCH_EXT,                                                      \
+               vaapi->surface_descriptor.layers[i].pitch[plane]);                                             \
+    if (vaapi->use_drm_format_modifiers && drm_format_modifier != DRM_FORMAT_MOD_INVALID) {                   \
+        ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _MODIFIER_LO_EXT,                                            \
+                   (uint32_t)(drm_format_modifier & 0xFFFFFFFFLU));                                           \
+        ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _MODIFIER_HI_EXT,                                            \
+                   (uint32_t)((drm_format_modifier >> 32U) & 0xFFFFFFFFLU));                                  \
+    }                                                                                                         \
 } while (0)
 
         int32_t width = i == 0 ? frame->width : (frame->width + 1) >> 1;

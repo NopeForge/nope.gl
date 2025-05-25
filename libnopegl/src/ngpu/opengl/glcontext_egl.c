@@ -76,6 +76,7 @@ struct egl_priv {
     int has_surfaceless_context_ext;
     int has_device_base_ext;
     int has_create_context_ext;
+    int has_image_dma_buf_import_modifiers_ext;
 #if defined(HAVE_WAYLAND)
     struct wl_egl_window *wl_egl_window;
 #endif
@@ -159,6 +160,11 @@ static int egl_probe_extensions(struct glcontext *ctx)
 
     if (ngli_glcontext_check_extension("EGL_KHR_create_context", egl->extensions)) {
         egl->has_create_context_ext = 1;
+    }
+
+    if (ngli_glcontext_check_extension("EGL_EXT_image_dma_buf_import_modifiers", egl->extensions)) {
+        ctx->features |= NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT_MODIFIERS;
+        egl->has_image_dma_buf_import_modifiers_ext = 1;
     }
 
     return 0;

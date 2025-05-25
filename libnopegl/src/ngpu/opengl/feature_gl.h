@@ -50,6 +50,7 @@
 #define NGLI_FEATURE_GL_TEXTURE_NORM16                             (1ULL << 42)
 #define NGLI_FEATURE_GL_TEXTURE_FLOAT_LINEAR                       (1ULL << 43)
 #define NGLI_FEATURE_GL_FLOAT_BLEND                                (1ULL << 44)
+#define NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT_MODIFIERS     (1ULL << 45)
 
 #define NGLI_FEATURE_GL_COMPUTE_SHADER_ALL (NGLI_FEATURE_GL_COMPUTE_SHADER           | \
                                             NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY  | \
