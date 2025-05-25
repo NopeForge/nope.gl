@@ -241,8 +241,8 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 } while(0)
 
 #define ADD_PLANE_ATTRIBS(plane) do {                                                                         \
-    uint32_t object_index = vaapi->surface_descriptor.layers[i].object_index[plane];                          \
-    uint64_t drm_format_modifier = vaapi->surface_descriptor.objects[object_index].drm_format_modifier;       \
+    const uint32_t object_index = vaapi->surface_descriptor.layers[i].object_index[plane];                    \
+    const uint64_t drm_format_modifier = vaapi->surface_descriptor.objects[object_index].drm_format_modifier; \
     ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _FD_EXT,                                                         \
                vaapi->surface_descriptor.objects[object_index].fd);                                           \
     ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _OFFSET_EXT,                                                     \
