@@ -44,13 +44,10 @@ static int reserve_aligned(struct darray *darray, size_t capacity)
     if (capacity < darray->capacity)
         return 0;
 
-#if HAVE_BUILTIN_OVERFLOW
     size_t bytes;
-    if (__builtin_mul_overflow(capacity, darray->element_size, &bytes))
+    if (NGLI_CHK_MUL(&bytes, capacity, darray->element_size))
         return NGL_ERROR_MEMORY;
-#else
-    size_t bytes = capacity * darray->element_size;
-#endif
+
     void *ptr = ngli_malloc_aligned(bytes);
     if (!ptr)
         return NGL_ERROR_MEMORY;
