@@ -273,7 +273,6 @@ static int media_prefetch(struct ngl_node *node)
 {
     struct media_priv *s = node->priv_data;
     nmd_start(s->player);
-    s->prefetched = 1;
     return 0;
 }
 
@@ -366,7 +365,6 @@ static void media_release(struct ngl_node *node)
     struct media_priv *s = node->priv_data;
     nmd_frame_releasep(&s->frame);
     nmd_stop(s->player);
-    s->prefetched = 0;
 }
 
 static void media_uninit(struct ngl_node *node)
@@ -381,8 +379,7 @@ static void media_uninit(struct ngl_node *node)
 
 static int filename_changed(struct ngl_node *node)
 {
-    struct media_priv *s = node->priv_data;
-    const int prefetched = s->prefetched;
+    const int prefetched = node->state == NGLI_NODE_STATE_READY;
 
     if (prefetched)
         media_release(node);
