@@ -40,7 +40,7 @@
 #include "nopegl.h"
 
 struct format_desc {
-    int layout;
+    enum image_layout layout;
     size_t nb_planes;
     struct {
         enum ngpu_format format;
