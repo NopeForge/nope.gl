@@ -639,7 +639,7 @@ static void texture_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct texture_priv *s = node->priv_data;
-    struct texture_opts *o = node->opts;
+    const struct texture_opts *o = node->opts;
 
     if (!s->texture_info.rtt)
         return;

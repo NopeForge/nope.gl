@@ -49,6 +49,6 @@ struct variable_info {
     int dynamic;
 };
 
-void *ngli_node_get_data_ptr(const struct ngl_node *var_node, void *data_fallback);
+void *ngli_node_get_data_ptr(const struct ngl_node *var_node, const void *data_fallback);
 
 #endif

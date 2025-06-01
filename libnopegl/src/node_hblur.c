@@ -366,7 +366,7 @@ static int hblur_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct hblur_priv *s = node->priv_data;
-    struct hblur_opts *o = node->opts;
+    const struct hblur_opts *o = node->opts;
 
     struct texture_info *src_info = o->source->priv_data;
     s->image = &src_info->image;
@@ -430,7 +430,7 @@ static int resize(struct ngl_node *node)
     int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct hblur_priv *s = node->priv_data;
-    struct hblur_opts *o = node->opts;
+    const struct hblur_opts *o = node->opts;
 
     ngli_node_draw(o->source);
     if (o->map)
@@ -575,7 +575,7 @@ static void hblur_draw(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct hblur_priv *s = node->priv_data;
-    struct hblur_opts *o = node->opts;
+    const struct hblur_opts *o = node->opts;
 
     int ret = resize(node);
     if (ret < 0)

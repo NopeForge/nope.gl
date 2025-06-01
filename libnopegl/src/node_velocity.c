@@ -176,7 +176,7 @@ static int velocity_init(struct ngl_node *node)
 {
     struct velocity_priv *s = node->priv_data;
     const struct velocity_opts *o = node->opts;
-    struct variable_opts *anim = o->anim_node->opts;
+    const struct variable_opts *anim = o->anim_node->opts;
     s->var.dynamic = 1;
     return ngli_animation_init(&s->anim, NULL,
                                anim->animkf, anim->nb_animkf,

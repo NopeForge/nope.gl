@@ -287,7 +287,7 @@ static int fgblur_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct fgblur_priv *s = node->priv_data;
-    struct fgblur_opts *o = node->opts;
+    const struct fgblur_opts *o = node->opts;
 
     /* Disable direct rendering */
     struct texture_info *src_info = o->source->priv_data;
@@ -352,7 +352,7 @@ static int resize(struct ngl_node *node)
     int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct fgblur_priv *s = node->priv_data;
-    struct fgblur_opts *o = node->opts;
+    const struct fgblur_opts *o = node->opts;
 
     ngli_node_draw(o->source);
 
@@ -542,7 +542,7 @@ static void fgblur_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct fgblur_priv *s = node->priv_data;
-    struct fgblur_opts *o = node->opts;
+    const struct fgblur_opts *o = node->opts;
 
     int ret = resize(node);
     if (ret < 0)

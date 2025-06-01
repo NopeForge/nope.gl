@@ -673,7 +673,7 @@ int ngli_params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl
         }
 
         if (node->cls->id == NGL_NODE_ANIMATEDQUAT || node->cls->id == NGL_NODE_UNIFORMQUAT) {
-            struct variable_opts *quat = node->opts;
+            const struct variable_opts *quat = node->opts;
             if (par->type == NGLI_PARAM_TYPE_MAT4 && !quat->as_mat4) {
                 LOG(ERROR, "when setting a quaternion node for a mat4 parameter, as_mat4 must be set");
                 return NGL_ERROR_INVALID_ARG;

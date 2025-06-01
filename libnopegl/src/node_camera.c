@@ -143,7 +143,7 @@ static int update_matrices(struct ngl_node *node, double t)
 static int update_params(struct ngl_node *node)
 {
     struct camera_priv *s = node->priv_data;
-    struct camera_opts *o = node->opts;
+    const struct camera_opts *o = node->opts;
 
     s->use_perspective = !ngli_vec2_is_zero(o->perspective) || o->perspective_node;
     s->use_orthographic = !ngli_vec4_is_zero(o->orthographic);
@@ -197,7 +197,7 @@ static const struct node_param camera_params[] = {
 static int camera_init(struct ngl_node *node)
 {
     struct camera_priv *s = node->priv_data;
-    struct camera_opts *o = node->opts;
+    const struct camera_opts *o = node->opts;
 
     s->use_perspective = !ngli_vec2_is_zero(o->perspective) || o->perspective_node;
     s->use_orthographic = !ngli_vec4_is_zero(o->orthographic);
@@ -222,7 +222,7 @@ static int camera_init(struct ngl_node *node)
 
 static int camera_update(struct ngl_node *node, double t)
 {
-    struct camera_opts *o = node->opts;
+    const struct camera_opts *o = node->opts;
     struct ngl_node *child = o->child;
 
     if (o->eye_node) {
@@ -252,7 +252,7 @@ static void camera_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct camera_priv *s = node->priv_data;
-    struct camera_opts *o = node->opts;
+    const struct camera_opts *o = node->opts;
 
     if (!ngli_darray_push(&ctx->modelview_matrix_stack, s->modelview_matrix) ||
         !ngli_darray_push(&ctx->projection_matrix_stack, s->projection_matrix))

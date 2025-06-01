@@ -345,7 +345,7 @@ static int rtt_resize(struct ngl_node *node)
     int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct rtt_priv *s = node->priv_data;
-    struct rtt_opts *o = node->opts;
+    const struct rtt_opts *o = node->opts;
 
     const int32_t width = ctx->current_rendertarget->width;
     const int32_t height = ctx->current_rendertarget->height;
