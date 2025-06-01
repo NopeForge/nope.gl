@@ -22,7 +22,6 @@
 #ifndef PRECISION_H
 #define PRECISION_H
 
-#include "ngpu/type.h"
 #include "params.h"
 
 extern const struct param_choices ngli_precision_choices;

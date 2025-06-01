@@ -22,6 +22,8 @@
 #ifndef NODE_IO_H
 #define NODE_IO_H
 
+#include "ngpu/type.h"
+
 struct io_opts {
     int precision_out;
     int precision_in;
