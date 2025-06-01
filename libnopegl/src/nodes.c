@@ -36,13 +36,6 @@
 #include "utils/string.h"
 #include "utils/utils.h"
 
-enum {
-    STATE_INIT_FAILED   = -1,
-    STATE_UNINITIALIZED = 0, /* post uninit(), default */
-    STATE_INITIALIZED   = 1, /* post init() or release() */
-    STATE_READY         = 2, /* post prefetch() */
-};
-
 /* We depend on the monotonically incrementing by 1 property of these fields */
 NGLI_STATIC_ASSERT(node_uniform_vec_flt, NGL_NODE_UNIFORMVEC4      - NGL_NODE_UNIFORMFLOAT       == 3);
 NGLI_STATIC_ASSERT(node_animkf_vec_flt,  NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3);
@@ -90,7 +83,7 @@ static struct ngl_node *node_create(const struct node_class *cls)
 
     node->refcount = 1;
 
-    node->state = STATE_UNINITIALIZED;
+    node->state = NGLI_NODE_STATE_UNINITIALIZED;
 
     return node;
 }
@@ -164,7 +157,7 @@ struct ngl_node *ngl_node_create(uint32_t type)
 
 static void node_release(struct ngl_node *node)
 {
-    if (node->state != STATE_READY)
+    if (node->state != NGLI_NODE_STATE_READY)
         return;
 
     ngli_assert(node->ctx);
@@ -172,13 +165,13 @@ static void node_release(struct ngl_node *node)
         TRACE("RELEASE %s @ %p", node->label, node);
         node->cls->release(node);
     }
-    node->state = STATE_INITIALIZED;
+    node->state = NGLI_NODE_STATE_INITIALIZED;
     node->last_update_time = -1.;
 }
 
 static void node_uninit(struct ngl_node *node)
 {
-    if (node->state == STATE_UNINITIALIZED)
+    if (node->state == NGLI_NODE_STATE_UNINITIALIZED)
         return;
 
     ngli_assert(node->ctx);
@@ -189,13 +182,13 @@ static void node_uninit(struct ngl_node *node)
         node->cls->uninit(node);
     }
     memset(node->priv_data, 0, node->cls->priv_size);
-    node->state = STATE_UNINITIALIZED;
+    node->state = NGLI_NODE_STATE_UNINITIALIZED;
     node->visit_time = -1.;
 }
 
 static int node_init(struct ngl_node *node)
 {
-    if (node->state != STATE_UNINITIALIZED)
+    if (node->state != NGLI_NODE_STATE_UNINITIALIZED)
         return 0;
 
     ngli_assert(node->ctx);
@@ -204,16 +197,16 @@ static int node_init(struct ngl_node *node)
         int ret = node->cls->init(node);
         if (ret < 0) {
             LOG(ERROR, "initializing node %s failed: %s", node->label, NGLI_RET_STR(ret));
-            node->state = STATE_INIT_FAILED;
+            node->state = NGLI_NODE_STATE_INIT_FAILED;
             node_uninit(node);
             return ret;
         }
     }
 
     if (node->cls->prefetch)
-        node->state = STATE_INITIALIZED;
+        node->state = NGLI_NODE_STATE_INITIALIZED;
     else
-        node->state = STATE_READY;
+        node->state = NGLI_NODE_STATE_READY;
 
     return 0;
 }
@@ -243,7 +236,7 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 
 static void node_reset_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 {
-    if (node->state > STATE_UNINITIALIZED) {
+    if (node->state > NGLI_NODE_STATE_UNINITIALIZED) {
         if (node->ctx != ctx)
             return;
         if (node->ctx_refcount-- == 1) {
@@ -370,7 +363,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
 
 static int node_prefetch(struct ngl_node *node)
 {
-    if (node->state == STATE_READY)
+    if (node->state == NGLI_NODE_STATE_READY)
         return 0;
 
     if (node->cls->prefetch) {
@@ -386,7 +379,7 @@ static int node_prefetch(struct ngl_node *node)
             return ret;
         }
     }
-    node->state = STATE_READY;
+    node->state = NGLI_NODE_STATE_READY;
 
     return 0;
 }
@@ -424,7 +417,7 @@ int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t)
 
 int ngli_node_update(struct ngl_node *node, double t)
 {
-    ngli_assert(node->state == STATE_READY);
+    ngli_assert(node->state == NGLI_NODE_STATE_READY);
     if (node->cls->update) {
         if (node->last_update_time != t) {
             TRACE("UPDATE %s @ %p with t=%g", node->label, node, t);

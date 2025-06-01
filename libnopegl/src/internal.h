@@ -151,6 +151,13 @@ struct livectl {
 
 #define NGLI_NODE_NONE 0xffffffff
 
+enum node_state {
+    NGLI_NODE_STATE_INIT_FAILED   = -1,
+    NGLI_NODE_STATE_UNINITIALIZED = 0, /* post uninit(), default */
+    NGLI_NODE_STATE_INITIALIZED   = 1, /* post init() or release() */
+    NGLI_NODE_STATE_READY         = 2, /* post prefetch() */
+};
+
 struct ngl_node {
     const struct node_class *cls;
     struct ngl_ctx *ctx;
@@ -246,7 +253,7 @@ struct node_class {
     /*
      * Initialize the node private context.
      *
-     * reentrant: no (comparing state against STATE_INITIALIZED)
+     * reentrant: no (comparing state against NGLI_NODE_STATE_INITIALIZED)
      * execution-order: leaf first
      * dispatch: managed
      * when: called during set_scene() / internal node_set_ctx()
@@ -297,7 +304,7 @@ struct node_class {
      *
      * The symmetrical callback for prefetch is the release callback.
      *
-     * reentrant: no (comparing state against STATE_READY)
+     * reentrant: no (comparing state against NGLI_NODE_STATE_READY)
      * execution-order: leaf first
      * dispatch: managed
      * when: follows the visit phase, as part of
@@ -345,7 +352,7 @@ struct node_class {
      *
      * The symmetrical callback for release is the prefetch callback.
      *
-     * reentrant: no (comparing state against STATE_READY)
+     * reentrant: no (comparing state against NGLI_NODE_STATE_READY)
      * execution-order: root first
      * dispatch: managed
      * when: follows the visit phase, as part of ngli_node_honor_release_prefetch()
@@ -361,7 +368,7 @@ struct node_class {
      * Must delete everything not released by the release callback. If
      * implemented, the release callback will always be called before uninit.
      *
-     * reentrant: no (comparing state against STATE_READY)
+     * reentrant: no (comparing state against NGLI_NODE_STATE_READY)
      * execution-order: root first
      * dispatch: managed
      * when: called during set_scene() / internal node_set_ctx()
