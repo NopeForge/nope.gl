@@ -164,13 +164,6 @@ const struct param_specs ngli_params_specs[] = {
     },
 };
 
-static const char *get_param_type_name(int param_type)
-{
-    if (param_type < 0 || param_type >= NGLI_ARRAY_NB(ngli_params_specs))
-        return "???";
-    return ngli_params_specs[param_type].name;
-}
-
 const struct node_param *ngli_params_find(const struct node_param *params, const char *key)
 {
     if (!params)
@@ -356,7 +349,7 @@ static int check_param_type(const struct node_param *par, int expected_type)
 {
     if (par->type != expected_type) {
         LOG(ERROR, "invalid type: %s is of type %s, not %s", par->key,
-            get_param_type_name(par->type), get_param_type_name(expected_type));
+            ngli_params_specs[par->type].name, ngli_params_specs[expected_type].name);
         return NGL_ERROR_INVALID_ARG;
     }
     return 0;
@@ -668,7 +661,7 @@ int ngli_params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl
 
         if (!allowed_node(node, node_types)) {
             LOG(ERROR, "node of type %s is not allowed for parameter %s (type %s)",
-                node->cls->name, par->key, get_param_type_name(par->type));
+                node->cls->name, par->key, ngli_params_specs[par->type].name);
             return NGL_ERROR_INVALID_ARG;
         }
 
