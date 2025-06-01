@@ -43,7 +43,6 @@ struct media_priv {
     size_t nb_parents;
     double start_time;
     double end_time;
-    int prefetched;
     int invalidated;
 
 #if defined(TARGET_ANDROID)
