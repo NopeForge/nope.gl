@@ -30,7 +30,6 @@
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "utils/hmap.h"
-#include "utils/memory.h"
 
 struct eval_opts {
     char *expr[4];

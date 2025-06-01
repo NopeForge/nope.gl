@@ -27,7 +27,6 @@
 
 #include "internal.h"
 #include "log.h"
-#include "math_utils.h"
 #include "ngpu/block.h"
 #include "ngpu/ctx.h"
 #include "ngpu/format.h"

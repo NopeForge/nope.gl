@@ -19,10 +19,7 @@
  * under the License.
  */
 
-#include <string.h>
-
 #include "drawutils.h"
-#include "nopegl.h"
 
 #define BYTES_PER_PIXEL 4 /* RGBA */
 

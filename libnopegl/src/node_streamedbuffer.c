@@ -29,7 +29,6 @@
 #include "node_uniform.h"
 #include "nopegl.h"
 #include "internal.h"
-#include "ngpu/type.h"
 
 struct streamedbuffer_opts {
     int32_t count;

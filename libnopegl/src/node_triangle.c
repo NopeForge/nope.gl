@@ -19,14 +19,12 @@
  * under the License.
  */
 
-#include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "geometry.h"
 #include "internal.h"
-#include "log.h"
 #include "math_utils.h"
 #include "ngpu/ctx.h"
 #include "nopegl.h"
