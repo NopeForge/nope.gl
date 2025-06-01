@@ -20,14 +20,12 @@
  * under the License.
  */
 
-#include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "internal.h"
 #include "log.h"
-#include "math_utils.h"
 #include "node_transform.h"
 #include "nopegl.h"
 #include "utils/darray.h"

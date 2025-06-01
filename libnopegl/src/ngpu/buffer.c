@@ -23,7 +23,6 @@
 
 #include "buffer.h"
 #include "ctx.h"
-#include "utils/utils.h"
 
 static void buffer_freep(void **bufferp)
 {

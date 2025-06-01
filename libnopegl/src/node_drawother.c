@@ -29,7 +29,6 @@
 #include "geometry.h"
 #include "internal.h"
 #include "log.h"
-#include "math_utils.h"
 #include "ngpu/ctx.h"
 #include "ngpu/type.h"
 #include "node_block.h"

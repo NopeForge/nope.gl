@@ -41,7 +41,6 @@
 #include <va/va_wayland.h>
 #endif
 
-#include "internal.h"
 #include "log.h"
 #include "ngpu/ctx.h"
 #include "utils/utils.h"

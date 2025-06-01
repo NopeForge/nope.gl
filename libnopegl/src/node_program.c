@@ -22,7 +22,6 @@
 #include <stddef.h>
 
 #include "internal.h"
-#include "log.h"
 #include "node_io.h"
 #include "node_program.h"
 #include "nopegl.h"

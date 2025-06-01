@@ -24,8 +24,6 @@
 
 #include "buffer.h"
 #include "ctx.h"
-#include "log.h"
-#include "ngpu/type.h"
 #include "pipeline.h"
 #include "utils/memory.h"
 #include "utils/utils.h"

@@ -25,7 +25,6 @@
 
 #include "box.h"
 #include "internal.h"
-#include "math_utils.h"
 #include "ngpu/ctx.h"
 #include "ngpu/format.h"
 #include "ngpu/pgcraft.h"

@@ -32,7 +32,6 @@
 #include "ngpu/format.h"
 #include "ngpu/type.h"
 #include "pgcraft.h"
-#include "utils/hmap.h"
 #include "utils/memory.h"
 #include "utils/utils.h"
 

@@ -19,7 +19,6 @@
  * under the License.
  */
 
-#include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>

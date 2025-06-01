@@ -19,7 +19,6 @@
  * under the License.
  */
 
-#include "box.h"
 #include "distmap.h"
 #include "internal.h"
 #include "path.h"

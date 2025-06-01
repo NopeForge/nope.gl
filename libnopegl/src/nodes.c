@@ -27,7 +27,6 @@
 
 #include "internal.h"
 #include "log.h"
-#include "math_utils.h"
 #include "node_uniform.h"
 #include "nodes_register.h"
 #include "nopegl.h"
