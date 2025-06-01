@@ -40,8 +40,6 @@ NGLI_STATIC_ASSERT(node_uniform_vec_flt, NGL_NODE_UNIFORMVEC4      - NGL_NODE_UN
 NGLI_STATIC_ASSERT(node_animkf_vec_flt,  NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3);
 NGLI_STATIC_ASSERT(node_anim_vec_flt,    NGL_NODE_ANIMATEDVEC4     - NGL_NODE_ANIMATEDFLOAT      == 3);
 
-extern const struct param_specs ngli_params_specs[];
-
 /* Warning: the common node parameters *must* not include any node-based parameter */
 #define OFFSET(x) offsetof(struct ngl_node, x)
 const struct node_param ngli_base_node_params[] = {
