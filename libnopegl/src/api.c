@@ -98,7 +98,7 @@ static int get_default_platform(void)
 #elif defined(TARGET_WINDOWS)
     return NGL_PLATFORM_WINDOWS;
 #else
-    return NGL_ERROR_UNSUPPORTED;
+    NGLI_STATIC_ASSERT(default_platform, 0);
 #endif
 }
 
