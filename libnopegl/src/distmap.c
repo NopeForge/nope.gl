@@ -474,9 +474,9 @@ static enum ngpu_format get_preferred_distmap_format(const struct distmap *s)
     struct ngpu_ctx *gpu_ctx = s->ctx->gpu_ctx;
 
     static const enum ngpu_format formats[] = {
-            NGPU_FORMAT_R32_SFLOAT,
-            NGPU_FORMAT_R16_SFLOAT,
-            NGPU_FORMAT_R8_UNORM,
+        NGPU_FORMAT_R32_SFLOAT,
+        NGPU_FORMAT_R16_SFLOAT,
+        NGPU_FORMAT_R8_UNORM,
     };
     for (size_t i = 0; i < NGLI_ARRAY_NB(formats); i++) {
         const uint32_t features = ngpu_ctx_get_format_features(gpu_ctx, formats[i]);
