@@ -23,9 +23,7 @@
 #define HWCONV_H
 
 #include "image.h"
-#include "ngpu/buffer.h"
 #include "ngpu/rendertarget.h"
-#include "ngpu/texture.h"
 #include "pipeline_compat.h"
 #include "ngpu/pgcraft.h"
 
