@@ -165,7 +165,7 @@ struct ngl_node {
 
     void *opts;
 
-    int state;
+    enum node_state state;
     int is_active;
 
     double visit_time;
