@@ -277,7 +277,7 @@ static const struct node_param filterselector_params[] = {
 #define filtersrgb2linear_params NULL
 
 static int register_resource(struct darray *resources, const char *name,
-                             const struct ngl_node *pnode, void *data, enum ngpu_type data_type)
+                             const struct ngl_node *pnode, const void *data, enum ngpu_type data_type)
 {
     struct ngpu_pgcraft_uniform res = {
         .type  = data_type,
@@ -303,7 +303,7 @@ static int filteralpha_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
     struct filteralpha_priv *s = node->priv_data;
-    struct filteralpha_opts *o = node->opts;
+    const struct filteralpha_opts *o = node->opts;
     s->filter.name = "alpha";
     s->filter.code = filter_alpha_glsl;
     return register_resource(&s->filter.resources, "alpha", o->alpha_node, &o->alpha, NGPU_TYPE_F32);
@@ -316,7 +316,7 @@ static int filtercolormap_init(struct ngl_node *node)
         return ret;
 
     struct filtercolormap_priv *s = node->priv_data;
-    struct filtercolormap_opts *o = node->opts;
+    const struct filtercolormap_opts *o = node->opts;
 
     if (o->nb_colorkeys < 2) {
         LOG(ERROR, "a minimum of 2 color keys is required to make a color map");
@@ -382,7 +382,7 @@ static int filtercolormap_init(struct ngl_node *node)
 
     for (size_t i = 0; i < o->nb_colorkeys; i++) {
         struct ngl_node *colorkey = o->colorkeys[i];
-        struct colorkey_opts *key_o = colorkey->opts;
+        const struct colorkey_opts *key_o = colorkey->opts;
 
         snprintf(pos_name,     sizeof(pos_name),     "pos%zu", i);
         snprintf(color_name,   sizeof(color_name),   "color%zu",    i);
@@ -406,7 +406,7 @@ static int filtercontrast_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
     struct filtercontrast_priv *s = node->priv_data;
-    struct filtercontrast_opts *o = node->opts;
+    const struct filtercontrast_opts *o = node->opts;
     s->filter.name = "contrast";
     s->filter.code = filter_contrast_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS;
@@ -422,7 +422,7 @@ static int filterexposure_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
     struct filterexposure_priv *s = node->priv_data;
-    struct filterexposure_opts *o = node->opts;
+    const struct filterexposure_opts *o = node->opts;
     s->filter.name = "exposure";
     s->filter.code = filter_exposure_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS;
@@ -458,7 +458,7 @@ static int filteropacity_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
     struct filteropacity_priv *s = node->priv_data;
-    struct filteropacity_opts *o = node->opts;
+    const struct filteropacity_opts *o = node->opts;
     s->filter.name = "opacity";
     s->filter.code = filter_opacity_glsl;
     return register_resource(&s->filter.resources, "opacity", o->opacity_node, &o->opacity, NGPU_TYPE_F32);
@@ -481,7 +481,7 @@ static int filtersaturation_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
     struct filtersaturation_priv *s = node->priv_data;
-    struct filtersaturation_opts *o = node->opts;
+    const struct filtersaturation_opts *o = node->opts;
     s->filter.name = "saturation";
     s->filter.code = filter_saturation_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_SRGB;
@@ -494,7 +494,7 @@ static int filterselector_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
     struct filterselector_priv *s = node->priv_data;
-    struct filterselector_opts *o = node->opts;
+    const struct filterselector_opts *o = node->opts;
     s->filter.name = "selector";
     s->filter.code = filter_selector_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS | NGLI_FILTER_HELPER_SRGB | NGLI_FILTER_HELPER_OKLAB;

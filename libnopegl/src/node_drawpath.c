@@ -162,7 +162,7 @@ static int build_uniforms_map(struct drawpath_priv *s)
 static int drawpath_init(struct ngl_node *node)
 {
     struct drawpath_priv *s = node->priv_data;
-    struct drawpath_opts *o = node->opts;
+    const struct drawpath_opts *o = node->opts;
 
     ngli_darray_init(&s->pipeline_descs, sizeof(struct pipeline_desc), 0);
 

@@ -72,7 +72,7 @@ static int transform_init(struct ngl_node *node)
 static int transform_update(struct ngl_node *node, double t)
 {
     struct transform_priv *s = node->priv_data;
-    struct transform_opts *o = node->opts;
+    const struct transform_opts *o = node->opts;
 
     int ret = ngli_node_update_children(node, t);
     if (ret < 0)

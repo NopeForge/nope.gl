@@ -117,7 +117,7 @@ static const struct node_param gblur_params[] = {
 static int update_kernel(struct ngl_node *node)
 {
     struct gblur_priv *s = node->priv_data;
-    struct gblur_opts *o = node->opts;
+    const struct gblur_opts *o = node->opts;
 
     const float bluriness = *(float *)ngli_node_get_data_ptr(o->bluriness_node, &o->bluriness);
     if (bluriness < 0.0)
@@ -220,7 +220,7 @@ static int gblur_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gblur_priv *s = node->priv_data;
-    struct gblur_opts *o = node->opts;
+    const struct gblur_opts *o = node->opts;
 
     struct texture_info *src_info = o->source->priv_data;
     s->image = &src_info->image;
@@ -340,7 +340,7 @@ static int resize(struct ngl_node *node)
     int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct gblur_priv *s = node->priv_data;
-    struct gblur_opts *o = node->opts;
+    const struct gblur_opts *o = node->opts;
 
     ngli_node_draw(o->source);
 

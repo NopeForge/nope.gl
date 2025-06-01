@@ -313,7 +313,7 @@ static int set_vec3_value(float *dst, struct ngl_node *node, const float *value,
     return 0;
 }
 
-static int set_transform(float *dst, struct texteffect_opts *effect_opts,
+static int set_transform(float *dst, const struct texteffect_opts *effect_opts,
                          struct ngli_box box, struct ngli_box chr_box,
                          const struct char_info *chr, double t)
 {
@@ -458,7 +458,7 @@ static int build_effects_segmentation(struct text *s)
 {
     for (size_t i = 0; i < s->config.nb_effect_nodes; i++) {
         struct ngl_node *effect_node = s->config.effect_nodes[i];
-        struct texteffect_opts *effect_opts = effect_node->opts;
+        const struct texteffect_opts *effect_opts = effect_node->opts;
         struct effect_segmentation *effect = &s->effects[i];
 
         const size_t nb_chars = ngli_darray_count(&s->chars);
@@ -697,7 +697,7 @@ int ngli_text_set_time(struct text *s, double t)
 
     for (size_t i = 0; i < s->config.nb_effect_nodes; i++) {
         struct ngl_node *effect_node = s->config.effect_nodes[i];
-        struct texteffect_opts *effect_opts = effect_node->opts;
+        const struct texteffect_opts *effect_opts = effect_node->opts;
 
         const double end_time = effect_opts->end_time < 0.0 ? s->ctx->scene->params.duration : effect_opts->end_time;
         if (t < effect_opts->start_time || t > end_time)

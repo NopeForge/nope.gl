@@ -716,7 +716,7 @@ static int finalize_init(struct ngl_node *node, struct draw_common *draw_common,
 static int drawcolor_init(struct ngl_node *node)
 {
     struct drawcolor_priv *s = node->priv_data;
-    struct drawcolor_opts *o = node->opts;
+    const struct drawcolor_opts *o = node->opts;
 
     int ret = init(node, &s->common, &o->common, "source_color", source_color_frag);
     if (ret < 0)
@@ -758,7 +758,7 @@ static int drawcolor_init(struct ngl_node *node)
 static int drawdisplace_init(struct ngl_node *node)
 {
     struct drawdisplace_priv *s = node->priv_data;
-    struct drawdisplace_opts *o = node->opts;
+    const struct drawdisplace_opts *o = node->opts;
 
     const struct ngl_node *source_node = ngli_transform_get_leaf_node(o->source_node);
     if (!source_node) {
@@ -831,7 +831,7 @@ static int drawdisplace_init(struct ngl_node *node)
 static int drawgradient_init(struct ngl_node *node)
 {
     struct drawgradient_priv *s = node->priv_data;
-    struct drawgradient_opts *o = node->opts;
+    const struct drawgradient_opts *o = node->opts;
     s->common.helpers = NGLI_FILTER_HELPER_SRGB;
     int ret = init(node, &s->common, &o->common, "source_gradient", source_gradient_frag);
     if (ret < 0)
@@ -879,7 +879,7 @@ static int drawgradient_init(struct ngl_node *node)
 static int drawgradient4_init(struct ngl_node *node)
 {
     struct drawgradient4_priv *s = node->priv_data;
-    struct drawgradient4_opts *o = node->opts;
+    const struct drawgradient4_opts *o = node->opts;
 
     s->common.helpers = NGLI_FILTER_HELPER_SRGB;
 
@@ -930,7 +930,7 @@ static int drawgradient4_init(struct ngl_node *node)
 static int drawhistogram_init(struct ngl_node *node)
 {
     struct drawhistogram_priv *s = node->priv_data;
-    struct drawhistogram_opts *o = node->opts;
+    const struct drawhistogram_opts *o = node->opts;
 
     int ret = init(node, &s->common, &o->common, "source_histogram", source_histogram_frag);
     if (ret < 0)
@@ -983,7 +983,7 @@ static int drawhistogram_init(struct ngl_node *node)
 static int drawmask_init(struct ngl_node *node)
 {
     struct drawmask_priv *s = node->priv_data;
-    struct drawmask_opts *o = node->opts;
+    const struct drawmask_opts *o = node->opts;
 
     const struct ngl_node *content = ngli_transform_get_leaf_node(o->content);
     if (!content) {
@@ -1059,7 +1059,7 @@ static int drawmask_init(struct ngl_node *node)
 static int drawnoise_init(struct ngl_node *node)
 {
     struct drawnoise_priv *s = node->priv_data;
-    struct drawnoise_opts *o = node->opts;
+    const struct drawnoise_opts *o = node->opts;
     if (o->octaves < 1 || o->octaves > 8) {
         LOG(ERROR, "octaves must be in [1,8]");
         return NGL_ERROR_INVALID_ARG;
@@ -1112,7 +1112,7 @@ static int drawnoise_init(struct ngl_node *node)
 static int drawtexture_init(struct ngl_node *node)
 {
     struct drawtexture_priv *s = node->priv_data;
-    struct drawtexture_opts *o = node->opts;
+    const struct drawtexture_opts *o = node->opts;
 
     const struct ngl_node *texture_node = ngli_transform_get_leaf_node(o->texture_node);
     if (!texture_node) {
@@ -1169,7 +1169,7 @@ static int drawtexture_init(struct ngl_node *node)
 static int drawwaveform_init(struct ngl_node *node)
 {
     struct drawwaveform_priv *s = node->priv_data;
-    struct drawwaveform_opts *o = node->opts;
+    const struct drawwaveform_opts *o = node->opts;
 
     int ret = init(node, &s->common, &o->common, "source_waveform", source_waveform_frag);
     if (ret < 0)
@@ -1301,7 +1301,7 @@ static int init_pipeline_desc(struct ngl_node *node, struct pipeline_desc *desc,
 
 static int drawcolor_prepare(struct ngl_node *node)
 {
-    struct drawcolor_opts *o = node->opts;
+    const struct drawcolor_opts *o = node->opts;
 
     struct pipeline_desc *desc = create_pipeline_desc(node);
     if (!desc)
@@ -1312,7 +1312,7 @@ static int drawcolor_prepare(struct ngl_node *node)
 
 static int drawdisplace_prepare(struct ngl_node *node)
 {
-    struct drawdisplace_opts *o = node->opts;
+    const struct drawdisplace_opts *o = node->opts;
 
     struct pipeline_desc *desc = create_pipeline_desc(node);
     if (!desc)
@@ -1331,7 +1331,7 @@ static int drawdisplace_prepare(struct ngl_node *node)
 
 static int drawgradient_prepare(struct ngl_node *node)
 {
-    struct drawgradient_opts *o = node->opts;
+    const struct drawgradient_opts *o = node->opts;
 
     struct pipeline_desc *desc = create_pipeline_desc(node);
     if (!desc)
@@ -1342,7 +1342,7 @@ static int drawgradient_prepare(struct ngl_node *node)
 
 static int drawgradient4_prepare(struct ngl_node *node)
 {
-    struct drawgradient4_opts *o = node->opts;
+    const struct drawgradient4_opts *o = node->opts;
 
     struct pipeline_desc *desc = create_pipeline_desc(node);
     if (!desc)
@@ -1354,7 +1354,7 @@ static int drawgradient4_prepare(struct ngl_node *node)
 static int drawhistogram_prepare(struct ngl_node *node)
 {
     struct drawhistogram_priv *s = node->priv_data;
-    struct drawhistogram_opts *o = node->opts;
+    const struct drawhistogram_opts *o = node->opts;
 
     struct pipeline_desc *desc = create_pipeline_desc(node);
     if (!desc)
@@ -1375,7 +1375,7 @@ static int drawhistogram_prepare(struct ngl_node *node)
 
 static int drawmask_prepare(struct ngl_node *node)
 {
-    struct drawmask_opts *o = node->opts;
+    const struct drawmask_opts *o = node->opts;
 
     struct pipeline_desc *desc = create_pipeline_desc(node);
     if (!desc)
@@ -1395,7 +1395,7 @@ static int drawmask_prepare(struct ngl_node *node)
 
 static int drawnoise_prepare(struct ngl_node *node)
 {
-    struct drawnoise_opts *o = node->opts;
+    const struct drawnoise_opts *o = node->opts;
 
     struct pipeline_desc *desc = create_pipeline_desc(node);
     if (!desc)
@@ -1406,7 +1406,7 @@ static int drawnoise_prepare(struct ngl_node *node)
 
 static int drawtexture_prepare(struct ngl_node *node)
 {
-    struct drawtexture_opts *o = node->opts;
+    const struct drawtexture_opts *o = node->opts;
 
     struct pipeline_desc *desc = create_pipeline_desc(node);
     if (!desc)
@@ -1425,7 +1425,7 @@ static int drawtexture_prepare(struct ngl_node *node)
 static int drawwaveform_prepare(struct ngl_node *node)
 {
     struct drawwaveform_priv *s = node->priv_data;
-    struct drawwaveform_opts *o = node->opts;
+    const struct drawwaveform_opts *o = node->opts;
 
     struct pipeline_desc *desc = create_pipeline_desc(node);
     if (!desc)
