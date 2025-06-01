@@ -19,7 +19,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   to serve as a reframing mechanism (the transforms are applied to the texture
   coordinates in a centered `[-1,1]` space with `(-1,-1)` in the bottom left)
 - `HexagonalBlur` node to apply a post processing hexagonal bokeh blur effect to a
-  scene
+  texture
 - `TextEffect.anchor` and `TextEffect.anchor_ref` to control the character
   relative anchor for scale and rotate transforms
 - `DrawMask` node to facilitate alpha masking with textures
