@@ -57,7 +57,7 @@ def depth_stencil_depth(cfg: ngl.SceneCfg):
             draw,
             depth_test=True,
             depth_func="less",
-            depth_write_mask=False,
+            depth_write=False,
         )
         group.add_children(graphicconfig)
 

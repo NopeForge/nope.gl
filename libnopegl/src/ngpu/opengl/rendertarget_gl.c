@@ -304,9 +304,9 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
         memcpy(glstate->color_write_mask, &default_color_write_mask, sizeof(default_color_write_mask));
     }
 
-    if (glstate->depth_write_mask != GL_TRUE) {
+    if (glstate->depth_write != GL_TRUE) {
         gl->funcs.DepthMask(GL_TRUE);
-        glstate->depth_write_mask = GL_TRUE;
+        glstate->depth_write = GL_TRUE;
     }
 
     if (glstate->stencil_front.write_mask != 0xff ||
