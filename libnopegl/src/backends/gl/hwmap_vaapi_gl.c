@@ -60,7 +60,7 @@ static int support_direct_rendering(struct hwmap *hwmap)
 {
     const struct hwmap_params *params = &hwmap->params;
 
-    int direct_rendering = params->image_layouts & NGLI_IMAGE_LAYOUT_NV12_BIT;
+    int direct_rendering = NGLI_HAS_ALL_FLAGS(params->image_layouts, NGLI_IMAGE_LAYOUT_NV12_BIT);
 
     if (direct_rendering && params->texture_mipmap_filter) {
         LOG(WARNING,
@@ -230,13 +230,13 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     }
 
     for (size_t i = 0; i < num_layers; i++) {
-        int attribs[32] = {EGL_NONE};
+        EGLint attribs[32] = {EGL_NONE};
         size_t nb_attribs = 0;
 
 #define ADD_ATTRIB(name, value) do {                          \
     ngli_assert(nb_attribs + 3 < NGLI_ARRAY_NB(attribs));     \
     attribs[nb_attribs++] = (name);                           \
-    attribs[nb_attribs++] = (value);                          \
+    attribs[nb_attribs++] = (EGLint)(value);                  \
     attribs[nb_attribs] = EGL_NONE;                           \
 } while(0)
 

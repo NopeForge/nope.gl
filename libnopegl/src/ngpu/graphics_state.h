@@ -41,7 +41,8 @@ enum ngpu_blend_factor {
     NGPU_BLEND_FACTOR_CONSTANT_ALPHA,
     NGPU_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,
     NGPU_BLEND_FACTOR_SRC_ALPHA_SATURATE,
-    NGPU_BLEND_FACTOR_NB
+    NGPU_BLEND_FACTOR_NB,
+    NGPU_BLEND_FACTOR_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_blend_op {
@@ -50,7 +51,8 @@ enum ngpu_blend_op {
     NGPU_BLEND_OP_REVERSE_SUBTRACT,
     NGPU_BLEND_OP_MIN,
     NGPU_BLEND_OP_MAX,
-    NGPU_BLEND_OP_NB
+    NGPU_BLEND_OP_NB,
+    NGPU_BLEND_OP_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_compare_op {
@@ -62,7 +64,8 @@ enum ngpu_compare_op {
     NGPU_COMPARE_OP_NOT_EQUAL,
     NGPU_COMPARE_OP_GREATER_OR_EQUAL,
     NGPU_COMPARE_OP_ALWAYS,
-    NGPU_COMPARE_OP_NB
+    NGPU_COMPARE_OP_NB,
+    NGPU_COMPARE_OP_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_stencil_op {
@@ -74,17 +77,19 @@ enum ngpu_stencil_op {
     NGPU_STENCIL_OP_INVERT,
     NGPU_STENCIL_OP_INCREMENT_AND_WRAP,
     NGPU_STENCIL_OP_DECREMENT_AND_WRAP,
-    NGPU_STENCIL_OP_NB
+    NGPU_STENCIL_OP_NB,
+    NGPU_STENCIL_OP_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_cull_mode {
     NGPU_CULL_MODE_NONE,
     NGPU_CULL_MODE_FRONT_BIT,
     NGPU_CULL_MODE_BACK_BIT,
-    NGPU_CULL_MODE_NB
+    NGPU_CULL_MODE_NB,
+    NGPU_CULL_MODE_MAX_ENUM = 0x7FFFFFFF
 };
 
-enum ngpu_color_component {
+enum {
     NGPU_COLOR_COMPONENT_R_BIT = 1 << 0,
     NGPU_COLOR_COMPONENT_G_BIT = 1 << 1,
     NGPU_COLOR_COMPONENT_B_BIT = 1 << 2,
@@ -94,14 +99,15 @@ enum ngpu_color_component {
 enum ngpu_front_face {
     NGPU_FRONT_FACE_COUNTER_CLOCKWISE,
     NGPU_FRONT_FACE_CLOCKWISE,
-    NGPU_FRONT_FACE_NB
+    NGPU_FRONT_FACE_NB,
+    NGPU_FRONT_FACE_MAX_ENUM = 0x7FFFFFFF
 };
 
 struct ngpu_stencil_op_state {
-    int write_mask;
+    uint32_t write_mask;
     enum ngpu_compare_op func;
-    int ref;
-    int read_mask;
+    uint32_t ref;
+    uint32_t read_mask;
     enum ngpu_stencil_op fail;
     enum ngpu_stencil_op depth_fail;
     enum ngpu_stencil_op depth_pass;
@@ -116,10 +122,10 @@ struct ngpu_graphics_state {
     enum ngpu_blend_op blend_op;
     enum ngpu_blend_op blend_op_a;
 
-    int color_write_mask;
+    uint32_t color_write_mask;
 
     int depth_test;
-    int depth_write_mask;
+    int depth_write;
     enum ngpu_compare_op depth_func;
 
     int stencil_test;
@@ -144,7 +150,7 @@ struct ngpu_graphics_state {
                         | NGPU_COLOR_COMPONENT_B_BIT                   \
                         | NGPU_COLOR_COMPONENT_A_BIT,                  \
     .depth_test         = 0,                                           \
-    .depth_write_mask   = 1,                                           \
+    .depth_write        = 1,                                           \
     .depth_func         = NGPU_COMPARE_OP_LESS,                        \
     .stencil_test       = 0,                                           \
     .stencil_front      = {                                            \

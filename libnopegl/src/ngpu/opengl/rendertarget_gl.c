@@ -304,9 +304,9 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
         memcpy(glstate->color_write_mask, &default_color_write_mask, sizeof(default_color_write_mask));
     }
 
-    if (glstate->depth_write_mask != GL_TRUE) {
+    if (glstate->depth_write != GL_TRUE) {
         gl->funcs.DepthMask(GL_TRUE);
-        glstate->depth_write_mask = GL_TRUE;
+        glstate->depth_write = GL_TRUE;
     }
 
     if (glstate->stencil_front.write_mask != 0xff ||
@@ -316,7 +316,7 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
         glstate->stencil_back.write_mask = 0xff;
     }
 
-    ngpu_glstate_enable_scissor_test(gl, glstate, 0);
+    ngpu_glstate_enable_scissor_test(gl, glstate, GL_FALSE);
 
     gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, s_priv->id);
 
@@ -338,7 +338,7 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
 
     s_priv->clear(s);
 
-    ngpu_glstate_enable_scissor_test(gl, glstate, 1);
+    ngpu_glstate_enable_scissor_test(gl, glstate, GL_TRUE);
 }
 
 void ngpu_rendertarget_gl_end_pass(struct ngpu_rendertarget *s)
@@ -353,11 +353,11 @@ void ngpu_rendertarget_gl_end_pass(struct ngpu_rendertarget *s)
         gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, s_priv->id);
         gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, s_priv->resolve_id);
 
-        ngpu_glstate_enable_scissor_test(gl, glstate, 0);
+        ngpu_glstate_enable_scissor_test(gl, glstate, GL_FALSE);
 
         s_priv->resolve(s);
 
-        ngpu_glstate_enable_scissor_test(gl, glstate, 1);
+        ngpu_glstate_enable_scissor_test(gl, glstate, GL_TRUE);
 
         gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, s_priv->id);
     }

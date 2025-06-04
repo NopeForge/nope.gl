@@ -28,7 +28,7 @@
 #include "rendertarget.h"
 #include "utils/memory.h"
 
-const char *ngli_backend_get_string_id(int backend)
+const char *ngli_backend_get_string_id(enum ngl_backend_type backend)
 {
     switch (backend) {
     case NGL_BACKEND_AUTO:     return "auto";
@@ -39,7 +39,7 @@ const char *ngli_backend_get_string_id(int backend)
     }
 }
 
-const char *ngli_backend_get_full_name(int backend)
+const char *ngli_backend_get_full_name(enum ngl_backend_type backend)
 {
     switch (backend) {
     case NGL_BACKEND_AUTO:     return "Auto";
@@ -181,7 +181,7 @@ void ngpu_ctx_freep(struct ngpu_ctx **sp)
     ngli_freep(sp);
 }
 
-int ngpu_ctx_transform_cull_mode(struct ngpu_ctx *s, int cull_mode)
+enum ngpu_cull_mode ngpu_ctx_transform_cull_mode(struct ngpu_ctx *s, enum ngpu_cull_mode cull_mode)
 {
     return s->cls->transform_cull_mode(s, cull_mode);
 }

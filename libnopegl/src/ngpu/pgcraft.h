@@ -38,7 +38,7 @@ struct ngpu_pgcraft_uniform { // also buffers (for arrays)
     char name[MAX_ID_LEN];
     enum ngpu_type type;
     int stage;
-    int precision;
+    enum ngpu_precision precision;
     const void *data;
     size_t count;
 };
@@ -54,7 +54,8 @@ enum ngpu_pgcraft_texture_type {
     NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_3D,
     NGPU_PGCRAFT_TEXTURE_TYPE_CUBE,
     NGPU_PGCRAFT_TEXTURE_TYPE_IMAGE_CUBE,
-    NGPU_PGCRAFT_TEXTURE_TYPE_NB
+    NGPU_PGCRAFT_TEXTURE_TYPE_NB,
+    NGPU_PGCRAFT_TEXTURE_MAX_ENUM = 0x7FFFFFFF
 };
 
 struct ngpu_pgcraft_texture {
@@ -137,7 +138,8 @@ enum {
     NGPU_INFO_FIELD_SAMPLER_OES,
     NGPU_INFO_FIELD_SAMPLER_RECT_0,
     NGPU_INFO_FIELD_SAMPLER_RECT_1,
-    NGPU_INFO_FIELD_NB
+    NGPU_INFO_FIELD_NB,
+    NGPU_INFO_FIELD_MAX_ENUM = 0x7FFFFFFF
 };
 
 struct ngpu_pgcraft_texture_info_field {

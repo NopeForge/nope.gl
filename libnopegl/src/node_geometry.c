@@ -56,7 +56,7 @@ struct geometry_opts {
     struct ngl_node *uvcoords;
     struct ngl_node *normals;
     struct ngl_node *indices;
-    int topology;
+    enum ngpu_primitive_topology topology;
 };
 
 struct geometry_priv {

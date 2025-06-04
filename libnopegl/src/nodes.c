@@ -40,8 +40,6 @@ NGLI_STATIC_ASSERT(node_uniform_vec_flt, NGL_NODE_UNIFORMVEC4      - NGL_NODE_UN
 NGLI_STATIC_ASSERT(node_animkf_vec_flt,  NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3);
 NGLI_STATIC_ASSERT(node_anim_vec_flt,    NGL_NODE_ANIMATEDVEC4     - NGL_NODE_ANIMATEDFLOAT      == 3);
 
-extern const struct param_specs ngli_params_specs[];
-
 /* Warning: the common node parameters *must* not include any node-based parameter */
 #define OFFSET(x) offsetof(struct ngl_node, x)
 const struct node_param ngli_base_node_params[] = {
@@ -72,9 +70,9 @@ static struct ngl_node *node_create(const struct node_class *cls)
     node->priv_data = ((uint8_t *)node->opts) + opts_size;
 
     /* Make sure the node, opts, and its private data are properly aligned */
-    ngli_assert((((uintptr_t)node)            & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node);
-    ngli_assert((((uintptr_t)node->opts)      & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node->opts);
-    ngli_assert((((uintptr_t)node->priv_data) & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node->priv_data);
+    ngli_assert(NGLI_IS_ALIGNED((uintptr_t)node, NGLI_ALIGN_VAL));
+    ngli_assert(NGLI_IS_ALIGNED((uintptr_t)node->opts, NGLI_ALIGN_VAL));
+    ngli_assert(NGLI_IS_ALIGNED((uintptr_t)node->priv_data, NGLI_ALIGN_VAL));
 
     node->cls = cls;
     node->last_update_time = -1.;
@@ -121,8 +119,9 @@ static const struct node_class *get_node_class(uint32_t type)
 {
     switch (type) {
         NODE_MAP_TYPE2CLASS(REGISTER_NODE)
+        default:
+            return NULL;
     }
-    return NULL;
 }
 
 struct ngl_node *ngl_node_create(uint32_t type)
@@ -295,7 +294,7 @@ int ngli_node_prepare(struct ngl_node *node)
     return ngli_node_prepare_children(node);
 }
 
-int ngli_node_visit(struct ngl_node *node, int is_active, double t)
+int ngli_node_visit(struct ngl_node *node, bool is_active, double t)
 {
     /*
      * If a node is inactive and meant to be, there is no need
@@ -388,7 +387,7 @@ int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t)
     /* Build a new list of activity checks nodes */
     struct darray *nodes_array = &scene->ctx->activitycheck_nodes;
     ngli_darray_clear(nodes_array);
-    int ret = ngli_node_visit(scene, 1, t);
+    int ret = ngli_node_visit(scene, true, t);
     if (ret < 0)
         return ret;
 

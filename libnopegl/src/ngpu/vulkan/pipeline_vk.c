@@ -141,7 +141,7 @@ static VkFrontFace get_vk_front_face(enum ngpu_front_face front_face)
     return vk_front_face_map[front_face];
 }
 
-static VkColorComponentFlags get_vk_color_write_mask(int color_write_mask)
+static VkColorComponentFlags get_vk_color_write_mask(uint32_t color_write_mask)
 {
     return (color_write_mask & NGPU_COLOR_COMPONENT_R_BIT ? VK_COLOR_COMPONENT_R_BIT : 0)
          | (color_write_mask & NGPU_COLOR_COMPONENT_G_BIT ? VK_COLOR_COMPONENT_G_BIT : 0)
@@ -236,7 +236,7 @@ static VkResult pipeline_graphics_init(struct ngpu_pipeline *s)
     const VkPipelineDepthStencilStateCreateInfo depthstencil_state_create_info = {
         .sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
         .depthTestEnable       = state->depth_test,
-        .depthWriteEnable      = state->depth_write_mask,
+        .depthWriteEnable      = state->depth_write,
         .depthCompareOp        = get_vk_compare_op(state->depth_func),
         .depthBoundsTestEnable = 0,
         .stencilTestEnable     = state->stencil_test,

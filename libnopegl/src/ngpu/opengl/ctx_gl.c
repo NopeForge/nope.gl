@@ -421,7 +421,7 @@ static const char *gl_debug_type_to_str(GLenum type)
     }
 }
 
-static int gl_debug_type_to_log_level(GLenum type)
+static enum ngl_log_level gl_debug_type_to_log_level(GLenum type)
 {
     switch (type) {
     case GL_DEBUG_TYPE_ERROR:
@@ -454,7 +454,7 @@ static void NGLI_GL_APIENTRY gl_debug_message_callback(GLenum source,
                                                        const GLchar *message,
                                                        const void *user_param)
 {
-    const int log_level = gl_debug_type_to_log_level(type);
+    const enum ngl_log_level log_level = gl_debug_type_to_log_level(type);
     const char *msg_source = gl_debug_source_to_str(source);
     const char *msg_type = gl_debug_type_to_str(type);
     const char *msg_severity = gl_debug_severity_to_str(severity);
@@ -651,7 +651,7 @@ static int gl_init(struct ngpu_ctx *s)
     s_priv->default_rt_layout.depth_stencil.resolve = gl->samples > 1;
 
     ngpu_glstate_reset(gl, &s_priv->glstate);
-    ngpu_glstate_enable_scissor_test(gl, &s_priv->glstate, 1);
+    ngpu_glstate_enable_scissor_test(gl, &s_priv->glstate, GL_TRUE);
 
     ret = create_command_buffers(s);
     if (ret < 0)
@@ -931,13 +931,13 @@ static void blit_vflip(struct ngpu_ctx *s, struct ngpu_rendertarget *src, struct
     gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
     gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, dst_fbo);
 
-    ngpu_glstate_enable_scissor_test(gl, glstate, 0);
+    ngpu_glstate_enable_scissor_test(gl, glstate, GL_FALSE);
 
     gl->funcs.BlitFramebuffer(0, 0, w, h,
                                0, h, w, 0,
                                GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-    ngpu_glstate_enable_scissor_test(gl, glstate, 1);
+    ngpu_glstate_enable_scissor_test(gl, glstate, GL_TRUE);
 }
 
 static int gl_end_draw(struct ngpu_ctx *s, double t)
@@ -1032,7 +1032,7 @@ static void gl_destroy(struct ngpu_ctx *s)
     ngli_glcontext_freep(&s_priv->glcontext);
 }
 
-static int gl_transform_cull_mode(struct ngpu_ctx *s, int cull_mode)
+static enum ngpu_cull_mode gl_transform_cull_mode(struct ngpu_ctx *s, enum ngpu_cull_mode cull_mode)
 {
     return cull_mode;
 }

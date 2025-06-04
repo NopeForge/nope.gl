@@ -32,11 +32,13 @@ enum ngpu_load_op {
     NGPU_LOAD_OP_LOAD,
     NGPU_LOAD_OP_CLEAR,
     NGPU_LOAD_OP_DONT_CARE,
+    NGPU_LOAD_OP_MAX_ENUM = 0x7FFFFFFF
 };
 
 enum ngpu_store_op {
     NGPU_STORE_OP_STORE,
     NGPU_STORE_OP_DONT_CARE,
+    NGPU_STORE_OP_MAX_ENUM = 0x7FFFFFFF
 };
 
 struct ngpu_rendertarget_layout_entry {

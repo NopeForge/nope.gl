@@ -38,9 +38,9 @@
 #endif
 
 void ngli_log_set_callback(void *arg, ngl_log_callback_type callback);
-void ngli_log_set_min_level(int level);
+void ngli_log_set_min_level(enum ngl_log_level level);
 
-void ngli_log_print(int log_level, const char *filename,
+void ngli_log_print(enum ngl_log_level log_level, const char *filename,
                     int ln, const char *fn, const char *fmt, ...) ngli_printf_format(5, 6);
 
 #define NGLI_RET_STR(ret) ngli_log_ret_str((char[128]){0}, 128, ret)

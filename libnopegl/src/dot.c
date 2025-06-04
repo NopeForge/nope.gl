@@ -122,6 +122,8 @@ static int should_print_par(const uint8_t *srcp, const struct node_param *par)
             return uvec_is_set(srcp, par);
         case NGLI_PARAM_TYPE_MAT4:
             return mat_is_set(srcp, par);
+        default:
+            break;
     }
     return 0;
 }
@@ -282,6 +284,8 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                     print_all_decls(b, entry->data, decls);
                 break;
             }
+            default:
+                break;
         }
         p++;
     }

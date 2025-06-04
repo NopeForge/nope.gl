@@ -46,7 +46,7 @@ struct draw_opts {
     struct hmap *attributes;
     struct hmap *instance_attributes;
     int32_t nb_instances;
-    int blending;
+    enum ngli_blending blending;
 };
 
 struct draw_priv {

@@ -164,13 +164,6 @@ const struct param_specs ngli_params_specs[] = {
     },
 };
 
-static const char *get_param_type_name(int param_type)
-{
-    if (param_type < 0 || param_type >= NGLI_ARRAY_NB(ngli_params_specs))
-        return "???";
-    return ngli_params_specs[param_type].name;
-}
-
 const struct node_param *ngli_params_find(const struct node_param *params, const char *key)
 {
     if (!params)
@@ -332,6 +325,8 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
         case NGLI_PARAM_TYPE_RATIONAL:
             ngli_bstr_printf(b, "%d/%d", NGLI_ARG_VEC2((const int32_t *)srcp));
             break;
+        default:
+            break;
     }
 }
 
@@ -352,11 +347,11 @@ static void node_hmap_free(void *user_arg, void *data)
     ngl_node_unrefp(&node);
 }
 
-static int check_param_type(const struct node_param *par, int expected_type)
+static int check_param_type(const struct node_param *par, enum param_type expected_type)
 {
     if (par->type != expected_type) {
         LOG(ERROR, "invalid type: %s is of type %s, not %s", par->key,
-            get_param_type_name(par->type), get_param_type_name(expected_type));
+            ngli_params_specs[par->type].name, ngli_params_specs[expected_type].name);
         return NGL_ERROR_INVALID_ARG;
     }
     return 0;
@@ -668,7 +663,7 @@ int ngli_params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl
 
         if (!allowed_node(node, node_types)) {
             LOG(ERROR, "node of type %s is not allowed for parameter %s (type %s)",
-                node->cls->name, par->key, get_param_type_name(par->type));
+                node->cls->name, par->key, ngli_params_specs[par->type].name);
             return NGL_ERROR_INVALID_ARG;
         }
 
@@ -934,6 +929,8 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
             case NGLI_PARAM_TYPE_RATIONAL:
                 ret = ngli_params_set_rational(dstp, par, par->def_value.r[0], par->def_value.r[1]);
                 break;
+            default:
+                break;
         }
         if (ret < 0)
             return ret;
@@ -1059,6 +1056,8 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 ngli_hmap_freep(hmapp);
                 break;
             }
+            default:
+                break;
         }
     }
 }

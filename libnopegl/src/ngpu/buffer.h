@@ -30,7 +30,7 @@
 
 struct ngpu_ctx;
 
-enum ngpu_buffer_usage {
+enum {
     NGPU_BUFFER_USAGE_DYNAMIC_BIT        = 1 << 0,
     NGPU_BUFFER_USAGE_TRANSFER_SRC_BIT   = 1 << 1,
     NGPU_BUFFER_USAGE_TRANSFER_DST_BIT   = 1 << 2,
@@ -41,7 +41,6 @@ enum ngpu_buffer_usage {
     NGPU_BUFFER_USAGE_MAP_READ           = 1 << 7,
     NGPU_BUFFER_USAGE_MAP_WRITE          = 1 << 8,
     NGPU_BUFFER_USAGE_MAP_PERSISTENT     = 1 << 9,
-    NGPU_BUFFER_USAGE_NB
 };
 
 struct ngpu_buffer {

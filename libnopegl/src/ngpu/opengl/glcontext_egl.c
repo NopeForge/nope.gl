@@ -327,8 +327,8 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     EGLint egl_minor;
     EGLint egl_major;
-    int ret = eglInitialize(egl->display, &egl_major, &egl_minor);
-    if (!ret) {
+    EGLBoolean egl_ret = eglInitialize(egl->display, &egl_major, &egl_minor);
+    if (!egl_ret) {
         LOG(ERROR, "could not initialize EGL: 0x%x", eglGetError());
         return NGL_ERROR_EXTERNAL;
     }
@@ -339,7 +339,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         return NGL_ERROR_EXTERNAL;
     }
 
-    ret = egl_probe_extensions(ctx);
+    int ret = egl_probe_extensions(ctx);
     if (ret < 0)
         return ret;
 
@@ -348,7 +348,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    int api = ctx->backend == NGL_BACKEND_OPENGL ? EGL_OPENGL_API : EGL_OPENGL_ES_API;
+    const EGLenum api = ctx->backend == NGL_BACKEND_OPENGL ? EGL_OPENGL_API : EGL_OPENGL_ES_API;
     if (!eglBindAPI(api)) {
         LOG(ERROR, "could not bind OpenGL%s API", ctx->backend == NGL_BACKEND_OPENGL ? "" : "ES");
         return NGL_ERROR_EXTERNAL;
@@ -369,13 +369,13 @@ try_again:;
         EGL_DEPTH_SIZE, 16,
         EGL_STENCIL_SIZE, 8,
         EGL_SAMPLE_BUFFERS, ctx->offscreen ? 0 : (ctx->samples > 0),
-        EGL_SAMPLES, ctx->offscreen ? 0 : ctx->samples,
+        EGL_SAMPLES, ctx->offscreen ? 0 : (EGLint)ctx->samples,
         EGL_NONE
     };
 
     EGLint nb_configs;
-    ret = eglChooseConfig(egl->display, config_attribs, &egl->config, 1, &nb_configs);
-    if (ret && nb_configs == 0) {
+    egl_ret = eglChooseConfig(egl->display, config_attribs, &egl->config, 1, &nb_configs);
+    if (egl_ret && nb_configs == 0) {
         /* Fallback to EGL_WINDOW_BIT if the driver do not advertize any
          * pbuffer configurations. This happens on Wayland with Mesa. */
         if (surface_type == EGL_PBUFFER_BIT) {
@@ -384,7 +384,7 @@ try_again:;
         }
     }
 
-    if (!ret || !nb_configs) {
+    if (!egl_ret || !nb_configs) {
         LOG(ERROR, "could not choose a valid EGL configuration: 0x%x", eglGetError());
         return NGL_ERROR_EXTERNAL;
     }
@@ -567,21 +567,24 @@ static int egl_resize(struct glcontext *ctx, int32_t width, int32_t height)
 
 #if defined(HAVE_WAYLAND)
     if (ctx->platform == NGL_PLATFORM_WAYLAND)
-        wl_egl_window_resize(egl->wl_egl_window, width, height, 0, 0);
+        wl_egl_window_resize(egl->wl_egl_window, (EGLint)width, (EGLint)height, 0, 0);
 #endif
 
-    if (!eglQuerySurface(egl->display, egl->surface, EGL_WIDTH, &ctx->width) ||
-        !eglQuerySurface(egl->display, egl->surface, EGL_HEIGHT, &ctx->height)) {
+    EGLint cur_width, cur_height;
+    if (!eglQuerySurface(egl->display, egl->surface, EGL_WIDTH, &cur_width) ||
+        !eglQuerySurface(egl->display, egl->surface, EGL_HEIGHT, &cur_height)) {
         LOG(ERROR, "could not query surface dimensions: 0x%x", eglGetError());
         return NGL_ERROR_EXTERNAL;
     }
+    ctx->width = (uint32_t)cur_width;
+    ctx->height = (uint32_t)cur_height;
 
     return 0;
 }
 
 static int egl_make_current(struct glcontext *ctx, int current)
 {
-    int ret;
+    EGLBoolean ret;
     struct egl_priv *egl = ctx->priv_data;
 
     if (current) {

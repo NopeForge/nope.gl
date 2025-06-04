@@ -146,7 +146,7 @@ void ngpu_glstate_reset(const struct glcontext *gl, struct ngpu_glstate *glstate
     glstate->depth_test = 0;
 
     gl->funcs.DepthMask(GL_TRUE);
-    glstate->depth_write_mask = GL_TRUE;
+    glstate->depth_write = GL_TRUE;
 
     gl->funcs.DepthFunc(GL_LESS);
     glstate->depth_func = GL_LESS;
@@ -207,7 +207,7 @@ void ngpu_glstate_reset(const struct glcontext *gl, struct ngpu_glstate *glstate
 void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstate, const struct ngpu_graphics_state *state)
 {
     /* Blend */
-    const int blend = state->blend;
+    const GLboolean blend = (GLboolean)state->blend;
     if (blend != glstate->blend) {
         if (blend)
             gl->funcs.Enable(GL_BLEND);
@@ -256,7 +256,7 @@ void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstat
     }
 
     /* Depth */
-    const GLenum depth_test = state->depth_test;
+    const GLboolean depth_test = (GLboolean)state->depth_test;
     if (depth_test != glstate->depth_test) {
         if (depth_test)
             gl->funcs.Enable(GL_DEPTH_TEST);
@@ -265,10 +265,10 @@ void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstat
         glstate->depth_test = depth_test;
     }
 
-    const GLboolean depth_write_mask = (GLboolean)state->depth_write_mask;
-    if (depth_write_mask != glstate->depth_write_mask) {
-        gl->funcs.DepthMask(depth_write_mask);
-        glstate->depth_write_mask = depth_write_mask;
+    const GLboolean depth_write = (GLboolean)state->depth_write;
+    if (depth_write != glstate->depth_write) {
+        gl->funcs.DepthMask(depth_write);
+        glstate->depth_write = depth_write;
     }
 
     const GLenum depth_func = get_gl_compare_op(state->depth_func);
@@ -278,7 +278,7 @@ void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstat
     }
 
     /* Stencil */
-    const int stencil_test = state->stencil_test;
+    const GLboolean stencil_test = (GLboolean)state->stencil_test;
     if (stencil_test != glstate->stencil_test) {
         if (stencil_test)
             gl->funcs.Enable(GL_STENCIL_TEST);
@@ -296,7 +296,7 @@ void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstat
         }
 
         const GLenum stencil_func = get_gl_compare_op(state->stencil_front.func);
-        const GLint stencil_ref = state->stencil_front.ref;
+        const GLint stencil_ref = (GLint)state->stencil_front.ref;
         const GLuint stencil_read_mask = state->stencil_front.read_mask;
         if (stencil_func != glstate->stencil_front.func ||
             stencil_ref != glstate->stencil_front.ref ||
@@ -329,7 +329,7 @@ void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstat
         }
 
         const GLenum stencil_func = get_gl_compare_op(state->stencil_back.func);
-        const GLint stencil_ref = state->stencil_back.ref;
+        const GLint stencil_ref = (GLint)state->stencil_back.ref;
         const GLuint stencil_read_mask = state->stencil_back.read_mask;
         if (stencil_func != glstate->stencil_back.func ||
             stencil_ref != glstate->stencil_back.ref ||
@@ -407,7 +407,7 @@ void ngpu_glstate_update_viewport(const struct glcontext *gl, struct ngpu_glstat
     gl->funcs.Viewport(viewport->x, viewport->y, viewport->width, viewport->height);
 }
 
-void ngpu_glstate_enable_scissor_test(const struct glcontext *gl, struct ngpu_glstate *glstate, int enable)
+void ngpu_glstate_enable_scissor_test(const struct glcontext *gl, struct ngpu_glstate *glstate, GLboolean enable)
 {
     if (glstate->scissor_test == enable)
         return;
@@ -415,5 +415,5 @@ void ngpu_glstate_enable_scissor_test(const struct glcontext *gl, struct ngpu_gl
         gl->funcs.Enable(GL_SCISSOR_TEST);
     else
         gl->funcs.Disable(GL_SCISSOR_TEST);
-    glstate->scissor_test = !!enable;
+    glstate->scissor_test = enable;
 }
