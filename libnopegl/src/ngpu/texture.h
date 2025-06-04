@@ -49,7 +49,7 @@ enum ngpu_wrap {
     NGPU_NB_WRAP
 };
 
-enum ngpu_texture_usage {
+enum {
     NGPU_TEXTURE_USAGE_TRANSFER_SRC_BIT             = 1 << 0,
     NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT             = 1 << 1,
     NGPU_TEXTURE_USAGE_SAMPLED_BIT                  = 1 << 2,

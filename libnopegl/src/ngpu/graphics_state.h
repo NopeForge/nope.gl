@@ -84,7 +84,7 @@ enum ngpu_cull_mode {
     NGPU_CULL_MODE_NB
 };
 
-enum ngpu_color_component {
+enum {
     NGPU_COLOR_COMPONENT_R_BIT = 1 << 0,
     NGPU_COLOR_COMPONENT_G_BIT = 1 << 1,
     NGPU_COLOR_COMPONENT_B_BIT = 1 << 2,

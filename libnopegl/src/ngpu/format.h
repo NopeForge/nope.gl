@@ -89,7 +89,7 @@ enum ngpu_format {
     NGPU_FORMAT_NB
 };
 
-enum ngpu_format_feature {
+enum {
     NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_BIT               = 1 << 0,
     NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT = 1 << 1,
     NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT            = 1 << 2,
