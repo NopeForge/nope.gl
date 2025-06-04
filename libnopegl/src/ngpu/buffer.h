@@ -41,7 +41,6 @@ enum {
     NGPU_BUFFER_USAGE_MAP_READ           = 1 << 7,
     NGPU_BUFFER_USAGE_MAP_WRITE          = 1 << 8,
     NGPU_BUFFER_USAGE_MAP_PERSISTENT     = 1 << 9,
-    NGPU_BUFFER_USAGE_NB
 };
 
 struct ngpu_buffer {
