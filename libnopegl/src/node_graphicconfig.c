@@ -45,7 +45,7 @@ struct graphicconfig_opts {
     int color_write_mask;
 
     int depth_test;
-    int depth_write_mask;
+    int depth_write;
     int depth_func;
 
     int stencil_test;
@@ -182,7 +182,7 @@ static const struct node_param graphicconfig_params[] = {
                            .desc=NGLI_DOCSTRING("color write mask")},
     {"depth_test",         NGLI_PARAM_TYPE_BOOL,   OFFSET(depth_test),         {.i32=-1},
                            .desc=NGLI_DOCSTRING("enable depth testing")},
-    {"depth_write_mask",   NGLI_PARAM_TYPE_BOOL,   OFFSET(depth_write_mask),   {.i32=-1},
+    {"depth_write",        NGLI_PARAM_TYPE_BOOL,   OFFSET(depth_write),        {.i32=-1},
                            .desc=NGLI_DOCSTRING("depth write mask")},
     {"depth_func",         NGLI_PARAM_TYPE_SELECT, OFFSET(depth_func),         {.i32=-1},
                            .desc=NGLI_DOCSTRING("passes if `<function>(depth, stored_depth)`"),
@@ -245,7 +245,7 @@ void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct ngpu_
     COPY_PARAM(color_write_mask);
 
     COPY_PARAM(depth_test);
-    COPY_PARAM(depth_write_mask);
+    COPY_PARAM(depth_write);
     COPY_PARAM(depth_func);
 
     COPY_PARAM(stencil_test);

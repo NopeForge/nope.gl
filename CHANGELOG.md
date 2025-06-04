@@ -45,6 +45,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Public anonymous enums (`ngl_log_level`, `ngl_backend_type`,
   `ngl_platform_type`, `ngl_capture_buffer_type`, `ngl_path_instruction_verb`)
   are now named
+- `GraphicConfig.depth_write_mask` is renamed to `GraphicConfig.depth_write`
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio

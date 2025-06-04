@@ -125,7 +125,7 @@ struct ngpu_graphics_state {
     int color_write_mask;
 
     int depth_test;
-    int depth_write_mask;
+    int depth_write;
     enum ngpu_compare_op depth_func;
 
     int stencil_test;
@@ -150,7 +150,7 @@ struct ngpu_graphics_state {
                         | NGPU_COLOR_COMPONENT_B_BIT                   \
                         | NGPU_COLOR_COMPONENT_A_BIT,                  \
     .depth_test         = 0,                                           \
-    .depth_write_mask   = 1,                                           \
+    .depth_write        = 1,                                           \
     .depth_func         = NGPU_COMPARE_OP_LESS,                        \
     .stencil_test       = 0,                                           \
     .stencil_front      = {                                            \

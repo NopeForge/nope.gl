@@ -2816,7 +2816,7 @@
           "desc": "enable depth testing"
         },
         {
-          "name": "depth_write_mask",
+          "name": "depth_write",
           "type": "bool",
           "default": -1,
           "flags": [],

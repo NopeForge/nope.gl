@@ -52,7 +52,7 @@ struct ngpu_glstate {
     GLboolean color_write_mask[4];
 
     GLenum    depth_test;
-    GLboolean depth_write_mask;
+    GLboolean depth_write;
     GLenum    depth_func;
 
     GLenum stencil_test;
