@@ -236,7 +236,7 @@ static VkResult pipeline_graphics_init(struct ngpu_pipeline *s)
     const VkPipelineDepthStencilStateCreateInfo depthstencil_state_create_info = {
         .sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
         .depthTestEnable       = state->depth_test,
-        .depthWriteEnable      = state->depth_write_mask,
+        .depthWriteEnable      = state->depth_write,
         .depthCompareOp        = get_vk_compare_op(state->depth_func),
         .depthBoundsTestEnable = 0,
         .stencilTestEnable     = state->stencil_test,

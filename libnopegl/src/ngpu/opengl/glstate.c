@@ -146,7 +146,7 @@ void ngpu_glstate_reset(const struct glcontext *gl, struct ngpu_glstate *glstate
     glstate->depth_test = 0;
 
     gl->funcs.DepthMask(GL_TRUE);
-    glstate->depth_write_mask = GL_TRUE;
+    glstate->depth_write = GL_TRUE;
 
     gl->funcs.DepthFunc(GL_LESS);
     glstate->depth_func = GL_LESS;
@@ -265,10 +265,10 @@ void ngpu_glstate_update(const struct glcontext *gl, struct ngpu_glstate *glstat
         glstate->depth_test = depth_test;
     }
 
-    const GLboolean depth_write_mask = (GLboolean)state->depth_write_mask;
-    if (depth_write_mask != glstate->depth_write_mask) {
-        gl->funcs.DepthMask(depth_write_mask);
-        glstate->depth_write_mask = depth_write_mask;
+    const GLboolean depth_write = (GLboolean)state->depth_write;
+    if (depth_write != glstate->depth_write) {
+        gl->funcs.DepthMask(depth_write);
+        glstate->depth_write = depth_write;
     }
 
     const GLenum depth_func = get_gl_compare_op(state->depth_func);
