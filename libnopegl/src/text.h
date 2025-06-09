@@ -58,7 +58,7 @@ enum text_scale_mode {
     NGLI_TEXT_SCALE_MODE_MAX_ENUM = 0x7FFFFFFF
 };
 
-enum char_tag {
+enum {
     NGLI_TEXT_CHAR_TAG_GLYPH          = 1U << 0,
     NGLI_TEXT_CHAR_TAG_WORD_SEPARATOR = 1U << 1,
     NGLI_TEXT_CHAR_TAG_LINE_BREAK     = 1U << 2,

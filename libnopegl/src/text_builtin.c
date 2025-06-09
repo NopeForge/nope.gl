@@ -282,7 +282,7 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
     int32_t col = 0, row = 0;
 
     for (size_t i = 0; str[i]; i++) {
-        const enum char_tag tags = get_char_tags(str[i]);
+        const uint32_t tags = get_char_tags(str[i]);
         if ((tags & NGLI_TEXT_CHAR_TAG_GLYPH) != NGLI_TEXT_CHAR_TAG_GLYPH) {
             const struct char_info_internal chr = {.tags = tags};
             if (!ngli_darray_push(chars_dst, &chr))
