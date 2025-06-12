@@ -532,11 +532,11 @@ int ngli_path_init(struct path *s, int32_t precision)
         steps_dist[i] *= scale;
 
     /* Build a lookup table associating an arc to its segment */
-    const int nb_arcs = (int)ngli_darray_count(&s->steps) - 1;
+    const size_t nb_arcs = ngli_darray_count(&s->steps) - 1;
     s->arc_to_segment = ngli_calloc(nb_arcs, sizeof(*s->arc_to_segment));
     if (!s->arc_to_segment)
         return NGL_ERROR_MEMORY;
-    for (int i = 0; i < nb_arcs; i++)
+    for (size_t i = 0; i < nb_arcs; i++)
         s->arc_to_segment[i] = steps[i].segment_id;
 
     /* We don't need to store all the intermediate positions anymore */
