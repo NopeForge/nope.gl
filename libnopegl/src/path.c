@@ -523,7 +523,7 @@ int ngli_path_init(struct path *s, int32_t precision)
      * Sanity check for get_vector_id(). We have it here to avoid having the
      * assert called redundantly in the inner loop.
      */
-    ngli_assert((int)ngli_darray_count(&s->steps_dist) - 1 >= 1); // checks if number of arcs >= 1
+    ngli_assert(ngli_darray_count(&s->steps_dist) > 1); // checks if number of arcs >= 1
 
     /* Normalize distances (relative to the total length of the path) */
     float *steps_dist = ngli_darray_data(&s->steps_dist);
