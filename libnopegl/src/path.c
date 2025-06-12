@@ -503,7 +503,7 @@ int ngli_path_init(struct path *s, int32_t precision)
         const struct path_step *prv_step = &steps[i - 1];
         const struct path_step *cur_step = &steps[i];
 
-        const int skip_distance = NGLI_HAS_ALL_FLAGS(prv_step->flags, STEP_FLAG_DISCONTINUITY);
+        const bool skip_distance = NGLI_HAS_ALL_FLAGS(prv_step->flags, STEP_FLAG_DISCONTINUITY);
         if (!skip_distance) {
             const float arc_vec[3] = NGLI_VEC3_SUB(cur_step->position, prv_step->position);
             const float arc_length = ngli_vec3_length(arc_vec);
