@@ -28,7 +28,7 @@
 #include "utils/darray.h"
 #include "utils/memory.h"
 
-#define STEP_FLAG_DISCONTINUITY (1 << 0) /* a discontinuity happens after this step */
+#define STEP_FLAG_DISCONTINUITY (1U << 0) /* a discontinuity happens after this step */
 
 struct path_step {
     float position[3];
