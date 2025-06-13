@@ -440,8 +440,7 @@ vec4 get_color(vec2 p)
 
                     vec2 pr = ((a * t + b) * t + c) * t + d;
                     vec2 dp = p - pr;
-                    float dist = dot(dp, dp); // length squared
-                    shape_min_dist = min(shape_min_dist, dist);
+                    shape_min_dist = min(shape_min_dist, dot(dp, dp));
                 }
 
                 /* Also include points at t=0 and t=1 */
