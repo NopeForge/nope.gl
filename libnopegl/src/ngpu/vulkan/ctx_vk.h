@@ -64,7 +64,7 @@ struct ngpu_ctx_vk {
     struct darray rts;
     struct darray rts_load;
     struct ngpu_buffer *capture_buffer;
-    int capture_buffer_size;
+    size_t capture_buffer_size;
     void *mapped_data;
 
     struct ngpu_rendertarget *default_rt;
