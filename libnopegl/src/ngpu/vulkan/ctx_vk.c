@@ -866,9 +866,10 @@ static int vk_init(struct ngpu_ctx *s)
 #endif
 
     struct vkcontext *vk = s_priv->vkcontext;
+    const int major_version = VK_API_VERSION_MAJOR(vk->api_version);
+    const int minor_version = VK_API_VERSION_MINOR(vk->api_version);
 
-    s->version = 100 * VK_API_VERSION_MAJOR(vk->api_version)
-               +  10 * VK_API_VERSION_MINOR(vk->api_version);
+    s->version = major_version * 100 + minor_version * 10;
     s->language_version = 450;
 
     s->features = NGPU_FEATURE_COMPUTE |
