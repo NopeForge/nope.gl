@@ -215,18 +215,18 @@ static const struct node_param graphicconfig_params[] = {
     {NULL}
 };
 
-#define COPY_PARAM(name) do {        \
-    if (o->name != -1) {             \
-        state->name = o->name;       \
-    }                                \
-} while (0)                          \
-
-#define COPY_STENCIL_PARAM(name) do {                   \
-    if (o->stencil_##name != -1) {                      \
-        state->stencil_front.name = o->stencil_##name;  \
-        state->stencil_back.name  = o->stencil_##name;  \
+#define COPY_PARAM(name) do {                           \
+    if (o->name != -1) {                                \
+        state->name = (__typeof__(state->name))o->name; \
     }                                                   \
 } while (0)                                             \
+
+#define COPY_STENCIL_PARAM(name) do {                                                          \
+    if (o->stencil_##name != -1) {                                                             \
+        state->stencil_front.name = (__typeof__(state->stencil_front.name))o->stencil_##name;  \
+        state->stencil_back.name  = (__typeof__(state->stencil_back.name))o->stencil_##name;   \
+    }                                                                                          \
+} while (0)                                                                                    \
 
 void ngli_node_graphicconfig_get_state(const struct ngl_node *node, struct ngpu_graphics_state *state)
 {
