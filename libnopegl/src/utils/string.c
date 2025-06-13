@@ -53,12 +53,13 @@ char *ngli_asprintf(const char *fmt, ...)
     if (len < 0)
         goto end;
 
-    p = ngli_malloc(len + 1);
+    size_t n = (size_t)len + 1;
+    p = ngli_malloc(n);
     if (!p)
         goto end;
 
     va_start(va, fmt);
-    len = vsnprintf(p, len + 1, fmt, va);
+    len = vsnprintf(p, n, fmt, va);
     va_end(va);
     if (len < 0)
         ngli_freep(&p);
