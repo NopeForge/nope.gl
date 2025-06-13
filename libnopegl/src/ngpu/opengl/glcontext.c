@@ -232,7 +232,7 @@ static int glcontext_check_extension(const char *extension,
     glcontext->funcs.GetIntegerv(GL_NUM_EXTENSIONS, &nb_extensions);
 
     for (GLint i = 0; i < nb_extensions; i++) {
-        const char *tmp = (const char *)glcontext->funcs.GetStringi(GL_EXTENSIONS, i);
+        const char *tmp = (const char *)glcontext->funcs.GetStringi(GL_EXTENSIONS, (GLuint)i);
         if (!tmp)
             break;
         if (!strcmp(extension, tmp))
