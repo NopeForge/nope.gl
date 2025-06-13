@@ -318,8 +318,6 @@ static int drawpath_prepare(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct drawpath_priv *s = node->priv_data;
-
-
     struct rnode *rnode = node->ctx->rnode_pos;
 
     struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
