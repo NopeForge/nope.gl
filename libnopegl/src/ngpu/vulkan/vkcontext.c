@@ -554,7 +554,7 @@ static VkResult enumerate_extensions(struct vkcontext *s)
 
 static VkResult create_device(struct vkcontext *s)
 {
-    int nb_queues = 0;
+    uint32_t nb_queues = 0;
     float queue_priority = 1.0f;
     VkDeviceQueueCreateInfo queues_create_info[2];
 
