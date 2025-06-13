@@ -218,7 +218,7 @@ static void serialize_data(struct bstr *b, const uint8_t *srcp, const struct nod
 static void serialize_ivec(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
 {
     const int32_t *iv = (const int *)srcp;
-    const int n = par->type - NGLI_PARAM_TYPE_IVEC2 + 2;
+    const uint32_t n = par->type - NGLI_PARAM_TYPE_IVEC2 + 2;
     if (memcmp(iv, par->def_value.ivec, n * sizeof(*iv))) {
         ngli_bstr_printf(b, " %s:", par->key);
         print_i32s(b, n, iv);
@@ -228,7 +228,7 @@ static void serialize_ivec(struct bstr *b, const uint8_t *srcp, const struct nod
 static void serialize_uvec(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
 {
     const uint32_t *uv = (const uint32_t *)srcp;
-    const int n = par->type - NGLI_PARAM_TYPE_UVEC2 + 2;
+    const uint32_t n = par->type - NGLI_PARAM_TYPE_UVEC2 + 2;
     if (memcmp(uv, par->def_value.uvec, n * sizeof(*uv))) {
         ngli_bstr_printf(b, " %s:", par->key);
         print_u32s(b, n, uv);
@@ -238,7 +238,7 @@ static void serialize_uvec(struct bstr *b, const uint8_t *srcp, const struct nod
 static void serialize_vec(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
 {
     const float *v = (float *)srcp;
-    const int n = par->type - NGLI_PARAM_TYPE_VEC2 + 2;
+    const uint32_t n = par->type - NGLI_PARAM_TYPE_VEC2 + 2;
     if (memcmp(v, par->def_value.vec, n * sizeof(*v))) {
         ngli_bstr_printf(b, " %s:", par->key);
         print_f32s(b, n, v);
