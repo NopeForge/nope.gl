@@ -688,12 +688,12 @@ VkFormat ngli_vkcontext_find_supported_format(struct vkcontext *s, const VkForma
     return VK_FORMAT_UNDEFINED;
 }
 
-int ngli_vkcontext_find_memory_type(struct vkcontext *s, uint32_t type, VkMemoryPropertyFlags props)
+uint32_t ngli_vkcontext_find_memory_type(struct vkcontext *s, uint32_t type, VkMemoryPropertyFlags props)
 {
     for (uint32_t i = 0; i < s->phydev_mem_props.memoryTypeCount; i++)
         if ((type & (1 << i)) && NGLI_HAS_ALL_FLAGS(s->phydev_mem_props.memoryTypes[i].propertyFlags, props))
             return i;
-    return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+    return UINT32_MAX;
 }
 
 static VkResult query_swapchain_support(struct vkcontext *s)
