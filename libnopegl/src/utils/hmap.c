@@ -32,7 +32,7 @@
 
 struct bucket {
     struct hmap_entry *entries;
-    int nb_entries;
+    size_t nb_entries;
 };
 
 struct key_funcs {
