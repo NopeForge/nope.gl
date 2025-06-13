@@ -466,7 +466,7 @@ static VkResult select_physical_device(struct vkcontext *s, const struct ngl_con
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         vkGetPhysicalDeviceQueueFamilyProperties(phy_device, &qfamily_count, qfamily_props);
 
-        int32_t found_queues = 0;
+        bool found_queues = false;
         int32_t queue_family_graphics_id = -1;
         int32_t queue_family_present_id = -1;
         for (uint32_t j = 0; j < qfamily_count; j++) {
