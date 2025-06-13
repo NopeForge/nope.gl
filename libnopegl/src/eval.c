@@ -282,7 +282,7 @@ static int parse_opening_paren(struct eval *s, const char *expr, const char *p)
     if (!*p)
         return 0;
 
-    const size_t pos = p - expr;
+    const size_t pos = (size_t)(p - expr);
 
     if (*p == '(') {
         const struct token token = {.type=TOKEN_SPECIAL, .pos=pos, .chr='('};
@@ -300,7 +300,7 @@ static int parse_subexpr(struct eval *s, const char *expr, const char *p)
     if (!*p)
         return 0;
 
-    const size_t pos = p - expr;
+    const size_t pos = (size_t)(p - expr);
 
     /* Parse unary operators */
     if (*p == '+' || *p == '-') {
@@ -387,7 +387,7 @@ static int parse_post_subexpr(struct eval *s, const char *expr, const char *p)
     if (!*p)
         return 0;
 
-    const size_t pos = p - expr;
+    const size_t pos = (size_t)(p - expr);
 
     /* Parse binary operators */
     if (strchr("*/+-", *p)) {
