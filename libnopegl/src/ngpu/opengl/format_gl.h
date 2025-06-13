@@ -32,8 +32,8 @@
 struct glcontext;
 
 struct ngpu_format_gl {
-    GLint format;
-    GLint internal_format;
+    GLenum format;
+    GLenum internal_format;
     GLenum type;
     uint32_t features;
 };

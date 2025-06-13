@@ -40,8 +40,8 @@ struct ngpu_texture_gl {
     struct ngpu_texture parent;
     GLenum target;
     GLuint id;
-    GLint format;
-    GLint internal_format;
+    GLenum format;
+    GLenum internal_format;
     GLenum format_type;
     int wrapped;
     int bytes_per_pixel;
