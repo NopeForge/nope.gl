@@ -311,7 +311,7 @@ void ngpu_bindgroup_gl_bind(struct ngpu_bindgroup *s, const uint32_t *dynamic_of
             offset += dynamic_offsets[current_dynamic_offset++];
         }
         const size_t size = buffer_binding->size;
-        gl->funcs.BindBufferRange(target, layout_entry->binding, buffer_gl->id, offset, size);
+        gl->funcs.BindBufferRange(target, layout_entry->binding, buffer_gl->id, (GLsizeiptr)offset, (GLsizeiptr)size);
     }
 }
 
