@@ -76,12 +76,12 @@ static const struct node_param noise_params[] = {
 
 NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct noise_priv, var) == 0);
 
-static int noisevec_update(struct ngl_node *node, double t, int n)
+static int noisevec_update(struct ngl_node *node, double t, size_t n)
 {
     struct noise_priv *s = node->priv_data;
     const struct noise_opts *o = node->opts;
     const float v = (float)(t * o->frequency);
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
         s->vector[i] = ngli_noise_get(&s->generator[i], v);
     return 0;
 }
@@ -106,16 +106,16 @@ static int noisevec4_update(struct ngl_node *node, double t)
     return noisevec_update(node, t, 4);
 }
 
-static int init_noise_generators(struct noise_priv *s, const struct noise_opts *o, int n)
+static int init_noise_generators(struct noise_priv *s, const struct noise_opts *o, size_t n)
 {
     /*
      * Every generator is instanciated the same, except for the seed: the seed
      * offset is defined to create a large gap between every components to keep
      * the overlap to the minimum possible
      */
-    const uint32_t seed_offset = UINT32_MAX / n;
+    const uint32_t seed_offset = UINT32_MAX / (uint32_t)n;
     uint32_t seed = o->generator_params.seed;
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         struct noise_params np = o->generator_params;
         np.seed = seed;
         int ret = ngli_noise_init(&s->generator[i], &np);
