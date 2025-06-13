@@ -100,7 +100,7 @@ static int wgl_init_extensions(struct glcontext *ctx)
     // probe all extensions potentially needed
     static const struct {
         const char *name;
-        int offset;
+        size_t offset;
     } extensions[] = {
         {"wglChoosePixelFormatARB", offsetof(struct wgl_priv, ChoosePixelFormatARB)},
         {"wglCreateContextAttribsARB", offsetof(struct wgl_priv, CreateContextAttribsARB)},
@@ -108,8 +108,8 @@ static int wgl_init_extensions(struct glcontext *ctx)
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(extensions); i++) {
-        const int offset = extensions[i].offset;
         const char *name = extensions[i].name;
+        const size_t offset = extensions[i].offset;
         void *function_ptr = wglGetProcAddress(name);
         if (!function_ptr) {
             LOG(ERROR, "could not retrieve %s()", name);
