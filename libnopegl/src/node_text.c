@@ -459,10 +459,8 @@ static int init_subdesc(struct ngl_node *node,
     if (ret < 0)
         return ret;
 
-    desc->modelview_matrix_index  = ngpu_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix",
-                                                                  NGPU_PROGRAM_SHADER_VERT);
-    desc->projection_matrix_index = ngpu_pgcraft_get_uniform_index(
-        desc->crafter, "projection_matrix", NGPU_PROGRAM_SHADER_VERT);
+    desc->modelview_matrix_index  = ngpu_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix", NGPU_PROGRAM_SHADER_VERT);
+    desc->projection_matrix_index = ngpu_pgcraft_get_uniform_index(desc->crafter, "projection_matrix", NGPU_PROGRAM_SHADER_VERT);
 
     return 0;
 }
