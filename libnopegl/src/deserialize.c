@@ -321,7 +321,7 @@ static int parse_param_str(struct darray *nodes_array, uint8_t *dstp,
     char *sstart = s;
     for (int i = 0; i < len; i++) {
         if (str[i] == '%' && i + 2 < len) {
-            *s++ = CHR_FROM_HEX(str + i + 1);
+            *s++ = (char)CHR_FROM_HEX(str + i + 1);
             i += 2;
         } else {
             *s++ = str[i];
