@@ -481,28 +481,20 @@ vec4 get_color(vec2 p)
             }
         }
 
-        float cur_sign = winding_number == 0 ? -1.0 : 1.0;
-        float shape_sign = shape_winding_number == 0 ? -1.0 : 1.0;
+        bool orientation_flip = sign(area) != sign(shape_area);
+        bool cur_in = winding_number != 0;
+        bool shape_in = shape_winding_number != 0;
+        bool sign_xchg = (int(cur_in) ^ int(shape_in)) != 0;
 
         winding_number += shape_winding_number;
-        float new_sign = winding_number == 0 ? -1.0 : 1.0;
+        bool new_in = winding_number != 0;
 
-        shape_min_dist = shape_sign * sqrt(shape_min_dist);
-
-        bool orientation_flip = sign(area) != sign(shape_area);
-
-#define IN(x) (x > 0.0)
-#define OUT(x) (x < 0.0)
-
-        if (IN(cur_sign) && IN(shape_sign) && IN(new_sign)) {
-            dist = max(dist, shape_min_dist); // union
-        } else if (area != 0.0 && !orientation_flip && IN(cur_sign) && OUT(shape_sign) && IN(new_sign)) {
-            dist = max(dist, shape_min_dist); // union
-        } else if (area != 0.0 && !orientation_flip && OUT(cur_sign) && IN(shape_sign) && IN(new_sign)) {
+        if (((cur_in && shape_in) || (area != 0.0 && !orientation_flip && sign_xchg)) && new_in) {
+            shape_min_dist = (shape_in ? 1.0 : -1.0) * sqrt(shape_min_dist);
             dist = max(dist, shape_min_dist); // union
         } else {
-            dist = min(abs(dist), abs(shape_min_dist));
-            dist = new_sign * dist;
+            shape_min_dist = sqrt(shape_min_dist);
+            dist = (new_in ? 1.0 : -1.0) * min(abs(dist), shape_min_dist);
         }
 
         area += shape_area;
