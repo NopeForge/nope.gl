@@ -149,7 +149,7 @@ static void print_node_params(const char *name, const struct node_param *p, cons
             }
             static const struct {
                 const char *name;
-                const int flag;
+                const uint32_t flag;
             } flag_names[] = {
                 {"live", NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE},
                 {"node", NGLI_PARAM_FLAG_ALLOW_NODE},
