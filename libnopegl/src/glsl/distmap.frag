@@ -422,12 +422,13 @@ vec4 get_color(vec2 p)
                  * where D(t) is the distance squared
                  * See https://stackoverflow.com/questions/2742610/closest-point-on-a-cubic-bezier-curve/57315396#57315396
                  */
+                vec2 dmp = d - p;
                 float da = 6.0 * dot(a, a);
                 float db = 10.0 * dot(a, b);
                 float dc = 8.0 * dot(a, c) + 4.0 * dot(b, b);
-                float dd = 6.0 * (dot(a, d - p) + dot(b, c));
-                float de = 4.0 * (dot(b, d) - dot(b, p)) + 2.0 * dot(c, c);
-                float df = 2.0 * (dot(c, d) - dot(c, p));
+                float dd = 6.0 * (dot(a, dmp) + dot(b, c));
+                float de = 4.0 * dot(b, dmp) + 2.0 * dot(c, c);
+                float df = 2.0 * dot(c, dmp);
 
                 Roots roots_dt = root_find5(da, db, dc, dd, de, df);
                 for (uint r = 0u; r < roots_dt.count; r++) {
