@@ -149,7 +149,7 @@ static void texture_upload(struct ngpu_texture *s, const uint8_t *data, const st
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     const int bytes_per_row = transfer_params->pixels_per_row * s_priv->bytes_per_pixel;
-    const int alignment = NGLI_MIN(bytes_per_row & ~(bytes_per_row - 1), 8);
+    const int alignment = NGLI_MIN(NGLI_ALIGNMENT(bytes_per_row), 8);
     gl->funcs.PixelStorei(GL_UNPACK_ALIGNMENT, alignment);
     gl->funcs.PixelStorei(GL_UNPACK_ROW_LENGTH, transfer_params->pixels_per_row);
 
