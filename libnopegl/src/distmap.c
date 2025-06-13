@@ -213,31 +213,13 @@ static int32_t get_beziergroup_start(const struct distmap *s, int32_t shape_id)
     return group_count;
 }
 
-static int32_t get_beziergroup_end(const struct distmap *s, int32_t shape_id)
+static int32_t sum_bezier_counts(const struct distmap *s, int32_t start, int32_t count)
 {
-    const int32_t group_start = get_beziergroup_start(s, shape_id);
-    const int32_t *group_counts = ngli_darray_data(&s->beziergroup_counts);
-    return group_start + group_counts[shape_id];
-}
-
-static int32_t get_bezier_start(const struct distmap *s, int32_t shape_id)
-{
-    const int32_t group_start = get_beziergroup_start(s, shape_id);
     const int32_t *counts = ngli_darray_data(&s->bezier_counts);
-    int32_t start = 0;
-    for (int32_t i = 0; i < group_start; i++)
-        start += abs(counts[i]);
-    return start;
-}
-
-static int32_t get_bezier_end(const struct distmap *s, int32_t shape_id)
-{
-    const int32_t group_end = get_beziergroup_end(s, shape_id);
-    const int32_t *counts = ngli_darray_data(&s->bezier_counts);
-    int32_t end = 0;
-    for (int32_t i = 0; i < group_end; i++)
-        end += abs(counts[i]);
-    return end;
+    int32_t sum = 0;
+    for (int32_t i = start; i < count; i++)
+        sum += abs(counts[i]);
+    return sum;
 }
 
 /*
@@ -288,6 +270,7 @@ enum {
 static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *frag_data)
 {
     const int32_t *bezier_counts = ngli_darray_data(&s->bezier_counts);
+    const int32_t *beziergroup_counts = ngli_darray_data(&s->beziergroup_counts);
     const struct bezier3 *bezier_x = ngli_darray_data(&s->bezier_x);
     const struct bezier3 *bezier_y = ngli_darray_data(&s->bezier_y);
 
@@ -303,12 +286,10 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
                 return;
 
             const int32_t beziergroup_start_idx = get_beziergroup_start(s, shape_id);
-            const int32_t beziergroup_end_idx   = get_beziergroup_end(s, shape_id);
-            const int32_t beziergroup_count     = beziergroup_end_idx - beziergroup_start_idx;
+            const int32_t beziergroup_count     = beziergroup_counts[shape_id];
 
-            const int32_t bezier_start_idx      = get_bezier_start(s, shape_id);
-            const int32_t bezier_end_idx        = get_bezier_end(s, shape_id);
-            const int32_t bezier_count          = bezier_end_idx - bezier_start_idx;
+            const int32_t bezier_start_idx = sum_bezier_counts(s, 0, beziergroup_start_idx);
+            const int32_t bezier_count     = sum_bezier_counts(s, beziergroup_start_idx, beziergroup_start_idx + beziergroup_count);
 
             const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
 
