@@ -124,8 +124,8 @@ vec3 stitch_3_roots(int topology, vec3 roots, float a, float b, float c)
 }
 
 /* Complex multiply, divide, inverse */
-vec2 c_mul(vec2 a, vec2 b) { return vec2(dot(vec2(a.x, -a.y), b), dot(a.xy, b.yx)); }
-vec2 c_div(vec2 a, vec2 b) { return vec2(dot(a, b), dot(vec2(a.y, -a.x), b)) / dot(b, b); }
+vec2 c_mul(vec2 a, vec2 b) { return mat2(a, -a.y, a.x) * b; }
+vec2 c_div(vec2 a, vec2 b) { return mat2(a, a.y, -a.x) * b / dot(b, b); }
 vec2 c_inv(vec2 z)         { return vec2(z.x, -z.y) / dot(z, z); }
 
 /* Cascading complex polynomial eval of degree 1 to 5 */
