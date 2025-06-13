@@ -54,12 +54,13 @@ static void default_callback(void *arg, enum ngl_log_level level, const char *fi
 
     /* handle the case where the line doesn't fit the stack buffer */
     if (len >= sizeof(logline)) {
-        logbuf = ngli_malloc(len + 1);
+        const size_t logbuf_size = (size_t)len + 1;
+        logbuf = ngli_malloc(logbuf_size);
         if (!logbuf) {
             va_end(vl_copy);
             return;
         }
-        vsnprintf(logbuf, len + 1, fmt, vl_copy);
+        vsnprintf(logbuf, logbuf_size, fmt, vl_copy);
         logp = logbuf;
     }
 
