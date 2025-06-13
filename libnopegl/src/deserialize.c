@@ -604,7 +604,7 @@ int ngli_scene_deserialize(struct ngl_scene *s, const char *str)
 
     /* Parse nodes (1 line = 1 node) */
     while (dupstr < send - 4) {
-        const int type = NGLI_FOURCC(dupstr[0], dupstr[1], dupstr[2], dupstr[3]);
+        const uint32_t type = NGLI_FOURCC(dupstr[0], dupstr[1], dupstr[2], dupstr[3]);
         dupstr += 4;
         if (*dupstr == ' ')
             dupstr++;
