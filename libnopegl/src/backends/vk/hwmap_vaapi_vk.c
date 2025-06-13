@@ -217,7 +217,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
         const int32_t width = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc.log2_chroma_width);
         const int32_t height = i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc.log2_chroma_height);
 
-        const int id = vaapi->surface_descriptor.layers[i].object_index[0];
+        const uint32_t id = vaapi->surface_descriptor.layers[i].object_index[0];
         const int fd = vaapi->surface_descriptor.objects[id].fd;
         const uint32_t size = vaapi->surface_descriptor.objects[id].size;
         const uint32_t offset = vaapi->surface_descriptor.layers[i].offset[0];
