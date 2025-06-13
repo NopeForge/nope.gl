@@ -92,6 +92,8 @@
 
 #define NGLI_IS_ALIGNED(v, a) (((v) & ((__typeof__(v))(a) - 1)) == 0)
 
+#define NGLI_ALIGNMENT(v) ((v) & ~((v) - 1))
+
 #define NGLI_ATTR_ALIGNED _Alignas(NGLI_ALIGN_VAL)
 
 #define NGLI_ALIGNED_VEC(vname) float NGLI_ATTR_ALIGNED vname[4]
