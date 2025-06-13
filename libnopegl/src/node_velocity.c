@@ -111,7 +111,7 @@ DECLARE_VELOCITY_FUNCS(2)
 DECLARE_VELOCITY_FUNCS(3)
 DECLARE_VELOCITY_FUNCS(4)
 
-static ngli_animation_mix_func_type get_mix_func(int node_class)
+static ngli_animation_mix_func_type get_mix_func(uint32_t node_class)
 {
     switch (node_class) {
     case NGL_NODE_VELOCITYFLOAT: return mix_velocity_float;
@@ -122,7 +122,7 @@ static ngli_animation_mix_func_type get_mix_func(int node_class)
     return NULL;
 }
 
-static ngli_animation_cpy_func_type get_cpy_func(int node_class)
+static ngli_animation_cpy_func_type get_cpy_func(uint32_t node_class)
 {
     switch (node_class) {
     case NGL_NODE_VELOCITYFLOAT: return cpy_velocity_float;
