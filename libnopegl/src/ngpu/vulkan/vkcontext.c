@@ -467,8 +467,8 @@ static VkResult select_physical_device(struct vkcontext *s, const struct ngl_con
         vkGetPhysicalDeviceQueueFamilyProperties(phy_device, &qfamily_count, qfamily_props);
 
         bool found_queues = false;
-        int32_t queue_family_graphics_id = -1;
-        int32_t queue_family_present_id = -1;
+        uint32_t queue_family_graphics_id = UINT32_MAX;
+        uint32_t queue_family_present_id = UINT32_MAX;
         for (uint32_t j = 0; j < qfamily_count; j++) {
             const VkQueueFamilyProperties props = qfamily_props[j];
             const VkQueueFlags flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
@@ -480,7 +480,7 @@ static VkResult select_physical_device(struct vkcontext *s, const struct ngl_con
                 if (support)
                     queue_family_present_id = j;
             }
-            found_queues = queue_family_graphics_id >= 0 && (!s->surface || queue_family_present_id >= 0);
+            found_queues = queue_family_graphics_id != UINT32_MAX && (!s->surface || queue_family_present_id != UINT32_MAX);
             if (found_queues)
                 break;
         }
