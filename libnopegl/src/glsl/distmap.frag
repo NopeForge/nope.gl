@@ -26,8 +26,8 @@
 
 #define LARGE_FLOAT 1e38
 
-float poly2(float a, float b, float c, float t)          { return  (a * t + b) * t + c; }
-float poly3(float a, float b, float c, float d, float t) { return ((a * t + b) * t + c) * t + d; }
+vec2 poly2(float a, float b, float c, vec2 t)          { return  (a * t + b) * t + c; }
+vec3 poly3(float a, float b, float c, float d, vec3 t) { return ((a * t + b) * t + c) * t + d; }
 
 vec3 stitch_1_root(int topology, float root, float a, float b, float c)
 {
@@ -64,10 +64,9 @@ vec3 stitch_2_roots(int topology, vec2 roots, float a, float b, float c)
         return vec3(roots.xy, LARGE_FLOAT);
 
     float da = 3.0 * a, db = 2.0 * b, dc = c;
-    float d0 = poly2(da, db, dc, roots.x);
-    float d1 = poly2(da, db, dc, roots.y);
+    vec2 d = poly2(da, db, dc, roots.xy);
     if (topology == 0x1) { /* 001 */
-        bool up_down = d0 > d1;
+        bool up_down = d.x > d.y;
         return vec3(flip != up_down ? roots.xx : roots.yy, LARGE_FLOAT);
     }
 
@@ -77,7 +76,7 @@ vec3 stitch_2_roots(int topology, vec2 roots, float a, float b, float c)
      * is the point with the derivate closest to 0) because with very slight
      * fluctuation change this point could split in 2.
      */
-    return abs(d0) < abs(d1) ? roots.xxy : roots.xyy;
+    return abs(d.x) < abs(d.y) ? roots.xxy : roots.xyy;
 }
 
 vec3 stitch_3_roots(int topology, vec3 roots, float a, float b, float c)
@@ -96,9 +95,8 @@ vec3 stitch_3_roots(int topology, vec3 roots, float a, float b, float c)
      * float inaccuracies.
      */
     float da = 3.0 * a, db = 2.0 * b, dc = c;
-    float d0 = poly2(da, db, dc, roots.x);
-    float d1 = poly2(da, db, dc, roots.y);
-    bool up_down_up = d0 > d1;
+    vec2 d = poly2(da, db, dc, roots.xy);
+    bool up_down_up = d.x > d.y;
     if (topology == 0x1) {
         /*
          * up+down+up and we need up, or down+up+down and we need down. Out of
@@ -471,12 +469,10 @@ vec4 get_color(vec2 p)
                     topology ^= 0x7;
                 int inc = flip ? 1 : -1;
 
-                if ((topology & 0x1) != 0 && poly3(a.x, b.x, c.x, d.x, roots.x) > p.x)
-                    shape_winding_number += inc;
-                if ((topology & 0x2) != 0 && poly3(a.x, b.x, c.x, d.x, roots.y) > p.x)
-                    shape_winding_number -= inc;
-                if ((topology & 0x4) != 0 && poly3(a.x, b.x, c.x, d.x, roots.z) > p.x)
-                    shape_winding_number += inc;
+                vec3 px = poly3(a.x, b.x, c.x, d.x, roots);
+                if ((topology & 0x1) != 0 && px.x > p.x) shape_winding_number += inc;
+                if ((topology & 0x2) != 0 && px.y > p.x) shape_winding_number -= inc;
+                if ((topology & 0x4) != 0 && px.z > p.x) shape_winding_number += inc;
             }
         }
 
