@@ -19,10 +19,11 @@
  * under the License.
  */
 
+#include "config.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "config.h"
 #if !defined(TARGET_IPHONE) && !defined(TARGET_ANDROID) && !defined(TARGET_WINDOWS)
 #include <unistd.h>
 #endif
