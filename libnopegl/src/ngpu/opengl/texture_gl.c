@@ -196,7 +196,7 @@ static int renderbuffer_check_samples(struct ngpu_texture *s)
     const struct ngpu_limits *limits = &gl->limits;
     const struct ngpu_texture_params *params = &s->params;
 
-    int max_samples = limits->max_samples;
+    int32_t max_samples = (int32_t)limits->max_samples;
     if (gl->features & NGLI_FEATURE_GL_INTERNALFORMAT_QUERY)
         gl->funcs.GetInternalformativ(GL_RENDERBUFFER, s_priv->format, GL_SAMPLES, 1, &max_samples);
 
