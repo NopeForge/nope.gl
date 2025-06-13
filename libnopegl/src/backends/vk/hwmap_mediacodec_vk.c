@@ -231,8 +231,8 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     };
 
     const VkMemoryPropertyFlags mem_props = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    const int32_t mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_props);
-    if (mem_type_index < 0) {
+    const uint32_t mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_props);
+    if (mem_type_index == UINT32_MAX) {
         LOG(ERROR, "could not find required memory type");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
