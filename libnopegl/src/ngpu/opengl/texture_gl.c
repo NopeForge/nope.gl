@@ -88,19 +88,21 @@ static void texture_allocate(struct ngpu_texture *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct ngpu_texture_params *params = &s->params;
 
+    const GLint internal_format = (GLint)s_priv->internal_format;
+
     switch (s_priv->target) {
     case GL_TEXTURE_2D:
-        gl->funcs.TexImage2D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
+        gl->funcs.TexImage2D(s_priv->target, 0, internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
         break;
     case GL_TEXTURE_2D_ARRAY:
-        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, s_priv->array_layers, 0, s_priv->format, s_priv->format_type, NULL);
+        gl->funcs.TexImage3D(s_priv->target, 0, internal_format, params->width, params->height, s_priv->array_layers, 0, s_priv->format, s_priv->format_type, NULL);
         break;
     case GL_TEXTURE_3D:
-        gl->funcs.TexImage3D(s_priv->target, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, NULL);
+        gl->funcs.TexImage3D(s_priv->target, 0, internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, NULL);
         break;
     case GL_TEXTURE_CUBE_MAP: {
         for (int face = 0; face < 6; face++) {
-            gl->funcs.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
+            gl->funcs.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, NULL);
         }
         break;
     }
