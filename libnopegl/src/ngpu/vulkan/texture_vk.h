@@ -41,7 +41,7 @@ struct ngpu_texture_vk_wrap_params {
 struct ngpu_texture_vk {
     struct ngpu_texture parent;
     VkFormat format;
-    int bytes_per_pixel;
+    size_t bytes_per_pixel;
     int array_layers;
     int mipmap_levels;
     VkImage image;

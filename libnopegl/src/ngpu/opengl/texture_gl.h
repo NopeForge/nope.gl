@@ -44,7 +44,7 @@ struct ngpu_texture_gl {
     GLenum internal_format;
     GLenum format_type;
     int wrapped;
-    int bytes_per_pixel;
+    size_t bytes_per_pixel;
     int array_layers;
     GLbitfield barriers;
 };

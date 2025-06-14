@@ -615,7 +615,10 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
     if (!data)
         return VK_SUCCESS;
 
-    const size_t transfer_layer_size = transfer_params->pixels_per_row * transfer_params->height * transfer_params->depth * s_priv->bytes_per_pixel;
+    const size_t transfer_layer_size = (size_t)transfer_params->pixels_per_row
+                                     * (size_t)transfer_params->height
+                                     * (size_t)transfer_params->depth
+                                     * s_priv->bytes_per_pixel;
     const size_t transfer_size = transfer_layer_size * transfer_params->layer_count;
 
     if (s_priv->staging_buffer)
