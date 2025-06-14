@@ -386,7 +386,7 @@ int ngpu_bindgroup_vk_init(struct ngpu_bindgroup *s, const struct ngpu_bindgroup
     return 0;
 }
 
-int ngpu_bindgroup_vk_update_texture(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_texture_binding *binding)
+int ngpu_bindgroup_vk_update_texture(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_texture_binding *binding)
 {
     struct ngpu_bindgroup_vk *s_priv = (struct ngpu_bindgroup_vk *)s;
     struct ngpu_ctx_vk *gpu_ctx_vk = (struct ngpu_ctx_vk *)s->gpu_ctx;
@@ -405,7 +405,7 @@ int ngpu_bindgroup_vk_update_texture(struct ngpu_bindgroup *s, int32_t index, co
     return 0;
 }
 
-int ngpu_bindgroup_vk_update_buffer(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_buffer_binding *binding)
+int ngpu_bindgroup_vk_update_buffer(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_buffer_binding *binding)
 {
     struct ngpu_bindgroup_vk *s_priv = (struct ngpu_bindgroup_vk *)s;
 

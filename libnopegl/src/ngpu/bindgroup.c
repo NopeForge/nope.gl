@@ -130,7 +130,7 @@ int ngpu_bindgroup_update_texture(struct ngpu_bindgroup *s, int32_t index, const
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
-    ngli_assert(index < s->layout->nb_textures);
+    ngli_assert(index >= 0 && index < s->layout->nb_textures);
 
     if (binding->texture) {
         const struct ngpu_texture *texture = binding->texture;
@@ -156,7 +156,7 @@ int ngpu_bindgroup_update_texture(struct ngpu_bindgroup *s, int32_t index, const
         }
     }
 
-    return s->gpu_ctx->cls->bindgroup_update_texture(s, index, binding);
+    return s->gpu_ctx->cls->bindgroup_update_texture(s, (uint32_t)index, binding);
 }
 
 int ngpu_bindgroup_update_buffer(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_buffer_binding *binding)
@@ -164,7 +164,7 @@ int ngpu_bindgroup_update_buffer(struct ngpu_bindgroup *s, int32_t index, const 
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
-    ngli_assert(index < s->layout->nb_buffers);
+    ngli_assert(index >= 0 && index < s->layout->nb_buffers);
 
     if (binding->buffer) {
         const struct ngpu_buffer *buffer = binding->buffer;
@@ -192,7 +192,7 @@ int ngpu_bindgroup_update_buffer(struct ngpu_bindgroup *s, int32_t index, const 
         }
     }
 
-    return s->gpu_ctx->cls->bindgroup_update_buffer(s, index, binding);
+    return s->gpu_ctx->cls->bindgroup_update_buffer(s, (uint32_t)index, binding);
 }
 
 void ngpu_bindgroup_freep(struct ngpu_bindgroup **sp)
