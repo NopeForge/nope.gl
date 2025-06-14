@@ -894,7 +894,7 @@ static int vk_init(struct ngpu_ctx *s)
     s->limits.max_compute_work_group_size[2]     = limits->maxComputeWorkGroupSize[2];
     s->limits.max_compute_shared_memory_size     = limits->maxComputeSharedMemorySize;
     s->limits.max_draw_buffers                   = limits->maxColorAttachments;
-    s->limits.max_samples                        = get_max_supported_samples(limits);
+    s->limits.max_samples                        = (uint32_t)get_max_supported_samples(limits);
     /* max_texture_image_units and max_image_units are specific to the OpenGL
      * backend and have no direct Vulkan equivalent so use sane default values */
     s->limits.max_texture_image_units            = 32;
