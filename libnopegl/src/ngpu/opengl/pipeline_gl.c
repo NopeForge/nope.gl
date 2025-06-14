@@ -115,7 +115,7 @@ static void bind_vertex_attribs(const struct ngpu_pipeline *s)
         const struct attribute_binding_gl *attribute_binding = &bindings[i];
         const size_t binding = attribute_binding->binding;
         const GLuint location = attribute_binding->location;
-        const GLuint size = ngpu_format_get_nb_comp(attribute_binding->format);
+        const GLint size = (GLint)ngpu_format_get_nb_comp(attribute_binding->format);
         const GLsizei stride = (GLsizei)attribute_binding->stride;
         const void *offset = (void *)(uintptr_t)attribute_binding->offset;
         const struct ngpu_buffer_gl *buffer_gl = (const struct ngpu_buffer_gl *)vertex_buffers[binding];
