@@ -256,7 +256,7 @@ static int common_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     for (size_t i = 0; i < common->nb_planes; i++) {
         struct ngpu_texture *plane = common->planes[i];
         struct ngpu_texture_params *params = &plane->params;
-        const int linesize = frame->linesizep[i] / ngpu_format_get_bytes_per_pixel(params->format);
+        const int linesize = frame->linesizep[i] / (int)ngpu_format_get_bytes_per_pixel(params->format);
         int ret = ngpu_texture_upload(plane, frame->datap[i], linesize);
         if (ret < 0)
             return ret;
