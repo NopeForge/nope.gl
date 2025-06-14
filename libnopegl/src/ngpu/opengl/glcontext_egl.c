@@ -576,8 +576,8 @@ static int egl_resize(struct glcontext *ctx, int32_t width, int32_t height)
         LOG(ERROR, "could not query surface dimensions: 0x%x", eglGetError());
         return NGL_ERROR_EXTERNAL;
     }
-    ctx->width = (uint32_t)cur_width;
-    ctx->height = (uint32_t)cur_height;
+    ctx->width = cur_width;
+    ctx->height = cur_height;
 
     return 0;
 }
