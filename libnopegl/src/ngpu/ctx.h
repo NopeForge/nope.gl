@@ -114,8 +114,8 @@ struct ngpu_ctx_class {
 
     struct ngpu_bindgroup *(*bindgroup_create)(struct ngpu_ctx *gpu_ctx);
     int (*bindgroup_init)(struct ngpu_bindgroup *s, const struct ngpu_bindgroup_params *params);
-    int (*bindgroup_update_texture)(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_texture_binding *binding);
-    int (*bindgroup_update_buffer)(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_buffer_binding *binding);
+    int (*bindgroup_update_texture)(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_texture_binding *binding);
+    int (*bindgroup_update_buffer)(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_buffer_binding *binding);
     void (*bindgroup_freep)(struct ngpu_bindgroup **sp);
 
     struct ngpu_pipeline *(*pipeline_create)(struct ngpu_ctx *ctx);
