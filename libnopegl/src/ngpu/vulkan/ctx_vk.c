@@ -764,11 +764,11 @@ static struct ngpu_ctx *vk_create(const struct ngl_config *config)
     return (struct ngpu_ctx *)s;
 }
 
-static int get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
+static int32_t get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
 {
-    const int max_color_samples = ngli_vk_samples_to_ngl(limits->framebufferColorSampleCounts);
-    const int max_depth_samples = ngli_vk_samples_to_ngl(limits->framebufferDepthSampleCounts);
-    const int max_stencil_samples = ngli_vk_samples_to_ngl(limits->framebufferStencilSampleCounts);
+    const int32_t max_color_samples = ngli_vk_samples_to_ngl(limits->framebufferColorSampleCounts);
+    const int32_t max_depth_samples = ngli_vk_samples_to_ngl(limits->framebufferDepthSampleCounts);
+    const int32_t max_stencil_samples = ngli_vk_samples_to_ngl(limits->framebufferStencilSampleCounts);
     return NGLI_MIN(max_color_samples, NGLI_MIN(max_depth_samples, max_stencil_samples));
 }
 
