@@ -219,7 +219,7 @@ int ngpu_bindgroup_gl_init(struct ngpu_bindgroup *s, const struct ngpu_bindgroup
     return 0;
 }
 
-int ngpu_bindgroup_gl_update_texture(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_texture_binding *binding)
+int ngpu_bindgroup_gl_update_texture(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_texture_binding *binding)
 {
     struct ngpu_bindgroup_gl *s_priv = (struct ngpu_bindgroup_gl *)s;
     struct texture_binding_gl *binding_gl = ngli_darray_get(&s_priv->texture_bindings, index);
@@ -229,7 +229,7 @@ int ngpu_bindgroup_gl_update_texture(struct ngpu_bindgroup *s, int32_t index, co
     return 0;
 }
 
-int ngpu_bindgroup_gl_update_buffer(struct ngpu_bindgroup *s, int32_t index, const struct ngpu_buffer_binding *binding)
+int ngpu_bindgroup_gl_update_buffer(struct ngpu_bindgroup *s, uint32_t index, const struct ngpu_buffer_binding *binding)
 {
     struct ngpu_bindgroup_gl *s_priv = (struct ngpu_bindgroup_gl *)s;
     struct buffer_binding_gl *binding_gl = ngli_darray_get(&s_priv->buffer_bindings, index);
@@ -311,7 +311,7 @@ void ngpu_bindgroup_gl_bind(struct ngpu_bindgroup *s, const uint32_t *dynamic_of
             offset += dynamic_offsets[current_dynamic_offset++];
         }
         const size_t size = buffer_binding->size;
-        gl->funcs.BindBufferRange(target, layout_entry->binding, buffer_gl->id, offset, size);
+        gl->funcs.BindBufferRange(target, layout_entry->binding, buffer_gl->id, (GLsizeiptr)offset, (GLsizeiptr)size);
     }
 }
 

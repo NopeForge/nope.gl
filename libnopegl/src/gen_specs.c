@@ -42,7 +42,7 @@ extern const struct param_specs ngli_params_specs[];
         return &cls;                            \
     }                                           \
 
-static const struct node_class *get_node_class(int type)
+static const struct node_class *get_node_class(uint32_t type)
 {
     switch (type) {
         NODE_MAP_TYPE2CLASS(REGISTER_NODE)
@@ -149,7 +149,7 @@ static void print_node_params(const char *name, const struct node_param *p, cons
             }
             static const struct {
                 const char *name;
-                const int flag;
+                const uint32_t flag;
             } flag_names[] = {
                 {"live", NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE},
                 {"node", NGLI_PARAM_FLAG_ALLOW_NODE},
@@ -278,7 +278,7 @@ static int node_has_children(const struct node_class *cls)
 
 #define MAP_NODE_CLS(type_name, cls) case type_name: return &cls;
 
-static const struct node_class *node_type_to_class(int type)
+static const struct node_class *node_type_to_class(uint32_t type)
 {
     switch (type) {
         NODE_MAP_TYPE2CLASS(MAP_NODE_CLS)

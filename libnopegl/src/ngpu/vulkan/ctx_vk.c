@@ -263,7 +263,7 @@ static VkResult create_render_resources(struct ngpu_ctx *s)
         if (!s_priv->capture_buffer)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        s_priv->capture_buffer_size = s_priv->width * s_priv->height * ngpu_format_get_bytes_per_pixel(color_format);
+        s_priv->capture_buffer_size = (size_t)s_priv->width * (size_t)s_priv->height * ngpu_format_get_bytes_per_pixel(color_format);
         int ret = ngpu_buffer_init(s_priv->capture_buffer,
                                        s_priv->capture_buffer_size,
                                        NGPU_BUFFER_USAGE_MAP_READ |
@@ -764,11 +764,11 @@ static struct ngpu_ctx *vk_create(const struct ngl_config *config)
     return (struct ngpu_ctx *)s;
 }
 
-static int get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
+static int32_t get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
 {
-    const int max_color_samples = ngli_vk_samples_to_ngl(limits->framebufferColorSampleCounts);
-    const int max_depth_samples = ngli_vk_samples_to_ngl(limits->framebufferDepthSampleCounts);
-    const int max_stencil_samples = ngli_vk_samples_to_ngl(limits->framebufferStencilSampleCounts);
+    const int32_t max_color_samples = ngli_vk_samples_to_ngl(limits->framebufferColorSampleCounts);
+    const int32_t max_depth_samples = ngli_vk_samples_to_ngl(limits->framebufferDepthSampleCounts);
+    const int32_t max_stencil_samples = ngli_vk_samples_to_ngl(limits->framebufferStencilSampleCounts);
     return NGLI_MIN(max_color_samples, NGLI_MIN(max_depth_samples, max_stencil_samples));
 }
 
@@ -866,9 +866,10 @@ static int vk_init(struct ngpu_ctx *s)
 #endif
 
     struct vkcontext *vk = s_priv->vkcontext;
+    const int major_version = VK_API_VERSION_MAJOR(vk->api_version);
+    const int minor_version = VK_API_VERSION_MINOR(vk->api_version);
 
-    s->version = 100 * VK_API_VERSION_MAJOR(vk->api_version)
-               +  10 * VK_API_VERSION_MINOR(vk->api_version);
+    s->version = major_version * 100 + minor_version * 10;
     s->language_version = 450;
 
     s->features = NGPU_FEATURE_COMPUTE |
@@ -893,7 +894,7 @@ static int vk_init(struct ngpu_ctx *s)
     s->limits.max_compute_work_group_size[2]     = limits->maxComputeWorkGroupSize[2];
     s->limits.max_compute_shared_memory_size     = limits->maxComputeSharedMemorySize;
     s->limits.max_draw_buffers                   = limits->maxColorAttachments;
-    s->limits.max_samples                        = get_max_supported_samples(limits);
+    s->limits.max_samples                        = (uint32_t)get_max_supported_samples(limits);
     /* max_texture_image_units and max_image_units are specific to the OpenGL
      * backend and have no direct Vulkan equivalent so use sane default values */
     s->limits.max_texture_image_units            = 32;

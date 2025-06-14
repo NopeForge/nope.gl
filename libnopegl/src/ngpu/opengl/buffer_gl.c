@@ -99,17 +99,19 @@ int ngpu_buffer_gl_init(struct ngpu_buffer *s)
     s_priv->map_flags = get_gl_map_flags(s->usage);
     s_priv->barriers = get_gl_barriers(s->usage);
 
+    GLsizeiptr size = (GLsizeiptr)s->size;
+
     gl->funcs.GenBuffers(1, &s_priv->id);
     gl->funcs.BindBuffer(GL_ARRAY_BUFFER, s_priv->id);
     if (gl->features & NGLI_FEATURE_GL_BUFFER_STORAGE) {
         const GLbitfield storage_flags = GL_DYNAMIC_STORAGE_BIT;
-        gl->funcs.BufferStorage(GL_ARRAY_BUFFER, s->size, NULL, storage_flags | s_priv->map_flags);
+        gl->funcs.BufferStorage(GL_ARRAY_BUFFER, size, NULL, storage_flags | s_priv->map_flags);
     } else if (gl->features & NGLI_FEATURE_GL_EXT_BUFFER_STORAGE) {
         const GLbitfield storage_flags = GL_DYNAMIC_STORAGE_BIT;
-        gl->funcs.BufferStorageEXT(GL_ARRAY_BUFFER, s->size, NULL, storage_flags | s_priv->map_flags);
+        gl->funcs.BufferStorageEXT(GL_ARRAY_BUFFER, size, NULL, storage_flags | s_priv->map_flags);
     } else {
         ngli_assert(!NGLI_HAS_ALL_FLAGS(s->usage, NGPU_BUFFER_USAGE_MAP_PERSISTENT));
-        gl->funcs.BufferData(GL_ARRAY_BUFFER, s->size, NULL, get_gl_usage(s->usage));
+        gl->funcs.BufferData(GL_ARRAY_BUFFER, size, NULL, get_gl_usage(s->usage));
     }
 
     return 0;
@@ -135,7 +137,7 @@ int ngpu_buffer_gl_upload(struct ngpu_buffer *s, const void *data, size_t offset
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
     gl->funcs.BindBuffer(GL_ARRAY_BUFFER, s_priv->id);
-    gl->funcs.BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+    gl->funcs.BufferSubData(GL_ARRAY_BUFFER, (GLsizeiptr)offset, (GLsizeiptr)size, data);
     return 0;
 }
 
@@ -145,7 +147,7 @@ int ngpu_buffer_gl_map(struct ngpu_buffer *s, size_t offset, size_t size, void *
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct ngpu_buffer_gl *s_priv = (struct ngpu_buffer_gl *)s;
     gl->funcs.BindBuffer(GL_ARRAY_BUFFER, s_priv->id);
-    void *data = gl->funcs.MapBufferRange(GL_ARRAY_BUFFER, offset, size, s_priv->map_flags);
+    void *data = gl->funcs.MapBufferRange(GL_ARRAY_BUFFER, (GLsizeiptr)offset, (GLsizeiptr)size, s_priv->map_flags);
     if (!data)
         return NGL_ERROR_GRAPHICS_GENERIC;
     *datap = data;

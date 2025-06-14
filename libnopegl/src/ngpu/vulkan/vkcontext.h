@@ -96,7 +96,7 @@ void *ngli_vkcontext_get_proc_addr(struct vkcontext *s, const char *name);
 int ngli_vkcontext_has_extension(const struct vkcontext *s, const char *name, int device);
 VkFormat ngli_vkcontext_find_supported_format(struct vkcontext *s, const VkFormat *formats,
                                               VkImageTiling tiling, VkFormatFeatureFlags features);
-int ngli_vkcontext_find_memory_type(struct vkcontext *s, uint32_t type, VkMemoryPropertyFlags props);
+uint32_t ngli_vkcontext_find_memory_type(struct vkcontext *s, uint32_t type, VkMemoryPropertyFlags props);
 VkBool32 ngli_vkcontext_support_present_mode(const struct vkcontext *s, VkPresentModeKHR mode);
 void ngli_vkcontext_freep(struct vkcontext **sp);
 

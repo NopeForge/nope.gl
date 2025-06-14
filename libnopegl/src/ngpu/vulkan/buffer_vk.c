@@ -53,12 +53,12 @@ static VkResult create_vk_buffer(struct vkcontext *vk,
     VkMemoryRequirements mem_reqs;
     vkGetBufferMemoryRequirements(vk->device, buffer, &mem_reqs);
 
-    int mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_props);
-    if (mem_type_index < 0) {
+    uint32_t mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_props);
+    if (mem_type_index == UINT32_MAX) {
         /* Cached memory might not be supported, falling back on uncached memory */
-        mem_props &= ~VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+        mem_props &= ~((VkFlags)VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
         mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_props);
-        if (mem_type_index < 0) {
+        if (mem_type_index == UINT32_MAX) {
             res = VK_ERROR_FORMAT_NOT_SUPPORTED;
             goto fail;
         }

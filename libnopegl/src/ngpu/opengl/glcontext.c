@@ -232,7 +232,7 @@ static int glcontext_check_extension(const char *extension,
     glcontext->funcs.GetIntegerv(GL_NUM_EXTENSIONS, &nb_extensions);
 
     for (GLint i = 0; i < nb_extensions; i++) {
-        const char *tmp = (const char *)glcontext->funcs.GetStringi(GL_EXTENSIONS, i);
+        const char *tmp = (const char *)glcontext->funcs.GetStringi(GL_EXTENSIONS, (GLuint)i);
         if (!tmp)
             break;
         if (!strcmp(extension, tmp))
@@ -327,13 +327,13 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
 #define GET(name, value) do {                         \
     GLint gl_value;                                   \
     glcontext->funcs.GetIntegerv((name), &gl_value);  \
-    *(value) = gl_value;                              \
+    *(value) = (__typeof__(*(value)))gl_value;        \
 } while (0)                                           \
 
 #define GET_I(name, index, value) do {                           \
     GLint gl_value;                                              \
     glcontext->funcs.GetIntegeri_v((name), (index), &gl_value);  \
-    *(value) = gl_value;                                         \
+    *(value) = (__typeof__((*value)))gl_value;                   \
 } while (0)                                                      \
 
 static int glcontext_probe_limits(struct glcontext *glcontext)

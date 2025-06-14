@@ -396,17 +396,17 @@ static VkResult texture_vk_init(struct ngpu_texture *s, const struct ngpu_textur
     VkMemoryRequirements mem_reqs;
     vkGetImageMemoryRequirements(vk->device, s_priv->image, &mem_reqs);
 
-    int mem_type_index = NGL_ERROR_NOT_FOUND;
+    uint32_t mem_type_index = UINT32_MAX;
     if (s->params.usage & NGPU_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT) {
         const VkMemoryPropertyFlags mem_props = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
                                                 VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
         mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_props);
     }
 
-    if (mem_type_index < 0) {
+    if (mem_type_index == UINT32_MAX) {
         const VkMemoryPropertyFlags mem_pros = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         mem_type_index = ngli_vkcontext_find_memory_type(vk, mem_reqs.memoryTypeBits, mem_pros);
-        if (mem_type_index < 0)
+        if (mem_type_index == UINT32_MAX)
             return VK_ERROR_FORMAT_NOT_SUPPORTED;
     }
 
@@ -615,7 +615,10 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
     if (!data)
         return VK_SUCCESS;
 
-    const size_t transfer_layer_size = transfer_params->pixels_per_row * transfer_params->height * transfer_params->depth * s_priv->bytes_per_pixel;
+    const size_t transfer_layer_size = (size_t)transfer_params->pixels_per_row
+                                     * (size_t)transfer_params->height
+                                     * (size_t)transfer_params->depth
+                                     * s_priv->bytes_per_pixel;
     const size_t transfer_size = transfer_layer_size * transfer_params->layer_count;
 
     if (s_priv->staging_buffer)
