@@ -646,7 +646,7 @@ static int inject_attribute(struct ngpu_pgcraft *s, struct bstr *b,
         .rate = attribute->rate,
     };
 
-    const int attribute_offset = ngpu_format_get_bytes_per_pixel(attribute->format);
+    const size_t attribute_offset = ngpu_format_get_bytes_per_pixel(attribute->format);
     for (int i = 0; i < attribute_count; i++) {
         if (!ngli_darray_push(&s->symbols, attribute->name))
             return NGL_ERROR_MEMORY;

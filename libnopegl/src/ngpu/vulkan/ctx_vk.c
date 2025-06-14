@@ -263,7 +263,7 @@ static VkResult create_render_resources(struct ngpu_ctx *s)
         if (!s_priv->capture_buffer)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        s_priv->capture_buffer_size = s_priv->width * s_priv->height * ngpu_format_get_bytes_per_pixel(color_format);
+        s_priv->capture_buffer_size = (size_t)s_priv->width * (size_t)s_priv->height * ngpu_format_get_bytes_per_pixel(color_format);
         int ret = ngpu_buffer_init(s_priv->capture_buffer,
                                        s_priv->capture_buffer_size,
                                        NGPU_BUFFER_USAGE_MAP_READ |

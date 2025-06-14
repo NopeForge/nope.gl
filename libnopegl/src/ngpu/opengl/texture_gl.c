@@ -150,9 +150,10 @@ static void texture_upload(struct ngpu_texture *s, const uint8_t *data, const st
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    const int bytes_per_row = transfer_params->pixels_per_row * s_priv->bytes_per_pixel;
-    const int alignment = NGLI_MIN(NGLI_ALIGNMENT(bytes_per_row), 8);
-    gl->funcs.PixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+    const size_t pixels_per_row = (size_t)transfer_params->pixels_per_row;
+    const size_t bytes_per_row = pixels_per_row * s_priv->bytes_per_pixel;
+    const size_t alignment = NGLI_MIN(NGLI_ALIGNMENT(bytes_per_row), 8);
+    gl->funcs.PixelStorei(GL_UNPACK_ALIGNMENT, (GLint)alignment);
     gl->funcs.PixelStorei(GL_UNPACK_ROW_LENGTH, transfer_params->pixels_per_row);
 
     switch (s_priv->target) {
@@ -172,7 +173,8 @@ static void texture_upload(struct ngpu_texture *s, const uint8_t *data, const st
                                 s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_CUBE_MAP: {
-        const int layer_size = s_priv->bytes_per_pixel * transfer_params->pixels_per_row * transfer_params->height;
+        const size_t height = (size_t)transfer_params->height;
+        const size_t layer_size = s_priv->bytes_per_pixel * pixels_per_row * height;
         const uint8_t *layer_data = data + (transfer_params->base_layer * layer_size);
         for (int face = transfer_params->base_layer; face < transfer_params->layer_count; face++) {
             gl->funcs.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0,
