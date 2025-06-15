@@ -91,9 +91,9 @@ struct ngpu_pgcraft {
     const char *glsl_version_suffix;
     const char *sym_vertex_index;
     const char *sym_instance_index;
-    int has_in_out_layout_qualifiers;
-    int has_precision_qualifiers;
-    int has_explicit_bindings;
+    bool has_in_out_layout_qualifiers;
+    bool has_precision_qualifiers;
+    bool has_explicit_bindings;
 };
 
 /*
@@ -1285,9 +1285,9 @@ static void setup_glsl_info_vk(struct ngpu_pgcraft *s)
     s->sym_vertex_index   = "gl_VertexIndex";
     s->sym_instance_index = "gl_InstanceIndex";
 
-    s->has_explicit_bindings        = 1;
-    s->has_in_out_layout_qualifiers = 1;
-    s->has_precision_qualifiers     = 0;
+    s->has_explicit_bindings        = true;
+    s->has_in_out_layout_qualifiers = true;
+    s->has_precision_qualifiers     = false;
 
     /* Bindings are shared across stages and types */
     for (size_t i = 0; i < NGLI_BINDING_TYPE_NB; i++)
