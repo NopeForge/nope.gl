@@ -142,7 +142,7 @@ static int setup_waveform_compute(struct colorstats_priv *s, const struct ngpu_p
         {
             .name        = "source",
             .type        = NGPU_PGCRAFT_TEXTURE_TYPE_VIDEO,
-            .stage       = NGPU_PROGRAM_SHADER_COMP,
+            .stage       = NGPU_PROGRAM_STAGE_COMP,
             .image       = &texture_info->image,
             .format      = texture_info->params.format,
             .clamp_video = 0, /* clamping is done manually in the shader */
@@ -238,7 +238,7 @@ static int init_computes(struct ngl_node *node)
             .name     = "params",
             .instance_name = "",
             .type     = NGPU_TYPE_UNIFORM_BUFFER,
-            .stage    = NGPU_PROGRAM_SHADER_COMP,
+            .stage    = NGPU_PROGRAM_STAGE_COMP,
             .block    = &s->stats_params_block.block_desc,
             .buffer   = {
                 .buffer = s->stats_params_block.buffer,
@@ -247,7 +247,7 @@ static int init_computes(struct ngl_node *node)
         }, {
             .name     = "stats",
             .type     = NGPU_TYPE_STORAGE_BUFFER,
-            .stage    = NGPU_PROGRAM_SHADER_COMP,
+            .stage    = NGPU_PROGRAM_STAGE_COMP,
             .writable = 1,
             .block    = &s->blk.block,
         },

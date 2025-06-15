@@ -28,6 +28,7 @@
 #include "ngpu/block_desc.h"
 #include "ngpu/buffer.h"
 #include "ngpu/pipeline.h"
+#include "ngpu/program.h"
 #include "ngpu/texture.h"
 #include "precision.h"
 #include "utils/bstr.h"
@@ -37,7 +38,7 @@ struct ngpu_ctx;
 struct ngpu_pgcraft_uniform { // also buffers (for arrays)
     char name[MAX_ID_LEN];
     enum ngpu_type type;
-    int stage;
+    enum ngpu_program_stage stage;
     enum ngpu_precision precision;
     const void *data;
     size_t count;
@@ -61,7 +62,7 @@ enum ngpu_pgcraft_texture_type {
 struct ngpu_pgcraft_texture {
     char name[MAX_ID_LEN];
     enum ngpu_pgcraft_texture_type type;
-    int stage;
+    enum ngpu_program_stage stage;
     enum ngpu_precision precision;
     int writable;
     enum ngpu_format format;
@@ -102,7 +103,7 @@ struct ngpu_pgcraft_block {
     char name[MAX_ID_LEN];
     const char *instance_name;
     enum ngpu_type type;
-    int stage;
+    enum ngpu_program_stage stage;
     int writable;
     const struct ngpu_block_desc *block;
     struct ngpu_buffer_binding buffer;
@@ -145,7 +146,7 @@ enum {
 struct ngpu_pgcraft_texture_info_field {
     enum ngpu_type type;
     int32_t index;
-    int stage;
+    enum ngpu_program_stage stage;
 };
 
 struct ngpu_pgcraft_texture_info {
@@ -165,9 +166,9 @@ struct ngpu_pgcraft_texture_info {
  * maps single uniforms to dedicated uniform blocks.
  */
 struct ngpu_pgcraft_compat_info {
-    struct ngpu_block_desc ublocks[NGPU_PROGRAM_SHADER_NB];
-    int32_t ubindings[NGPU_PROGRAM_SHADER_NB];
-    int32_t uindices[NGPU_PROGRAM_SHADER_NB];
+    struct ngpu_block_desc ublocks[NGPU_PROGRAM_STAGE_NB];
+    int32_t ubindings[NGPU_PROGRAM_STAGE_NB];
+    int32_t uindices[NGPU_PROGRAM_STAGE_NB];
 
     const struct ngpu_pgcraft_texture_info *texture_infos;
     const struct image **images;
@@ -201,8 +202,8 @@ struct ngpu_pgcraft;
 
 struct ngpu_pgcraft *ngpu_pgcraft_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_pgcraft_craft(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params);
-int32_t ngpu_pgcraft_get_uniform_index(const struct ngpu_pgcraft *s, const char *name, int stage);
-int32_t ngpu_pgcraft_get_block_index(const struct ngpu_pgcraft *s, const char *name, int stage);
+int32_t ngpu_pgcraft_get_uniform_index(const struct ngpu_pgcraft *s, const char *name, enum ngpu_program_stage stage);
+int32_t ngpu_pgcraft_get_block_index(const struct ngpu_pgcraft *s, const char *name, enum ngpu_program_stage stage);
 int32_t ngpu_pgcraft_get_image_index(const struct ngpu_pgcraft *s, const char *name);
 const struct ngpu_pgcraft_compat_info *ngpu_pgcraft_get_compat_info(const struct ngpu_pgcraft *s);
 const char *ngpu_pgcraft_get_symbol_name(const struct ngpu_pgcraft *s, size_t id);

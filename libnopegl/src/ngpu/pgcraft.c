@@ -69,7 +69,7 @@ struct ngpu_pgcraft {
     struct darray images; // image pointer
     struct ngpu_pgcraft_compat_info compat_info;
 
-    struct bstr *shaders[NGPU_PROGRAM_SHADER_NB];
+    struct bstr *shaders[NGPU_PROGRAM_STAGE_NB];
 
     struct darray symbols;
 
@@ -83,17 +83,17 @@ struct ngpu_pgcraft {
 
     int bindings[NGLI_BINDING_TYPE_NB];
     int *next_bindings[NGLI_BINDING_TYPE_NB];
-    int next_in_locations[NGPU_PROGRAM_SHADER_NB];
-    int next_out_locations[NGPU_PROGRAM_SHADER_NB];
+    int next_in_locations[NGPU_PROGRAM_STAGE_NB];
+    int next_out_locations[NGPU_PROGRAM_STAGE_NB];
 
     /* GLSL info */
     int glsl_version;
     const char *glsl_version_suffix;
     const char *sym_vertex_index;
     const char *sym_instance_index;
-    int has_in_out_layout_qualifiers;
-    int has_precision_qualifiers;
-    int has_explicit_bindings;
+    bool has_in_out_layout_qualifiers;
+    bool has_precision_qualifiers;
+    bool has_explicit_bindings;
 };
 
 /*
@@ -287,7 +287,8 @@ static const char *get_array_suffix(size_t count, char *buf, size_t len)
 #define GET_ARRAY_SUFFIX(count) get_array_suffix(count, (char[32]){0}, 32)
 
 static int inject_block_uniform(struct ngpu_pgcraft *s, struct bstr *b,
-                                const struct ngpu_pgcraft_uniform *uniform, int stage)
+                                const struct ngpu_pgcraft_uniform *uniform,
+                                enum ngpu_program_stage stage)
 {
     struct ngpu_pgcraft_compat_info *compat_info = &s->compat_info;
     struct ngpu_block_desc *block = &compat_info->ublocks[stage];
@@ -302,7 +303,7 @@ static int inject_uniform(struct ngpu_pgcraft *s, struct bstr *b,
 }
 
 static int inject_uniforms(struct ngpu_pgcraft *s, struct bstr *b,
-                           const struct ngpu_pgcraft_params *params, int stage)
+                           const struct ngpu_pgcraft_params *params, enum ngpu_program_stage stage)
 {
     for (size_t i = 0; i < params->nb_uniforms; i++) {
         const struct ngpu_pgcraft_uniform *uniform = &params->uniforms[i];
@@ -412,7 +413,7 @@ static int prepare_texture_info_fields(struct ngpu_pgcraft *s, const struct ngpu
             continue;
         field->type = type;
         if (graphics && i == NGPU_INFO_FIELD_COORDINATE_MATRIX)
-            field->stage = NGPU_PROGRAM_SHADER_VERT;
+            field->stage = NGPU_PROGRAM_STAGE_VERT;
         else
             field->stage = texture->stage;
     }
@@ -446,7 +447,7 @@ static int prepare_texture_infos(struct ngpu_pgcraft *s, const struct ngpu_pgcra
     return 0;
 }
 
-static int inject_texture(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_texture *texture, const struct ngpu_pgcraft_texture_info *info, int stage)
+static int inject_texture(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_texture *texture, const struct ngpu_pgcraft_texture_info *info, enum ngpu_program_stage stage)
 {
     for (size_t i = 0; i < NGPU_INFO_FIELD_NB; i++) {
         const struct ngpu_pgcraft_texture_info_field *field = &info->fields[i];
@@ -538,7 +539,7 @@ static int inject_texture(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_text
     return 0;
 }
 
-static int inject_textures(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params, int stage)
+static int inject_textures(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params, enum ngpu_program_stage stage)
 {
     const struct ngpu_pgcraft_texture *textures = ngli_darray_data(&s->textures);
     const struct ngpu_pgcraft_texture_info *texture_infos = ngli_darray_data(&s->texture_infos);
@@ -603,7 +604,7 @@ static int inject_block(struct ngpu_pgcraft *s, struct bstr *b,
 }
 
 static int inject_blocks(struct ngpu_pgcraft *s, struct bstr *b,
-                         const struct ngpu_pgcraft_params *params, int stage)
+                         const struct ngpu_pgcraft_params *params, enum ngpu_program_stage stage)
 {
     for (size_t i = 0; i < params->nb_blocks; i++) {
         const struct ngpu_pgcraft_block *block = &params->blocks[i];
@@ -631,8 +632,8 @@ static int inject_attribute(struct ngpu_pgcraft *s, struct bstr *b,
     const char *type = get_glsl_type(attribute->type);
     const int attribute_count = get_location_count(attribute->type);
 
-    const int base_location = s->next_in_locations[NGPU_PROGRAM_SHADER_VERT];
-    s->next_in_locations[NGPU_PROGRAM_SHADER_VERT] += attribute_count;
+    const int base_location = s->next_in_locations[NGPU_PROGRAM_STAGE_VERT];
+    s->next_in_locations[NGPU_PROGRAM_STAGE_VERT] += attribute_count;
 
     if (s->has_in_out_layout_qualifiers) {
         ngli_bstr_printf(b, "layout(location=%d) ", base_location);
@@ -680,12 +681,12 @@ static int inject_attributes(struct ngpu_pgcraft *s, struct bstr *b,
 }
 
 const char *ublock_names[] = {
-    [NGPU_PROGRAM_SHADER_VERT] = "vert",
-    [NGPU_PROGRAM_SHADER_FRAG] = "frag",
-    [NGPU_PROGRAM_SHADER_COMP] = "comp",
+    [NGPU_PROGRAM_STAGE_VERT] = "vert",
+    [NGPU_PROGRAM_STAGE_FRAG] = "frag",
+    [NGPU_PROGRAM_STAGE_COMP] = "comp",
 };
 
-static int inject_ublock(struct ngpu_pgcraft *s, struct bstr *b, int stage)
+static int inject_ublock(struct ngpu_pgcraft *s, struct bstr *b, enum ngpu_program_stage stage)
 {
     struct ngpu_pgcraft_compat_info *compat_info = &s->compat_info;
 
@@ -711,7 +712,7 @@ static int inject_ublock(struct ngpu_pgcraft *s, struct bstr *b, int stage)
     return 0;
 }
 
-static int params_have_ssbos(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params, int stage)
+static int params_have_ssbos(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params, enum ngpu_program_stage stage)
 {
     for (size_t i = 0; i < params->nb_blocks; i++) {
         const struct ngpu_pgcraft_block *pgcraft_block = &params->blocks[i];
@@ -721,7 +722,7 @@ static int params_have_ssbos(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_p
     return 0;
 }
 
-static int params_have_images(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params, int stage)
+static int params_have_images(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params, enum ngpu_program_stage stage)
 {
     const struct darray *texture_infos_array = &s->texture_infos;
     const struct ngpu_pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
@@ -740,7 +741,7 @@ static int params_have_images(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_
     return 0;
 }
 
-static void set_glsl_header(struct ngpu_pgcraft *s, struct bstr *b, const struct ngpu_pgcraft_params *params, int stage)
+static void set_glsl_header(struct ngpu_pgcraft *s, struct bstr *b, const struct ngpu_pgcraft_params *params, enum ngpu_program_stage stage)
 {
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
     const struct ngl_config *config = &gpu_ctx->config;
@@ -764,7 +765,7 @@ static void set_glsl_header(struct ngpu_pgcraft *s, struct bstr *b, const struct
         {NGL_BACKEND_OPENGL, "GL_ARB_shader_image_load_store",        420, require_image_feature},
         {NGL_BACKEND_OPENGL, "GL_ARB_shader_image_size",              430, require_image_feature},
         {NGL_BACKEND_OPENGL, "GL_ARB_shader_storage_buffer_object",   430, require_ssbo_feature},
-        {NGL_BACKEND_OPENGL, "GL_ARB_compute_shader",                 430, stage == NGPU_PROGRAM_SHADER_COMP},
+        {NGL_BACKEND_OPENGL, "GL_ARB_compute_shader",                 430, stage == NGPU_PROGRAM_STAGE_COMP    },
 
         /* OpenGLES */
 #if defined(TARGET_ANDROID)
@@ -1029,11 +1030,11 @@ static int samplers_preproc(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_pa
     return ret;
 }
 
-static int inject_iovars(struct ngpu_pgcraft *s, struct bstr *b, int stage)
+static int inject_iovars(struct ngpu_pgcraft *s, struct bstr *b, enum ngpu_program_stage stage)
 {
     static const char *qualifiers[2] = {
-        [NGPU_PROGRAM_SHADER_VERT] = "out",
-        [NGPU_PROGRAM_SHADER_FRAG] = "in",
+        [NGPU_PROGRAM_STAGE_VERT] = "out",
+        [NGPU_PROGRAM_STAGE_FRAG] = "in",
     };
     const char *qualifier = qualifiers[stage];
     const struct ngpu_pgcraft_iovar *iovars = ngli_darray_data(&s->vert_out_vars);
@@ -1042,8 +1043,8 @@ static int inject_iovars(struct ngpu_pgcraft *s, struct bstr *b, int stage)
         if (s->has_in_out_layout_qualifiers)
             ngli_bstr_printf(b, "layout(location=%d) ", location);
         const struct ngpu_pgcraft_iovar *iovar = &iovars[i];
-        const char *precision = stage == NGPU_PROGRAM_SHADER_VERT
-                              ? get_precision_qualifier(s, iovar->type, iovar->precision_out, "highp")
+        const char *precision = stage == NGPU_PROGRAM_STAGE_VERT
+                                                     ? get_precision_qualifier(s, iovar->type, iovar->precision_out, "highp")
                               : get_precision_qualifier(s, iovar->type, iovar->precision_in, "highp");
         const char *type = get_glsl_type(iovar->type);
         if (type_is_int(iovar->type))
@@ -1056,9 +1057,9 @@ static int inject_iovars(struct ngpu_pgcraft *s, struct bstr *b, int stage)
 
 static int craft_vert(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params)
 {
-    struct bstr *b = s->shaders[NGPU_PROGRAM_SHADER_VERT];
+    struct bstr *b = s->shaders[NGPU_PROGRAM_STAGE_VERT];
 
-    set_glsl_header(s, b, params, NGPU_PROGRAM_SHADER_VERT);
+    set_glsl_header(s, b, params, NGPU_PROGRAM_STAGE_VERT);
 
     ngli_bstr_printf(b, "#define ngl_out_pos gl_Position\n"
                         "#define ngl_vertex_index %s\n"
@@ -1066,12 +1067,12 @@ static int craft_vert(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
                         s->sym_vertex_index, s->sym_instance_index);
 
     int ret;
-    if ((ret = inject_iovars(s, b, NGPU_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = inject_uniforms(s, b, params, NGPU_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = inject_textures(s, params, NGPU_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = inject_blocks(s, b, params, NGPU_PROGRAM_SHADER_VERT)) < 0 ||
+    if ((ret = inject_iovars(s, b, NGPU_PROGRAM_STAGE_VERT)) < 0 ||
+        (ret = inject_uniforms(s, b, params, NGPU_PROGRAM_STAGE_VERT)) < 0 ||
+        (ret = inject_textures(s, params, NGPU_PROGRAM_STAGE_VERT)) < 0 ||
+        (ret = inject_blocks(s, b, params, NGPU_PROGRAM_STAGE_VERT)) < 0 ||
         (ret = inject_attributes(s, b, params)) < 0 ||
-        (ret = inject_ublock(s, b, NGPU_PROGRAM_SHADER_VERT)) < 0)
+        (ret = inject_ublock(s, b, NGPU_PROGRAM_STAGE_VERT)) < 0)
         return ret;
 
     ngli_bstr_print(b, params->vert_base);
@@ -1081,9 +1082,9 @@ static int craft_vert(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
 static int craft_frag(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params)
 
 {
-    struct bstr *b = s->shaders[NGPU_PROGRAM_SHADER_FRAG];
+    struct bstr *b = s->shaders[NGPU_PROGRAM_STAGE_FRAG];
 
-    set_glsl_header(s, b, params, NGPU_PROGRAM_SHADER_FRAG);
+    set_glsl_header(s, b, params, NGPU_PROGRAM_STAGE_FRAG);
 
     if (s->has_precision_qualifiers)
         ngli_bstr_print(b, "#if GL_FRAGMENT_PRECISION_HIGH\n"
@@ -1108,7 +1109,7 @@ static int craft_frag(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
     ngli_bstr_print(b, "\n");
 
     if (s->has_in_out_layout_qualifiers) {
-        const int out_location = s->next_out_locations[NGPU_PROGRAM_SHADER_FRAG]++;
+        const int out_location = s->next_out_locations[NGPU_PROGRAM_STAGE_FRAG]++;
         ngli_bstr_printf(b, "layout(location=%d) ", out_location);
     }
     if (params->nb_frag_output)
@@ -1117,11 +1118,11 @@ static int craft_frag(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
         ngli_bstr_print(b, "out vec4 ngl_out_color;\n");
 
     int ret;
-    if ((ret = inject_iovars(s, b, NGPU_PROGRAM_SHADER_FRAG)) < 0 ||
-        (ret = inject_uniforms(s, b, params, NGPU_PROGRAM_SHADER_FRAG)) < 0 ||
-        (ret = inject_textures(s, params, NGPU_PROGRAM_SHADER_FRAG)) < 0 ||
-        (ret = inject_blocks(s, b, params, NGPU_PROGRAM_SHADER_FRAG)) < 0 ||
-        (ret = inject_ublock(s, b, NGPU_PROGRAM_SHADER_FRAG)) < 0)
+    if ((ret = inject_iovars(s, b, NGPU_PROGRAM_STAGE_FRAG)) < 0 ||
+        (ret = inject_uniforms(s, b, params, NGPU_PROGRAM_STAGE_FRAG)) < 0 ||
+        (ret = inject_textures(s, params, NGPU_PROGRAM_STAGE_FRAG)) < 0 ||
+        (ret = inject_blocks(s, b, params, NGPU_PROGRAM_STAGE_FRAG)) < 0 ||
+        (ret = inject_ublock(s, b, NGPU_PROGRAM_STAGE_FRAG)) < 0)
         return ret;
 
     ngli_bstr_print(b, "\n");
@@ -1132,18 +1133,18 @@ static int craft_frag(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
 
 static int craft_comp(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *params)
 {
-    struct bstr *b = s->shaders[NGPU_PROGRAM_SHADER_COMP];
+    struct bstr *b = s->shaders[NGPU_PROGRAM_STAGE_COMP];
 
-    set_glsl_header(s, b, params, NGPU_PROGRAM_SHADER_COMP);
+    set_glsl_header(s, b, params, NGPU_PROGRAM_STAGE_COMP);
 
     const uint32_t *wg_size = params->workgroup_size;
     ngli_bstr_printf(b, "layout(local_size_x=%u, local_size_y=%u, local_size_z=%u) in;\n", NGLI_ARG_VEC3(wg_size));
 
     int ret;
-    if ((ret = inject_uniforms(s, b, params, NGPU_PROGRAM_SHADER_COMP)) < 0 ||
-        (ret = inject_textures(s, params, NGPU_PROGRAM_SHADER_COMP)) < 0 ||
-        (ret = inject_blocks(s, b, params, NGPU_PROGRAM_SHADER_COMP)) < 0 ||
-        (ret = inject_ublock(s, b, NGPU_PROGRAM_SHADER_COMP)) < 0)
+    if ((ret = inject_uniforms(s, b, params, NGPU_PROGRAM_STAGE_COMP)) < 0 ||
+        (ret = inject_textures(s, params, NGPU_PROGRAM_STAGE_COMP)) < 0 ||
+        (ret = inject_blocks(s, b, params, NGPU_PROGRAM_STAGE_COMP)) < 0 ||
+        (ret = inject_ublock(s, b, NGPU_PROGRAM_STAGE_COMP)) < 0)
         return ret;
 
     ngli_bstr_print(b, params->comp_base);
@@ -1152,14 +1153,14 @@ static int craft_comp(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
 
 NGLI_STATIC_ASSERT(resource_name_offset, offsetof(struct ngpu_bindgroup_layout_entry, id) == 0);
 
-static int32_t get_ublock_index(const struct ngpu_pgcraft *s, const char *name, int stage)
+static int32_t get_ublock_index(const struct ngpu_pgcraft *s, const char *name, enum ngpu_program_stage stage)
 {
     const struct ngpu_pgcraft_compat_info *compat_info = &s->compat_info;
     const struct darray *fields_array = &compat_info->ublocks[stage].fields;
     const struct ngpu_block_field *fields = ngli_darray_data(fields_array);
     for (int32_t i = 0; i < (int32_t)ngli_darray_count(fields_array); i++)
         if (!strcmp(fields[i].name, name))
-            return stage << 16 | i;
+            return (int32_t)stage << 16 | i;
     return -1;
 }
 
@@ -1209,7 +1210,7 @@ static void probe_ublocks(struct ngpu_pgcraft *s)
     const struct darray *array = &s->pipeline_info.desc.buffers;
 
     struct ngpu_pgcraft_compat_info *info = &s->compat_info;
-    for (size_t i = 0; i < NGPU_PROGRAM_SHADER_NB; i++) {
+    for (size_t i = 0; i < NGPU_PROGRAM_STAGE_NB; i++) {
         const struct ngpu_block_desc *block = &info->ublocks[i];
         const int32_t binding = info->ubindings[i];
 
@@ -1285,9 +1286,9 @@ static void setup_glsl_info_vk(struct ngpu_pgcraft *s)
     s->sym_vertex_index   = "gl_VertexIndex";
     s->sym_instance_index = "gl_InstanceIndex";
 
-    s->has_explicit_bindings        = 1;
-    s->has_in_out_layout_qualifiers = 1;
-    s->has_precision_qualifiers     = 0;
+    s->has_explicit_bindings        = true;
+    s->has_in_out_layout_qualifiers = true;
+    s->has_precision_qualifiers     = false;
 
     /* Bindings are shared across stages and types */
     for (size_t i = 0; i < NGLI_BINDING_TYPE_NB; i++)
@@ -1352,7 +1353,7 @@ struct ngpu_pgcraft *ngpu_pgcraft_create(struct ngpu_ctx *gpu_ctx)
     return s;
 }
 
-static int alloc_shader(struct ngpu_pgcraft *s, int stage)
+static int alloc_shader(struct ngpu_pgcraft *s, enum ngpu_program_stage stage)
 {
     ngli_assert(!s->shaders[stage]);
     struct bstr *b = ngli_bstr_create();
@@ -1366,17 +1367,17 @@ static int get_program_compute(struct ngpu_pgcraft *s, const struct ngpu_pgcraft
 {
     int ret;
 
-    if ((ret = alloc_shader(s, NGPU_PROGRAM_SHADER_COMP)) < 0 ||
+    if ((ret = alloc_shader(s, NGPU_PROGRAM_STAGE_COMP)) < 0 ||
         (ret = prepare_texture_infos(s, params, 0)) < 0 ||
         (ret = craft_comp(s, params)) < 0)
         return ret;
 
     const struct ngpu_program_params program_params = {
         .label   = params->program_label,
-        .compute = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_SHADER_COMP]),
+        .compute = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_STAGE_COMP]),
     };
     ret = ngpu_pgcache_get_compute_program(&s->gpu_ctx->program_cache, &s->program, &program_params);
-    ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_SHADER_COMP]);
+    ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_STAGE_COMP]);
     return ret;
 }
 
@@ -1391,8 +1392,8 @@ static int get_program_graphics(struct ngpu_pgcraft *s, const struct ngpu_pgcraf
             return NGL_ERROR_MEMORY;
     }
 
-    if ((ret = alloc_shader(s, NGPU_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = alloc_shader(s, NGPU_PROGRAM_SHADER_FRAG)) < 0 ||
+    if ((ret = alloc_shader(s, NGPU_PROGRAM_STAGE_VERT)) < 0 ||
+        (ret = alloc_shader(s, NGPU_PROGRAM_STAGE_FRAG)) < 0 ||
         (ret = prepare_texture_infos(s, params, 1)) < 0 ||
         (ret = craft_vert(s, params)) < 0 ||
         (ret = craft_frag(s, params)) < 0)
@@ -1400,12 +1401,12 @@ static int get_program_graphics(struct ngpu_pgcraft *s, const struct ngpu_pgcraf
 
     const struct ngpu_program_params program_params = {
         .label    = params->program_label,
-        .vertex   = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_SHADER_VERT]),
-        .fragment = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_SHADER_FRAG]),
+        .vertex   = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_STAGE_VERT]),
+        .fragment = ngli_bstr_strptr(s->shaders[NGPU_PROGRAM_STAGE_FRAG]),
     };
     ret = ngpu_pgcache_get_graphics_program(&s->gpu_ctx->program_cache, &s->program, &program_params);
-    ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_SHADER_VERT]);
-    ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_SHADER_FRAG]);
+    ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_STAGE_VERT]);
+    ngli_bstr_freep(&s->shaders[NGPU_PROGRAM_STAGE_FRAG]);
     return ret;
 }
 
@@ -1442,12 +1443,12 @@ int ngpu_pgcraft_craft(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params 
     return 0;
 }
 
-int32_t ngpu_pgcraft_get_uniform_index(const struct ngpu_pgcraft *s, const char *name, int stage)
+int32_t ngpu_pgcraft_get_uniform_index(const struct ngpu_pgcraft *s, const char *name, enum ngpu_program_stage stage)
 {
     return get_ublock_index(s, name, stage);
 }
 
-int32_t ngpu_pgcraft_get_block_index(const struct ngpu_pgcraft *s, const char *name, int stage)
+int32_t ngpu_pgcraft_get_block_index(const struct ngpu_pgcraft *s, const char *name, enum ngpu_program_stage stage)
 {
     const struct darray *array = &s->pipeline_info.desc.buffers;
     const struct ngpu_bindgroup_layout_entry *entries = ngli_darray_data(array);

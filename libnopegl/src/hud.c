@@ -1263,7 +1263,7 @@ int ngli_hud_init(struct hud *s)
             .name          = "transforms",
             .instance_name = "",
             .type          = NGPU_TYPE_UNIFORM_BUFFER,
-            .stage         = NGPU_PROGRAM_SHADER_VERT,
+            .stage         = NGPU_PROGRAM_STAGE_VERT,
             .block         = &s->transforms_block.block_desc,
             .buffer = {
                 .buffer = s->transforms_block.buffer,
@@ -1276,7 +1276,7 @@ int ngli_hud_init(struct hud *s)
         {
             .name     = "tex",
             .type     = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
-            .stage    = NGPU_PROGRAM_SHADER_FRAG,
+            .stage    = NGPU_PROGRAM_STAGE_FRAG,
             .texture  = s->texture,
         },
     };

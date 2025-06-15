@@ -607,13 +607,13 @@ int ngli_distmap_finalize(struct distmap *s)
             .name          = "vert",
             .instance_name = "",
             .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
-            .stage         = NGPU_PROGRAM_SHADER_VERT,
+            .stage         = NGPU_PROGRAM_STAGE_VERT,
             .block         = &s->vert_block,
         }, {
             .name          = "frag",
             .instance_name = "",
             .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
-            .stage         = NGPU_PROGRAM_SHADER_FRAG,
+            .stage         = NGPU_PROGRAM_STAGE_FRAG,
             .block         = &s->frag_block,
         },
     };

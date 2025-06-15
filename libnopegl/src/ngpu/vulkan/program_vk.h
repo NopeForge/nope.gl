@@ -30,7 +30,7 @@ struct ngpu_ctx;
 
 struct ngpu_program_vk {
     struct ngpu_program parent;
-    VkShaderModule shaders[NGPU_PROGRAM_SHADER_NB];
+    VkShaderModule shaders[NGPU_PROGRAM_STAGE_NB];
 };
 
 struct ngpu_program *ngpu_program_vk_create(struct ngpu_ctx *gpu_ctx);

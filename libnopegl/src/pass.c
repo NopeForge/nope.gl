@@ -73,7 +73,7 @@ struct pipeline_desc {
     struct darray textures_map;
 };
 
-static int register_uniform(struct pass *s, const char *name, struct ngl_node *uniform, int stage)
+static int register_uniform(struct pass *s, const char *name, struct ngl_node *uniform, enum ngpu_program_stage stage)
 {
     struct ngpu_pgcraft_uniform crafter_uniform = {.stage = stage};
     snprintf(crafter_uniform.name, sizeof(crafter_uniform.name), "%s", name);
@@ -109,10 +109,10 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
 static int register_builtin_uniforms(struct pass *s)
 {
     struct ngpu_pgcraft_uniform crafter_uniforms[] = {
-        {.name = "ngl_modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_projection_matrix", .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_normal_matrix",     .type = NGPU_TYPE_MAT3, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_resolution",        .type = NGPU_TYPE_VEC2, .stage=NGPU_PROGRAM_SHADER_FRAG, .data = NULL},
+        {.name = "ngl_modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage= NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "ngl_projection_matrix", .type = NGPU_TYPE_MAT4, .stage= NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "ngl_normal_matrix",     .type = NGPU_TYPE_MAT3, .stage= NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "ngl_resolution",        .type = NGPU_TYPE_VEC2, .stage= NGPU_PROGRAM_STAGE_FRAG, .data = NULL},
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(crafter_uniforms); i++) {
@@ -124,7 +124,7 @@ static int register_builtin_uniforms(struct pass *s)
     return 0;
 }
 
-static int register_texture(struct pass *s, const char *name, struct ngl_node *texture, int stage)
+static int register_texture(struct pass *s, const char *name, struct ngl_node *texture, enum ngpu_program_stage stage)
 {
     struct texture_info *texture_info = texture->priv_data;
 
@@ -167,7 +167,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
     return 0;
 }
 
-static int register_block(struct pass *s, const char *name, struct ngl_node *block_node, int stage)
+static int register_block(struct pass *s, const char *name, struct ngl_node *block_node, enum ngpu_program_stage stage)
 {
     struct ngl_ctx *ctx = s->ctx;
     struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -300,7 +300,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     return 0;
 }
 
-static int register_resource(struct pass *s, const char *name, struct ngl_node *node, int stage)
+static int register_resource(struct pass *s, const char *name, struct ngl_node *node, enum ngpu_program_stage stage)
 {
     switch (node->cls->category) {
     case NGLI_NODE_CATEGORY_VARIABLE:
@@ -312,7 +312,7 @@ static int register_resource(struct pass *s, const char *name, struct ngl_node *
     }
 }
 
-static int register_resources(struct pass *s, const struct hmap *resources, int stage)
+static int register_resources(struct pass *s, const struct hmap *resources, enum ngpu_program_stage stage)
 {
     if (!resources)
         return 0;
@@ -344,8 +344,8 @@ static int pass_graphics_init(struct pass *s)
 
     int ret;
 
-    if ((ret = register_resources(s, params->vert_resources, NGPU_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = register_resources(s, params->frag_resources, NGPU_PROGRAM_SHADER_FRAG)) < 0)
+    if ((ret = register_resources(s, params->vert_resources, NGPU_PROGRAM_STAGE_VERT)) < 0 ||
+        (ret = register_resources(s, params->frag_resources, NGPU_PROGRAM_STAGE_FRAG)) < 0)
         return ret;
 
     if ((ret = register_attribute_from_buffer(s, "ngl_position", geometry->vertices_buffer, &geometry->vertices_layout)) < 0 ||
@@ -378,7 +378,7 @@ static int pass_compute_init(struct pass *s)
 {
     const struct pass_params *params = &s->params;
 
-    int ret = register_resources(s, params->compute_resources, NGPU_PROGRAM_SHADER_COMP);
+    int ret = register_resources(s, params->compute_resources, NGPU_PROGRAM_STAGE_COMP);
     if (ret < 0)
         return ret;
 
@@ -414,14 +414,14 @@ static int build_uniforms_map(struct pass *s, struct darray *crafter_uniforms)
     return 0;
 }
 
-static int get_program_shader_stage(uint32_t stage_flags)
+static enum ngpu_program_stage get_program_shader_stage(uint32_t stage_flags)
 {
     if (stage_flags == NGPU_PROGRAM_STAGE_VERTEX_BIT)
-        return NGPU_PROGRAM_SHADER_VERT;
+        return NGPU_PROGRAM_STAGE_VERT;
     if (stage_flags == NGPU_PROGRAM_STAGE_FRAGMENT_BIT)
-        return NGPU_PROGRAM_SHADER_FRAG;
+        return NGPU_PROGRAM_STAGE_FRAG;
     if (stage_flags == NGPU_PROGRAM_STAGE_COMPUTE_BIT)
-        return NGPU_PROGRAM_SHADER_COMP;
+        return NGPU_PROGRAM_STAGE_COMP;
     ngli_assert(0);
 }
 
@@ -446,7 +446,7 @@ static int build_blocks_map(struct pass *s, struct pipeline_desc *desc)
         if (!resources)
             continue;
 
-        const int stage = get_program_shader_stage(entry->stage_flags);
+        const enum ngpu_program_stage stage = get_program_shader_stage(entry->stage_flags);
         const char *name = ngpu_pgcraft_get_symbol_name(s->crafter, entry->id);
         const int32_t index = ngpu_pgcraft_get_block_index(s->crafter, name, stage);
 
@@ -577,12 +577,10 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     if (ret < 0)
         return ret;
 
-    s->modelview_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_modelview_matrix",
-                                                               NGPU_PROGRAM_SHADER_VERT);
-    s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_projection_matrix",
-                                                                NGPU_PROGRAM_SHADER_VERT);
-    s->normal_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_normal_matrix", NGPU_PROGRAM_SHADER_VERT);
-    s->resolution_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_resolution", NGPU_PROGRAM_SHADER_FRAG);
+    s->modelview_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_modelview_matrix", NGPU_PROGRAM_STAGE_VERT);
+    s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_projection_matrix", NGPU_PROGRAM_STAGE_VERT);
+    s->normal_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_normal_matrix", NGPU_PROGRAM_STAGE_VERT);
+    s->resolution_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_resolution", NGPU_PROGRAM_STAGE_FRAG);
 
     ret = build_uniforms_map(s, &s->crafter_uniforms);
     if (ret < 0)

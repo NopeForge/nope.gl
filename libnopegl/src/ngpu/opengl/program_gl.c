@@ -263,9 +263,9 @@ int ngpu_program_gl_init(struct ngpu_program *s, const struct ngpu_program_param
         const char *src;
         GLuint id;
     } shaders[] = {
-        [NGPU_PROGRAM_SHADER_VERT] = {"vertex", GL_VERTEX_SHADER, params->vertex, 0},
-        [NGPU_PROGRAM_SHADER_FRAG] = {"fragment", GL_FRAGMENT_SHADER, params->fragment, 0},
-        [NGPU_PROGRAM_SHADER_COMP] = {"compute", GL_COMPUTE_SHADER, params->compute, 0},
+        [NGPU_PROGRAM_STAGE_VERT] = {"vertex", GL_VERTEX_SHADER, params->vertex, 0},
+        [NGPU_PROGRAM_STAGE_FRAG] = {"fragment", GL_FRAGMENT_SHADER, params->fragment, 0},
+        [NGPU_PROGRAM_STAGE_COMP] = {"compute", GL_COMPUTE_SHADER, params->compute, 0},
     };
 
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)s->gpu_ctx;

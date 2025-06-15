@@ -281,7 +281,7 @@ static int register_resource(struct darray *resources, const char *name,
 {
     struct ngpu_pgcraft_uniform res = {
         .type  = data_type,
-        .stage = NGPU_PROGRAM_SHADER_FRAG,
+        .stage = NGPU_PROGRAM_STAGE_FRAG,
         .data  = ngli_node_get_data_ptr(pnode, data),
     };
     snprintf(res.name, sizeof(res.name), "%s", name);
