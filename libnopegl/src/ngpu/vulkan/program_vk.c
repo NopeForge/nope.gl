@@ -49,7 +49,7 @@ int ngpu_program_vk_init(struct ngpu_program *s, const struct ngpu_program_param
     struct ngpu_program_vk *s_priv = (struct ngpu_program_vk *)s;
 
     const struct {
-        int stage;
+        enum ngpu_program_stage stage;
         const char *src;
     } shaders[] = {
         {NGPU_PROGRAM_STAGE_VERT, params->vertex},

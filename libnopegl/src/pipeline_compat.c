@@ -60,7 +60,7 @@ struct pipeline_compat {
     uint8_t *mapped_datas[NGPU_PROGRAM_STAGE_NB];
 };
 
-static int wait_buffer(struct pipeline_compat *s, int stage)
+static int wait_buffer(struct pipeline_compat *s, enum ngpu_program_stage stage)
 {
     if (s->mapped_datas[stage])
         return 0;
@@ -69,7 +69,7 @@ static int wait_buffer(struct pipeline_compat *s, int stage)
     return ngpu_buffer_wait(buffer);
 }
 
-static int map_buffer(struct pipeline_compat *s, int stage)
+static int map_buffer(struct pipeline_compat *s, enum ngpu_program_stage stage)
 {
     if (s->mapped_datas[stage])
         return 0;
