@@ -51,7 +51,7 @@ int ngli_glslang_init(void)
     return ret;
 }
 
-int ngli_glslang_compile(int stage, const char *src, int debug, void **datap, size_t *sizep)
+int ngli_glslang_compile(enum ngpu_program_stage stage, const char *src, int debug, void **datap, size_t *sizep)
 {
     static const glslang_stage_t stages[] = {
         [NGPU_PROGRAM_STAGE_VERT] = GLSLANG_STAGE_VERTEX,
