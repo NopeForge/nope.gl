@@ -850,7 +850,7 @@ static const char *skip_arg(const char *p)
 
 struct token {
     char id[16];
-    ptrdiff_t pos;
+    size_t pos;
 };
 
 #define ARG_FMT(x) (int)x##_len, x##_start
@@ -872,7 +872,7 @@ static int handle_token(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params
      * derive all the uniform names */
     const char *arg0_start = p;
     p = skip_arg(p);
-    size_t arg0_len = p - arg0_start;
+    size_t arg0_len = (size_t)(p - arg0_start);
 
     if (!strcmp(token->id, "ngl_texvideo")) {
         if (*p != ',')
@@ -987,7 +987,7 @@ static int samplers_preproc(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_pa
     const char *base_str = ngli_bstr_strptr(b);
     const char *p = base_str;
     while ((p = strstr(p, "ngl"))) {
-        struct token token = {.pos = p - base_str};
+        struct token token = {.pos = (size_t)(p - base_str)};
         p = read_token_id(p, token.id, sizeof(token.id));
         if (strcmp(token.id, "ngl_texvideo"))
             continue;
