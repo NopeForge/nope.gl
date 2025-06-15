@@ -54,9 +54,9 @@ int ngli_glslang_init(void)
 int ngli_glslang_compile(int stage, const char *src, int debug, void **datap, size_t *sizep)
 {
     static const glslang_stage_t stages[] = {
-        [NGPU_PROGRAM_SHADER_VERT] = GLSLANG_STAGE_VERTEX,
-        [NGPU_PROGRAM_SHADER_FRAG] = GLSLANG_STAGE_FRAGMENT,
-        [NGPU_PROGRAM_SHADER_COMP] = GLSLANG_STAGE_COMPUTE,
+        [NGPU_PROGRAM_STAGE_VERT] = GLSLANG_STAGE_VERTEX,
+        [NGPU_PROGRAM_STAGE_FRAG] = GLSLANG_STAGE_FRAGMENT,
+        [NGPU_PROGRAM_STAGE_COMP] = GLSLANG_STAGE_COMPUTE,
     };
 
     /*

@@ -56,8 +56,8 @@ struct pipeline_compat {
     int updated;
     int need_pipeline_recreation;
     const struct ngpu_pgcraft_compat_info *compat_info;
-    struct ngpu_buffer *ubuffers[NGPU_PROGRAM_SHADER_NB];
-    uint8_t *mapped_datas[NGPU_PROGRAM_SHADER_NB];
+    struct ngpu_buffer *ubuffers[NGPU_PROGRAM_STAGE_NB];
+    uint8_t *mapped_datas[NGPU_PROGRAM_STAGE_NB];
 };
 
 static int wait_buffer(struct pipeline_compat *s, int stage)
@@ -80,7 +80,7 @@ static int map_buffer(struct pipeline_compat *s, int stage)
 
 static void unmap_buffers(struct pipeline_compat *s)
 {
-    for (size_t i = 0; i < NGPU_PROGRAM_SHADER_NB; i++) {
+    for (size_t i = 0; i < NGPU_PROGRAM_STAGE_NB; i++) {
         if (s->mapped_datas[i]) {
             ngpu_buffer_unmap(s->ubuffers[i]);
             s->mapped_datas[i] = NULL;
@@ -101,7 +101,7 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
 {
     struct ngpu_ctx *gpu_ctx = s->gpu_ctx;
 
-    for (size_t i = 0; i < NGPU_PROGRAM_SHADER_NB; i++) {
+    for (size_t i = 0; i < NGPU_PROGRAM_STAGE_NB; i++) {
         const size_t block_size = ngpu_block_desc_get_size(&s->compat_info->ublocks[i], 0);
         if (!block_size)
             continue;
@@ -616,7 +616,7 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
     ngli_freep(&s->buffers);
 
     if (s->compat_info) {
-        for (size_t i = 0; i < NGPU_PROGRAM_SHADER_NB; i++) {
+        for (size_t i = 0; i < NGPU_PROGRAM_STAGE_NB; i++) {
             if (s->ubuffers[i]) {
                 if (s->mapped_datas[i])
                     ngpu_buffer_unmap(s->ubuffers[i]);

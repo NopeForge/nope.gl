@@ -299,12 +299,12 @@ static VkResult pipeline_graphics_init(struct ngpu_pipeline *s)
         {
             .sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage  = VK_SHADER_STAGE_VERTEX_BIT,
-            .module = program_vk->shaders[NGPU_PROGRAM_SHADER_VERT],
+            .module = program_vk->shaders[NGPU_PROGRAM_STAGE_VERT],
             .pName  = "main",
         }, {
             .sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage  = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .module = program_vk->shaders[NGPU_PROGRAM_SHADER_FRAG],
+            .module = program_vk->shaders[NGPU_PROGRAM_STAGE_FRAG],
             .pName  = "main",
         },
     };
@@ -349,7 +349,7 @@ static VkResult pipeline_compute_init(struct ngpu_pipeline *s)
     const VkPipelineShaderStageCreateInfo shader_stage_create_info = {
         .sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
         .stage  = VK_SHADER_STAGE_COMPUTE_BIT,
-        .module = program_vk->shaders[NGPU_PROGRAM_SHADER_COMP],
+        .module = program_vk->shaders[NGPU_PROGRAM_STAGE_COMP],
         .pName  = "main",
     };
 
