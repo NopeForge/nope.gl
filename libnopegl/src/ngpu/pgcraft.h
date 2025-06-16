@@ -165,9 +165,9 @@ struct ngpu_pgcraft_texture_info {
  * maps single uniforms to dedicated uniform blocks.
  */
 struct ngpu_pgcraft_compat_info {
-    struct ngpu_block_desc ublocks[NGPU_PROGRAM_SHADER_NB];
-    int32_t ubindings[NGPU_PROGRAM_SHADER_NB];
-    int32_t uindices[NGPU_PROGRAM_SHADER_NB];
+    struct ngpu_block_desc ublocks[NGPU_PROGRAM_STAGE_NB];
+    int32_t ubindings[NGPU_PROGRAM_STAGE_NB];
+    int32_t uindices[NGPU_PROGRAM_STAGE_NB];
 
     const struct ngpu_pgcraft_texture_info *texture_infos;
     const struct image **images;

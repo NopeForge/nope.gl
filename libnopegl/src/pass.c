@@ -109,10 +109,10 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
 static int register_builtin_uniforms(struct pass *s)
 {
     struct ngpu_pgcraft_uniform crafter_uniforms[] = {
-        {.name = "ngl_modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_projection_matrix", .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_normal_matrix",     .type = NGPU_TYPE_MAT3, .stage=NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "ngl_resolution",        .type = NGPU_TYPE_VEC2, .stage=NGPU_PROGRAM_SHADER_FRAG, .data = NULL},
+        {.name = "ngl_modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "ngl_projection_matrix", .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "ngl_normal_matrix",     .type = NGPU_TYPE_MAT3, .stage=NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "ngl_resolution",        .type = NGPU_TYPE_VEC2, .stage=NGPU_PROGRAM_STAGE_FRAG, .data = NULL},
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(crafter_uniforms); i++) {
@@ -344,8 +344,8 @@ static int pass_graphics_init(struct pass *s)
 
     int ret;
 
-    if ((ret = register_resources(s, params->vert_resources, NGPU_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = register_resources(s, params->frag_resources, NGPU_PROGRAM_SHADER_FRAG)) < 0)
+    if ((ret = register_resources(s, params->vert_resources, NGPU_PROGRAM_STAGE_VERT)) < 0 ||
+        (ret = register_resources(s, params->frag_resources, NGPU_PROGRAM_STAGE_FRAG)) < 0)
         return ret;
 
     if ((ret = register_attribute_from_buffer(s, "ngl_position", geometry->vertices_buffer, &geometry->vertices_layout)) < 0 ||
@@ -378,7 +378,7 @@ static int pass_compute_init(struct pass *s)
 {
     const struct pass_params *params = &s->params;
 
-    int ret = register_resources(s, params->compute_resources, NGPU_PROGRAM_SHADER_COMP);
+    int ret = register_resources(s, params->compute_resources, NGPU_PROGRAM_STAGE_COMP);
     if (ret < 0)
         return ret;
 
@@ -417,11 +417,11 @@ static int build_uniforms_map(struct pass *s, struct darray *crafter_uniforms)
 static int get_program_shader_stage(uint32_t stage_flags)
 {
     if (stage_flags == NGPU_PROGRAM_STAGE_VERTEX_BIT)
-        return NGPU_PROGRAM_SHADER_VERT;
+        return NGPU_PROGRAM_STAGE_VERT;
     if (stage_flags == NGPU_PROGRAM_STAGE_FRAGMENT_BIT)
-        return NGPU_PROGRAM_SHADER_FRAG;
+        return NGPU_PROGRAM_STAGE_FRAG;
     if (stage_flags == NGPU_PROGRAM_STAGE_COMPUTE_BIT)
-        return NGPU_PROGRAM_SHADER_COMP;
+        return NGPU_PROGRAM_STAGE_COMP;
     ngli_assert(0);
 }
 
@@ -578,11 +578,11 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
         return ret;
 
     s->modelview_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_modelview_matrix",
-                                                               NGPU_PROGRAM_SHADER_VERT);
+                                                               NGPU_PROGRAM_STAGE_VERT);
     s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_projection_matrix",
-                                                                NGPU_PROGRAM_SHADER_VERT);
-    s->normal_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_normal_matrix", NGPU_PROGRAM_SHADER_VERT);
-    s->resolution_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_resolution", NGPU_PROGRAM_SHADER_FRAG);
+                                                                NGPU_PROGRAM_STAGE_VERT);
+    s->normal_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_normal_matrix", NGPU_PROGRAM_STAGE_VERT);
+    s->resolution_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_resolution", NGPU_PROGRAM_STAGE_FRAG);
 
     ret = build_uniforms_map(s, &s->crafter_uniforms);
     if (ret < 0)

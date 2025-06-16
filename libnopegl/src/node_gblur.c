@@ -277,7 +277,7 @@ static int gblur_init(struct ngl_node *node)
             .name      = "tex",
             .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .precision = NGPU_PRECISION_HIGH,
-            .stage     = NGPU_PROGRAM_SHADER_FRAG,
+            .stage     = NGPU_PROGRAM_STAGE_FRAG,
         },
     };
 
@@ -285,7 +285,7 @@ static int gblur_init(struct ngl_node *node)
         {
             .name          = "direction",
             .type          = NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC,
-            .stage         = NGPU_PROGRAM_SHADER_FRAG,
+            .stage         = NGPU_PROGRAM_STAGE_FRAG,
             .block         = &s->direction_block.block_desc,
             .buffer        = {
                 .buffer = s->direction_block.buffer,
@@ -294,7 +294,7 @@ static int gblur_init(struct ngl_node *node)
         }, {
             .name          = "kernel",
             .type          = NGPU_TYPE_UNIFORM_BUFFER,
-            .stage         = NGPU_PROGRAM_SHADER_FRAG,
+            .stage         = NGPU_PROGRAM_STAGE_FRAG,
             .block         = &s->kernel_block.block_desc,
             .buffer        = {
                 .buffer = s->kernel_block.buffer,

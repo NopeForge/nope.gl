@@ -52,9 +52,9 @@ int ngpu_program_vk_init(struct ngpu_program *s, const struct ngpu_program_param
         int stage;
         const char *src;
     } shaders[] = {
-        {NGPU_PROGRAM_SHADER_VERT, params->vertex},
-        {NGPU_PROGRAM_SHADER_FRAG, params->fragment},
-        {NGPU_PROGRAM_SHADER_COMP, params->compute},
+        {NGPU_PROGRAM_STAGE_VERT, params->vertex},
+        {NGPU_PROGRAM_STAGE_FRAG, params->fragment},
+        {NGPU_PROGRAM_STAGE_COMP, params->compute},
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++) {

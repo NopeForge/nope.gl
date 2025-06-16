@@ -196,11 +196,11 @@ static int setup_pass1_pipeline(struct ngl_node *node)
         {
             .name      = "tex",
             .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
-            .stage     = NGPU_PROGRAM_SHADER_FRAG,
+            .stage     = NGPU_PROGRAM_STAGE_FRAG,
         }, {
             .name      = "map",
             .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
-            .stage     = NGPU_PROGRAM_SHADER_FRAG,
+            .stage     = NGPU_PROGRAM_STAGE_FRAG,
         }
     };
 
@@ -208,7 +208,7 @@ static int setup_pass1_pipeline(struct ngl_node *node)
         {
             .name          = "blur",
             .type          = NGPU_TYPE_UNIFORM_BUFFER,
-            .stage         = NGPU_PROGRAM_SHADER_FRAG,
+            .stage         = NGPU_PROGRAM_STAGE_FRAG,
             .block         = &s->blur_params_block.block_desc,
             .buffer        = {
                 .buffer    = s->blur_params_block.buffer,
@@ -287,15 +287,15 @@ static int setup_pass2_pipeline(struct ngl_node *node)
         {
             .name      = "tex0",
             .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
-            .stage     = NGPU_PROGRAM_SHADER_FRAG,
+            .stage     = NGPU_PROGRAM_STAGE_FRAG,
         }, {
             .name      = "tex1",
             .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
-            .stage     = NGPU_PROGRAM_SHADER_FRAG,
+            .stage     = NGPU_PROGRAM_STAGE_FRAG,
         }, {
             .name      = "map",
             .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
-            .stage     = NGPU_PROGRAM_SHADER_FRAG,
+            .stage     = NGPU_PROGRAM_STAGE_FRAG,
         }
     };
 
@@ -303,7 +303,7 @@ static int setup_pass2_pipeline(struct ngl_node *node)
         {
             .name          = "blur",
             .type          = NGPU_TYPE_UNIFORM_BUFFER,
-            .stage         = NGPU_PROGRAM_SHADER_FRAG,
+            .stage         = NGPU_PROGRAM_STAGE_FRAG,
             .block         = &s->blur_params_block.block_desc,
             .buffer        = {
                 .buffer = s->blur_params_block.buffer,
