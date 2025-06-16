@@ -109,10 +109,10 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
 static int register_builtin_uniforms(struct pass *s)
 {
     struct ngpu_pgcraft_uniform crafter_uniforms[] = {
-        {.name = "ngl_modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_STAGE_VERT, .data = NULL},
-        {.name = "ngl_projection_matrix", .type = NGPU_TYPE_MAT4, .stage=NGPU_PROGRAM_STAGE_VERT, .data = NULL},
-        {.name = "ngl_normal_matrix",     .type = NGPU_TYPE_MAT3, .stage=NGPU_PROGRAM_STAGE_VERT, .data = NULL},
-        {.name = "ngl_resolution",        .type = NGPU_TYPE_VEC2, .stage=NGPU_PROGRAM_STAGE_FRAG, .data = NULL},
+        {.name = "ngl_modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "ngl_projection_matrix", .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "ngl_normal_matrix",     .type = NGPU_TYPE_MAT3, .stage = NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "ngl_resolution",        .type = NGPU_TYPE_VEC2, .stage = NGPU_PROGRAM_STAGE_FRAG, .data = NULL},
     };
 
     for (size_t i = 0; i < NGLI_ARRAY_NB(crafter_uniforms); i++) {
@@ -577,10 +577,8 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     if (ret < 0)
         return ret;
 
-    s->modelview_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_modelview_matrix",
-                                                               NGPU_PROGRAM_STAGE_VERT);
-    s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_projection_matrix",
-                                                                NGPU_PROGRAM_STAGE_VERT);
+    s->modelview_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_modelview_matrix", NGPU_PROGRAM_STAGE_VERT);
+    s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_projection_matrix", NGPU_PROGRAM_STAGE_VERT);
     s->normal_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_normal_matrix", NGPU_PROGRAM_STAGE_VERT);
     s->resolution_index = ngpu_pgcraft_get_uniform_index(s->crafter, "ngl_resolution", NGPU_PROGRAM_STAGE_FRAG);
 
