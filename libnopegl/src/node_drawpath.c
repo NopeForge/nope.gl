@@ -238,21 +238,21 @@ static int drawpath_init(struct ngl_node *node)
     memcpy(s->transform, ref, sizeof(s->transform));
 
     const struct ngpu_pgcraft_uniform uniforms[] = {
-        {.name="modelview_matrix",  .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
-        {.name="projection_matrix", .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_SHADER_VERT},
-        {.name="transform",         .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_VERT},
+        {.name="modelview_matrix",  .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_STAGE_VERT},
+        {.name="projection_matrix", .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_STAGE_VERT},
+        {.name="transform",         .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_VERT},
 
-        {.name="debug",             .type=NGPU_TYPE_BOOL,  .stage=NGPU_PROGRAM_SHADER_FRAG},
-        {.name="coords_fill",       .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
-        {.name="coords_outline",    .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_SHADER_FRAG},
+        {.name="debug",             .type=NGPU_TYPE_BOOL,  .stage=NGPU_PROGRAM_STAGE_FRAG},
+        {.name="coords_fill",       .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_FRAG},
+        {.name="coords_outline",    .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_FRAG},
 
-        {.name="color",             .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
-        {.name="opacity",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
-        {.name="outline",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_node, &o->outline)},
-        {.name="outline_color",     .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->outline_color_node, &o->outline_color)},
-        {.name="glow",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_node, &o->glow)},
-        {.name="glow_color",        .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->glow_color_node, o->glow_color)},
-        {.name="blur",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->blur_node, &o->blur)},
+        {.name="color",             .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
+        {.name="opacity",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
+        {.name="outline",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->outline_node, &o->outline)},
+        {.name="outline_color",     .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->outline_color_node, &o->outline_color)},
+        {.name="glow",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->glow_node, &o->glow)},
+        {.name="glow_color",        .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->glow_color_node, o->glow_color)},
+        {.name="blur",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->blur_node, &o->blur)},
     };
 
     /* register source uniforms */
@@ -266,7 +266,7 @@ static int drawpath_init(struct ngl_node *node)
         {
             .name = "tex",
             .type = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
-            .stage = NGPU_PROGRAM_SHADER_FRAG,
+            .stage = NGPU_PROGRAM_STAGE_FRAG,
             .texture = texture,
         },
     };
@@ -299,12 +299,12 @@ static int drawpath_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    s->modelview_matrix_index  = ngpu_pgcraft_get_uniform_index(s->crafter, "modelview_matrix", NGPU_PROGRAM_SHADER_VERT);
-    s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "projection_matrix", NGPU_PROGRAM_SHADER_VERT);
-    s->transform_index         = ngpu_pgcraft_get_uniform_index(s->crafter, "transform", NGPU_PROGRAM_SHADER_VERT);
+    s->modelview_matrix_index  = ngpu_pgcraft_get_uniform_index(s->crafter, "modelview_matrix", NGPU_PROGRAM_STAGE_VERT);
+    s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "projection_matrix", NGPU_PROGRAM_STAGE_VERT);
+    s->transform_index         = ngpu_pgcraft_get_uniform_index(s->crafter, "transform", NGPU_PROGRAM_STAGE_VERT);
 
-    s->coords_fill_index    = ngpu_pgcraft_get_uniform_index(s->crafter, "coords_fill", NGPU_PROGRAM_SHADER_FRAG);
-    s->coords_outline_index = ngpu_pgcraft_get_uniform_index(s->crafter, "coords_outline", NGPU_PROGRAM_SHADER_FRAG);
+    s->coords_fill_index    = ngpu_pgcraft_get_uniform_index(s->crafter, "coords_fill", NGPU_PROGRAM_STAGE_FRAG);
+    s->coords_outline_index = ngpu_pgcraft_get_uniform_index(s->crafter, "coords_outline", NGPU_PROGRAM_STAGE_FRAG);
 
     ret = build_uniforms_map(s);
     if (ret < 0)

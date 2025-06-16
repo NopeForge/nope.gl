@@ -140,7 +140,7 @@ static int setup_down_up_pipeline(struct ngpu_pgcraft *crafter,
             .name      = "tex",
             .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .precision = NGPU_PRECISION_HIGH,
-            .stage     = NGPU_PROGRAM_SHADER_FRAG,
+            .stage     = NGPU_PROGRAM_STAGE_FRAG,
         },
     };
 
@@ -149,7 +149,7 @@ static int setup_down_up_pipeline(struct ngpu_pgcraft *crafter,
             .name          = "data",
             .instance_name = "",
             .type          = NGPU_TYPE_UNIFORM_BUFFER,
-            .stage         = NGPU_PROGRAM_SHADER_FRAG,
+            .stage         = NGPU_PROGRAM_STAGE_FRAG,
             .block         = &block->block_desc,
             .buffer        = {
                 .buffer    = block->buffer,
@@ -211,12 +211,12 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
             .name      = "tex0",
             .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .precision = NGPU_PRECISION_HIGH,
-            .stage     = NGPU_PROGRAM_SHADER_FRAG
+            .stage     = NGPU_PROGRAM_STAGE_FRAG
         }, {
             .name      = "tex1",
             .type      = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
             .precision = NGPU_PRECISION_HIGH,
-            .stage     = NGPU_PROGRAM_SHADER_FRAG
+            .stage     = NGPU_PROGRAM_STAGE_FRAG
         },
     };
 
@@ -235,7 +235,7 @@ static int setup_interpolate_pipeline(struct ngl_node *node)
         {
             .name          = "interpolate",
             .type          = NGPU_TYPE_UNIFORM_BUFFER,
-            .stage         = NGPU_PROGRAM_SHADER_FRAG,
+            .stage         = NGPU_PROGRAM_STAGE_FRAG,
             .block         = &s->interpolate.block.block_desc,
             .buffer        = {
                 .buffer    = s->interpolate.block.buffer,

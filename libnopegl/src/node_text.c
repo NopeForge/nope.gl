@@ -459,8 +459,8 @@ static int init_subdesc(struct ngl_node *node,
     if (ret < 0)
         return ret;
 
-    desc->modelview_matrix_index  = ngpu_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix", NGPU_PROGRAM_SHADER_VERT);
-    desc->projection_matrix_index = ngpu_pgcraft_get_uniform_index(desc->crafter, "projection_matrix", NGPU_PROGRAM_SHADER_VERT);
+    desc->modelview_matrix_index  = ngpu_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix", NGPU_PROGRAM_STAGE_VERT);
+    desc->projection_matrix_index = ngpu_pgcraft_get_uniform_index(desc->crafter, "projection_matrix", NGPU_PROGRAM_STAGE_VERT);
 
     return 0;
 }
@@ -473,10 +473,10 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
     const struct text_opts *o = node->opts;
 
     const struct ngpu_pgcraft_uniform uniforms[] = {
-        {.name = "modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "projection_matrix", .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "color",             .type = NGPU_TYPE_VEC3, .stage = NGPU_PROGRAM_SHADER_FRAG, .data = o->bg_color},
-        {.name = "opacity",           .type = NGPU_TYPE_F32,  .stage = NGPU_PROGRAM_SHADER_FRAG, .data = &o->bg_opacity},
+        {.name = "modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "projection_matrix", .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "color",             .type = NGPU_TYPE_VEC3, .stage = NGPU_PROGRAM_STAGE_FRAG, .data = o->bg_color},
+        {.name = "opacity",           .type = NGPU_TYPE_F32,  .stage = NGPU_PROGRAM_STAGE_FRAG, .data = &o->bg_opacity},
     };
 
     const struct ngpu_pgcraft_attribute attributes[] = {
@@ -511,8 +511,8 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_desc_bg *desc)
     if (ret < 0)
         return ret;
 
-    desc->color_index   = ngpu_pgcraft_get_uniform_index(desc->common.crafter, "color", NGPU_PROGRAM_SHADER_FRAG);
-    desc->opacity_index = ngpu_pgcraft_get_uniform_index(desc->common.crafter, "opacity", NGPU_PROGRAM_SHADER_FRAG);
+    desc->color_index   = ngpu_pgcraft_get_uniform_index(desc->common.crafter, "color", NGPU_PROGRAM_STAGE_FRAG);
+    desc->opacity_index = ngpu_pgcraft_get_uniform_index(desc->common.crafter, "opacity", NGPU_PROGRAM_STAGE_FRAG);
 
     return 0;
 }
@@ -524,15 +524,15 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     struct text_priv *s = node->priv_data;
 
     const struct ngpu_pgcraft_uniform uniforms[] = {
-        {.name = "modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "projection_matrix", .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "modelview_matrix",  .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_STAGE_VERT, .data = NULL},
+        {.name = "projection_matrix", .type = NGPU_TYPE_MAT4, .stage = NGPU_PROGRAM_STAGE_VERT, .data = NULL},
     };
 
     const struct ngpu_pgcraft_texture textures[] = {
         {
             .name     = "tex",
             .type     = NGPU_PGCRAFT_TEXTURE_TYPE_2D,
-            .stage    = NGPU_PROGRAM_SHADER_FRAG,
+            .stage    = NGPU_PROGRAM_STAGE_FRAG,
             .texture  = s->text_ctx->atlas_texture,
         },
     };
