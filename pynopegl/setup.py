@@ -167,7 +167,6 @@ class _WrapperGenerator:
     def _get_setter_prototype(cls, param):
         param_name = param["name"]
         param_type = param["type"]
-        param_flags = param["flags"]
 
         type_, inner_type = cls._get_param_type(param)
         type_ = cls._TYPING_SINGLE_MAP.get(param_type, type_)
