@@ -74,7 +74,7 @@ static const struct node_param noise_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct noise_priv, var) == 0);
+NGLI_STATIC_ASSERT("variable_info_is_first", offsetof(struct noise_priv, var) == 0);
 
 static int noisevec_update(struct ngl_node *node, double t, size_t n)
 {

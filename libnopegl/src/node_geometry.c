@@ -87,7 +87,7 @@ static const struct node_param geometry_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(geom_on_top_of_geometry, offsetof(struct geometry_priv, geom) == 0);
+NGLI_STATIC_ASSERT("geom_on_top_of_geometry", offsetof(struct geometry_priv, geom) == 0);
 
 #define GET_MAX_INDICES(type) do {                         \
     type *data = (type *)indices->data;                    \

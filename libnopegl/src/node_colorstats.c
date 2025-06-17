@@ -95,7 +95,7 @@ struct colorstats_priv {
     } sumscale;
 };
 
-NGLI_STATIC_ASSERT(block_priv_first, offsetof(struct colorstats_priv, blk) == 0);
+NGLI_STATIC_ASSERT("block_priv_first", offsetof(struct colorstats_priv, blk) == 0);
 
 static int setup_compute(struct colorstats_priv *s, struct ngpu_pgcraft *crafter,
                          struct pipeline_compat *pipeline_compat,

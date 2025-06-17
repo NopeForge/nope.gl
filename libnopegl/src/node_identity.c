@@ -40,7 +40,7 @@ static int identity_init(struct ngl_node *node)
     return 0;
 }
 
-NGLI_STATIC_ASSERT(trf_on_top_of_identity, offsetof(struct identity_priv, trf) == 0);
+NGLI_STATIC_ASSERT("trf_on_top_of_identity", offsetof(struct identity_priv, trf) == 0);
 
 const struct node_class ngli_identity_class = {
     .id        = NGL_NODE_IDENTITY,

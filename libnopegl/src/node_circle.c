@@ -49,7 +49,7 @@ static const struct node_param circle_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(geom_on_top_of_circle, offsetof(struct circle_priv, geom) == 0);
+NGLI_STATIC_ASSERT("geom_on_top_of_circle", offsetof(struct circle_priv, geom) == 0);
 
 static int circle_init(struct ngl_node *node)
 {

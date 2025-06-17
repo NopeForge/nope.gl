@@ -59,7 +59,7 @@ static const struct node_param triangle_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(geom_on_top_of_triangle, offsetof(struct triangle_priv, geom) == 0);
+NGLI_STATIC_ASSERT("geom_on_top_of_triangle", offsetof(struct triangle_priv, geom) == 0);
 
 #define NB_VERTICES 3
 

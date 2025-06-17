@@ -96,7 +96,7 @@ static const struct node_param rotatequat_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(trf_on_top_of_rotatequat, offsetof(struct rotatequat_priv, trf) == 0);
+NGLI_STATIC_ASSERT("trf_on_top_of_rotatequat", offsetof(struct rotatequat_priv, trf) == 0);
 
 const struct node_class ngli_rotatequat_class = {
     .id        = NGL_NODE_ROTATEQUAT,
