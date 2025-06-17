@@ -31,21 +31,22 @@ from pynopegl_utils.toolbox.colors import COLORS, get_random_color_buffer
 
 import pynopegl as ngl
 
-_RENDER_BUFFER_FRAG = """
-void main()
-{
-    float color = texture(tex0, var_tex0_coord).r;
-    ngl_out_color = vec4(color, 0.0, 0.0, 1.0);
-}
-"""
-
 
 def _draw_buffer(cfg: ngl.SceneCfg, w, h):
+    frag = dedent(
+        """\
+        void main()
+        {
+            float color = texture(tex0, var_tex0_coord).r;
+            ngl_out_color = vec4(color, 0.0, 0.0, 1.0);
+        }
+        """
+    )
     n = w * h
     data = array.array("B", [i * 255 // n for i in range(n)])
     buf = ngl.BufferUByte(data=data)
     texture = ngl.Texture2D(width=w, height=h, data_src=buf, min_filter="nearest", mag_filter="nearest")
-    program = ngl.Program(vertex=get_shader("texture.vert"), fragment=_RENDER_BUFFER_FRAG)
+    program = ngl.Program(vertex=get_shader("texture.vert"), fragment=frag)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
     draw = ngl.Draw(ngl.Quad(), program)
     draw.update_frag_resources(tex0=texture)
@@ -147,39 +148,6 @@ void main()
 """
 
 
-_RENDER_TO_CUBEMAP_FRAG = """
-void main()
-{
-    ngl_out_color[0] = vec4(1.0, 0.0, 0.0, 1.0); // right
-    ngl_out_color[1] = vec4(0.0, 1.0, 0.0, 1.0); // left
-    ngl_out_color[2] = vec4(0.0, 0.0, 1.0, 1.0); // top
-    ngl_out_color[3] = vec4(1.0, 1.0, 0.0, 1.0); // bottom
-    ngl_out_color[4] = vec4(0.0, 1.0, 1.0, 1.0); // back
-    ngl_out_color[5] = vec4(1.0, 0.0, 1.0, 1.0); // front
-}
-"""
-
-
-_RENDER_TO_CUBEMAP_1_FRAG = """
-void main()
-{
-    ngl_out_color[0] = vec4(1.0, 0.0, 0.0, 1.0); // right
-    ngl_out_color[1] = vec4(0.0, 1.0, 0.0, 1.0); // left
-}
-"""
-
-
-_RENDER_TO_CUBEMAP_2_FRAG = """
-void main()
-{
-    ngl_out_color[0] = vec4(0.0, 0.0, 1.0, 1.0); // top
-    ngl_out_color[1] = vec4(1.0, 1.0, 0.0, 1.0); // bottom
-    ngl_out_color[2] = vec4(0.0, 1.0, 1.0, 1.0); // back
-    ngl_out_color[3] = vec4(1.0, 0.0, 1.0, 1.0); // front
-}
-"""
-
-
 _RENDER_CUBEMAP_VERT = """
 void main()
 {
@@ -199,7 +167,20 @@ void main()
 
 def _get_texture_cubemap_from_mrt_scene(cfg: ngl.SceneCfg, samples=0):
     cfg.aspect_ratio = (1, 1)
-    program = ngl.Program(vertex=_RENDER_TO_CUBEMAP_VERT, fragment=_RENDER_TO_CUBEMAP_FRAG, nb_frag_output=6)
+    frag = dedent(
+        """\
+        void main()
+        {
+            ngl_out_color[0] = vec4(1.0, 0.0, 0.0, 1.0); // right
+            ngl_out_color[1] = vec4(0.0, 1.0, 0.0, 1.0); // left
+            ngl_out_color[2] = vec4(0.0, 0.0, 1.0, 1.0); // top
+            ngl_out_color[3] = vec4(1.0, 1.0, 0.0, 1.0); // bottom
+            ngl_out_color[4] = vec4(0.0, 1.0, 1.0, 1.0); // back
+            ngl_out_color[5] = vec4(1.0, 0.0, 1.0, 1.0); // front
+        }
+        """
+    )
+    program = ngl.Program(vertex=_RENDER_TO_CUBEMAP_VERT, fragment=frag, nb_frag_output=6)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     draw = ngl.Draw(quad, program)
@@ -219,9 +200,29 @@ def _get_texture_cubemap_from_mrt_scene_2_pass(cfg: ngl.SceneCfg, samples=0):
     group = ngl.Group()
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     cube = ngl.TextureCube(size=64, min_filter="linear", mag_filter="linear")
+    frag_x2 = dedent(
+        """\
+        void main()
+        {
+            ngl_out_color[0] = vec4(1.0, 0.0, 0.0, 1.0); // right
+            ngl_out_color[1] = vec4(0.0, 1.0, 0.0, 1.0); // left
+        }
+        """
+    )
+    frag_x4 = dedent(
+        """\
+        void main()
+        {
+            ngl_out_color[0] = vec4(0.0, 0.0, 1.0, 1.0); // top
+            ngl_out_color[1] = vec4(1.0, 1.0, 0.0, 1.0); // bottom
+            ngl_out_color[2] = vec4(0.0, 1.0, 1.0, 1.0); // back
+            ngl_out_color[3] = vec4(1.0, 0.0, 1.0, 1.0); // front
+        }
+        """
+    )
 
     layer_base = 0
-    for layer_count, fragment in ((2, _RENDER_TO_CUBEMAP_1_FRAG), (4, _RENDER_TO_CUBEMAP_2_FRAG)):
+    for layer_count, fragment in ((2, frag_x2), (4, frag_x4)):
         program = ngl.Program(vertex=_RENDER_TO_CUBEMAP_VERT, fragment=fragment, nb_frag_output=layer_count)
         program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
         draw = ngl.Draw(quad, program)
@@ -271,20 +272,20 @@ def texture_cubemap(cfg: ngl.SceneCfg):
     return draw
 
 
-_RENDER_CUBEMAP_LOD_FRAG = """
-void main()
-{
-    ngl_out_color = textureLod(tex0, vec3(var_uvcoord.xy, 0.5), 1.0);
-}
-"""
-
-
 @test_fingerprint(width=800, height=800, tolerance=1)
 @ngl.scene()
 def texture_cubemap_mipmap(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
+    frag = dedent(
+        """\
+        void main()
+        {
+            ngl_out_color = textureLod(tex0, vec3(var_uvcoord.xy, 0.5), 1.0);
+        }
+        """
+    )
     cube = _get_texture_cubemap(mipmap_filter="nearest")
-    program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_LOD_FRAG)
+    program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=frag)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     draw = ngl.Draw(quad, program)
@@ -400,47 +401,28 @@ def texture_2d_array(cfg: ngl.SceneCfg):
     return draw
 
 
-_TEXTURE2D_ARRAY_LOD_FRAG = """
-void main()
-{
-    ngl_out_color = textureLod(tex0, vec3(var_tex0_coord, 0.0), 2.0)
-                  + textureLod(tex0, vec3(var_tex0_coord, 1.0), 2.0)
-                  + textureLod(tex0, vec3(var_tex0_coord, 2.0), 2.0);
-}
-"""
-
-
 @test_fingerprint(width=1280, height=720, tolerance=4)
 @ngl.scene()
 def texture_2d_array_mipmap(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (16, 9)
+    frag = dedent(
+        """\
+        void main()
+        {
+            ngl_out_color = textureLod(tex0, vec3(var_tex0_coord, 0.0), 2.0)
+                          + textureLod(tex0, vec3(var_tex0_coord, 1.0), 2.0)
+                          + textureLod(tex0, vec3(var_tex0_coord, 2.0), 2.0);
+        }
+        """
+    )
     texture = _get_texture_2d_array(cfg, mipmap_filter="nearest")
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=_TEXTURE2D_ARRAY_LOD_FRAG)
+    program = ngl.Program(vertex=_TEXTURE2D_ARRAY_VERT, fragment=frag)
     program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2())
     draw = ngl.Draw(quad, program)
     draw.update_frag_resources(tex0=texture)
     return draw
 
-
-_RENDER_TO_TEXTURE2D_ARRAY_VERT = """
-void main()
-{
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    var_uvcoord = ngl_uvcoord;
-}
-"""
-
-_RENDER_TO_TEXTURE2D_ARRAY_FRAG = """
-void main()
-{
-    float x = floor(var_uvcoord.x * steps) / steps;
-    x = var_uvcoord.y < 0.5 ? x : 1.0 - x;
-    ngl_out_color[0] = vec4(x, 0.0, 0.0, 1.0);
-    ngl_out_color[1] = vec4(0.0, x, 0.0, 1.0);
-    ngl_out_color[2] = vec4(0.0, 0.0, x, 1.0);
-}
-"""
 
 _STEPS = 4
 _CUEPOINTS = get_grid_points(_STEPS, 2)
@@ -448,11 +430,30 @@ _CUEPOINTS = get_grid_points(_STEPS, 2)
 
 def _get_texture_2d_array_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0):
     cfg.aspect_ratio = (1, 1)
+    vert = dedent(
+        """\
+        void main()
+        {
+            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+            var_uvcoord = ngl_uvcoord;
+        }
+        """
+    )
+    frag = dedent(
+        """\
+        void main()
+        {
+            float x = floor(var_uvcoord.x * steps) / steps;
+            x = var_uvcoord.y < 0.5 ? x : 1.0 - x;
+            ngl_out_color[0] = vec4(x, 0.0, 0.0, 1.0);
+            ngl_out_color[1] = vec4(0.0, x, 0.0, 1.0);
+            ngl_out_color[2] = vec4(0.0, 0.0, x, 1.0);
+        }
+        """
+    )
 
     depth = 3
-    program = ngl.Program(
-        vertex=_RENDER_TO_TEXTURE2D_ARRAY_VERT, fragment=_RENDER_TO_TEXTURE2D_ARRAY_FRAG, nb_frag_output=depth
-    )
+    program = ngl.Program(vertex=vert, fragment=frag, nb_frag_output=depth)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     draw = ngl.Draw(quad, program)
@@ -535,30 +536,31 @@ def texture_3d(cfg: ngl.SceneCfg):
     return draw
 
 
-_RENDER_TO_TEXTURE3D_VERT = """
-void main()
-{
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    var_uvcoord = ngl_uvcoord;
-}
-"""
-
-_RENDER_TO_TEXTURE3D_FRAG = """
-void main()
-{
-    float x = floor(var_uvcoord.x * steps) / steps;
-    x = var_uvcoord.y < 0.5 ? x : 1.0 - x;
-    ngl_out_color[0] = vec4(x, 0.0, 0.0, 1.0);
-    ngl_out_color[1] = vec4(0.0, x, 0.0, 1.0);
-    ngl_out_color[2] = vec4(0.0, 0.0, x, 1.0);
-}
-"""
-
-
 def _get_texture_3d_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0):
     cfg.aspect_ratio = (1, 1)
+    vert = dedent(
+        """\
+        void main()
+        {
+            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+            var_uvcoord = ngl_uvcoord;
+        }
+        """
+    )
+    frag = dedent(
+        """\
+        void main()
+        {
+            float x = floor(var_uvcoord.x * steps) / steps;
+            x = var_uvcoord.y < 0.5 ? x : 1.0 - x;
+            ngl_out_color[0] = vec4(x, 0.0, 0.0, 1.0);
+            ngl_out_color[1] = vec4(0.0, x, 0.0, 1.0);
+            ngl_out_color[2] = vec4(0.0, 0.0, x, 1.0);
+        }
+        """
+    )
     depth = 3
-    program = ngl.Program(vertex=_RENDER_TO_TEXTURE3D_VERT, fragment=_RENDER_TO_TEXTURE3D_FRAG, nb_frag_output=depth)
+    program = ngl.Program(vertex=vert, fragment=frag, nb_frag_output=depth)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     draw = ngl.Draw(quad, program)
@@ -590,23 +592,6 @@ def texture_3d_from_mrt_msaa(cfg: ngl.SceneCfg, show_dbg_points=False):
     return _get_texture_3d_from_mrt_scene(cfg, show_dbg_points, 4)
 
 
-_RENDER_TEXTURE_LOD_VERT = """
-void main()
-{
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    var_uvcoord = ngl_uvcoord;
-}
-"""
-
-
-_RENDER_TEXTURE_LOD_FRAG = """
-void main()
-{
-    ngl_out_color = textureLod(tex0, var_uvcoord, 0.5);
-}
-"""
-
-
 _N = 8
 _MIPMAP_CUEPOINTS = get_grid_points(_N, _N)
 
@@ -632,7 +617,24 @@ def texture_mipmap(cfg: ngl.SceneCfg, show_dbg_points=False):
         data_src=cb_buffer,
     )
 
-    program = ngl.Program(vertex=_RENDER_TEXTURE_LOD_VERT, fragment=_RENDER_TEXTURE_LOD_FRAG)
+    vert = dedent(
+        """\
+        void main()
+        {
+            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+            var_uvcoord = ngl_uvcoord;
+        }
+        """
+    )
+    frag = dedent(
+        """\
+        void main()
+        {
+            ngl_out_color = textureLod(tex0, var_uvcoord, 0.5);
+        }
+        """
+    )
+    program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
