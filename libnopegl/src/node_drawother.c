@@ -126,7 +126,7 @@ struct draw_common {
     struct geometry *geometry;
     int own_geometry;
     struct darray pipeline_descs;
-    struct darray uniforms; // struct pgcraft_uniform
+    struct darray uniforms; // struct ngpu_pgcraft_uniform
     struct ngpu_pgcraft *crafter;
     int32_t modelview_matrix_index;
     int32_t projection_matrix_index;

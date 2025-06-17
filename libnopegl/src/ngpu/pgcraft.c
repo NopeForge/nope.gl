@@ -65,7 +65,7 @@ struct pgcraft_pipeline_info {
 struct ngpu_pgcraft {
     struct ngpu_ctx *gpu_ctx;
 
-    struct darray texture_infos; // pgcraft_texture_info
+    struct darray texture_infos; // ngpu_pgcraft_texture_info
     struct darray images; // image pointer
     struct ngpu_pgcraft_compat_info compat_info;
 
@@ -75,8 +75,8 @@ struct ngpu_pgcraft {
 
     struct pgcraft_pipeline_info pipeline_info;
 
-    struct darray vert_out_vars; // pgcraft_iovar
-    struct darray textures; // pgcraft_texture
+    struct darray vert_out_vars; // ngpu_pgcraft_iovar
+    struct darray textures; // ngpu_pgcraft_texture
 
     struct ngpu_program *program;
     struct ngpu_bindgroup_layout *bindgroup_layout;

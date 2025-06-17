@@ -82,16 +82,16 @@ struct ngpu_pgcraft_texture {
      * (which determines which samplers are used) is generally unknown at
      * pipeline initialization and it is only known once a frame has been
      * decoded/mapped. The image structure describes which layout to use and
-     * which textures to bind and the pgcraft_texture_info.fields describes
+     * which textures to bind and the ngpu_pgcraft_texture_info.fields describes
      * where to bind the textures and their associated data.
      */
     struct ngpu_texture *texture;
     /*
      * The image field is a bit special, it is not transmitted directly to the
-     * pipeline but instead to the corresponding pgcraft_texture_info entry
+     * pipeline but instead to the corresponding ngpu_pgcraft_texture_info entry
      * accessible through pgcraft.texture_infos. The user may optionally set it
      * if they plan to have access to the image information directly through
-     * the pgcraft_texture_info structure. The field is pretty much mandatory
+     * the ngpu_pgcraft_texture_info structure. The field is pretty much mandatory
      * if the user plans to use ngli_pipeline_compat_update_texture_info() in
      * conjunction with pgcraft.texture_infos to instruct a pipeline on which
      * texture resources to use.

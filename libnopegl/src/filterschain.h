@@ -38,7 +38,7 @@ struct filterschain;
 struct filter {
     const char *name;
     const char *code;
-    struct darray resources; /* struct pgcraft_uniform */
+    struct darray resources; // struct ngpu_pgcraft_uniform
     uint32_t helpers;
 };
 
