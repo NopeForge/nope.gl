@@ -357,9 +357,9 @@ void main()
 _TEXTURE2D_ARRAY_FRAG = """
 void main()
 {
-    ngl_out_color  = texture(tex0, vec3(var_tex0_coord, 0.0));
-    ngl_out_color += texture(tex0, vec3(var_tex0_coord, 1.0));
-    ngl_out_color += texture(tex0, vec3(var_tex0_coord, 2.0));
+    ngl_out_color = texture(tex0, vec3(var_tex0_coord, 0.0))
+                  + texture(tex0, vec3(var_tex0_coord, 1.0))
+                  + texture(tex0, vec3(var_tex0_coord, 2.0));
 }
 """
 
@@ -403,9 +403,9 @@ def texture_2d_array(cfg: ngl.SceneCfg):
 _TEXTURE2D_ARRAY_LOD_FRAG = """
 void main()
 {
-    ngl_out_color  = textureLod(tex0, vec3(var_tex0_coord, 0.0), 2.0);
-    ngl_out_color += textureLod(tex0, vec3(var_tex0_coord, 1.0), 2.0);
-    ngl_out_color += textureLod(tex0, vec3(var_tex0_coord, 2.0), 2.0);
+    ngl_out_color = textureLod(tex0, vec3(var_tex0_coord, 0.0), 2.0)
+                  + textureLod(tex0, vec3(var_tex0_coord, 1.0), 2.0)
+                  + textureLod(tex0, vec3(var_tex0_coord, 2.0), 2.0);
 }
 """
 
@@ -496,9 +496,9 @@ void main()
 _TEXTURE3D_FRAG = """
 void main()
 {
-    ngl_out_color  = texture(tex0, vec3(var_tex0_coord, 0.0));
-    ngl_out_color += texture(tex0, vec3(var_tex0_coord, 0.5));
-    ngl_out_color += texture(tex0, vec3(var_tex0_coord, 1.0));
+    ngl_out_color = texture(tex0, vec3(var_tex0_coord, 0.0))
+                  + texture(tex0, vec3(var_tex0_coord, 0.5))
+                  + texture(tex0, vec3(var_tex0_coord, 1.0));
 }
 """
 
