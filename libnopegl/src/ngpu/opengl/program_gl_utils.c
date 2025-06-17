@@ -49,14 +49,14 @@ int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
             if (name && !strcmp(name, attribute_name))
                 continue;
             name = attribute_name;
-            gl->funcs.BindAttribLocation(s_priv->id, attribute->location, attribute_name);
-            struct ngpu_program_variable_info *info = ngli_hmap_get_str(s->attributes, attribute_name);
-            if (info && info->location != attribute->location) {
-                info->location = attribute->location;
+            const GLint location = gl->funcs.GetAttribLocation(s_priv->id, attribute_name);
+            if (attribute->location != location) {
+                gl->funcs.BindAttribLocation(s_priv->id, attribute->location, attribute_name);
                 need_relink = 1;
             }
         }
     }
+
     if (need_relink)
         gl->funcs.LinkProgram(s_priv->id);
 
@@ -75,9 +75,6 @@ int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
         }
         const GLuint block_index = gl->funcs.GetUniformBlockIndex(s_priv->id, block_name);
         gl->funcs.UniformBlockBinding(s_priv->id, block_index, entry->binding);
-        struct ngpu_program_variable_info *info = ngli_hmap_get_str(s->buffer_blocks, block_name);
-        if (info)
-            info->binding = entry->binding;
     }
 
     struct ngpu_glstate *glstate = &gpu_ctx_gl->glstate;
@@ -87,9 +84,6 @@ int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
         const char *texture_name = ngpu_pgcraft_get_symbol_name(crafter, entry->id);
         const GLint location = gl->funcs.GetUniformLocation(s_priv->id, texture_name);
         gl->funcs.Uniform1i(location, entry->binding);
-        struct ngpu_program_variable_info *info = ngli_hmap_get_str(s->uniforms, texture_name);
-        if (info)
-            info->binding = entry->binding;
     }
 
     return 0;
