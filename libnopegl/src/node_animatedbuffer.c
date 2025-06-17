@@ -43,7 +43,7 @@ struct animatedbuffer_priv {
     struct animation anim;
 };
 
-NGLI_STATIC_ASSERT("buffer_info_is_first", offsetof(struct animatedbuffer_priv, buf) == 0);
+NGLI_STATIC_ASSERT("buffer_info is first", offsetof(struct animatedbuffer_priv, buf) == 0);
 
 #define OFFSET(x) offsetof(struct animatedbuffer_opts, x)
 static const struct node_param animatedbuffer_params[] = {

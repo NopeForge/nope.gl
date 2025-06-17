@@ -62,7 +62,7 @@ static const int color_space_map[] = {
     [NMD_COL_SPC_BT2020_CL]  = COLORMATRIX_BT2020,
 };
 
-NGLI_STATIC_ASSERT("undefined_col_is_zero", COLORMATRIX_UNDEFINED == 0);
+NGLI_STATIC_ASSERT("undefined colormatrix is 0", COLORMATRIX_UNDEFINED == 0);
 
 static const char *get_col_spc_str(int color_space)
 {
@@ -106,7 +106,7 @@ static const struct k_constants {
     [COLORMATRIX_BT2020] = {.r = 0.2627f, .g = 0.6780f, .b = 0.0593f},
 };
 
-NGLI_STATIC_ASSERT("colormatrix_size", NGLI_ARRAY_NB(k_constants_infos) == COLORMATRIX_NB);
+NGLI_STATIC_ASSERT("colormatrix size", NGLI_ARRAY_NB(k_constants_infos) == COLORMATRIX_NB);
 
 static const struct range_info {
     float y, uv, y_off;

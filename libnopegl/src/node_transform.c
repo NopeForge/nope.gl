@@ -58,7 +58,7 @@ static const struct node_param transform_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT("trf_on_top_of_transform", offsetof(struct transform_priv, trf) == 0);
+NGLI_STATIC_ASSERT("trf on top of transform", offsetof(struct transform_priv, trf) == 0);
 
 static int transform_init(struct ngl_node *node)
 {

@@ -41,7 +41,7 @@ struct uniform_priv {
     uint32_t uvector[4];
 };
 
-NGLI_STATIC_ASSERT("variable_info_is_first", offsetof(struct uniform_priv, var) == 0);
+NGLI_STATIC_ASSERT("variable_info is first", offsetof(struct uniform_priv, var) == 0);
 
 #define DECLARE_UPDATE_FUNCS(type, opt_val, opt_min, opt_max, fmt, n)                                       \
 static void live_boundaries_clamp_##type(struct ngl_node *node)                                             \

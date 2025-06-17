@@ -36,9 +36,9 @@
 #include "utils/utils.h"
 
 /* We depend on the monotonically incrementing by 1 property of these fields */
-NGLI_STATIC_ASSERT("param_vec",  NGLI_PARAM_TYPE_VEC4  - NGLI_PARAM_TYPE_VEC2 == 2);
-NGLI_STATIC_ASSERT("param_ivec", NGLI_PARAM_TYPE_IVEC4 - NGLI_PARAM_TYPE_I32  == 3);
-NGLI_STATIC_ASSERT("param_uvec", NGLI_PARAM_TYPE_UVEC4 - NGLI_PARAM_TYPE_U32  == 3);
+NGLI_STATIC_ASSERT("param vec",  NGLI_PARAM_TYPE_VEC4  - NGLI_PARAM_TYPE_VEC2 == 2);
+NGLI_STATIC_ASSERT("param ivec", NGLI_PARAM_TYPE_IVEC4 - NGLI_PARAM_TYPE_I32  == 3);
+NGLI_STATIC_ASSERT("param uvec", NGLI_PARAM_TYPE_UVEC4 - NGLI_PARAM_TYPE_U32  == 3);
 
 const struct param_specs ngli_params_specs[] = {
     [NGLI_PARAM_TYPE_I32] = {

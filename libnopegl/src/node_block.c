@@ -131,7 +131,7 @@ static const struct node_param block_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT("block_info_is_first", offsetof(struct block_priv, blk) == 0);
+NGLI_STATIC_ASSERT("block_info is first", offsetof(struct block_priv, blk) == 0);
 
 void ngli_node_block_extend_usage(struct ngl_node *node, uint32_t usage)
 {

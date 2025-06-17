@@ -97,7 +97,7 @@ static const struct node_param scale_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT("trf_on_top_of_scale", offsetof(struct scale_priv, trf) == 0);
+NGLI_STATIC_ASSERT("trf on top of scale", offsetof(struct scale_priv, trf) == 0);
 
 const struct node_class ngli_scale_class = {
     .id        = NGL_NODE_SCALE,
