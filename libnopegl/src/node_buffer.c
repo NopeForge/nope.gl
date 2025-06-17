@@ -52,7 +52,7 @@ struct buffer_priv {
     FILE *fp;
 };
 
-NGLI_STATIC_ASSERT("buffer_info_is_first", offsetof(struct buffer_priv, buf) == 0);
+NGLI_STATIC_ASSERT("buffer_info is first", offsetof(struct buffer_priv, buf) == 0);
 
 #define OFFSET(x) offsetof(struct buffer_opts, x)
 static const struct node_param buffer_params[] = {

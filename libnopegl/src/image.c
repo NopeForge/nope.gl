@@ -47,7 +47,7 @@ static const size_t nb_planes_map[] = {
     [NGLI_IMAGE_LAYOUT_RECTANGLE]      = 1,
 };
 
-NGLI_STATIC_ASSERT("nb_planes_map", NGLI_ARRAY_NB(nb_planes_map) == NGLI_NB_IMAGE_LAYOUTS);
+NGLI_STATIC_ASSERT("nb planes map", NGLI_ARRAY_NB(nb_planes_map) == NGLI_NB_IMAGE_LAYOUTS);
 
 void ngli_image_init(struct image *s, const struct image_params *params, struct ngpu_texture **planes)
 {

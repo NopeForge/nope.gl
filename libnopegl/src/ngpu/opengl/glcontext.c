@@ -41,14 +41,14 @@
 #include "egl.h"
 #endif
 
-NGLI_STATIC_ASSERT("gfloat_size",  sizeof(GLfloat)  == sizeof(float));
-NGLI_STATIC_ASSERT("gbyte_size",   sizeof(GLbyte)   == sizeof(char));
-NGLI_STATIC_ASSERT("gshort_size",  sizeof(GLshort)  == sizeof(short));
-NGLI_STATIC_ASSERT("gint_size",    sizeof(GLint)    == sizeof(int));
-NGLI_STATIC_ASSERT("gubyte_size",  sizeof(GLubyte)  == sizeof(unsigned char));
-NGLI_STATIC_ASSERT("gushort_size", sizeof(GLushort) == sizeof(unsigned short));
-NGLI_STATIC_ASSERT("guint_size",   sizeof(GLuint)   == sizeof(unsigned int));
-NGLI_STATIC_ASSERT("gl_bool",      GL_FALSE == 0 && GL_TRUE == 1);
+NGLI_STATIC_ASSERT("gfloat size",  sizeof(GLfloat)  == sizeof(float));
+NGLI_STATIC_ASSERT("gbyte size",   sizeof(GLbyte)   == sizeof(char));
+NGLI_STATIC_ASSERT("gshort size",  sizeof(GLshort)  == sizeof(short));
+NGLI_STATIC_ASSERT("gint size",    sizeof(GLint)    == sizeof(int));
+NGLI_STATIC_ASSERT("gubyte size",  sizeof(GLubyte)  == sizeof(unsigned char));
+NGLI_STATIC_ASSERT("gushort size", sizeof(GLushort) == sizeof(unsigned short));
+NGLI_STATIC_ASSERT("guint size",   sizeof(GLuint)   == sizeof(unsigned int));
+NGLI_STATIC_ASSERT("gl bool",      GL_FALSE == 0 && GL_TRUE == 1);
 
 enum {
     GLPLATFORM_EGL,
