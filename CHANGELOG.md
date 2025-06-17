@@ -313,3 +313,18 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ## [2022.1] [libnodegl 0.1.0] - 2022-01-20
 ### Added
 - This Changelog
+
+[2022.1]: https://github.com/NopeForge/nope.gl/releases/tag/v2022.1
+[2022.2]: https://github.com/NopeForge/nope.gl/releases/tag/v2022.2
+[2022.3]: https://github.com/NopeForge/nope.gl/releases/tag/v2022.3
+[2022.4]: https://github.com/NopeForge/nope.gl/releases/tag/v2022.4
+[2022.5]: https://github.com/NopeForge/nope.gl/releases/tag/v2022.5
+[2022.6]: https://github.com/NopeForge/nope.gl/releases/tag/v2022.6
+[2022.7]: https://github.com/NopeForge/nope.gl/releases/tag/v2022.7
+[2022.8]: https://github.com/NopeForge/nope.gl/releases/tag/v2022.8
+[2023.0]: https://github.com/NopeForge/nope.gl/releases/tag/v2023.0
+[2023.1]: https://github.com/NopeForge/nope.gl/releases/tag/v2023.1
+[2023.2]: https://github.com/NopeForge/nope.gl/releases/tag/v2023.2
+[2023.3]: https://github.com/NopeForge/nope.gl/releases/tag/v2023.3
+[2023.4]: https://github.com/NopeForge/nope.gl/releases/tag/v2023.4
+[2024.0]: https://github.com/NopeForge/nope.gl/releases/tag/v2024.0
