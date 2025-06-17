@@ -20,6 +20,9 @@ jobs:
           - backend: "opengl"
             custom_env: ""
             custom_args: --suite opengl
+          - backend: "opengl 3.3"
+            custom_env: MESA_GL_VERSION_OVERRIDE=3.3
+            custom_args: --suite opengl
           - backend: "opengles"
             custom_env: ""
             custom_args: --suite opengles
