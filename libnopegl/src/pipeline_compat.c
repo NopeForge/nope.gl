@@ -281,7 +281,7 @@ int ngli_pipeline_compat_update_uniform_count(struct pipeline_compat *s, int32_t
     if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
-    const int32_t stage = index >> 16;
+    const enum ngpu_program_stage stage = (enum ngpu_program_stage)(index >> 16);
     const int32_t field_index = index & 0xffff;
     const struct ngpu_block_desc *block = &s->compat_info->ublocks[stage];
     const struct ngpu_block_field *fields = ngli_darray_data(&block->fields);
