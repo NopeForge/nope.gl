@@ -36,7 +36,7 @@
 
 struct filterschain {
     struct darray filters; // struct filter *
-    struct darray resources; // combined resources (struct pgcraft_uniform)
+    struct darray resources; // combined resources (struct ngpu_pgcraft_uniform)
     struct hmap *unique_filters;
     struct bstr *str;
     const char *source_name;

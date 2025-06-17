@@ -81,7 +81,7 @@ struct drawpath_priv {
     struct distmap *distmap;
     struct path *path;
     struct darray uniforms_map; // struct uniform_map
-    struct darray uniforms; // struct pgcraft_uniform
+    struct darray uniforms; // struct ngpu_pgcraft_uniform
     struct ngpu_pgcraft *crafter;
     int modelview_matrix_index;
     int projection_matrix_index;
