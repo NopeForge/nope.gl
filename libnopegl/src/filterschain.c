@@ -25,6 +25,7 @@
 #include "ngpu/pgcraft.h"
 #include "utils/bstr.h"
 #include "utils/darray.h"
+#include "utils/hmap.h"
 #include "utils/memory.h"
 
 /* Shader helpers */
