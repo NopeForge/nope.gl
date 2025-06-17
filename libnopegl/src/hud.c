@@ -262,10 +262,10 @@ static const struct drawcall_spec {
     },
 };
 
-NGLI_STATIC_ASSERT(hud_nb_latency,  NGLI_ARRAY_NB(latency_specs)  == NB_LATENCY);
-NGLI_STATIC_ASSERT(hud_nb_memory,   NGLI_ARRAY_NB(memory_specs)   == NB_MEMORY);
-NGLI_STATIC_ASSERT(hud_nb_activity, NGLI_ARRAY_NB(activity_specs) == NB_ACTIVITY);
-NGLI_STATIC_ASSERT(hud_nb_drawcall, NGLI_ARRAY_NB(drawcall_specs) == NB_DRAWCALL);
+NGLI_STATIC_ASSERT("hud_nb_latency",  NGLI_ARRAY_NB(latency_specs)  == NB_LATENCY);
+NGLI_STATIC_ASSERT("hud_nb_memory",   NGLI_ARRAY_NB(memory_specs)   == NB_MEMORY);
+NGLI_STATIC_ASSERT("hud_nb_activity", NGLI_ARRAY_NB(activity_specs) == NB_ACTIVITY);
+NGLI_STATIC_ASSERT("hud_nb_drawcall", NGLI_ARRAY_NB(drawcall_specs) == NB_DRAWCALL);
 
 enum widget_type {
     WIDGET_LATENCY,

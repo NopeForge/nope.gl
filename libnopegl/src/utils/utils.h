@@ -57,7 +57,7 @@
     }                                                   \
 } while (0)
 
-#define NGLI_STATIC_ASSERT(id, c) static_assert(c, #id)
+#define NGLI_STATIC_ASSERT(id, c) static_assert(c, id)
 
 #define NGLI_FIELD_SIZEOF(name, field) (sizeof(((name *)0)->field))
 

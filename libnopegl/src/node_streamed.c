@@ -48,7 +48,7 @@ struct streamed_priv {
     size_t last_index;
 };
 
-NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct streamed_priv, var) == 0);
+NGLI_STATIC_ASSERT("variable_info_is_first", offsetof(struct streamed_priv, var) == 0);
 
 #define OFFSET(x) offsetof(struct streamed_opts, x)
 

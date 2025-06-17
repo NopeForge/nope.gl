@@ -112,7 +112,7 @@ static const struct ngpu_format_gl formats[NGPU_FORMAT_NB] = {
     [NGPU_FORMAT_S8_UINT]              = {GL_STENCIL_INDEX,   GL_STENCIL_INDEX8,     GL_UNSIGNED_BYTE,                  S|DS},
 };
 
-NGLI_STATIC_ASSERT(formats_size, NGLI_FIELD_SIZEOF(struct glcontext, formats) == sizeof(formats));
+NGLI_STATIC_ASSERT("formats_size", NGLI_FIELD_SIZEOF(struct glcontext, formats) == sizeof(formats));
 
 void ngpu_format_gl_init(struct glcontext *gl)
 {

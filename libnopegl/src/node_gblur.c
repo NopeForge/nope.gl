@@ -47,10 +47,10 @@
 #define CONSTANT_TO_STR(v) _CONSTANT_TO_STR(v)
 
 #define MAX_KERNEL_SIZE 127
-NGLI_STATIC_ASSERT(kernel_size_is_odd, MAX_KERNEL_SIZE & 0x1);
+NGLI_STATIC_ASSERT("kernel_size_is_odd", MAX_KERNEL_SIZE & 0x1);
 
 #define MAX_RADIUS_SIZE 126
-NGLI_STATIC_ASSERT(radius_size, MAX_RADIUS_SIZE == (MAX_KERNEL_SIZE - 1));
+NGLI_STATIC_ASSERT("radius_size", MAX_RADIUS_SIZE == (MAX_KERNEL_SIZE - 1));
 
 struct direction_block {
     float direction[2];

@@ -55,10 +55,10 @@
 #endif
 
 // Ensure public enums are stored on 32-bit
-NGLI_STATIC_ASSERT(enum_on_32bit, sizeof(enum ngl_log_level) == sizeof(int32_t));
-NGLI_STATIC_ASSERT(enum_on_32bit, sizeof(enum ngl_platform_type) == sizeof(int32_t));
-NGLI_STATIC_ASSERT(enum_on_32bit, sizeof(enum ngl_backend_type) == sizeof(int32_t));
-NGLI_STATIC_ASSERT(enum_on_32bit, sizeof(enum ngl_capture_buffer_type) == sizeof(int32_t));
+NGLI_STATIC_ASSERT("enum_on_32bit", sizeof(enum ngl_log_level) == sizeof(int32_t));
+NGLI_STATIC_ASSERT("enum_on_32bit", sizeof(enum ngl_platform_type) == sizeof(int32_t));
+NGLI_STATIC_ASSERT("enum_on_32bit", sizeof(enum ngl_backend_type) == sizeof(int32_t));
+NGLI_STATIC_ASSERT("enum_on_32bit", sizeof(enum ngl_capture_buffer_type) == sizeof(int32_t));
 
 #if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
 # define DEFAULT_BACKEND NGL_BACKEND_OPENGLES
@@ -104,7 +104,7 @@ static enum ngl_platform_type get_default_platform(void)
 #elif defined(TARGET_WINDOWS)
     return NGL_PLATFORM_WINDOWS;
 #else
-    NGLI_STATIC_ASSERT(default_platform, 0);
+    NGLI_STATIC_ASSERT("default_platform", 0);
 #endif
 }
 

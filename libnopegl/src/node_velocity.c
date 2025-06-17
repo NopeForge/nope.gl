@@ -71,7 +71,7 @@ struct velocity_priv {
     struct animation anim_eval;
 };
 
-NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct velocity_priv, var) == 0);
+NGLI_STATIC_ASSERT("variable_info_is_first", offsetof(struct velocity_priv, var) == 0);
 
 static void mix_velocity_float(void *user_arg, void *dst,
                                const struct animkeyframe_opts *kf0,
