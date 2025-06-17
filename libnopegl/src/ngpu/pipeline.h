@@ -47,7 +47,7 @@ struct ngpu_vertex_attribute {
 struct ngpu_vertex_buffer_layout {
     struct ngpu_vertex_attribute attributes[NGPU_MAX_ATTRIBUTES_PER_BUFFER];
     size_t nb_attributes;
-    int rate;
+    uint32_t rate;
     size_t stride;
 };
 

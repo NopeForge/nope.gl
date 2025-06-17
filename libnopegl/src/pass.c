@@ -265,7 +265,7 @@ static int register_attribute_from_buffer(struct pass *s, const char *name,
     return 0;
 }
 
-static int register_attribute(struct pass *s, const char *name, struct ngl_node *attribute, int rate)
+static int register_attribute(struct pass *s, const char *name, struct ngl_node *attribute, uint32_t rate)
 {
     if (!attribute)
         return 0;
