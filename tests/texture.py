@@ -192,7 +192,7 @@ def _get_texture_cubemap_from_mrt_scene(cfg: ngl.SceneCfg, samples=0):
     draw = ngl.Draw(quad, program)
     draw.update_frag_resources(tex0=cube)
 
-    return ngl.Group(children=(rtt, draw))
+    return ngl.Group(children=[rtt, draw])
 
 
 def _get_texture_cubemap_from_mrt_scene_2_pass(cfg: ngl.SceneCfg, samples=0):
@@ -329,7 +329,7 @@ def texture_clear_and_scissor(cfg: ngl.SceneCfg):
     rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS.orange + (1,))
     draw = ngl.DrawTexture(texture)
 
-    return ngl.Group(children=(graphic_config, rtt, draw))
+    return ngl.Group(children=[graphic_config, rtt, draw])
 
 
 @test_fingerprint(width=64, height=64)
@@ -343,7 +343,7 @@ def texture_scissor(cfg: ngl.SceneCfg):
     texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     rtt = ngl.RenderToTexture(graphic_config, [texture], clear_color=(0, 0, 0, 1))
     draw = ngl.DrawTexture(texture)
-    return ngl.Group(children=(rtt, draw))
+    return ngl.Group(children=[rtt, draw])
 
 
 _TEXTURE2D_ARRAY_VERT = """
@@ -466,7 +466,7 @@ def _get_texture_2d_array_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, sam
     draw = ngl.Draw(quad, program)
     draw.update_frag_resources(tex0=texture)
 
-    group = ngl.Group(children=(rtt, draw))
+    group = ngl.Group(children=[rtt, draw])
     if show_dbg_points:
         group.add_children(get_points_nodes(cfg, _CUEPOINTS))
 
@@ -573,7 +573,7 @@ def _get_texture_3d_from_mrt_scene(cfg: ngl.SceneCfg, show_dbg_points, samples=0
     draw = ngl.Draw(quad, program)
     draw.update_frag_resources(tex0=texture)
 
-    group = ngl.Group(children=(rtt, draw))
+    group = ngl.Group(children=[rtt, draw])
     if show_dbg_points:
         group.add_children(get_points_nodes(cfg, _CUEPOINTS))
 
@@ -641,7 +641,7 @@ def texture_mipmap(cfg: ngl.SceneCfg, show_dbg_points=False):
     draw = ngl.Draw(quad, program)
     draw.update_frag_resources(tex0=texture)
 
-    group = ngl.Group(children=(draw,))
+    group = ngl.Group(children=[draw])
     if show_dbg_points:
         group.add_children(get_points_nodes(cfg, _MIPMAP_CUEPOINTS))
 

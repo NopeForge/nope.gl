@@ -395,7 +395,7 @@ def api_media_sharing_failure():
     ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
     m = ngl.Media("/dev/null")
-    root = ngl.Group(children=(ngl.Texture2D(data_src=m), ngl.Texture2D(data_src=m)))
+    root = ngl.Group(children=[ngl.Texture2D(data_src=m), ngl.Texture2D(data_src=m)])
     scene = ngl.Scene.from_params(root)
     assert _ret_to_fourcc(ctx.set_scene(scene)) == "Eusg"  # Usage error
 
@@ -421,22 +421,22 @@ def api_livectls():
     # Build a scene and extract its live controls
     rng = random.Random(0)
     root = ngl.Group(
-        children=(
+        children=[
             ngl.UniformBool(live_id="b"),
             ngl.UniformFloat(live_id="f"),
             ngl.UniformIVec3(live_id="iv3"),
             ngl.UserSwitch(
                 ngl.Group(
-                    children=(
+                    children=[
                         ngl.UniformMat4(live_id="m4"),
                         ngl.UniformColor(live_id="clr"),
                         ngl.UniformQuat(as_mat4=True, live_id="rot"),
-                    )
+                    ]
                 ),
                 live_id="switch",
             ),
             ngl.Text(live_id="txt"),
-        )
+        ]
     )
     scene = ngl.Scene.from_params(root)
     livectls = ngl.get_livectls(scene)
@@ -527,14 +527,14 @@ def _create_trf(scene, start, end, prefetch_time=None):
 def _create_trf_scene(start, end, keep_active=False):
     texture = ngl.Texture2D(width=64, height=64, min_filter="nearest", mag_filter="nearest")
     # A subgraph using a RTT will produce a clear crash if its draw is called without a prefetch
-    rtt = ngl.RenderToTexture(ngl.Identity(), clear_color=(1.0, 0.0, 0.0, 1.0), color_textures=(texture,))
+    rtt = ngl.RenderToTexture(ngl.Identity(), clear_color=(1.0, 0.0, 0.0, 1.0), color_textures=[texture])
     draw = ngl.DrawTexture(texture=texture)
-    group = ngl.Group(children=(rtt, draw))
+    group = ngl.Group(children=[rtt, draw])
     trf = _create_trf(group, start, start + 1)
 
     trf_start = _create_trf(trf, start, start + 1)
     # This group could be any node as long as it has no prefetch/release callback
-    group = ngl.Group(children=(trf,))
+    group = ngl.Group(children=[trf])
     trf_end = _create_trf(group, end - 1.0, end + 1.0)
 
     children = [trf_start, trf_end]

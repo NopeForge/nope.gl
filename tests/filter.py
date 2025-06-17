@@ -36,7 +36,7 @@ def _base_scene(cfg: ngl.SceneCfg, *filters):
         opacity_tr=0.4,
         opacity_br=0.5,
         opacity_bl=0.6,
-        filters=filters,
+        filters=list(filters),
     )
 
 
@@ -189,12 +189,12 @@ def filter_selector_hue(cfg: ngl.SceneCfg):
 def filter_composition_colors(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     return ngl.DrawGradient4(
-        filters=(
+        filters=[
             ngl.FilterExposure(exposure=0.9),
             ngl.FilterContrast(contrast=1.5),
             ngl.FilterSaturation(saturation=1.1),
             ngl.FilterOpacity(opacity=0.8),
-        ),
+        ],
     )
 
 
@@ -208,13 +208,13 @@ def filter_composition_alpha(cfg: ngl.SceneCfg):
         opacity0=0.8,
         opacity1=0.9,
         mode="radial",
-        filters=(
+        filters=[
             ngl.FilterAlpha(alpha=1.0),
             ngl.FilterInverseAlpha(),
             ngl.FilterAlpha(alpha=0.1),
             ngl.FilterInverseAlpha(),
             ngl.FilterPremult(),
-        ),
+        ],
     )
 
 
@@ -243,7 +243,7 @@ def filter_gamma_correct(cfg: ngl.SceneCfg, linear=True):
     # Screen blending so that working in linear space makes a significant
     # difference
     blend = ngl.GraphicConfig(
-        ngl.Group(children=(dst, src)),
+        ngl.Group(children=[dst, src]),
         blend=True,
         blend_src_factor="one",
         blend_dst_factor="one_minus_src_color",
@@ -263,4 +263,4 @@ def filter_gamma_correct(cfg: ngl.SceneCfg, linear=True):
         # ...and we compress it back to sRGB
         draw.add_filters(ngl.FilterLinear2sRGB())
 
-    return ngl.Group(children=(rtt, draw))
+    return ngl.Group(children=[rtt, draw])

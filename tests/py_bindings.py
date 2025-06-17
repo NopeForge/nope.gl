@@ -82,7 +82,7 @@ def py_bindings_no_param():
 def py_bindings_nodes():
     emptygroup = ngl.Group(children=[])
     assert emptygroup.add_children() == 0
-    group = ngl.Group(children=(ngl.Identity(), ngl.Group()))
+    group = ngl.Group(children=[ngl.Identity(), ngl.Group()])
     assert group.add_children(ngl.Group(), ngl.GraphicConfig()) == 0
 
 

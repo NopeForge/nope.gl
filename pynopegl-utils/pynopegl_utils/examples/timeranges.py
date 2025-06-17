@@ -33,8 +33,8 @@ def parallel_playback(cfg: ngl.SceneCfg, fast=True, segment_time=2.0, constraine
     text_settings = {
         "box": (-1, 1 - 0.2, 2.0, 0.2),
     }
-    draw1 = ngl.Group(children=(draw1, ngl.Text("media #1", **text_settings)))
-    draw2 = ngl.Group(children=(draw2, ngl.Text("media #2", **text_settings)))
+    draw1 = ngl.Group(children=[draw1, ngl.Text("media #1", **text_settings)])
+    draw2 = ngl.Group(children=[draw2, ngl.Text("media #2", **text_settings)])
 
     end_time = 0.0
     rr1 = []

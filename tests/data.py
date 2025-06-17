@@ -212,7 +212,7 @@ def _get_data_streamed_buffer_vec4_scene(cfg: ngl.SceneCfg, size, keyframes, sca
         streamed_buffer = ngl.StreamedVec4(pts_buffer, vec4_buffer, time_anim=time_anim, label="data")
     else:
         streamed_buffer = ngl.StreamedBufferVec4(data_size, pts_buffer, vec4_buffer, time_anim=time_anim, label="data")
-    streamed_block = ngl.Block(layout="std140", label="streamed_block", fields=(streamed_buffer,))
+    streamed_block = ngl.Block(layout="std140", label="streamed_block", fields=[streamed_buffer])
 
     shader_params = dict(data_size=data_size, size=size)
 
@@ -225,7 +225,7 @@ def _get_data_streamed_buffer_vec4_scene(cfg: ngl.SceneCfg, size, keyframes, sca
     draw = ngl.Draw(quad, program)
     draw.update_frag_resources(streamed=streamed_block)
 
-    group = ngl.Group(children=(draw,))
+    group = ngl.Group(children=[draw])
     if show_dbg_points:
         cuepoints = get_grid_points(size, size)
         group.add_children(get_points_nodes(cfg, cuepoints))

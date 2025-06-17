@@ -59,7 +59,7 @@ def velocity_triangle_rotate(cfg: ngl.SceneCfg):
     prog_c = ngl.Program(vertex=get_shader("color.vert"), fragment=frag)
     circle = ngl.Draw(ngl.Circle(radius=1.0, npoints=128), prog_c)
     circle.update_frag_resources(velocity=velocity)
-    return ngl.Group(children=(circle, triangle))
+    return ngl.Group(children=[circle, triangle])
 
 
 @test_fingerprint(width=320, height=320, keyframes=20, tolerance=1)

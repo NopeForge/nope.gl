@@ -54,7 +54,7 @@ def demo(cfg: ngl.SceneCfg, shape="square"):
         box=(-0.5, -0.5, 1.0, 1.0),
         live_id="text",
     )
-    scene = ngl.Group(children=(gradient, text))
+    scene = ngl.Group(children=[gradient, text])
 
     urotate = ngl.UniformFloat(value=15, live_id="angle", live_min=0, live_max=360)
     scene = ngl.Rotate(scene, angle=urotate)

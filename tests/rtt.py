@@ -186,7 +186,7 @@ def _get_rtt_scene(
         draw.update_frag_resources(tex0=texture_depth)
     else:
         draw = ngl.DrawTexture(texture)
-    return ngl.Group(children=(rtt, draw))
+    return ngl.Group(children=[rtt, draw])
 
 
 def _get_rtt_function(**kwargs):
@@ -244,7 +244,7 @@ def _rtt_load_attachment(cfg: ngl.SceneCfg):
     quad = ngl.Quad((0, 0, 0), (1, 0, 0), (0, 1, 0))
     foreground = ngl.DrawTexture(texture, geometry=quad)
 
-    return ngl.Group(children=(background, rtt, rtt_noop, foreground))
+    return ngl.Group(children=[background, rtt, rtt_noop, foreground])
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
@@ -269,7 +269,7 @@ def _rtt_load_attachment_nested(cfg: ngl.SceneCfg, samples=0):
 
     foreground = ngl.DrawTexture(texture)
 
-    return ngl.Group(children=(rtt, foreground))
+    return ngl.Group(children=[rtt, foreground])
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
@@ -298,7 +298,7 @@ def _rtt_load_attachment_implicit(cfg: ngl.SceneCfg):
         geometry=ngl.Quad((0, 0, 0), (1, 0, 0), (0, 1, 0)),
     )
 
-    return ngl.Group(children=(background, foreground))
+    return ngl.Group(children=[background, foreground])
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
@@ -323,7 +323,7 @@ def _rtt_load_attachment_nested_implicit(cfg: ngl.SceneCfg, samples=0):
 
     foreground = ngl.DrawTexture(texture)
 
-    return ngl.Group(children=(rtt, foreground))
+    return ngl.Group(children=[rtt, foreground])
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
@@ -359,7 +359,7 @@ def rtt_clear_attachment_with_timeranges(cfg: ngl.SceneCfg):
     animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, -360)]
     draw = ngl.Rotate(draw, angle=ngl.AnimatedFloat(animkf))
 
-    group = ngl.Group(children=(time_range_filter, rtt_noop, draw))
+    group = ngl.Group(children=[time_range_filter, rtt_noop, draw])
 
     # Root RTT
     texture = ngl.Texture2D(width=512, height=512, min_filter="nearest", mag_filter="nearest")
@@ -368,7 +368,7 @@ def rtt_clear_attachment_with_timeranges(cfg: ngl.SceneCfg):
     # Full screen draw of the root RTT result
     draw = ngl.DrawTexture(texture)
 
-    return ngl.Group(children=(rtt, draw))
+    return ngl.Group(children=[rtt, draw])
 
 
 @test_fingerprint(width=512, height=512, keyframes=10, tolerance=3)
@@ -384,7 +384,7 @@ def rtt_shared_subgraph_implicit(cfg: ngl.SceneCfg):
     # The order here is important as we want to test that the render target
     # (texture) internally setup a dedicated rnode and that the rnode used by
     # the draw node is not overridden by the subgraph
-    group = ngl.Group(children=(scene, draw))
+    group = ngl.Group(children=[scene, draw])
 
     return group
 
@@ -398,14 +398,14 @@ def rtt_resizable_with_timeranges(cfg: ngl.SceneCfg):
     scene = _get_cube_scene(cfg)
 
     texture = ngl.Texture2D()
-    rtt = ngl.RenderToTexture(scene, color_textures=(texture,))
+    rtt = ngl.RenderToTexture(scene, color_textures=[texture])
     draw = ngl.DrawTexture(texture)
-    group = ngl.Group(children=(rtt, draw))
+    group = ngl.Group(children=[rtt, draw])
 
     time_range_filter1 = ngl.TimeRangeFilter(group, start=0, end=1)
     time_range_filter2 = ngl.TimeRangeFilter(group, start=5)
 
-    group = ngl.Group(children=(time_range_filter1, time_range_filter2))
+    group = ngl.Group(children=[time_range_filter1, time_range_filter2])
 
     return group
 
@@ -424,6 +424,6 @@ def rtt_resizable_with_timeranges_implicit(cfg: ngl.SceneCfg):
     time_range_filter1 = ngl.TimeRangeFilter(draw, start=0, end=1)
     time_range_filter2 = ngl.TimeRangeFilter(draw, start=5)
 
-    group = ngl.Group(children=(time_range_filter1, time_range_filter2))
+    group = ngl.Group(children=[time_range_filter1, time_range_filter2])
 
     return group

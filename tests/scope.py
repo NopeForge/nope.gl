@@ -139,4 +139,4 @@ def scope_rtt(cfg):
     rtt = ngl.RenderToTexture(scene, color_textures=[dst_texture])
 
     scope = ngl.DrawWaveform(stats=ngl.ColorStats(dst_texture))
-    return ngl.Group(children=(rtt, scope))
+    return ngl.Group(children=[rtt, scope])

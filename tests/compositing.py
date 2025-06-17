@@ -65,16 +65,16 @@ def _get_compositing_scene(cfg: ngl.SceneCfg, op, show_label=False):
     prog = ngl.Program(vertex=_VERTEX, fragment=_FRAGMENT)
     prog.update_vert_out_vars(uv=ngl.IOVec2())
 
-    A_off_kf = (
+    A_off_kf = [
         ngl.AnimKeyFrameVec2(0, (-1 / 3, 0)),
         ngl.AnimKeyFrameVec2(cfg.duration / 2, (1 / 3, 0)),
         ngl.AnimKeyFrameVec2(cfg.duration, (-1 / 3, 0)),
-    )
-    B_off_kf = (
+    ]
+    B_off_kf = [
         ngl.AnimKeyFrameVec2(0, (1 / 3, 0)),
         ngl.AnimKeyFrameVec2(cfg.duration / 2, (-1 / 3, 0)),
         ngl.AnimKeyFrameVec2(cfg.duration, (1 / 3, 0)),
-    )
+    ]
     A_off = ngl.AnimatedVec2(A_off_kf)
     B_off = ngl.AnimatedVec2(B_off_kf)
 
@@ -88,7 +88,7 @@ def _get_compositing_scene(cfg: ngl.SceneCfg, op, show_label=False):
 
     # draw A in current FBO, then draw B with the current operator, and
     # then result goes over the white background
-    ret = ngl.Group(children=(A, B, bg))
+    ret = ngl.Group(children=[A, B, bg])
 
     if show_label:
         label_h = 1 / 4

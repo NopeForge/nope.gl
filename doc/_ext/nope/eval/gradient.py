@@ -31,4 +31,4 @@ def gradient(cfg: ngl.SceneCfg, mode="ramp"):
     pos1_2d = ngl.EvalVec2("p.x/2+.5", ".5-p.y/2", resources=dict(p=pos1))
     grad = ngl.DrawGradient(pos0=pos0_2d, pos1=pos1_2d, mode=mode, color0=c0_node, color1=c1_node)
 
-    return ngl.Group(children=(grad, p0, p1))
+    return ngl.Group(children=[grad, p0, p1])

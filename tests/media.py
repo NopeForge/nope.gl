@@ -206,8 +206,8 @@ def media_timeranges_rtt(cfg: ngl.SceneCfg):
     quad1 = ngl.Quad((0, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(0.5, 0), uv_width=(0.5, 0))
     rtt_draw0 = ngl.DrawTexture(dst_tex0, geometry=quad0, label="draw RTT 0")
     rtt_draw1 = ngl.DrawTexture(dst_tex1, geometry=quad1, label="draw RTT 1")
-    proxy0 = ngl.Group(children=(rtt0, rtt_draw0), label="proxy 0")
-    proxy1 = ngl.Group(children=(rtt1, rtt_draw1), label="proxy 1")
+    proxy0 = ngl.Group(children=[rtt0, rtt_draw0], label="proxy 0")
+    proxy1 = ngl.Group(children=[rtt1, rtt_draw1], label="proxy 1")
 
     # We want to make sure the idle times are enough to exercise the
     # prefetch/release mechanism
@@ -220,4 +220,4 @@ def media_timeranges_rtt(cfg: ngl.SceneCfg):
     trange0 = ngl.TimeRangeFilter(proxy0, start=1 / 5 * d, end=3 / 5 * d, prefetch_time=prefetch_time, label="left")
     trange1 = ngl.TimeRangeFilter(proxy1, start=2 / 5 * d, end=4 / 5 * d, prefetch_time=prefetch_time, label="right")
 
-    return ngl.Group(children=(trange0, trange1))
+    return ngl.Group(children=[trange0, trange1])
