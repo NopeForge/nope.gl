@@ -44,7 +44,7 @@ fi
 set -x
 echo "$new_prj_ver" > VERSION
 echo "$new_lib_ver" > libnopegl/VERSION
-sed "/^## \[Unreleased\]/a \\\n## [$new_prj_ver] [libnopegl $new_lib_ver] - $today" -i CHANGELOG.md
+sed "/^## \[Unreleased\]/a \\\n## [$new_prj_ver / libnopegl $new_lib_ver][$new_prj_ver] - $today" -i CHANGELOG.md
 echo "[$new_prj_ver]: https://github.com/NopeForge/nope.gl/releases/tag/v$new_prj_ver" >> CHANGELOG.md
 git add CHANGELOG.md VERSION libnopegl/VERSION
 git commit -m "Release $new_prj_ver"

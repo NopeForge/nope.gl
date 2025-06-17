@@ -51,7 +51,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `GraphicConfig.scissor_test` parameter
 - Support for Android < 9.0
 
-## [2024.0] [libnopegl 0.11.0] - 2024-02-02
+## [2024.0 / libnopegl 0.11.0][2024.0] - 2024-02-02
 ### Added
 - `ngl.SceneCfg` now includes the backend capabilities
 - `%s_coord_matrix` uniform is now exposed for 2D array and 3D textures
@@ -104,7 +104,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Removed
 - `ngl_scene_freep` function; use `ngl_scene_unrefp` instead
 
-## [2023.4] [libnopegl 0.10.0] - 2023-09-28
+## [2023.4 / libnopegl 0.10.0][2023.4] - 2023-09-28
 ### Added
 - `Eval*` nodes now accept multi-dimensional input resources
 - `luma(r,g,b)` and `srgbmix(a,b,x)` functions in eval
@@ -138,11 +138,11 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `RenderToTexture.features` as the RTT node is now able to detect
   automatically if the underlying graph requires a depth/stencil buffer
 
-## [2023.3] [libnopegl 0.9.0] - 2023-09-01
+## [2023.3 / libnopegl 0.9.0][2023.3] - 2023-09-01
 ### Fixed
 - Linux and macOS release jobs
 
-## [2023.2] [libnopegl 0.9.0] - 2023-09-01
+## [2023.2 / libnopegl 0.9.0][2023.2] - 2023-09-01
 ### Added
 - Much more detailed typing annotations in `pynopegl`
 - `RenderDisplace` node for texture displacement
@@ -200,13 +200,13 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   use `texture()` and `textureLod()` directly). `ngl_texvideo()` is still there
   and is still the prefered picking method
 
-## [2023.1] [libnopegl 0.8.0] - 2023-04-07
+## [2023.1 / libnopegl 0.8.0][2023.1] - 2023-04-07
 ### Changed
 - Project renamed to `nope.gl`
 
 ----
 
-## [2023.0] [libnodegl 0.7.0] - 2023-03-09
+## [2023.0 / libnodegl 0.7.0][2023.0] - 2023-03-09
 ### Fixed
 - Color channel difference in `ngl-diff` is now done in linear space
 
@@ -217,7 +217,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - The installed `nodes.specs` is now in `JSON` instead of `YAML`
 - The default branch is now named `main`
 
-## [2022.8] [libnodegl 0.6.1] - 2022-09-22
+## [2022.8 / libnodegl 0.6.1][2022.8] - 2022-09-22
 ### Fixed
 - Crash with specific draw time sequences in some time filtered diamond-tree
   graphs involving `TimeRangeFilter` nodes keeping some parts of the graph active
@@ -231,7 +231,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Changed
 - Improved `ngl-diff` color map
 
-## [2022.7] [libnodegl 0.6.0] - 2022-06-07
+## [2022.7 / libnodegl 0.6.0][2022.7] - 2022-06-07
 ### Added
 - HDR tone mapping support for PQ content
 
@@ -244,7 +244,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Changed
 - Handle OpenGLES as a separate backend build-wise
 
-## [2022.6] [libnodegl 0.5.0] - 2022-05-19
+## [2022.6 / libnodegl 0.5.0][2022.6] - 2022-05-19
 ### Added
 - Mediacodec/Vulkan video acceleration support
 - EGL device platform support (allows to support NVIDIA GPUs in headless
@@ -264,11 +264,11 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `Buffer.block_field` is now a string corresponding to the field name instead
   of an integer index
 
-## [2022.5] [libnodegl 0.4.0] - 2022-05-06
+## [2022.5 / libnodegl 0.4.0][2022.5] - 2022-05-06
 ### Fixed
 - Missing package data files for `ngl-diff`
 
-## [2022.4] [libnodegl 0.4.0] - 2022-05-06
+## [2022.4 / libnodegl 0.4.0][2022.4] - 2022-05-06
 ### Added
 - Optional `backend_config` field to the `ngl_config` structure (ABI break)
 - External OpenGL context support
@@ -286,7 +286,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `UniformColorA` (use `UniformColor` instead, with a separate `UniformFloat`
   for the opacity)
 
-## [2022.3] [libnodegl 0.3.0] - 2022-04-11
+## [2022.3 / libnodegl 0.3.0][2022.3] - 2022-04-11
 ### Added
 - `eye`, `center` and `up` Camera parameters can now be node
 - Honor [NO_COLOR](https://no-color.org/) environment variable
@@ -296,7 +296,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   backends were enabled.
 - A deadlock in `ngl-control` when specifying invalid encoding arguments
 
-## [2022.2] [libnodegl 0.2.0] - 2022-03-28
+## [2022.2 / libnodegl 0.2.0][2022.2] - 2022-03-28
 ### Added
 - `TextureView` node, useful for targeting a specific layer of a texture in RTT
   scenarios
@@ -310,7 +310,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - A memory crash happening when resetting the context scene to NULL with the
   HUD active
 
-## [2022.1] [libnodegl 0.1.0] - 2022-01-20
+## [2022.1 / libnodegl 0.1.0][2022.1] - 2022-01-20
 ### Added
 - This Changelog
 
