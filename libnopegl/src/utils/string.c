@@ -43,20 +43,18 @@ char *ngli_strdup(const char *s)
 
 char *ngli_asprintf(const char *fmt, ...)
 {
-    char *p = NULL;
     va_list va;
-    int len;
 
     va_start(va, fmt);
-    len = vsnprintf(NULL, 0, fmt, va);
+    int len = vsnprintf(NULL, 0, fmt, va);
     va_end(va);
     if (len < 0)
-        goto end;
+        return NULL;
 
     const size_t n = (size_t)len + 1;
-    p = ngli_malloc(n);
+    char *p = ngli_malloc(n);
     if (!p)
-        goto end;
+        return NULL;
 
     va_start(va, fmt);
     len = vsnprintf(p, n, fmt, va);
@@ -64,7 +62,6 @@ char *ngli_asprintf(const char *fmt, ...)
     if (len < 0)
         ngli_freep(&p);
 
-end:
     return p;
 }
 static int count_lines(const char *s)
