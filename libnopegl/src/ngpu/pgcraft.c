@@ -81,8 +81,8 @@ struct ngpu_pgcraft {
     struct ngpu_program *program;
     struct ngpu_bindgroup_layout *bindgroup_layout;
 
-    int bindings[NGLI_BINDING_TYPE_NB];
-    int *next_bindings[NGLI_BINDING_TYPE_NB];
+    uint32_t bindings[NGLI_BINDING_TYPE_NB];
+    uint32_t *next_bindings[NGLI_BINDING_TYPE_NB];
     int next_in_locations[NGPU_PROGRAM_STAGE_NB];
     int next_out_locations[NGPU_PROGRAM_STAGE_NB];
 
@@ -250,12 +250,12 @@ static const char *get_glsl_type(enum ngpu_type type)
     return ret;
 }
 
-static int request_next_binding(struct ngpu_pgcraft *s, enum ngpu_type type)
+static uint32_t request_next_binding(struct ngpu_pgcraft *s, enum ngpu_type type)
 {
     ngli_assert(type >= 0 && type < NGPU_TYPE_NB);
     const int binding_type = type_binding_map[type];
 
-    int *next_bind = s->next_bindings[binding_type];
+    uint32_t *next_bind = s->next_bindings[binding_type];
     ngli_assert(next_bind);
 
     return (*next_bind)++;
@@ -600,7 +600,8 @@ static int inject_block(struct ngpu_pgcraft *s, struct bstr *b,
 
     if (!ngli_darray_push(&s->pipeline_info.data.buffers, &named_block->buffer))
         return NGL_ERROR_MEMORY;
-    return layout_entry.binding;
+
+    return (int)layout_entry.binding;
 }
 
 static int inject_blocks(struct ngpu_pgcraft *s, struct bstr *b,
