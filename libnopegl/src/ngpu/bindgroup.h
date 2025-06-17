@@ -47,7 +47,7 @@ enum ngpu_access {
 struct ngpu_bindgroup_layout_entry {
     size_t id;
     enum ngpu_type type;
-    int binding;
+    uint32_t binding;
     enum ngpu_access access;
     uint32_t stage_flags;
     void *immutable_sampler;

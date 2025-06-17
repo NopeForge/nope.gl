@@ -34,7 +34,7 @@
 
 struct attribute_binding_gl {
     size_t binding;
-    int location;
+    uint32_t location;
     enum ngpu_format format;
     size_t stride;
     size_t offset;

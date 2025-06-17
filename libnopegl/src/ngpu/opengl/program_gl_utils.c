@@ -83,7 +83,7 @@ int ngpu_program_gl_set_locations_and_bindings(struct ngpu_program *s,
         const struct ngpu_bindgroup_layout_entry *entry = &layout_desc.textures[i];
         const char *texture_name = ngpu_pgcraft_get_symbol_name(crafter, entry->id);
         const GLint location = gl->funcs.GetUniformLocation(s_priv->id, texture_name);
-        gl->funcs.Uniform1i(location, entry->binding);
+        gl->funcs.Uniform1i(location, (GLint)entry->binding);
     }
 
     return 0;

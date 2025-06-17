@@ -39,7 +39,7 @@ struct ngpu_ctx;
 
 struct ngpu_vertex_attribute {
     size_t id;
-    int location;
+    uint32_t location;
     enum ngpu_format format;
     size_t offset;
 };
