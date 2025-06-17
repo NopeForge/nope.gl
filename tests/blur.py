@@ -48,7 +48,7 @@ def blur_gaussian(cfg: ngl.SceneCfg):
             ]
         ),
     )
-    return ngl.Group(children=(blur, ngl.DrawTexture(blurred_texture)))
+    return ngl.Group(children=[blur, ngl.DrawTexture(blurred_texture)])
 
 
 @test_fingerprint(width=800, height=800, keyframes=10, tolerance=5)
@@ -70,7 +70,7 @@ def blur_fast_gaussian(cfg: ngl.SceneCfg):
             ]
         ),
     )
-    return ngl.Group(children=(blur, ngl.DrawTexture(blurred_texture)))
+    return ngl.Group(children=[blur, ngl.DrawTexture(blurred_texture)])
 
 
 _BLUR_HEXAGONAL_CUEPOINTS = get_grid_points(10, 10)
@@ -96,7 +96,7 @@ def blur_hexagonal(cfg: ngl.SceneCfg, show_dbg_points=False):
         ),
     )
 
-    group = ngl.Group(children=(blur, ngl.DrawTexture(blurred_texture)))
+    group = ngl.Group(children=[blur, ngl.DrawTexture(blurred_texture)])
     if show_dbg_points:
         group.add_children(get_points_nodes(cfg, _BLUR_HEXAGONAL_CUEPOINTS))
 
@@ -163,7 +163,7 @@ def blur_hexagonal_with_map(cfg: ngl.SceneCfg, show_dbg_points=False):
         map=map_texture,
     )
 
-    group = ngl.Group(children=(blur, ngl.DrawTexture(blurred_texture)))
+    group = ngl.Group(children=[blur, ngl.DrawTexture(blurred_texture)])
     if show_dbg_points:
         group.add_children(get_points_nodes(cfg, _BLUR_HEXAGONAL_CUEPOINTS))
 

@@ -300,12 +300,12 @@ def transform_path(cfg: ngl.SceneCfg):
     )
     # fmt: on
 
-    keyframes = (
+    keyframes = [
         ngl.PathKeyMove(to=points[0]),
         ngl.PathKeyLine(to=points[1]),
         ngl.PathKeyBezier2(control=controls[0], to=points[0]),
         ngl.PathKeyBezier3(control1=controls[0], control2=controls[1], to=points[1]),
-    )
+    ]
     path = ngl.Path(keyframes)
 
     # We use back_in_out easing to force an overflow on both sides

@@ -9,7 +9,7 @@ In order to use the `pynopegl`, you will have to rely on the [reference node
 specifications][ref-libnopegl]. The Python binding classes and parameters are
 directly named after the names found in the specifications. For example, to get
 an instance of a [Group][ref-libnopegl-group], one has to instantiate a `Group`
-such as `g = Group(children=(r1, r2, r3))`.
+such as `g = Group(children=[r1, r2, r3])`.
 
 ## Parameters in constructors
 

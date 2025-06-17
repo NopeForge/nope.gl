@@ -57,7 +57,7 @@ def get_points_nodes(
     for pos_name, position in points.items():
         text = ngl.Text(pos_name, box=box, bg_opacity=0, valign="top")
         text = ngl.Translate(text, (1 + radius, 1 - radius - text_size[1], 0))
-        point = ngl.Group(children=(circle_draw, text))
+        point = ngl.Group(children=[circle_draw, text])
         point = ngl.Translate(point, position + (0,))
         g.add_children(point)
     return g

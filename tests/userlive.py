@@ -54,7 +54,7 @@ def _get_userlive_switch_func():
         switch0.set_enabled(s0_enabled)
         switch1.set_enabled(s1_enabled)
         switch2.set_enabled(s2_enabled)
-        return ngl.Group(children=(switch0, switch1, switch2))
+        return ngl.Group(children=[switch0, switch1, switch2])
 
     return scene_func
 
@@ -87,7 +87,7 @@ def _get_userlive_select_func():
 
     # Select has 3 branches: simple over blending, additive blending, multiply
     # blending
-    select = ngl.UserSelect(branches=(above, gc0, gc1))
+    select = ngl.UserSelect(branches=[above, gc0, gc1])
 
     def keyframes_callback(t_id):
         # 4 states: the for the 3 blending branches and one extra for nothing
@@ -106,7 +106,7 @@ def _get_userlive_select_func():
     def scene_func(cfg: ngl.SceneCfg, branch=0):
         cfg.aspect_ratio = (1, 1)
         select.set_branch(branch)
-        return ngl.Group(children=(below, select))
+        return ngl.Group(children=[below, select])
 
     return scene_func
 

@@ -186,11 +186,11 @@ def blending_and_stencil(cfg: ngl.SceneCfg):
 
         factor = cfg.rng.random() * 0.4 + center[2]
         keyframe = cfg.duration * (cfg.rng.random() * 0.4 + 0.2)
-        animkf = (
+        animkf = [
             ngl.AnimKeyFrameVec3(0, (factor, factor, 0)),
             ngl.AnimKeyFrameVec3(keyframe, (factor + 0.1, factor + 0.1, 0)),
             ngl.AnimKeyFrameVec3(cfg.duration, (factor, factor, 0)),
-        )
+        ]
         scale = ngl.Scale(draw, factors=ngl.AnimatedVec3(animkf))
 
         translate = ngl.Translate(scale, vector=(center[0], center[1], 0))

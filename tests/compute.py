@@ -241,7 +241,7 @@ def compute_histogram(cfg: ngl.SceneCfg, show_dbg_points=False):
     draw = ngl.Draw(quad, program, label="draw_histogram")
     draw.update_frag_resources(hist=histogram_block)
 
-    group = ngl.Group(children=(clear_histogram, exec_histogram, draw))
+    group = ngl.Group(children=[clear_histogram, exec_histogram, draw])
     if show_dbg_points:
         group.add_children(get_points_nodes(cfg, _CUEPOINTS))
     return group
@@ -296,7 +296,7 @@ def _compute_animation(cfg: ngl.SceneCfg, animate_pre_draw=True):
     draw = ngl.Draw(geometry, program)
     draw.update_frag_resources(color=ngl.UniformVec3(value=COLORS.sgreen), opacity=ngl.UniformFloat(1))
 
-    children = (compute, draw) if animate_pre_draw else (draw, compute)
+    children = [compute, draw] if animate_pre_draw else [draw, compute]
     return ngl.Group(children=children)
 
 
@@ -380,7 +380,7 @@ def compute_image_load_store(cfg: ngl.SceneCfg, show_dbg_points=False):
     )
 
     draw = ngl.DrawTexture(texture_rgba)
-    group = ngl.Group(children=(compute, draw))
+    group = ngl.Group(children=[compute, draw])
 
     if show_dbg_points:
         cuepoints = _get_compute_histogram_cuepoints()
@@ -458,7 +458,7 @@ def _get_compute_image_layered_load_store_scene(cfg: ngl.SceneCfg, texture_cls, 
     )
 
     draw = ngl.DrawTexture(texture_rgba)
-    group = ngl.Group(children=(compute_store, compute_load_store, draw))
+    group = ngl.Group(children=[compute_store, compute_load_store, draw])
 
     if show_dbg_points:
         group.add_children(get_points_nodes(cfg, _CUEPOINTS))
@@ -565,4 +565,4 @@ def compute_image_cube_load_store(cfg: ngl.SceneCfg):
     draw = ngl.Draw(quad, program)
     draw.update_frag_resources(texture=texture)
 
-    return ngl.Group(children=(compute_store, draw))
+    return ngl.Group(children=[compute_store, draw])

@@ -67,11 +67,11 @@ color_static_hsv = _get_static_color_scene_func((0.3, 0.7, 0.6), "hsv")
 def color_negative_values_srgb(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 5
-    kfs = (
+    kfs = [
         # The elastic_in easing has the special property to undershoot under 0
         ngl.AnimKeyFrameVec3(-5, value=(0.0, 0.0, 0.0)),
         ngl.AnimKeyFrameVec3(5, value=(0.0, 0.0, 1.0), easing="elastic_in"),
-    )
+    ]
     color0 = ngl.AnimatedVec3(keyframes=kfs)
     color1 = ngl.UniformVec3(value=(-1.0, -1.0, 1.0))
     return ngl.DrawGradient(color0=color0, color1=color1, linear=True)

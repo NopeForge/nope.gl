@@ -224,7 +224,7 @@ def _get_random_compute(cfg: ngl.SceneCfg, rng, t0, t1):
     draw.update_vert_resources(pos=pos)
     draw = ngl.Scale(draw, factors=(0.5, 0.5, 0))
 
-    return ngl.Group(children=(compute, draw))
+    return ngl.Group(children=[compute, draw])
 
 
 def _get_random_draw(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes):
@@ -319,11 +319,11 @@ def _get_random_layer(cfg: ngl.SceneCfg, rng, t0, t1, enable_computes, layer=4):
             )
             rtt_draw = _get_random_transform(rng, t0, t1, rtt_draw)
             t_start, t_end = _get_random_time_range(rng, t0, t1)
-            rtt_group = ngl.Group(children=(rtt, rtt_draw))
+            rtt_group = ngl.Group(children=[rtt, rtt_draw])
             t_filter = ngl.TimeRangeFilter(rtt_group, t_start, t_end)
 
             # Draw both the children and the rendered texture
-            child = ngl.Group(children=(t_filter, child))
+            child = ngl.Group(children=[t_filter, child])
 
         else:
             # We are at a leaf (last layer) so we create a random draw
@@ -367,7 +367,7 @@ def _get_scene(cfg: ngl.SceneCfg, seed=0, enable_computes=True):
     camera.set_up(0.0, 1.0, 0.0)
     camera.set_perspective(45.0, cfg.aspect_ratio_float)
     camera.set_clipping(1.0, 10.0)
-    return ngl.Group(children=(bg, camera))
+    return ngl.Group(children=[bg, camera])
 
 
 @ngl.scene(controls=dict(seed=ngl.scene.Range(range=[0, 1000]), enable_computes=ngl.scene.Bool()))

@@ -51,7 +51,7 @@ def compare(cfg: ngl.SceneCfg, scene0: ngl.Node, scene1: ngl.Node, xsplit: float
     scene1 = ngl.GraphicConfig(scene1, stencil_func="notequal")
 
     stencil_test = ngl.GraphicConfig(
-        ngl.Group(children=(scene0, scene1)),
+        ngl.Group(children=[scene0, scene1]),
         stencil_test=True,
         stencil_ref=1,
         stencil_read_mask=0xFF,
@@ -61,4 +61,4 @@ def compare(cfg: ngl.SceneCfg, scene0: ngl.Node, scene1: ngl.Node, xsplit: float
         stencil_depth_pass="keep",
     )
 
-    return ngl.Group(children=(scene_mask, stencil_test))
+    return ngl.Group(children=[scene_mask, stencil_test])
