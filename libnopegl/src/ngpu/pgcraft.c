@@ -1152,7 +1152,7 @@ static int craft_comp(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
     return samplers_preproc(s, params, b);
 }
 
-NGLI_STATIC_ASSERT("resource name offset", offsetof(struct ngpu_bindgroup_layout_entry, id) == 0);
+NGLI_STATIC_ASSERT(offsetof(struct ngpu_bindgroup_layout_entry, id) == 0, "resource name offset");
 
 static int32_t get_ublock_index(const struct ngpu_pgcraft *s, const char *name, enum ngpu_program_stage stage)
 {

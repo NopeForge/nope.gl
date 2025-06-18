@@ -31,7 +31,7 @@ struct time_priv {
     float time;
 };
 
-NGLI_STATIC_ASSERT("variable_info is first", offsetof(struct time_priv, var) == 0);
+NGLI_STATIC_ASSERT(offsetof(struct time_priv, var) == 0, "variable_info is first");
 
 static int time_init(struct ngl_node *node)
 {

@@ -60,7 +60,7 @@ struct texture_priv {
     struct rtt_ctx *rtt_ctx;
 };
 
-NGLI_STATIC_ASSERT("texture_info is first", offsetof(struct texture_priv, texture_info) == 0);
+NGLI_STATIC_ASSERT(offsetof(struct texture_priv, texture_info) == 0, "texture_info is first");
 
 enum ngpu_pgcraft_texture_type ngli_node_texture_get_pgcraft_texture_type(const struct ngl_node *node)
 {

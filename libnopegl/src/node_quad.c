@@ -60,7 +60,7 @@ static const struct node_param quad_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT("geom on top of quad", offsetof(struct quad_priv, geom) == 0);
+NGLI_STATIC_ASSERT(offsetof(struct quad_priv, geom) == 0, "geom on top of quad");
 
 #define NB_VERTICES 4
 

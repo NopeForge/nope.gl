@@ -36,9 +36,9 @@
 #include "utils/utils.h"
 
 /* We depend on the monotonically incrementing by 1 property of these fields */
-NGLI_STATIC_ASSERT("node uniform vec flt", NGL_NODE_UNIFORMVEC4      - NGL_NODE_UNIFORMFLOAT       == 3);
-NGLI_STATIC_ASSERT("node animkf vec flt",  NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3);
-NGLI_STATIC_ASSERT("node anim vec flt",    NGL_NODE_ANIMATEDVEC4     - NGL_NODE_ANIMATEDFLOAT      == 3);
+NGLI_STATIC_ASSERT(NGL_NODE_UNIFORMVEC4      - NGL_NODE_UNIFORMFLOAT       == 3, "node uniform vec flt");
+NGLI_STATIC_ASSERT(NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3, "node animkf vec flt");
+NGLI_STATIC_ASSERT(NGL_NODE_ANIMATEDVEC4     - NGL_NODE_ANIMATEDFLOAT      == 3, "node anim vec flt");
 
 /* Warning: the common node parameters *must* not include any node-based parameter */
 #define OFFSET(x) offsetof(struct ngl_node, x)

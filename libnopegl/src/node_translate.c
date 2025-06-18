@@ -88,7 +88,7 @@ static const struct node_param translate_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT("trf on top of translate", offsetof(struct translate_priv, trf) == 0);
+NGLI_STATIC_ASSERT(offsetof(struct translate_priv, trf) == 0, "trf on top of translate");
 
 const struct node_class ngli_translate_class = {
     .id        = NGL_NODE_TRANSLATE,
