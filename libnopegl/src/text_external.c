@@ -371,7 +371,7 @@ static void reset_runs(struct darray *runs_array)
 }
 
 /* Make sure we can hold the whole Unicode codepoints */
-NGLI_STATIC_ASSERT("fribidi chars are 32bit", sizeof(FriBidiChar) == 4);
+NGLI_STATIC_ASSERT(sizeof(FriBidiChar) == 4, "fribidi chars are 32bit");
 
 static int char_is_linebreak(FriBidiChar ch)
 {

@@ -135,17 +135,17 @@ struct filtersrgb2linear_priv {
 
 /* struct filter must be on top of each context because that's how the private
  * data is read externally and in the params below */
-NGLI_STATIC_ASSERT("filter on top of alpha_priv",         offsetof(struct filteralpha_priv,         filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of colormap_priv",      offsetof(struct filtercolormap_priv,      filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of contrast_priv",      offsetof(struct filtercontrast_priv,      filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of exposure_priv",      offsetof(struct filterexposure_priv,      filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of inversealpha_priv",  offsetof(struct filterinversealpha_priv,  filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of linear2srgb_priv",   offsetof(struct filterlinear2srgb_priv,   filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of opacity_priv",       offsetof(struct filteropacity_priv,       filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of premult_priv",       offsetof(struct filterpremult_priv,       filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of saturation_priv",    offsetof(struct filtersaturation_priv,    filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of selector_priv",      offsetof(struct filterselector_priv,      filter) == 0);
-NGLI_STATIC_ASSERT("filter on top of srgb2linear_priv",   offsetof(struct filtersrgb2linear_priv,   filter) == 0);
+NGLI_STATIC_ASSERT(offsetof(struct filteralpha_priv,        filter) == 0, "filter on top of alpha_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filtercolormap_priv,     filter) == 0, "filter on top of colormap_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filtercontrast_priv,     filter) == 0, "filter on top of contrast_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filterexposure_priv,     filter) == 0, "filter on top of exposure_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filterinversealpha_priv, filter) == 0, "filter on top of inversealpha_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filterlinear2srgb_priv,  filter) == 0, "filter on top of linear2srgb_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filteropacity_priv,      filter) == 0, "filter on top of opacity_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filterpremult_priv,      filter) == 0, "filter on top of premult_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filtersaturation_priv,   filter) == 0, "filter on top of saturation_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filterselector_priv,     filter) == 0, "filter on top of selector_priv");
+NGLI_STATIC_ASSERT(offsetof(struct filtersrgb2linear_priv,  filter) == 0, "filter on top of srgb2linear_priv");
 
 #define OFFSET(x) offsetof(struct filteralpha_opts, x)
 static const struct node_param filteralpha_params[] = {

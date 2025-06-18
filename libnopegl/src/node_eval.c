@@ -126,7 +126,7 @@ static const struct node_param eval_vec4_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT("variable_info is first", offsetof(struct eval_priv, var) == 0);
+NGLI_STATIC_ASSERT(offsetof(struct eval_priv, var) == 0, "variable_info is first");
 
 static const char * const comp_selectors[] = {"0123", "rgba", "xyzw", "stpq"};
 

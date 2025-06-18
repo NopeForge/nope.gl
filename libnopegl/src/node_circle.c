@@ -49,7 +49,7 @@ static const struct node_param circle_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT("geometry is first", offsetof(struct circle_priv, geom) == 0);
+NGLI_STATIC_ASSERT(offsetof(struct circle_priv, geom) == 0, "geometry is first");
 
 static int circle_init(struct ngl_node *node)
 {
