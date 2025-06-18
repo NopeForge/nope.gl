@@ -41,14 +41,14 @@
 #include "egl.h"
 #endif
 
-NGLI_STATIC_ASSERT(sizeof(GLfloat)  == sizeof(float),          "gfloat size");
-NGLI_STATIC_ASSERT(sizeof(GLbyte)   == sizeof(char),           "gbyte size");
-NGLI_STATIC_ASSERT(sizeof(GLshort)  == sizeof(short),          "gshort size");
-NGLI_STATIC_ASSERT(sizeof(GLint)    == sizeof(int),            "gint size");
-NGLI_STATIC_ASSERT(sizeof(GLubyte)  == sizeof(unsigned char),  "gubyte size");
-NGLI_STATIC_ASSERT(sizeof(GLushort) == sizeof(unsigned short), "gushort size");
-NGLI_STATIC_ASSERT(sizeof(GLuint)   == sizeof(unsigned int),   "guint size");
-NGLI_STATIC_ASSERT(GL_FALSE == 0 && GL_TRUE == 1,              "gl bool");
+NGLI_STATIC_ASSERT(sizeof(GLfloat)  == sizeof(float),          "GLfloat size");
+NGLI_STATIC_ASSERT(sizeof(GLbyte)   == sizeof(char),           "GLbyte size");
+NGLI_STATIC_ASSERT(sizeof(GLshort)  == sizeof(short),          "GLshort size");
+NGLI_STATIC_ASSERT(sizeof(GLint)    == sizeof(int),            "GLint size");
+NGLI_STATIC_ASSERT(sizeof(GLubyte)  == sizeof(unsigned char),  "GLubyte size");
+NGLI_STATIC_ASSERT(sizeof(GLushort) == sizeof(unsigned short), "GLushort size");
+NGLI_STATIC_ASSERT(sizeof(GLuint)   == sizeof(unsigned int),   "GLuint size");
+NGLI_STATIC_ASSERT(GL_FALSE == 0 && GL_TRUE == 1,              "GLboolean values");
 
 enum {
     GLPLATFORM_EGL,
