@@ -46,8 +46,8 @@
 #define MAX_BIT_DEPTH 8
 
 struct stats_params_block {
-    int depth;
-    int length_minus1;
+    int32_t depth;
+    int32_t length_minus1;
 };
 
 struct colorstats_opts {
@@ -65,8 +65,8 @@ static const struct node_param colorstats_params[] = {
 
 struct colorstats_priv {
     struct block_info blk;
-    int depth;
-    int length_minus1;
+    uint32_t depth;
+    uint32_t length_minus1;
     uint32_t group_size;
 
     struct ngpu_block stats_params_block;
@@ -75,7 +75,7 @@ struct colorstats_priv {
     struct {
         struct ngpu_pgcraft *crafter;
         struct pipeline_compat *pipeline_compat;
-        int32_t wg_count;
+        uint32_t wg_count;
     } init;
 
     /* Waveform compute */
@@ -204,7 +204,7 @@ static int init_computes(struct ngl_node *node)
      * a fallback.
      */
     const struct ngpu_limits *limits = &gpu_ctx->limits;
-    const int max_group_size_x = limits->max_compute_work_group_size[0];
+    const uint32_t max_group_size_x = limits->max_compute_work_group_size[0];
     s->group_size = max_group_size_x >= 256 ? 256 : 128;
     LOG(DEBUG, "using a workgroup size of %u", s->group_size);
 
@@ -307,22 +307,23 @@ static int colorstats_init(struct ngl_node *node)
     return 0;
 }
 
-static int alloc_block_buffer(struct ngl_node *node, int32_t length)
+static int alloc_block_buffer(struct ngl_node *node, uint32_t length)
 {
     struct colorstats_priv *s = node->priv_data;
 
     /* We assume a 8-bit sampling all the time for now */
-    s->depth = 1 << 8;
+    s->depth = 1U << 8;
 
     /*
      * Horizontal length, minus 1 to reduce operations in the shader
      * TODO: add a vertical mode using the image height instead
      */
     s->length_minus1 = length - 1;
+    ngli_assert(s->length_minus1 <= INT32_MAX - 1);
 
     ngpu_block_update(&s->stats_params_block, 0, &(const struct stats_params_block) {
-        .depth = s->depth,
-        .length_minus1 = s->length_minus1,
+        .depth = (int32_t)s->depth,
+        .length_minus1 = (int32_t)s->length_minus1,
     });
 
     /*
@@ -388,14 +389,14 @@ static int colorstats_update(struct ngl_node *node, double t)
         LOG(ERROR, "invalid texture width: %d", texture_info->image.params.width);
         return NGL_ERROR_INVALID_DATA;
     }
-    const int32_t source_w = texture_info->image.params.width;
+    const uint32_t source_w = (uint32_t)texture_info->image.params.width;
     if (!s->blk.buffer)
         return alloc_block_buffer(node, source_w);
 
     /* Stream size change event */
     if (s->length_minus1 != source_w - 1) {
         // TODO: we need to resize the block data field / reallocate the underlying buffer
-        LOG(ERROR, "stream size change (%d -> %d) is not supported", s->length_minus1 + 1, source_w);
+        LOG(ERROR, "stream size change (%u -> %u) is not supported", s->length_minus1 + 1, source_w);
         return NGL_ERROR_UNSUPPORTED;
     }
 
