@@ -56,11 +56,11 @@ struct hwmap {
     int32_t width;
     int32_t height;
     struct image mapped_image;
-    int require_hwconv;
+    bool require_hwconv;
     struct hwconv hwconv;
     struct ngpu_texture *hwconv_texture;
     struct image hwconv_image;
-    int hwconv_initialized;
+    bool hwconv_initialized;
 };
 
 struct hwmap_class {

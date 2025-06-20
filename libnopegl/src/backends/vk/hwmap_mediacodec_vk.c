@@ -51,26 +51,26 @@ struct hwmap_mc {
     struct ycbcr_sampler_vk *ycbcr_sampler;
 };
 
-static int support_direct_rendering(struct hwmap *hwmap)
+static bool support_direct_rendering(struct hwmap *hwmap)
 {
     const struct hwmap_params *params = &hwmap->params;
 
     if (params->texture_mipmap_filter) {
         LOG(WARNING, "samplers with YCbCr conversion enabled do not support mipmapping: "
             "disabling direct rendering");
-        return 0;
+        return false;
     } else if (params->texture_wrap_s != NGPU_WRAP_CLAMP_TO_EDGE ||
                params->texture_wrap_t != NGPU_WRAP_CLAMP_TO_EDGE) {
         LOG(WARNING, "samplers with YCbCr conversion enabled only support clamp to edge wrapping: "
             "disabling direct rendering");
-        return 0;
+        return false;
     } else if (params->texture_min_filter != params->texture_mag_filter) {
         LOG(WARNING, "samplers with YCbCr conversion enabled must have the same min/mag filters: "
             "disabling direct_rendering");
-        return 0;
+        return false;
     }
 
-    return 1;
+    return true;
 }
 
 static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
