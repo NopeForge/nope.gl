@@ -183,11 +183,11 @@ int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap
 
 static void hwmap_reset(struct hwmap *hwmap)
 {
-    hwmap->require_hwconv = 0;
+    hwmap->require_hwconv = false;
     ngli_hwconv_reset(&hwmap->hwconv);
     ngli_image_reset(&hwmap->hwconv_image);
     ngpu_texture_freep(&hwmap->hwconv_texture);
-    hwmap->hwconv_initialized = 0;
+    hwmap->hwconv_initialized = false;
     ngli_image_reset(&hwmap->mapped_image);
     if (hwmap->hwmap_priv_data && hwmap->hwmap_class) {
         hwmap->hwmap_class->uninit(hwmap);
@@ -245,14 +245,14 @@ int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct im
         goto end;
 
     if (is_hdr(frame->color_trc))
-        hwmap->require_hwconv = 1;
+        hwmap->require_hwconv = true;
 
     if (hwmap->require_hwconv) {
         if (!hwmap->hwconv_initialized) {
             ret = init_hwconv(hwmap);
             if (ret < 0)
                 goto end;
-            hwmap->hwconv_initialized = 1;
+            hwmap->hwconv_initialized = true;
         }
         ret = exec_hwconv(hwmap);
         if (ret < 0)

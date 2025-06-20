@@ -56,17 +56,17 @@ struct hwmap_vaapi {
     int surface_acquired;
 };
 
-static int support_direct_rendering(struct hwmap *hwmap)
+static bool support_direct_rendering(struct hwmap *hwmap)
 {
     const struct hwmap_params *params = &hwmap->params;
 
-    int direct_rendering = NGLI_HAS_ALL_FLAGS(params->image_layouts, NGLI_IMAGE_LAYOUT_NV12_BIT);
+    bool direct_rendering = NGLI_HAS_ALL_FLAGS(params->image_layouts, NGLI_IMAGE_LAYOUT_NV12_BIT);
 
     if (direct_rendering && params->texture_mipmap_filter) {
         LOG(WARNING,
             "vaapi direct rendering does not support mipmapping: "
             "disabling direct rendering");
-        direct_rendering = 0;
+        direct_rendering = false;
     }
 
     return direct_rendering;

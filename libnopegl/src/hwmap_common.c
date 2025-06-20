@@ -169,15 +169,15 @@ static const struct format_desc *common_get_format_desc(int pix_fmt)
     return desc;
 }
 
-static int support_direct_rendering(struct hwmap *hwmap, const struct format_desc *desc)
+static bool support_direct_rendering(struct hwmap *hwmap, const struct format_desc *desc)
 {
     const struct hwmap_params *params = &hwmap->params;
 
-    int direct_rendering = 1;
+    bool direct_rendering = true;
     if (desc->layout != NGLI_IMAGE_LAYOUT_DEFAULT) {
         direct_rendering = NGLI_HAS_ALL_FLAGS(params->image_layouts, (1 << desc->layout));
         if (params->texture_mipmap_filter != NGPU_MIPMAP_FILTER_NONE)
-            direct_rendering = 0;
+            direct_rendering = false;
     }
 
     return direct_rendering;
