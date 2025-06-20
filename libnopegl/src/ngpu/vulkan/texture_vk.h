@@ -42,8 +42,8 @@ struct ngpu_texture_vk {
     struct ngpu_texture parent;
     VkFormat format;
     size_t bytes_per_pixel;
-    int array_layers;
-    int mipmap_levels;
+    uint32_t array_layers;
+    uint32_t mipmap_levels;
     VkImage image;
     int wrapped_image;
     VkImageLayout default_image_layout;
@@ -63,7 +63,7 @@ struct ngpu_texture_vk {
 struct ngpu_texture *ngpu_texture_vk_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_texture_vk_init(struct ngpu_texture *s, const struct ngpu_texture_params *params);
 VkResult ngpu_texture_vk_wrap(struct ngpu_texture *s, const struct ngpu_texture_vk_wrap_params *wrap_params);
-int ngpu_texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, int linesize);
+int ngpu_texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, uint32_t linesize);
 int ngpu_texture_vk_upload_with_params(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params);
 int ngpu_texture_vk_generate_mipmap(struct ngpu_texture *s);
 void ngpu_texture_vk_transition_layout(struct ngpu_texture *s, VkImageLayout layout);

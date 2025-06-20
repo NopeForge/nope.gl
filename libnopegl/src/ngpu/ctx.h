@@ -44,7 +44,7 @@ struct ngpu_viewport {
 };
 
 struct ngpu_scissor {
-    int32_t x, y, width, height;
+    uint32_t x, y, width, height;
 };
 
 int ngpu_viewport_is_valid(const struct ngpu_viewport *viewport);
@@ -61,7 +61,7 @@ struct ngpu_ctx_class {
 
     struct ngpu_ctx *(*create)(const struct ngl_config *config);
     int (*init)(struct ngpu_ctx *s);
-    int (*resize)(struct ngpu_ctx *s, int32_t width, int32_t height);
+    int (*resize)(struct ngpu_ctx *s, uint32_t width, uint32_t height);
     int (*set_capture_buffer)(struct ngpu_ctx *s, void *capture_buffer);
     int (*begin_update)(struct ngpu_ctx *s);
     int (*end_update)(struct ngpu_ctx *s);
@@ -77,7 +77,7 @@ struct ngpu_ctx_class {
 
     struct ngpu_rendertarget *(*get_default_rendertarget)(struct ngpu_ctx *s, enum ngpu_load_op load_op);
     const struct ngpu_rendertarget_layout *(*get_default_rendertarget_layout)(struct ngpu_ctx *s);
-    void (*get_default_rendertarget_size)(struct ngpu_ctx *s, int32_t *width, int32_t *height);
+    void (*get_default_rendertarget_size)(struct ngpu_ctx *s, uint32_t *width, uint32_t *height);
 
     void (*begin_render_pass)(struct ngpu_ctx *s, struct ngpu_rendertarget *rt);
     void (*end_render_pass)(struct ngpu_ctx *s);
@@ -132,7 +132,7 @@ struct ngpu_ctx_class {
 
     struct ngpu_texture *(*texture_create)(struct ngpu_ctx *ctx);
     int (*texture_init)(struct ngpu_texture *s, const struct ngpu_texture_params *params);
-    int (*texture_upload)(struct ngpu_texture *s, const uint8_t *data, int linesize);
+    int (*texture_upload)(struct ngpu_texture *s, const uint8_t *data, uint32_t linesize);
     int (*texture_upload_with_params)(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params);
     int (*texture_generate_mipmap)(struct ngpu_texture *s);
     void (*texture_freep)(struct ngpu_texture **sp);
@@ -170,7 +170,7 @@ struct ngpu_ctx {
 
 struct ngpu_ctx *ngpu_ctx_create(const struct ngl_config *config);
 int ngpu_ctx_init(struct ngpu_ctx *s);
-int ngpu_ctx_resize(struct ngpu_ctx *s, int32_t width, int32_t height);
+int ngpu_ctx_resize(struct ngpu_ctx *s, uint32_t width, uint32_t height);
 int ngpu_ctx_set_capture_buffer(struct ngpu_ctx *s, void *capture_buffer);
 uint32_t ngpu_ctx_advance_frame(struct ngpu_ctx *s);
 uint32_t ngpu_ctx_get_current_frame_index(struct ngpu_ctx *s);
@@ -189,7 +189,7 @@ void ngpu_ctx_get_rendertarget_uvcoord_matrix(struct ngpu_ctx *s, float *dst);
 
 struct ngpu_rendertarget *ngpu_ctx_get_default_rendertarget(struct ngpu_ctx *s, enum ngpu_load_op load_op);
 const struct ngpu_rendertarget_layout *ngpu_ctx_get_default_rendertarget_layout(struct ngpu_ctx *s);
-void ngpu_ctx_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, int32_t *height);
+void ngpu_ctx_get_default_rendertarget_size(struct ngpu_ctx *s, uint32_t *width, uint32_t *height);
 
 void ngpu_ctx_begin_render_pass(struct ngpu_ctx *s, struct ngpu_rendertarget *rt);
 void ngpu_ctx_end_render_pass(struct ngpu_ctx *s);

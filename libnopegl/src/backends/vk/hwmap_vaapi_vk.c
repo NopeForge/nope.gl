@@ -116,8 +116,8 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
         vaapi->fds[i] = -1;
 
     const struct image_params image_params = {
-        .width = frame->width,
-        .height = frame->height,
+        .width = (uint32_t)frame->width,
+        .height = (uint32_t)frame->height,
         .layout = NGLI_IMAGE_LAYOUT_NV12,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_nopemd_frame(frame),
@@ -214,8 +214,8 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     for (size_t i = 0; i < nb_layers; i++) {
         const enum ngpu_format ngl_format = desc.formats[i];
         const VkFormat format = ngpu_format_ngl_to_vk(ngl_format);
-        const int32_t width = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc.log2_chroma_width);
-        const int32_t height = i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc.log2_chroma_height);
+        const uint32_t width = (uint32_t)(i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc.log2_chroma_width));
+        const uint32_t height = (uint32_t)(i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc.log2_chroma_height));
 
         const uint32_t id = vaapi->surface_descriptor.layers[i].object_index[0];
         const int fd = vaapi->surface_descriptor.objects[id].fd;
@@ -295,7 +295,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 
         const VkExtent3D max = fmt_props.imageFormatProperties.maxExtent;
         if (width > max.width || height > max.height) {
-            LOG(ERROR, "plane dimensions (%dx%d) exceed GPU limits (%ux%u)",
+            LOG(ERROR, "plane dimensions (%ux%u) exceed GPU limits (%ux%u)",
                 width, height, max.width, max.height);
             return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
         }

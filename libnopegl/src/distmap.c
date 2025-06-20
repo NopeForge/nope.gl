@@ -535,8 +535,8 @@ int ngli_distmap_finalize(struct distmap *s)
 
     const struct ngpu_texture_params tex_params = {
         .type       = NGPU_TEXTURE_TYPE_2D,
-        .width      = s->texture_w,
-        .height     = s->texture_h,
+        .width      = (uint32_t)s->texture_w,
+        .height     = (uint32_t)s->texture_h,
         .format     = get_preferred_distmap_format(s),
         .min_filter = NGPU_FILTER_LINEAR,
         .mag_filter = NGPU_FILTER_LINEAR,
@@ -555,8 +555,8 @@ int ngli_distmap_finalize(struct distmap *s)
         return ret;
 
     const struct ngpu_rendertarget_params rt_params = {
-        .width = s->texture_w,
-        .height = s->texture_h,
+        .width = (uint32_t)s->texture_w,
+        .height = (uint32_t)s->texture_h,
         .nb_colors = 1,
         .colors[0] = {
             .attachment = s->texture,

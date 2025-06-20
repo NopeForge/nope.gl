@@ -45,7 +45,7 @@ int ngpu_texture_init(struct ngpu_texture *s, const struct ngpu_texture_params *
     return s->gpu_ctx->cls->texture_init(s, params);
 }
 
-int ngpu_texture_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
+int ngpu_texture_upload(struct ngpu_texture *s, const uint8_t *data, uint32_t linesize)
 {
     return s->gpu_ctx->cls->texture_upload(s, data, linesize);
 }

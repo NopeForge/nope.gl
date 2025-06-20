@@ -226,7 +226,7 @@ static VkFormatFeatureFlags get_vk_texture_format_features(const struct ngpu_tex
     return features;
 }
 
-static int get_mipmap_levels(int32_t width, int32_t height)
+static uint32_t get_mipmap_levels(uint32_t width, uint32_t height)
 {
     return ngli_log2(width | height | 1);
 }
@@ -663,7 +663,7 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
     struct darray copy_regions;
     ngli_darray_init(&copy_regions, sizeof(VkBufferImageCopy), 0);
 
-    for (int32_t i = transfer_params->base_layer; i < transfer_params->layer_count; i++) {
+    for (uint32_t i = transfer_params->base_layer; i < transfer_params->layer_count; i++) {
         const VkDeviceSize offset = i * transfer_layer_size;
         const VkBufferImageCopy region = {
             .bufferOffset      = offset,
@@ -676,9 +676,9 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
                 .layerCount     = 1,
             },
             .imageOffset = {
-                transfer_params->x,
-                transfer_params->y,
-                transfer_params->z,
+                (int32_t)transfer_params->x,
+                (int32_t)transfer_params->y,
+                (int32_t)transfer_params->z,
             },
             .imageExtent = {
                 transfer_params->width,
@@ -724,7 +724,7 @@ static VkResult texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, c
     return VK_SUCCESS;
 }
 
-int ngpu_texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, int linesize)
+int ngpu_texture_vk_upload(struct ngpu_texture *s, const uint8_t *data, uint32_t linesize)
 {
     struct ngpu_texture_vk *s_priv = (struct ngpu_texture_vk *)s;
     const struct ngpu_texture_params *params = &s->params;
@@ -792,8 +792,8 @@ static VkResult texture_vk_generate_mipmap(struct ngpu_texture *s)
         }
     };
 
-    int32_t mipmap_width  = s->params.width;
-    int32_t mipmap_height = s->params.height;
+    int32_t mipmap_width  = (int32_t)s->params.width;
+    int32_t mipmap_height = (int32_t)s->params.height;
     for (uint32_t i = 1; i < s_priv->mipmap_levels; i++) {
         barrier.subresourceRange.baseMipLevel = i - 1;
         barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;

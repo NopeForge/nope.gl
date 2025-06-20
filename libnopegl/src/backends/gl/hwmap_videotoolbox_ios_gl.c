@@ -134,7 +134,7 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, size
     gl->funcs.BindTexture(GL_TEXTURE_2D, 0);
 
     ngpu_texture_gl_set_id(plane, id);
-    ngpu_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
+    ngpu_texture_gl_set_dimensions(plane, (uint32_t)width, (uint32_t)height, 0);
 
     return 0;
 }
@@ -234,8 +234,8 @@ static int vt_ios_init(struct hwmap *hwmap, struct nmd_frame *frame)
     }
 
     const struct image_params image_params = {
-        .width = frame->width,
-        .height = frame->height,
+        .width = (uint32_t)frame->width,
+        .height = (uint32_t)frame->height,
         .layout = vt->format_desc.layout,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_nopemd_frame(frame),

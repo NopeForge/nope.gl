@@ -107,7 +107,7 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t
             width, height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
-    ngpu_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
+    ngpu_texture_gl_set_dimensions(plane, (uint32_t)width, (uint32_t)height, 0);
 
     /* CGLTexImageIOSurface2D() requires GL_UNSIGNED_INT_8_8_8_8_REV instead of GL_UNSIGNED_SHORT to map BGRA IOSurface2D */
     const GLenum format_type = plane_gl->format == GL_BGRA ? GL_UNSIGNED_INT_8_8_8_8_REV : plane_gl->format_type;
@@ -243,8 +243,8 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
     }
 
     const struct image_params image_params = {
-        .width = frame->width,
-        .height = frame->height,
+        .width = (uint32_t)frame->width,
+        .height = (uint32_t)frame->height,
         .layout = vt->format_desc.layout,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_nopemd_frame(frame),
