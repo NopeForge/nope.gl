@@ -393,7 +393,7 @@ void ngpu_glstate_update_scissor(const struct glcontext *gl, struct ngpu_glstate
         glstate->scissor.height == scissor->height)
         return;
     glstate->scissor = *scissor;
-    gl->funcs.Scissor(scissor->x, scissor->y, scissor->width, scissor->height);
+    gl->funcs.Scissor((GLint)scissor->x, (GLint)scissor->y, (GLint)scissor->width, (GLint)scissor->height);
 }
 
 void ngpu_glstate_update_viewport(const struct glcontext *gl, struct ngpu_glstate *glstate, const struct ngpu_viewport *viewport)

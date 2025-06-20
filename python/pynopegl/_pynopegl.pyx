@@ -156,9 +156,9 @@ cdef extern from "nopegl/nopegl.h":
         uintptr_t window
         int  swap_interval
         int  offscreen
-        int32_t width
-        int32_t height
-        int32_t samples
+        uint32_t width
+        uint32_t height
+        uint32_t samples
         int  set_surface_pts
         float clear_color[4]
         void *capture_buffer
@@ -192,7 +192,7 @@ cdef extern from "nopegl/nopegl.h":
     int ngl_configure(ngl_ctx *s, ngl_config *config)
     int ngl_get_backend(ngl_ctx *s, ngl_backend *backend)
     void ngl_reset_backend(ngl_backend *backend)
-    int ngl_resize(ngl_ctx *s, int32_t width, int32_t height)
+    int ngl_resize(ngl_ctx *s, uint32_t width, uint32_t height)
     int ngl_get_viewport(ngl_ctx *s, int32_t *viewport)
     int ngl_set_capture_buffer(ngl_ctx *s, void *capture_buffer)
     int ngl_set_scene(ngl_ctx *s, ngl_scene *scene)

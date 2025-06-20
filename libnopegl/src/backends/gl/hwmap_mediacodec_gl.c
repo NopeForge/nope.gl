@@ -116,8 +116,8 @@ static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
         return ret;
 
     const struct image_params image_params = {
-        .width = frame->width,
-        .height = frame->height,
+        .width = (uint32_t)frame->width,
+        .height = (uint32_t)frame->height,
         .layout = NGLI_IMAGE_LAYOUT_MEDIACODEC,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_nopemd_frame(frame),
@@ -140,7 +140,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
-    ngpu_texture_gl_set_dimensions(mc->texture, frame->width, frame->height, 0);
+    ngpu_texture_gl_set_dimensions(mc->texture, (uint32_t)frame->width, (uint32_t)frame->height, 0);
 
     int ret = nmd_mc_frame_render_and_releasep(&frame);
     if (ret < 0)

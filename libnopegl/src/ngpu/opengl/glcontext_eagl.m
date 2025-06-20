@@ -182,13 +182,13 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
     ctx->funcs.BindRenderbuffer (GL_RENDERBUFFER, eagl->colorbuffer);
     [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
     ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
-    ctx->funcs.GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &ctx->width);
-    ctx->funcs.GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &ctx->height);
+    ctx->funcs.GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, (GLint *)&ctx->width);
+    ctx->funcs.GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, (GLint *)&ctx->height);
 
     if (!ctx->samples) {
         ctx->funcs.GenRenderbuffers(1, &eagl->depthbuffer);
         ctx->funcs.BindRenderbuffer(GL_RENDERBUFFER, eagl->depthbuffer);
-        ctx->funcs.RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
+        ctx->funcs.RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (GLint)ctx->width, (GLint)ctx->height);
         ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
         ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
     }
@@ -205,12 +205,12 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 
         ctx->funcs.GenRenderbuffers(1, &eagl->colorbuffer_ms);
         ctx->funcs.BindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer_ms);
-        ctx->funcs.RenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_RGBA8, ctx->width, ctx->height);
+        ctx->funcs.RenderbufferStorageMultisample(GL_RENDERBUFFER, (GLint)ctx->samples, GL_RGBA8, (GLint)ctx->width, (GLint)ctx->height);
         ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer_ms);
 
         ctx->funcs.GenRenderbuffers(1, &eagl->depthbuffer);
         ctx->funcs.BindRenderbuffer(GL_RENDERBUFFER, eagl->depthbuffer);
-        ctx->funcs.RenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
+        ctx->funcs.RenderbufferStorageMultisample(GL_RENDERBUFFER, (GLint)ctx->samples, GL_DEPTH24_STENCIL8, (GLint)ctx->width, (GLint)ctx->height);
         ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
         ctx->funcs.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
 
@@ -221,7 +221,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
         }
     }
 
-    ctx->funcs.Viewport(0, 0, ctx->width, ctx->height);
+    ctx->funcs.Viewport(0, 0, (GLint)ctx->width, (GLint)ctx->height);
 
     return 0;
 }
@@ -267,7 +267,7 @@ static void eagl_uninit_external(struct glcontext *ctx)
         CFRelease(eagl->texture_cache);
 }
 
-static int eagl_resize(struct glcontext *ctx, int32_t width, int32_t height)
+static int eagl_resize(struct glcontext *ctx, uint32_t width, uint32_t height)
 {
     if (![NSThread isMainThread]) {
         LOG(ERROR, "eagl_resize() must be called from the UI thread");
@@ -304,7 +304,7 @@ static void eagl_swap_buffers(struct glcontext *ctx)
         ctx->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, eagl->fbo_ms);
         ctx->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, eagl->fbo);
         GLbitfield mask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-        ctx->funcs.BlitFramebuffer(0, 0, ctx->width, ctx->height, 0, 0, ctx->width, ctx->height, mask, GL_NEAREST);
+        ctx->funcs.BlitFramebuffer(0, 0, (GLint)ctx->width, (GLint)ctx->height, 0, 0, (GLint)ctx->width, (GLint)ctx->height, mask, GL_NEAREST);
         ctx->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, eagl->fbo_ms);
     }
 

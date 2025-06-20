@@ -61,6 +61,10 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   opened
 - Text outline is now by default on the outer edge, and thus doesn't affect the
   shape of the characters anymore
+- `Texture2D.{width,height}`, `Texture2DArray.{width,height,depth}`,
+  `Texture3d.{width,height,depth}`, `TextureCube.size`, `TextureView.layer` are
+  now unsigned
+- `ngl_config.{width,height,samples}` and `ngl_resize()` arguments are now unsigned
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio

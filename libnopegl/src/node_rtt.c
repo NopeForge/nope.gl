@@ -45,15 +45,15 @@ struct rtt_opts {
     struct ngl_node **color_textures;
     size_t nb_color_textures;
     struct ngl_node *depth_texture;
-    int32_t samples;
+    uint32_t samples;
     float clear_color[4];
     int forward_transforms;
 };
 
 struct rtt_priv {
     struct renderpass_info renderpass_info;
-    int32_t width;
-    int32_t height;
+    uint32_t width;
+    uint32_t height;
     int resizable;
 
     struct ngpu_rendertarget_layout layout;
@@ -85,8 +85,8 @@ static const struct node_param rtt_params[] = {
 struct rtt_texture_info {
     struct ngl_node *node;
     struct texture_info *info;
-    int32_t layer_base;
-    int32_t layer_count;
+    uint32_t layer_base;
+    uint32_t layer_count;
 };
 
 static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
@@ -105,7 +105,7 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
     } else {
         struct texture_info *texture_info = node->priv_data;
         const struct ngpu_texture_params *texture_params = &texture_info->params;
-        int layer_count = 1;
+        uint32_t layer_count = 1;
         if (node->cls->id == NGL_NODE_TEXTURECUBE)
             layer_count = 6;
         else if (node->cls->id == NGL_NODE_TEXTURE3D)
@@ -161,7 +161,7 @@ static int rtt_init(struct ngl_node *node)
             s->height = params->height;
             s->resizable = (s->width == 0 && s->height == 0);
         } else if (s->width != params->width || s->height != params->height) {
-            LOG(ERROR, "all color texture dimensions do not match: %dx%d != %dx%d",
+            LOG(ERROR, "all color texture dimensions do not match: %ux%u != %ux%u",
             s->width, s->height, params->width, params->height);
             return NGL_ERROR_INVALID_ARG;
         }
@@ -189,7 +189,7 @@ static int rtt_init(struct ngl_node *node)
 
         struct ngpu_texture_params *params = &texture_info.info->params;
         if (s->width != params->width || s->height != params->height) {
-            LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
+            LOG(ERROR, "color and depth texture dimensions do not match: %ux%u != %ux%u",
                 s->width, s->height, params->width, params->height);
             return NGL_ERROR_INVALID_ARG;
         }
@@ -287,8 +287,8 @@ static int rtt_prefetch(struct ngl_node *node)
         const struct rtt_texture_info rtt_texture_info = get_rtt_texture_info(o->color_textures[i]);
         struct texture_info *texture_info = rtt_texture_info.info;
         struct ngpu_texture *texture = texture_info->texture;
-        const int32_t layer_end = rtt_texture_info.layer_base + rtt_texture_info.layer_count;
-        for (int32_t j = rtt_texture_info.layer_base; j < layer_end; j++) {
+        const uint32_t layer_end = rtt_texture_info.layer_base + rtt_texture_info.layer_count;
+        for (uint32_t j = rtt_texture_info.layer_base; j < layer_end; j++) {
             s->rtt_params.colors[s->rtt_params.nb_colors++] = (struct ngpu_attachment) {
                 .attachment       = texture,
                 .attachment_layer = j,
@@ -347,10 +347,10 @@ static int rtt_resize(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
     const struct rtt_opts *o = node->opts;
 
-    const int32_t width = ctx->current_rendertarget->width;
-    const int32_t height = ctx->current_rendertarget->height;
+    const uint32_t width = ctx->current_rendertarget->width;
+    const uint32_t height = ctx->current_rendertarget->height;
     if (s->rtt_ctx) {
-        int32_t current_width, current_height;
+        uint32_t current_width, current_height;
         ngli_rtt_get_dimensions(s->rtt_ctx, &current_width, &current_height);
         if (current_width == width && current_height == height)
             return 0;
@@ -449,7 +449,7 @@ fail:
     ngpu_texture_freep(&depth_texture);
     ngli_rtt_freep(&rtt_ctx);
 
-    LOG(ERROR, "failed to resize rtt: %dx%d", width, height);
+    LOG(ERROR, "failed to resize rtt: %ux%u", width, height);
     return ret;
 }
 

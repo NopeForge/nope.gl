@@ -371,14 +371,14 @@ int ngpu_bindgroup_vk_init(struct ngpu_bindgroup *s, const struct ngpu_bindgroup
 
     for (size_t i = 0; i < params->resources.nb_buffers; i++) {
         const struct ngpu_buffer_binding *binding = &params->resources.buffers[i];
-        int ret = ngpu_bindgroup_update_buffer(s, (int32_t) i, binding);
+        int ret = ngpu_bindgroup_update_buffer(s, (int32_t)i, binding);
         if (ret < 0)
             return ret;
     }
 
     for (size_t i = 0; i < params->resources.nb_textures; i++) {
         const struct ngpu_texture_binding *binding = &params->resources.textures[i];
-        int ret = ngpu_bindgroup_update_texture(s, (int32_t) i, binding);
+        int ret = ngpu_bindgroup_update_texture(s, (int32_t)i, binding);
         if (ret < 0)
             return ret;
     }
