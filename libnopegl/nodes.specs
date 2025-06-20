@@ -3394,7 +3394,7 @@
         },
         {
           "name": "nb_frag_output",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of color outputs in the fragment shader"

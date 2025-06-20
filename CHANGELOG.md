@@ -46,6 +46,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   `ngl_platform_type`, `ngl_capture_buffer_type`) are now named
 - `GraphicConfig.depth_write_mask` is renamed to `GraphicConfig.depth_write`
 - `Circle.count`, `Buffer*.count`, `StreamedBuffer*.count` are now unsigned
+- `Program.nb_frag_output` is now unsigned
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio
