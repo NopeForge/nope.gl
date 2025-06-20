@@ -384,6 +384,10 @@ static int colorstats_update(struct ngl_node *node, double t)
      * dimensions
      */
     const struct texture_info *texture_info = o->texture_node->priv_data;
+    if (texture_info->image.params.width <= 0) {
+        LOG(ERROR, "invalid texture width: %d", texture_info->image.params.width);
+        return NGL_ERROR_INVALID_DATA;
+    }
     const int32_t source_w = texture_info->image.params.width;
     if (!s->blk.buffer)
         return alloc_block_buffer(node, source_w);
