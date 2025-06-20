@@ -1575,7 +1575,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements"
@@ -1723,7 +1723,7 @@
         },
         {
           "name": "npoints",
-          "type": "i32",
+          "type": "u32",
           "default": 16,
           "flags": [],
           "desc": "number of points"
@@ -4869,7 +4869,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -4909,7 +4909,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -4949,7 +4949,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -4989,7 +4989,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5029,7 +5029,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5069,7 +5069,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5109,7 +5109,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5149,7 +5149,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5189,7 +5189,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5229,7 +5229,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5269,7 +5269,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5309,7 +5309,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
@@ -5349,7 +5349,7 @@
       "params": [
         {
           "name": "count",
-          "type": "i32",
+          "type": "u32",
           "default": 0,
           "flags": [],
           "desc": "number of elements for each chunk of data to stream"
