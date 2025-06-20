@@ -153,13 +153,13 @@ static int support_direct_rendering(struct hwmap *hwmap, struct nmd_frame *frame
 
     switch (cvformat) {
     case kCVPixelFormatType_32BGRA:
-        direct_rendering = params->image_layouts & NGLI_IMAGE_LAYOUT_RECTANGLE_BIT;
+        direct_rendering = NGLI_HAS_ALL_FLAGS(params->image_layouts, NGLI_IMAGE_LAYOUT_RECTANGLE_BIT);
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
     case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange:
     case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
-        direct_rendering = params->image_layouts & NGLI_IMAGE_LAYOUT_NV12_RECTANGLE_BIT;
+        direct_rendering = NGLI_HAS_ALL_FLAGS(params->image_layouts, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE_BIT);
         break;
     default:
         ngli_assert(0);
