@@ -1230,8 +1230,8 @@ int ngli_hud_init(struct hud *s)
     struct ngpu_texture_params tex_params = {
         .type          = NGPU_TEXTURE_TYPE_2D,
         .format        = NGPU_FORMAT_R8G8B8A8_UNORM,
-        .width         = s->canvas.w,
-        .height        = s->canvas.h,
+        .width         = (uint32_t)s->canvas.w,
+        .height        = (uint32_t)s->canvas.h,
         .min_filter    = NGPU_FILTER_NEAREST,
         .mag_filter    = NGPU_FILTER_NEAREST,
         .usage         = NGPU_TEXTURE_USAGE_TRANSFER_DST_BIT | NGPU_TEXTURE_USAGE_SAMPLED_BIT,

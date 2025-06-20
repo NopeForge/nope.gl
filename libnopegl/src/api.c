@@ -232,7 +232,7 @@ static void reset_scene(struct ngl_ctx *s, int action)
     ngli_rnode_reset(&s->rnode);
 }
 
-static struct ngpu_viewport compute_scene_viewport(const struct ngl_scene *scene, int32_t w, int32_t h)
+static struct ngpu_viewport compute_scene_viewport(const struct ngl_scene *scene, uint32_t w, uint32_t h)
 {
     const float width = (float)w;
     const float height = (float)h;
@@ -294,7 +294,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_scene *scene)
     }
 
     // Re-compute the viewport according to the new scene aspect ratio
-    int32_t width, height;
+    uint32_t width, height;
     ngpu_ctx_get_default_rendertarget_size(s->gpu_ctx, &width, &height);
     s->viewport = compute_scene_viewport(s->scene, width, height);
     s->scissor = (struct ngpu_scissor){0, 0, width, height};
@@ -427,7 +427,7 @@ fail:
     return ret;
 }
 
-int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height)
+int ngli_ctx_resize(struct ngl_ctx *s, uint32_t width, uint32_t height)
 {
     int ret = ngpu_ctx_resize(s->gpu_ctx, width, height);
     if (ret < 0)
@@ -785,7 +785,7 @@ void ngl_reset_backend(struct ngl_backend *backend)
     backend_reset(backend);
 }
 
-int ngl_resize(struct ngl_ctx *s, int32_t width, int32_t height)
+int ngl_resize(struct ngl_ctx *s, uint32_t width, uint32_t height)
 {
     if (!s->configured) {
         LOG(ERROR, "context must be configured before resizing rendering buffers");

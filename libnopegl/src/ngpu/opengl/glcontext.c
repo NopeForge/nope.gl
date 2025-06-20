@@ -556,7 +556,7 @@ void ngli_glcontext_set_surface_pts(struct glcontext *glcontext, double t)
         glcontext->cls->set_surface_pts(glcontext, t);
 }
 
-int ngli_glcontext_resize(struct glcontext *glcontext, int32_t width, int32_t height)
+int ngli_glcontext_resize(struct glcontext *glcontext, uint32_t width, uint32_t height)
 {
     if (glcontext->offscreen) {
         LOG(ERROR, "offscreen context does not support resize operation");

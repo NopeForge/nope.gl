@@ -57,7 +57,8 @@ static void capture_cpu(struct ngpu_ctx *s)
     struct ngpu_rendertarget_gl *rt_gl = (struct ngpu_rendertarget_gl *)rt;
 
     gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, rt_gl->id);
-    gl->funcs.ReadPixels(0, 0, rt->width, rt->height, GL_RGBA, GL_UNSIGNED_BYTE, config->capture_buffer);
+    const GLint w = (GLint)rt->width, h = (GLint)rt->height;
+    gl->funcs.ReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, config->capture_buffer);
 }
 
 static void capture_corevideo(struct ngpu_ctx *s)
@@ -113,8 +114,8 @@ static int wrap_capture_cvpixelbuffer(struct ngpu_ctx *s,
     const struct ngpu_texture_params attachment_params = {
         .type   = NGPU_TEXTURE_TYPE_2D,
         .format = NGPU_FORMAT_B8G8R8A8_UNORM,
-        .width  = (int32_t)width,
-        .height = (int32_t)height,
+        .width  = (uint32_t)width,
+        .height = (uint32_t)height,
         .usage  = NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
     };
 
@@ -151,7 +152,7 @@ static void reset_capture_cvpixelbuffer(struct ngpu_ctx *s)
 }
 #endif
 
-static int create_texture(struct ngpu_ctx *s, enum ngpu_format format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
+static int create_texture(struct ngpu_ctx *s, enum ngpu_format format, uint32_t samples, uint32_t usage, struct ngpu_texture **texturep)
 {
     const struct ngl_config *config = &s->config;
 
@@ -554,7 +555,7 @@ static int gl_init(struct ngpu_ctx *s)
     const int external = config_gl ? config_gl->external : 0;
     if (external) {
         if (config->width <= 0 || config->height <= 0) {
-            LOG(ERROR, "could not create external context with invalid dimensions (%dx%d)",
+            LOG(ERROR, "could not create external context with invalid dimensions (%ux%u)",
                 config->width, config->height);
             return NGL_ERROR_INVALID_ARG;
         }
@@ -564,7 +565,7 @@ static int gl_init(struct ngpu_ctx *s)
         }
     } else if (config->offscreen) {
         if (config->width <= 0 || config->height <= 0) {
-            LOG(ERROR, "could not create offscreen context with invalid dimensions (%dx%d)",
+            LOG(ERROR, "could not create offscreen context with invalid dimensions (%ux%u)",
                 config->width, config->height);
             return NGL_ERROR_INVALID_ARG;
         }
@@ -660,7 +661,7 @@ static int gl_init(struct ngpu_ctx *s)
     return 0;
 }
 
-static int gl_resize(struct ngpu_ctx *s, int32_t width, int32_t height)
+static int gl_resize(struct ngpu_ctx *s, uint32_t width, uint32_t height)
 {
     struct ngpu_ctx_gl *s_priv = (struct ngpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
@@ -926,7 +927,7 @@ static void blit_vflip(struct ngpu_ctx *s, struct ngpu_rendertarget *src, struct
     struct ngpu_rendertarget_gl *dst_gl = (struct ngpu_rendertarget_gl *)dst;
     const GLuint dst_fbo = dst_gl->id;
 
-    const int32_t w = src->width, h = dst->height;
+    const int32_t w = (int32_t)src->width, h = (int32_t)dst->height;
 
     gl->funcs.BindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
     gl->funcs.BindFramebuffer(GL_DRAW_FRAMEBUFFER, dst_fbo);
@@ -1072,7 +1073,7 @@ static const struct ngpu_rendertarget_layout *gl_get_default_rendertarget_layout
     return &s_priv->default_rt_layout;
 }
 
-static void gl_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, int32_t *height)
+static void gl_get_default_rendertarget_size(struct ngpu_ctx *s, uint32_t *width, uint32_t *height)
 {
     *width = s->config.width;
     *height = s->config.height;

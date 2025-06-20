@@ -87,7 +87,7 @@ static void destroy_dummy_texture(struct ngpu_ctx *s)
     ngpu_texture_freep(&s_priv->dummy_texture);
 }
 
-static VkResult create_texture(struct ngpu_ctx *s, enum ngpu_format format, int32_t samples, uint32_t usage, struct ngpu_texture **texturep)
+static VkResult create_texture(struct ngpu_ctx *s, enum ngpu_format format, uint32_t samples, uint32_t usage, struct ngpu_texture **texturep)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
 
@@ -129,8 +129,8 @@ static VkResult create_rendertarget(struct ngpu_ctx *s,
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
     const struct ngpu_rendertarget_params params = {
-        .width = config->width,
-        .height = config->height,
+        .width = (uint32_t)config->width,
+        .height = (uint32_t)config->height,
         .nb_colors = 1,
         .colors[0] = {
             .attachment     = color,
@@ -539,7 +539,7 @@ static VkResult create_swapchain(struct ngpu_ctx *s)
     s_priv->height = NGLI_CLAMP(s_priv->height, caps.minImageExtent.height, caps.maxImageExtent.height),
     config->width = s_priv->width;
     config->height = s_priv->height;
-    LOG(DEBUG, "current extent: %dx%d", s_priv->width, s_priv->height);
+    LOG(DEBUG, "current extent: %ux%u", s_priv->width, s_priv->height);
 
     uint32_t img_count = caps.minImageCount + 1;
     if (caps.maxImageCount && img_count > caps.maxImageCount)
@@ -764,11 +764,11 @@ static struct ngpu_ctx *vk_create(const struct ngl_config *config)
     return (struct ngpu_ctx *)s;
 }
 
-static int32_t get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
+static uint32_t get_max_supported_samples(const VkPhysicalDeviceLimits *limits)
 {
-    const int32_t max_color_samples = ngli_vk_samples_to_ngl(limits->framebufferColorSampleCounts);
-    const int32_t max_depth_samples = ngli_vk_samples_to_ngl(limits->framebufferDepthSampleCounts);
-    const int32_t max_stencil_samples = ngli_vk_samples_to_ngl(limits->framebufferStencilSampleCounts);
+    const uint32_t max_color_samples = ngli_vk_samples_to_ngl(limits->framebufferColorSampleCounts);
+    const uint32_t max_depth_samples = ngli_vk_samples_to_ngl(limits->framebufferDepthSampleCounts);
+    const uint32_t max_stencil_samples = ngli_vk_samples_to_ngl(limits->framebufferStencilSampleCounts);
     return NGLI_MIN(max_color_samples, NGLI_MIN(max_depth_samples, max_stencil_samples));
 }
 
@@ -801,7 +801,7 @@ static int vk_init(struct ngpu_ctx *s)
 
     if (config->offscreen) {
         if (config->width <= 0 || config->height <= 0) {
-            LOG(ERROR, "could not create offscreen context with invalid dimensions (%dx%d)",
+            LOG(ERROR, "could not create offscreen context with invalid dimensions (%ux%u)",
                 config->width, config->height);
             return NGL_ERROR_INVALID_ARG;
         }
@@ -969,7 +969,7 @@ static int vk_init(struct ngpu_ctx *s)
     return 0;
 }
 
-static int vk_resize(struct ngpu_ctx *s, int32_t width, int32_t height)
+static int vk_resize(struct ngpu_ctx *s, uint32_t width, uint32_t height)
 {
     const struct ngl_config *config = &s->config;
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
@@ -1272,7 +1272,7 @@ static const struct ngpu_rendertarget_layout *vk_get_default_rendertarget_layout
     return &s_priv->default_rt_layout;
 }
 
-static void vk_get_default_rendertarget_size(struct ngpu_ctx *s, int32_t *width, int32_t *height)
+static void vk_get_default_rendertarget_size(struct ngpu_ctx *s, uint32_t *width, uint32_t *height)
 {
     struct ngpu_ctx_vk *s_priv = (struct ngpu_ctx_vk *)s;
     *width = s_priv->width;
@@ -1403,8 +1403,8 @@ static void vk_set_scissor(struct ngpu_ctx *s, const struct ngpu_scissor *scisso
     struct ngpu_rendertarget *rt = s->rendertarget;
 
     const VkRect2D sc = {
-        .offset.x      = scissor->x,
-        .offset.y      = NGLI_MAX(rt->height - scissor->y - scissor->height, 0),
+        .offset.x      = (int32_t)scissor->x,
+        .offset.y      = (int32_t)NGLI_MAX(rt->height - scissor->y - scissor->height, 0),
         .extent.width  = scissor->width,
         .extent.height = scissor->height,
     };

@@ -134,8 +134,8 @@ static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
     }
 
     const struct image_params image_params = {
-        .width = frame->width,
-        .height = frame->height,
+        .width = (uint32_t)frame->width,
+        .height = (uint32_t)frame->height,
         .layout = NGLI_IMAGE_LAYOUT_NV12,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_nopemd_frame(frame),
@@ -284,7 +284,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 
         struct ngpu_texture *plane = vaapi->planes[i];
         struct ngpu_texture_gl *plane_gl = (struct ngpu_texture_gl *)plane;
-        ngpu_texture_gl_set_dimensions(plane, width, height, 0);
+        ngpu_texture_gl_set_dimensions(plane, (uint32_t)width, (uint32_t)height, 0);
 
         gl->funcs.BindTexture(plane_gl->target, plane_gl->id);
         gl->funcs.EGLImageTargetTexture2DOES(plane_gl->target, vaapi->egl_images[i]);

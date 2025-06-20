@@ -287,7 +287,12 @@ static int graphicconfig_init(struct ngl_node *node)
                 NGLI_ARG_VEC4(o->scissor));
             return NGL_ERROR_INVALID_USAGE;
         }
-        s->scissor = (struct ngpu_scissor){NGLI_ARG_VEC4(o->scissor)};
+        s->scissor = (struct ngpu_scissor){
+            .x      = (uint32_t)o->scissor[0],
+            .y      = (uint32_t)o->scissor[1],
+            .width  = (uint32_t)o->scissor[2],
+            .height = (uint32_t)o->scissor[3],
+        };
     }
 
     return 0;

@@ -69,8 +69,8 @@ struct gblur_opts {
 };
 
 struct gblur_priv {
-    int32_t width;
-    int32_t height;
+    uint32_t width;
+    uint32_t height;
     float blurriness;
 
     /* Source image */
@@ -344,8 +344,8 @@ static int resize(struct ngl_node *node)
     ngli_node_draw(o->source);
 
     struct texture_info *src_info = o->source->priv_data;
-    const int32_t width = src_info->image.params.width;
-    const int32_t height = src_info->image.params.height;
+    const uint32_t width = src_info->image.params.width;
+    const uint32_t height = src_info->image.params.height;
     if (s->width == width && s->height == height)
         return 0;
 
@@ -451,7 +451,7 @@ fail:
     if (s->dst_is_resizable)
         ngpu_texture_freep(&dst);
 
-    LOG(ERROR, "failed to resize blur: %dx%d", width, height);
+    LOG(ERROR, "failed to resize blur: %ux%u", width, height);
     return ret;
 }
 

@@ -141,8 +141,8 @@ int ngli_atlas_finalize(struct atlas *s)
 
     const struct ngpu_texture_params tex_params = {
         .type       = NGPU_TEXTURE_TYPE_2D,
-        .width      = s->texture_w,
-        .height     = s->texture_h,
+        .width      = (uint32_t)s->texture_w,
+        .height     = (uint32_t)s->texture_h,
         .format     = NGPU_FORMAT_R8_UNORM,
         .min_filter = NGPU_FILTER_LINEAR,
         .mag_filter = NGPU_FILTER_NEAREST,
@@ -168,7 +168,7 @@ int ngli_atlas_finalize(struct atlas *s)
         return NGL_ERROR_MEMORY;
 
     blend_bitmaps(s, data, linesize);
-    ret = ngpu_texture_upload(s->texture, data, (int) linesize);
+    ret = ngpu_texture_upload(s->texture, data, (uint32_t)linesize);
     ngli_freep(&data);
 
     return ret;
