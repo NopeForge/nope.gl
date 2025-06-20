@@ -153,7 +153,7 @@ static int update_kernel(struct ngl_node *node)
     float weights[2 * MAX_KERNEL_SIZE];
     size_t nb_weights = 0;
 
-    float sum = 0.0;
+    float sum = 0.0f;
     const float sig = sigma * sqrtf(2.f);
     for (int i = -radius; i <= radius; i++) {
         const float p1 = erff(((float)i - 0.5f) / sig);
