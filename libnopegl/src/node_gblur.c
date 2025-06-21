@@ -64,14 +64,14 @@ struct kernel_block {
 struct gblur_opts {
     struct ngl_node *source;
     struct ngl_node *destination;
-    struct ngl_node *bluriness_node;
-    float bluriness;
+    struct ngl_node *blurriness_node;
+    float blurriness;
 };
 
 struct gblur_priv {
     int32_t width;
     int32_t height;
-    float bluriness;
+    float blurriness;
 
     /* Source image */
     struct image *image;
@@ -103,9 +103,9 @@ static const struct node_param gblur_params[] = {
                           .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                           .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                           .desc=NGLI_DOCSTRING("destination to use for the blur")},
-    {"bluriness",         NGLI_PARAM_TYPE_F32, OFFSET(bluriness_node), {.f32=0.03f},
+    {"blurriness",        NGLI_PARAM_TYPE_F32, OFFSET(blurriness_node), {.f32=0.03f},
                           .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
-                          .desc=NGLI_DOCSTRING("amount of bluriness in the range [0,1] "
+                          .desc=NGLI_DOCSTRING("amount of blurriness in the range [0,1] "
                                                "where 1 is equivalent of a blur radius of " CONSTANT_TO_STR(MAX_RADIUS_SIZE) "px")},
     {NULL}
 };
@@ -118,16 +118,16 @@ static int update_kernel(struct ngl_node *node)
     struct gblur_priv *s = node->priv_data;
     const struct gblur_opts *o = node->opts;
 
-    const float bluriness = *(float *)ngli_node_get_data_ptr(o->bluriness_node, &o->bluriness);
-    if (bluriness < 0.0)
+    const float blurriness = *(float *)ngli_node_get_data_ptr(o->blurriness_node, &o->blurriness);
+    if (blurriness < 0.0)
         return NGL_ERROR_INVALID_ARG;
 
-    if (s->bluriness == bluriness)
+    if (s->blurriness == blurriness)
         return 0;
 
-    s->bluriness = bluriness;
+    s->blurriness = blurriness;
 
-    const float radius_f = NGLI_CLAMP(bluriness, 0.f, 1.f) * (float)MAX_RADIUS_SIZE;
+    const float radius_f = NGLI_CLAMP(blurriness, 0.f, 1.f) * (float)MAX_RADIUS_SIZE;
     const int32_t radius_i = (int32_t)ceil(radius_f);
     const int32_t radius = NGLI_MIN(radius_i, MAX_RADIUS_SIZE);
 
@@ -440,7 +440,7 @@ static int resize(struct ngl_node *node)
     s->height = height;
 
     /* Trigger a kernel update on resolution change */
-    s->bluriness = -1.f;
+    s->blurriness = -1.f;
 
     return 0;
 

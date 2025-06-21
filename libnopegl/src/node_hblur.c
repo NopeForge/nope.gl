@@ -106,7 +106,7 @@ static const struct node_param hblur_params[] = {
                     .desc=NGLI_DOCSTRING("destination to use for the blur")},
     {"amount",      NGLI_PARAM_TYPE_F32, OFFSET(amount_node),
                     .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
-                    .desc=NGLI_DOCSTRING("amount of bluriness in the range [0,1]")},
+                    .desc=NGLI_DOCSTRING("amount of blurriness in the range [0,1]")},
     {"map",         NGLI_PARAM_TYPE_NODE, OFFSET(map),
                     .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                     .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
