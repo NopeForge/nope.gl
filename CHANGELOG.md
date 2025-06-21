@@ -3,8 +3,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-This project adheres to a flavour of [Calendar Versioning](https://calver.org/)
-for the globale releases (`YYYY.MINOR`), and to [Semantic
+This project adheres to a flavor of [Calendar Versioning](https://calver.org/)
+for the global releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
@@ -68,10 +68,10 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   supported, passing them through the command line is not mandatory anymore
 - `ngl_scene_ref` and `ngl_scene_unrefp` functions to respectively increment and
   decrement the reference counter of a scene
-- `GaussianBlur` node to apply a post processing gaussian blur effect to a
+- `GaussianBlur` node to apply a post processing Gaussian blur effect to a
   scene with a resolution dependent blurriness parameter. The blurriness
-  parameter can provide a gaussian blur effect with a radius up to 126 pixels
-- `FastGaussianBlur` node to apply a post processing gaussian blur effect to a
+  parameter can provide a Gaussian blur effect with a radius up to 126 pixels
+- `FastGaussianBlur` node to apply a post processing Gaussian blur effect to a
   scene that is suitable for real time rendering on mobile devices as well as
   providing a resolution independent blurriness parameter
 - `forward_transforms` parameter to the `Texture` and `RenderToTexture` nodes
@@ -97,15 +97,15 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   use `ngl_get_backend()` to get the underlying backend information
 - `ngl_scene_init_from_node()` has been replaced with
   `ngl_scene_init()` with the associated `ngl_scene_params` structure
-- the `ngl_scene` structure is now private; its parameters can now be obtained
+- The `ngl_scene` structure is now private; its parameters can now be obtained
   using `ngl_scene_get_params()`
-- the `Texture` and `RenderToTexture` nodes no longer forward the camera/model
+- The `Texture` and `RenderToTexture` nodes no longer forward the camera/model
   transformations by default
 
 ### Removed
 - `%s_dimensions` uniform for 2D array and 3D images/textures, users must use
-  textureSize()/imageSize() instead (`%s_dimensions` is still available for 2D
-  textures)
+  `textureSize()`/`imageSize()` instead (`%s_dimensions` is still available for
+  2D textures)
 - `SceneInfo.files` and `SceneCfg.files`
 
 ### Removed
@@ -133,7 +133,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ### Changed
 - The installed `nodes.specs` specifications have been extended to include more
-  information (types, choices, etc)
+  information (types, choices, etc.)
 - The documentation has been reworked, notably to include code examples with
   associated rendering and graph
 - `Transform` node now accepts a node as input parameter and can be animated
@@ -175,12 +175,12 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Changed
 - CSV export in the HUD now always prints floats in C locale instead of quoted
 - `pynopegl.Context.configure()` now takes a `Config` as argument
-- `pynopegl` log levels are now controled using the `pynopegl.Log` enum
+- `pynopegl` log levels are now controlled using the `pynopegl.Log` enum
 - `max_texture_dimensions_*` capabilities are renamed to `max_texture_dimension_*`
 - Backend probing in `pynopegl` now returns a more Pythonic output
 - `GraphicConfig.scissor` is now an `ivec4` parameter instead of `vec4`
 - `TimeRangeMode*` nodes are removed and `TimeRangeFilter` is simplified to
-  handle their role; if multiple ranges are needed simulteanously, a `Group` can
+  handle their role; if multiple ranges are needed simultaneously, a `Group` can
   be used. `TimeRangeFilter.max_idle_time` is removed since its use was limited
   to inter range times (now only a single time segment is handled).
 - The API now mandates that node scenes have to be wrapped into a dedicated
@@ -190,7 +190,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - The `Text.valign` and `Text.halign` parameters now also align the text per line
 - `Text` rendering has been completely reworked to support more advanced effects
   and smooth rendering at high resolution
-- The `@scene` decorator now relies on an explicity `controls` dictionary
+- The `@scene` decorator now relies on an explicitly `controls` dictionary
   instead of `**kwargs`
 - The `Texture*` nodes now use `linear` filtering by default instead of
   `nearest`
@@ -205,7 +205,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   `NGL_CAP_UINT_UNIFORMS`
 - GLSL `ngl_tex{2d,3d,cube,2dlod,3dlod,cubelod}()` declarations (users must now
   use `texture()` and `textureLod()` directly). `ngl_texvideo()` is still there
-  and is still the prefered picking method
+  and is still the preferred picking method
 
 ## [2023.1 / libnopegl 0.8.0][2023.1] - 2023-04-07
 ### Changed
@@ -263,9 +263,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Fixed
 - Missing exposed constants in `pynodegl` (some backend capabilities and
   the Wayland platform ID)
-- Undefined behaviour when using geometries with `Render*` nodes (`Render` node
+- Undefined behavior when using geometries with `Render*` nodes (`Render` node
   is not affected)
-- Undefined behaviour in sRGB/linear conversions with negative colors
+- Undefined behavior in sRGB/linear conversions with negative colors
 
 ### Changed
 - `Buffer.block_field` is now a string corresponding to the field name instead
