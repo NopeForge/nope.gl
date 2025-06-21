@@ -1076,6 +1076,7 @@ static int craft_vert(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
         (ret = inject_ublock(s, b, NGPU_PROGRAM_STAGE_VERT)) < 0)
         return ret;
 
+    ngli_bstr_print(b, "#line 1\n");
     ngli_bstr_print(b, params->vert_base);
     return samplers_preproc(s, params, b);
 }
@@ -1128,6 +1129,7 @@ static int craft_frag(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
 
     ngli_bstr_print(b, "\n");
 
+    ngli_bstr_print(b, "#line 1\n");
     ngli_bstr_print(b, params->frag_base);
     return samplers_preproc(s, params, b);
 }
@@ -1148,6 +1150,7 @@ static int craft_comp(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
         (ret = inject_ublock(s, b, NGPU_PROGRAM_STAGE_COMP)) < 0)
         return ret;
 
+    ngli_bstr_print(b, "#line 1\n");
     ngli_bstr_print(b, params->comp_base);
     return samplers_preproc(s, params, b);
 }
