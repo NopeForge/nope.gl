@@ -28,9 +28,7 @@
 #include "log.h"
 #include "ngpu/type.h"
 #include "program_gl.h"
-#include "utils/bstr.h"
 #include "utils/memory.h"
-#include "utils/string.h"
 
 static int program_check_status(const struct glcontext *gl, GLuint id, GLenum status)
 {
@@ -120,12 +118,7 @@ int ngpu_program_gl_init(struct ngpu_program *s, const struct ngpu_program_param
         gl->funcs.CompileShader(shader);
         ret = program_check_status(gl, shader, GL_COMPILE_STATUS);
         if (ret < 0) {
-            char *s_with_numbers = ngli_numbered_lines(shaders[i].src);
-            if (s_with_numbers) {
-                LOG(ERROR, "failed to compile shader \"%s\":\n%s",
-                    params->label ? params->label : "", s_with_numbers);
-                ngli_free(s_with_numbers);
-            }
+            LOG(ERROR, "failed to compile shader \"%s\"", params->label ? params->label : "");
             goto fail;
         }
         gl->funcs.AttachShader(s_priv->id, shader);
@@ -134,22 +127,7 @@ int ngpu_program_gl_init(struct ngpu_program *s, const struct ngpu_program_param
     gl->funcs.LinkProgram(s_priv->id);
     ret = program_check_status(gl, s_priv->id, GL_LINK_STATUS);
     if (ret < 0) {
-        struct bstr *bstr = ngli_bstr_create();
-        if (bstr) {
-            ngli_bstr_printf(bstr, "failed to link shaders \"%s\":",
-                             params->label ? params->label : "");
-            for (size_t i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
-                if (!shaders[i].src)
-                    continue;
-                char *s_with_numbers = ngli_numbered_lines(shaders[i].src);
-                if (s_with_numbers) {
-                    ngli_bstr_printf(bstr, "\n\n%s shader:\n%s", shaders[i].name, s_with_numbers);
-                    ngli_free(s_with_numbers);
-                }
-            }
-            LOG(ERROR, "%s", ngli_bstr_strptr(bstr));
-            ngli_bstr_freep(&bstr);
-        }
+        LOG(ERROR, "failed to link shaders \"%s\"", params->label ? params->label : "");
         goto fail;
     }
 

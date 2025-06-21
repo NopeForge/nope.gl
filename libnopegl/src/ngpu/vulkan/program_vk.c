@@ -28,7 +28,6 @@
 #include "log.h"
 #include "program_vk.h"
 #include "utils/memory.h"
-#include "utils/string.h"
 #include "utils/utils.h"
 #include "vkutils.h"
 
@@ -65,12 +64,7 @@ int ngpu_program_vk_init(struct ngpu_program *s, const struct ngpu_program_param
         size_t size = 0;
         int ret = ngli_glslang_compile(shaders[i].stage, shaders[i].src, s->gpu_ctx->config.debug, &data, &size);
         if (ret < 0) {
-            char *s_with_numbers = ngli_numbered_lines(shaders[i].src);
-            if (s_with_numbers) {
-                LOG(ERROR, "failed to compile shader \"%s\":\n%s",
-                    params->label ? params->label : "", s_with_numbers);
-                ngli_free(s_with_numbers);
-            }
+            LOG(ERROR, "failed to compile shader \"%s\"", params->label ? params->label : "");
             return ret;
         }
 
@@ -82,12 +76,7 @@ int ngpu_program_vk_init(struct ngpu_program *s, const struct ngpu_program_param
         VkResult res = vkCreateShaderModule(vk->device, &shader_module_create_info, NULL, &s_priv->shaders[i]);
         ngli_freep(&data);
         if (res != VK_SUCCESS) {
-            char *s_with_numbers = ngli_numbered_lines(shaders[i].src);
-            if (s_with_numbers) {
-                LOG(ERROR, "failed to compile shader \"%s\":\n%s",
-                    params->label ? params->label : "", s_with_numbers);
-                ngli_free(s_with_numbers);
-            }
+            LOG(ERROR, "failed to compile shader \"%s\"", params->label ? params->label : "");
             return ngli_vk_res2ret(res);
         }
     }
