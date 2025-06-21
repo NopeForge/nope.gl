@@ -2643,11 +2643,11 @@
           "desc": "destination to use for the blur"
         },
         {
-          "name": "bluriness",
+          "name": "blurriness",
           "type": "f32",
           "default": 0.030000,
           "flags": ["node"],
-          "desc": "amount of bluriness in the range [0, 1]"
+          "desc": "amount of blurriness in the range [0, 1]"
         }
       ]
     },
@@ -2687,11 +2687,11 @@
           "desc": "destination to use for the blur"
         },
         {
-          "name": "bluriness",
+          "name": "blurriness",
           "type": "f32",
           "default": 0.030000,
           "flags": ["node"],
-          "desc": "amount of bluriness in the range [0,1] where 1 is equivalent of a blur radius of 126px"
+          "desc": "amount of blurriness in the range [0,1] where 1 is equivalent of a blur radius of 126px"
         }
       ]
     },
@@ -2958,7 +2958,7 @@
           "type": "f32",
           "default": 0.000000,
           "flags": ["node"],
-          "desc": "amount of bluriness in the range [0,1]"
+          "desc": "amount of blurriness in the range [0,1]"
         },
         {
           "name": "map",

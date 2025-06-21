@@ -41,7 +41,7 @@ def blur_gaussian(cfg: ngl.SceneCfg):
     blur = ngl.GaussianBlur(
         source=noise_texture,
         destination=blurred_texture,
-        bluriness=ngl.AnimatedFloat(
+        blurriness=ngl.AnimatedFloat(
             [
                 ngl.AnimKeyFrameFloat(0, 0),
                 ngl.AnimKeyFrameFloat(cfg.duration, 1),
@@ -63,7 +63,7 @@ def blur_fast_gaussian(cfg: ngl.SceneCfg):
     blur = ngl.FastGaussianBlur(
         source=noise_texture,
         destination=blurred_texture,
-        bluriness=ngl.AnimatedFloat(
+        blurriness=ngl.AnimatedFloat(
             [
                 ngl.AnimKeyFrameFloat(0, 0),
                 ngl.AnimKeyFrameFloat(cfg.duration, 1),

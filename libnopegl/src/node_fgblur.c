@@ -65,15 +65,15 @@ struct interpolate_block {
 struct fgblur_opts {
     struct ngl_node *source;
     struct ngl_node *destination;
-    struct ngl_node *bluriness_node;
-    float bluriness;
+    struct ngl_node *blurriness_node;
+    float blurriness;
 };
 
 struct fgblur_priv {
     int32_t width;
     int32_t height;
     int32_t max_lod;
-    float bluriness;
+    float blurriness;
 
     /* Intermediates Mips used by the blur passses */
     struct ngpu_rendertarget_layout mip_layout;
@@ -118,9 +118,9 @@ static const struct node_param fgblur_params[] = {
                           .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                           .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                           .desc=NGLI_DOCSTRING("destination to use for the blur")},
-    {"bluriness",         NGLI_PARAM_TYPE_F32, OFFSET(bluriness_node), {.f32=0.03f},
+    {"blurriness",        NGLI_PARAM_TYPE_F32, OFFSET(blurriness_node), {.f32=0.03f},
                           .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
-                          .desc=NGLI_DOCSTRING("amount of bluriness in the range [0, 1]")},
+                          .desc=NGLI_DOCSTRING("amount of blurriness in the range [0, 1]")},
     {NULL}
 };
 
@@ -548,10 +548,10 @@ static void fgblur_draw(struct ngl_node *node)
     if (ret < 0)
         return;
 
-    const float bluriness_raw = *(float *)ngli_node_get_data_ptr(o->bluriness_node, &o->bluriness);
-    const float bluriness = NGLI_CLAMP(bluriness_raw, 0.f, 1.f);
+    const float blurriness_raw = *(float *)ngli_node_get_data_ptr(o->blurriness_node, &o->blurriness);
+    const float blurriness = NGLI_CLAMP(blurriness_raw, 0.f, 1.f);
     const float diagonal = hypotf((float)s->width, (float)s->height);
-    const float radius = bluriness * (float)diagonal / 2.f;
+    const float radius = blurriness * (float)diagonal / 2.f;
     const float lod = NGLI_MIN(compute_lod(radius), (float)s->max_lod);
     const int32_t lod_i = (int32_t)lod;
     const float lod_f = lod - (float)lod_i;
