@@ -2954,7 +2954,7 @@
           "desc": "destination to use for the blur"
         },
         {
-          "name": "amount",
+          "name": "blurriness",
           "type": "f32",
           "default": 0.000000,
           "flags": ["node"],

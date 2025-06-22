@@ -88,7 +88,7 @@ def blur_hexagonal(cfg: ngl.SceneCfg, show_dbg_points=False):
     blur = ngl.HexagonalBlur(
         source=source_texture,
         destination=blurred_texture,
-        amount=ngl.AnimatedFloat(
+        blurriness=ngl.AnimatedFloat(
             [
                 ngl.AnimKeyFrameFloat(0, 0),
                 ngl.AnimKeyFrameFloat(cfg.duration, 1),
@@ -154,7 +154,7 @@ def blur_hexagonal_with_map(cfg: ngl.SceneCfg, show_dbg_points=False):
     blur = ngl.HexagonalBlur(
         source=source_texture,
         destination=blurred_texture,
-        amount=ngl.AnimatedFloat(
+        blurriness=ngl.AnimatedFloat(
             [
                 ngl.AnimKeyFrameFloat(0, 0),
                 ngl.AnimKeyFrameFloat(cfg.duration, 1),
