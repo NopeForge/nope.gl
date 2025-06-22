@@ -53,8 +53,8 @@ struct blur_params_block {
 struct hblur_opts {
     struct ngl_node *source;
     struct ngl_node *destination;
-    struct ngl_node *amount_node;
-    float amount;
+    struct ngl_node *blurriness_node;
+    float blurriness;
     struct ngl_node *map;
 };
 
@@ -104,7 +104,7 @@ static const struct node_param hblur_params[] = {
                     .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
                     .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                     .desc=NGLI_DOCSTRING("destination to use for the blur")},
-    {"amount",      NGLI_PARAM_TYPE_F32, OFFSET(amount_node),
+    {"blurriness",  NGLI_PARAM_TYPE_F32, OFFSET(blurriness_node),
                     .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
                     .desc=NGLI_DOCSTRING("amount of blurriness in the range [0,1]")},
     {"map",         NGLI_PARAM_TYPE_NODE, OFFSET(map),
@@ -580,10 +580,10 @@ static void hblur_draw(struct ngl_node *node)
     if (ret < 0)
         return;
 
-    const float amount_raw = *(float *)ngli_node_get_data_ptr(o->amount_node, &o->amount);
-    float amount = NGLI_CLAMP(amount_raw, 0.f, 1.f);
+    const float blurriness_raw = *(float *)ngli_node_get_data_ptr(o->blurriness_node, &o->blurriness);
+    float blurriness = NGLI_CLAMP(blurriness_raw, 0.f, 1.f);
     const float diagonal = hypotf((float)s->width, (float)s->height);
-    const int32_t radius = (int32_t)(amount * (float)(diagonal) * 0.05f);
+    const int32_t radius = (int32_t)(blurriness * (float)(diagonal) * 0.05f);
     const int32_t nb_samples = NGLI_MIN(radius, MAX_SAMPLES);
 
     ngpu_block_update(&s->blur_params_block, 0, &(struct blur_params_block) {

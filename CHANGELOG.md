@@ -50,6 +50,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `Program.nb_frag_output` is now unsigned
 - The `libnopegl` headers are now located in the nopegl sub directory. Users
   must now use `#include <nopegl/nopegl.h>` instead of `#include <nopegl.h>`
+- All blur nodes now have a common `blurriness` parameter
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio
