@@ -28,6 +28,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ### Fixed
 - Crash when using resizable RTTs with time ranges
+- Path and text blur rendering breaking anti-aliasing with small values
 
 ### Changed
 - `Text.font_files` text-based parameter is replaced with `Text.font_faces` node
