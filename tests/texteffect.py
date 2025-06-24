@@ -272,7 +272,7 @@ def texteffect_blur(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (16, 9)
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
-        ngl.AnimKeyFrameFloat(1 / 2, 0.1),
+        ngl.AnimKeyFrameFloat(1 / 2, 0.2),
         ngl.AnimKeyFrameFloat(1, 0),
     ]
     effects = [ngl.TextEffect(blur=ngl.AnimatedFloat(animkf))]
@@ -286,7 +286,7 @@ def texteffect_blur_outline(cfg: ngl.SceneCfg):
     cfg.aspect_ratio = (16, 9)
     animkf = [
         ngl.AnimKeyFrameFloat(0, 0),
-        ngl.AnimKeyFrameFloat(1 / 2, 0.1),
+        ngl.AnimKeyFrameFloat(1 / 2, 0.2),
         ngl.AnimKeyFrameFloat(1, 0),
     ]
     effects = [ngl.TextEffect(blur=ngl.AnimatedFloat(animkf), outline=0.01)]
