@@ -24,7 +24,9 @@
 
 float border(float d, float blur)
 {
-    return blur > 0.0 ? ngli_linearstep(-blur/2.0, blur/2.0, d) : ngli_aa(d);
+    float aa = fwidth(d); // pixel width estimate
+    float w = max(aa, blur) * 0.5; // half diffuse width
+    return ngli_linearstep(-w, w, d);
 }
 
 /*
