@@ -24,7 +24,7 @@
 
 float border(float d, float blur)
 {
-    return blur > 0.0 ? ngli_linearstep(-blur, blur, d) : ngli_aa(d);
+    return blur > 0.0 ? ngli_linearstep(-blur/2.0, blur/2.0, d) : ngli_aa(d);
 }
 
 /*

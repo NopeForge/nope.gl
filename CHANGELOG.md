@@ -51,6 +51,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - The `libnopegl` headers are now located in the nopegl sub directory. Users
   must now use `#include <nopegl/nopegl.h>` instead of `#include <nopegl.h>`
 - All blur nodes now have a common `blurriness` parameter
+- Blur effect in text and path rendering is now twice smaller
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio
