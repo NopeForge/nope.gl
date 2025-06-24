@@ -26,7 +26,7 @@ float border(float d, float blur)
 {
     float aa = fwidth(d); // pixel width estimate
     float w = max(aa, blur) * 0.5; // half diffuse width
-    return ngli_linearstep(-w, w, d);
+    return smoothstep(-w, w, d);
 }
 
 /*
