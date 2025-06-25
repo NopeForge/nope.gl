@@ -24,6 +24,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   relative anchor for scale and rotate transforms
 - `DrawMask` node to facilitate alpha masking with textures
 - `ngl_config.debug` parameter to enable graphics context debugging
+- `ngl-export` tool to export videos for all the scenes from a given script
 
 ### Fixed
 - Crash when using resizable RTTs with time ranges
