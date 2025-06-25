@@ -54,11 +54,9 @@ vec4 get_path_color(vec2 dist, vec4 color, vec4 outline, vec4 glow, float blur)
 
     vec4 out_color = vec4(out_color3, 1.0) * opacity * a;
 
-    if (glow.a > 0.0) {
-        // TODO need to honor blur
-        float glow_a = pow(1.0 - ngli_sat(abs(d)), 1.0 / glow.a);
-        out_color += vec4(glow.rgb, 1.0) * glow_a;
-    }
+    // TODO need to honor blur
+    float glow_power = glow.a * exp(min(dist.x + outline_width*0.5, 0.0) * 10.0);
+    out_color += vec4(glow.rgb, 1.0) * glow_power;
 
     return out_color;
 }
