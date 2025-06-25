@@ -21,6 +21,7 @@
  */
 
 #include helper_misc_utils.glsl
+#include helper_srgb.glsl
 
 float border(float d, float blur)
 {
@@ -48,15 +49,15 @@ vec4 get_path_color(vec2 dist, vec4 color, vec4 outline, vec4 glow, float blur)
     float a = border(d, blur);
 
     // Transition between the stroke outline and the fill in color
-    vec3 out_color3 = color.rgb;
+    vec3 out_color3 = ngli_srgb2linear(color.rgb);
     if (outline_width != 0.0)
-        out_color3 = mix(out_color3, outline.rgb, border(stroke_d, blur));
+        out_color3 = mix(out_color3, ngli_srgb2linear(outline.rgb), border(stroke_d, blur));
 
     vec4 out_color = vec4(out_color3, 1.0) * a;
 
     // TODO need to honor blur
     float glow_power = glow.a * exp(min(dist.x + outline_width*0.5, 0.0) * 10.0);
-    out_color += vec4(glow.rgb, 1.0) * glow_power;
+    out_color += vec4(ngli_srgb2linear(glow.rgb), 1.0) * glow_power;
 
-    return out_color * opacity;
+    return vec4(ngli_linear2srgb(out_color.rgb), out_color.a) * opacity;
 }
