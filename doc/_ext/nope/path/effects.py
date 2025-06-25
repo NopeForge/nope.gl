@@ -18,7 +18,7 @@ def effects(cfg: ngl.SceneCfg):
         path,
         viewbox=(-5, -5, 10, 10),
         color=(0.8, 0.1, 0.1),
-        glow=0.02,
+        glow=0.1,
         outline_color=(1, 1, 1),
     )
 

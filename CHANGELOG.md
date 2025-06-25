@@ -53,6 +53,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   must now use `#include <nopegl/nopegl.h>` instead of `#include <nopegl.h>`
 - All blur nodes now have a common `blurriness` parameter
 - Blur effect and outline width in text and path rendering are now twice smaller
+- The glow effect of the text and path is reworked; it notably lighten up the
+  whole shape and emits less light
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio
