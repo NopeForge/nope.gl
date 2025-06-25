@@ -32,6 +32,7 @@ setup(
             "ngl-test = pynopegl_utils.tests:run",
             "ngl-viewer = pynopegl_utils.viewer:run",
             "ngl-diff = pynopegl_utils.diff:run",
+            "ngl-export = pynopegl_utils.export:run",
         ],
     },
     package_data={

@@ -199,3 +199,110 @@ def _export_worker(
 
     os.close(fd_w)
     reader.wait()
+
+
+def run():
+    import argparse
+    import re
+    from inspect import getmembers
+    from pathlib import Path
+
+    from pynopegl_utils.misc import SceneCfg, get_backend
+    from pynopegl_utils.module import load_script
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        dest="input",
+        type=Path,
+        help="path to the script containing scenes",
+    )
+    parser.add_argument(
+        "-f",
+        dest="filter",
+        default=r".*",
+        help="filter functions using a regex",
+    )
+    parser.add_argument(
+        "-n",
+        dest="dry_run",
+        action="store_true",
+        help="perform a dry run (list what files would be written)",
+    )
+    parser.add_argument(
+        "-o",
+        dest="output",
+        type=Path,
+        default="ngl-exports",
+        help="path to the export directory",
+    )
+    parser.add_argument(
+        "-w",
+        dest="overwrite",
+        action="store_true",
+        help="overwrite existing files",
+    )
+    parser.add_argument(
+        "-b",
+        dest="backend",
+        default="auto",
+        choices=[x.name.lower() for x in ngl.Backend],
+    )
+    parser.add_argument(
+        "-r",
+        dest="resolution",
+        default="1080p",
+        choices=RESOLUTIONS.keys(),
+        help="output video resolution",
+    )
+    parser.add_argument(
+        "-p",
+        dest="profile",
+        default="nut_ffv1",
+        choices=ENCODE_PROFILES.keys(),
+        help="output video profile",
+    )
+    parser.add_argument(
+        "-m",
+        dest="samples",
+        type=int,
+        default=1,
+        choices=[0, 1, 2, 4, 8],
+        help="number of samples used for multisample anti-aliasing",
+    )
+    args = parser.parse_args()
+
+    outdir = args.output
+    outdir.mkdir(exist_ok=True)
+
+    jobs = []
+    module = load_script(args.input)
+    for func_name, func in getmembers(module, callable):
+        if not hasattr(func, "iam_a_ngl_scene_func"):
+            continue
+        if not re.match(args.filter, func_name):
+            continue
+        ext = ENCODE_PROFILES[args.profile].format
+        filename = outdir / f"{func_name}.{ext}"
+        if filename.exists():
+            if args.overwrite:
+                print(f"{filename.name}: already present, will overwrite")
+            else:
+                print(f"{filename.name}: already present, skipping")
+                continue
+        jobs.append((func, filename))
+
+    n = len(jobs)
+    if args.dry_run:
+        for i, job in enumerate(jobs):
+            _, filename = job
+            print(f"[{i+1}/{n}] {filename.name}: would encode (dry run)")
+    else:
+        for i, job in enumerate(jobs):
+            func, filename = job
+            cfg = SceneCfg(samples=args.samples, backend=get_backend(args.backend))
+            data = func(cfg)
+            export = export_workers(data, filename.as_posix(), resolution=args.resolution, profile_id=args.profile)
+            for progress in export:
+                sys.stdout.write(f"\r[{i+1}/{n}] {filename.name}: {progress:.1f}%")
+                sys.stdout.flush()
+            sys.stdout.write("\n")
