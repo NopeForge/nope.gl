@@ -52,11 +52,11 @@ vec4 get_path_color(vec2 dist, vec4 color, vec4 outline, vec4 glow, float blur)
     if (outline_width != 0.0)
         out_color3 = mix(out_color3, outline.rgb, border(stroke_d, blur));
 
-    vec4 out_color = vec4(out_color3, 1.0) * opacity * a;
+    vec4 out_color = vec4(out_color3, 1.0) * a;
 
     // TODO need to honor blur
     float glow_power = glow.a * exp(min(dist.x + outline_width*0.5, 0.0) * 10.0);
     out_color += vec4(glow.rgb, 1.0) * glow_power;
 
-    return out_color;
+    return out_color * opacity;
 }
