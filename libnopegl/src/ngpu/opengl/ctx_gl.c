@@ -987,7 +987,7 @@ static int gl_query_draw_time(struct ngpu_ctx *s, int64_t *time)
     GLuint64 time_elapsed = 0;
     s_priv->glEndQuery(GL_TIME_ELAPSED);
     s_priv->glGetQueryObjectui64v(s_priv->queries[0], GL_QUERY_RESULT, &time_elapsed);
-    *time = time_elapsed;
+    *time = (int64_t)time_elapsed;
 #else
     s_priv->glQueryCounter(s_priv->queries[1], GL_TIMESTAMP);
 
@@ -997,7 +997,7 @@ static int gl_query_draw_time(struct ngpu_ctx *s, int64_t *time)
     GLuint64 end_time = 0;
     s_priv->glGetQueryObjectui64v(s_priv->queries[1], GL_QUERY_RESULT, &end_time);
 
-    *time = end_time - start_time;
+    *time = (int64_t)(end_time - start_time);
 #endif
     ret = ngpu_cmd_buffer_gl_begin(cmd_buffer);
     if (ret < 0)
