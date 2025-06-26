@@ -1139,7 +1139,7 @@ static int vk_query_draw_time(struct ngpu_ctx *s, int64_t *time)
                           sizeof(results), results, sizeof(results[0]),
                           VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
 
-    *time = results[1] - results[0];
+    *time = (int64_t)(results[1] - results[0]);
 
     res = ngpu_cmd_buffer_vk_begin(s_priv->cur_cmd_buffer);
     if (res != VK_SUCCESS)
