@@ -101,8 +101,8 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         if ([object isKindOfClass:[NSView class]]) {
             nsgl->view = (NSView *)object;
         } else if ([object isKindOfClass:[NSWindow class]]) {
-            NSWindow *window = (NSWindow *)object;
-            nsgl->view = [window contentView];
+            NSWindow *nswindow = (NSWindow *)object;
+            nsgl->view = [nswindow contentView];
             if (!nsgl->view) {
                 LOG(ERROR, "could not retrieve a NSView from the NSWindow");
                 return NGL_ERROR_EXTERNAL;
