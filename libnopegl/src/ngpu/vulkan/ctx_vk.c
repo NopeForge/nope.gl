@@ -733,7 +733,7 @@ static VkResult swapchain_present_buffer(struct ngpu_ctx *s, double t)
          */
         if (s_priv->present_time_offset == 0)
             s_priv->present_time_offset = ngli_gettime_relative() * 1000;
-        present_time.desiredPresentTime = s_priv->present_time_offset + (int64_t)(t * 1000000000LL);
+        present_time.desiredPresentTime = (uint64_t)(s_priv->present_time_offset + (int64_t)(t * 1000000000LL));
         present_info.pNext = &present_time_info;
     }
 
