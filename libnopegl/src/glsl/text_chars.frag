@@ -41,5 +41,5 @@ void main()
     vec2 clamp_uv = clamp(chr_uv, coords.xy + half_texel, coords.zw - half_texel);
 
     float dist = texture(tex, clamp_uv).r;
-    ngl_out_color = get_path_color(dist, color, outline, glow, blur);
+    ngl_out_color = get_path_color(dist, color, outline, glow, blur, outline_pos);
 }

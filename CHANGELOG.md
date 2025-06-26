@@ -25,6 +25,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `DrawMask` node to facilitate alpha masking with textures
 - `ngl_config.debug` parameter to enable graphics context debugging
 - `ngl-export` tool to export videos for all the scenes from a given script
+- Path and text rendering can now control the position of the outline (inner,
+  centered, outer, or anything in between) through the `outline_pos` parameter
 
 ### Fixed
 - Crash when using resizable RTTs with time ranges

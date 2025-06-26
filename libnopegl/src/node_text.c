@@ -72,6 +72,7 @@ struct pipeline_desc_fg {
     int32_t outline_index;
     int32_t glow_index;
     int32_t blur_index;
+    int32_t outline_pos_index;
 };
 
 struct pipeline_desc {
@@ -110,6 +111,7 @@ struct text_priv {
     struct ngpu_buffer *outlines;
     struct ngpu_buffer *glows;
     struct ngpu_buffer *blurs;
+    struct ngpu_buffer *outline_positions;
     size_t nb_chars;
 
     /* background box */
@@ -231,6 +233,7 @@ static void destroy_characters_resources(struct text_priv *s)
     ngpu_buffer_freep(&s->outlines);
     ngpu_buffer_freep(&s->glows);
     ngpu_buffer_freep(&s->blurs);
+    ngpu_buffer_freep(&s->outline_positions);
     s->nb_chars = 0;
 }
 
@@ -263,7 +266,8 @@ static int refresh_pipeline_data(struct ngl_node *node)
         s->outlines        = ngpu_buffer_create(gpu_ctx);
         s->glows           = ngpu_buffer_create(gpu_ctx);
         s->blurs           = ngpu_buffer_create(gpu_ctx);
-        if (!s->user_transforms || !s->colors || !s->outlines || !s->glows  || !s->blurs)
+        s->outline_positions = ngpu_buffer_create(gpu_ctx);
+        if (!s->user_transforms || !s->colors || !s->outlines || !s->glows  || !s->blurs || !s->outline_positions)
             return NGL_ERROR_MEMORY;
 
         if ((ret = ngpu_buffer_init(s->transforms, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
@@ -272,7 +276,8 @@ static int refresh_pipeline_data(struct ngl_node *node)
             (ret = ngpu_buffer_init(s->colors, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngpu_buffer_init(s->outlines, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngpu_buffer_init(s->glows, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngpu_buffer_init(s->blurs, text_nbchr * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
+            (ret = ngpu_buffer_init(s->blurs, text_nbchr * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngpu_buffer_init(s->outline_positions, text_nbchr * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0)
             return ret;
 
         struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
@@ -287,6 +292,7 @@ static int refresh_pipeline_data(struct ngl_node *node)
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->outline_index,        s->outlines);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->glow_index,           s->glows);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->blur_index,           s->blurs);
+            ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->outline_pos_index,    s->outline_positions);
         }
     }
 
@@ -338,7 +344,8 @@ static int apply_effects(struct text_priv *s)
         (ret = ngpu_buffer_upload(s->colors, ptrs->color, 0, text_nbchr * 4 * sizeof(*ptrs->color))) < 0 ||
         (ret = ngpu_buffer_upload(s->outlines, ptrs->outline, 0, text_nbchr * 4 * sizeof(*ptrs->outline))) < 0 ||
         (ret = ngpu_buffer_upload(s->glows, ptrs->glow, 0, text_nbchr * 4 * sizeof(*ptrs->glow))) < 0 ||
-        (ret = ngpu_buffer_upload(s->blurs, ptrs->blur, 0, text_nbchr * sizeof(*ptrs->blur))) < 0)
+        (ret = ngpu_buffer_upload(s->blurs, ptrs->blur, 0, text_nbchr * sizeof(*ptrs->blur))) < 0 ||
+        (ret = ngpu_buffer_upload(s->outline_positions, ptrs->outline_pos, 0, text_nbchr * sizeof(*ptrs->outline_pos))) < 0)
         return ret;
 
     return 0;
@@ -587,6 +594,13 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
             .stride   = sizeof(float),
             .buffer   = s->blurs,
             .rate     = 1,
+        }, {
+            .name     = "frag_outline_pos",
+            .type     = NGPU_TYPE_F32,
+            .format   = NGPU_FORMAT_R32_SFLOAT,
+            .stride   = sizeof(float),
+            .buffer   = s->outline_positions,
+            .rate     = 1,
         },
     };
 
@@ -605,6 +619,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
         {.name = "outline",.type = NGPU_TYPE_VEC4},
         {.name = "glow",   .type = NGPU_TYPE_VEC4},
         {.name = "blur",   .type = NGPU_TYPE_F32},
+        {.name = "outline_pos", .type = NGPU_TYPE_F32},
     };
 
     const struct ngpu_pgcraft_params crafter_params = {
@@ -632,6 +647,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     desc->outline_index        = ngpu_pgcraft_get_vertex_buffer_index(desc->common.crafter, "frag_outline");
     desc->glow_index           = ngpu_pgcraft_get_vertex_buffer_index(desc->common.crafter, "frag_glow");
     desc->blur_index           = ngpu_pgcraft_get_vertex_buffer_index(desc->common.crafter, "frag_blur");
+    desc->outline_pos_index    = ngpu_pgcraft_get_vertex_buffer_index(desc->common.crafter, "frag_outline_pos");
 
     return 0;
 }

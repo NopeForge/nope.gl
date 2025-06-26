@@ -66,6 +66,8 @@ struct drawpath_opts {
     float outline;
     struct ngl_node *outline_color_node;
     float outline_color[3];
+    struct ngl_node *outline_pos_node;
+    float outline_pos;
     struct ngl_node *glow_node;
     float glow;
     struct ngl_node *glow_color_node;
@@ -117,6 +119,9 @@ static const struct node_param drawpath_params[] = {
     {"outline_color", NGLI_PARAM_TYPE_VEC3, OFFSET(outline_color_node), {.vec={1.f, .7f, 0.f}},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                      .desc=NGLI_DOCSTRING("path outline color")},
+    {"outline_pos",  NGLI_PARAM_TYPE_F32, OFFSET(outline_pos_node), {.f32=.5f},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
+                     .desc=NGLI_DOCSTRING("path outline position (0 for inside, 0.5 right at the edge, 1 for outside)")},
     {"glow",         NGLI_PARAM_TYPE_F32, OFFSET(glow_node),
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                      .desc=NGLI_DOCSTRING("path glow width")},
@@ -242,6 +247,7 @@ static int drawpath_init(struct ngl_node *node)
         {.name="glow",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->glow_node, &o->glow)},
         {.name="glow_color",        .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->glow_color_node, o->glow_color)},
         {.name="blur",              .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->blur_node, &o->blur)},
+        {.name="outline_pos",       .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->outline_pos_node, &o->outline_pos)},
     };
 
     /* register source uniforms */
