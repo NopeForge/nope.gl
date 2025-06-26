@@ -159,6 +159,7 @@ static struct text_data_pointers get_chr_data_pointers(float *base, size_t nb_ch
     ptrs.outline      = ptrs.color        + nb_chars * 4;
     ptrs.glow         = ptrs.outline      + nb_chars * 4;
     ptrs.blur         = ptrs.glow         + nb_chars * 4;
+    ptrs.outline_pos  = ptrs.blur         + nb_chars;
     return ptrs;
 }
 
@@ -170,6 +171,7 @@ struct default_data {
     float outline[4];
     float glow[4];
     float blur;
+    float outline_pos;
 };
 
 static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
@@ -247,6 +249,7 @@ static void fill_default_data_buffers(struct text *s, size_t nb_chars)
         .outline   = {1.f, .7f, 0.f, 0.f},
         .glow      = {1.f, 1.f, 1.f, 0.f},
         .blur      = 0.f,
+        .outline_pos = .5f,
     };
 
     const struct text_data_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
@@ -259,6 +262,7 @@ static void fill_default_data_buffers(struct text *s, size_t nb_chars)
     for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.outline   + i * 4,     default_data.outline,   sizeof(default_data.outline));
     for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.glow      + i * 4,     default_data.glow,      sizeof(default_data.glow));
     for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.blur      + i,         &default_data.blur,     sizeof(default_data.blur));
+    for (size_t i = 0; i < nb_chars; i++) memcpy(defaults_ptr.outline_pos + i,       &default_data.outline_pos, sizeof(default_data.outline_pos));
 }
 
 void ngli_text_update_effects_defaults(struct text *s, const struct text_effects_defaults *defaults)
@@ -747,7 +751,8 @@ int ngli_text_set_time(struct text *s, double t)
                 (ret = set_f32_value( s->data_ptrs.outline    + c * 4 + 3, effect_opts->outline_node,       effect_opts->outline,       target_t)) < 0 ||
                 (ret = set_vec3_value(s->data_ptrs.glow       + c * 4,     effect_opts->glow_color_node,    effect_opts->glow_color,    target_t)) < 0 ||
                 (ret = set_f32_value( s->data_ptrs.glow       + c * 4 + 3, effect_opts->glow_node,          effect_opts->glow,          target_t)) < 0 ||
-                (ret = set_f32_value( s->data_ptrs.blur       + c,         effect_opts->blur_node,          effect_opts->blur,          target_t)) < 0)
+                (ret = set_f32_value( s->data_ptrs.blur       + c,         effect_opts->blur_node,          effect_opts->blur,          target_t)) < 0 ||
+                (ret = set_f32_value( s->data_ptrs.outline_pos + c,        effect_opts->outline_pos_node,   effect_opts->outline_pos,   target_t)) < 0)
                 return ret;
         }
     }

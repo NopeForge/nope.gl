@@ -30,11 +30,11 @@
  * glow: RGB color for the glow, intensity stored in the alpha channel
  * blur: blur amount
  */
-vec4 get_path_color(float dist, vec4 color, vec4 outline, vec4 glow, float blur)
+vec4 get_path_color(float dist, vec4 color, vec4 outline, vec4 glow, float blur, float outline_pos)
 {
     float aa = fwidth(dist); // pixel width estimates
     float w = max(aa, blur) * 0.5; // half diffuse width
-    vec2 d = dist + vec2(-0.5, 0.5) * outline.a; // inner and outer boundaries
+    vec2 d = dist + mix(vec2(-1,0), vec2(0,1), ngli_sat(outline_pos)) * outline.a; // inner and outer boundaries
     float inner_mask = smoothstep(-w, w, d.x); // cut off between the outline and the outside (whole shape w/ outline)
     float outer_mask = smoothstep(-w, w, d.y); // cut off between the fill color and the outline (whole shape w/o outline)
     float outline_mask = outer_mask - inner_mask;

@@ -45,4 +45,5 @@ void main()
     outline = frag_outline;
     glow    = frag_glow;
     blur    = frag_blur;
+    outline_pos = frag_outline_pos;
 }

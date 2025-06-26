@@ -97,6 +97,11 @@ static const struct node_param texteffect_params[] = {
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                      .desc=NGLI_DOCSTRING("characters outline color, use negative value for unchanged from previous text effects "
                                           "(default is yellow, (1, 1, 0))")},
+    {"outline_pos",  NGLI_PARAM_TYPE_F32, OFFSET(outline_pos_node), {.f32=-1.f},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
+                     .desc=NGLI_DOCSTRING("characters outline position (0 for inside, 0.5 right at the edge, 1 for outside), "
+                                          "use negative value for unchanged from previous text effects "
+                                          "(default is 0.5)")},
     {"glow",         NGLI_PARAM_TYPE_F32, OFFSET(glow_node), {.f32=-1.f},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                      .desc=NGLI_DOCSTRING("characters glow width, use negative value for unchanged from previous text effects "

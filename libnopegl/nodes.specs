@@ -2385,6 +2385,13 @@
           "desc": "path outline color"
         },
         {
+          "name": "outline_pos",
+          "type": "f32",
+          "default": 0.500000,
+          "flags": ["live", "node"],
+          "desc": "path outline position (0 for inside, 0.5 right at the edge, 1 for outside)"
+        },
+        {
           "name": "glow",
           "type": "f32",
           "default": 0.000000,
@@ -3911,6 +3918,13 @@
           "default": [-1.000000,-1.000000,-1.000000],
           "flags": ["live", "node"],
           "desc": "characters outline color, use negative value for unchanged from previous text effects (default is yellow, (1, 1, 0))"
+        },
+        {
+          "name": "outline_pos",
+          "type": "f32",
+          "default": -1.000000,
+          "flags": ["live", "node"],
+          "desc": "characters outline position (0 for inside, 0.5 right at the edge, 1 for outside), use negative value for unchanged from previous text effects (default is 0.5)"
         },
         {
           "name": "glow",
