@@ -625,7 +625,7 @@ static void egl_set_surface_pts(struct glcontext *ctx, double t)
     struct egl_priv *egl = ctx->priv_data;
 
     if (egl->PresentationTimeANDROID) {
-        EGLnsecsANDROID pts = (EGLnsecsANDROID)(t * 1000000000LL);
+        EGLnsecsANDROID pts = (EGLnsecsANDROID)(t * 1000000000);
         egl->PresentationTimeANDROID(egl->display, egl->surface, pts);
     }
 #endif
