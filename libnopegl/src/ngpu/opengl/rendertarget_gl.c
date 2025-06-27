@@ -72,13 +72,13 @@ static void resolve_draw_buffers(struct ngpu_rendertarget *s)
         const struct ngpu_attachment *attachment = &params->colors[i];
         if (!attachment->resolve_target)
             continue;
-        GLbitfield flags = GL_COLOR_BUFFER_BIT;
-        if (i == 0)
-            flags |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+
         gl->funcs.ReadBuffer(GL_COLOR_ATTACHMENT0 + (GLenum)i);
         GLenum draw_buffers[NGPU_MAX_COLOR_ATTACHMENTS] = {0};
         draw_buffers[i] = GL_COLOR_ATTACHMENT0 + (GLenum)i;
         gl->funcs.DrawBuffers((GLsizei)i + 1, draw_buffers);
+
+        const GLbitfield flags = GL_COLOR_BUFFER_BIT | (i == 0 ? GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : 0);
         gl->funcs.BlitFramebuffer(0, 0, s->width, s->height, 0, 0, s->width, s->height, flags, GL_NEAREST);
     }
     gl->funcs.ReadBuffer(GL_COLOR_ATTACHMENT0);
