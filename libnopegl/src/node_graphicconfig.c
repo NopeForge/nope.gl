@@ -280,6 +280,13 @@ static int graphicconfig_init(struct ngl_node *node)
 
     static const int default_scissor[4] = DEFAULT_SCISSOR;
     s->use_scissor = memcmp(o->scissor, default_scissor, sizeof(o->scissor));
+    if (s->use_scissor) {
+        if (o->scissor[0] < 0 || o->scissor[1] < 0 || o->scissor[2] < 0 || o->scissor[3] < 0) {
+            LOG(ERROR, "all scissor components must be positive: x=%d, y=%d, width=%d, height=%d",
+                NGLI_ARG_VEC4(o->scissor));
+            return NGL_ERROR_INVALID_USAGE;
+        }
+    }
 
     return 0;
 }
