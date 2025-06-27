@@ -32,7 +32,6 @@
 struct ngl_node;
 
 struct texture_info {
-    int requested_format;
     struct ngpu_texture_params params;
     uint32_t supported_image_layouts;
     int clamp_video;
