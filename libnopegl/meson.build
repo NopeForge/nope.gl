@@ -93,7 +93,6 @@ install_rpath = get_option('rpath') ? get_option('prefix') / get_option('libdir'
 debug_opts = get_option('debug_opts')
 conf_data.set10('TARGET_' + host_system.to_upper(), true)
 conf_data.set10('ARCH_' + cpu_family.to_upper(), true)
-conf_data.set10('CONFIG_SMALL', get_option('small'))
 conf_data.set10('DEBUG_GL', 'gl' in debug_opts)
 conf_data.set10('DEBUG_VK', 'vk' in debug_opts)
 conf_data.set10('DEBUG_MEM', 'mem' in debug_opts)
@@ -842,10 +841,6 @@ specs_filename = 'nodes.specs'
 dest_datadir = get_option('datadir') / 'nopegl'
 install_data(files(specs_filename), install_dir: dest_datadir)
 
-# XXX: should we use an intermediate static_library() to share the objects
-# between the library and these tools?
-# https://git.archlinux.org/pacman.git/tree/meson.build?id=4533c6a8e0f39c7707e671b7f9687607b46f1417#n310
-# seem to imply some extract_all_objects(recursive: true)
 gen_specs = executable(
   'gen_specs',
   lib_src + files('src/gen_specs.c'),
@@ -853,6 +848,7 @@ gen_specs = executable(
   build_by_default: false,
   native: true,
   include_directories: inc_dir,
+  c_args: '-DINCLUDE_DOCSTRINGS',
 )
 specs_file = custom_target(
   specs_filename,

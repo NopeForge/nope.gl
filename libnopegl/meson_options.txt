@@ -34,8 +34,6 @@ option('vaapi-wayland', type: 'feature', value: 'auto',
 
 option('rpath', type: 'boolean', value: false,
        description: 'install with rpath')
-option('small', type: 'boolean', value: false,
-       description: 'exclude all the documentation strings from the binary')
 option('tests', type: 'boolean', value: true)
 
 option('logtrace', type: 'boolean', value: false,
