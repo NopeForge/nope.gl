@@ -6,5 +6,4 @@ profile = "black"
 line_length = 120
 
 [tool.pyright]
-venv = "venv"
-venvPath = "."
+extraPaths = ["python/pynopegl", "python/pynopegl-utils"]
