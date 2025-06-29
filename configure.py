@@ -387,7 +387,7 @@ def _download_extract(args, dep_item):
             extract_dir = op.join(dst_base, dst_dir or _guess_base_dir(dirs))
             if not op.exists(extract_dir):
                 logging.info("extracting %s", dst_file)
-                tar.extractall(op.join(dst_base, dst_dir))
+                tar.extractall(op.join(dst_base, dst_dir), filter="data")
                 extracted = True
 
     elif zipfile.is_zipfile(dst_path):
