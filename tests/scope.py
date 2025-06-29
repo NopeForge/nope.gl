@@ -22,10 +22,9 @@
 
 import textwrap
 
+import pynopegl as ngl
 from pynopegl_utils.misc import load_media
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
-
-import pynopegl as ngl
 
 
 def _get_colorstats(media):

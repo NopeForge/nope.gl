@@ -30,10 +30,9 @@ import tempfile
 from collections import namedtuple
 from pathlib import Path
 
+import pynopegl as ngl
 from pynopegl_utils.misc import get_backend, load_media
 from pynopegl_utils.toolbox.grid import autogrid_simple
-
-import pynopegl as ngl
 
 _backend_str = os.environ.get("BACKEND")
 _backend = get_backend(_backend_str) if _backend_str else ngl.Backend.AUTO

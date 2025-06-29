@@ -22,11 +22,10 @@
 import colorsys
 import textwrap
 
+import pynopegl as ngl
 from pynopegl_utils.misc import get_shader, load_media
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cmp_resources import test_resources
-
-import pynopegl as ngl
 
 
 def _get_random_easing(rng):

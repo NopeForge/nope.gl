@@ -19,14 +19,13 @@
 # under the License.
 #
 
+import pynopegl as ngl
 from pynopegl_utils.qml import livectls
 from PySide6 import QtCore
 from PySide6.QtGui import QOpenGLContext, QOpenGLFunctions
 from PySide6.QtOpenGL import QOpenGLFramebufferObject, QOpenGLFramebufferObjectFormat
 from PySide6.QtQml import QmlElement
 from PySide6.QtQuick import QQuickFramebufferObject
-
-import pynopegl as ngl
 
 QML_IMPORT_NAME = "QMLNopeGL"
 QML_IMPORT_MAJOR_VERSION = 1

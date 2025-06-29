@@ -19,11 +19,10 @@
 # under the License.
 #
 
+import pynopegl as ngl
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS
 from pynopegl_utils.toolbox.grid import autogrid_simple
-
-import pynopegl as ngl
 
 _OPERATORS = (
     "src_over",

@@ -21,12 +21,11 @@
 
 import textwrap
 
+import pynopegl as ngl
 from pynopegl_utils.misc import load_media
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cuepoints_utils import get_grid_points, get_points_nodes
-
-import pynopegl as ngl
 
 
 @test_fingerprint(width=256, height=256, keyframes=10, tolerance=1)

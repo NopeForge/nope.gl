@@ -22,12 +22,11 @@
 import math
 from typing import Mapping, Tuple
 
+import pynopegl as ngl
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cuepoints_utils import get_points_nodes
 from pynopegl_utils.toolbox.colors import COLORS
 from pynopegl_utils.toolbox.grid import AutoGrid, autogrid_queue, autogrid_simple
-
-import pynopegl as ngl
 
 _CIRCLE_RADIUS = 0.5
 

@@ -1,9 +1,8 @@
 import array
 import os.path as op
 
-from pynopegl_utils.misc import get_shader, load_media
-
 import pynopegl as ngl
+from pynopegl_utils.misc import get_shader, load_media
 
 
 def _load_model(fp):

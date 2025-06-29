@@ -21,12 +21,11 @@
 
 from fractions import Fraction
 
+import pynopegl as ngl
 from pynopegl_utils.config import Config
 from pynopegl_utils.control_widgets import control_to_widget
 from pynopegl_utils.misc import get_backend
 from PySide6 import QtCore, QtGui, QtWidgets
-
-import pynopegl as ngl
 
 
 class Toolbar(QtWidgets.QWidget):

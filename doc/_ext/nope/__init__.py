@@ -28,6 +28,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
+import pynopegl as ngl
 from docutils import nodes
 from docutils.parsers.rst import directives
 from sphinx.application import Sphinx
@@ -35,8 +36,6 @@ from sphinx.config import Config
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.writers.html5 import HTML5Translator
-
-import pynopegl as ngl
 
 
 class _nope(nodes.Element):

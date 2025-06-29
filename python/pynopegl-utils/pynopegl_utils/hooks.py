@@ -26,11 +26,10 @@ import tempfile
 import time
 from typing import Callable, Optional
 
+import pynopegl as ngl
 from pynopegl_utils.misc import get_backend
 from pynopegl_utils.module import load_script
 from PySide6 import QtCore
-
-import pynopegl as ngl
 
 
 class _HooksCaller:

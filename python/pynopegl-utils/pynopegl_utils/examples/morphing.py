@@ -1,9 +1,8 @@
 import array
 import math
 
-from pynopegl_utils.misc import get_shader
-
 import pynopegl as ngl
+from pynopegl_utils.misc import get_shader
 
 
 @ngl.scene(controls=dict(square_color=ngl.scene.Color(), circle_color=ngl.scene.Color()))

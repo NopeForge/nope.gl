@@ -27,10 +27,9 @@ import traceback
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional, Set
 
+import pynopegl as ngl
 from pynopegl_utils.module import load_script
 from pynopegl_utils.resourcetracker import ResourceTracker
-
-import pynopegl as ngl
 
 
 @dataclass

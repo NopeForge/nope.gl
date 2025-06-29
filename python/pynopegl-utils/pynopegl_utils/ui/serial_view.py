@@ -21,9 +21,8 @@
 
 from typing import Callable, Optional
 
-from PySide6 import QtCore, QtGui, QtWidgets
-
 import pynopegl as ngl
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class SerialView(QtWidgets.QWidget):

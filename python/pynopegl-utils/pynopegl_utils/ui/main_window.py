@@ -22,6 +22,7 @@
 import sys
 from typing import Optional
 
+import pynopegl as ngl
 from pynopegl_utils.com import query_scene
 from pynopegl_utils.config import Config
 from pynopegl_utils.hooks import HooksCaller, HooksController
@@ -32,8 +33,6 @@ from pynopegl_utils.ui.hooks_view import HooksView
 from pynopegl_utils.ui.serial_view import SerialView
 from pynopegl_utils.ui.toolbar import Toolbar
 from PySide6 import QtCore, QtGui, QtWidgets
-
-import pynopegl as ngl
 
 
 class MainWindow(QtWidgets.QSplitter):

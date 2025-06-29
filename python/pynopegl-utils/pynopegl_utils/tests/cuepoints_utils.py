@@ -21,9 +21,8 @@
 
 from typing import Mapping, Tuple
 
-from pynopegl_utils.toolbox.colors import COLORS
-
 import pynopegl as ngl
+from pynopegl_utils.toolbox.colors import COLORS
 
 
 def get_grid_points(cols: int, rows: int) -> Mapping[str, Tuple[float, float]]:

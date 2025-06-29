@@ -19,9 +19,8 @@
 # under the License.
 #
 
-from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
-
 import pynopegl as ngl
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 
 
 def _shape_variant_0(cfg: ngl.SceneCfg, *kfs):

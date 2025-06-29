@@ -21,10 +21,9 @@
 
 import math
 
+import pynopegl as ngl
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.toolbox.colors import COLORS
-
-import pynopegl as ngl
 
 _CUEPOINTS = dict(c=(0, 0), bl=(-0.5, -0.5), br=(0.5, -0.5), tr=(0.5, 0.5), tl=(-0.5, 0.5))
 

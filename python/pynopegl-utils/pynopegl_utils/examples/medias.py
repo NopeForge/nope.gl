@@ -1,6 +1,5 @@
-from pynopegl_utils.misc import load_media
-
 import pynopegl as ngl
+from pynopegl_utils.misc import load_media
 
 
 @ngl.scene(controls=dict(speed=ngl.scene.Range(range=[0.01, 2], unit_base=1000)))

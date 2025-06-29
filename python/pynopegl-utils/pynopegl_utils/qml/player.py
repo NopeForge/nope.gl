@@ -22,11 +22,10 @@
 
 import os.path as op
 
+import pynopegl as ngl
 from pynopegl_utils.qml import ngl_widget  # noqa: register NopeGLWidget as a QML element
 from PySide6.QtCore import QObject, QUrl
 from PySide6.QtQml import QQmlComponent
-
-import pynopegl as ngl
 
 
 class NGLPlayer:
