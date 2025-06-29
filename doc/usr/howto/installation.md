@@ -99,13 +99,13 @@ installed exactly the same way as `libnopegl`.
 ### `pynopegl` (the Python binding)
 
 ```shell
-pip install -r ./pynopegl/requirements.txt
-pip install ./pynopegl
+pip install -r python/pynopegl/requirements.txt
+pip install python/pynopegl
 ```
 
 ### `pynopegl-utils` (the Python utilities and examples)
 
 ```shell
-pip install -r ./pynopegl-utils/requirements.txt
-pip install ./pynopegl-utils
+pip install -r python/pynopegl-utils/requirements.txt
+pip install python/pynopegl-utils
 ```
