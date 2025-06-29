@@ -1064,7 +1064,7 @@ def _all(cfg):
 
 @_block("tests-setup", [_ngl_tools_install, _pynopegl_utils_install])
 def _tests_setup(cfg):
-    return ["$(MESON_SETUP_TESTS) " + _cmd_join("tests", _get_builddir(cfg, "tests"))]
+    return ["$(MESON) setup --backend=ninja " + _cmd_join("tests", _get_builddir(cfg, "tests"))]
 
 
 @_block("nopegl-tests", [_nopegl_install])
@@ -1197,9 +1197,6 @@ def _get_make_vars(cfg):
     )
 
     ret["MESON_SETUP"] = "$(MESON) " + _cmd_join(*meson_setup, f"--backend={cfg.args.build_backend}")
-    # Our tests/meson.build logic is not well supported with the VS backend so
-    # we need to fallback on Ninja
-    ret["MESON_SETUP_TESTS"] = "$(MESON) " + _cmd_join(*meson_setup, "--backend=ninja")
 
     return ret
 
