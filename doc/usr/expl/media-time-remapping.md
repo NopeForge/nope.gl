@@ -39,11 +39,11 @@ initial starting time of the video for a given time `t`.
 
 There are a few limitations due to the streaming nature of medias:
 
-- time must be monotonically incrementing (reverse playback is forbidden)
-- only linear interpolation is allowed
-- you are obviously limited by the decoding speed of your host, so you can't
+- Time must be monotonically incrementing (reverse playback is forbidden)
+- Only linear interpolation is allowed
+- You are obviously limited by the decoding speed of your host, so you can't
   accelerate the speedup infinitely
-- seeking is exact, so a performance hit may be observed while doing so
+- Seeking is exact, so a performance hit may be observed while doing so
 
 
 ## Time range filters

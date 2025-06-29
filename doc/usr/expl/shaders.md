@@ -140,7 +140,7 @@ To sample a `Texture2D` from within the shader, multiple options are available:
   `data_src`, but it is recommended to only use it with `Media`. The reason for
   this is that it adds a small overhead by checking the image layout in the
   shader: in the case of a media, that format can change dynamically due to
-  various video decoding fall-back mechanisms.  On the other hand, it is the
+  various video decoding fall-back mechanisms. On the other hand, it is the
   only way to benefit from video decoding accelerations (external samplers on
   Android, VAAPI on Linux, etc).
 - `texture(name, coords)`: this picking method should be used if and only if

@@ -23,13 +23,13 @@ submission:
 
 - Make sure the build and **tests pass for every commits**: `git rebase main
   --exec "make clean && make test"`
-- Can the same changes be **applied elsewhere** in the code base?
+- Can the same changes be **applied elsewhere** in the codebase?
 - Avoid at all cost **glob-like code** such as `import *` or `*.ext` file
   references: this kind of code leads to dangling references because they break
   the obvious links between components
 - Double check **anything that can reference** the part you're making
-  modifications to (including the documentation); `git grep -i` on the file
-  names, symbols and keywords is your friend
+  modifications to (including the documentation); `git grep -i` on the
+  filenames, symbols, and keywords is your friend
 - Check the **imports**, **includes**, **dependencies**: are they still needed
   after your changes?
 - Do you check and raise all possible **errors**?
@@ -90,8 +90,8 @@ quality:
 
 ## Review Process
 
-If your code passes the check list, you can submit a Pull Request for the
-`main` branch on Github.  Reviewers will likely make comments and request for
+If your code passes the checklist, you can submit a Pull Request for the
+`main` branch on Github. Reviewers will likely make comments and request for
 changes. You are expected to discuss your changes, and rework the history as
 needed until it reaches a consensus.
 

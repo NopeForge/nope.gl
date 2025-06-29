@@ -35,7 +35,7 @@ efficient source of noise that can be used in various creative situations.
 ### Seed
 
 Behind the scene, there is only one signal of noise generated. In order to make
-different signals, the `Noise*.seed` parameter can be used.  In practice, the
+different signals, the `Noise*.seed` parameter can be used. In practice, the
 seed acts as an offsetting of the time `t` (in seconds), meaning you likely
 want to keep seeds relatively apart from each other.
 
@@ -50,7 +50,7 @@ as base seed (the first component).
 
 At the most elementary level, we generate random values from x-axis values. The
 hashing function we use is [lowbias32 from Chris Wellons][lowbias32], converted
-to a float between `0.0` and `1.0`.  This hashing function makes sure that for
+to a float between `0.0` and `1.0`. This hashing function makes sure that for
 a given integer (the lattice / integer coordinate), we will always provide the
 same float value with a uniform distribution.
 
@@ -101,10 +101,10 @@ through 0 at every lattice / cycle.
 
 The two common interpolation functions are:
 
-1. the [Cubic Hermite curve][hermite], `f(t)=3t²-2t³` (typically used in GLSL
+1. The [Cubic Hermite curve][hermite], `f(t)=3t²-2t³` (typically used in GLSL
    `smoothstep()`) initially used by Ken Perlin in his first Perlin Noise
    implementation
-2. the more modern (and complex) quintic curve `f(t)=6t⁵-15t⁴+10t³` introduced
+2. The more modern (and complex) quintic curve `f(t)=6t⁵-15t⁴+10t³` introduced
    in 2002 by Ken Perlin in his proposed improved version of the Perlin Noise,
    in order to address discontinuities in the 2nd order derivatives `f"(t)`.
 
@@ -123,7 +123,7 @@ number of layers accumulated is `Noise*.octaves`.
 
 With the standard parameters, each octave will see its frequency double
 (`Noise*.lacunarity=2`) and its amplitude halved (`Noise*.gain=½`) from the
-previous one.  The gain is also known as *persistence*, and in its mathematical
+previous one. The gain is also known as *persistence*, and in its mathematical
 form derived from the [Hurst exponent][hurst]. This gain/persistence/Hurst
 notion refers to the same thing, which is the "memory" between octaves, or
 self-similarity.

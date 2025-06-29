@@ -78,7 +78,7 @@ Available options:
 
 Option      | Description
 ----------- | -----------
-`n`         | vector len
+`n`         | vector length
 `minv`      | smallest possible vector
 `maxv`      | largest possible vector
 
@@ -112,7 +112,7 @@ def color_example(cfg, bgcolor=(0.3, 0.4, 0.5)):
 
 ### scene.Bool
 
-A `Bool` is associated with a **check box** widget.
+A `Bool` is associated with a **checkbox** widget.
 
 The associated argument is expected to be a `bool`.
 
@@ -200,15 +200,15 @@ The hooks are exposed through a Python script implementing the following functio
 - `scene_change(session_id, scenefile, clear_color, samples)`
 
 Following are the hook functions that will be executed and their expected
-behaviour.
+behavior.
 
 ### get_sessions()
 
 `get_sessions()` does not take any argument. It must return a list of `tuple`.
 Each `tuple` must contain:
 
-- a session identifier that must be unique
-- a session description
+- A session identifier that must be unique
+- A session description
 
 **Example**:
 

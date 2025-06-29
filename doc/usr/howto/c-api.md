@@ -5,7 +5,7 @@ Since the header documentation doesn't provide the big picture on how things
 fit together, this how-to will serve as a guide.
 
 Every public function and structure uses the `ngl_` prefix as namespace.
-Similarly, macro, constants and enums use the `NGL_` prefix.  `NGLI_FOURCC()`
+Similarly, macro, constants and enums use the `NGL_` prefix. `NGLI_FOURCC()`
 typically is **not** part of the public API and you should not use it.
 
 **Note on the private API**: The `I` in `NGLI_FOURCC()` stands for *Internal*.
@@ -146,7 +146,7 @@ static struct ngl_scene *get_scene(const char *filename)
 ```
 **Note**: When a node is referenced by another through parameters, its
 reference counter is incremented because the parent holds a reference to its
-children.  As a result, you **must release your own references** using
+children. As a result, you **must release your own references** using
 `ngl_node_unrefp()`.
 
 ## Drawing

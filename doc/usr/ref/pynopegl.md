@@ -1,7 +1,7 @@
 # pynopegl
 
 [pynopegl][pynopegl] is the Python binding for [libnopegl][libnopegl]. It is
-automatically generated from to the `libnopegl` node specifications file.  For
+automatically generated from to the `libnopegl` node specifications file. For
 detailed information on how the `pynopegl` binding is created, refer to the
 corresponding [pynopegl explanation][expl-pynopegl].
 

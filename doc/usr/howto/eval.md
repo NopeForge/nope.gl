@@ -4,9 +4,9 @@
 evaluation. The complete list of operators, constants and functions can be
 consulted in the [Eval reference documentation][eval-ref].
 
-Each node can be nested to create complex interwined relationships, and they are
-not limited to float and vectors: `Noise*` or `Color*` nodes are also accepted
-as input resources.
+Each node can be nested to create complex intertwined relationships, and they
+are not limited to float and vectors: `Noise*` or `Color*` nodes are also
+accepted as input resources.
 
 For example, the following example demonstrates how to animate the position of
 the 2 gradient positions:
