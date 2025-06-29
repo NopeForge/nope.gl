@@ -2647,7 +2647,7 @@
           "type": "f32",
           "default": 0.030000,
           "flags": ["node"],
-          "desc": "amount of blurriness in the range [0, 1]"
+          "desc": "amount of blurriness in the range [0,1]"
         }
       ]
     },

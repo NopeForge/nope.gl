@@ -120,7 +120,7 @@ static const struct node_param fgblur_params[] = {
                           .desc=NGLI_DOCSTRING("destination to use for the blur")},
     {"blurriness",        NGLI_PARAM_TYPE_F32, OFFSET(blurriness_node), {.f32=0.03f},
                           .flags=NGLI_PARAM_FLAG_ALLOW_NODE,
-                          .desc=NGLI_DOCSTRING("amount of blurriness in the range [0, 1]")},
+                          .desc=NGLI_DOCSTRING("amount of blurriness in the range [0,1]")},
     {NULL}
 };
 
