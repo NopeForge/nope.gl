@@ -139,6 +139,7 @@ def stl(cfg: ngl.SceneCfg, stl=None, scale=0.8):
             [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
         )
         axis = tuple(int(i == x) for x in range(3))
+        assert len(axis) == 3
         solid = ngl.Rotate(solid, axis=axis, angle=rot_animkf)
 
     camera = ngl.Camera(solid)

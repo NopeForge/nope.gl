@@ -261,6 +261,7 @@ def cube(cfg: ngl.SceneCfg, display_depth_buffer=False):
             [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
         )
         axis = tuple(int(i == x) for x in range(3))
+        assert len(axis) == 3
         cube = ngl.Rotate(cube, axis=axis, angle=rot_animkf)
 
     config = ngl.GraphicConfig(cube, depth_test=True)
@@ -363,6 +364,7 @@ def mountain(cfg: ngl.SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75)
             c0, c1 = black, ref_color
             x = (i - nb_mountains / 2) / float((nb_mountains - 1) / 2)
         mcolor = tuple(x * a + (1.0 - x) * b for a, b in zip(c0, c1))
+        assert len(mcolor) == 3
 
         random_buf = ngl.BufferFloat(data=get_rand())
         random_tex = ngl.Texture2D(
