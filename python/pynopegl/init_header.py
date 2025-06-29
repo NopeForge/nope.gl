@@ -361,14 +361,26 @@ class SceneInfo:
     clear_color: Tuple[float, float, float, float]
 
 
-def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str] = None):
-    def real_decorator(scene_func: Callable[..., Node]) -> Callable[..., SceneInfo]:
+class scene:
+    Range = namedtuple("Range", "range unit_base", defaults=([0, 1], 1))
+    Vector = namedtuple("Vector", "n minv maxv", defaults=(None, None))
+    Color = namedtuple("Color", "")
+    Bool = namedtuple("Bool", "")
+    File = namedtuple("File", "filter", defaults=("",))
+    List = namedtuple("List", "choices")
+    Text = namedtuple("Text", "")
+
+    def __init__(self, controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str] = None):
+        self._controls = controls
+        self._compat_specs = compat_specs
+
+    def __call__(self, scene_func: Callable[..., Node]) -> Callable[..., SceneInfo]:
         @wraps(scene_func)
         def func_wrapper(scene_cfg: Optional[SceneCfg] = None, **extra_args):
             version = Version(__version__)
-            if compat_specs and version not in SpecifierSet(compat_specs):
+            if self._compat_specs and version not in SpecifierSet(self._compat_specs):
                 raise Exception(
-                    f"{scene_func.__name__} needs libnopegl{compat_specs} but libnopegl is currently at version {version}"
+                    f"{scene_func.__name__} needs libnopegl{self._compat_specs} but libnopegl is currently at version {version}"
                 )
 
             if scene_cfg is None:
@@ -400,11 +412,11 @@ def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str]
         # Construct widgets specs
         widgets_specs = []
         func_specs = inspect.getfullargspec(scene_func)
-        if controls is not None and func_specs.defaults:
+        if self._controls is not None and func_specs.defaults:
             nb_optionnals = len(func_specs.defaults)
             for i, key in enumerate(func_specs.args[-nb_optionnals:]):
                 # Set controller defaults according to the function prototype
-                control = controls.get(key)
+                control = self._controls.get(key)
                 if control is not None:
                     default = func_specs.defaults[i]
                     ctl_id = control.__class__.__name__
@@ -421,14 +433,3 @@ def scene(controls: Optional[Dict[str, Any]] = None, compat_specs: Optional[str]
         func_wrapper.iam_a_ngl_scene_func = True
 
         return func_wrapper
-
-    return real_decorator
-
-
-scene.Range = namedtuple("Range", "range unit_base", defaults=([0, 1], 1))
-scene.Vector = namedtuple("Vector", "n minv maxv", defaults=(None, None))
-scene.Color = namedtuple("Color", "")
-scene.Bool = namedtuple("Bool", "")
-scene.File = namedtuple("File", "filter", defaults=("",))
-scene.List = namedtuple("List", "choices")
-scene.Text = namedtuple("Text", "")
