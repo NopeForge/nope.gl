@@ -586,7 +586,7 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
         {'name': 'OGLCompiler',                     'required': false},
         {'name': 'GenericCodeGen',                  'required': false},
         {'name': 'SPVRemapper',                     'required': true},
-        {'name': 'SPIRV',                           'required': true},
+        {'name': 'SPIRV',                           'required': false},
         {'name': 'SPIRV-Tools-opt',                 'required': false},
         {'name': 'SPIRV-Tools',                     'required': false},
       ]
