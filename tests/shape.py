@@ -23,14 +23,13 @@ import array
 import itertools
 import textwrap
 
+import pynopegl as ngl
 from pynopegl_utils.misc import get_shader
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS, get_random_color_buffer
 from pynopegl_utils.toolbox.grid import autogrid_simple
 from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
-
-import pynopegl as ngl
 
 
 @test_cuepoints(

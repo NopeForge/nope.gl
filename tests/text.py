@@ -21,10 +21,9 @@
 
 from pathlib import Path
 
+import pynopegl as ngl
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.toolbox.colors import COLORS
-
-import pynopegl as ngl
 
 _FONT_DIR = Path(__file__).resolve().parent / "assets" / "fonts"
 _ARABIC_FONT = _FONT_DIR / "Cairo-SemiBold.ttf"

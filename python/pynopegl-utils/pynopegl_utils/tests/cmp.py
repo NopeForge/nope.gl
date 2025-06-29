@@ -25,9 +25,8 @@ import os.path as op
 from fractions import Fraction
 from typing import Any, Callable, Generator, Sequence, Tuple, Union
 
-from pynopegl_utils.misc import get_backend, get_nopegl_tempdir
-
 import pynopegl as ngl
+from pynopegl_utils.misc import get_backend, get_nopegl_tempdir
 
 
 class CompareBase:

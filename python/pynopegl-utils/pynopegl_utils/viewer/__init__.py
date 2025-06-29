@@ -27,6 +27,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any, Dict, Optional
 
+import pynopegl as ngl
 from pynopegl_utils import qml
 from pynopegl_utils.com import query_scene
 from pynopegl_utils.export import export_workers
@@ -35,8 +36,6 @@ from pynopegl_utils.qml.player import NGLPlayer
 from pynopegl_utils.scriptsmgr import ScriptsManager
 from pynopegl_utils.viewer.config import ENCODE_PROFILES, Config
 from PySide6.QtCore import QUrl, Slot
-
-import pynopegl as ngl
 
 _ABOUT_EXTRA_TEXT = dedent(
     """\

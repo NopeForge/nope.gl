@@ -2,9 +2,8 @@ import array
 import colorsys
 import math
 
-from pynopegl_utils.misc import get_shader
-
 import pynopegl as ngl
+from pynopegl_utils.misc import get_shader
 
 
 def _block(w, h, color, corner=None):

@@ -1,6 +1,5 @@
-from pynopegl_utils.misc import load_media
-
 import pynopegl as ngl
+from pynopegl_utils.misc import load_media
 
 
 @ngl.scene()

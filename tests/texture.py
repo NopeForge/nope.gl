@@ -23,13 +23,12 @@
 import array
 from textwrap import dedent
 
+import pynopegl as ngl
 from pynopegl_utils.misc import get_shader, load_media
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cuepoints_utils import get_grid_points, get_points_nodes
 from pynopegl_utils.toolbox.colors import COLORS, get_random_color_buffer
-
-import pynopegl as ngl
 
 
 def _draw_buffer(cfg: ngl.SceneCfg, w, h):

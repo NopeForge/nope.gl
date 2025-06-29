@@ -19,9 +19,8 @@
 # under the License.
 #
 
-from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
-
 import pynopegl as ngl
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 
 
 @test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)

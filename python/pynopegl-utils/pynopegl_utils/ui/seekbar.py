@@ -22,9 +22,8 @@
 import math
 from fractions import Fraction
 
-from PySide6 import QtCore, QtGui, QtWidgets
-
 import pynopegl as ngl
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class Seekbar(QtWidgets.QWidget):

@@ -21,9 +21,8 @@
 
 import subprocess
 
-from PySide6 import QtCore, QtGui, QtWidgets
-
 import pynopegl as ngl
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class _SpawnView(QtWidgets.QGroupBox):

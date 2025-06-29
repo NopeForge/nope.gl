@@ -26,12 +26,11 @@ import sys
 from pathlib import Path
 from typing import Optional, Tuple
 
+import pynopegl as ngl
 from pynopegl_utils import qml
 from pynopegl_utils.misc import MediaInfo
 from pynopegl_utils.qml.player import NGLPlayer
 from PySide6.QtCore import QUrl, Slot
-
-import pynopegl as ngl
 
 
 class _Diff:

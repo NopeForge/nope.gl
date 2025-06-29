@@ -22,11 +22,10 @@
 from fractions import Fraction
 from typing import Callable, Optional
 
+import pynopegl as ngl
 from pynopegl_utils.export import ENCODE_PROFILES
 from pynopegl_utils.exporter import Exporter
 from PySide6 import QtCore, QtWidgets
-
-import pynopegl as ngl
 
 
 class ExportView(QtWidgets.QWidget):

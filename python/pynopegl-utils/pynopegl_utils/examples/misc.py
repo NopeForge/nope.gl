@@ -2,11 +2,10 @@ import array
 import math
 import os.path as op
 
+import pynopegl as ngl
 from pynopegl_utils.misc import get_shader, load_media
 from pynopegl_utils.toolbox.scenes import compare
 from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
-
-import pynopegl as ngl
 
 
 @ngl.scene(controls=dict(xsplit=ngl.scene.Range(range=[0, 1], unit_base=100), trilinear=ngl.scene.Bool()))

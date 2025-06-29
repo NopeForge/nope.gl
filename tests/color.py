@@ -20,9 +20,8 @@
 #
 
 
-from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
-
 import pynopegl as ngl
+from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 
 
 def _get_anim_color_scene_func(c0, c1, space):

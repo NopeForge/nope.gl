@@ -22,9 +22,8 @@
 import colorsys
 import random
 
-from pynopegl_utils.tests.cuepoints_utils import get_points_nodes
-
 import pynopegl as ngl
+from pynopegl_utils.tests.cuepoints_utils import get_points_nodes
 
 _FIELDS_VERT = """
 void main()

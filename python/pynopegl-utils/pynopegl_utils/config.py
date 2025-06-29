@@ -23,10 +23,9 @@ import json
 import os
 import os.path as op
 
+import pynopegl as ngl
 from pynopegl_utils.export import ENCODE_PROFILES, RESOLUTIONS
 from PySide6 import QtCore
-
-import pynopegl as ngl
 
 from .misc import get_nopegl_tempdir
 

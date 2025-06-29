@@ -21,6 +21,7 @@
 
 import textwrap
 
+import pynopegl as ngl
 from pynopegl_utils.misc import load_media
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cuepoints_utils import get_points_nodes
@@ -33,8 +34,6 @@ from pynopegl_utils.tests.data import (
     match_fields,
 )
 from pynopegl_utils.toolbox.colors import COLORS
-
-import pynopegl as ngl
 
 _SHARED_UNIFORM_CUEPOINTS = dict((("0", (-0.5, -0.5)), ("1", (0.5, 0.5))))
 

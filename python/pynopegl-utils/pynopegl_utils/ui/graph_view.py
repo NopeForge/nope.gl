@@ -23,10 +23,9 @@ import os.path as op
 import subprocess
 from typing import Callable, Optional
 
+import pynopegl as ngl
 from pynopegl_utils import misc
 from PySide6 import QtCore, QtGui, QtSvgWidgets, QtWidgets
-
-import pynopegl as ngl
 
 from .seekbar import Seekbar
 

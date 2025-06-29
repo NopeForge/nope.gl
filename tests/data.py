@@ -22,6 +22,7 @@
 import array
 import textwrap
 
+import pynopegl as ngl
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynopegl_utils.tests.cuepoints_utils import get_grid_points, get_points_nodes
@@ -35,8 +36,6 @@ from pynopegl_utils.tests.data import (
     match_fields,
 )
 from pynopegl_utils.toolbox.colors import COLORS
-
-import pynopegl as ngl
 
 
 def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_count=2, mat_count=3):

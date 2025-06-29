@@ -21,10 +21,9 @@
 
 from typing import Callable, Optional
 
+import pynopegl as ngl
 from pynopegl_utils.export import export_workers
 from PySide6 import QtCore
-
-import pynopegl as ngl
 
 
 class Exporter(QtCore.QThread):
