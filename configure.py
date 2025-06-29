@@ -975,12 +975,12 @@ def _nopegl_install_nosetup(cfg):
 
 @_block("pynopegl-deps-install", [_nopegl_install])
 def _pynopegl_deps_install(cfg):
-    return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "pynopegl", "requirements.txt"))]
+    return ["$(PIP) " + _cmd_join("install", "-r", op.join("python", "pynopegl", "requirements.txt"))]
 
 
 @_block("pynopegl-install", [_pynopegl_deps_install])
 def _pynopegl_install(cfg):
-    ret = ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join(".", "pynopegl"))]
+    ret = ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join("python", "pynopegl"))]
     if cfg.host != "Windows":
         rpath = op.join(cfg.prefix, "lib")
         ldflags = f"-Wl,-rpath,{rpath}"
@@ -999,12 +999,12 @@ def _pynopegl_utils_deps_install(cfg):
     #
     if cfg.host == "MinGW":
         return ["@"]  # noop
-    return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "pynopegl-utils", "requirements.txt"))]
+    return ["$(PIP) " + _cmd_join("install", "-r", op.join("python", "pynopegl-utils", "requirements.txt"))]
 
 
 @_block("pynopegl-utils-install", [_pynopegl_utils_deps_install])
 def _pynopegl_utils_install(cfg):
-    return ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join(".", "pynopegl-utils"))]
+    return ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join("python", "pynopegl-utils"))]
 
 
 @_block("ngl-tools-setup", [_nopegl_install])
@@ -1083,16 +1083,16 @@ def _rd(d):
 @_block("clean-py")
 def _clean_py(cfg):
     return [
-        _rm(op.join("pynopegl", "nodes_def.pyx")),
-        _rm(op.join("pynopegl", "_pynopegl.c")),
-        _rm(op.join("pynopegl", "_pynopegl.*.so")),
-        _rm(op.join("pynopegl", "pynopegl.*.pyd")),
-        _rm(op.join("pynopegl", "pynopegl", "__init__.py")),
-        _rd(op.join("pynopegl", "build")),
-        _rd(op.join("pynopegl", "pynopegl.egg-info")),
-        _rd(op.join("pynopegl", ".eggs")),
-        _rd(op.join("pynopegl-utils", "pynopegl_utils.egg-info")),
-        _rd(op.join("pynopegl-utils", ".eggs")),
+        _rm(op.join("python", "pynopegl", "nodes_def.pyx")),
+        _rm(op.join("python", "pynopegl", "_pynopegl.c")),
+        _rm(op.join("python", "pynopegl", "_pynopegl.*.so")),
+        _rm(op.join("python", "pynopegl", "pynopegl.*.pyd")),
+        _rm(op.join("python", "pynopegl", "pynopegl", "__init__.py")),
+        _rd(op.join("python", "pynopegl", "build")),
+        _rd(op.join("python", "pynopegl", "pynopegl.egg-info")),
+        _rd(op.join("python", "pynopegl", ".eggs")),
+        _rd(op.join("python", "pynopegl-utils", "pynopegl_utils.egg-info")),
+        _rd(op.join("python", "pynopegl-utils", ".eggs")),
     ]
 
 

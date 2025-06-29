@@ -69,6 +69,6 @@ jobs:
           ngl-python.exe -h
 
           "Shared libraries required by the Cython binding:"
-          bash -l -c "ldd pynopegl/_pynopegl.*.pyd"
+          bash -l -c "ldd python/pynopegl/_pynopegl.*.pyd"
 
           python.exe -c "import pynopegl, pynopegl_utils"

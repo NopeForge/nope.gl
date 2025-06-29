@@ -86,11 +86,11 @@ export PKG_CONFIG_PATH="$appdir/usr/lib/pkgconfig"
 
 $pip_install setuptools cython
 
-$pip_install -r "$here/pynopegl/requirements.txt"
-$pip_install "$here/pynopegl/"
+$pip_install -r "$here/python/pynopegl/requirements.txt"
+$pip_install "$here/python/pynopegl/"
 
-$pip_install -r "$here/pynopegl-utils/requirements.txt"
-$pip_install "$here/pynopegl-utils/"
+$pip_install -r "$here/python/pynopegl-utils/requirements.txt"
+$pip_install "$here/python/pynopegl-utils/"
 
 $python -m pip uninstall -y cython
 
