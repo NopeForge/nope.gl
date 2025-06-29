@@ -82,10 +82,10 @@ Even if explicitly set to `None`/`NULL`, the parameters will **not** be reset
 to their default values but still inherited from the parent(s). There are
 multiple ways we could address this issue:
 
-1. implementing the settings grouping mechanism (as mentioned in the previous
+1. Implementing the settings grouping mechanism (as mentioned in the previous
    section), which workarounds the issue by removing the need for a reset
-2. adding specific `reset` constants to `GraphicConfig` parameters
-3. introducing a dedicated node with the reset-to-defaults purpose
+2. Adding specific `reset` constants to `GraphicConfig` parameters
+3. Introducing a dedicated node with the reset-to-defaults purpose
 
 ### Blocking down inheritance automatically
 

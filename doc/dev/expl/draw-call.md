@@ -21,7 +21,7 @@ inactive branch sharing a common node; that leaf node must stay active even
 though one its parent is inactive.
 
 **Note**: if a branch is already inactive, the visitor is unlikely to follow it
-down, preventing an huge overhead on the tree with a large number of time range
+down, preventing a huge overhead on the tree with a large number of time range
 filtered branches.
 
 

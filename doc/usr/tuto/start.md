@@ -3,7 +3,7 @@
 ## Installing the viewer
 
 The viewer is the most accessible tool for working with the framework. The
-simplest way to  grab it is to download the last [pre-build of it on the
+simplest way to grab it is to download the last [pre-build of it on the
 Releases page][releases].
 
 An alternative to this is to build the development environment without
@@ -114,7 +114,7 @@ From here, if you you're looking at a specific area, you may want to look at
 the [how-to guides][howto].
 
 If you need to understand the *why* of certain design decisions or limitations,
-the [discussions and explanations][expl] section will come to an help.
+the [discussions and explanations][expl] section will come to a help.
 
 Finally, in every situation, you will feel the need to check out the [reference
 documentation][refdoc] for austere but exhaustive information, and in

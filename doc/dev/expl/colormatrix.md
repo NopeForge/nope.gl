@@ -1,7 +1,7 @@
 # YCbCr to RGB color matrix computation
 
 
-## Mathematic formulas
+## Mathematics formulas
 
 Video range constants:
 
@@ -196,5 +196,5 @@ if __name__ == "__main__":
 
 These matrices are used as a reference to evaluate the precision of the C code.
 Using fractions instead of float in C has been considered (and tested) but
-requires an uncessary complexity (overflow handling in particular) for marginal
-accuracy benefits.
+requires an unnecessary complexity (overflow handling in particular) for
+marginal accuracy benefits.

@@ -32,9 +32,9 @@ and on all backends, your mileage may vary.
 
 The histogram (bottom-right in the screenshot) is a 2-dimensional
 representation of the distribution of color in the input texture:
-- the x-axis represents the intensity of the color: absence of light on the
+- The x-axis represents the intensity of the color: absence of light on the
   left, maximum light on the right
-- the y-axis represents how much of each intensity is present in the texture
+- The y-axis represents how much of each intensity is present in the texture
 
 ```{nope} scopes.histogram
 :export_type: image
@@ -46,18 +46,18 @@ Display the histogram of a media
 
 The waveform spectrum (top-right and bottom-left in the screenshot) is a
 3-dimensional representation of the distribution of color in the input texture:
-- the x-axis is spatial: each column of pixels in the waveform is a
+- The x-axis is spatial: each column of pixels in the waveform is a
   mini-histogram of the same column of pixels on the input texture
-- the y-axis represents the intensity of the color: absence of light on the
+- The y-axis represents the intensity of the color: absence of light on the
   bottom maximum light on the top; it is equivalent to the y-axis in
   [DrawHistogram]
-- the z-axis represents how much of each intensity is present, and is
+- The z-axis represents how much of each intensity is present, and is
   communicated using the color intensity where black means 0 intensity and
   white the maximum intensity; it is an alternative representation of the
   y-axis in [DrawHistogram]
 
 A simple way of understanding the representation is to consider that every
-column of pixels is like looking at an histogram from above (a peak in the
+column of pixels is like looking at a histogram from above (a peak in the
 histogram would be a bright color in the waveform)
 
 ```{nope} scopes.waveform
