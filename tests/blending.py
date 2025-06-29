@@ -190,12 +190,14 @@ def _debug_overlay(cfg: ngl.SceneCfg, scene, grid_names, show_dbg_points=False, 
         scene = ngl.Translate(scene, (0, -text_height / 2.0 * ag.scale, 0), label="text offsetting")
         overlay.add_children(scene, text_group)
     else:
+        ag = None
         overlay.add_children(scene)
 
     if show_dbg_points:
         nb = len(grid_names)
         dbg_positions = _get_dbg_positions(nb)
         if show_labels:
+            assert ag is not None
             dbg_positions = {name: (p[0], p[1] - text_height / 2.0 * ag.scale) for name, p in dbg_positions.items()}
         dbg_points = get_points_nodes(cfg, dbg_positions, radius=0.01, text_size=(0.08, 0.08))
 

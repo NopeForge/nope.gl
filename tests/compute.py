@@ -382,8 +382,7 @@ def compute_image_load_store(cfg: ngl.SceneCfg, show_dbg_points=False):
     group = ngl.Group(children=[compute, draw])
 
     if show_dbg_points:
-        cuepoints = _get_compute_histogram_cuepoints()
-        group.add_children(get_points_nodes(cfg, cuepoints))
+        group.add_children(get_points_nodes(cfg, _CUEPOINTS))
 
     return group
 

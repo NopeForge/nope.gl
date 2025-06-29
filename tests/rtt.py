@@ -103,6 +103,7 @@ def _get_cube_scene(cfg: ngl.SceneCfg, depth_test=True, stencil_test=False):
             [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
         )
         axis = tuple(int(i == x) for x in range(3))
+        assert len(axis) == 3
         draw = ngl.Rotate(draw, axis=axis, angle=rot_animkf)
 
     config = ngl.GraphicConfig(draw, depth_test=depth_test, stencil_test=stencil_test)

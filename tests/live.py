@@ -35,7 +35,7 @@ from pynopegl_utils.tests.data import (
 )
 from pynopegl_utils.toolbox.colors import COLORS
 
-_SHARED_UNIFORM_CUEPOINTS = dict((("0", (-0.5, -0.5)), ("1", (0.5, 0.5))))
+_SHARED_UNIFORM_CUEPOINTS = {"0": (-0.5, -0.5), "1": (0.5, 0.5)}
 
 
 def _get_live_shared_uniform_scene(cfg: ngl.SceneCfg, color, debug_positions):
