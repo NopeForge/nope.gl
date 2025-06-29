@@ -558,21 +558,6 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
     if dep == 'glslang'
       add_languages('cpp')
       cxx = meson.get_compiler('cpp')
-      # glslang can be distributed as shared or static libraries optionally
-      # linked to SPIRV-Tools:
-      # - on Linux, it is generally distributed as shared libraries, more
-      #   specifically, libglslang.so, libHLSL.so, libSPVRemapper.so and
-      #   libSPIRV.so are installed. libOGLCompiler.a and libOSDependent.a may
-      #   also be provided but are not required by the shared libraries. There
-      #   is no dependency between the shared libraries.
-      # - on the other platforms (macOS, Windows, Android, iOS) it is generally
-      #   distributed or installed as static libraries, more specifically,
-      #   libglslang.a, libMachineIndependent.a, libOSDependent.a, libHLSL.a,
-      #   libOGLCompiler.a, libGenericCodeGen.a, libSPVRemapper.a, libSPIRV.a
-      #   libSPIRV-Tools-opt.a (optional), libSPIRV-Tools.a (optional) are
-      #   installed.
-      # - Since glslang 14.0.0, the legacy HLSL and OGLCompiler libraries have
-      #   been removed
       # The following list declares the glslang libraries that we need to check
       # and link against in the right order (to allow static linking). Some
       # libraries are marked as non-required because they might be present or
@@ -580,13 +565,7 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
       glslang_libs = [
         {'name': 'glslang',                         'required': true},
         {'name': 'glslang-default-resource-limits', 'required': true},
-        {'name': 'MachineIndependent',              'required': false},
-        {'name': 'OSDependent',                     'required': false},
-        {'name': 'HLSL',                            'required': false},
-        {'name': 'OGLCompiler',                     'required': false},
-        {'name': 'GenericCodeGen',                  'required': false},
         {'name': 'SPVRemapper',                     'required': true},
-        {'name': 'SPIRV',                           'required': false},
         {'name': 'SPIRV-Tools-opt',                 'required': false},
         {'name': 'SPIRV-Tools',                     'required': false},
       ]
@@ -615,7 +594,7 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
           )
         endforeach
         glslang_ver = '.'.join(glslang_ver_array)
-        glslang_min_ver = '>= 11.13.0'
+        glslang_min_ver = '>= 15.3.0'
         if glslang_ver.version_compare(glslang_min_ver)
           gbackend_deps += declare_dependency(include_directories: glslang_include_dirs)
         else
