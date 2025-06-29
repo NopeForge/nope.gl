@@ -774,6 +774,8 @@ def _moltenvk_install(cfg):
         arch = "macos-arm64_x86_64"
     elif cfg.host == "iOS":
         arch = "ios-arm64"
+    else:
+        assert False
     resources = (
         (op.join("static", "MoltenVK.xcframework", arch, "libMoltenVK.a"), "lib"),
         (op.join("include", "."), "include"),
