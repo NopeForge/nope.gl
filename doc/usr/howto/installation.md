@@ -32,7 +32,7 @@ building and running the complete `nope.gl` stack.
 
 ### Windows (MinGW64 toolchain)
 
-- Install [MSYS2](https://www.msys2.org/) (which also brings **MinGW64**)
+- Install [MSYS2] (which also brings **MinGW64**)
 - Install dependencies via pacman using **MinGW64** shell (*Not* MSYS2,
 "MINGW64" should be visible in the prompt):
     ```shell
@@ -43,19 +43,18 @@ building and running the complete `nope.gl` stack.
 - From MinGW64, build with `./configure.py && make`
 - Enter the virtual environment with `. venv/bin/ngli-activate`
 
+[MSYS2]: https://www.msys2.org/
+
 ### Windows (MSVC toolchain)
 
-- Install [Python](https://www.python.org/downloads/windows/) ≥ 3.8 using the
-  Windows Installer and make sure to select the option to add Python to the
-  system `PATH` during its installation
-- Install [Graphviz](https://graphviz.org/download/) using the Windows
-  Installer and make sure to select the option to add Graphviz to the system
-  `PATH` during its installation
-- Install [Microsoft Visual
-  Studio](https://visualstudio.microsoft.com/downloads/) and make sure the
-  *Desktop development with C++* is included (it should enable MSVC build tools
-  and Windows 10 SDK).
-- Install [VulkanSDK](https://vulkan.lunarg.com/sdk/home#windows) (optional)
+- Install [Python][python-win] ≥ 3.8 using the Windows Installer and make
+  sure to select the option to add Python to the system `PATH` during its
+  installation
+- Install [Graphviz][graphviz] using the Windows Installer and make sure to
+  select the option to add Graphviz to the system `PATH` during its installation
+- Install [Microsoft Visual Studio][vs] and make sure the *Desktop development
+  with C++* is included (it should enable MSVC build tools and Windows 10 SDK).
+- Install [VulkanSDK][vksdk] (optional)
 - To be allowed to run the build scripts, you will need to run this once in an
   administrator Powershell: `Set-ExecutionPolicy RemoteSigned`
 - In a Powershell (as user), in the `nope.gl` sources, run
@@ -63,6 +62,11 @@ building and running the complete `nope.gl` stack.
   environment. Alternatively, you can open *VS Native Tools Prompt* and spawn a
   `powershell` from here.
 - Finally, run `python.exe .\configure.py` followed by `nmake`
+
+[python-win]: https://www.python.org/downloads/windows/
+[graphviz]: https://graphviz.org/download/
+[vs]: https://visualstudio.microsoft.com/downloads/
+[vksdk]: https://vulkan.lunarg.com/sdk/home#windows
 
 
 ## Method 2: manual components installation
