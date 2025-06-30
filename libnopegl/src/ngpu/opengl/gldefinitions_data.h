@@ -171,5 +171,6 @@ static const struct gldefinition {
     {"glVertexAttribDivisor", offsetof(struct glfunctions, VertexAttribDivisor), M},
     {"glVertexAttribPointer", offsetof(struct glfunctions, VertexAttribPointer), M},
     {"glViewport", offsetof(struct glfunctions, Viewport), M},
+    {"glViewportIndexedf", offsetof(struct glfunctions, ViewportIndexedf), 0},
     {"glWaitSync", offsetof(struct glfunctions, WaitSync), M},
 };
