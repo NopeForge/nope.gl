@@ -163,6 +163,7 @@ struct glfunctions {
     void (NGLI_GL_APIENTRY *VertexAttribDivisor)(GLuint index, GLuint divisor);
     void (NGLI_GL_APIENTRY *VertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void * pointer);
     void (NGLI_GL_APIENTRY *Viewport)(GLint x, GLint y, GLsizei width, GLsizei height);
+    void (NGLI_GL_APIENTRY *ViewportIndexedf)(GLuint index, GLfloat x, GLfloat y, GLfloat w, GLfloat h);
     void (NGLI_GL_APIENTRY *WaitSync)(GLsync sync, GLbitfield flags, GLuint64 timeout);
 };
 

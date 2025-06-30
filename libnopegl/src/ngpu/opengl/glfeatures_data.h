@@ -204,5 +204,12 @@ static const struct glfeature {
         .version        = 300,
         .es_version     = 320,
         .es_extensions  = (const char*[]){"EXT_float_blend", NULL},
+    }, {
+        .name           = "viewport_array",
+        .flag           = NGLI_FEATURE_GL_VIEWPORT_ARRAY,
+        .version        = 410,
+        .extensions     = (const char*[]){"ARB_viewport_array", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(ViewportIndexedf),
+                                           SIZE_MAX}
     },
 };

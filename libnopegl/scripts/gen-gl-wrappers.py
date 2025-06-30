@@ -71,6 +71,8 @@ cmds_optional = [
     "glInvalidateFramebuffer",
     # EGL EXT image storage
     "glEGLImageTargetTexStorageEXT",
+    # ARB_viewport_array
+    "glViewportIndexedf",
 ]
 
 cmds = [
