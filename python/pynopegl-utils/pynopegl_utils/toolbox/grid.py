@@ -43,7 +43,7 @@ class AutoGrid:
     def transform_coords(self, coords: Tuple[float, float], pos: Tuple[float, float]) -> Tuple[float, float]:
         adjust = self._get_coords(pos)
         scales = (self.scale, self.scale)
-        return tuple(c * s + a for c, s, a in zip(coords, scales, adjust))
+        return (coords[0] * scales[0] + adjust[0], coords[1] * scales[1] + adjust[1])
 
     def place_node(self, node: ngl.Node, pos: Tuple[float, float]):
         pos_x, pos_y = self._get_coords(pos)
