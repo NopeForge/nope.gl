@@ -374,7 +374,7 @@ static void media_uninit(struct ngl_node *node)
     nmd_freep(&s->player);
 
 #if defined(TARGET_ANDROID)
-    reset_android_surface(node);
+    reset_android_surface(&s->android_surface);
 #endif
 }
 
