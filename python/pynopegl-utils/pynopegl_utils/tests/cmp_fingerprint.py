@@ -73,11 +73,11 @@ class _CompareFingerprints(CompareSceneBase):
         hashes = []
         dump_index = 0
         for width, height, capture_buffer in self.render_frames():
-            img = Image.frombuffer(_MODE, (width, height), capture_buffer, "raw", _MODE, 0, 1)
+            img = Image.frombytes(_MODE, (width, height), capture_buffer, "raw", _MODE, 0, 1)
             if dump:
                 CompareBase.dump_image(img, dump_index, func_name)
                 dump_index += 1
-            img = img.resize((_HSIZE + 1, _HSIZE + 1), resample=Image.LANCZOS)
+            img = img.resize((_HSIZE + 1, _HSIZE + 1), resample=Image.Resampling.LANCZOS)
             data = img.tobytes()
             frame_hashes = self._get_plane_hashes(data)
             hashes.append(frame_hashes)
