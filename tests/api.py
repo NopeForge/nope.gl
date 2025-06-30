@@ -668,7 +668,7 @@ def api_viewport():
 
     scene = ngl.Scene.from_params(ngl.Group(), aspect_ratio=(8, 9))
     ctx.set_scene(scene)
-    assert ctx.viewport == (107, 0, 426, 480)
+    assert ctx.viewport == (106, 0, 426, 480)
 
     ctx.set_scene(None)
     assert ctx.viewport == (0, 0, 640, 480)
