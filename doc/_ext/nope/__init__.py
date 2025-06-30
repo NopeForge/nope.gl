@@ -107,6 +107,7 @@ class _Nope(SphinxDirective):
 
         if platform.system() == "Windows":
             import msvcrt
+            import sys
 
             handle = msvcrt.get_osfhandle(fd_r)
             os.set_handle_inheritable(handle, True)
