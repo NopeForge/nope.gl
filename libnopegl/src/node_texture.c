@@ -686,7 +686,7 @@ static enum ngpu_format get_preferred_format(struct ngpu_ctx *gpu_ctx, int forma
     case NGLI_FORMAT_AUTO_DEPTH_STENCIL:
         return ngpu_ctx_get_preferred_depth_stencil_format(gpu_ctx);
     default:
-        return format;
+        return (enum ngpu_format)format;
     }
 }
 
