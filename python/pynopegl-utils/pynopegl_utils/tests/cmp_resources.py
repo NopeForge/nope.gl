@@ -56,7 +56,7 @@ class _CompareResources(CompareSceneBase):
         self._hud = True
         self._hud_export_filename = self._csvfile
 
-    def get_out_data(self, debug=False, debug_func=None) -> str:
+    def get_out_data(self, dump=False, func_name=None) -> str:
         for _ in self.render_frames():
             pass
 

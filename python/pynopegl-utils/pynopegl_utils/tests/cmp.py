@@ -38,7 +38,7 @@ class CompareBase:
     def deserialize(data: str) -> Any:
         return data
 
-    def get_out_data(self, dump=False, func_name=None):
+    def get_out_data(self, dump=False, func_name=None) -> Any:
         raise NotImplementedError
 
     def compare_data(self, test_name: str, ref_data: Any, out_data: Any) -> Sequence[str]:
