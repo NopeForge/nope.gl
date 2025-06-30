@@ -108,7 +108,7 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, size
                                                                 cvpixbuf,
                                                                 NULL,
                                                                 GL_TEXTURE_2D,
-                                                                plane_gl->internal_format,
+                                                                (GLint)plane_gl->internal_format,
                                                                 (GLsizei)width,
                                                                 (GLsizei)height,
                                                                 plane_gl->format,
@@ -120,7 +120,7 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, size
         return NGL_ERROR_EXTERNAL;
     }
 
-    GLint id = CVOpenGLESTextureGetName(vt->ios_textures[index]);
+    GLuint id = CVOpenGLESTextureGetName(vt->ios_textures[index]);
     const GLint min_filter = ngpu_texture_get_gl_min_filter(plane_params->min_filter, plane_params->mipmap_filter);
     const GLint mag_filter = ngpu_texture_get_gl_mag_filter(plane_params->mag_filter);
     const GLint wrap_s = ngpu_texture_get_gl_wrap(plane_params->wrap_s);
