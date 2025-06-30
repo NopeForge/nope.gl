@@ -404,7 +404,10 @@ void ngpu_glstate_update_viewport(const struct glcontext *gl, struct ngpu_glstat
         glstate->viewport.height == viewport->height)
         return;
     glstate->viewport = *viewport;
-    gl->funcs.Viewport(viewport->x, viewport->y, viewport->width, viewport->height);
+    if (NGLI_HAS_ALL_FLAGS(gl->features, NGLI_FEATURE_GL_VIEWPORT_ARRAY))
+        gl->funcs.ViewportIndexedf(0, (float)viewport->x, (float)viewport->y, (float)viewport->width, (float)viewport->height);
+    else
+        gl->funcs.Viewport(viewport->x, viewport->y, viewport->width, viewport->height);
 }
 
 void ngpu_glstate_enable_scissor_test(const struct glcontext *gl, struct ngpu_glstate *glstate, GLboolean enable)
