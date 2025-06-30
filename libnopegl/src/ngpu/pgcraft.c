@@ -83,8 +83,8 @@ struct ngpu_pgcraft {
 
     uint32_t bindings[NGLI_BINDING_TYPE_NB];
     uint32_t *next_bindings[NGLI_BINDING_TYPE_NB];
-    int next_in_locations[NGPU_PROGRAM_STAGE_NB];
-    int next_out_locations[NGPU_PROGRAM_STAGE_NB];
+    uint32_t next_in_locations[NGPU_PROGRAM_STAGE_NB];
+    uint32_t next_out_locations[NGPU_PROGRAM_STAGE_NB];
 
     /* GLSL info */
     int glsl_version;
@@ -618,7 +618,7 @@ static int inject_blocks(struct ngpu_pgcraft *s, struct bstr *b,
     return 0;
 }
 
-static int get_location_count(enum ngpu_type type)
+static uint32_t get_location_count(enum ngpu_type type)
 {
     switch (type) {
     case NGPU_TYPE_MAT3: return 3;
@@ -631,13 +631,13 @@ static int inject_attribute(struct ngpu_pgcraft *s, struct bstr *b,
                             const struct ngpu_pgcraft_attribute *attribute)
 {
     const char *type = get_glsl_type(attribute->type);
-    const int attribute_count = get_location_count(attribute->type);
+    const uint32_t attribute_count = get_location_count(attribute->type);
 
-    const int base_location = s->next_in_locations[NGPU_PROGRAM_STAGE_VERT];
+    const uint32_t base_location = s->next_in_locations[NGPU_PROGRAM_STAGE_VERT];
     s->next_in_locations[NGPU_PROGRAM_STAGE_VERT] += attribute_count;
 
     if (s->has_in_out_layout_qualifiers) {
-        ngli_bstr_printf(b, "layout(location=%d) ", base_location);
+        ngli_bstr_printf(b, "layout(location=%u) ", base_location);
     }
 
     const char *precision = get_precision_qualifier(s, attribute->type, attribute->precision, "highp");
@@ -649,7 +649,7 @@ static int inject_attribute(struct ngpu_pgcraft *s, struct bstr *b,
     };
 
     const size_t attribute_offset = ngpu_format_get_bytes_per_pixel(attribute->format);
-    for (int i = 0; i < attribute_count; i++) {
+    for (uint32_t i = 0; i < attribute_count; i++) {
         if (!ngli_darray_push(&s->symbols, attribute->name))
             return NGL_ERROR_MEMORY;
 
@@ -1039,10 +1039,10 @@ static int inject_iovars(struct ngpu_pgcraft *s, struct bstr *b, enum ngpu_progr
     };
     const char *qualifier = qualifiers[stage];
     const struct ngpu_pgcraft_iovar *iovars = ngli_darray_data(&s->vert_out_vars);
-    int location = 0;
+    uint32_t location = 0;
     for (size_t i = 0; i < ngli_darray_count(&s->vert_out_vars); i++) {
         if (s->has_in_out_layout_qualifiers)
-            ngli_bstr_printf(b, "layout(location=%d) ", location);
+            ngli_bstr_printf(b, "layout(location=%u) ", location);
         const struct ngpu_pgcraft_iovar *iovar = &iovars[i];
         const char *precision = stage == NGPU_PROGRAM_STAGE_VERT
                               ? get_precision_qualifier(s, iovar->type, iovar->precision_out, "highp")
@@ -1110,8 +1110,8 @@ static int craft_frag(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_params *
     ngli_bstr_print(b, "\n");
 
     if (s->has_in_out_layout_qualifiers) {
-        const int out_location = s->next_out_locations[NGPU_PROGRAM_STAGE_FRAG]++;
-        ngli_bstr_printf(b, "layout(location=%d) ", out_location);
+        const uint32_t out_location = s->next_out_locations[NGPU_PROGRAM_STAGE_FRAG]++;
+        ngli_bstr_printf(b, "layout(location=%u) ", out_location);
     }
     if (params->nb_frag_output)
         ngli_bstr_printf(b, "out vec4 ngl_out_color[%zu];\n", params->nb_frag_output);
