@@ -141,7 +141,6 @@ project_args = cc.get_supported_arguments([
   '-Wlogical-op',
   '-Wundef',
   '-Wconversion',
-  '-Wno-sign-conversion',
   '-fmacro-prefix-map=@0@/='.format(trim_prefix),
   '-fno-math-errno',
   '-Wcast-function-type',
