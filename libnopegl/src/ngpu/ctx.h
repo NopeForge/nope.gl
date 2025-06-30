@@ -40,7 +40,7 @@ const char *ngli_backend_get_string_id(enum ngl_backend_type backend);
 const char *ngli_backend_get_full_name(enum ngl_backend_type backend);
 
 struct ngpu_viewport {
-    int32_t x, y, width, height;
+    float x, y, width, height;
 };
 
 struct ngpu_scissor {

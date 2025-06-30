@@ -299,7 +299,7 @@ void ngli_rtt_begin(struct rtt_ctx *s)
 
     const int32_t width = s->params.width;
     const int32_t height = s->params.height;
-    ctx->viewport = (struct ngpu_viewport){0, 0, width, height};
+    ctx->viewport = (struct ngpu_viewport){0.f, 0.f, (float)width, (float)height};
     ctx->scissor = (struct ngpu_scissor){0, 0, width, height};
 
     ctx->available_rendertargets[0] = s->available_rendertargets[0];

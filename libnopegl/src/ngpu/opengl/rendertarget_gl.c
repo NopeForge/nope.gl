@@ -321,10 +321,10 @@ void ngpu_rendertarget_gl_begin_pass(struct ngpu_rendertarget *s)
     gl->funcs.BindFramebuffer(GL_FRAMEBUFFER, s_priv->id);
 
     const struct ngpu_viewport viewport = {
-        .x      = 0,
-        .y      = 0,
-        .width  = s->width,
-        .height = s->height,
+        .x      = 0.f,
+        .y      = 0.f,
+        .width  = (float)s->width,
+        .height = (float)s->height,
     };
     ngpu_glstate_update_viewport(gl, glstate, &viewport);
 

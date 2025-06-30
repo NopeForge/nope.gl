@@ -232,9 +232,11 @@ static void reset_scene(struct ngl_ctx *s, int action)
     ngli_rnode_reset(&s->rnode);
 }
 
-static struct ngpu_viewport compute_scene_viewport(const struct ngl_scene *scene, int32_t width, int32_t height)
+static struct ngpu_viewport compute_scene_viewport(const struct ngl_scene *scene, int32_t w, int32_t h)
 {
-    struct ngpu_viewport vp = {0, 0, width, height};
+    const float width = (float)w;
+    const float height = (float)h;
+    struct ngpu_viewport vp = {0.f, 0.f, width, height};
 
     if (!scene)
         return vp;
@@ -244,13 +246,13 @@ static struct ngpu_viewport compute_scene_viewport(const struct ngl_scene *scene
         return vp;
 
     vp.width = width;
-    vp.height = width * aspect_ratio[1] / aspect_ratio[0];
+    vp.height = width * (float)aspect_ratio[1] / (float)aspect_ratio[0];
     if (vp.height > height) {
         vp.height = height;
-        vp.width = height * aspect_ratio[0] / aspect_ratio[1];
+        vp.width = height * (float)aspect_ratio[0] / (float)aspect_ratio[1];
     }
-    vp.x = (width  - vp.width) / 2;
-    vp.y = (height - vp.height) / 2;
+    vp.x = (width  - vp.width) / 2.f;
+    vp.y = (height - vp.height) / 2.f;
 
     return vp;
 }
@@ -439,7 +441,12 @@ int ngli_ctx_resize(struct ngl_ctx *s, int32_t width, int32_t height)
 
 int ngli_ctx_get_viewport(struct ngl_ctx *s, int32_t *viewport)
 {
-    const int32_t vp_i32[] = {s->viewport.x, s->viewport.y, s->viewport.width, s->viewport.height};
+    const int32_t vp_i32[] = {
+        (int32_t)s->viewport.x,
+        (int32_t)s->viewport.y,
+        (int32_t)s->viewport.width,
+        (int32_t)s->viewport.height
+    };
     memcpy(viewport, vp_i32, sizeof(vp_i32));
     return 0;
 }

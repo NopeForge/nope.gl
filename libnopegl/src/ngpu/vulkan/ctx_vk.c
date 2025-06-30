@@ -1385,10 +1385,10 @@ static void vk_set_viewport(struct ngpu_ctx *s, const struct ngpu_viewport *view
     VkCommandBuffer cmd_buf = s_priv->cur_cmd_buffer->cmd_buf;
 
     const VkViewport vp = {
-        .x        = (float)viewport->x,
-        .y        = (float)viewport->y,
-        .width    = (float)viewport->width,
-        .height   = (float)viewport->height,
+        .x        = viewport->x,
+        .y        = viewport->y,
+        .width    = viewport->width,
+        .height   = viewport->height,
         .minDepth = 0.f,
         .maxDepth = 1.f,
     };
