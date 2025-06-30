@@ -78,8 +78,6 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 
 struct hwmap_vt_ios {
     struct ngpu_texture *planes[2];
-    int32_t width;
-    int32_t height;
     OSType format;
     struct format_desc format_desc;
     CVOpenGLESTextureRef ios_textures[2];
@@ -148,9 +146,6 @@ static int vt_ios_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
     ngli_assert(vt->format == cvformat);
-
-    vt->width  = CVPixelBufferGetWidth(cvpixbuf);
-    vt->height = CVPixelBufferGetHeight(cvpixbuf);
 
     for (size_t i = 0; i < vt->format_desc.nb_planes; i++) {
         int ret = vt_ios_map_plane(hwmap, cvpixbuf, i);
