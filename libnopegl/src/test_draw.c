@@ -38,7 +38,8 @@ static int save_ppm(const char *filename, uint8_t *data, int32_t width, int32_t 
         return -1;
     }
 
-    uint8_t *buf = malloc(32 + width * height * 3);
+    const size_t img_size = (size_t)(width * height * 3);
+    uint8_t *buf = malloc(32 + img_size);
     if (!buf) {
         ret = -1;
         goto end;
@@ -58,7 +59,7 @@ static int save_ppm(const char *filename, uint8_t *data, int32_t width, int32_t 
         data += 4;
     }
 
-    const size_t size = header_size + width * height * 3;
+    const size_t size = (size_t)header_size + img_size;
     const size_t n = fwrite(buf, 1, size, fp);
     if (n != size) {
         ret = -1;
@@ -85,7 +86,8 @@ int main(int ac, char **av)
     }
 
     struct canvas c = {.w = 16 * NGLI_FONT_W, .h = 8 * NGLI_FONT_H};
-    c.buf = calloc(c.w * c.h, 4);
+    const size_t buf_size = (size_t)(c.w * c.h);
+    c.buf = calloc(buf_size, 4);
     if (!c.buf)
         return -1;
 
@@ -104,7 +106,7 @@ int main(int ac, char **av)
         }
     }
 
-    uint32_t crc = ngli_crc32_mem(c.buf, c.w * c.h * 4);
+    uint32_t crc = ngli_crc32_mem(c.buf, buf_size * 4);
     printf("CRC: 0x%08x\n", crc);
     ngli_assert(crc == 0x2a07363c);
 
