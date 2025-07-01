@@ -75,7 +75,7 @@ static int vaapi_get_format_desc(uint32_t format, struct format_desc *desc)
         };
         break;
     default:
-        LOG(ERROR, "unsupported vaapi surface format %d", format);
+        LOG(ERROR, "unsupported vaapi surface format %u", format);
         return NGL_ERROR_UNSUPPORTED;
     }
 
@@ -295,7 +295,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 
         const VkExtent3D max = fmt_props.imageFormatProperties.maxExtent;
         if (width > max.width || height > max.height) {
-            LOG(ERROR, "plane dimensions (%dx%d) exceed GPU limits (%dx%d)",
+            LOG(ERROR, "plane dimensions (%dx%d) exceed GPU limits (%ux%u)",
                 width, height, max.width, max.height);
             return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
         }

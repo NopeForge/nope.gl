@@ -703,7 +703,7 @@ static int texture2d_init(struct ngl_node *node)
     const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
     if (i->params.width  < 0 || i->params.width  > max_dimension ||
         i->params.height < 0 || i->params.height > max_dimension) {
-        LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
+        LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%u,%u)",
             i->params.width, i->params.height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
@@ -775,7 +775,7 @@ static int texture2d_array_init(struct ngl_node *node)
     if (i->params.width  <= 0 || i->params.width  > max_dimension ||
         i->params.height <= 0 || i->params.height > max_dimension ||
         i->params.depth  <= 0 || i->params.depth  > max_layers) {
-        LOG(ERROR, "texture dimensions (%d,%d,%d) are invalid or exceeds device limits (%d,%d,%d)",
+        LOG(ERROR, "texture dimensions (%d,%d,%d) are invalid or exceeds device limits (%u,%u,%u)",
             i->params.width, i->params.height, i->params.depth,
             max_dimension, max_dimension, max_layers);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
@@ -800,7 +800,7 @@ static int texture3d_init(struct ngl_node *node)
     if (i->params.width  <= 0 || i->params.width  > max_dimension ||
         i->params.height <= 0 || i->params.height > max_dimension ||
         i->params.depth  <= 0 || i->params.depth  > max_dimension) {
-        LOG(ERROR, "texture dimensions (%d,%d,%d) are invalid or exceeds device limits (%d,%d,%d)",
+        LOG(ERROR, "texture dimensions (%d,%d,%d) are invalid or exceeds device limits (%u,%u,%u)",
             i->params.width, i->params.height, i->params.depth,
             max_dimension, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
@@ -825,7 +825,7 @@ static int texturecube_init(struct ngl_node *node)
     const uint32_t max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
     if (i->params.width  <= 0 || i->params.width  > max_dimension ||
         i->params.height <= 0 || i->params.height > max_dimension) {
-        LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%d,%d)",
+        LOG(ERROR, "texture dimensions (%d,%d) are invalid or exceeds device limits (%u,%u)",
             i->params.width, i->params.height, max_dimension, max_dimension);
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }

@@ -131,7 +131,7 @@ static int check_params(const struct ngl_node *node)
         o->workgroup_count[1] > limits->max_compute_work_group_count[1] ||
         o->workgroup_count[2] > limits->max_compute_work_group_count[2]) {
         LOG(ERROR,
-            "compute work group counts (%d, %d, %d) exceed device limits (%d, %d, %d)",
+            "compute work group counts (%u, %u, %u) exceed device limits (%u, %u, %u)",
             NGLI_ARG_VEC3(o->workgroup_count),
             NGLI_ARG_VEC3(limits->max_compute_work_group_count));
 

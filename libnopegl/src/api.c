@@ -736,7 +736,7 @@ int ngl_configure(struct ngl_ctx *s, const struct ngl_config *user_config)
 
     if (config.backend < 0 ||
         config.backend >= NGLI_ARRAY_NB(api_map)) {
-        LOG(ERROR, "unknown backend %d", config.backend);
+        LOG(ERROR, "unknown backend %u", config.backend);
         return NGL_ERROR_INVALID_ARG;
     }
 

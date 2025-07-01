@@ -263,7 +263,7 @@ static int offscreen_rendertarget_init(struct ngpu_ctx *s)
         if (ret < 0)
             return ret;
     } else {
-        LOG(ERROR, "unsupported capture buffer type: %d", config->capture_buffer_type);
+        LOG(ERROR, "unsupported capture buffer type: %u", config->capture_buffer_type);
         return NGL_ERROR_UNSUPPORTED;
     }
 

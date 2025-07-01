@@ -58,7 +58,7 @@ static int circle_init(struct ngl_node *node)
     const struct circle_opts *o = node->opts;
 
     if (o->npoints < 3) {
-        LOG(ERROR, "invalid number of points (%d < 3)", o->npoints);
+        LOG(ERROR, "invalid number of points (%u < 3)", o->npoints);
         return NGL_ERROR_INVALID_ARG;
     }
     const size_t nb_vertices = o->npoints + 1;

@@ -175,7 +175,7 @@ static int rtt_init(struct ngl_node *node)
     }
 
     if (nb_color_attachments > limits->max_color_attachments) {
-        LOG(ERROR, "context does not support more than %d color attachments", limits->max_color_attachments);
+        LOG(ERROR, "context does not support more than %u color attachments", limits->max_color_attachments);
         return NGL_ERROR_UNSUPPORTED;
     }
 

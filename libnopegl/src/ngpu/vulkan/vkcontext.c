@@ -146,7 +146,7 @@ static VkResult create_instance(struct vkcontext *s, enum ngl_platform_type plat
 
     LOG(DEBUG, "available layers:");
     for (uint32_t i = 0; i < s->nb_layers; i++)
-        LOG(DEBUG, "  %d/%d: %s", i+1, s->nb_layers, s->layers[i].layerName);
+        LOG(DEBUG, "  %u/%u: %s", i+1, s->nb_layers, s->layers[i].layerName);
 
     res = vkEnumerateInstanceExtensionProperties(NULL, &s->nb_extensions, NULL);
     if (res != VK_SUCCESS)
@@ -162,18 +162,18 @@ static VkResult create_instance(struct vkcontext *s, enum ngl_platform_type plat
 
     LOG(DEBUG, "available instance extensions:");
     for (uint32_t i = 0; i < s->nb_extensions; i++) {
-        LOG(DEBUG, "  %d/%d: %s v%d", i+1, s->nb_extensions,
+        LOG(DEBUG, "  %u/%u: %s v%u", i+1, s->nb_extensions,
             s->extensions[i].extensionName, s->extensions[i].specVersion);
     }
 
     if (platform < 0 || platform >= NGLI_ARRAY_NB(platform_ext_names)) {
-        LOG(ERROR, "unsupported platform: %d", platform);
+        LOG(ERROR, "unsupported platform: %u", platform);
         return VK_ERROR_UNKNOWN;
     }
 
     const char *surface_extension_name = platform_ext_names[platform];
     if (!surface_extension_name) {
-        LOG(ERROR, "unsupported platform: %d", platform);
+        LOG(ERROR, "unsupported platform: %u", platform);
         return VK_ERROR_UNKNOWN;
     }
 
@@ -505,7 +505,7 @@ static VkResult select_physical_device(struct vkcontext *s, const struct ngl_con
         return VK_ERROR_DEVICE_LOST;
     }
 
-    LOG(DEBUG, "select physical device: %s, graphics queue: %d, present queue: %d",
+    LOG(DEBUG, "select physical device: %s, graphics queue: %u, present queue: %u",
         s->phy_device_props.deviceName, s->graphics_queue_index, s->present_queue_index);
 
     struct bstr *type = ngli_bstr_create();
@@ -545,7 +545,7 @@ static VkResult enumerate_extensions(struct vkcontext *s)
 
     LOG(DEBUG, "available device extensions:");
     for (uint32_t i = 0; i < s->nb_device_extensions; i++) {
-        LOG(DEBUG, "  %d/%d: %s v%d", i+1, s->nb_device_extensions,
+        LOG(DEBUG, "  %u/%u: %s v%u", i+1, s->nb_device_extensions,
             s->device_extensions[i].extensionName, s->device_extensions[i].specVersion);
     }
 

@@ -75,7 +75,7 @@ struct ngpu_ctx *ngpu_ctx_create(const struct ngl_config *config)
 {
     if (config->backend < 0 ||
         config->backend >= NGLI_ARRAY_NB(backend_map)) {
-        LOG(ERROR, "unknown backend %d", config->backend);
+        LOG(ERROR, "unknown backend %u", config->backend);
         return NULL;
     }
     if (!backend_map[config->backend]) {

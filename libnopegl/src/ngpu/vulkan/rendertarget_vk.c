@@ -88,7 +88,7 @@ static VkResult vk_create_compatible_renderpass(struct ngpu_ctx *s, const struct
 
         const VkFormatFeatureFlags features = VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
         if ((properties.optimalTilingFeatures & features) != features) {
-            LOG(ERROR, "format %d does not support features 0x%d", format, properties.optimalTilingFeatures);
+            LOG(ERROR, "format %u does not support features 0x%u", format, properties.optimalTilingFeatures);
             return VK_ERROR_FORMAT_NOT_SUPPORTED;
         }
 
@@ -141,7 +141,7 @@ static VkResult vk_create_compatible_renderpass(struct ngpu_ctx *s, const struct
 
         const VkFormatFeatureFlags features = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
         if ((properties.optimalTilingFeatures & features) != features) {
-            LOG(ERROR, "format %d does not support features 0x%d", format, properties.optimalTilingFeatures);
+            LOG(ERROR, "format %u does not support features 0x%u", format, properties.optimalTilingFeatures);
             return VK_ERROR_FORMAT_NOT_SUPPORTED;
         }
 

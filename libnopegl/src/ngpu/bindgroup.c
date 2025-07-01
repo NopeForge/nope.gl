@@ -175,7 +175,7 @@ int ngpu_bindgroup_update_buffer(struct ngpu_bindgroup *s, int32_t index, const 
             entry->type == NGPU_TYPE_UNIFORM_BUFFER_DYNAMIC) {
             ngli_assert(buffer->usage & NGPU_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
             if (size > limits->max_uniform_block_size) {
-                LOG(ERROR, "buffer (binding=%d) size (%zu) exceeds max uniform block size (%d)",
+                LOG(ERROR, "buffer (binding=%u) size (%zu) exceeds max uniform block size (%u)",
                     entry->binding, buffer->size, limits->max_uniform_block_size);
                 return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
             }
@@ -183,7 +183,7 @@ int ngpu_bindgroup_update_buffer(struct ngpu_bindgroup *s, int32_t index, const 
                    entry->type == NGPU_TYPE_STORAGE_BUFFER_DYNAMIC) {
             ngli_assert(buffer->usage & NGPU_BUFFER_USAGE_STORAGE_BUFFER_BIT);
             if (size > limits->max_storage_block_size) {
-                LOG(ERROR, "buffer (binding=%d) size (%zu) exceeds max storage block size (%d)",
+                LOG(ERROR, "buffer (binding=%u) size (%zu) exceeds max storage block size (%u)",
                     entry->binding, buffer->size, limits->max_storage_block_size);
                 return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
             }
