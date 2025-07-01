@@ -135,6 +135,7 @@ project_args = cc.get_supported_arguments([
   '-Werror=pointer-arith',
   '-Werror=vla',
   '-Wformat=2',
+  '-Wformat-signedness',
   '-Wignored-qualifiers',
   '-Wimplicit-fallthrough',
   '-Wlogical-op',
