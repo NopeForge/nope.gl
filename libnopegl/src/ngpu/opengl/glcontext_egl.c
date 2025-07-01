@@ -108,6 +108,35 @@ const char *ngli_eglGetDisplayDriverName(struct glcontext *gl)
     return egl->GetDisplayDriverName(egl->display);
 }
 
+#define EGL_ERROR_STR_CASE(value) case value: return #value
+static const char *egl_error_to_str(GLint error)
+{
+    switch (error) {
+    EGL_ERROR_STR_CASE(EGL_SUCCESS);
+    EGL_ERROR_STR_CASE(EGL_NOT_INITIALIZED);
+    EGL_ERROR_STR_CASE(EGL_BAD_ACCESS);
+    EGL_ERROR_STR_CASE(EGL_BAD_ALLOC);
+    EGL_ERROR_STR_CASE(EGL_BAD_ATTRIBUTE);
+    EGL_ERROR_STR_CASE(EGL_BAD_CONFIG);
+    EGL_ERROR_STR_CASE(EGL_BAD_CONTEXT);
+    EGL_ERROR_STR_CASE(EGL_BAD_CURRENT_SURFACE);
+    EGL_ERROR_STR_CASE(EGL_BAD_DISPLAY);
+    EGL_ERROR_STR_CASE(EGL_BAD_MATCH);
+    EGL_ERROR_STR_CASE(EGL_BAD_NATIVE_PIXMAP);
+    EGL_ERROR_STR_CASE(EGL_BAD_NATIVE_WINDOW);
+    EGL_ERROR_STR_CASE(EGL_BAD_PARAMETER);
+    EGL_ERROR_STR_CASE(EGL_BAD_SURFACE);
+    EGL_ERROR_STR_CASE(EGL_CONTEXT_LOST);
+    default:
+        return "EGL_UNKNOWN";
+    }
+}
+
+static const char *ngli_eglGetErrorStr(void)
+{
+    return egl_error_to_str(eglGetError());
+}
+
 static int egl_probe_extensions(struct glcontext *ctx)
 {
     struct egl_priv *egl = ctx->priv_data;
@@ -329,7 +358,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     EGLint egl_major;
     EGLBoolean egl_ret = eglInitialize(egl->display, &egl_major, &egl_minor);
     if (!egl_ret) {
-        LOG(ERROR, "could not initialize EGL: 0x%x", eglGetError());
+        LOG(ERROR, "could not initialize EGL: %s", ngli_eglGetErrorStr());
         return NGL_ERROR_EXTERNAL;
     }
 
@@ -385,7 +414,7 @@ try_again:;
     }
 
     if (!egl_ret || !nb_configs) {
-        LOG(ERROR, "could not choose a valid EGL configuration: 0x%x", eglGetError());
+        LOG(ERROR, "could not choose a valid EGL configuration: %s", ngli_eglGetErrorStr());
         return NGL_ERROR_EXTERNAL;
     }
 
@@ -435,7 +464,7 @@ try_again:;
     }
 
     if (!egl->handle) {
-        LOG(ERROR, "could not create EGL context: 0x%x", eglGetError());
+        LOG(ERROR, "could not create EGL context: %s", ngli_eglGetErrorStr());
         return NGL_ERROR_EXTERNAL;
     }
 
@@ -451,7 +480,7 @@ try_again:;
 
             egl->surface = eglCreatePbufferSurface(egl->display, egl->config, attribs);
             if (!egl->surface) {
-                LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
+                LOG(ERROR, "could not create EGL window surface: %s", ngli_eglGetErrorStr());
                 return NGL_ERROR_EXTERNAL;
             }
         }
@@ -480,7 +509,7 @@ try_again:;
         }
         egl->surface = eglCreateWindowSurface(egl->display, egl->config, egl->native_window, NULL);
         if (!egl->surface) {
-            LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
+            LOG(ERROR, "could not create EGL window surface: %s", ngli_eglGetErrorStr());
             return NGL_ERROR_EXTERNAL;
         }
     }
@@ -573,7 +602,7 @@ static int egl_resize(struct glcontext *ctx, int32_t width, int32_t height)
     EGLint cur_width, cur_height;
     if (!eglQuerySurface(egl->display, egl->surface, EGL_WIDTH, &cur_width) ||
         !eglQuerySurface(egl->display, egl->surface, EGL_HEIGHT, &cur_height)) {
-        LOG(ERROR, "could not query surface dimensions: 0x%x", eglGetError());
+        LOG(ERROR, "could not query surface dimensions: %s", ngli_eglGetErrorStr());
         return NGL_ERROR_EXTERNAL;
     }
     ctx->width = cur_width;
