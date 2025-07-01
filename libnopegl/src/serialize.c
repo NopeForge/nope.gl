@@ -158,7 +158,7 @@ static void serialize_i32(struct bstr *b, const uint8_t *srcp, const struct node
 
 static void serialize_u32(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
 {
-    const int v = *(int *)srcp;
+    const uint32_t v = *(uint32_t *)srcp;
     if (v != par->def_value.u32)
         ngli_bstr_printf(b, " %s:%u", par->key, v);
 }
@@ -201,7 +201,7 @@ static void serialize_str(struct bstr *b, const uint8_t *srcp,
         if (s[i] >= '!' && s[i] <= '~' && s[i] != '%')
             ngli_bstr_printf(b, "%c", s[i]);
         else
-            ngli_bstr_printf(b, "%%%02x", s[i] & 0xff);
+            ngli_bstr_printf(b, "%%%02x", (uint32_t)(s[i] & 0xff));
 }
 
 static void serialize_data(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
@@ -261,7 +261,7 @@ static void serialize_node(struct bstr *b, const uint8_t *srcp,
     if (!node)
         return;
     const int node_id = get_rel_node_id(nlist, node);
-    ngli_bstr_printf(b, " %s:%x", par->key, node_id);
+    ngli_bstr_printf(b, " %s:%x", par->key, (uint32_t)node_id);
 }
 
 static void serialize_nodelist(struct bstr *b, const uint8_t *srcp,
@@ -274,7 +274,7 @@ static void serialize_nodelist(struct bstr *b, const uint8_t *srcp,
     ngli_bstr_printf(b, " %s:", par->key);
     for (size_t i = 0; i < nb_nodes; i++) {
         const int node_id = get_rel_node_id(nlist, nodes[i]);
-        ngli_bstr_printf(b, "%s%x", i ? "," : "", node_id);
+        ngli_bstr_printf(b, "%s%x", i ? "," : "", (uint32_t)node_id);
     }
 }
 
@@ -310,7 +310,7 @@ static int serialize_nodedict(struct bstr *b, const uint8_t *srcp,
     for (size_t i = 0; i < ngli_darray_count(&items_array); i++) {
         const struct item *item = &items[i];
         const int node_id = get_rel_node_id(nlist, item->data);
-        ngli_bstr_printf(b, "%s%s=%x", i ? "," : "", item->key, node_id);
+        ngli_bstr_printf(b, "%s%s=%x", i ? "," : "", item->key, (uint32_t)node_id);
     }
     ngli_darray_reset(&items_array);
     return 0;
@@ -333,7 +333,7 @@ static int serialize_options(struct hmap *nlist,
             struct ngl_node *src_node = *(struct ngl_node **)srcp;
             if (src_node) {
                 const int node_id = get_rel_node_id(nlist, src_node);
-                ngli_bstr_printf(b, " %s:!%x", p->key, node_id);
+                ngli_bstr_printf(b, " %s:!%x", p->key, (uint32_t)node_id);
                 p++;
                 continue;
             }
@@ -470,10 +470,10 @@ static int serialize(struct hmap *nlist,
 
     const uint32_t tag = node->cls->id;
     ngli_bstr_printf(b, "%c%c%c%c",
-                    tag >> 24 & 0xff,
-                    tag >> 16 & 0xff,
-                    tag >>  8 & 0xff,
-                    tag       & 0xff);
+                    (char)(tag >> 24 & 0xff),
+                    (char)(tag >> 16 & 0xff),
+                    (char)(tag >>  8 & 0xff),
+                    (char)(tag       & 0xff));
     if ((ret = serialize_options(nlist, b, node, node->opts, node->cls->params)) < 0 ||
         (ret = serialize_options(nlist, b, node, (uint8_t *)node, ngli_base_node_params)) < 0)
         return ret;

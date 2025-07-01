@@ -492,7 +492,7 @@ static int inject_texture(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_text
                 ngli_bstr_printf(b, "layout(%s", format);
 
                 if (s->has_explicit_bindings)
-                    ngli_bstr_printf(b, ", binding=%d", layout_entry.binding);
+                    ngli_bstr_printf(b, ", binding=%u", layout_entry.binding);
 
                 /*
                  * Restrict memory qualifier according to the OpenGLES 3.2 spec
@@ -510,7 +510,7 @@ static int inject_texture(struct ngpu_pgcraft *s, const struct ngpu_pgcraft_text
                 }
                 ngli_bstr_printf(b, ") %s ", texture->writable ? writable_qualifier : "readonly");
             } else if (s->has_explicit_bindings) {
-                ngli_bstr_printf(b, "layout(binding=%d) ", layout_entry.binding);
+                ngli_bstr_printf(b, "layout(binding=%u) ", layout_entry.binding);
             }
 
             const char *type = get_glsl_type(field->type);
@@ -574,7 +574,7 @@ static int inject_block(struct ngpu_pgcraft *s, struct bstr *b,
     const struct ngpu_block_desc *block = named_block->block;
     const char *layout = glsl_layout_str_map[block->layout];
     if (s->has_explicit_bindings) {
-        ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, layout_entry.binding);
+        ngli_bstr_printf(b, "layout(%s,binding=%u)", layout, layout_entry.binding);
     } else {
         ngli_bstr_printf(b, "layout(%s)", layout);
     }

@@ -449,7 +449,7 @@ static VkResult select_swapchain_surface_format(const struct vkcontext *vk, VkSu
 {
     LOG(DEBUG, "available surface formats:");
     for (uint32_t i = 0; i < vk->nb_surface_formats; i++) {
-        LOG(DEBUG, "\tformat: %d, colorspace: %d",
+        LOG(DEBUG, "\tformat: %u, colorspace: %u",
             vk->surface_formats[i].format,
             vk->surface_formats[i].colorSpace);
     }
@@ -544,7 +544,7 @@ static VkResult create_swapchain(struct ngpu_ctx *s)
     uint32_t img_count = caps.minImageCount + 1;
     if (caps.maxImageCount && img_count > caps.maxImageCount)
         img_count = caps.maxImageCount;
-    LOG(DEBUG, "swapchain image count: %d [%d-%d]", img_count, caps.minImageCount, caps.maxImageCount);
+    LOG(DEBUG, "swapchain image count: %u [%u-%u]", img_count, caps.minImageCount, caps.maxImageCount);
 
     VkSwapchainCreateInfoKHR swapchain_create_info = {
         .sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,

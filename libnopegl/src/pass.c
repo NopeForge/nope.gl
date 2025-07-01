@@ -186,10 +186,10 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
         LOG(DEBUG, "block %s has a std430 layout, declaring it as SSBO", name);
         type = NGPU_TYPE_STORAGE_BUFFER;
     } else if (block_size > limits->max_uniform_block_size) {
-        LOG(DEBUG, "block %s is larger than the max UBO size (%zu > %d), declaring it as SSBO",
+        LOG(DEBUG, "block %s is larger than the max UBO size (%zu > %u), declaring it as SSBO",
             name, block_size, limits->max_uniform_block_size);
         if (block_size > limits->max_storage_block_size) {
-            LOG(ERROR, "block %s is larger than the max SSBO size (%zd > %d)",
+            LOG(ERROR, "block %s is larger than the max SSBO size (%zu > %u)",
                 name, block_size, limits->max_storage_block_size);
             return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
         }

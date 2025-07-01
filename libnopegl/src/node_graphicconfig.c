@@ -268,13 +268,13 @@ static int graphicconfig_init(struct ngl_node *node)
 
     if (o->stencil_write_mask != -1 &&
         (o->stencil_write_mask < 0 || o->stencil_write_mask > 0xff)) {
-        LOG(ERROR, "stencil write mask (0x%x) must be in the range [0, 0xff]", o->stencil_write_mask);
+        LOG(ERROR, "stencil write mask (0x%x) must be in the range [0, 0xff]", (uint32_t)o->stencil_write_mask);
         return NGL_ERROR_INVALID_USAGE;
     }
 
     if (o->stencil_read_mask != -1 &&
         (o->stencil_read_mask < 0 || o->stencil_read_mask > 0xff)) {
-        LOG(ERROR, "stencil read mask (0x%x) must be in the range [0, 0xff]", o->stencil_read_mask);
+        LOG(ERROR, "stencil read mask (0x%x) must be in the range [0, 0xff]", (uint32_t)o->stencil_read_mask);
         return NGL_ERROR_INVALID_USAGE;
     }
 

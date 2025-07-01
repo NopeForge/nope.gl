@@ -358,7 +358,7 @@ static VkResult texture_vk_init(struct ngpu_texture *s, const struct ngpu_textur
 
     const VkFormatFeatureFlags features = get_vk_texture_format_features(params);
     if ((properties.optimalTilingFeatures & features) != features) {
-        LOG(ERROR, "unsupported format %d, supported features: 0x%x, requested features: 0x%x",
+        LOG(ERROR, "unsupported format %u, supported features: 0x%x, requested features: 0x%x",
             s_priv->format, supported_features, features);
         return VK_ERROR_FORMAT_NOT_SUPPORTED;
     }
