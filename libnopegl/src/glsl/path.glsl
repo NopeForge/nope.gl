@@ -23,13 +23,6 @@
 #include helper_misc_utils.glsl
 #include helper_srgb.glsl
 
-float border(float d, float blur)
-{
-    float aa = fwidth(d); // pixel width estimate
-    float w = max(aa, blur) * 0.5; // half diffuse width
-    return smoothstep(-w, w, d);
-}
-
 /*
  * dist: distance to the shape (negative outside, positive inside)
  * color: RGB color, opacity stored in the alpha channel (not premultiplied)
@@ -42,20 +35,17 @@ vec4 get_path_color(float dist, vec4 color, vec4 outline, vec4 glow, float blur)
     float opacity = color.a; // overall opacity
     float outline_width = outline.a;
 
-    float stroke_d = outline_width/2.0 - abs(dist);
-
-    float d = max(dist, stroke_d);
-    float a = border(d, blur);
-
-    // Transition between the stroke outline and the fill in color
-    vec3 out_color3 = ngli_srgb2linear(color.rgb);
-    if (outline_width != 0.0)
-        out_color3 = mix(out_color3, ngli_srgb2linear(outline.rgb), border(stroke_d, blur));
-
-    vec4 out_color = vec4(out_color3, 1.0) * a;
+    float aa = fwidth(dist); // pixel width estimates
+    float w = max(aa, blur) * 0.5; // half diffuse width
+    vec2 d = dist + vec2(-0.5, 0.5) * outline_width; // inner and outer boundaries
+    float inner_mask = smoothstep(-w, w, d.x); // cut off between the outline and the outside (whole shape w/ outline)
+    float outer_mask = smoothstep(-w, w, d.y); // cut off between the fill color and the outline (whole shape w/o outline)
+    float outline_mask = outer_mask - inner_mask;
+    vec3 shape_col = ngli_srgb2linear(color.rgb)*inner_mask + ngli_srgb2linear(outline.rgb)*outline_mask;
+    vec4 out_color = vec4(shape_col, 1.0) * outer_mask;
 
     // TODO need to honor blur
-    float glow_power = glow.a * exp(min(dist + outline_width*0.5, 0.0) * 10.0);
+    float glow_power = glow.a * exp(min(d.y, 0.0) * 10.0);
     out_color += vec4(ngli_srgb2linear(glow.rgb), 1.0) * glow_power;
 
     return vec4(ngli_linear2srgb(out_color.rgb), out_color.a) * opacity;
