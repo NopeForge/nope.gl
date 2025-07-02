@@ -3924,7 +3924,7 @@
           "type": "f32",
           "default": -1.000000,
           "flags": ["live", "node"],
-          "desc": "characters outline position (0 for inside, 0.5 right at the edge, 1 for outside), use negative value for unchanged from previous text effects (default is 0.5)"
+          "desc": "characters outline position (0 for inside, 0.5 right at the edge, 1 for outside), use negative value for unchanged from previous text effects (default is 1)"
         },
         {
           "name": "glow",
