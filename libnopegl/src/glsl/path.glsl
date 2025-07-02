@@ -32,12 +32,9 @@
  */
 vec4 get_path_color(float dist, vec4 color, vec4 outline, vec4 glow, float blur)
 {
-    float opacity = color.a; // overall opacity
-    float outline_width = outline.a;
-
     float aa = fwidth(dist); // pixel width estimates
     float w = max(aa, blur) * 0.5; // half diffuse width
-    vec2 d = dist + vec2(-0.5, 0.5) * outline_width; // inner and outer boundaries
+    vec2 d = dist + vec2(-0.5, 0.5) * outline.a; // inner and outer boundaries
     float inner_mask = smoothstep(-w, w, d.x); // cut off between the outline and the outside (whole shape w/ outline)
     float outer_mask = smoothstep(-w, w, d.y); // cut off between the fill color and the outline (whole shape w/o outline)
     float outline_mask = outer_mask - inner_mask;
@@ -48,5 +45,5 @@ vec4 get_path_color(float dist, vec4 color, vec4 outline, vec4 glow, float blur)
     float glow_power = glow.a * exp(min(d.y, 0.0) * 10.0);
     out_color += vec4(ngli_srgb2linear(glow.rgb), 1.0) * glow_power;
 
-    return vec4(ngli_linear2srgb(out_color.rgb), out_color.a) * opacity;
+    return vec4(ngli_linear2srgb(out_color.rgb), out_color.a) * color.a;
 }
