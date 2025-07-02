@@ -59,6 +59,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
   whole shape and emits less light
 - Path rendering doesn't fill the shape with color anymore when the path is
   opened
+- Text outline is now by default on the outer edge, and thus doesn't affect the
+  shape of the characters anymore
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio

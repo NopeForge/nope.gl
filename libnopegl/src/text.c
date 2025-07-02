@@ -249,7 +249,7 @@ static void fill_default_data_buffers(struct text *s, size_t nb_chars)
         .outline   = {1.f, .7f, 0.f, 0.f},
         .glow      = {1.f, 1.f, 1.f, 0.f},
         .blur      = 0.f,
-        .outline_pos = .5f,
+        .outline_pos = 1.f,
     };
 
     const struct text_data_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
