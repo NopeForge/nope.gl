@@ -31,21 +31,20 @@ float border(float d, float blur)
 }
 
 /*
- * dist: distance to the shape and the outline (negative outside, positive inside)
+ * dist: distance to the shape (negative outside, positive inside)
  * color: RGB color, opacity stored in the alpha channel (not premultiplied)
  * outline: RGB color for the outline, width stored in the alpha channel
  * glow: RGB color for the glow, intensity stored in the alpha channel
  * blur: blur amount
  */
-vec4 get_path_color(vec2 dist, vec4 color, vec4 outline, vec4 glow, float blur)
+vec4 get_path_color(float dist, vec4 color, vec4 outline, vec4 glow, float blur)
 {
     float opacity = color.a; // overall opacity
     float outline_width = outline.a;
 
-    float fill_d = dist.x;
-    float stroke_d = outline_width/2.0 - abs(dist.y);
+    float stroke_d = outline_width/2.0 - abs(dist);
 
-    float d = max(fill_d, stroke_d);
+    float d = max(dist, stroke_d);
     float a = border(d, blur);
 
     // Transition between the stroke outline and the fill in color
@@ -56,7 +55,7 @@ vec4 get_path_color(vec2 dist, vec4 color, vec4 outline, vec4 glow, float blur)
     vec4 out_color = vec4(out_color3, 1.0) * a;
 
     // TODO need to honor blur
-    float glow_power = glow.a * exp(min(dist.x + outline_width*0.5, 0.0) * 10.0);
+    float glow_power = glow.a * exp(min(dist + outline_width*0.5, 0.0) * 10.0);
     out_color += vec4(ngli_srgb2linear(glow.rgb), 1.0) * glow_power;
 
     return vec4(ngli_linear2srgb(out_color.rgb), out_color.a) * opacity;

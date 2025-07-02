@@ -27,8 +27,7 @@ void main()
      * uv_* are normalized [0,1] quad coordinate which we map to the atlas
      * element coordinate boundaries
      */
-    vec2 uv_fill    = mix(coords_fill.xy, coords_fill.zw, uv);
-    vec2 uv_outline = mix(coords_outline.xy, coords_outline.zw, uv);
+    vec2 uv = mix(coords.xy, coords.zw, uv);
 
     /*
      * The half texel clamping is here to prevent texture bleeding when the
@@ -38,12 +37,8 @@ void main()
      * case of a huge atlas.
      */
     vec2 half_texel = 0.5 / vec2(textureSize(tex, 0)) + 1e-8;
-    vec2 clamp_uv_fill    = clamp(uv_fill,    coords_fill.xy    + half_texel, coords_fill.zw    - half_texel);
-    vec2 clamp_uv_outline = clamp(uv_outline, coords_outline.xy + half_texel, coords_outline.zw - half_texel);
+    vec2 clamp_uv = clamp(uv, coords.xy + half_texel, coords.zw - half_texel);
 
-    vec2 dist = vec2(
-        texture(tex, clamp_uv_fill).r,
-        texture(tex, clamp_uv_outline).r
-    );
+    float dist = texture(tex, clamp_uv).r;
     ngl_out_color = get_path_color(dist, vec4(color, opacity), vec4(outline_color, outline), vec4(glow_color, glow), blur);
 }

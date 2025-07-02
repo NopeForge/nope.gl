@@ -55,6 +55,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - Blur effect and outline width in text and path rendering are now twice smaller
 - The glow effect of the text and path is reworked; it notably lighten up the
   whole shape and emits less light
+- Path rendering doesn't fill the shape with color anymore when the path is
+  opened
 
 ### Removed
 - `Text.aspect_ratio`, it now matches the viewport aspect ratio
