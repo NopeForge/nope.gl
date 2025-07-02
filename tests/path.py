@@ -206,3 +206,22 @@ def path_overlap_xor(cfg: ngl.SceneCfg):
     keyframes = _get_overlap_shape0() + _get_overlap_shape1(clockwise=False)
     path = ngl.Path(keyframes)
     return ngl.DrawPath(path, viewbox=(0, 0, 10, 10))
+
+
+@test_fingerprint(width=640, height=640)
+@ngl.scene()
+def path_open_and_effects(cfg: ngl.SceneCfg):
+    cfg.aspect_ratio = (1, 1)
+    keyframes = [
+        ngl.PathKeyMove(to=(-0.7, 0.0, 0.0)),
+        ngl.PathKeyBezier3(control1=(-0.2, -0.9, 0.0), control2=(0.2, 0.8, 0.0), to=(0.8, 0.0, 0.0)),
+    ]
+    path = ngl.Path(keyframes)
+    return ngl.DrawPath(
+        path,
+        outline=0.05,
+        outline_color=(1, 0, 0.5),
+        blur=0.03,
+        glow=0.2,
+        glow_color=(1, 0.5, 0),
+    )
