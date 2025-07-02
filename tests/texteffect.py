@@ -289,7 +289,7 @@ def texteffect_blur_outline(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameFloat(1 / 2, 0.2),
         ngl.AnimKeyFrameFloat(1, 0),
     ]
-    effects = [ngl.TextEffect(blur=ngl.AnimatedFloat(animkf), outline=0.01)]
+    effects = [ngl.TextEffect(blur=ngl.AnimatedFloat(animkf), outline=0.02)]
     return ngl.Text("b", effects=effects)
 
 
@@ -317,5 +317,5 @@ def texteffect_glow_outline(cfg: ngl.SceneCfg):
         ngl.AnimKeyFrameFloat(1 / 2, 0.2),
         ngl.AnimKeyFrameFloat(1, 0),
     ]
-    effects = [ngl.TextEffect(glow=ngl.AnimatedFloat(animkf), outline=0.01)]
+    effects = [ngl.TextEffect(glow=ngl.AnimatedFloat(animkf), outline=0.02)]
     return ngl.Text("g", effects=effects)
