@@ -319,3 +319,17 @@ def texteffect_glow_outline(cfg: ngl.SceneCfg):
     ]
     effects = [ngl.TextEffect(glow=ngl.AnimatedFloat(animkf), outline=0.02)]
     return ngl.Text("g", effects=effects)
+
+
+@test_fingerprint(width=640, height=360, keyframes=10, tolerance=1)
+@ngl.scene()
+def texteffect_outline_pos(cfg: ngl.SceneCfg):
+    cfg.duration = 5
+    cfg.aspect_ratio = (16, 9)
+    animkf = [
+        ngl.AnimKeyFrameFloat(0, 0),
+        ngl.AnimKeyFrameFloat(1 / 2, 1),
+        ngl.AnimKeyFrameFloat(1, 0),
+    ]
+    effects = [ngl.TextEffect(outline=0.03, outline_pos=ngl.AnimatedFloat(animkf))]
+    return ngl.Text("R", effects=effects)
