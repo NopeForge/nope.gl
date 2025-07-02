@@ -32,8 +32,6 @@ cmds_optional = [
     # Barrier
     "glMemoryBarrier",
     #  Buffers
-    "glBindBufferBase",
-    "glBindBufferRange",
     "glBufferStorage",
     # Compute shaders
     "glDispatchCompute",
@@ -138,6 +136,8 @@ cmds = [
     "glRenderbufferStorageMultisample",
     # Buffer
     "glBindBuffer",
+    "glBindBufferBase",
+    "glBindBufferRange",
     "glBufferData",
     "glBufferSubData",
     "glDeleteBuffers",
