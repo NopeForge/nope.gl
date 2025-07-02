@@ -277,6 +277,7 @@ foreach backend : backends
     'pie_slice',
     'overlap_add',
     'overlap_xor',
+    'open_and_effects',
   ]
 
   tests_py_bindings = [
