@@ -25,49 +25,49 @@ import textwrap
 from xml.etree import ElementTree as ET
 
 cmds_optional = [
-    # Texture
+    # GL_ARB_texture_storage
     "glTexStorage2D",
     "glTexStorage3D",
+    # GL_ARB_shader_image_load_store
     "glBindImageTexture",
-    # Barrier
     "glMemoryBarrier",
-    #  Buffers
+    # GL_ARB_buffer_storage
     "glBufferStorage",
-    # Compute shaders
+    # GL_ARB_compute_shader
     "glDispatchCompute",
-    # Shaders
+    # GL_ARB_program_interface_query
     "glGetProgramResourceLocation",
     "glGetProgramResourceIndex",
     "glGetProgramResourceiv",
     "glGetProgramInterfaceiv",
     "glGetProgramResourceName",
-    # Internal format
+    # GL_ARB_internalformat_query
     "glGetInternalformativ",
-    # Buffer Storage EXT
+    # GL_EXT_buffer_storage
     "glBufferStorageEXT",
-    # Debug
+    # GL_KHR_Debug
     "glDebugMessageCallback",
-    # Query
+    # GL_ARB_timer_query
     "glBeginQuery",
     "glEndQuery",
     "glGenQueries",
     "glDeleteQueries",
     "glQueryCounter",
     "glGetQueryObjectui64v",
-    # Query EXT
+    # GL_EXT_disjoint_timer_query
     "glBeginQueryEXT",
     "glEndQueryEXT",
     "glGenQueriesEXT",
     "glDeleteQueriesEXT",
     "glQueryCounterEXT",
     "glGetQueryObjectui64vEXT",
-    # EGL OES image
+    # GL_OES_EGL_image_external
     "glEGLImageTargetTexture2DOES",
-    # Invalidate subdat
+    # GL_ARB_invalidate_subdata
     "glInvalidateFramebuffer",
-    # EGL EXT image storage
+    # GL_EXT_EGL_image_storage
     "glEGLImageTargetTexStorageEXT",
-    # ARB_viewport_array
+    # GL_ARB_viewport_array
     "glViewportIndexedf",
 ]
 
