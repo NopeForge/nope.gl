@@ -75,8 +75,7 @@ struct drawpath_opts {
 };
 
 struct drawpath_priv {
-    int32_t atlas_coords_fill[4];
-    int32_t atlas_coords_outline[4];
+    int32_t atlas_coords[4];
     float transform[4];
     struct distmap *distmap;
     struct path *path;
@@ -86,8 +85,7 @@ struct drawpath_priv {
     int modelview_matrix_index;
     int projection_matrix_index;
     int transform_index;
-    int coords_fill_index;
-    int coords_outline_index;
+    int coords_index;
     struct darray pipeline_descs;
 };
 
@@ -206,13 +204,8 @@ static int drawpath_init(struct ngl_node *node)
     const int32_t shape_w = (int32_t)lrintf(ar > 1.f ? res * ar : res);
     const int32_t shape_h = (int32_t)lrintf(ar > 1.f ? res : res / ar);
 
-    int32_t shape_id_fill;
-    ret = ngli_distmap_add_shape(s->distmap, shape_w, shape_h, s->path, NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE, &shape_id_fill);
-    if (ret< 0)
-        return ret;
-
-    int32_t shape_id_outline;
-    ret = ngli_distmap_add_shape(s->distmap, shape_w, shape_h, s->path, 0, &shape_id_outline);
+    int32_t shape_id;
+    ret = ngli_distmap_add_shape(s->distmap, shape_w, shape_h, s->path, 0, &shape_id);
     if (ret< 0)
         return ret;
 
@@ -220,18 +213,15 @@ static int drawpath_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ngli_distmap_get_shape_coords(s->distmap, shape_id_fill,    s->atlas_coords_fill);
-    ngli_distmap_get_shape_coords(s->distmap, shape_id_outline, s->atlas_coords_outline);
+    ngli_distmap_get_shape_coords(s->distmap, shape_id, s->atlas_coords);
 
-    float scale_fill[2], scale_outline[2];
-    ngli_distmap_get_shape_scale(s->distmap, shape_id_fill,    scale_fill);
-    ngli_distmap_get_shape_scale(s->distmap, shape_id_outline, scale_outline);
-    ngli_assert(!memcmp(scale_fill, scale_outline, sizeof(scale_fill)));
+    float scale[2];
+    ngli_distmap_get_shape_scale(s->distmap, shape_id, scale);
 
     /* Geometry scale up */
     const struct ngli_box box = {NGLI_ARG_VEC4(o->box)};
-    const float nw = box.w * scale_fill[0];
-    const float nh = box.h * scale_fill[1];
+    const float nw = box.w * scale[0];
+    const float nh = box.h * scale[1];
     const float offx = (box.w - nw) / 2.f;
     const float offy = (box.h - nh) / 2.f;
     const float ref[] = {box.x + offx, box.y + offy, nw, nh};
@@ -243,8 +233,7 @@ static int drawpath_init(struct ngl_node *node)
         {.name="transform",         .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_VERT},
 
         {.name="debug",             .type=NGPU_TYPE_BOOL,  .stage=NGPU_PROGRAM_STAGE_FRAG},
-        {.name="coords_fill",       .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_FRAG},
-        {.name="coords_outline",    .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_FRAG},
+        {.name="coords",            .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_FRAG},
 
         {.name="color",             .type=NGPU_TYPE_VEC3,  .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
         {.name="opacity",           .type=NGPU_TYPE_F32,   .stage=NGPU_PROGRAM_STAGE_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
@@ -302,9 +291,7 @@ static int drawpath_init(struct ngl_node *node)
     s->modelview_matrix_index  = ngpu_pgcraft_get_uniform_index(s->crafter, "modelview_matrix", NGPU_PROGRAM_STAGE_VERT);
     s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "projection_matrix", NGPU_PROGRAM_STAGE_VERT);
     s->transform_index         = ngpu_pgcraft_get_uniform_index(s->crafter, "transform", NGPU_PROGRAM_STAGE_VERT);
-
-    s->coords_fill_index    = ngpu_pgcraft_get_uniform_index(s->crafter, "coords_fill", NGPU_PROGRAM_STAGE_FRAG);
-    s->coords_outline_index = ngpu_pgcraft_get_uniform_index(s->crafter, "coords_outline", NGPU_PROGRAM_STAGE_FRAG);
+    s->coords_index            = ngpu_pgcraft_get_uniform_index(s->crafter, "coords", NGPU_PROGRAM_STAGE_FRAG);
 
     ret = build_uniforms_map(s);
     if (ret < 0)
@@ -372,21 +359,14 @@ static void drawpath_draw(struct ngl_node *node)
     ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->transform_index, s->transform);
 
     const struct ngpu_texture *texture = ngli_distmap_get_texture(s->distmap);
-    const float atlas_coords_fill[] = {
-        (float)s->atlas_coords_fill[0] / (float)texture->params.width,
-        (float)s->atlas_coords_fill[1] / (float)texture->params.height,
-        (float)s->atlas_coords_fill[2] / (float)texture->params.width,
-        (float)s->atlas_coords_fill[3] / (float)texture->params.height,
-    };
-    const float atlas_coords_outline[] = {
-        (float)s->atlas_coords_outline[0] / (float)texture->params.width,
-        (float)s->atlas_coords_outline[1] / (float)texture->params.height,
-        (float)s->atlas_coords_outline[2] / (float)texture->params.width,
-        (float)s->atlas_coords_outline[3] / (float)texture->params.height,
+    const float atlas_coords[] = {
+        (float)s->atlas_coords[0] / (float)texture->params.width,
+        (float)s->atlas_coords[1] / (float)texture->params.height,
+        (float)s->atlas_coords[2] / (float)texture->params.width,
+        (float)s->atlas_coords[3] / (float)texture->params.height,
     };
 
-    ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->coords_fill_index,    atlas_coords_fill);
-    ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->coords_outline_index, atlas_coords_outline);
+    ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->coords_index, atlas_coords);
 
     const struct uniform_map *map = ngli_darray_data(&s->uniforms_map);
     for (size_t i = 0; i < ngli_darray_count(&s->uniforms_map); i++)
