@@ -54,8 +54,6 @@ cmds_optional = [
     "glDeleteQueries",
     "glQueryCounter",
     "glGetQueryObjectui64v",
-    # Debug
-    "glDebugMessageCallback",
     # Query EXT
     "glBeginQueryEXT",
     "glEndQueryEXT",
