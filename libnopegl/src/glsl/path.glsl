@@ -28,7 +28,7 @@ float border(float d, float blur)
 }
 
 /*
- * dist: distance to the shape and the outline
+ * dist: distance to the shape and the outline (negative outside, positive inside)
  * color: RGB color, opacity stored in the alpha channel (not premultiplied)
  * outline: RGB color for the outline, width stored in the alpha channel
  * glow: RGB color for the glow, intensity stored in the alpha channel
