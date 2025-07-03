@@ -165,7 +165,7 @@ int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
 
         /* Artificially insert a closing segment if necessary */
         if ((flags & NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE) && (segment->flags & NGLI_PATH_SEGMENT_FLAG_OPEN_END)) {
-            const struct path_segment *segment0 = &segments[i - nb_beziers];
+            const struct path_segment *segment0 = &segments[i - (size_t)nb_beziers];
             const float *x0 = segment0->bezier_x;
             const float *y0 = segment0->bezier_y;
             const struct bezier3 bezier_x_close = b3_from_line(bezier_x.p3, x0[0]);
@@ -291,7 +291,7 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
             const int32_t bezier_start_idx = sum_bezier_counts(s, 0, beziergroup_start_idx);
             const int32_t bezier_count     = sum_bezier_counts(s, beziergroup_start_idx, beziergroup_start_idx + beziergroup_count);
 
-            const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
+            const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
 
             /*
              * Defines the quad coordinates of the atlas into which the glyph
@@ -336,9 +336,9 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
             const struct ngpu_block_field_data frag_data_src[] = {
                 [COORDS_INDEX]            = {.data = coords},
                 [SCALE_INDEX]             = {.data = scale},
-                [BEZIER_X_BUF_INDEX]      = {.data = bezier_x + bezier_start_idx, .count = bezier_count},
-                [BEZIER_Y_BUF_INDEX]      = {.data = bezier_y + bezier_start_idx, .count = bezier_count},
-                [BEZIER_COUNTS_INDEX]     = {.data = bezier_counts + beziergroup_start_idx, .count = beziergroup_count},
+                [BEZIER_X_BUF_INDEX]      = {.data = bezier_x + bezier_start_idx, .count = (size_t)bezier_count},
+                [BEZIER_Y_BUF_INDEX]      = {.data = bezier_y + bezier_start_idx, .count = (size_t)bezier_count},
+                [BEZIER_COUNTS_INDEX]     = {.data = bezier_counts + beziergroup_start_idx, .count = (size_t)beziergroup_count},
                 [BEZIERGROUP_COUNT_INDEX] = {.data = &beziergroup_count},
             };
 
@@ -386,8 +386,8 @@ static int draw_glyphs(struct distmap *s)
     if (ret < 0)
         return ret;
 
-    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 0, s->vert_buffer, 0, (int)s->vert_offset);
-    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 1, s->frag_buffer, 0, (int)s->frag_offset);
+    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 0, s->vert_buffer, 0, s->vert_offset);
+    ngli_pipeline_compat_update_buffer(s->pipeline_compat, 1, s->frag_buffer, 0, s->frag_offset);
 
     const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
     int32_t shape_id = 0;
@@ -397,7 +397,7 @@ static int draw_glyphs(struct distmap *s)
             if (shape_id == nb_shapes)
                 return 0;
 
-            const uint32_t offsets[] = {shape_id * (uint32_t)s->vert_offset, shape_id * (uint32_t)s->frag_offset};
+            const uint32_t offsets[] = {(uint32_t)shape_id * (uint32_t)s->vert_offset, (uint32_t)shape_id * (uint32_t)s->frag_offset};
             ret = ngli_pipeline_compat_update_dynamic_offsets(s->pipeline_compat, offsets, NGLI_ARRAY_NB(offsets));
             if (ret < 0)
                 return ret;
@@ -474,7 +474,7 @@ int ngli_distmap_finalize(struct distmap *s)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
+    const size_t nb_shapes = ngli_darray_count(&s->shapes);
     if (!nb_shapes)
         return 0;
 
@@ -576,9 +576,9 @@ int ngli_distmap_finalize(struct distmap *s)
     const struct ngpu_block_field frag_fields[] = {
         [COORDS_INDEX]            = {.name="coords",            .type=NGPU_TYPE_VEC4},
         [SCALE_INDEX]             = {.name="scale",             .type=NGPU_TYPE_VEC2},
-        [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGPU_TYPE_VEC4, .count=bezier_max_count},
-        [BEZIER_Y_BUF_INDEX]      = {.name="bezier_y_buf",      .type=NGPU_TYPE_VEC4, .count=bezier_max_count},
-        [BEZIER_COUNTS_INDEX]     = {.name="bezier_counts",     .type=NGPU_TYPE_I32,  .count=beziergroup_max_count},
+        [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGPU_TYPE_VEC4, .count=(size_t)bezier_max_count},
+        [BEZIER_Y_BUF_INDEX]      = {.name="bezier_y_buf",      .type=NGPU_TYPE_VEC4, .count=(size_t)bezier_max_count},
+        [BEZIER_COUNTS_INDEX]     = {.name="bezier_counts",     .type=NGPU_TYPE_I32,  .count=(size_t)beziergroup_max_count},
         [BEZIERGROUP_COUNT_INDEX] = {.name="beziergroup_count", .type=NGPU_TYPE_I32},
     };
 
@@ -686,7 +686,7 @@ struct ngpu_texture *ngli_distmap_get_texture(const struct distmap *s)
 
 void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, int32_t *dst)
 {
-    const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
+    const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
     const int32_t col = shape_id % s->nb_cols;
     const int32_t row = shape_id / s->nb_cols;
     const int32_t x0 = col * s->max_shape_padded_w;
@@ -699,7 +699,7 @@ void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, in
 
 void ngli_distmap_get_shape_scale(const struct distmap *s, int32_t shape_id, float *dst)
 {
-    const struct shape *shape = ngli_darray_get(&s->shapes, shape_id);
+    const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
     const int32_t dst_w = 2*s->pad + shape->width + 1;
     const int32_t dst_h = 2*s->pad + shape->height + 1;
     const float scale_x = (float)dst_w / (float)shape->width;
