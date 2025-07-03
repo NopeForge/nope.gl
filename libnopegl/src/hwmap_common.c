@@ -201,11 +201,14 @@ static int common_init(struct hwmap *hwmap, struct nmd_frame *frame)
     common->nb_planes = desc->nb_planes;
 
     for (size_t i = 0; i < common->nb_planes; i++) {
+        const int32_t width = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc->log2_chroma_width);
+        const int32_t height = i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc->log2_chroma_height);
+
         const struct ngpu_texture_params plane_params = {
             .type          = NGPU_TEXTURE_TYPE_2D,
             .format        = desc->formats[i],
-            .width         = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc->log2_chroma_width),
-            .height        = i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc->log2_chroma_height),
+            .width         = width,
+            .height        = height,
             .min_filter    = params->texture_min_filter,
             .mag_filter    = params->texture_mag_filter,
             .mipmap_filter = desc->layout == NGLI_IMAGE_LAYOUT_DEFAULT ? params->texture_mipmap_filter : NGPU_MIPMAP_FILTER_NONE,
