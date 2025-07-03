@@ -80,7 +80,7 @@ static int load_font(struct text *text, const char *font_file, int32_t face_inde
     const int32_t pt_size = text->config.pt_size;
     const FT_F26Dot6 chr_w = NGLI_I32_TO_I26D6(pt_size); // nominal width in 26.6
     const FT_F26Dot6 chr_h = NGLI_I32_TO_I26D6(pt_size); // nominal height in 26.6
-    const FT_UInt res = text->config.dpi; // resolution in dpi
+    const FT_UInt res = (FT_UInt)text->config.dpi; // resolution in dpi
     ft_error = FT_Set_Char_Size(ft_face, chr_w, chr_h, res, res);
     if (ft_error) {
         LOG(ERROR, "unable to set char size to %d points in %u DPI", pt_size, res);
@@ -554,9 +554,9 @@ static int log2vis(const FriBidiChar *str, int len, FriBidiParType *pbase_dir, F
 
     const int use_local = len <= STACK_LIST_SIZE;
 
-    FriBidiCharType *bidi_types       = use_local ? bidi_types_stack       : ngli_malloc(len * sizeof(*bidi_types));
-    FriBidiBracketType *bracket_types = use_local ? bracket_types_stack    : ngli_malloc(len * sizeof(*bracket_types));
-    FriBidiLevel *embedding_levels    = use_local ? embedding_levels_stack : ngli_malloc(len * sizeof(*embedding_levels));
+    FriBidiCharType *bidi_types       = use_local ? bidi_types_stack       : ngli_malloc((size_t)len * sizeof(*bidi_types));
+    FriBidiBracketType *bracket_types = use_local ? bracket_types_stack    : ngli_malloc((size_t)len * sizeof(*bracket_types));
+    FriBidiLevel *embedding_levels    = use_local ? embedding_levels_stack : ngli_malloc((size_t)len * sizeof(*embedding_levels));
     if (!bidi_types || !bracket_types || !embedding_levels) {
         ret = NGL_ERROR_MEMORY;
         goto end;
@@ -607,7 +607,7 @@ static int build_text_runs(struct text *text, const char *str_orig, struct darra
     FriBidiParType pbase_dir = FRIBIDI_PAR_ON;
     size_t pos = 0;
     for (;;) {
-        ret = handle_line_breaks(text, runs_array, codepoints, unicode_len, &pos);
+        ret = handle_line_breaks(text, runs_array, codepoints, (size_t)unicode_len, &pos);
         if (ret < 0)
             goto end;
         if (pos == unicode_len)
@@ -617,7 +617,7 @@ static int build_text_runs(struct text *text, const char *str_orig, struct darra
          * FriBidi works with lines (or paragraphs) so we must break the input
          * into multiple chunks: this is our first level of segmentation.
          */
-        size_t end = find_line_end(codepoints, unicode_len, pos);
+        size_t end = find_line_end(codepoints, (size_t)unicode_len, pos);
         if (end == pos) {
             ngli_assert(end == unicode_len);
             break;
