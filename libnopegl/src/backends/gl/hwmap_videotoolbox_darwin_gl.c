@@ -70,7 +70,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
         desc->planes[1].format = NGPU_FORMAT_R16G16_UNORM;
         break;
     default:
-        LOG(ERROR, "unsupported pixel format %d", format);
+        LOG(ERROR, "unsupported pixel format %u", (uint32_t)format);
         return NGL_ERROR_UNSUPPORTED;
     }
 
@@ -109,7 +109,7 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t
                                           plane_gl->internal_format, (GLsizei)width, (GLsizei)height,
                                           plane_gl->format, format_type, surface, (GLuint)index);
     if (err != kCGLNoError) {
-        LOG(ERROR, "could not bind IOSurface plane %zu to texture %d: %s", index, plane_gl->id, CGLErrorString(err));
+        LOG(ERROR, "could not bind IOSurface plane %zu to texture %u: %s", index, plane_gl->id, CGLErrorString(err));
         return NGL_ERROR_EXTERNAL;
     }
 
