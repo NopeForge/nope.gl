@@ -276,9 +276,9 @@ enum widget_type {
 
 struct data_graph {
     int64_t *values;
-    int nb_values;
-    int count;
-    int pos;
+    size_t nb_values;
+    size_t count;
+    size_t pos;
     int64_t min;
     int64_t max;
     int64_t amin; // all-time min
@@ -344,7 +344,7 @@ static int widget_latency_init(struct hud *s, struct widget *widget)
 
     s->measure_window = NGLI_MAX(s->measure_window, 1);
     for (size_t i = 0; i < NB_LATENCY; i++) {
-        int64_t *times = ngli_calloc(s->measure_window, sizeof(*times));
+        int64_t *times = ngli_calloc((size_t)s->measure_window, sizeof(*times));
         if (!times)
             return NGL_ERROR_MEMORY;
         priv->measures[i].times = times;
@@ -531,13 +531,13 @@ static void draw_block_graph(struct hud *s,
 {
     const int64_t graph_h = graph_max - graph_min;
     const float vscale = (float)rect->h / (float)graph_h;
-    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
+    const size_t start = (d->pos - d->count + d->nb_values) % d->nb_values;
 
-    for (int k = 0; k < d->count; k++) {
+    for (size_t k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - h, 0, rect->h);
-        set_color_at_column(s, rect->x + k, rect->y + y, h, c);
+        set_color_at_column(s, rect->x + (int)k, rect->y + y, h, c);
     }
 }
 
@@ -549,17 +549,17 @@ static void draw_line_graph(struct hud *s,
 {
     const int64_t graph_h = graph_max - graph_min;
     const float vscale = (float)rect->h / (float)graph_h;
-    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
+    const size_t start = (d->pos - d->count + d->nb_values) % d->nb_values;
     int prev_y;
 
-    for (int k = 0; k < d->count; k++) {
+    for (size_t k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (int)((float)(v - graph_min) * vscale);
         const int y = NGLI_CLAMP(rect->h - 1 - h, 0, rect->h - 1);
 
-        set_color_at(s, rect->x + k, rect->y + y, c);
+        set_color_at(s, rect->x + (int)k, rect->y + y, c);
         if (k)
-            set_color_at_column(s, rect->x + k, rect->y + prev_y, y - prev_y, c);
+            set_color_at_column(s, rect->x + (int)k, rect->y + prev_y, y - prev_y, c);
         prev_y = y;
     }
 }
@@ -661,7 +661,9 @@ static void widget_memory_draw(struct hud *s, struct widget *widget)
         else
             snprintf(buf, sizeof(buf), "%-12s %zuG", label, size / (1024 * 1024 * 1024));
         print_text(s, widget->text_x, widget->text_y + (int)i * NGLI_FONT_H, buf, color);
-        register_graph_value(&widget->data_graph[i], size);
+
+        const int64_t size_i64 = size >= INT64_MAX ? INT64_MAX : (int64_t)size;
+        register_graph_value(&widget->data_graph[i], size_i64);
     }
 
     int64_t graph_min = widget->data_graph[0].min;
@@ -920,7 +922,7 @@ static int create_widget(struct hud *s, enum widget_type type, const void *user_
         return NGL_ERROR_MEMORY;
     for (size_t i = 0; i < spec->nb_data_graph; i++) {
         struct data_graph *d = &widgetp->data_graph[i];
-        d->nb_values = widgetp->graph_rect.w;
+        d->nb_values = (size_t)widgetp->graph_rect.w;
         d->values = ngli_calloc(d->nb_values, sizeof(*d->values));
         if (!d->values)
             return NGL_ERROR_MEMORY;
@@ -1195,7 +1197,7 @@ int ngli_hud_init(struct hud *s)
         return widgets_csv_header(s);
     }
 
-    s->canvas.buf = ngli_calloc(s->canvas.w * s->canvas.h, 4);
+    s->canvas.buf = ngli_calloc((size_t)s->canvas.w * (size_t)s->canvas.h, 4);
     if (!s->canvas.buf)
         return NGL_ERROR_MEMORY;
 
