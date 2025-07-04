@@ -70,7 +70,7 @@ int ngli_atlas_add_bitmap(struct atlas *s, const struct bitmap *bitmap, int32_t 
     if (ngli_darray_count(&s->bitmaps) == INT32_MAX)
         return NGL_ERROR_LIMIT_EXCEEDED;
 
-    uint8_t *buffer = ngli_memdup(bitmap->buffer, bitmap->height * bitmap->stride);
+    uint8_t *buffer = ngli_memdup(bitmap->buffer, (size_t)bitmap->height * bitmap->stride);
     if (!buffer)
         return NGL_ERROR_MEMORY;
 
@@ -104,13 +104,13 @@ static void blend_bitmaps(struct atlas *s, uint8_t *data, size_t linesize)
                 return;
 
             const struct bitmap *bitmap = &bitmaps[bitmap_id++];
-            const size_t texel_x = x * s->max_bitmap_w;
-            const size_t texel_y = y * s->max_bitmap_h;
+            const size_t texel_x = x * (size_t)s->max_bitmap_w;
+            const size_t texel_y = y * (size_t)s->max_bitmap_h;
 
             for (size_t line = 0; line < bitmap->height; line++) {
                 uint8_t *dst = &data[(texel_y + line) * linesize + texel_x];
                 const uint8_t *src = &bitmap->buffer[line * bitmap->stride];
-                memcpy(dst, src, bitmap->width);
+                memcpy(dst, src, (size_t)bitmap->width);
             }
         }
     }
@@ -160,10 +160,10 @@ int ngli_atlas_finalize(struct atlas *s)
     if (ret < 0)
         return ret;
 
-    const size_t linesize = s->nb_cols * s->max_bitmap_w;
+    const size_t linesize = (size_t)(s->nb_cols * s->max_bitmap_w);
     if (linesize > INT32_MAX)
         return NGL_ERROR_LIMIT_EXCEEDED;
-    void *data = ngli_calloc(s->nb_rows * s->max_bitmap_h, linesize);
+    void *data = ngli_calloc((size_t)(s->nb_rows * s->max_bitmap_h), linesize);
     if (!data)
         return NGL_ERROR_MEMORY;
 
@@ -181,7 +181,7 @@ struct ngpu_texture *ngli_atlas_get_texture(const struct atlas *s)
 
 void ngli_atlas_get_bitmap_coords(const struct atlas *s, int32_t bitmap_id, int32_t *dst)
 {
-    const struct bitmap *bitmap = ngli_darray_get(&s->bitmaps, bitmap_id);
+    const struct bitmap *bitmap = ngli_darray_get(&s->bitmaps, (size_t)bitmap_id);
     const int32_t col = bitmap_id % s->nb_cols;
     const int32_t row = bitmap_id / s->nb_cols;
     const int32_t x0 = col * s->max_bitmap_w;
