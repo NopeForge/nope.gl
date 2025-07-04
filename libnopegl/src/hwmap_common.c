@@ -201,11 +201,14 @@ static int common_init(struct hwmap *hwmap, struct nmd_frame *frame)
     common->nb_planes = desc->nb_planes;
 
     for (size_t i = 0; i < common->nb_planes; i++) {
+        const uint32_t width =  (uint32_t)(i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc->log2_chroma_width));
+        const uint32_t height = (uint32_t)(i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc->log2_chroma_height));
+
         const struct ngpu_texture_params plane_params = {
             .type          = NGPU_TEXTURE_TYPE_2D,
             .format        = desc->formats[i],
-            .width         = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc->log2_chroma_width),
-            .height        = i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc->log2_chroma_height),
+            .width         = width,
+            .height        = height,
             .min_filter    = params->texture_min_filter,
             .mag_filter    = params->texture_mag_filter,
             .mipmap_filter = desc->layout == NGLI_IMAGE_LAYOUT_DEFAULT ? params->texture_mipmap_filter : NGPU_MIPMAP_FILTER_NONE,
@@ -228,8 +231,8 @@ static int common_init(struct hwmap *hwmap, struct nmd_frame *frame)
     const float color_scale = (float)dst_max / (float)src_max;
 
     const struct image_params image_params = {
-        .width = frame->width,
-        .height = frame->height,
+        .width = (uint32_t)frame->width,
+        .height = (uint32_t)frame->height,
         .layout = desc->layout,
         .color_scale = color_scale,
         .color_info = ngli_color_info_from_nopemd_frame(frame),
@@ -256,7 +259,11 @@ static int common_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
     for (size_t i = 0; i < common->nb_planes; i++) {
         struct ngpu_texture *plane = common->planes[i];
         struct ngpu_texture_params *params = &plane->params;
-        const int linesize = frame->linesizep[i] / (int)ngpu_format_get_bytes_per_pixel(params->format);
+        if (frame->linesizep[i] < 0) {
+            LOG(ERROR, "invalid linesize (%d) for plane %zu", frame->linesizep[i], i);
+            return NGL_ERROR_UNSUPPORTED;
+        }
+        const uint32_t linesize = (uint32_t)frame->linesizep[i] / (uint32_t)ngpu_format_get_bytes_per_pixel(params->format);
         int ret = ngpu_texture_upload(plane, frame->datap[i], linesize);
         if (ret < 0)
             return ret;

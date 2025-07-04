@@ -74,10 +74,10 @@ enum ngpu_texture_type {
 struct ngpu_texture_params {
     enum ngpu_texture_type type;
     enum ngpu_format format;
-    int32_t width;
-    int32_t height;
-    int32_t depth;
-    int32_t samples;
+    uint32_t width;
+    uint32_t height;
+    uint32_t depth;
+    uint32_t samples;
     enum ngpu_filter min_filter;
     enum ngpu_filter mag_filter;
     enum ngpu_mipmap_filter mipmap_filter;
@@ -94,18 +94,18 @@ struct ngpu_texture {
 };
 
 struct ngpu_texture_transfer_params {
-    int32_t pixels_per_row;
-    int32_t x, y, z;
-    int32_t width, height, depth;
-    int32_t base_layer;
-    int32_t layer_count;
+    uint32_t pixels_per_row;
+    uint32_t x, y, z;
+    uint32_t width, height, depth;
+    uint32_t base_layer;
+    uint32_t layer_count;
 };
 
 NGLI_RC_CHECK_STRUCT(ngpu_texture);
 
 struct ngpu_texture *ngpu_texture_create(struct ngpu_ctx *gpu_ctx);
 int ngpu_texture_init(struct ngpu_texture *s, const struct ngpu_texture_params *params);
-int ngpu_texture_upload(struct ngpu_texture *s, const uint8_t *data, int linesize);
+int ngpu_texture_upload(struct ngpu_texture *s, const uint8_t *data, uint32_t linesize);
 int ngpu_texture_upload_with_params(struct ngpu_texture *s, const uint8_t *data, const struct ngpu_texture_transfer_params *transfer_params);
 int ngpu_texture_generate_mipmap(struct ngpu_texture *s);
 void ngpu_texture_freep(struct ngpu_texture **sp);

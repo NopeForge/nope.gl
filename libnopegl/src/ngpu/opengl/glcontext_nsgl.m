@@ -148,7 +148,7 @@ static int nsgl_init_external(struct glcontext *ctx, uintptr_t display, uintptr_
     return 0;
 }
 
-static int nsgl_resize(struct glcontext *ctx, int32_t width, int32_t height)
+static int nsgl_resize(struct glcontext *ctx, uint32_t width, uint32_t height)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
 
@@ -160,8 +160,8 @@ static int nsgl_resize(struct glcontext *ctx, int32_t width, int32_t height)
     [nsgl->handle update];
 
     NSRect bounds = [nsgl->view bounds];
-    ctx->width = bounds.size.width;
-    ctx->height = bounds.size.height;
+    ctx->width = (uint32_t)bounds.size.width;
+    ctx->height = (uint32_t)bounds.size.height;
 
     return 0;
 }

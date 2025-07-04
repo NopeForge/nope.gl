@@ -78,8 +78,8 @@ static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
     const struct image_params image_params = {
-        .width = frame->width,
-        .height = frame->height,
+        .width = (uint32_t)frame->width,
+        .height = (uint32_t)frame->height,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_nopemd_frame(frame),

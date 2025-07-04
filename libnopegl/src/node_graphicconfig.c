@@ -64,6 +64,7 @@ struct graphicconfig_opts {
 
 struct graphicconfig_priv {
     int use_scissor;
+    struct ngpu_scissor scissor;
 };
 
 #define DEFAULT_SCISSOR {-1, -1, -1, -1}
@@ -286,6 +287,12 @@ static int graphicconfig_init(struct ngl_node *node)
                 NGLI_ARG_VEC4(o->scissor));
             return NGL_ERROR_INVALID_USAGE;
         }
+        s->scissor = (struct ngpu_scissor){
+            .x      = (uint32_t)o->scissor[0],
+            .y      = (uint32_t)o->scissor[1],
+            .width  = (uint32_t)o->scissor[2],
+            .height = (uint32_t)o->scissor[3],
+        };
     }
 
     return 0;
@@ -310,7 +317,7 @@ static void graphicconfig_draw(struct ngl_node *node)
     struct ngpu_scissor prev_scissor;
     if (s->use_scissor) {
         prev_scissor = ctx->scissor;
-        ctx->scissor = (struct ngpu_scissor){NGLI_ARG_VEC4(o->scissor)};
+        ctx->scissor = s->scissor;
     }
 
     ngli_node_draw(o->child);

@@ -58,7 +58,7 @@ int ngpu_rendertarget_init(struct ngpu_rendertarget *s, const struct ngpu_render
 
     /* Set the rendertarget samples value from the attachments samples value
      * and ensure all the attachments have the same width/height/samples value */
-    int32_t samples = -1;
+    uint32_t samples = UINT32_MAX;
     for (size_t i = 0; i < params->nb_colors; i++) {
         const struct ngpu_attachment *attachment = &params->colors[i];
         const struct ngpu_texture *texture = attachment->attachment;
@@ -75,7 +75,7 @@ int ngpu_rendertarget_init(struct ngpu_rendertarget *s, const struct ngpu_render
             ngli_assert(target_params->height == s->height);
             ngli_assert(target_params->usage & NGPU_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT);
         }
-        ngli_assert(samples == -1 || samples == texture_params->samples);
+        ngli_assert(samples == UINT32_MAX || samples == texture_params->samples);
         samples = texture_params->samples;
     }
     const struct ngpu_attachment *attachment = &params->depth_stencil;
@@ -93,7 +93,7 @@ int ngpu_rendertarget_init(struct ngpu_rendertarget *s, const struct ngpu_render
             ngli_assert(target_params->height == s->height);
             ngli_assert(target_params->usage & NGPU_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
         }
-        ngli_assert(samples == -1 || samples == texture_params->samples);
+        ngli_assert(samples == UINT32_MAX || samples == texture_params->samples);
         samples = texture_params->samples;
     }
     s->layout.samples = samples;

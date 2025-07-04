@@ -55,8 +55,8 @@ struct ngpu_ctx_vk {
     uint32_t cur_image_index;
     int64_t present_time_offset;
 
-    int32_t width;
-    int32_t height;
+    uint32_t width;
+    uint32_t height;
 
     struct darray colors;
     struct darray ms_colors;

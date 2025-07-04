@@ -180,7 +180,7 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         WGL_STENCIL_BITS_ARB, 8,
         WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
         WGL_SAMPLE_BUFFERS_ARB, ctx->offscreen ? 0 : (ctx->samples > 0),
-        WGL_SAMPLES_ARB, ctx->offscreen ? 0 : ctx->samples,
+        WGL_SAMPLES_ARB, ctx->offscreen ? 0 : (int)ctx->samples,
         0
     };
 
@@ -288,7 +288,7 @@ static void wgl_uninit_external(struct glcontext *ctx)
         FreeLibrary(wgl->module);
 }
 
-static int wgl_resize(struct glcontext *ctx, int32_t width, int32_t height)
+static int wgl_resize(struct glcontext *ctx, uint32_t width, uint32_t height)
 {
     struct wgl_priv *wgl = ctx->priv_data;
 
@@ -296,8 +296,8 @@ static int wgl_resize(struct glcontext *ctx, int32_t width, int32_t height)
     if (GetWindowRect(wgl->window, &rect) == 0)
         return NGL_ERROR_EXTERNAL;
 
-    ctx->width = rect.right-rect.left;
-    ctx->height = rect.bottom-rect.top;
+    ctx->width = (uint32_t)(rect.right - rect.left);
+    ctx->height = (uint32_t)(rect.bottom - rect.top);
 
     return 0;
 }

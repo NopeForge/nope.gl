@@ -70,7 +70,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
         desc->planes[1].format = NGPU_FORMAT_R16G16_UNORM;
         break;
     default:
-        LOG(ERROR, "unsupported pixel format %d", format);
+        LOG(ERROR, "unsupported pixel format %u", (uint32_t)format);
         return NGL_ERROR_UNSUPPORTED;
     }
 
@@ -88,6 +88,8 @@ struct hwmap_vt_darwin {
 static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t index)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct ngpu_limits *gpu_limits = &gpu_ctx->limits;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)ctx->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
@@ -98,9 +100,14 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t
 
     size_t width = IOSurfaceGetWidthOfPlane(surface, index);
     size_t height = IOSurfaceGetHeightOfPlane(surface, index);
-    if (width > INT_MAX || height > INT_MAX)
-        return NGL_ERROR_LIMIT_EXCEEDED;
-    ngpu_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
+
+    const uint32_t max_dimension = gpu_limits->max_texture_dimension_2d;
+    if (width > max_dimension || height > max_dimension) {
+        LOG(ERROR, "plane dimensions (%zux%zu) exceed GPU limits (%ux%u)",
+            width, height, max_dimension, max_dimension);
+        return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+    }
+    ngpu_texture_gl_set_dimensions(plane, (uint32_t)width, (uint32_t)height, 0);
 
     /* CGLTexImageIOSurface2D() requires GL_UNSIGNED_INT_8_8_8_8_REV instead of GL_UNSIGNED_SHORT to map BGRA IOSurface2D */
     const GLenum format_type = plane_gl->format == GL_BGRA ? GL_UNSIGNED_INT_8_8_8_8_REV : plane_gl->format_type;
@@ -109,7 +116,7 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t
                                           plane_gl->internal_format, (GLsizei)width, (GLsizei)height,
                                           plane_gl->format, format_type, surface, (GLuint)index);
     if (err != kCGLNoError) {
-        LOG(ERROR, "could not bind IOSurface plane %zu to texture %d: %s", index, plane_gl->id, CGLErrorString(err));
+        LOG(ERROR, "could not bind IOSurface plane %zu to texture %u: %s", index, plane_gl->id, CGLErrorString(err));
         return NGL_ERROR_EXTERNAL;
     }
 
@@ -236,8 +243,8 @@ static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
     }
 
     const struct image_params image_params = {
-        .width = frame->width,
-        .height = frame->height,
+        .width = (uint32_t)frame->width,
+        .height = (uint32_t)frame->height,
         .layout = vt->format_desc.layout,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_nopemd_frame(frame),
