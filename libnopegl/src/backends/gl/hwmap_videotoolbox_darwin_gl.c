@@ -88,6 +88,8 @@ struct hwmap_vt_darwin {
 static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t index)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
+    struct ngpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct ngpu_limits *gpu_limits = &gpu_ctx->limits;
     struct ngpu_ctx_gl *gpu_ctx_gl = (struct ngpu_ctx_gl *)ctx->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
@@ -98,8 +100,13 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, size_t
 
     size_t width = IOSurfaceGetWidthOfPlane(surface, index);
     size_t height = IOSurfaceGetHeightOfPlane(surface, index);
-    if (width > INT_MAX || height > INT_MAX)
-        return NGL_ERROR_LIMIT_EXCEEDED;
+
+    const uint32_t max_dimension = gpu_limits->max_texture_dimension_2d;
+    if (width > max_dimension || height > max_dimension) {
+        LOG(ERROR, "plane dimensions (%zux%zu) exceed GPU limits (%ux%u)",
+            width, height, max_dimension, max_dimension);
+        return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+    }
     ngpu_texture_gl_set_dimensions(plane, (int)width, (int)height, 0);
 
     /* CGLTexImageIOSurface2D() requires GL_UNSIGNED_INT_8_8_8_8_REV instead of GL_UNSIGNED_SHORT to map BGRA IOSurface2D */
