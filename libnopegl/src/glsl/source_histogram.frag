@@ -47,7 +47,7 @@ float vertical_line(float x, float y, vec3 amp3)
     ivec2 bin = clamp(ivec2(floor(bin_pos), floor(bin_pos) + 1.0), 0, max_depth); // find surrounding bins
     vec2 amps = bin_mid == bin.x ? vec2(amp3.y, amp3.z) : vec2(amp3.x, amp3.y); // pick left or right rounded segment
     float amp = mix(amps.x, amps.y, fract(bin_pos)); // interpolate an amplitude between the amplitudes of the 2 bins
-    return step(y, amp) * (1.0 - step(y, 0.0)); // y <= amp && y > 0.0
+    return float(y <= amp && y > 0.0);
 }
 
 float outline(float dist)

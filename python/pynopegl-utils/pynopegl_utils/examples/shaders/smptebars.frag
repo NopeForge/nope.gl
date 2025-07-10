@@ -69,7 +69,7 @@ vec3 yiq_offset(vec3 c0, vec3 c1, vec3 c2)
 
 void main()
 {
-    float noisy = step((active_noise + 1.0) / 2.0, active_probability); // random(0, 1) <= proba
+    float noisy = float((active_noise + 1.0) / 2.0 <= active_probability);
     vec3 c0 = smptebars(var_uvcoord + uv_noise_0 * noisy);
     vec3 c1 = smptebars(var_uvcoord + uv_noise_1 * noisy);
     vec3 c2 = smptebars(var_uvcoord + uv_noise_2 * noisy);

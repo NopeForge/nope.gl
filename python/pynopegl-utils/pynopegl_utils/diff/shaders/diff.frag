@@ -74,7 +74,7 @@ vec4 color_split(vec4 c0, vec4 c1)
     /* Select color according to split side */
     vec2 splitdiff = uv - split;
     float splitdist = vertical_split ? splitdiff.x : splitdiff.y;
-    vec4 color = mix(c0, c1, step(0.0, splitdist));
+    vec4 color = splitdist < 0.0 ? c0 : c1;
 
     /*
      * Split line: we get the average lightness (in linear space) between the 2
@@ -83,7 +83,7 @@ vec4 color_split(vec4 c0, vec4 c1)
      */
     vec3 avg_color = (srgb2lin(c0.rgb) + srgb2lin(c1.rgb)) / 2.0;
     float avg_light = dot(luma_weights, avg_color);
-    vec3 split_color = vec3(step(avg_light - 0.5, 0.0));
+    vec3 split_color = vec3(avg_light < 0.5);
 
     /* Mix the split line with our color, in linear space */
     float res = vertical_split ? ngl_resolution.x : ngl_resolution.y;
