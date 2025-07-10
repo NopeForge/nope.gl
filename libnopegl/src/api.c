@@ -245,11 +245,14 @@ static struct ngpu_viewport compute_scene_viewport(const struct ngl_scene *scene
     if (aspect_ratio[0] <= 0 || aspect_ratio[1] <= 0)
         return vp;
 
-    vp.width = width;
-    vp.height = width * (float)aspect_ratio[1] / (float)aspect_ratio[0];
-    if (vp.height > height) {
+    const float wd = (float)(w * aspect_ratio[1]);
+    const float hn = (float)(h * aspect_ratio[0]);
+    if (wd > hn) {
+        vp.width = hn / (float)aspect_ratio[1];
         vp.height = height;
-        vp.width = height * (float)aspect_ratio[0] / (float)aspect_ratio[1];
+    } else {
+        vp.width = width;
+        vp.height = wd / (float)aspect_ratio[0];
     }
     vp.x = (width  - vp.width) / 2.f;
     vp.y = (height - vp.height) / 2.f;
