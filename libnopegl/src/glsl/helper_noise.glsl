@@ -78,9 +78,11 @@ highp vec2 random2(highp ivec3 x)
 highp vec3 random_grad(highp ivec3 x)
 {
     vec2 r = random2(x);
-    float theta = acos(2.0 * r.x - 1.0); // use the first random for the polar angle (latitude)
+    // use the first random for the polar angle (latitude)
+    float c = 2.0*r.x - 1.0,    // c = cos(theta) = cos(acos(2x-1)) = 2x-1
+          s = sqrt(1.0 - c*c);  // s = sin(theta) = sin(acos(c)) = sqrt(1-c*c)
     float phi = ngli_tau * r.y; // use the 2nd random for the azimuth (longitude)
-    return vec3(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
+    return vec3(cos(phi) * s, sin(phi) * s, c);
 }
 
 highp vec3 curve_quintic(highp vec3 t)
