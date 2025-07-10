@@ -91,7 +91,7 @@ float pq_eetf(float x)
             + (-2.0 * t3 + 3.0 * t2) * max_lum;
 
     /* Step 3: solve for the EETF (e3) with given end points */
-    float e2 = mix(p, e1, step(e1, ks));
+    float e2 = ks < e1 ? p : e1;
 
     /*
      * Step 4: the following step is supposed to be defined for 0 ≤E₂≤ 1 but no
