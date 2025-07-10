@@ -322,7 +322,6 @@ static int add_progress_bar(struct player *p, struct ngl_scene *scene)
     struct ngl_node *v_duration = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
     struct ngl_node *v_opacity  = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
     struct ngl_node *coord      = ngl_node_create(NGL_NODE_IOVEC2);
-    struct ngl_node *gcfg       = ngl_node_create(NGL_NODE_GRAPHICCONFIG);
     struct ngl_node *group      = ngl_node_create(NGL_NODE_GROUP);
 
     if (!text || !quad || !program || !draw || !time || !v_duration || !v_opacity ||
@@ -378,7 +377,6 @@ end:
     ngl_node_unrefp(&v_duration);
     ngl_node_unrefp(&v_opacity);
     ngl_node_unrefp(&coord);
-    ngl_node_unrefp(&gcfg);
 
     return ret;
 }
