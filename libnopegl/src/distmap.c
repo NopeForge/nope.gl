@@ -132,6 +132,11 @@ int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
         return NGL_ERROR_INVALID_ARG;
     }
 
+    if (ngli_darray_count(&s->shapes) >= INT32_MAX) {
+        LOG(ERROR, "number of shapes reached limit of %d", INT32_MAX);
+        return NGL_ERROR_LIMIT_EXCEEDED;
+    }
+
     int32_t nb_beziers = 0, nb_beziergroups = 0;
     const struct darray *segments_array = ngli_path_get_segments(path);
     const struct path_segment *segments = ngli_darray_data(segments_array);
