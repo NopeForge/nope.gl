@@ -531,7 +531,7 @@ static void draw_block_graph(struct hud *s,
 {
     const int64_t graph_h = graph_max - graph_min;
     const float vscale = (float)rect->h / (float)graph_h;
-    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
+    const int start = (d->nb_values + d->pos - d->count) % d->nb_values;
 
     for (int k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
@@ -549,7 +549,7 @@ static void draw_line_graph(struct hud *s,
 {
     const int64_t graph_h = graph_max - graph_min;
     const float vscale = (float)rect->h / (float)graph_h;
-    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
+    const int start = (d->nb_values + d->pos - d->count) % d->nb_values;
     int prev_y;
 
     for (int k = 0; k < d->count; k++) {
