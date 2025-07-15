@@ -41,11 +41,13 @@ static const struct ngpu_format_gl formats[NGPU_FORMAT_NB] = {
     [NGPU_FORMAT_R8_SNORM]             = {GL_RED,         GL_R8_SNORM, GL_BYTE,          S|SL|B},
     [NGPU_FORMAT_R8_UINT]              = {GL_RED_INTEGER, GL_R8UI,     GL_UNSIGNED_BYTE, S|C},
     [NGPU_FORMAT_R8_SINT]              = {GL_RED_INTEGER, GL_R8I,      GL_BYTE,          S|C},
+    [NGPU_FORMAT_R8_SRGB]              = {GL_RED,         GL_SR8,      GL_BYTE,          S|SL},
 
     [NGPU_FORMAT_R8G8_UNORM]           = {GL_RG,         GL_RG8,       GL_UNSIGNED_BYTE, S|SL|C|B},
     [NGPU_FORMAT_R8G8_SNORM]           = {GL_RG,         GL_RG8_SNORM, GL_BYTE,          S|SL|B},
     [NGPU_FORMAT_R8G8_UINT]            = {GL_RG_INTEGER, GL_RG8UI,     GL_UNSIGNED_BYTE, S|C},
     [NGPU_FORMAT_R8G8_SINT]            = {GL_RG_INTEGER, GL_RG8I,      GL_BYTE,          S|C},
+    [NGPU_FORMAT_R8G8_SRGB]            = {GL_RG,         GL_SRG8,      GL_BYTE,          S|SL},
 
     [NGPU_FORMAT_R8G8B8_UNORM]         = {GL_RGB,         GL_RGB8,       GL_UNSIGNED_BYTE, S|SL|C|B},
     [NGPU_FORMAT_R8G8B8_SNORM]         = {GL_RGB,         GL_RGB8_SNORM, GL_BYTE,          S|SL},
@@ -63,6 +65,7 @@ static const struct ngpu_format_gl formats[NGPU_FORMAT_NB] = {
     [NGPU_FORMAT_B8G8R8A8_SNORM]       = {GL_BGRA,         GL_RGBA8_SNORM, GL_BYTE,          0},
     [NGPU_FORMAT_B8G8R8A8_UINT]        = {GL_BGRA_INTEGER, GL_RGBA8UI,     GL_UNSIGNED_BYTE, 0},
     [NGPU_FORMAT_B8G8R8A8_SINT]        = {GL_BGRA_INTEGER, GL_RGBA8I,      GL_BYTE,          0},
+    [NGPU_FORMAT_B8G8R8A8_SRGB]        = {GL_BGRA,         GL_SRGB8_ALPHA8,GL_BYTE,          0},
 
     [NGPU_FORMAT_R16_UNORM]            = {GL_RED,          GL_R16,       GL_UNSIGNED_SHORT, 0},
     [NGPU_FORMAT_R16_SNORM]            = {GL_RED,          GL_R16_SNORM, GL_SHORT,          0},
