@@ -510,8 +510,10 @@ struct glcontext *ngli_glcontext_create(const struct glcontext_params *params)
     if (ret < 0)
         goto fail;
 
-    if (glcontext->backend == NGL_BACKEND_OPENGL)
+    if (glcontext->backend == NGL_BACKEND_OPENGL) {
         glcontext->funcs.Enable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+        glcontext->funcs.Enable(GL_FRAMEBUFFER_SRGB);
+    }
 
     if (!glcontext->external && !glcontext->offscreen) {
         ret = ngli_glcontext_resize(glcontext, glcontext->width, glcontext->height);
