@@ -51,6 +51,9 @@
 #define EGL_PLATFORM_X11 0x31D5
 #define EGL_PLATFORM_WAYLAND 0x31D8
 #define EGL_PLATFORM_SURFACELESS_MESA 0x31DD
+#define EGL_GL_COLORSPACE_KHR 0x309D
+#define EGL_GL_COLORSPACE_SRGB_KHR 0x3089
+#define EGL_GL_COLORSPACE_LINEAR_KHR 0x308A
 
 struct egl_priv {
     EGLNativeDisplayType native_display;
@@ -77,6 +80,7 @@ struct egl_priv {
     int has_device_base_ext;
     int has_create_context_ext;
     int has_image_dma_buf_import_modifiers_ext;
+    int has_gl_colorspace_ext;
 #if defined(HAVE_WAYLAND)
     struct wl_egl_window *wl_egl_window;
 #endif
@@ -194,6 +198,10 @@ static int egl_probe_extensions(struct glcontext *ctx)
     if (ngli_glcontext_check_extension("EGL_EXT_image_dma_buf_import_modifiers", egl->extensions)) {
         ctx->features |= NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT_MODIFIERS;
         egl->has_image_dma_buf_import_modifiers_ext = 1;
+    }
+
+    if (ngli_glcontext_check_extension("EGL_KHR_gl_colorspace", egl->extensions)) {
+        egl->has_gl_colorspace_ext = 1;
     }
 
     return 0;
@@ -507,7 +515,12 @@ try_again:;
             LOG(ERROR, "could not retrieve EGL native window");
             return NGL_ERROR_EXTERNAL;
         }
-        egl->surface = eglCreateWindowSurface(egl->display, egl->config, egl->native_window, NULL);
+        const EGLint surface_attribs[] = {
+            EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_LINEAR_KHR,
+            EGL_NONE,
+        };
+        egl->surface = eglCreateWindowSurface(egl->display, egl->config, egl->native_window,
+                                              egl->has_surfaceless_context_ext ? surface_attribs : NULL);
         if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: %s", ngli_eglGetErrorStr());
             return NGL_ERROR_EXTERNAL;
