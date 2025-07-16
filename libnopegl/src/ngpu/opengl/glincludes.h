@@ -155,6 +155,7 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_CLIENT_STORAGE_BIT                 0x0200
 
 /* sRGB */
+# define GL_FRAMEBUFFER_SRGB                   0x8DB9
 # define GL_SR8                                0x8FBD
 # define GL_SRG8                               0x8FBE
 

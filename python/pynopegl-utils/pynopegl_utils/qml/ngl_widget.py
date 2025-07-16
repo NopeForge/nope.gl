@@ -31,6 +31,8 @@ QML_IMPORT_NAME = "QMLNopeGL"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 
+_GL_FRAMEBUFFER_SRGB = 0x8DB9
+
 
 @QmlElement
 class NopeGLWidget(QQuickFramebufferObject):
@@ -141,6 +143,10 @@ class _NopeGLRenderer(QQuickFramebufferObject.Renderer):
             del self._context
             self._context = None
             self._request_stop = False
+
+        # endExternalCommands() does not reset GL_FRAMEBUFFER_SRGB state
+        gl_funcs = QOpenGLFunctions(QOpenGLContext.currentContext())
+        gl_funcs.glDisable(_GL_FRAMEBUFFER_SRGB)
 
         self._window.endExternalCommands()
 

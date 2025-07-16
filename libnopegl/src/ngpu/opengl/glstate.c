@@ -120,6 +120,10 @@ void ngpu_glstate_reset(const struct glcontext *gl, struct ngpu_glstate *glstate
 {
     memset(glstate, 0, sizeof(*glstate));
 
+    /* sRGB */
+    if (gl->backend == NGL_BACKEND_OPENGL)
+        gl->funcs.Enable(GL_FRAMEBUFFER_SRGB);
+
     /* Blending */
     gl->funcs.Disable(GL_BLEND);
     glstate->blend = 0;
