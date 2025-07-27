@@ -74,7 +74,7 @@ struct char_info_internal {
 
 /* Exposed by the text API */
 struct char_info {
-    struct ngli_box geom;   // geometry position
+    struct ngli_aabb geom;  // vertices
     float atlas_coords[4];  // texture position
     float real_dim[2];      // real dimension (without distance field padding)
 };

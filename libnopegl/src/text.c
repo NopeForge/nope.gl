@@ -224,11 +224,11 @@ static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
     /* character dimension and position */
     for (size_t n = 0; n < ngli_darray_count(&s->chars); n++) {
         const struct char_info *chr = &chars[n];
-        const float chr_width  = width  * chr->geom.w;
-        const float chr_height = height * chr->geom.h;
-        const float chr_corner_x = corner_x + width  * chr->geom.x;
-        const float chr_corner_y = corner_y + height * chr->geom.y;
-        const float vertices[] = {chr_corner_x, chr_corner_y, chr_corner_x + chr_width, chr_corner_y + chr_height};
+        const float chr_x0 = corner_x + width  * chr->geom.x0;
+        const float chr_y0 = corner_y + height * chr->geom.y0;
+        const float chr_x1 = corner_x + width  * chr->geom.x1;
+        const float chr_y1 = corner_y + height * chr->geom.y1;
+        const float vertices[] = {chr_x0, chr_y0, chr_x1, chr_y1};
         memcpy(ptrs.vertices + 4 * n, vertices, sizeof(vertices));
     }
 
@@ -613,16 +613,16 @@ int ngli_text_set_string(struct text *s, const char *str)
         const float h = NGLI_I26D6_TO_F32(chr_internal->h);
         const float nw = w * chr_internal->scale[0];
         const float nh = h * chr_internal->scale[1];
-        const float offx = (w - nw) / 2.f;
-        const float offy = (h - nh) / 2.f;
-        const struct ngli_box xywh = {x + offx, y + offy, nw, nh};
+        const float bx = x + (w - nw) / 2.f;
+        const float by = y + (h - nh) / 2.f;
+        const struct ngli_aabb geom = {bx, by, bx + nw, by + nh};
 
         const struct char_info chr = {
             .geom = {
-                .x = xywh.x / (float)s->width,
-                .y = xywh.y / (float)s->height,
-                .w = xywh.w / (float)s->width,
-                .h = xywh.h / (float)s->height,
+                .x0 = geom.x0 / (float)s->width,
+                .y0 = geom.y0 / (float)s->height,
+                .x1 = geom.x1 / (float)s->width,
+                .y1 = geom.y1 / (float)s->height,
             },
             .atlas_coords = {
                 (float)chr_internal->atlas_coords[0] / (float)s->atlas_texture->params.width,
