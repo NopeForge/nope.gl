@@ -687,10 +687,9 @@ void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, in
 void ngli_distmap_get_shape_scale(const struct distmap *s, int32_t shape_id, float *dst)
 {
     const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
-    const int32_t dst_w = 2*s->pad + shape->width + 1;
-    const int32_t dst_h = 2*s->pad + shape->height + 1;
-    const float scale_x = (float)dst_w / (float)shape->width;
-    const float scale_y = (float)dst_h / (float)shape->height;
+    const float pad = (float)(2 * s->pad + 1); // +1 for the extra 2 half texel blending safeguards
+    const float scale_x = 1.f + pad / (float)shape->width;
+    const float scale_y = 1.f + pad / (float)shape->height;
     const float scale[] = {scale_x, scale_y};
     memcpy(dst, scale, sizeof(scale));
 }
