@@ -339,8 +339,7 @@ static int apply_effects(struct text_priv *s)
         return 0;
 
     const struct text_data_pointers *ptrs = &text->data_ptrs;
-    if ((ret = ngpu_buffer_upload(s->user_transforms, ptrs->transform, 0,
-                                      text_nbchr * 4 * 4 * sizeof(*ptrs->transform))) < 0 ||
+    if ((ret = ngpu_buffer_upload(s->user_transforms, ptrs->transform, 0, text_nbchr * 4 * 4 * sizeof(*ptrs->transform))) < 0 ||
         (ret = ngpu_buffer_upload(s->colors, ptrs->color, 0, text_nbchr * 4 * sizeof(*ptrs->color))) < 0 ||
         (ret = ngpu_buffer_upload(s->outlines, ptrs->outline, 0, text_nbchr * 4 * sizeof(*ptrs->outline))) < 0 ||
         (ret = ngpu_buffer_upload(s->glows, ptrs->glow, 0, text_nbchr * 4 * sizeof(*ptrs->glow))) < 0 ||
