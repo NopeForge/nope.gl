@@ -56,7 +56,6 @@ struct drawpath_opts {
     float viewbox[4];
     int32_t pt_size;
     int32_t dpi;
-    int32_t aspect_ratio[2];
     struct ngl_node *transform_chain;
     struct ngl_node *color_node;
     float color[3];
@@ -105,8 +104,6 @@ static const struct node_param drawpath_params[] = {
                      .desc=NGLI_DOCSTRING("size in point (nominal size, 1pt = 1/72 inch)")},
     {"dpi",          NGLI_PARAM_TYPE_I32, OFFSET(dpi), {.i32=300},
                      .desc=NGLI_DOCSTRING("resolution (dot per inch)")},
-    {"aspect_ratio", NGLI_PARAM_TYPE_IVEC2, OFFSET(aspect_ratio), {.ivec={1, 1}},
-                     .desc=NGLI_DOCSTRING("aspect ratio")},
     {"color",        NGLI_PARAM_TYPE_VEC3, OFFSET(color_node), {.vec={1.f, 1.f, 1.f}},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                      .desc=NGLI_DOCSTRING("path fill color")},
@@ -205,7 +202,8 @@ static int drawpath_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const float ar = (float)o->aspect_ratio[0] / (float)o->aspect_ratio[1];
+    const int32_t *ar32 = node->scene->params.aspect_ratio;
+    const float ar = ar32[1] ? (float)ar32[0] / (float)ar32[1] : 1.f;
     const int32_t shape_w = (int32_t)lrintf(ar > 1.f ? res * ar : res);
     const int32_t shape_h = (int32_t)lrintf(ar > 1.f ? res : res / ar);
 
