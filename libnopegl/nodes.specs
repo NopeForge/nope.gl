@@ -2350,13 +2350,6 @@
           "desc": "resolution (dot per inch)"
         },
         {
-          "name": "aspect_ratio",
-          "type": "ivec2",
-          "default": [1,1],
-          "flags": [],
-          "desc": "aspect ratio"
-        },
-        {
           "name": "color",
           "type": "vec3",
           "default": [1.000000,1.000000,1.000000],
