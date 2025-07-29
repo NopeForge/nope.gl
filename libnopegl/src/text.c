@@ -180,8 +180,9 @@ static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
 
     /* Text/Box ratio */
     const struct ngli_box box = s->config.box;
-    const float ar[] = {ctx->viewport.width, ctx->viewport.height};
-    const float box_ratio = ar[0] * box.w / (ar[1] * box.h);
+    const int32_t *ar32 = ctx->scene->params.aspect_ratio;
+    const float ar = ar32[1] ? (float)ar32[0] / (float)ar32[1] : 1.f;
+    const float box_ratio = ar * box.w / box.h;
     const float text_ratio = (float)s->width / (float)s->height;
 
     /* Apply aspect ratio and font scaling */
