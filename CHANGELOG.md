@@ -67,8 +67,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `ngl_config.{width,height,samples}` and `ngl_resize()` arguments are now unsigned
 
 ### Removed
-- `DrawPath.aspect_ratio`, it now matches the scene aspect ratio
-- `Text.aspect_ratio`, it now matches the viewport aspect ratio
+- `Text.aspect_ratio` and `DrawPath.aspect_ratio`, they now match the scene
+  aspect ratio
 - `GraphicConfig.scissor_test` parameter
 - Support for Android < 9.0
 - The `small` build option (enabled by default now)
