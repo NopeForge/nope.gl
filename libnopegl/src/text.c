@@ -152,8 +152,8 @@ static void reset_chars_data_to_defaults(struct text *s)
 static struct text_data_pointers get_chr_data_pointers(float *base, size_t nb_chars)
 {
     struct text_data_pointers ptrs = {0};
-    ptrs.pos_size     = base;
-    ptrs.atlas_coords = ptrs.pos_size     + nb_chars * 4;
+    ptrs.vertices     = base;
+    ptrs.atlas_coords = ptrs.vertices     + nb_chars * 4;
     ptrs.transform    = ptrs.atlas_coords + nb_chars * 4;
     ptrs.color        = ptrs.transform    + nb_chars * 4 * 4;
     ptrs.outline      = ptrs.color        + nb_chars * 4;
@@ -228,8 +228,8 @@ static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
         const float chr_height = height * chr->geom.h;
         const float chr_corner_x = corner_x + width  * chr->geom.x;
         const float chr_corner_y = corner_y + height * chr->geom.y;
-        const float transform[] = {chr_corner_x, chr_corner_y, chr_width, chr_height};
-        memcpy(ptrs.pos_size + 4 * n, transform, sizeof(transform));
+        const float vertices[] = {chr_corner_x, chr_corner_y, chr_corner_x + chr_width, chr_corner_y + chr_height};
+        memcpy(ptrs.vertices + 4 * n, vertices, sizeof(vertices));
     }
 
     /* register atlas identifier */
@@ -283,7 +283,7 @@ void ngli_text_refresh_geometry_data(struct text *s)
     const struct text_data_pointers defaults_ptr = get_chr_data_pointers(s->chars_data_default, nb_chars);
     set_geometry_data(s, defaults_ptr);
 
-    for (size_t i = 0; i < nb_chars; i++) memcpy(s->data_ptrs.pos_size,     defaults_ptr.pos_size,     nb_chars * 4 * sizeof(float));
+    for (size_t i = 0; i < nb_chars; i++) memcpy(s->data_ptrs.vertices,     defaults_ptr.vertices,     nb_chars * 4 * sizeof(float));
     for (size_t i = 0; i < nb_chars; i++) memcpy(s->data_ptrs.atlas_coords, defaults_ptr.atlas_coords, nb_chars * 4 * sizeof(float));
 }
 
@@ -318,7 +318,7 @@ static int set_vec3_value(float *dst, struct ngl_node *node, const float *value,
 }
 
 static int set_transform(float *dst, const struct texteffect_opts *effect_opts,
-                         struct ngli_box box, struct ngli_box chr_box,
+                         struct ngli_box box, struct ngli_aabb chr_aabb,
                          const struct char_info *chr, double t)
 {
     struct ngl_node *node = effect_opts->transform_chain;
@@ -335,8 +335,8 @@ static int set_transform(float *dst, const struct texteffect_opts *effect_opts,
          * Go to the the center of the character quad, then adjust to honor the
          * anchor parameter according to the real dimension of the character
          */
-        anchor_x = chr_box.x + chr_box.w / 2.f + effect_opts->anchor[0] * chr->real_dim[0] / 2.f;
-        anchor_y = chr_box.y + chr_box.h / 2.f + effect_opts->anchor[1] * chr->real_dim[1] / 2.f;
+        anchor_x = (chr_aabb.x0 + chr_aabb.x1) / 2.f + effect_opts->anchor[0] * chr->real_dim[0] / 2.f;
+        anchor_y = (chr_aabb.y0 + chr_aabb.y1) / 2.f + effect_opts->anchor[1] * chr->real_dim[1] / 2.f;
     } else if (effect_opts->anchor_ref == NGLI_TEXT_ANCHOR_REF_BOX) {
         /* Remap an anchor in [-1,1] to the text bounding box coordinates */
         const float norm_x = NGLI_LINEAR_NORM(-1.f, 1.f, effect_opts->anchor[0]);
@@ -741,10 +741,10 @@ int ngli_text_set_time(struct text *s, double t)
             const double next_t = prev_t + duration;
             const double target_t = NGLI_LINEAR_NORM(prev_t, next_t, effect_t);
 
-            const struct ngli_box chr_box = {NGLI_ARG_VEC4(s->data_ptrs.pos_size + c * 4)};
+            const struct ngli_aabb chr_aabb = {NGLI_ARG_VEC4(s->data_ptrs.vertices + c * 4)};
             const struct char_info *chr = &chars[i];
 
-            if ((ret = set_transform( s->data_ptrs.transform  + c * 4 * 4, effect_opts, s->config.box, chr_box, chr,                     target_t)) < 0 ||
+            if ((ret = set_transform( s->data_ptrs.transform  + c * 4 * 4, effect_opts, s->config.box, chr_aabb, chr,                   target_t)) < 0 ||
                 (ret = set_vec3_value(s->data_ptrs.color      + c * 4,     effect_opts->color_node,         effect_opts->color,         target_t)) < 0 ||
                 (ret = set_f32_value( s->data_ptrs.color      + c * 4 + 3, effect_opts->opacity_node,       effect_opts->opacity,       target_t)) < 0 ||
                 (ret = set_vec3_value(s->data_ptrs.outline    + c * 4,     effect_opts->outline_color_node, effect_opts->outline_color, target_t)) < 0 ||

@@ -118,7 +118,7 @@ struct text_cls {
 /* Each field points to a contiguous data buffer (1 row per character) */
 struct text_data_pointers {
     // geometry
-    float *pos_size;     // vec4[]
+    float *vertices;     // vec4[]
     float *atlas_coords; // vec4[]
 
     // effects
