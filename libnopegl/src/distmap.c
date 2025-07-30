@@ -279,6 +279,7 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
     const struct bezier3 *bezier_y = ngli_darray_data(&s->bezier_y);
 
     const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
+    const struct shape *shapes = ngli_darray_data(&s->shapes);
 
     for (int32_t shape_id = 0; shape_id < nb_shapes; shape_id++) {
         const int32_t beziergroup_start_idx = get_beziergroup_start(s, shape_id);
@@ -287,12 +288,11 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
         const int32_t bezier_start_idx = sum_bezier_counts(s, 0, beziergroup_start_idx);
         const int32_t bezier_count     = sum_bezier_counts(s, beziergroup_start_idx, beziergroup_start_idx + beziergroup_count);
 
-        const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
-
         const struct ngli_aabb uv = ngli_distmap_get_shape_coords(s, shape_id);
         const float vertices[] = NGLI_VEC4_SCALE_ADD((const float *)&uv, 2.f, -1.f); // UV to NDC
 
         // Define the drawing area (including the padding)
+        const struct shape *shape = &shapes[shape_id];
         const float pad = (float)s->pad + .5f;
         const float coords_px[] = {-pad, -pad, (float)shape->width + pad, (float)shape->height + pad};
         const float coords[] = NGLI_VEC4_SCALE(coords_px, s->scale);
