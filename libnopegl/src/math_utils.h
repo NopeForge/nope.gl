@@ -57,6 +57,10 @@
 #define NGLI_VEC3_SCALE(v, s) {(v)[0] * (s), (v)[1] * (s), (v)[2] * (s)}
 #define NGLI_VEC4_SCALE(v, s) {(v)[0] * (s), (v)[1] * (s), (v)[2] * (s), (v)[3] * (s)}
 
+#define NGLI_VEC2_SCALE_ADD(v, s, a) {(v)[0] * (s) + (a), (v)[1] * (s) + (a)}
+#define NGLI_VEC3_SCALE_ADD(v, s, a) {(v)[0] * (s) + (a), (v)[1] * (s) + (a), (v)[2] * (s) + (a)}
+#define NGLI_VEC4_SCALE_ADD(v, s, a) {(v)[0] * (s) + (a), (v)[1] * (s) + (a), (v)[2] * (s) + (a), (v)[3] * (s) + (a)}
+
 #define NGLI_VEC2_NEG(v) {-(v)[0], -(v)[1]}
 #define NGLI_VEC3_NEG(v) {-(v)[0], -(v)[1], -(v)[2]}
 #define NGLI_VEC4_NEG(v) {-(v)[0], -(v)[1], -(v)[2], -(v)[3]}
