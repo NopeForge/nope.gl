@@ -170,7 +170,7 @@ static int drawpath_init(struct ngl_node *node)
     if (!s->distmap)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_distmap_init(s->distmap);
+    int ret = ngli_distmap_init(s->distmap, o->pt_size, o->dpi);
     if (ret < 0)
         return ret;
 

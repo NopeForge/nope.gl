@@ -151,7 +151,7 @@ static int atlas_create(struct text *text, struct text_builtin_atlas *atlas)
         goto end;
     }
 
-    ret = ngli_distmap_init(atlas->distmap);
+    ret = ngli_distmap_init(atlas->distmap, text->config.pt_size, text->config.dpi);
     if (ret < 0)
         goto end;
 

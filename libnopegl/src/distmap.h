@@ -35,7 +35,7 @@ struct distmap;
 
 struct distmap *ngli_distmap_create(struct ngl_ctx *ctx);
 
-int ngli_distmap_init(struct distmap *s);
+int ngli_distmap_init(struct distmap *s, int32_t pt_size, int32_t dpi);
 int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
                            const struct path *path, uint32_t flags, int32_t *shape_id);
 int ngli_distmap_finalize(struct distmap *s);
