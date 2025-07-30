@@ -502,6 +502,6 @@ vec4 get_color(vec2 p)
 
 void main()
 {
-    vec2 pos = mix(coords.xy, coords.zw, uv); // Remove the padding
+    vec2 pos = mix(coords.xy, coords.zw, uv);
     ngl_out_color = get_color(pos);
 }
