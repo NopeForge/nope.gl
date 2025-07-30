@@ -54,9 +54,11 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - The `libnopegl` headers are now located in the nopegl sub directory. Users
   must now use `#include <nopegl/nopegl.h>` instead of `#include <nopegl.h>`
 - All blur nodes now have a common `blurriness` parameter
-- Blur effect and outline width in text and path rendering are now twice smaller
 - The glow effect of the text and path is reworked; it notably lighten up the
   whole shape and emits less light
+- Path and Text effects such as glow, blur or outline have their scale reworked,
+  they may appear larger or smaller but they are now more stable when changing
+  the point size or DPI
 - Path rendering doesn't fill the shape with color anymore when the path is
   opened
 - Text outline is now by default on the outer edge, and thus doesn't affect the

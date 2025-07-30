@@ -771,7 +771,7 @@ static int text_external_set_string(struct text *text, const char *str, struct d
         ret = NGL_ERROR_MEMORY;
         goto end;
     }
-    ret = ngli_distmap_init(s->distmap);
+    ret = ngli_distmap_init(s->distmap, text->config.pt_size, text->config.dpi);
     if (ret < 0)
         goto end;
 

@@ -101,8 +101,10 @@ struct distmap *ngli_distmap_create(struct ngl_ctx *ctx)
     return s;
 }
 
-int ngli_distmap_init(struct distmap *s)
+int ngli_distmap_init(struct distmap *s, int32_t pt_size, int32_t dpi)
 {
+    // Make the distance scale resolution agnostic
+    s->scale = 72.f / (float)(pt_size * dpi);
     return 0;
 }
 
@@ -441,17 +443,6 @@ int ngli_distmap_finalize(struct distmap *s)
     const size_t nb_shapes = ngli_darray_count(&s->shapes);
     if (!nb_shapes)
         return 0;
-
-    /*
-     * Assuming the path points are all within the view box
-     * (0,0,max_shape_w,max_shape_h), the computed distance will never be larger
-     * than the following:
-     */
-    const float longest_distance = hypotf(
-        (float)(s->max_shape_w + s->pad) + .5f,
-        (float)(s->max_shape_h + s->pad) + .5f
-    );
-    s->scale = 1.f / (float)longest_distance;
 
     /*
      * Define texture dimension (mostly squared).
