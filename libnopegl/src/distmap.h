@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Clément Bœsch <u pkh.me>
+ * Copyright 2023-2025 Clément Bœsch <u pkh.me>
  * Copyright 2023 Nope Forge
  *
  * Licensed to the Apache Software Foundation (ASF) under one
