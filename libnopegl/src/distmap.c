@@ -126,6 +126,15 @@ static struct bezier3 b3_from_bezier3(float p0, float p1, float p2, float p3)
     return ret;
 }
 
+static struct bezier3 scaled_bezier(struct bezier3 bezier, float scale)
+{
+    bezier.p0 *= scale;
+    bezier.p1 *= scale;
+    bezier.p2 *= scale;
+    bezier.p3 *= scale;
+    return bezier;
+}
+
 int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
                            const struct path *path, uint32_t flags, int32_t *shape_id)
 {
@@ -165,6 +174,9 @@ int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
         default:
             ngli_assert(0);
         }
+
+        bezier_x = scaled_bezier(bezier_x, s->scale);
+        bezier_y = scaled_bezier(bezier_y, s->scale);
 
         if (!ngli_darray_push(&s->bezier_x, &bezier_x) ||
             !ngli_darray_push(&s->bezier_y, &bezier_y))
@@ -391,27 +403,6 @@ static void reset_tmp_data(struct distmap *s)
     ngpu_rendertarget_freep(&s->rt);
 }
 
-static struct bezier3 scaled_bezier(struct bezier3 bezier, float scale)
-{
-    bezier.p0 *= scale;
-    bezier.p1 *= scale;
-    bezier.p2 *= scale;
-    bezier.p3 *= scale;
-    return bezier;
-}
-
-static void normalize_coordinates(struct distmap *s)
-{
-    struct bezier3 *bezier_x = ngli_darray_data(&s->bezier_x);
-    struct bezier3 *bezier_y = ngli_darray_data(&s->bezier_y);
-    const size_t count = ngli_darray_count(&s->bezier_x);
-    ngli_assert(count == ngli_darray_count(&s->bezier_y));
-    for (size_t i = 0; i < count; i++) {
-        bezier_x[i] = scaled_bezier(bezier_x[i], s->scale);
-        bezier_y[i] = scaled_bezier(bezier_y[i], s->scale);
-    }
-}
-
 #define DISTMAP_FEATURES (NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |               \
                           NGPU_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | \
                           NGPU_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
@@ -466,13 +457,6 @@ int ngli_distmap_finalize(struct distmap *s)
      */
     s->max_shape_padded_w = s->max_shape_w + 2 * s->pad + 1;
     s->max_shape_padded_h = s->max_shape_h + 2 * s->pad + 1;
-
-    /*
-     * We normalize the coordinates with regards to the container shape so that
-     * distances are within [0,1] while remaining proportionnal against each
-     * others. This help making effects consistent accross all shapes.
-     */
-    normalize_coordinates(s);
 
     s->texture_w = s->max_shape_padded_w * s->nb_cols;
     s->texture_h = s->max_shape_padded_h * s->nb_rows;
