@@ -26,4 +26,8 @@ struct ngli_box {
     float x, y, w, h;
 };
 
+struct ngli_aabb {
+    float x0, y0, x1, y1;
+};
+
 #endif /* BOX_H */
