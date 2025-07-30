@@ -65,7 +65,7 @@ struct pipeline_desc_bg {
 
 struct pipeline_desc_fg {
     struct pipeline_desc_common common;
-    int32_t transform_index;
+    int32_t vertices_index;
     int32_t atlas_coords_index;
     int32_t user_transform_index;
     int32_t color_index;
@@ -104,7 +104,7 @@ struct text_opts {
 struct text_priv {
     /* characters */
     struct text *text_ctx;
-    struct ngpu_buffer *transforms;
+    struct ngpu_buffer *vertices;
     struct ngpu_buffer *atlas_coords;
     struct ngpu_buffer *user_transforms;
     struct ngpu_buffer *colors;
@@ -226,7 +226,7 @@ static const struct node_param text_params[] = {
 
 static void destroy_characters_resources(struct text_priv *s)
 {
-    ngpu_buffer_freep(&s->transforms);
+    ngpu_buffer_freep(&s->vertices);
     ngpu_buffer_freep(&s->atlas_coords);
     ngpu_buffer_freep(&s->user_transforms);
     ngpu_buffer_freep(&s->colors);
@@ -255,9 +255,9 @@ static int refresh_pipeline_data(struct ngl_node *node)
         destroy_characters_resources(s);
 
         /* The content of these buffers will remain constant until the next text content update */
-        s->transforms   = ngpu_buffer_create(gpu_ctx);
+        s->vertices     = ngpu_buffer_create(gpu_ctx);
         s->atlas_coords = ngpu_buffer_create(gpu_ctx);
-        if (!s->transforms || !s->atlas_coords)
+        if (!s->vertices || !s->atlas_coords)
             return NGL_ERROR_MEMORY;
 
         /* The content of these buffers will be updated later using the effects data (see apply_effects()) */
@@ -270,7 +270,7 @@ static int refresh_pipeline_data(struct ngl_node *node)
         if (!s->user_transforms || !s->colors || !s->outlines || !s->glows  || !s->blurs || !s->outline_positions)
             return NGL_ERROR_MEMORY;
 
-        if ((ret = ngpu_buffer_init(s->transforms, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+        if ((ret = ngpu_buffer_init(s->vertices, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngpu_buffer_init(s->atlas_coords, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngpu_buffer_init(s->user_transforms, text_nbchr * 4 * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngpu_buffer_init(s->colors, text_nbchr * 4 * sizeof(float), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
@@ -285,7 +285,7 @@ static int refresh_pipeline_data(struct ngl_node *node)
             struct pipeline_desc_fg *desc_fg = &descs[i].fg;
             struct pipeline_desc_common *desc = &desc_fg->common;
 
-            ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->transform_index,      s->transforms);
+            ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->vertices_index,       s->vertices);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->atlas_coords_index,   s->atlas_coords);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->user_transform_index, s->user_transforms);
             ngli_pipeline_compat_update_vertex_buffer(desc->pipeline_compat, desc_fg->color_index,          s->colors);
@@ -307,7 +307,7 @@ static int refresh_pipeline_data(struct ngl_node *node)
         }
     }
 
-    if ((ret = ngpu_buffer_upload(s->transforms, text->data_ptrs.pos_size, 0, text_nbchr * 4 * sizeof(float))) < 0 ||
+    if ((ret = ngpu_buffer_upload(s->vertices,     text->data_ptrs.vertices,     0, text_nbchr * 4 * sizeof(float))) < 0 ||
         (ret = ngpu_buffer_upload(s->atlas_coords, text->data_ptrs.atlas_coords, 0, text_nbchr * 4 * sizeof(float))) < 0)
         return ret;
 
@@ -545,11 +545,11 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
 
     const struct ngpu_pgcraft_attribute attributes[] = {
         {
-            .name     = "transform",
+            .name     = "vertices",
             .type     = NGPU_TYPE_VEC4,
             .format   = NGPU_FORMAT_R32G32B32A32_SFLOAT,
             .stride   = 4 * sizeof(float),
-            .buffer   = s->transforms,
+            .buffer   = s->vertices,
             .rate     = 1,
         }, {
             .name     = "atlas_coords",
@@ -639,7 +639,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_desc_fg *desc)
     if (ret < 0)
         return ret;
 
-    desc->transform_index      = ngpu_pgcraft_get_vertex_buffer_index(desc->common.crafter, "transform");
+    desc->vertices_index       = ngpu_pgcraft_get_vertex_buffer_index(desc->common.crafter, "vertices");
     desc->atlas_coords_index   = ngpu_pgcraft_get_vertex_buffer_index(desc->common.crafter, "atlas_coords");
     desc->user_transform_index = ngpu_pgcraft_get_vertex_buffer_index(desc->common.crafter, "user_transform");
     desc->color_index          = ngpu_pgcraft_get_vertex_buffer_index(desc->common.crafter, "frag_color");
