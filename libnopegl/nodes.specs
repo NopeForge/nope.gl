@@ -2366,7 +2366,7 @@
         {
           "name": "outline",
           "type": "f32",
-          "default": 0.010000,
+          "default": 0.020000,
           "flags": ["live", "node"],
           "desc": "path outline width"
         },
