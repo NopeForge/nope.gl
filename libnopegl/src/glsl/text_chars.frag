@@ -1,4 +1,5 @@
 /*
+ * Copyright 2025 Clément Bœsch <u pkh.me>
  * Copyright 2023 Nope Forge
  * Copyright 2019-2022 GoPro Inc.
  *
