@@ -313,21 +313,7 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
             const float uv[] = {x0, y0, x1, y1};
             const float vertices[] = NGLI_VEC4_SCALE_ADD(uv, 2.f, -1.f); // UV to NDC
 
-            /*
-             * Given p for padding and m for pixel width or height, we have:
-             * x₀ = p      (start of the shape, in pixels, without padding)
-             * x₁ = p + m  (end of the shape, in pixels, without padding)
-             *
-             * If we consider 0 to be the start of the padded shape, and 1 its
-             * width or height (basically the UV of the geometry), we can
-             * identify the boundaries of the shape without padding:
-             *
-             * start = linear(x₀,x₁,0)    = -p/m
-             * end   = linear(x₀,x₁,m+2p) = 1+p/m
-             *
-             * The +0.5 is used to take into account the extra texel used for
-             * safe picking.
-             */
+            // Define the drawing area (including the padding)
             const float pad = (float)s->pad + .5f;
             const float coords_px[] = {-pad, -pad, (float)shape->width + pad, (float)shape->height + pad};
             const float coords[] = NGLI_VEC4_SCALE(coords_px, s->scale);
