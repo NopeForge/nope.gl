@@ -265,7 +265,6 @@ enum {
 
 enum {
     COORDS_INDEX,
-    SCALE_INDEX,
     BEZIER_X_BUF_INDEX,
     BEZIER_Y_BUF_INDEX,
     BEZIER_COUNTS_INDEX,
@@ -329,11 +328,9 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
              * The +0.5 is used to take into account the extra texel used for
              * safe picking.
              */
-            const float pad_w = ((float)s->pad + .5f) / (float)shape->width;
-            const float pad_h = ((float)s->pad + .5f) / (float)shape->height;
-            const float coords[] = {-pad_w, -pad_h, 1.f + pad_w, 1.f + pad_h};
-
-            const float scale[] = {(float)shape->width * s->scale, (float)shape->height * s->scale};
+            const float pad = (float)s->pad + .5f;
+            const float coords_px[] = {-pad, -pad, (float)shape->width + pad, (float)shape->height + pad};
+            const float coords[] = NGLI_VEC4_SCALE(coords_px, s->scale);
 
             const struct ngpu_block_field_data vert_data_src[] = {
                 [VERTICES_INDEX] = {.data=vertices},
@@ -341,7 +338,6 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
 
             const struct ngpu_block_field_data frag_data_src[] = {
                 [COORDS_INDEX]            = {.data = coords},
-                [SCALE_INDEX]             = {.data = scale},
                 [BEZIER_X_BUF_INDEX]      = {.data = bezier_x + bezier_start_idx, .count = (size_t)bezier_count},
                 [BEZIER_Y_BUF_INDEX]      = {.data = bezier_y + bezier_start_idx, .count = (size_t)bezier_count},
                 [BEZIER_COUNTS_INDEX]     = {.data = bezier_counts + beziergroup_start_idx, .count = (size_t)beziergroup_count},
@@ -581,7 +577,6 @@ int ngli_distmap_finalize(struct distmap *s)
 
     const struct ngpu_block_field frag_fields[] = {
         [COORDS_INDEX]            = {.name="coords",            .type=NGPU_TYPE_VEC4},
-        [SCALE_INDEX]             = {.name="scale",             .type=NGPU_TYPE_VEC2},
         [BEZIER_X_BUF_INDEX]      = {.name="bezier_x_buf",      .type=NGPU_TYPE_VEC4, .count=(size_t)bezier_max_count},
         [BEZIER_Y_BUF_INDEX]      = {.name="bezier_y_buf",      .type=NGPU_TYPE_VEC4, .count=(size_t)bezier_max_count},
         [BEZIER_COUNTS_INDEX]     = {.name="bezier_counts",     .type=NGPU_TYPE_I32,  .count=(size_t)beziergroup_max_count},
