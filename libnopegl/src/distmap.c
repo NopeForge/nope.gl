@@ -278,9 +278,6 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
     const struct bezier3 *bezier_x = ngli_darray_data(&s->bezier_x);
     const struct bezier3 *bezier_y = ngli_darray_data(&s->bezier_y);
 
-    const float qw = 1.f / (float)s->nb_cols;
-    const float qh = 1.f / (float)s->nb_rows;
-
     const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
     int32_t shape_id = 0;
 
@@ -297,21 +294,8 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
 
             const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
 
-            /*
-             * Defines the quad coordinates of the atlas into which the glyph
-             * distance must be drawn. The geometry respects the proportions of
-             * the shape and is located on a grid of cells of the maximum size.
-             */
-            const int32_t padded_w = 2*s->pad + shape->width + 1;
-            const int32_t padded_h = 2*s->pad + shape->height + 1;
-            const float xr = (float)padded_w / (float)s->max_shape_padded_w;
-            const float yr = (float)padded_h / (float)s->max_shape_padded_h;
-            const float x0 = (float)x * qw;
-            const float y0 = (float)y * qh;
-            const float x1 = x0 + qw * xr;
-            const float y1 = y0 + qh * yr;
-            const float uv[] = {x0, y0, x1, y1};
-            const float vertices[] = NGLI_VEC4_SCALE_ADD(uv, 2.f, -1.f); // UV to NDC
+            const struct ngli_aabb uv = ngli_distmap_get_shape_coords(s, shape_id);
+            const float vertices[] = NGLI_VEC4_SCALE_ADD((const float *)&uv, 2.f, -1.f); // UV to NDC
 
             // Define the drawing area (including the padding)
             const float pad = (float)s->pad + .5f;
