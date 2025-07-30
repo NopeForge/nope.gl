@@ -311,7 +311,8 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
             const float y0 = (float)y * qh;
             const float x1 = x0 + qw * xr;
             const float y1 = y0 + qh * yr;
-            const float vertices[] = {x0, y0, x1, y1};
+            const float uv[] = {x0, y0, x1, y1};
+            const float vertices[] = NGLI_VEC4_SCALE_ADD(uv, 2.f, -1.f); // UV to NDC
 
             /*
              * Given p for padding and m for pixel width or height, we have:
