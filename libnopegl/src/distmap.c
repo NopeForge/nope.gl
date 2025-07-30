@@ -684,6 +684,7 @@ void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, in
     memcpy(dst, coords, sizeof(coords));
 }
 
+// How much a shape geometry needs to be scaled up to include all the padding
 void ngli_distmap_get_shape_scale(const struct distmap *s, int32_t shape_id, float *dst)
 {
     const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
