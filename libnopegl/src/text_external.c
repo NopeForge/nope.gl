@@ -737,7 +737,7 @@ static int register_chars(struct text *text, const char *str, struct darray *cha
                 chr.y = y_cur + glyph->bearing_y + pos->y_offset;
                 chr.w = glyph->width;
                 chr.h = glyph->height;
-                ngli_distmap_get_shape_coords(s->distmap, glyph->shape_id, chr.atlas_coords);
+                chr.atlas_coords = ngli_distmap_get_shape_coords(s->distmap, glyph->shape_id);
                 ngli_distmap_get_shape_scale(s->distmap, glyph->shape_id, chr.scale);
             }
 

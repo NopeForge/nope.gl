@@ -235,7 +235,7 @@ static void set_geometry_data(struct text *s, struct text_data_pointers ptrs)
     /* register atlas identifier */
     for (size_t n = 0; n < ngli_darray_count(&s->chars); n++) {
         const struct char_info *chr = &chars[n];
-        memcpy(ptrs.atlas_coords + 4 * n, chr->atlas_coords, sizeof(chr->atlas_coords));
+        memcpy(ptrs.atlas_coords + 4 * n, (const float *)&chr->atlas_coords, sizeof(chr->atlas_coords));
     }
 }
 
@@ -624,12 +624,7 @@ int ngli_text_set_string(struct text *s, const char *str)
                 .x1 = geom.x1 / (float)s->width,
                 .y1 = geom.y1 / (float)s->height,
             },
-            .atlas_coords = {
-                (float)chr_internal->atlas_coords[0] / (float)s->atlas_texture->params.width,
-                (float)chr_internal->atlas_coords[1] / (float)s->atlas_texture->params.height,
-                (float)chr_internal->atlas_coords[2] / (float)s->atlas_texture->params.width,
-                (float)chr_internal->atlas_coords[3] / (float)s->atlas_texture->params.height,
-            },
+            .atlas_coords = chr_internal->atlas_coords,
             .real_dim  = {w / (float)s->width, h / (float)s->height},
         };
 

@@ -308,8 +308,6 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
         }
 
         const int32_t atlas_id = s->atlas->char_map[(uint8_t)str[i]];
-        int32_t atlas_coords[4];
-        ngli_distmap_get_shape_coords(s->atlas->distmap, atlas_id, atlas_coords);
 
         float scale[2];
         ngli_distmap_get_shape_scale(s->atlas->distmap, atlas_id, scale);
@@ -319,7 +317,7 @@ static int text_builtin_set_string(struct text *text, const char *str, struct da
             .y = NGLI_I32_TO_I26D6(s->chr_h * (text_rows - row - 1)),
             .w = NGLI_I32_TO_I26D6(s->chr_w),
             .h = NGLI_I32_TO_I26D6(s->chr_h),
-            .atlas_coords = {NGLI_ARG_VEC4(atlas_coords)},
+            .atlas_coords = ngli_distmap_get_shape_coords(s->atlas->distmap, atlas_id),
             .scale = {NGLI_ARG_VEC2(scale)},
             .tags = NGLI_TEXT_CHAR_TAG_GLYPH,
         };

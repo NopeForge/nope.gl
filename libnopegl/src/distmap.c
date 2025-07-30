@@ -671,7 +671,8 @@ struct ngpu_texture *ngli_distmap_get_texture(const struct distmap *s)
     return s->texture;
 }
 
-void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, int32_t *dst)
+// Return shape coordinates within atlas, in UV space
+struct ngli_aabb ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id)
 {
     const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
     const int32_t col = shape_id % s->nb_cols;
@@ -680,8 +681,9 @@ void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, in
     const int32_t y0 = row * s->max_shape_padded_h;
     const int32_t x1 = x0 + 2*s->pad + shape->width + 1;
     const int32_t y1 = y0 + 2*s->pad + shape->height + 1;
-    const int32_t coords[] = {x0, y0, x1, y1};
-    memcpy(dst, coords, sizeof(coords));
+    const float tw = (float)s->texture_w, th = (float)s->texture_h;
+    struct ngli_aabb r = {(float)x0 / tw, (float)y0 / th, (float)x1 / tw, (float)y1 / th};
+    return r;
 }
 
 // How much a shape geometry needs to be scaled up to include all the padding
