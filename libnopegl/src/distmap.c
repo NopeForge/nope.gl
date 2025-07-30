@@ -279,48 +279,40 @@ static void load_buffers_data(struct distmap *s, uint8_t *vert_data, uint8_t *fr
     const struct bezier3 *bezier_y = ngli_darray_data(&s->bezier_y);
 
     const int32_t nb_shapes = (int32_t)ngli_darray_count(&s->shapes);
-    int32_t shape_id = 0;
 
-    for (int32_t y = 0; y < s->nb_rows; y++) {
-        for (int32_t x = 0; x < s->nb_cols; x++) {
-            if (shape_id == nb_shapes)
-                return;
+    for (int32_t shape_id = 0; shape_id < nb_shapes; shape_id++) {
+        const int32_t beziergroup_start_idx = get_beziergroup_start(s, shape_id);
+        const int32_t beziergroup_count     = beziergroup_counts[shape_id];
 
-            const int32_t beziergroup_start_idx = get_beziergroup_start(s, shape_id);
-            const int32_t beziergroup_count     = beziergroup_counts[shape_id];
+        const int32_t bezier_start_idx = sum_bezier_counts(s, 0, beziergroup_start_idx);
+        const int32_t bezier_count     = sum_bezier_counts(s, beziergroup_start_idx, beziergroup_start_idx + beziergroup_count);
 
-            const int32_t bezier_start_idx = sum_bezier_counts(s, 0, beziergroup_start_idx);
-            const int32_t bezier_count     = sum_bezier_counts(s, beziergroup_start_idx, beziergroup_start_idx + beziergroup_count);
+        const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
 
-            const struct shape *shape = ngli_darray_get(&s->shapes, (size_t)shape_id);
+        const struct ngli_aabb uv = ngli_distmap_get_shape_coords(s, shape_id);
+        const float vertices[] = NGLI_VEC4_SCALE_ADD((const float *)&uv, 2.f, -1.f); // UV to NDC
 
-            const struct ngli_aabb uv = ngli_distmap_get_shape_coords(s, shape_id);
-            const float vertices[] = NGLI_VEC4_SCALE_ADD((const float *)&uv, 2.f, -1.f); // UV to NDC
+        // Define the drawing area (including the padding)
+        const float pad = (float)s->pad + .5f;
+        const float coords_px[] = {-pad, -pad, (float)shape->width + pad, (float)shape->height + pad};
+        const float coords[] = NGLI_VEC4_SCALE(coords_px, s->scale);
 
-            // Define the drawing area (including the padding)
-            const float pad = (float)s->pad + .5f;
-            const float coords_px[] = {-pad, -pad, (float)shape->width + pad, (float)shape->height + pad};
-            const float coords[] = NGLI_VEC4_SCALE(coords_px, s->scale);
+        const struct ngpu_block_field_data vert_data_src[] = {
+            [VERTICES_INDEX] = {.data=vertices},
+        };
 
-            const struct ngpu_block_field_data vert_data_src[] = {
-                [VERTICES_INDEX] = {.data=vertices},
-            };
+        const struct ngpu_block_field_data frag_data_src[] = {
+            [COORDS_INDEX]            = {.data = coords},
+            [BEZIER_X_BUF_INDEX]      = {.data = bezier_x + bezier_start_idx, .count = (size_t)bezier_count},
+            [BEZIER_Y_BUF_INDEX]      = {.data = bezier_y + bezier_start_idx, .count = (size_t)bezier_count},
+            [BEZIER_COUNTS_INDEX]     = {.data = bezier_counts + beziergroup_start_idx, .count = (size_t)beziergroup_count},
+            [BEZIERGROUP_COUNT_INDEX] = {.data = &beziergroup_count},
+        };
 
-            const struct ngpu_block_field_data frag_data_src[] = {
-                [COORDS_INDEX]            = {.data = coords},
-                [BEZIER_X_BUF_INDEX]      = {.data = bezier_x + bezier_start_idx, .count = (size_t)bezier_count},
-                [BEZIER_Y_BUF_INDEX]      = {.data = bezier_y + bezier_start_idx, .count = (size_t)bezier_count},
-                [BEZIER_COUNTS_INDEX]     = {.data = bezier_counts + beziergroup_start_idx, .count = (size_t)beziergroup_count},
-                [BEZIERGROUP_COUNT_INDEX] = {.data = &beziergroup_count},
-            };
-
-            ngpu_block_desc_fields_copy(&s->vert_block, vert_data_src, vert_data);
-            vert_data += s->vert_offset;
-            ngpu_block_desc_fields_copy(&s->frag_block, frag_data_src, frag_data);
-            frag_data += s->frag_offset;
-
-            shape_id++;
-        }
+        ngpu_block_desc_fields_copy(&s->vert_block, vert_data_src, vert_data);
+        vert_data += s->vert_offset;
+        ngpu_block_desc_fields_copy(&s->frag_block, frag_data_src, frag_data);
+        frag_data += s->frag_offset;
     }
 }
 
