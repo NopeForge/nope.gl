@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 #include "path.h"
+#include "box.h"
 
 #define NGLI_DISTMAP_FLAG_PATH_AUTO_CLOSE (1 << 0) // Consider all sub-paths to be closed
 
@@ -40,7 +41,7 @@ int ngli_distmap_add_shape(struct distmap *s, int32_t shape_w, int32_t shape_h,
 int ngli_distmap_finalize(struct distmap *s);
 
 struct ngpu_texture *ngli_distmap_get_texture(const struct distmap *s);
-void ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id, int32_t *dst);
+struct ngli_aabb ngli_distmap_get_shape_coords(const struct distmap *s, int32_t shape_id);
 void ngli_distmap_get_shape_scale(const struct distmap *s, int32_t shape_id, float *dst);
 
 void ngli_distmap_freep(struct distmap **sp);

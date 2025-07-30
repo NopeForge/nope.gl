@@ -67,7 +67,7 @@ enum {
 /* Exposed by text drivers  */
 struct char_info_internal {
     int32_t x, y, w, h; // pixels canvas coordinates encoded in 26.6 fixed point
-    int32_t atlas_coords[4]; // pixel atlas coordinates
+    struct ngli_aabb atlas_coords; // atlas coordinates
     float scale[2]; // geometry scaling factors
     uint32_t tags; // combination of NGLI_TEXT_CHAR_TAG_*
 };
@@ -75,7 +75,7 @@ struct char_info_internal {
 /* Exposed by the text API */
 struct char_info {
     struct ngli_aabb geom;  // vertices
-    float atlas_coords[4];  // texture position
+    struct ngli_aabb atlas_coords; // texture position
     float real_dim[2];      // real dimension (without distance field padding)
 };
 

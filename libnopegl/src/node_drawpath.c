@@ -77,7 +77,7 @@ struct drawpath_opts {
 };
 
 struct drawpath_priv {
-    int32_t atlas_coords[4];
+    struct ngli_aabb atlas_coords;
     float vertices[4];
     struct distmap *distmap;
     struct path *path;
@@ -218,7 +218,7 @@ static int drawpath_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ngli_distmap_get_shape_coords(s->distmap, shape_id, s->atlas_coords);
+    s->atlas_coords = ngli_distmap_get_shape_coords(s->distmap, shape_id);
 
     float scale[2];
     ngli_distmap_get_shape_scale(s->distmap, shape_id, scale);
@@ -364,15 +364,7 @@ static void drawpath_draw(struct ngl_node *node)
     ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->projection_matrix_index, projection_matrix);
     ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->vertices_index, s->vertices);
 
-    const struct ngpu_texture *texture = ngli_distmap_get_texture(s->distmap);
-    const float atlas_coords[] = {
-        (float)s->atlas_coords[0] / (float)texture->params.width,
-        (float)s->atlas_coords[1] / (float)texture->params.height,
-        (float)s->atlas_coords[2] / (float)texture->params.width,
-        (float)s->atlas_coords[3] / (float)texture->params.height,
-    };
-
-    ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->coords_index, atlas_coords);
+    ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->coords_index, (const float *)&s->atlas_coords);
 
     const struct uniform_map *map = ngli_darray_data(&s->uniforms_map);
     for (size_t i = 0; i < ngli_darray_count(&s->uniforms_map); i++)
