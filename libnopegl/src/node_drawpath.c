@@ -78,7 +78,7 @@ struct drawpath_opts {
 
 struct drawpath_priv {
     int32_t atlas_coords[4];
-    float transform[4];
+    float vertices[4];
     struct distmap *distmap;
     struct path *path;
     struct darray uniforms_map; // struct uniform_map
@@ -86,7 +86,7 @@ struct drawpath_priv {
     struct ngpu_pgcraft *crafter;
     int modelview_matrix_index;
     int projection_matrix_index;
-    int transform_index;
+    int vertices_index;
     int coords_index;
     struct darray pipeline_descs;
 };
@@ -227,15 +227,15 @@ static int drawpath_init(struct ngl_node *node)
     const struct ngli_box box = {NGLI_ARG_VEC4(o->box)};
     const float nw = box.w * scale[0];
     const float nh = box.h * scale[1];
-    const float offx = (box.w - nw) / 2.f;
-    const float offy = (box.h - nh) / 2.f;
-    const float ref[] = {box.x + offx, box.y + offy, nw, nh};
-    memcpy(s->transform, ref, sizeof(s->transform));
+    const float bx = box.x + (box.w - nw) / 2.f;
+    const float by = box.y + (box.h - nh) / 2.f;
+    const float vertices[] = {bx, by, bx + nw, by + nh};
+    memcpy(s->vertices, vertices, sizeof(s->vertices));
 
     const struct ngpu_pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_STAGE_VERT},
         {.name="projection_matrix", .type=NGPU_TYPE_MAT4,  .stage=NGPU_PROGRAM_STAGE_VERT},
-        {.name="transform",         .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_VERT},
+        {.name="vertices",          .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_VERT},
 
         {.name="debug",             .type=NGPU_TYPE_BOOL,  .stage=NGPU_PROGRAM_STAGE_FRAG},
         {.name="coords",            .type=NGPU_TYPE_VEC4,  .stage=NGPU_PROGRAM_STAGE_FRAG},
@@ -296,7 +296,7 @@ static int drawpath_init(struct ngl_node *node)
 
     s->modelview_matrix_index  = ngpu_pgcraft_get_uniform_index(s->crafter, "modelview_matrix", NGPU_PROGRAM_STAGE_VERT);
     s->projection_matrix_index = ngpu_pgcraft_get_uniform_index(s->crafter, "projection_matrix", NGPU_PROGRAM_STAGE_VERT);
-    s->transform_index         = ngpu_pgcraft_get_uniform_index(s->crafter, "transform", NGPU_PROGRAM_STAGE_VERT);
+    s->vertices_index          = ngpu_pgcraft_get_uniform_index(s->crafter, "vertices", NGPU_PROGRAM_STAGE_VERT);
     s->coords_index            = ngpu_pgcraft_get_uniform_index(s->crafter, "coords", NGPU_PROGRAM_STAGE_FRAG);
 
     ret = build_uniforms_map(s);
@@ -362,7 +362,7 @@ static void drawpath_draw(struct ngl_node *node)
 
     ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->projection_matrix_index, projection_matrix);
-    ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->transform_index, s->transform);
+    ngli_pipeline_compat_update_uniform(desc->pipeline_compat, s->vertices_index, s->vertices);
 
     const struct ngpu_texture *texture = ngli_distmap_get_texture(s->distmap);
     const float atlas_coords[] = {
