@@ -25,7 +25,7 @@ const vec2 uvs[] = vec2[](vec2(0.0, 0.0), vec2(0.0, 2.0), vec2(2.0, 0.0));
 void main()
 {
     vec2 ref_uv = uvs[ngl_vertex_index];
-    vec2 out_pos = mix(vertices.xy, vertices.zw, ref_uv);
-    ngl_out_pos = vec4(out_pos, 0.0, 1.0);
+    vec2 position = mix(vertices.xy, vertices.zw, ref_uv);
+    ngl_out_pos = vec4(position, 0.0, 1.0);
     uv = ref_uv;
 }
