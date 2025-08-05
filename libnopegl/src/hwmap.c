@@ -240,11 +240,15 @@ int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct im
         LOG(DEBUG, "mapping texture '%s' with method: %s", hwmap->params.label, hwmap_class->name);
     }
 
+    // Access frame properties prior to map_frame() call as it may take ownership of the frame
+    const float ts = (float)frame->ts;
+    const int color_trc = frame->color_trc;
+
     int ret = hwmap->hwmap_class->map_frame(hwmap, frame);
     if (ret < 0)
         goto end;
 
-    if (is_hdr(frame->color_trc))
+    if (is_hdr(color_trc))
         hwmap->require_hwconv = true;
 
     if (hwmap->require_hwconv) {
@@ -263,7 +267,7 @@ int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct im
     }
 
 end:
-    image->ts = (float)frame->ts;
+    image->ts = ts;
 
     if (!(hwmap->hwmap_class->flags &  HWMAP_FLAG_FRAME_OWNER))
         nmd_frame_releasep(&frame);
