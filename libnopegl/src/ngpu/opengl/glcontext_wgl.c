@@ -33,6 +33,10 @@
 #include "nopegl.h"
 #include "log.h"
 
+#define WGL_COLORSPACE_EXT 0x309D
+#define WGL_COLORSPACE_SRGB_EXT 0x3089
+#define WGL_COLORSPACE_LINEAR_EXT 0x308A
+
 struct wgl_priv {
     HWND window;
     HDC device_context;
@@ -42,6 +46,7 @@ struct wgl_priv {
     PFNWGLCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB;
     PFNWGLGETEXTENSIONSSTRINGARBPROC GetExtensionsStringARB;
     PFNWGLSWAPINTERVALEXTPROC SwapIntervalEXT;
+    int has_colorspace_ext;
 };
 
 static int wgl_init_extensions(struct glcontext *ctx)
@@ -122,6 +127,11 @@ static int wgl_init_extensions(struct glcontext *ctx)
     if (!wgl->SwapIntervalEXT)
         LOG(WARNING, "context does not support any swap interval extension (%lu)", GetLastError());
 
+    const char *extensions_string = wgl->GetExtensionsStringARB(device_context);
+    if (ngli_glcontext_check_extension("WGL_EXT_colorspace", extensions_string)) {
+        wgl->has_colorspace_ext = 1;
+    }
+
     ret = 0;
 
 done:
@@ -166,6 +176,9 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         return NGL_ERROR_EXTERNAL;
     }
 
+    const int colorspace_attr = wgl->has_colorspace_ext ? WGL_COLORSPACE_EXT : 0;
+    const int colorspace_value = wgl->has_colorspace_ext ? WGL_COLORSPACE_LINEAR_EXT : 0;
+
     const int pixel_format_attributes[] = {
         WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
         WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
@@ -181,6 +194,7 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
         WGL_SAMPLE_BUFFERS_ARB, ctx->offscreen ? 0 : (ctx->samples > 0),
         WGL_SAMPLES_ARB, ctx->offscreen ? 0 : (int)ctx->samples,
+        colorspace_attr, colorspace_value,
         0
     };
 
