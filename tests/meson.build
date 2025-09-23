@@ -316,6 +316,7 @@ foreach backend : backends
     'clear_attachment_with_timeranges',
     'resizable_with_timeranges',
     'resizable_with_timeranges_implicit',
+    'srgb',
   ]
 
   if max_samples >= 4

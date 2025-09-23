@@ -26,6 +26,7 @@ import pynopegl as ngl
 from pynopegl_utils.misc import get_shader
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.tests.cuepoints_utils import get_grid_points, get_points_nodes
 from pynopegl_utils.toolbox.colors import COLORS
 
 
@@ -425,5 +426,30 @@ def rtt_resizable_with_timeranges_implicit(cfg: ngl.SceneCfg):
     time_range_filter2 = ngl.TimeRangeFilter(draw, start=5)
 
     group = ngl.Group(children=[time_range_filter1, time_range_filter2])
+
+    return group
+
+
+@test_cuepoints(width=32, height=32, points=get_grid_points(8, 1), tolerance=1)
+@ngl.scene(controls=dict(show_dbg_points=ngl.scene.Bool()))
+def rtt_srgb(cfg: ngl.SceneCfg, show_dbg_points=False):
+    cfg.aspect_ratio = (1, 1)
+    cfg.duration = 1
+
+    gradient = ngl.DrawGradient(
+        color0=(0, 0, 0),
+        color1=(1, 1, 1),
+    )
+    texture = ngl.Texture2D(
+        format="r8g8b8a8_srgb",
+        width=32,
+        height=32,
+        data_src=gradient,
+    )
+    group = ngl.Group(children=[ngl.DrawTexture(texture)])
+
+    if show_dbg_points:
+        cuepoints = get_grid_points(8, 1)
+        group.add_children(get_points_nodes(cfg, cuepoints))
 
     return group
