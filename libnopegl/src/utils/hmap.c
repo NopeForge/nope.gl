@@ -269,16 +269,9 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
     if (hm->count * 3 / 4 >= hm->size) {
         struct hmap old_hm = *hm;
 
-#if HAVE_BUILTIN_OVERFLOW
         size_t new_size;
-        if (__builtin_mul_overflow(hm->size, 2, &new_size))
+        if (NGLI_CHK_MUL(&new_size, hm->size, 2))
             return NGL_ERROR_LIMIT_EXCEEDED;
-#else
-        /* Also includes the realloc overflow check */
-        if (hm->size >= 1ULL << (sizeof(hm->size)*8 - 2))
-            return NGL_ERROR_LIMIT_EXCEEDED;
-        size_t new_size = hm->size * 2;
-#endif
 
         struct bucket *new_buckets = ngli_calloc(new_size, sizeof(*new_buckets));
         if (new_buckets) {
