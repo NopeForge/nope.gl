@@ -35,14 +35,6 @@ struct bucket {
     size_t nb_entries;
 };
 
-struct key_funcs {
-    uint32_t (*hash)(union hmap_key x);             // mixing/hashing of a key
-    int (*cmp)(union hmap_key a, union hmap_key b); // compare 2 keys (0 if identical)
-    union hmap_key (*dup)(union hmap_key x);        // create a copy of the key
-    int (*check)(union hmap_key x);                 // check whether the key is valid or not
-    void (*free)(union hmap_key x);                 // free a key
-};
-
 struct hmap {
     struct bucket *buckets;
     size_t size;
@@ -53,7 +45,7 @@ struct hmap {
     struct hmap_ref first;
     struct hmap_ref last;
     enum hmap_type type;
-    struct key_funcs key_funcs;
+    struct hmap_key_funcs key_funcs;
 };
 
 void ngli_hmap_set_free_func(struct hmap *hm, ngli_user_free_func_type user_free_func, void *user_arg)
@@ -81,7 +73,7 @@ static int key_check_u64(union hmap_key x) { return 1; }
 static void key_free_str(union hmap_key x) { ngli_free(x.str); }
 static void key_free_u64(union hmap_key x) { }
 
-static const struct key_funcs key_funcs_map[] = {
+static const struct hmap_key_funcs key_funcs_map[] = {
     [NGLI_HMAP_TYPE_STR] = {key_hash_str, key_cmp_str, key_dup_str, key_check_str, key_free_str},
     [NGLI_HMAP_TYPE_U64] = {key_hash_u64, key_cmp_u64, key_dup_u64, key_check_u64, key_free_u64},
 };

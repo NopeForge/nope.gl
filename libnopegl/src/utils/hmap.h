@@ -45,6 +45,14 @@ union hmap_key {
     uint8_t u8_8[8];
 };
 
+struct hmap_key_funcs {
+    uint32_t (*hash)(union hmap_key x);             // mixing/hashing of a key
+    int (*cmp)(union hmap_key a, union hmap_key b); // compare 2 keys (0 if identical)
+    union hmap_key (*dup)(union hmap_key x);        // create a copy of the key
+    int (*check)(union hmap_key x);                 // check whether the key is valid or not
+    void (*free)(union hmap_key x);                 // free a key
+};
+
 struct hmap_entry {
     union hmap_key key;
     void *data;
