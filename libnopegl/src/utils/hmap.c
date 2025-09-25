@@ -201,6 +201,45 @@ static int add_entry(struct hmap *hm, struct bucket *b, union hmap_key key, void
     return 0;
 }
 
+static int delete_entry(struct hmap *hm, union hmap_key key, struct bucket *b)
+{
+    for (size_t i = 0; i < b->nb_entries; i++) {
+        struct hmap_entry *e = &b->entries[i];
+        if (!hm->key_funcs.cmp(e->key, key)) {
+
+            /* Link previous and next entries together */
+            struct hmap_entry *prev = entry_from_ref(hm, e->prev);
+            struct hmap_entry *next = entry_from_ref(hm, e->next);
+            struct hmap_ref *link_from_back  = prev ? &prev->next : &hm->first;
+            struct hmap_ref *link_from_front = next ? &next->prev : &hm->last;
+            *link_from_back = e->next;
+            *link_from_front = e->prev;
+
+            /* Keep a reference pre-remove for fixing the refs later */
+            const struct hmap_ref removed = ref_from_entry(hm, e);
+
+            hm->key_funcs.free(e->key);
+            if (hm->user_free_func)
+                hm->user_free_func(hm->user_arg, e->data);
+            hm->count--;
+            b->nb_entries--;
+            if (!b->nb_entries) {
+                ngli_freep(&b->entries);
+            } else {
+                memmove(e, e + 1, (b->nb_entries - i) * sizeof(*b->entries));
+                struct hmap_entry *entries =
+                    ngli_realloc(b->entries, b->nb_entries, sizeof(*b->entries));
+                if (!entries)
+                    return 0; // unable to realloc but entry got dropped, so this is OK
+                b->entries = entries;
+                fix_refs(hm, b, removed);
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
 {
     if (!hm->key_funcs.check(key))
@@ -212,41 +251,7 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
 
     /* Delete */
     if (!data) {
-        for (size_t i = 0; i < b->nb_entries; i++) {
-            struct hmap_entry *e = &b->entries[i];
-            if (!hm->key_funcs.cmp(e->key, key)) {
-
-                /* Link previous and next entries together */
-                struct hmap_entry *prev = entry_from_ref(hm, e->prev);
-                struct hmap_entry *next = entry_from_ref(hm, e->next);
-                struct hmap_ref *link_from_back  = prev ? &prev->next : &hm->first;
-                struct hmap_ref *link_from_front = next ? &next->prev : &hm->last;
-                *link_from_back = e->next;
-                *link_from_front = e->prev;
-
-                /* Keep a reference pre-remove for fixing the refs later */
-                const struct hmap_ref removed = ref_from_entry(hm, e);
-
-                hm->key_funcs.free(e->key);
-                if (hm->user_free_func)
-                    hm->user_free_func(hm->user_arg, e->data);
-                hm->count--;
-                b->nb_entries--;
-                if (!b->nb_entries) {
-                    ngli_freep(&b->entries);
-                } else {
-                    memmove(e, e + 1, (b->nb_entries - i) * sizeof(*b->entries));
-                    struct hmap_entry *entries =
-                        ngli_realloc(b->entries, b->nb_entries, sizeof(*b->entries));
-                    if (!entries)
-                        return 0; // unable to realloc but entry got dropped, so this is OK
-                    b->entries = entries;
-                    fix_refs(hm, b, removed);
-                }
-                return 1;
-            }
-        }
-        return 0;
+        return delete_entry(hm, key, b);
     }
 
     /* Replace */
