@@ -40,6 +40,7 @@ struct hmap_ref { /* internal entry reference */
 };
 
 union hmap_key {
+    void *ptr;
     char *str;
     uint64_t u64;
     uint8_t u8_8[8];
@@ -62,16 +63,20 @@ struct hmap_entry {
 };
 
 enum hmap_type {
+    NGLI_HMAP_TYPE_PTR,
     NGLI_HMAP_TYPE_STR,
     NGLI_HMAP_TYPE_U64,
     NGLI_HMAP_TYPE_NB
 };
 
 struct hmap *ngli_hmap_create(enum hmap_type type);
+struct hmap *ngli_hmap_create_ptr(const struct hmap_key_funcs *key_funcs);
 void ngli_hmap_set_free_func(struct hmap *hm, ngli_user_free_func_type user_free_func, void *user_arg);
 size_t ngli_hmap_count(const struct hmap *hm);
+int ngli_hmap_set_ptr(struct hmap *hm, const void *ptr, void *data);
 int ngli_hmap_set_str(struct hmap *hm, const char *str, void *data);
 int ngli_hmap_set_u64(struct hmap *hm, uint64_t u64, void *data);
+void *ngli_hmap_get_ptr(const struct hmap *hm, const void *ptr);
 void *ngli_hmap_get_str(const struct hmap *hm, const char *str);
 void *ngli_hmap_get_u64(const struct hmap *hm, uint64_t u64);
 struct hmap_entry *ngli_hmap_next(const struct hmap *hm, const struct hmap_entry *prev);

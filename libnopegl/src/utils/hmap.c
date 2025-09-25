@@ -78,7 +78,7 @@ static const struct hmap_key_funcs key_funcs_map[] = {
     [NGLI_HMAP_TYPE_U64] = {key_hash_u64, key_cmp_u64, key_dup_u64, key_check_u64, key_free_u64},
 };
 
-struct hmap *ngli_hmap_create(enum hmap_type type)
+static struct hmap *hmap_create(void)
 {
     struct hmap *hm = ngli_calloc(1, sizeof(*hm));
     if (!hm)
@@ -91,6 +91,20 @@ struct hmap *ngli_hmap_create(enum hmap_type type)
         return NULL;
     }
     hm->first = hm->last = NO_REF;
+    return hm;
+}
+
+struct hmap *ngli_hmap_create_ptr(const struct hmap_key_funcs *key_funcs)
+{
+    struct hmap *hm = hmap_create();
+    hm->type = NGLI_HMAP_TYPE_PTR;
+    hm->key_funcs = *key_funcs;
+    return hm;
+}
+
+struct hmap *ngli_hmap_create(enum hmap_type type)
+{
+    struct hmap *hm = hmap_create();
     hm->type = type;
     hm->key_funcs = key_funcs_map[type];
     return hm;
@@ -322,6 +336,13 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
     return 0;
 }
 
+int ngli_hmap_set_ptr(struct hmap *hm, const void *ptr, void *data)
+{
+    ngli_assert(hm->type == NGLI_HMAP_TYPE_PTR);
+    const union hmap_key key = {.ptr=(void *)ptr};
+    return hmap_set(hm, key, data);
+}
+
 int ngli_hmap_set_str(struct hmap *hm, const char *str, void *data)
 {
     ngli_assert(hm->type == NGLI_HMAP_TYPE_STR);
@@ -353,6 +374,13 @@ static void *hmap_get(const struct hmap *hm, union hmap_key key)
             return e->data;
     }
     return NULL;
+}
+
+void *ngli_hmap_get_ptr(const struct hmap *hm, const void *ptr)
+{
+    ngli_assert(hm->type == NGLI_HMAP_TYPE_PTR);
+    const union hmap_key key = {.ptr=(void *)ptr};
+    return hmap_get(hm, key);
 }
 
 void *ngli_hmap_get_str(const struct hmap *hm, const char *str)
