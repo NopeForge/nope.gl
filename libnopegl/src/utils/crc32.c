@@ -81,9 +81,9 @@ uint32_t ngli_crc32(const char *s)
     return ~crc;
 }
 
-uint32_t ngli_crc32_mem(const uint8_t *buf, size_t size)
+uint32_t ngli_crc32_mem(const uint8_t *buf, size_t size, uint32_t state)
 {
-    uint32_t crc = ~0U;
+    uint32_t crc = state;
     for (size_t i = 0; i < size; i++)
         crc = (crc >> 8) ^ crc_table[(crc & 0xff) ^ buf[i]];
     return ~crc;

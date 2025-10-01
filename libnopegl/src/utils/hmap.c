@@ -59,7 +59,7 @@ void ngli_hmap_set_free_func(struct hmap *hm, ngli_user_free_func_type user_free
 #define HAS_REF(ref) ((ref).bucket_id != SIZE_MAX)
 
 static uint32_t key_hash_str(union hmap_key x) { return ngli_crc32(x.str); }
-static uint32_t key_hash_u64(union hmap_key x) { return ngli_crc32_mem(x.u8_8, sizeof(x.u8_8)); }
+static uint32_t key_hash_u64(union hmap_key x) { return ngli_crc32_mem(x.u8_8, sizeof(x.u8_8), NGLI_CRC32_INIT); }
 
 static int key_cmp_str(union hmap_key a, union hmap_key b) { return strcmp(a.str, b.str); }
 static int key_cmp_u64(union hmap_key a, union hmap_key b) { return a.u64 != b.u64; }
