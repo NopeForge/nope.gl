@@ -565,7 +565,6 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
       glslang_libs = [
         {'name': 'glslang',                         'required': true},
         {'name': 'glslang-default-resource-limits', 'required': true},
-        {'name': 'SPVRemapper',                     'required': true},
         {'name': 'SPIRV-Tools-opt',                 'required': false},
         {'name': 'SPIRV-Tools',                     'required': false},
       ]
