@@ -913,6 +913,10 @@ test_progs = {
     'exe': 'test_hmap',
     'src': files('src/test_hmap.c', 'src/log.c') + utils_src,
   },
+  'Hash map - custom': {
+    'exe': 'test_hmap_custom',
+    'src': files('src/test_hmap_custom.c', 'src/log.c') + utils_src,
+  },
   'Noise': {
     'exe': 'test_noise',
     'src': files('src/test_noise.c', 'src/noise.c', 'src/log.c') + utils_src,
