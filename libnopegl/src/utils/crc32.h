@@ -26,7 +26,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define NGLI_CRC32_INIT (~0U)
+
 uint32_t ngli_crc32(const char *s);
-uint32_t ngli_crc32_mem(const uint8_t *s, size_t size);
+uint32_t ngli_crc32_mem(const uint8_t *s, size_t size, uint32_t state);
 
 #endif /* CRC32_H */

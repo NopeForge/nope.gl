@@ -106,7 +106,7 @@ int main(int ac, char **av)
         }
     }
 
-    uint32_t crc = ngli_crc32_mem(c.buf, buf_size * 4);
+    uint32_t crc = ngli_crc32_mem(c.buf, buf_size * 4, NGLI_CRC32_INIT);
     printf("CRC: 0x%08x\n", crc);
     ngli_assert(crc == 0x2a07363c);
 

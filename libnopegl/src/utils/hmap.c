@@ -35,14 +35,6 @@ struct bucket {
     size_t nb_entries;
 };
 
-struct key_funcs {
-    uint32_t (*hash)(union hmap_key x);             // mixing/hashing of a key
-    int (*cmp)(union hmap_key a, union hmap_key b); // compare 2 keys (0 if identical)
-    union hmap_key (*dup)(union hmap_key x);        // create a copy of the key
-    int (*check)(union hmap_key x);                 // check whether the key is valid or not
-    void (*free)(union hmap_key x);                 // free a key
-};
-
 struct hmap {
     struct bucket *buckets;
     size_t size;
@@ -53,7 +45,7 @@ struct hmap {
     struct hmap_ref first;
     struct hmap_ref last;
     enum hmap_type type;
-    struct key_funcs key_funcs;
+    struct hmap_key_funcs key_funcs;
 };
 
 void ngli_hmap_set_free_func(struct hmap *hm, ngli_user_free_func_type user_free_func, void *user_arg)
@@ -67,7 +59,7 @@ void ngli_hmap_set_free_func(struct hmap *hm, ngli_user_free_func_type user_free
 #define HAS_REF(ref) ((ref).bucket_id != SIZE_MAX)
 
 static uint32_t key_hash_str(union hmap_key x) { return ngli_crc32(x.str); }
-static uint32_t key_hash_u64(union hmap_key x) { return ngli_crc32_mem(x.u8_8, sizeof(x.u8_8)); }
+static uint32_t key_hash_u64(union hmap_key x) { return ngli_crc32_mem(x.u8_8, sizeof(x.u8_8), NGLI_CRC32_INIT); }
 
 static int key_cmp_str(union hmap_key a, union hmap_key b) { return strcmp(a.str, b.str); }
 static int key_cmp_u64(union hmap_key a, union hmap_key b) { return a.u64 != b.u64; }
@@ -81,12 +73,12 @@ static int key_check_u64(union hmap_key x) { return 1; }
 static void key_free_str(union hmap_key x) { ngli_free(x.str); }
 static void key_free_u64(union hmap_key x) { }
 
-static const struct key_funcs key_funcs_map[] = {
+static const struct hmap_key_funcs key_funcs_map[] = {
     [NGLI_HMAP_TYPE_STR] = {key_hash_str, key_cmp_str, key_dup_str, key_check_str, key_free_str},
     [NGLI_HMAP_TYPE_U64] = {key_hash_u64, key_cmp_u64, key_dup_u64, key_check_u64, key_free_u64},
 };
 
-struct hmap *ngli_hmap_create(enum hmap_type type)
+static struct hmap *hmap_create(void)
 {
     struct hmap *hm = ngli_calloc(1, sizeof(*hm));
     if (!hm)
@@ -99,6 +91,20 @@ struct hmap *ngli_hmap_create(enum hmap_type type)
         return NULL;
     }
     hm->first = hm->last = NO_REF;
+    return hm;
+}
+
+struct hmap *ngli_hmap_create_ptr(const struct hmap_key_funcs *key_funcs)
+{
+    struct hmap *hm = hmap_create();
+    hm->type = NGLI_HMAP_TYPE_PTR;
+    hm->key_funcs = *key_funcs;
+    return hm;
+}
+
+struct hmap *ngli_hmap_create(enum hmap_type type)
+{
+    struct hmap *hm = hmap_create();
     hm->type = type;
     hm->key_funcs = key_funcs_map[type];
     return hm;
@@ -201,6 +207,45 @@ static int add_entry(struct hmap *hm, struct bucket *b, union hmap_key key, void
     return 0;
 }
 
+static int delete_entry(struct hmap *hm, union hmap_key key, struct bucket *b)
+{
+    for (size_t i = 0; i < b->nb_entries; i++) {
+        struct hmap_entry *e = &b->entries[i];
+        if (!hm->key_funcs.cmp(e->key, key)) {
+
+            /* Link previous and next entries together */
+            struct hmap_entry *prev = entry_from_ref(hm, e->prev);
+            struct hmap_entry *next = entry_from_ref(hm, e->next);
+            struct hmap_ref *link_from_back  = prev ? &prev->next : &hm->first;
+            struct hmap_ref *link_from_front = next ? &next->prev : &hm->last;
+            *link_from_back = e->next;
+            *link_from_front = e->prev;
+
+            /* Keep a reference pre-remove for fixing the refs later */
+            const struct hmap_ref removed = ref_from_entry(hm, e);
+
+            hm->key_funcs.free(e->key);
+            if (hm->user_free_func)
+                hm->user_free_func(hm->user_arg, e->data);
+            hm->count--;
+            b->nb_entries--;
+            if (!b->nb_entries) {
+                ngli_freep(&b->entries);
+            } else {
+                memmove(e, e + 1, (b->nb_entries - i) * sizeof(*b->entries));
+                struct hmap_entry *entries =
+                    ngli_realloc(b->entries, b->nb_entries, sizeof(*b->entries));
+                if (!entries)
+                    return 0; // unable to realloc but entry got dropped, so this is OK
+                b->entries = entries;
+                fix_refs(hm, b, removed);
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
 {
     if (!hm->key_funcs.check(key))
@@ -212,41 +257,7 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
 
     /* Delete */
     if (!data) {
-        for (size_t i = 0; i < b->nb_entries; i++) {
-            struct hmap_entry *e = &b->entries[i];
-            if (!hm->key_funcs.cmp(e->key, key)) {
-
-                /* Link previous and next entries together */
-                struct hmap_entry *prev = entry_from_ref(hm, e->prev);
-                struct hmap_entry *next = entry_from_ref(hm, e->next);
-                struct hmap_ref *link_from_back  = prev ? &prev->next : &hm->first;
-                struct hmap_ref *link_from_front = next ? &next->prev : &hm->last;
-                *link_from_back = e->next;
-                *link_from_front = e->prev;
-
-                /* Keep a reference pre-remove for fixing the refs later */
-                const struct hmap_ref removed = ref_from_entry(hm, e);
-
-                hm->key_funcs.free(e->key);
-                if (hm->user_free_func)
-                    hm->user_free_func(hm->user_arg, e->data);
-                hm->count--;
-                b->nb_entries--;
-                if (!b->nb_entries) {
-                    ngli_freep(&b->entries);
-                } else {
-                    memmove(e, e + 1, (b->nb_entries - i) * sizeof(*b->entries));
-                    struct hmap_entry *entries =
-                        ngli_realloc(b->entries, b->nb_entries, sizeof(*b->entries));
-                    if (!entries)
-                        return 0; // unable to realloc but entry got dropped, so this is OK
-                    b->entries = entries;
-                    fix_refs(hm, b, removed);
-                }
-                return 1;
-            }
-        }
-        return 0;
+        return delete_entry(hm, key, b);
     }
 
     /* Replace */
@@ -264,16 +275,9 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
     if (hm->count * 3 / 4 >= hm->size) {
         struct hmap old_hm = *hm;
 
-#if HAVE_BUILTIN_OVERFLOW
         size_t new_size;
-        if (__builtin_mul_overflow(hm->size, 2, &new_size))
+        if (NGLI_CHK_MUL(&new_size, hm->size, 2))
             return NGL_ERROR_LIMIT_EXCEEDED;
-#else
-        /* Also includes the realloc overflow check */
-        if (hm->size >= 1ULL << (sizeof(hm->size)*8 - 2))
-            return NGL_ERROR_LIMIT_EXCEEDED;
-        size_t new_size = hm->size * 2;
-#endif
 
         struct bucket *new_buckets = ngli_calloc(new_size, sizeof(*new_buckets));
         if (new_buckets) {
@@ -332,6 +336,13 @@ static int hmap_set(struct hmap *hm, union hmap_key key, void *data)
     return 0;
 }
 
+int ngli_hmap_set_ptr(struct hmap *hm, const void *ptr, void *data)
+{
+    ngli_assert(hm->type == NGLI_HMAP_TYPE_PTR);
+    const union hmap_key key = {.ptr=(void *)ptr};
+    return hmap_set(hm, key, data);
+}
+
 int ngli_hmap_set_str(struct hmap *hm, const char *str, void *data)
 {
     ngli_assert(hm->type == NGLI_HMAP_TYPE_STR);
@@ -363,6 +374,13 @@ static void *hmap_get(const struct hmap *hm, union hmap_key key)
             return e->data;
     }
     return NULL;
+}
+
+void *ngli_hmap_get_ptr(const struct hmap *hm, const void *ptr)
+{
+    ngli_assert(hm->type == NGLI_HMAP_TYPE_PTR);
+    const union hmap_key key = {.ptr=(void *)ptr};
+    return hmap_get(hm, key);
 }
 
 void *ngli_hmap_get_str(const struct hmap *hm, const char *str)
