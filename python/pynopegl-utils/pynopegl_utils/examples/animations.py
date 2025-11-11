@@ -128,18 +128,19 @@ def _get_easing_node(cfg: ngl.SceneCfg, easing, curve_zoom, color_program, nb_po
 
 _easing_specs = (
     # fmt: off
-    ("linear",    0, 1.),
-    ("quadratic", 3, 1.),
-    ("cubic",     3, 1.),
-    ("quartic",   3, 1.),
-    ("quintic",   3, 1.),
-    ("power:7.3", 3, 1.),
-    ("sinus",     3, 1.),
-    ("exp",       3, 1.),
-    ("circular",  3, 1.),
-    ("bounce",    1, 1.),
-    ("elastic",   1, 0.5),
-    ("back",      3, 0.7),
+    ("linear",       0, 1.),
+    ("quadratic",    3, 1.),
+    ("cubic",        3, 1.),
+    ("quartic",      3, 1.),
+    ("quintic",      3, 1.),
+    ("power:7.3",    3, 1.),
+    ("sinus",        3, 1.),
+    ("exp",          3, 1.),
+    ("circular",     3, 1.),
+    ("bounce",       1, 1.),
+    ("elastic",      1, 0.5),
+    ("back",         3, 0.7),
+    ("bezier_cubic", 0, 1.),
     # fmt: on
 )
 

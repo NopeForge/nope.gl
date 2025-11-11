@@ -1,4 +1,6 @@
 /*
+ * Copyright 2024 Matthieu Bouron <matthieu.bouron@gmail.com>
+ * Copyright 2019 The Android Open Source Project
  * Copyright 2016-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 
 #include "internal.h"
 #include "log.h"
@@ -64,6 +67,7 @@ static const struct param_choices easing_choices = {
         {"back_out",         EASING_BACK_OUT,         .desc=NGLI_DOCSTRING("overstep target value and smoothly converge back to it")},
         {"back_in_out",      EASING_BACK_IN_OUT,      .desc=NGLI_DOCSTRING("combination of `back_in` then `back_out`")},
         {"back_out_in",      EASING_BACK_OUT_IN,      .desc=NGLI_DOCSTRING("combination of `back_out` then `back_in`")},
+        {"bezier_cubic",     EASING_BEZIER_CUBIC,     .desc=NGLI_DOCSTRING("cubic bezier curve")},
         {NULL}
     }
 };
@@ -319,6 +323,175 @@ static easing_type back_derivative(easing_type t, easing_type s)
 DECLARE_EASINGS(back,            , back_func(x, PARAM(0, 1.70158)), TRANSFORM)
 DECLARE_EASINGS(back, _derivative, back_derivative(x, PARAM(0, 1.70158)), DERIVATIVE)
 
+/* Cubic Bezier */
+
+static int double_close_to_zero(double value)
+{
+    return fabs(value) < FLT_EPSILON;
+}
+
+static float clamp_root(float r)
+{
+    const float s = NGLI_CLAMP(r, 0.f, 1.f);
+    return fabsf(s - r) > FLT_EPSILON ? NAN : s;
+}
+
+/*
+ * Fast cbrt adapted from the Android Compose library.
+ *
+ * See: https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui-util/src/commonMain/kotlin/androidx/compose/ui/util/MathHelpers.kt;l=160
+ */
+static float fast_cbrt(float x)
+{
+    union { float f32; uint32_t u32; } v = { .f32 = x };
+    v.u32 = v.u32 & 0x1ffffffffL;
+    v.u32 = 0x2a510554 + (v.u32 / 3);
+
+    float estimate = v.f32;
+    estimate -= (estimate - x / (estimate * estimate)) * (1.0f / 3.0f);
+    estimate -= (estimate - x / (estimate * estimate)) * (1.0f / 3.0f);
+    return estimate;
+}
+
+/*
+ * Find the first cubic root using Cardano's algorithm.
+ *
+ * See: https://pomax.github.io/bezierinfo/#yforx
+ */
+static float find_first_cubic_root(float p0, float p1, float p2, float p3)
+{
+    double a = 3.0 * (p0 - 2.0 * p1 + p2);
+    double b = 3.0 * (p1 - p0);
+    double c = p0;
+    double d = -p0 + 3.0 * (p1 - p2) + p3;
+
+    if (double_close_to_zero(d)) {
+        if (double_close_to_zero(a)) {
+            if (double_close_to_zero(b)) {
+                return NAN;
+            }
+            return clamp_root((float) (-c / b));
+        } else {
+            double q = sqrt(b * b - 4.0 * a * c);
+            double a2 = 2.0 * a;
+
+            float root = clamp_root(((float) ((q - b) / a2)));
+            if (!isnan(root))
+                return root;
+
+            return clamp_root(((float) ((-b - q) / a2)));
+        }
+    }
+
+    a /= d;
+    b /= d;
+    c /= d;
+
+    double o3 = (3.0 * b - a * a) / 9.0;
+    double q2 = (2.0 * a * a * a - 9.0 * a * b + 27.0 * c) / 54.0;
+    double discriminant = q2 * q2 + o3 * o3 * o3;
+    double a3 = a / 3.0;
+
+    // Three possible real roots
+    if (discriminant < 0.0) {
+        double mp33 = -(o3 * o3 * o3);
+        double r = sqrt(mp33);
+        double t = -q2 / r;
+        double cos_phi = NGLI_CLAMP(t, -1.0, 1.0);
+        double phi = acos(cos_phi);
+        double t1 = 2.0 * fast_cbrt((float)r);
+
+        float root = clamp_root((float)(t1 * cos(phi / 3.0) - a3));
+        if (!isnan(root))
+            return root;
+
+        root = clamp_root((float)(t1 * cos((phi + TAU_F64) / 3.0) - a3));
+        if (!isnan(root))
+            return root;
+
+        return clamp_root((float)(t1 * cos((phi + 2.0 * TAU_F64) / 3.0) - a3));
+    }
+
+    // Three real roots, but two of them are equal
+    if (discriminant == 0.0) {
+        float u1 = -fast_cbrt((float)q2);
+
+        float root = clamp_root((float)(2.0 * u1 - a3));
+        if (!isnan(root))
+            return root;
+
+        return clamp_root((float)(-u1 - a3));
+    }
+
+    // One real root, two complex roots
+    double sd = sqrt(discriminant);
+    double u1 = fast_cbrt((float)(-q2 + sd));
+    double v1 = fast_cbrt((float)(q2 + sd));
+
+    return clamp_root((float)(u1 - v1 - a3));
+}
+
+static double evaluate_cubic(double p1, double p2, double t)
+{
+    double a = 1.0 / 3.0 + (p1 - p2);
+    double b = (p2 - 2.0 * p1);
+    double c = p1;
+    return 3.0 * ((a * t + b) * t + c) * t;
+}
+
+static easing_type bezier_cubic(easing_type t, size_t args_nb, const easing_type *args)
+{
+    if (t < 0.f || t > 1.f)
+        return t;
+
+    const easing_type a = PARAM(0, 0.0);
+    const easing_type b = PARAM(1, 0.0);
+    const easing_type c = PARAM(2, 1.0);
+    const easing_type d = PARAM(3, 1.0);
+
+    const easing_type v = NGLI_MAX(t, FLT_EPSILON);
+    const float p0 = (float)(0.0 - v);
+    const float p1 = (float)(  a - v);
+    const float p2 = (float)(  c - v);
+    const float p3 = (float)(1.0 - v);
+
+    easing_type r = find_first_cubic_root(p0, p1, p2, p3);
+    if (isnan(r)) {
+        /* No root found */
+        return 0.0;
+    }
+
+    return evaluate_cubic(b, d, r);
+}
+
+static easing_type bezier_cubic_derivative(easing_type t, size_t args_nb, const easing_type *args)
+{
+    if (t < 0.f || t > 1.f)
+        return 1.0;
+
+    const easing_type a = PARAM(0, 0.0);
+    const easing_type b = PARAM(1, 0.0);
+    const easing_type c = PARAM(2, 1.0);
+    const easing_type d = PARAM(3, 1.0);
+
+    const double da = 3.0 * (b - a);
+    const double db = 3.0 * (c - b);
+    const double dc = 3.0 * (d - c);
+
+    const easing_type v = NGLI_MAX(t, FLT_EPSILON);
+    const float dp0 = (float)(0.0 - v);
+    const float dp1 = (float)( da - v);
+    const float dp2 = (float)( dc - v);
+
+    easing_type r = find_first_cubic_root(dp0, dp1, dp2, 0.f);
+    if (isnan(r)) {
+        /* No root found */
+        return 1.0;
+    }
+
+    return evaluate_cubic(db, 0.0, r);
+}
+
 static const struct {
     easing_function function;
     easing_function derivative;
@@ -365,6 +538,7 @@ static const struct {
     [EASING_BACK_OUT]         = {back_out,               back_out_derivative,           NULL},
     [EASING_BACK_IN_OUT]      = {back_in_out,            back_in_out_derivative,        NULL},
     [EASING_BACK_OUT_IN]      = {back_out_in,            back_out_in_derivative,        NULL},
+    [EASING_BEZIER_CUBIC]     = {bezier_cubic,           bezier_cubic_derivative,       NULL},
 };
 
 static int check_offsets(double x0, double x1)
